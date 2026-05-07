@@ -1,0 +1,158 @@
+package com.thgiang.image.app.navigation
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.thgiang.image.core.ad.AppOpenAdManager
+import com.thgiang.image.core.ad.InterstitialAdManager
+import com.thgiang.image.core.ad.RewardedAdManager
+import com.thgiang.image.core.domain.settings.UserPreferencesRepository
+import com.thgiang.image.feature.premium.domain.PremiumRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+sealed class BatchAdState {
+    data object Idle : BatchAdState()
+    data object Loading : BatchAdState()
+    data object Ready : BatchAdState()
+    data object Watched : BatchAdState()
+    data class Error(val message: String) : BatchAdState()
+}
+
+data class AppUiState(
+    val isDarkMode: Boolean = false,
+    val selectedLanguage: String = "system",
+    val isPremium: Boolean = false,
+    val preferredRemovalQuality: String = "standard",
+    val batchUris: List<android.net.Uri> = emptyList()
+)
+
+@HiltViewModel
+class AppViewModel @Inject constructor(
+    private val preferencesRepository: UserPreferencesRepository,
+    private val premiumRepository: PremiumRepository,
+    private val interstitialAdManager: InterstitialAdManager,
+    private val appOpenAdManager: AppOpenAdManager,
+    private val rewardedAdManager: RewardedAdManager
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(AppUiState())
+    val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
+    private val _selectedLanguage = MutableStateFlow("system")
+    val selectedLanguage: StateFlow<String> = _selectedLanguage.asStateFlow()
+
+    private val _batchAdState = MutableStateFlow<BatchAdState>(BatchAdState.Idle)
+    val batchAdState: StateFlow<BatchAdState> = _batchAdState.asStateFlow()
+
+    private val _batchAdWatchCount = MutableStateFlow(0)
+    val batchAdWatchCount: StateFlow<Int> = _batchAdWatchCount.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            preferencesRepository.preferences.collectLatest { prefs ->
+                _uiState.value = _uiState.value.copy(
+                    isDarkMode = prefs.isDarkMode,
+                    selectedLanguage = prefs.selectedLanguage,
+                    preferredRemovalQuality = prefs.preferredRemovalQuality
+                )
+                _selectedLanguage.value = prefs.selectedLanguage
+            }
+        }
+        viewModelScope.launch {
+            premiumRepository.isPremium.collect { isPremium ->
+                _uiState.value = _uiState.value.copy(isPremium = isPremium)
+                interstitialAdManager.isPremiumUser = isPremium
+                appOpenAdManager.isPremiumUser = isPremium
+            }
+        }
+        // Pre-load rewarded ad for batch flow
+        preloadRewardedAd()
+    }
+
+    private fun preloadRewardedAd() {
+        loadAdWithTimeout()
+    }
+
+    @JvmName("setDarkModeEnabled")
+    fun setDarkMode(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setDarkMode(enabled)
+        }
+    }
+
+    fun setLanguage(languageCode: String) {
+        viewModelScope.launch {
+            preferencesRepository.setLanguage(languageCode)
+        }
+    }
+
+    fun setPreferredRemovalQuality(quality: String) {
+        viewModelScope.launch {
+            preferencesRepository.setPreferredRemovalQuality(quality)
+        }
+        _uiState.value = _uiState.value.copy(preferredRemovalQuality = quality)
+    }
+
+    fun setBatchUris(uris: List<android.net.Uri>) {
+        _uiState.value = _uiState.value.copy(batchUris = uris)
+    }
+
+    fun requestBatchAccess() {
+        _batchAdWatchCount.value = 0
+        when (_batchAdState.value) {
+            is BatchAdState.Ready, is BatchAdState.Loading -> { }
+            else -> loadAdWithTimeout()
+        }
+    }
+
+    private fun loadAdWithTimeout() {
+        _batchAdState.value = BatchAdState.Loading
+        rewardedAdManager.loadAd(
+            onLoaded = { _batchAdState.value = BatchAdState.Ready },
+            onFailed = { _batchAdState.value = BatchAdState.Error(it) }
+        )
+        viewModelScope.launch {
+            delay(10_000L)
+            if (_batchAdState.value is BatchAdState.Loading) {
+                _batchAdState.value = BatchAdState.Error("timeout")
+            }
+        }
+    }
+
+    fun watchAdForBatch(activity: android.app.Activity, onAllWatched: () -> Unit) {
+        rewardedAdManager.showAd(
+            activity = activity,
+            onRewardReceived = {
+                val newCount = _batchAdWatchCount.value + 1
+                _batchAdWatchCount.value = newCount
+                _batchAdState.value = BatchAdState.Watched
+            },
+            onAdClosed = {
+                if (_batchAdWatchCount.value >= 1) {
+                    onAllWatched()
+                    _batchAdWatchCount.value = 0
+                    _batchAdState.value = BatchAdState.Idle
+                } else {
+                    loadAdWithTimeout()
+                }
+            },
+            onFailedToShow = {
+                _batchAdState.value = BatchAdState.Error(it)
+            }
+        )
+    }
+
+    fun resetBatchAdState() {
+        _batchAdState.value = BatchAdState.Idle
+        _batchAdWatchCount.value = 0
+    }
+
+    fun isAdDismissedRecently(): Boolean {
+        return appOpenAdManager.wasAdDismissedRecently()
+    }
+}

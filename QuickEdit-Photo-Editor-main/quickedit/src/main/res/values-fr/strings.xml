@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">QuickEdit</string>
+    <string name="app_name_full">QuickEdit - Éditeur photo</string>
+    <string name="color">Couleur</string>
+    <string name="format">Format</string>
+    <string name="font">Police</string>
+    <string name="brush">Pinceau</string>
+    <string name="pan">Pan</string>
+    <string name="zoom">Zoom</string>
+    <string name="shape">Forme</string>
+    <string name="eraser">Gomme</string>
+    <string name="crop">Recadrer</string>
+    <string name="draw">Dessiner</string>
+    <string name="text">Texte</string>
+    <string name="effects">Effets</string>
+    <string name="width">Largeur</string>
+    <string name="opacity">Opacité</string>
+    <string name="done">Terminé</string>
+    <string name="something_went_wrong">Un problème est survenu</string>
+    <string name="enter_your_text">Entrez votre texte</string>
+    <string name="pick_image">Choisir une image</string>
+    <string name="capture_image">Prendre une photo</string>
+    <string name="saving_image">Enregistrement...</string>
+    <string name="image_saved_successfully">Image enregistrée</string>
+    <string name="failed_to_save_image">Échec de l\'enregistrement</string>
+    <string name="permission_required">Autorisation requise</string>
+    <string name="grant_permission">Accorder</string>
+    <string name="okay">OK</string>
+    <string name="storage_permission_rationale">L\'app a besoin d\'accéder au stockage.</string>
+    <string name="storage_permission_permanently_declined">Autorisation refusée, ouvrez les paramètres.</string>
+    <string name="following_permissions_are_required">Autorisations requises :
+</string>
+    <string name="perm_item_storage">- Stockage
+</string>
+    <string name="app_not_found">App introuvable</string>
+    <string name="fail_to_insert_uri_in_content_resolver">Erreur URI</string>
+    <string name="enter_aspect_ratio">Entrer le ratio</string>
+    <string name="x">X</string>
+    <string name="y">Y</string>
+    <string name="select">Sélectionner</string>
+    <string name="not_a_valid_number">Nombre invalide</string>
+    <string name="fields_cannot_be_empty">Champs requis</string>
+    <string name="ratio_lesser_than_minimum">Ratio trop petit</string>
+    <string name="ratio_greater_than_minimum">Ratio trop grand</string>
+    <string name="border">Bordure</string>
+    <string name="studio">Studio</string>
+    <string name="blur">Flou</string>
+    <string name="portrait">Portrait</string>
+    <string name="clean">Nettoyer</string>
+    <string name="darken">Assombrir</string>
+    <string name="remove_bg">Supprimer fond</string>
+    <string name="studio_intensity">Intensité</string>
+    <string name="background">Fond</string>
+    <string name="gradient">Dégradé</string>
+    <string name="remove_bg_warning">Supprimez le fond d\'abord</string>
+    <string name="back">Retour</string>
+    <string name="original">Original</string>
+    <string name="save_draft">Sauver brouillon</string>
+    <string name="failed_to_apply_effect">Erreur d\'effet</string>
+    <string name="failed_to_apply_background">Erreur de fond</string>
+    <string name="aspect_ratio_equals">Ratio = %1$s</string>
+    <string name="min_allowed_aspect_ratio">Ratio min = %1$.2f</string>
+    <string name="max_allowed_aspect_ratio">Ratio max = %1$.2f</string>
+    <string name="invalid">Invalide</string>
+    <string name="app_logo">Logo de l\'app</string>
+</resources>

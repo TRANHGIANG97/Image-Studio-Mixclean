@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/tab_alarm"
+        android:icon="@drawable/ic_magic_24"
+        android:title="Home"
+        android:enabled="true" />
+    <item
+        android:id="@+id/tab_bed"
+        android:icon="@drawable/ic_crop_24"
+        android:title="Batch"
+        android:enabled="true" />
+
+    <item
+        android:id="@+id/tab_hourglass"
+        android:icon="@drawable/ic_border_24"
+        android:title="Setting"
+        android:enabled="true" />
+</menu>
+

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Image editor — aligned with ImageDesign dark palette -->
+    <color name="editor_canvas">#FF040915</color>
+    <color name="editor_surface">#FF111827</color>
+    <color name="editor_surface_elevated">#FF1F2937</color>
+    <color name="editor_accent">#FF22D3EE</color>
+    <color name="editor_on_accent">#FF0B0F19</color>
+    <color name="editor_on_surface">#FFF9FAFB</color>
+    <color name="editor_on_surface_muted">#B3E5E7EF</color>
+    <color name="editor_outline">#33E5E7EF</color>
+    <color name="editor_panel_scrim">#F0111827</color>
+    <!-- Bottom navigation colors -->
+    <!-- Default (light mode) -->
+    <color name="bottom_nav_background">#FFFFFCF8</color>
+    <color name="bottom_nav_accent">#FF1E1A16</color>
+    <color name="bottom_nav_icon_inactive">#FF6A6156</color>
+    <color name="bottom_nav_icon_active">#FF1E1A16</color>
+    <!-- Dark mode variants -->
+    <color name="bottom_nav_background_light">#FFFFFCF8</color>
+    <color name="bottom_nav_background_dark">#FF0E1524</color>
+    <color name="bottom_nav_accent_light">#FF1E1A16</color>
+    <color name="bottom_nav_accent_dark">#FF44E8FF</color>
+    <color name="bottom_nav_icon_inactive_light">#FF6A6156</color>
+    <color name="bottom_nav_icon_inactive_dark">#FF9FB1CC</color>
+    <color name="bottom_nav_icon_active_light">#FF1E1A16</color>
+    <color name="bottom_nav_icon_active_dark">#FF44E8FF</color>
+</resources>
