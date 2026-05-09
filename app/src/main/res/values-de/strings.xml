@@ -69,12 +69,9 @@
     <string name="action_edit">Bild bearbeiten</string>
     <string name="action_close">Schließen</string>
     <string name="crop_apply">Anwenden</string>
-    <string name="tool_magic">Magie</string>
     <string name="tool_border">Rahmen</string>
     <string name="border_color">Rahmenfarbe</string>
     <string name="border_thickness">Dicke</string>
-    <string name="magic_offset">Versatz</string>
-    <string name="magic_size">Größe</string>
     <string name="edit_image_failed">Editor konnte nicht geöffnet werden. Bitte erneut versuchen.</string>
     <string name="editor_add_text_title">Text hinzufügen</string>
     <string name="editor_add_text_hint">Text eingeben</string>

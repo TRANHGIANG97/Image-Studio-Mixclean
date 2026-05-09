@@ -74,6 +74,7 @@ fun EditorScreen(
     goToStudioModeScreen: (finalEditorState: EditorScreenState) -> Unit,
     goToBackgroundModeScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToRemoveBgScreen: (finalEditorState: EditorScreenState) -> Unit = { },
+    goToMagicBrushScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToMainScreen: () -> Unit,
     isPremium: Boolean = false,
     onSaveDraftClicked: (Bitmap) -> Unit = {}
@@ -122,6 +123,9 @@ fun EditorScreen(
                     }
                     BottomToolbarItem.RemoveBg -> {
                         goToRemoveBgScreen(state)
+                    }
+                    BottomToolbarItem.MagicBrush -> {
+                        goToMagicBrushScreen(state)
                     }
                     BottomToolbarItem.BackgroundMode -> {
                         goToBackgroundModeScreen(state)

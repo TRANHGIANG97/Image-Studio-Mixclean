@@ -69,12 +69,9 @@
     <string name="action_edit">Edit gambar</string>
     <string name="action_close">Tutup</string>
     <string name="crop_apply">Terapkan</string>
-    <string name="tool_magic">Ajaib</string>
     <string name="tool_border">Bingkai</string>
     <string name="border_color">Warna bingkai</string>
     <string name="border_thickness">Ketebalan</string>
-    <string name="magic_offset">Offset</string>
-    <string name="magic_size">Ukuran</string>
     <string name="edit_image_failed">Tidak dapat membuka editor. Coba lagi.</string>
     <string name="editor_add_text_title">Tambah teks</string>
     <string name="editor_add_text_hint">Masukkan teks</string>

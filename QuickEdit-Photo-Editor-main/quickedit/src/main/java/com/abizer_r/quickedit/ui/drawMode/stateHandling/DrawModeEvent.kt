@@ -10,5 +10,5 @@ sealed class DrawModeEvent {
     data class UpdateToolbarExtensionVisibility(val isVisible: Boolean): DrawModeEvent()
     object OnUndo: DrawModeEvent()
     object OnRedo: DrawModeEvent()
-    data class PerformMagicErase(val offset: Offset): DrawModeEvent()
+
 }

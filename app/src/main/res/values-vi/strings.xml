@@ -69,12 +69,11 @@
     <string name="action_edit">Chỉnh sửa</string>
     <string name="action_close">Đóng</string>
     <string name="crop_apply">Áp dụng</string>
-    <string name="tool_magic">Xoá thông minh</string>
+
     <string name="tool_border">Viền</string>
     <string name="border_color">Màu viền</string>
     <string name="border_thickness">Độ dày</string>
-    <string name="magic_offset">Độ lệch</string>
-    <string name="magic_size">Kích thước</string>
+
     <string name="edit_image_failed">Không mở được trình sửa. Vui lòng thử lại.</string>
     <string name="editor_add_text_title">Thêm chữ</string>
     <string name="editor_add_text_hint">Nhập nội dung</string>

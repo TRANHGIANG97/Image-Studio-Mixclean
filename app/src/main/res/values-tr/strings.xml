@@ -69,12 +69,9 @@
     <string name="action_edit">Resmi düzenle</string>
     <string name="action_close">Kapat</string>
     <string name="crop_apply">Uygula</string>
-    <string name="tool_magic">Sihir</string>
     <string name="tool_border">Kenarlık</string>
     <string name="border_color">Kenarlık rengi</string>
     <string name="border_thickness">Kalınlık</string>
-    <string name="magic_offset">Ofset</string>
-    <string name="magic_size">Boyut</string>
     <string name="edit_image_failed">Editör açılamadı. Lütfen tekrar deneyin.</string>
     <string name="editor_add_text_title">Metin ekle</string>
     <string name="editor_add_text_hint">Metin girin</string>

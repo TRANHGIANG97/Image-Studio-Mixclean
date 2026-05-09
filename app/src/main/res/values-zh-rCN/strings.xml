@@ -69,12 +69,9 @@
     <string name="action_edit">编辑图片</string>
     <string name="action_close">关闭</string>
     <string name="crop_apply">应用</string>
-    <string name="tool_magic">魔法</string>
     <string name="tool_border">边框</string>
     <string name="border_color">边框颜色</string>
     <string name="border_thickness">粗细</string>
-    <string name="magic_offset">偏移</string>
-    <string name="magic_size">大小</string>
     <string name="edit_image_failed">无法打开编辑器，请重试。</string>
     <string name="editor_add_text_title">添加文字</string>
     <string name="editor_add_text_hint">输入文字</string>

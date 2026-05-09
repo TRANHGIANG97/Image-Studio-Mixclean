@@ -172,6 +172,10 @@ fun ToolbarItem(
             Icons.Outlined.Person,
             stringResource(id = R.string.remove_bg)
         )
+        is BottomToolbarItem.MagicBrush -> Pair(
+            Icons.Outlined.Brush,
+            stringResource(id = R.string.brush)
+        )
         is BottomToolbarItem.BackgroundMode -> Pair(
             Icons.Outlined.Collections,
             stringResource(id = R.string.background)
@@ -182,10 +186,7 @@ fun ToolbarItem(
             "Manual"
         )
 
-        is BottomToolbarItem.SmartMagicTool -> Pair(
-            Icons.Default.AutoFixHigh,
-            "Magic"
-        )
+
 
 
         is BottomToolbarItem.ShapeTool -> Pair(

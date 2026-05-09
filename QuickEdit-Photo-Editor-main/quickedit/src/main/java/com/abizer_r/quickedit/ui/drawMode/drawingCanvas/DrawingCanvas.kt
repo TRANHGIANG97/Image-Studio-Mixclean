@@ -73,15 +73,7 @@ fun DrawingCanvas(
             isTouching = motionEvent.action != MotionEvent.ACTION_UP && motionEvent.action != MotionEvent.ACTION_CANCEL
 
             when (currentTool) {
-                is BottomToolbarItem.SmartMagicTool -> {
-                    handleMagicTouch(
-                        event = motionEvent,
-                        scale = scale,
-                        tipOffsetX = tipOffsetX,
-                        tipOffsetY = tipOffsetY,
-                        onDrawingEvent = onDrawingEvent
-                    )
-                }
+
                 else -> {
                     handleManualTouch(
                         event = motionEvent,
@@ -141,19 +133,7 @@ private fun handleManualTouch(
     }
 }
 
-private fun handleMagicTouch(
-    event: MotionEvent,
-    scale: Float,
-    tipOffsetX: Float,
-    tipOffsetY: Float,
-    onDrawingEvent: (DrawModeEvent) -> Unit
-) {
-    if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_MOVE) {
-        val adjX = (event.x + tipOffsetX) / scale
-        val adjY = (event.y + tipOffsetY) / scale
-        onDrawingEvent(DrawModeEvent.PerformMagicErase(Offset(adjX, adjY)))
-    }
-}
+
 
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawManualLayer(
     pathDetailStack: Stack<PathDetails>,

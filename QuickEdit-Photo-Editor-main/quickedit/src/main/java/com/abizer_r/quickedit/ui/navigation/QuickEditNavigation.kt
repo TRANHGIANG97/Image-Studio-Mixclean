@@ -1,5 +1,13 @@
 package com.abizer_r.quickedit.ui.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.animation.EnterTransition
@@ -32,6 +40,7 @@ import com.abizer_r.quickedit.ui.borderMode.BorderModeScreen
 import com.abizer_r.quickedit.ui.mainScreen.MainScreen
 import com.abizer_r.quickedit.ui.studioMode.StudioModeScreen
 import com.abizer_r.quickedit.ui.textMode.TextModeScreen
+import com.abizer_r.quickedit.ui.magicBrush.MagicBrushScreen
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
 import com.abizer_r.quickedit.utils.other.anim.enterTransition
 import com.abizer_r.quickedit.utils.other.anim.exitTransition
@@ -87,6 +96,12 @@ fun QuickEditNavigation(
         sharedEditorViewModel.updateStacksFromEditorState(finalEditorState)
         navController.navigate(NavDestinations.STUDIO_MODE_SCREEN)
     }}
+    val goToMagicBrushScreenLambda = remember<(EditorScreenState) -> Unit> {{ finalEditorState ->
+        sharedEditorViewModel.updateStacksFromEditorState(finalEditorState)
+        navController.navigate(NavDestinations.MAGIC_BRUSH_SCREEN)
+    }}
+
+
     val goToMainScreenLambda = remember<() -> Unit> {{
         sharedEditorViewModel.resetStacks()
         sharedEditorViewModel.useTransition = true
@@ -166,6 +181,7 @@ fun QuickEditNavigation(
                     sharedEditorViewModel.updateStacksFromEditorState(finalEditorState)
                     navController.navigate(NavDestinations.BACKGROUND_MODE_SCREEN)
                 },
+                goToMagicBrushScreen = goToMagicBrushScreenLambda,
                 goToMainScreen = goToMainScreenLambda
             )
 
@@ -205,6 +221,22 @@ fun QuickEditNavigation(
                 },
                 {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = NavDestinations.MAGIC_BRUSH_SCREEN) {
+            val context = androidx.compose.ui.platform.LocalContext.current
+            MagicBrushScreen(
+                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                onBackPressed = { navController.navigateUp() },
+                onDoneClicked = { resultBitmap: Bitmap ->
+                    sharedEditorViewModel.addBitmapToStack(
+                        bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
+                    )
+                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                    }
                 }
             )
         }
@@ -256,5 +288,7 @@ fun QuickEditNavigation(
                 onDoneClicked = onDoneClickedLambda,
             )
         }
+
+
     }
 }

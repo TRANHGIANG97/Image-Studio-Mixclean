@@ -103,7 +103,13 @@
       "Bash(wsl.exe *)",
       "Bash(curl -sL \"https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz\" -o /tmp/patchelf.tar.gz)",
       "Bash(tar -xzf /tmp/patchelf.tar.gz -C /tmp/)",
-      "Bash(tar *)"
+      "Bash(tar *)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(mkdir \"C:\\\\Users\\\\Toshiba\\\\desktop\\\\imageProduction-main\\\\QuickEdit-Photo-Editor-main\\\\quickedit\\\\src\\\\main\\\\java\\\\com\\\\abizer_r\\\\quickedit\\\\ui\\\\magicMode\")",
+      "Bash(./gradlew :QuickEdit-Photo-Editor-main:quickedit:compileDebugKotlin)",
+      "Bash(./gradlew :core-util:compileDebugKotlin :quickedit:compileDebugKotlin)",
+      "Bash(./gradlew --stop)",
+      "Bash(./gradlew :core-util:compileDebugKotlin :quickedit:compileDebugKotlin --rerun-tasks)"
     ]
   }
 }

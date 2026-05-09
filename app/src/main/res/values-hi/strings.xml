@@ -69,12 +69,9 @@
     <string name="action_edit">इमेज संपादित करें</string>
     <string name="action_close">बंद करें</string>
     <string name="crop_apply">लागू करें</string>
-    <string name="tool_magic">मैजिक</string>
     <string name="tool_border">बॉर्डर</string>
     <string name="border_color">बॉर्डर रंग</string>
     <string name="border_thickness">मोटाई</string>
-    <string name="magic_offset">ऑफ़सेट</string>
-    <string name="magic_size">आकार</string>
     <string name="edit_image_failed">संपादक नहीं खुल सका। फिर कोशिश करें।</string>
     <string name="editor_add_text_title">टेक्स्ट जोड़ें</string>
     <string name="editor_add_text_hint">टेक्स्ट लिखें</string>

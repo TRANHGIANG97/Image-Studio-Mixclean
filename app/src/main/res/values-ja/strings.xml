@@ -69,12 +69,9 @@
     <string name="action_edit">画像を編集</string>
     <string name="action_close">閉じる</string>
     <string name="crop_apply">適用</string>
-    <string name="tool_magic">マジック</string>
     <string name="tool_border">枠</string>
     <string name="border_color">枠の色</string>
     <string name="border_thickness">太さ</string>
-    <string name="magic_offset">オフセット</string>
-    <string name="magic_size">サイズ</string>
     <string name="edit_image_failed">エディタを開けませんでした。もう一度お試しください。</string>
     <string name="editor_add_text_title">テキストを追加</string>
     <string name="editor_add_text_hint">テキストを入力</string>

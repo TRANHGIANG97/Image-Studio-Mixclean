@@ -69,12 +69,9 @@
     <string name="action_edit">تحرير الصورة</string>
     <string name="action_close">إغلاق</string>
     <string name="crop_apply">تطبيق</string>
-    <string name="tool_magic">سحر</string>
     <string name="tool_border">إطار</string>
     <string name="border_color">لون الإطار</string>
     <string name="border_thickness">السُمك</string>
-    <string name="magic_offset">إزاحة</string>
-    <string name="magic_size">الحجم</string>
     <string name="edit_image_failed">تعذّر فتح المحرر. حاول مرة أخرى.</string>
     <string name="editor_add_text_title">إضافة نص</string>
     <string name="editor_add_text_hint">أدخل النص</string>

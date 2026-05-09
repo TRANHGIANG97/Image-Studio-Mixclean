@@ -35,10 +35,7 @@ object DrawModeUtils {
             BottomToolbarItem.EraserTool(
                 width = DrawingConstants.DEFAULT_STROKE_WIDTH
             ),
-            BottomToolbarItem.SmartMagicTool(
-                width = DrawingConstants.DEFAULT_STROKE_WIDTH,
-                tolerance = 20f
-            ),
+
         )
     }
 
@@ -95,7 +92,7 @@ fun BottomToolbarItem.getShape(
         }
 
         else -> {
-            val isEraser = toolbarItem is BottomToolbarItem.EraserTool || toolbarItem is BottomToolbarItem.SmartMagicTool
+            val isEraser = toolbarItem is BottomToolbarItem.EraserTool
             val width = when (toolbarItem) {
                 is BottomToolbarItem.EraserTool -> toolbarItem.width
                 else -> DrawingConstants.DEFAULT_STROKE_WIDTH
@@ -113,7 +110,7 @@ fun BottomToolbarItem.getWidthOrNull(): Float? {
         is BottomToolbarItem.BrushTool -> this.width
         is BottomToolbarItem.EraserTool -> this.width
         is BottomToolbarItem.ShapeTool -> this.width
-        is BottomToolbarItem.SmartMagicTool -> this.width
+
         else -> null
     }
 }
@@ -123,7 +120,7 @@ fun BottomToolbarItem.setWidthIfPossible(mWidth: Float): BottomToolbarItem {
         is BottomToolbarItem.BrushTool -> this.width = mWidth
         is BottomToolbarItem.EraserTool -> this.width = mWidth
         is BottomToolbarItem.ShapeTool -> this.width = mWidth
-        is BottomToolbarItem.SmartMagicTool -> this.width = mWidth
+
         else -> {}
     }
     return this
@@ -148,14 +145,14 @@ fun BottomToolbarItem.setOpacityIfPossible(mOpacity: Float): BottomToolbarItem {
 
 fun BottomToolbarItem.getToleranceOrNull(): Float? {
     return when (this) {
-        is BottomToolbarItem.SmartMagicTool -> this.tolerance
+
         else -> null
     }
 }
 
 fun BottomToolbarItem.setToleranceIfPossible(mTolerance: Float): BottomToolbarItem {
     when (this) {
-        is BottomToolbarItem.SmartMagicTool -> this.tolerance = mTolerance
+
         else -> {}
     }
     return this

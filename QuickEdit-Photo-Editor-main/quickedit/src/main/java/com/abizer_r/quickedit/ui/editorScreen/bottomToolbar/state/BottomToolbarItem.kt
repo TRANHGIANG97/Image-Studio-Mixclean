@@ -17,6 +17,7 @@ sealed class BottomToolbarItem {
     object BorderMode : BottomToolbarItem()
     object StudioMode : BottomToolbarItem()
     object RemoveBg : BottomToolbarItem()
+    object MagicBrush : BottomToolbarItem()
     object BackgroundMode : BottomToolbarItem()
     // ---------- EditorScreen Items - End
 
@@ -29,7 +30,7 @@ sealed class BottomToolbarItem {
         BottomToolbarItem()
 
     class EraserTool(var width: Float) : BottomToolbarItem()
-    class SmartMagicTool(var width: Float, var tolerance: Float) : BottomToolbarItem()
+
     // ---------- DrawModeScreen Items - End
 
 

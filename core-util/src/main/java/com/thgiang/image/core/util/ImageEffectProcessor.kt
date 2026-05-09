@@ -471,6 +471,19 @@ object ImageEffectProcessor {
         return out
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     private fun logOom(e: Throwable) {
         if (e is OutOfMemoryError) {
             Log.e(TAG, "OutOfMemoryError in image processing", e)

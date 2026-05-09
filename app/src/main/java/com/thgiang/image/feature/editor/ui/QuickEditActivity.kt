@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,10 +46,11 @@ import com.abizer_r.quickedit.ui.textMode.TextModeScreen
 import com.abizer_r.quickedit.ui.borderMode.BorderModeScreen
 import com.abizer_r.quickedit.ui.studioMode.StudioModeScreen
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundModeScreen
+import com.abizer_r.quickedit.ui.magicBrush.MagicBrushScreen
 import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
+import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapUtils
-import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Stack
 import androidx.compose.runtime.CompositionLocalProvider
@@ -261,6 +263,10 @@ fun QuickEditEditorNavigation(
         sharedEditorViewModel.updateStacksFromEditorState(state)
         navController.navigate(NavDestinations.BACKGROUND_MODE_SCREEN)
     } }
+    val goToMagicBrushScreen = remember { { state: EditorScreenState ->
+        sharedEditorViewModel.updateStacksFromEditorState(state)
+        navController.navigate(NavDestinations.MAGIC_BRUSH_SCREEN)
+    } }
 
     val onBackPressed = remember { {
         navController.navigateUp()
@@ -353,6 +359,7 @@ fun QuickEditEditorNavigation(
                 goToStudioModeScreen = goToStudioModeScreen,
                 goToRemoveBgScreen = goToRemoveBgScreen,
                 goToBackgroundModeScreen = goToBackgroundModeScreen,
+                goToMagicBrushScreen = goToMagicBrushScreen,
                 goToMainScreen = {
                     sharedEditorViewModel.resetStacks()
                     (context as? android.app.Activity)?.finish()
@@ -468,6 +475,21 @@ fun QuickEditEditorNavigation(
                 },
                 onCancel = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = NavDestinations.MAGIC_BRUSH_SCREEN) {
+            MagicBrushScreen(
+                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                onBackPressed = { navController.navigateUp() },
+                onDoneClicked = { resultBitmap: Bitmap ->
+                    sharedEditorViewModel.addBitmapToStack(
+                        bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
+                    )
+                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                    }
                 }
             )
         }

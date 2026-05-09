@@ -10,7 +10,9 @@ object EditorScreenUtils {
             BottomToolbarItem.DrawMode,
             BottomToolbarItem.TextMode,
             BottomToolbarItem.EffectsMode,
+            BottomToolbarItem.MagicBrush,
             BottomToolbarItem.RemoveBg,
+
             BottomToolbarItem.StudioMode,
             BottomToolbarItem.BorderMode,
             BottomToolbarItem.BackgroundMode

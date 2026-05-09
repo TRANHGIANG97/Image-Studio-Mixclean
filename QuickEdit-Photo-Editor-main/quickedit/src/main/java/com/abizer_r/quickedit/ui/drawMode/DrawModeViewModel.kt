@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.abizer_r.quickedit.utils.drawMode.MagicEraserAlgorithm
+
 import com.abizer_r.quickedit.utils.drawMode.getToleranceOrNull
 import com.abizer_r.quickedit.utils.drawMode.getWidthOrNull
 import javax.inject.Inject
@@ -89,9 +89,7 @@ class DrawModeViewModel @Inject constructor(
                 }
             }
 
-            is DrawModeEvent.PerformMagicErase -> {
-                handleMagicErase(event.offset)
-            }
+
         }
     }
 
@@ -107,13 +105,7 @@ class DrawModeViewModel @Inject constructor(
                             it.pathDetailStack.pop()
                         }
                     }
-                    is EditingAction.MagicErase -> {
-                        // Restore bitmap from snapshot
-                        it.workingBitmap?.let { bitmap ->
-                            val canvas = android.graphics.Canvas(bitmap)
-                            canvas.drawBitmap(action.prevBitmapSnapshot, 0f, 0f, null)
-                        }
-                    }
+
                 }
             }
             it.copy(recompositionTrigger = it.recompositionTrigger + 1)
@@ -130,46 +122,14 @@ class DrawModeViewModel @Inject constructor(
                     is EditingAction.ManualPath -> {
                         it.pathDetailStack.push(action.path)
                     }
-                    is EditingAction.MagicErase -> {
-                        // Redoing magic erase is harder without a "post-action" snapshot
-                        // For now, we might need to re-run the algorithm or store post-snapshots
-                    }
+
                 }
             }
             it.copy(recompositionTrigger = it.recompositionTrigger + 1)
         }
     }
 
-    private fun handleMagicErase(offset: androidx.compose.ui.geometry.Offset) = viewModelScope.launch(Dispatchers.Default) {
-        val currentBitmap = _state.value.workingBitmap ?: return@launch
-        val selectedTool = _state.value.selectedTool
-        
-        // Take a snapshot for undo
-        val snapshot = currentBitmap.copy(currentBitmap.config ?: Bitmap.Config.ARGB_8888, false)
-        
-        // Run Flood Fill Algorithm
-        val radius = selectedTool.getWidthOrNull() ?: DrawingConstants.DEFAULT_STROKE_WIDTH
-        val tolerance = selectedTool.getToleranceOrNull()?.toInt() ?: 20
-        
-        val modifiedBitmap = MagicEraserAlgorithm.erase(
-            bitmap = currentBitmap,
-            startX = offset.x.toInt(),
-            startY = offset.y.toInt(),
-            radius = radius,
-            tolerance = tolerance
-        )
-        
-        withContext(Dispatchers.Main) {
-            _state.update {
-                it.historyStack.push(EditingAction.MagicErase(snapshot))
-                it.redoStack.clear()
-                it.copy(
-                    workingBitmap = modifiedBitmap,
-                    recompositionTrigger = it.recompositionTrigger + 1
-                )
-            }
-        }
-    }
+
 
 
     fun onBottomToolbarEvent(event: BottomToolbarEvent) {

@@ -8,7 +8,7 @@ import java.util.Stack
 
 sealed class EditingAction {
     data class ManualPath(val path: PathDetails) : EditingAction()
-    data class MagicErase(val prevBitmapSnapshot: Bitmap) : EditingAction()
+
 }
 
 data class DrawModeState(
@@ -24,7 +24,7 @@ data class DrawModeState(
     // Legacy support (to avoid breaking current DrawingCanvas immediately)
     val pathDetailStack: Stack<PathDetails> = Stack(),
     
-    // Working Bitmap for Magic/Repair
+
     val workingBitmap: Bitmap? = null,
     
     val recompositionTrigger: Long = 0

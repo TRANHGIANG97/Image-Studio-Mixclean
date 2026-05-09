@@ -69,12 +69,9 @@
     <string name="action_edit">Sửa</string>
     <string name="action_close">ปิด</string>
     <string name="crop_apply">นำไปใช้</string>
-    <string name="tool_magic">เมจิก</string>
     <string name="tool_border">ขอบ</string>
     <string name="border_color">สีขอบ</string>
     <string name="border_thickness">ความหนา</string>
-    <string name="magic_offset">ออฟเซ็ต</string>
-    <string name="magic_size">ขนาด</string>
     <string name="edit_image_failed">เปิดตัวแก้ไขไม่ได้ ลองอีกครั้ง</string>
     <string name="editor_add_text_title">เพิ่มข้อความ</string>
     <string name="editor_add_text_hint">พิมพ์ข้อความ</string>

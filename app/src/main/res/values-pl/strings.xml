@@ -69,12 +69,9 @@
     <string name="action_edit">Edytuj obraz</string>
     <string name="action_close">Zamknij</string>
     <string name="crop_apply">Zastosuj</string>
-    <string name="tool_magic">Magia</string>
     <string name="tool_border">Obramowanie</string>
     <string name="border_color">Kolor obramowania</string>
     <string name="border_thickness">Grubość</string>
-    <string name="magic_offset">Przesunięcie</string>
-    <string name="magic_size">Rozmiar</string>
     <string name="edit_image_failed">Nie można otworzyć edytora. Spróbuj ponownie.</string>
     <string name="editor_add_text_title">Dodaj tekst</string>
     <string name="editor_add_text_hint">Wpisz tekst</string>

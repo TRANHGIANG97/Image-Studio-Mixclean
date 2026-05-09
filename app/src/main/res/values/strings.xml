@@ -69,12 +69,11 @@
     <string name="action_edit">Edit image</string>
     <string name="action_close">Close</string>
     <string name="crop_apply">Apply</string>
-    <string name="tool_magic">Magic</string>
+
     <string name="tool_border">Border</string>
     <string name="border_color">Border color</string>
     <string name="border_thickness">Thickness</string>
-    <string name="magic_offset">Offset</string>
-    <string name="magic_size">Size</string>
+
     <string name="edit_image_failed">Cannot open editor. Please try again.</string>
     <string name="editor_add_text_title">Add text</string>
     <string name="editor_add_text_hint">Enter text</string>
