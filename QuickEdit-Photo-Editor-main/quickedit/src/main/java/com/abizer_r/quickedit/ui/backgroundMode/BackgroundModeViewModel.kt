@@ -16,7 +16,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class BackgroundModeViewModel @Inject constructor() : ViewModel() {
+class BackgroundModeViewModel @Inject constructor(
+    private val backgroundRemoverRepository: com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
+) : ViewModel() {
 
     enum class BackgroundTab {
         IMAGE, COLOR, GRADIENT
@@ -39,16 +42,47 @@ class BackgroundModeViewModel @Inject constructor() : ViewModel() {
     private var foregroundBitmap: Bitmap? = null
 
     fun setInitialBitmap(bitmap: Bitmap) {
-        foregroundBitmap = bitmap
         val hasAlpha = checkHasAlpha(bitmap)
-        _state.value = _state.value.copy(
-            processedBitmap = bitmap,
-            hasAlpha = hasAlpha
-        )
         
         if (hasAlpha) {
+            foregroundBitmap = bitmap
+            _state.value = _state.value.copy(
+                processedBitmap = bitmap,
+                hasAlpha = true,
+                isProcessing = false
+            )
             // Default background
-            applyColorBackground(Color.WHITE)
+            applyColorBackground(android.graphics.Color.WHITE)
+        } else {
+            // Tự động xóa phông nếu ảnh chưa có alpha
+            _state.value = _state.value.copy(
+                processedBitmap = bitmap,
+                hasAlpha = true, // Set to true to avoid warning overlay, we are processing it
+                isProcessing = true
+            )
+            
+            viewModelScope.launch(Dispatchers.Default) {
+                val result = backgroundRemoverRepository.getForegroundBitmap(bitmap)
+                result.onSuccess { fg ->
+                    foregroundBitmap = fg
+                    withContext(Dispatchers.Main) {
+                        _state.value = _state.value.copy(
+                            processedBitmap = fg,
+                            isProcessing = false
+                        )
+                        // Áp dụng nền trắng mặc định sau khi xóa phông
+                        applyColorBackground(android.graphics.Color.WHITE)
+                    }
+                }.onFailure { e ->
+                    withContext(Dispatchers.Main) {
+                        _state.value = _state.value.copy(
+                            isProcessing = false,
+                            error = "Không thể tự động xóa phông: ${e.message}",
+                            hasAlpha = false // Show warning if failed
+                        )
+                    }
+                }
+            }
         }
     }
 

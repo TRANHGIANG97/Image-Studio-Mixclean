@@ -25,6 +25,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -66,8 +69,8 @@ fun MagicBrushScreen(
     var offset by remember { mutableStateOf(Offset.Zero) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     
-    var useCursorOffset by remember { mutableStateOf(false) }
-    var brushSize by remember { mutableFloatStateOf(24f) }
+    var cursorOffset by remember { mutableFloatStateOf(35f) }
+    var brushSize by remember { mutableFloatStateOf(13f) }
 
     val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
         if (selectedTool == MagicBrushTool.PAN) {
@@ -108,6 +111,8 @@ fun MagicBrushScreen(
                     Text(stringResource(R.string.done))
                 }
             }
+            
+            val checkerboardBrush = rememberCheckerboardBrush()
 
             // Image Area
             Box(
@@ -115,6 +120,7 @@ fun MagicBrushScreen(
                     .weight(1f)
                     .fillMaxWidth()
                     .clip(RectangleShape)
+                    .background(checkerboardBrush)
                     .onGloballyPositioned { containerSize = it.size },
                 contentAlignment = Alignment.Center
             ) {
@@ -126,7 +132,7 @@ fun MagicBrushScreen(
                                 originalBitmap = bmp,
                                 pixelBlockSize = 30,
                                 brushSizeDp = brushSize.dp,
-                                offsetDistanceDp = if (useCursorOffset) 60.dp else 0.dp,
+                                offsetDistanceDp = cursorOffset.dp,
                                 onDrawEnd = { path, mosaicBmp ->
                                     val brushSizePx = with(density) { brushSize.dp.toPx() }
                                     viewModel.applyBlurResult(
@@ -161,7 +167,7 @@ fun MagicBrushScreen(
                                     brushSizeDp = brushSize.dp,
                                     scaleX = bmp.width.toFloat() / drawW,
                                     scaleY = bmp.height.toFloat() / drawH,
-                                    offsetDistanceDp = if (useCursorOffset) 60.dp else 0.dp,
+                                    offsetDistanceDp = cursorOffset.dp,
                                     isProcessing = isProcessing,
                                     enabled = !isProcessing,
                                     onDrawEnd = { scaledPath, brushSizeBmpPx ->
@@ -256,35 +262,78 @@ fun MagicBrushScreen(
                     .background(MaterialTheme.colorScheme.surface)
             ) {
                 // Settings Row (Slider)
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val isBrushTool = selectedTool == MagicBrushTool.BLUR || selectedTool == MagicBrushTool.BRUSH_ERASE
-                    Text(
-                        text = if (isBrushTool) stringResource(R.string.studio_intensity) else stringResource(R.string.studio_intensity),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                    Slider(
-                        value = if (isBrushTool) brushSize else tolerance,
-                        onValueChange = { if (isBrushTool) brushSize = it else viewModel.updateTolerance(it) },
-                        valueRange = if (isBrushTool) 10f..100f else 1f..150f,
-                        modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
-                    )
-
-                    Text(
-                        text = (if (isBrushTool) brushSize else tolerance).toInt().toString(),
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.width(30.dp)
-                    )
-
-                    if (isBrushTool) {
-                        IconButton(
-                            onClick = { useCursorOffset = !useCursorOffset },
-                            modifier = Modifier.size(32.dp).background(if (useCursorOffset) MaterialTheme.colorScheme.primaryContainer else Color.Transparent, CircleShape)
-                        ) {
-                            Icon(Icons.Default.Edit, null, modifier = Modifier.size(16.dp))
+                val isBrushTool = selectedTool == MagicBrushTool.BLUR || selectedTool == MagicBrushTool.BRUSH_ERASE
+                
+                if (isBrushTool) {
+                    // Hiển thị 2 Slider cho Cọ vẽ: Bù trừ và Kích thước
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Slider Bù trừ (Offset)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Bù trừ", style = MaterialTheme.typography.labelMedium)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Slider(
+                                    value = cursorOffset,
+                                    onValueChange = { cursorOffset = it },
+                                    valueRange = 0f..150f,
+                                    modifier = Modifier.weight(1f),
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = MaterialTheme.colorScheme.primary,
+                                        activeTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    )
+                                )
+                                Text(
+                                    text = cursorOffset.toInt().toString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.width(24.dp)
+                                )
+                            }
                         }
+                        
+                        // Slider Kích thước (Size)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Kích thước", style = MaterialTheme.typography.labelMedium)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Slider(
+                                    value = brushSize,
+                                    onValueChange = { brushSize = it },
+                                    valueRange = 10f..150f,
+                                    modifier = Modifier.weight(1f),
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = MaterialTheme.colorScheme.primary,
+                                        activeTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    )
+                                )
+                                Text(
+                                    text = brushSize.toInt().toString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.width(24.dp)
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    // Slider cho Magic Wand (Tolerance)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Độ nhạy", style = MaterialTheme.typography.labelMedium)
+                        Slider(
+                            value = tolerance,
+                            onValueChange = { viewModel.updateTolerance(it) },
+                            valueRange = 1f..150f,
+                            modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
+                        )
+                        Text(
+                            text = tolerance.toInt().toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.width(30.dp)
+                        )
                     }
                 }
 
@@ -333,6 +382,35 @@ fun MagicBrushScreen(
     }
 
     BackHandler { onBackPressed() }
+}
+
+@Composable
+fun rememberCheckerboardBrush(): ShaderBrush {
+    val density = LocalDensity.current
+    val tilePx = with(density) { 8.dp.toPx().roundToInt().coerceAtLeast(1) }
+    val size = tilePx * 2
+    
+    val bmp = remember(tilePx) {
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        val paint = android.graphics.Paint().apply { isAntiAlias = false }
+        
+        paint.color = android.graphics.Color.WHITE
+        canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paint)
+        
+        paint.color = android.graphics.Color.parseColor("#EEEEEE") // Xám rất nhạt
+        canvas.drawRect(0f, 0f, tilePx.toFloat(), tilePx.toFloat(), paint)
+        canvas.drawRect(tilePx.toFloat(), tilePx.toFloat(), size.toFloat(), size.toFloat(), paint)
+        bitmap
+    }
+    
+    DisposableEffect(bmp) {
+        onDispose { if (!bmp.isRecycled) bmp.recycle() }
+    }
+    
+    return remember(bmp) {
+        ShaderBrush(ImageShader(bmp.asImageBitmap(), TileMode.Repeated, TileMode.Repeated))
+    }
 }
 
 @Composable

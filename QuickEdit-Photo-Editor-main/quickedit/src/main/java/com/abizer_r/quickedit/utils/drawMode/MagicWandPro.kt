@@ -10,16 +10,7 @@ import java.util.BitSet
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * MagicWandPro - Công cụ chọn vùng / xóa phông chuẩn Production.
- *
- * Bản Ultimate Final chắt lọc tinh hoa từ các kiến trúc sư AI:
- * - [CLAUDE] Scanline + Circular Queue: Zero-Allocation, không rác GC.
- * - [KIMI] Scale Tolerance động (totalWeight) chuẩn hóa thang 0-255 tuyệt đối.
- * - [KIMI] Dùng nextSetBit() áp Mask siêu tốc: O(N) → O(K).
- * - [DEEPSEEK] ScanRow dùng nextClearBit() nhảy cóc vùng đã xử lý: Tăng tốc x10 ảnh phức tạp.
- * - [DEEPSEEK & GROK] Trọng số Alpha cân bằng (Green), Hợp đồng inPlace chặt chẽ, an toàn Đa luồng.
- */
+
 object MagicWandPro {
 
     private const val TAG = "MagicWandPro"

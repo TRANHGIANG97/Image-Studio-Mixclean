@@ -24,10 +24,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import com.abizer_r.quickedit.theme.EditorAccent
 import com.abizer_r.quickedit.theme.EditorAccentVariant
 import androidx.compose.ui.res.imageResource
@@ -259,6 +263,10 @@ private fun EditorScreenLayout(
             )
         }
 
+        val topToolbarHeight =  TOOLBAR_HEIGHT_SMALL
+        val bottomToolbarHeight = TOOLBAR_HEIGHT_MEDIUM
+
+        val checkerboardBrush = rememberCheckerboardBrush()
         val aspectRatio = remember(currentBitmap) {
             currentBitmap.width.toFloat() / currentBitmap.height.toFloat()
         }
@@ -273,7 +281,11 @@ private fun EditorScreenLayout(
                     height = Dimension.wrapContent
                 }
                 .padding(top = topToolbarHeight, bottom = bottomToolbarHeight)
-                .aspectRatio(aspectRatio),
+                .aspectRatio(aspectRatio)
+                .then(
+                    if (currentBitmap.hasAlpha()) Modifier.background(checkerboardBrush)
+                    else Modifier
+                ),
         ) {
 
             Image(
@@ -319,6 +331,31 @@ private fun EditorScreenLayout(
 }
 
 
+
+@Composable
+fun rememberCheckerboardBrush(): ShaderBrush {
+    val density = LocalDensity.current
+    val tilePx = with(density) { 8.dp.toPx().toInt().coerceAtLeast(1) }
+    val size = tilePx * 2
+    
+    val bmp = remember(tilePx) {
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        val paint = android.graphics.Paint().apply { isAntiAlias = false }
+        
+        paint.color = android.graphics.Color.WHITE
+        canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paint)
+        
+        paint.color = android.graphics.Color.parseColor("#EEEEEE")
+        canvas.drawRect(0f, 0f, tilePx.toFloat(), tilePx.toFloat(), paint)
+        canvas.drawRect(tilePx.toFloat(), tilePx.toFloat(), size.toFloat(), size.toFloat(), paint)
+        bitmap
+    }
+    
+    return remember(bmp) {
+        ShaderBrush(ImageShader(bmp.asImageBitmap(), TileMode.Repeated, TileMode.Repeated))
+    }
+}
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

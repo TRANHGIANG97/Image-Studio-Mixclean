@@ -113,7 +113,16 @@
       "Bash(ls gradlew *)",
       "Bash(ls gradle/wrapper/gradle-wrapper.jar)",
       "Bash(java -jar gradle/wrapper/gradle-wrapper.jar --version)",
-      "PowerShell(Get-Command *)"
+      "PowerShell(Get-Command *)",
+      "Bash(Select-Object Mode, Name)",
+      "Bash(Format-Table -AutoSize)",
+      "PowerShell(jar tf *)",
+      "PowerShell(curl.exe -L -o \"C:\\\\Users\\\\Toshiba\\\\Desktop\\\\imageProduction-main\\\\gradle\\\\wrapper\\\\gradle-wrapper-new.jar\" \"https://github.com/gradle/gradle/raw/v8.10.0/gradle/wrapper/gradle-wrapper.jar\" 2>&1)",
+      "PowerShell(Copy-Item *)",
+      "PowerShell(curl.exe -L -o \"C:\\\\Users\\\\Toshiba\\\\Desktop\\\\imageProduction-main\\\\gradle\\\\wrapper\\\\gradle-wrapper-new.jar\" \"https://repo1.maven.org/maven2/org/gradle/gradle-wrapper/8.12/gradle-wrapper-8.12.jar\" 2>&1 | Select-Object -Last 5)",
+      "PowerShell(java *)",
+      "PowerShell(Get-Item *)",
+      "Bash(.\\\\gradlew :quickedit:compileDebugKotlin)"
     ]
   }
 }
