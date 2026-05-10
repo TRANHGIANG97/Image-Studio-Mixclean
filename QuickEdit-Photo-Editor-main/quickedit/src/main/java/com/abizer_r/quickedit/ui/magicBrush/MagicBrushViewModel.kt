@@ -14,16 +14,17 @@ import com.abizer_r.quickedit.utils.drawMode.MagicWandPro
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapCache
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Stack
+import java.util.LinkedList
 import javax.inject.Inject
 
 enum class MagicBrushTool {
     SMART_ERASE,
-    SHATTER,
+    BRUSH_ERASE,
     BLUR,
     PAN
 }
@@ -51,14 +52,16 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
     val canRedo: StateFlow<Boolean> = _canRedo
 
     // Cache IDs for undo/redo stacks
-    private val undoStack = Stack<String>()
-    private val redoStack = Stack<String>()
+    private val undoStack = LinkedList<String>()
+    private val redoStack = LinkedList<String>()
+    private val MAX_UNDO_STEPS = 20
 
     // Bitmap gốc - dùng để tính toán, không bao giờ thay đổi
     private val _originalBitmap = MutableStateFlow<Bitmap?>(null)
     val originalBitmap: StateFlow<Bitmap?> = _originalBitmap
 
     private var bitmapCache: BitmapCache? = null
+    private var currentEraseJob: Job? = null
 
     fun setBitmapCache(cache: BitmapCache) {
         bitmapCache = cache
@@ -78,6 +81,9 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
     }
 
     fun selectTool(tool: MagicBrushTool) {
+        if (tool != MagicBrushTool.BRUSH_ERASE) {
+            currentEraseJob?.cancel()
+        }
         _selectedTool.value = tool
     }
 
@@ -86,8 +92,8 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
         if (_isProcessing.value || _selectedTool.value != MagicBrushTool.SMART_ERASE) return
         if (x !in 0 until bitmap.width || y !in 0 until bitmap.height) return
 
+        _isProcessing.value = true
         viewModelScope.launch {
-            _isProcessing.value = true
             val result: Bitmap? = withContext(Dispatchers.Default) {
                 val snapshot = bitmap.copy(Bitmap.Config.ARGB_8888, true)
                 val erased: Bitmap? = MagicWandPro.eraseRegion(
@@ -101,6 +107,8 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
                 if (erased != null) {
                     clearRedoStack()
                     pushUndo(snapshot)
+                    // Snapshot saved to disk, can recycle now
+                    snapshot.recycle()
                     erased
                 } else {
                     snapshot.recycle()
@@ -120,9 +128,10 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
      */
     fun applyBlurResult(path: Path, mosaicBitmap: Bitmap, brushSizePx: Float, canvasWidth: Int, canvasHeight: Int) {
         val bitmap = _currentBitmap.value ?: return
+        if (_isProcessing.value) return
 
+        _isProcessing.value = true
         viewModelScope.launch {
-            _isProcessing.value = true
             val result = withContext(Dispatchers.Default) {
                 val snapshot = bitmap.copy(Bitmap.Config.ARGB_8888, true)
 
@@ -156,6 +165,7 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
 
                 clearRedoStack()
                 pushUndo(snapshot)
+                snapshot.recycle()
                 bitmap
             }
             _currentBitmap.value = result
@@ -164,21 +174,17 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+
     /**
-     * Tẩy tự do (Magic Erase) - Baking bằng PorterDuff.Mode.CLEAR
-     *
-     * @param path Path đã scale sang bitmap coordinate
-     * @param brushSizePx Kích thước cọ đã scale (px)
+     * Ap dung hieu ung Xoa tu do (Brush Erase).
+     * Path da duoc scale san sang bitmap space boi MagicEraserCanvas.
      */
-    fun applyMagicErase(
-        path: android.graphics.Path,
-        brushSizePx: Float
-    ) {
-
+    fun applyEraseResult(path: android.graphics.Path, brushSizeBitmapPx: Float) {
         val bitmap = _currentBitmap.value ?: return
-        if (brushSizePx <= 0) return
+        if (_isProcessing.value) return
 
-        viewModelScope.launch {
+        currentEraseJob?.cancel()
+        currentEraseJob = viewModelScope.launch {
             _isProcessing.value = true
             val result = withContext(Dispatchers.Default) {
                 val snapshot = bitmap.copy(Bitmap.Config.ARGB_8888, true)
@@ -187,19 +193,21 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
                 val paint = Paint().apply {
                     isAntiAlias = true
                     style = Paint.Style.STROKE
-                    strokeWidth = brushSizePx
+                    strokeWidth = brushSizeBitmapPx
                     strokeCap = Paint.Cap.ROUND
                     strokeJoin = Paint.Join.ROUND
                     xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
                 }
-
                 canvas.drawPath(path, paint)
 
                 clearRedoStack()
                 pushUndo(snapshot)
-                bitmap
+                snapshot.recycle()
+                // Tra ve ban copy de StateFlow nhan dien thay doi
+                bitmap.copy(Bitmap.Config.ARGB_8888, true).also {
+                    bitmap.recycle()
+                }
             }
-
             _currentBitmap.value = result
             updateUndoRedoStates()
             _isProcessing.value = false
@@ -210,13 +218,17 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
         if (undoStack.isNotEmpty()) {
             val current = _currentBitmap.value ?: return
             val cache = bitmapCache ?: return
-            val id = undoStack.pop()
+            val id = undoStack.removeLast()
             val previous = cache.loadBitmap(id) ?: return
-            // Save current bitmap to redo stack
+            
+            // Save current bitmap to redo stack before replacing it
             val currentId = cache.saveBitmap(
                 current.copy(current.config ?: Bitmap.Config.ARGB_8888, true)
             ) ?: return
-            redoStack.push(currentId)
+            redoStack.addLast(currentId)
+            
+            // Recycle current before replacing
+            current.recycle()
             _currentBitmap.value = previous
             updateUndoRedoStates()
         }
@@ -226,24 +238,31 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
         if (redoStack.isNotEmpty()) {
             val current = _currentBitmap.value ?: return
             val cache = bitmapCache ?: return
-            val id = redoStack.pop()
+            val id = redoStack.removeLast()
             val next = cache.loadBitmap(id) ?: return
+            
             // Save current bitmap back to undo stack
             val currentId = cache.saveBitmap(
                 current.copy(current.config ?: Bitmap.Config.ARGB_8888, true)
             ) ?: return
-            undoStack.push(currentId)
+            undoStack.addLast(currentId)
+            
+            // Recycle current before replacing
+            current.recycle()
             _currentBitmap.value = next
             updateUndoRedoStates()
         }
     }
 
     private fun pushUndo(snapshot: Bitmap) {
-        val cache = bitmapCache
-        if (cache != null) {
-            val id = cache.saveBitmap(snapshot)
-            if (id != null) {
-                undoStack.push(id)
+        val cache = bitmapCache ?: return
+        val id = cache.saveBitmap(snapshot)
+        if (id != null) {
+            undoStack.addLast(id)
+            // Limit stack size
+            if (undoStack.size > MAX_UNDO_STEPS) {
+                val oldestId = undoStack.removeFirst()
+                cache.deleteBitmap(oldestId)
             }
         }
     }
@@ -251,7 +270,7 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
     private fun clearRedoStack() {
         val cache = bitmapCache
         while (redoStack.isNotEmpty()) {
-            val id = redoStack.pop()
+            val id = redoStack.removeLast()
             cache?.deleteBitmap(id)
         }
         _canRedo.value = false

@@ -46,7 +46,10 @@ class BitmapCache(private val context: Context) {
             var file = File(cacheDir, "$id.png")
             if (!file.exists()) file = File(cacheDir, "$id.jpg")
             if (file.exists()) {
-                BitmapFactory.decodeFile(file.absolutePath)
+                val options = BitmapFactory.Options().apply {
+                    inMutable = true
+                }
+                BitmapFactory.decodeFile(file.absolutePath, options)
             } else null
         } catch (e: Exception) {
             null

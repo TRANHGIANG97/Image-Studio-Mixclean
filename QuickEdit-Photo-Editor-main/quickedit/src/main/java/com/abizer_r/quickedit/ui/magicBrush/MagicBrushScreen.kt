@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abizer_r.quickedit.R
+import com.abizer_r.quickedit.ui.magicBrush.components.MagicEraserCanvas
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapCache
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 
@@ -113,26 +114,11 @@ fun MagicBrushScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .clip(RectangleShape),
+                    .clip(RectangleShape)
+                    .onGloballyPositioned { containerSize = it.size },
                 contentAlignment = Alignment.Center
             ) {
                 when (selectedTool) {
-                    MagicBrushTool.SHATTER -> {
-                        currentBitmap?.let { bmp ->
-                            com.abizer_r.quickedit.ui.magicBrush.components.MagicEraserCanvas(
-                                currentBitmap = bmp,
-                                brushSizeDp = brushSize.dp,
-                                offsetDistanceDp = if (useCursorOffset) 60.dp else 0.dp,
-                                isProcessing = isProcessing,
-                                onDrawEnd = { path, brushSizeBitmapPx ->
-                                    viewModel.applyMagicErase(
-                                        path = path,
-                                        brushSizePx = brushSizeBitmapPx
-                                    )
-                                }
-                            )
-                        }
-                    }
 
                     MagicBrushTool.BLUR -> {
                         currentBitmap?.let { bmp ->
@@ -154,12 +140,43 @@ fun MagicBrushScreen(
                             )
                         }
                     }
+                    MagicBrushTool.BRUSH_ERASE -> {
+                        currentBitmap?.let { bmp ->
+                            val containerAspect = containerSize.width.toFloat() / containerSize.height.toFloat()
+                            val bitmapAspect = bmp.width.toFloat() / bmp.height.toFloat()
+                            val (drawW, drawH) = if (containerAspect > bitmapAspect) {
+                                (containerSize.height * bitmapAspect).roundToInt() to containerSize.height
+                            } else {
+                                containerSize.width to (containerSize.width / bitmapAspect).roundToInt()
+                            }
+                            val drawWidthDp = with(density) { (drawW / density.density).dp }
+                            val drawHeightDp = with(density) { (drawH / density.density).dp }
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                MagicEraserCanvas(
+                                    modifier = Modifier.size(drawWidthDp, drawHeightDp),
+                                    currentBitmap = bmp,
+                                    brushSizeDp = brushSize.dp,
+                                    scaleX = bmp.width.toFloat() / drawW,
+                                    scaleY = bmp.height.toFloat() / drawH,
+                                    offsetDistanceDp = if (useCursorOffset) 60.dp else 0.dp,
+                                    isProcessing = isProcessing,
+                                    enabled = !isProcessing,
+                                    onDrawEnd = { scaledPath, brushSizeBmpPx ->
+                                        viewModel.applyEraseResult(scaledPath, brushSizeBmpPx)
+                                    },
+                                    onError = { /* error da duoc hien thi trong canvas */ }
+                                )
+                            }
+                        }
+                    }
                     else -> {
                         // Standard Image View (Erase / Pan)
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .onGloballyPositioned { containerSize = it.size }
                                 .pointerInteropFilter { event ->
                                     if (selectedTool == MagicBrushTool.SMART_ERASE && event.action == MotionEvent.ACTION_DOWN) {
                                         val bitmap = currentBitmap ?: return@pointerInteropFilter false
@@ -243,7 +260,7 @@ fun MagicBrushScreen(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val isBrushTool = selectedTool == MagicBrushTool.SHATTER || selectedTool == MagicBrushTool.BLUR
+                    val isBrushTool = selectedTool == MagicBrushTool.BLUR || selectedTool == MagicBrushTool.BRUSH_ERASE
                     Text(
                         text = if (isBrushTool) stringResource(R.string.studio_intensity) else stringResource(R.string.studio_intensity),
                         style = MaterialTheme.typography.labelMedium
@@ -251,7 +268,7 @@ fun MagicBrushScreen(
                     Slider(
                         value = if (isBrushTool) brushSize else tolerance,
                         onValueChange = { if (isBrushTool) brushSize = it else viewModel.updateTolerance(it) },
-                        valueRange = if (selectedTool == MagicBrushTool.SHATTER) 1f..100f else if (selectedTool == MagicBrushTool.BLUR) 10f..100f else 1f..150f,
+                        valueRange = if (isBrushTool) 10f..100f else 1f..150f,
                         modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
                     )
 
@@ -260,7 +277,7 @@ fun MagicBrushScreen(
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.width(30.dp)
                     )
-                    
+
                     if (isBrushTool) {
                         IconButton(
                             onClick = { useCursorOffset = !useCursorOffset },
@@ -285,6 +302,14 @@ fun MagicBrushScreen(
                         label = "Magic wand"
                     )
 
+                    // Brush Erase Tool (Cọ xóa)
+                    ToolButton(
+                        selected = selectedTool == MagicBrushTool.BRUSH_ERASE,
+                        onClick = { viewModel.selectTool(MagicBrushTool.BRUSH_ERASE) },
+                        icon = Icons.Default.Edit,
+                        label = "Cọ xóa"
+                    )
+
                     // Blur Tool (Mờ)
                     ToolButton(
                         selected = selectedTool == MagicBrushTool.BLUR,
@@ -293,13 +318,6 @@ fun MagicBrushScreen(
                         label = "Mờ"
                     )
 
-                    // Shatter Tool (Vỡ) -> Changed to Magic Eraser under the hood but keeping icon/label
-                    ToolButton(
-                        selected = selectedTool == MagicBrushTool.SHATTER,
-                        onClick = { viewModel.selectTool(MagicBrushTool.SHATTER) },
-                        icon = Icons.Default.Edit,
-                        label = "Tẩy tự do"
-                    )
 
                     // Pan Tool
                     ToolButton(
