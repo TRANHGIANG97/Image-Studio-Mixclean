@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -37,7 +38,6 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.theme.QuickEditTheme
 import com.abizer_r.quickedit.utils.ImmutableList
@@ -166,7 +166,7 @@ private fun EditorScreenLayout(
 ) {
 
     val context = LocalContext.current
-    val lifeCycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
 
     val bottomToolbarItems = remember {
         ImmutableList(EditorScreenUtils.getDefaultBottomToolbarItemsList())
@@ -183,7 +183,7 @@ private fun EditorScreenLayout(
 
     val mOnBottomToolbarEvent = remember { { toolbarEvent: BottomToolbarEvent ->
         if (toolbarEvent is BottomToolbarEvent.OnItemClicked) {
-            lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+            coroutineScope.launch(Dispatchers.Main) {
                 toolbarVisible = false
                 delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
                 onBottomToolbarEvent(toolbarEvent)

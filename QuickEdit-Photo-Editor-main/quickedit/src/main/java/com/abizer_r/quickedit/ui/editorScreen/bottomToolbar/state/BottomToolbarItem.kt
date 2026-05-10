@@ -30,6 +30,8 @@ sealed class BottomToolbarItem {
         BottomToolbarItem()
 
     class EraserTool(var width: Float) : BottomToolbarItem()
+    class MosaicTool(var width: Float) : BottomToolbarItem()
+
 
     // ---------- DrawModeScreen Items - End
 

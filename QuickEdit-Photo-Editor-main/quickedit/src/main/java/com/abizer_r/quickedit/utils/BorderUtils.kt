@@ -14,26 +14,33 @@ object BorderUtils {
         previewMaxDimension: Int? = null
     ): Result<Bitmap> = withContext(Dispatchers.IO) {
         runCatching {
+            val MAX_DIM = 4096
             val w = bitmap.width
             val h = bitmap.height
             val R = borderWidthPx.coerceAtLeast(1)
             val targetOutW = w + 2 * R
             val targetOutH = h + 2 * R
 
-            when {
-                previewMaxDimension != null && maxOf(w, h) > previewMaxDimension -> {
-                    val scale = previewMaxDimension.toFloat() / maxOf(w, h)
-                    val smallW = (w * scale).toInt().coerceAtLeast(1)
-                    val smallH = (h * scale).toInt().coerceAtLeast(1)
-                    val smallR = (R * scale).toInt().coerceAtLeast(1)
-                    val small = Bitmap.createScaledBitmap(bitmap, smallW, smallH, true)
-                    val bordered = applyBorderToBitmapInternal(small, borderColorArgb, smallR)
-                    if (small != bitmap) small.recycle()
-                    val upscaled = Bitmap.createScaledBitmap(bordered, targetOutW, targetOutH, true)
-                    bordered.recycle()
-                    upscaled
-                }
-                else -> applyBorderToBitmapInternal(bitmap, borderColorArgb, R)
+            val scale = when {
+                previewMaxDimension != null && maxOf(w, h) > previewMaxDimension ->
+                    previewMaxDimension.toFloat() / maxOf(w, h)
+                maxOf(w, h) > MAX_DIM ->
+                    MAX_DIM.toFloat() / maxOf(w, h)
+                else -> 1f
+            }
+
+            if (scale < 1f) {
+                val smallW = (w * scale).toInt().coerceAtLeast(1)
+                val smallH = (h * scale).toInt().coerceAtLeast(1)
+                val smallR = (R * scale).toInt().coerceAtLeast(1)
+                val small = Bitmap.createScaledBitmap(bitmap, smallW, smallH, true)
+                val bordered = applyBorderToBitmapInternal(small, borderColorArgb, smallR)
+                if (small != bitmap) small.recycle()
+                val upscaled = Bitmap.createScaledBitmap(bordered, targetOutW, targetOutH, true)
+                bordered.recycle()
+                upscaled
+            } else {
+                applyBorderToBitmapInternal(bitmap, borderColorArgb, R)
             }
         }
     }

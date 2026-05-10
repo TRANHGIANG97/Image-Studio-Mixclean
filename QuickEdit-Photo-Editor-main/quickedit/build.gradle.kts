@@ -68,7 +68,6 @@ dependencies {
     implementation(libs.gpuimage)
 
     implementation(libs.android.image.cropper)
-    
     implementation(project(":core-data"))
     implementation(project(":core-domain"))
     implementation(project(":core-util"))

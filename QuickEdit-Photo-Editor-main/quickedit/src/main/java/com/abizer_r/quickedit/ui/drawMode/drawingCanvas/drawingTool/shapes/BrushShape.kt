@@ -2,6 +2,7 @@ package com.abizer_r.quickedit.ui.drawMode.drawingCanvas.drawingTool.shapes
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
@@ -12,9 +13,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 
 class BrushShape(
     private val isEraser: Boolean = false,
+    private val isMosaic: Boolean = false,
     color: Color? = null,
     width: Float? = null,
-    alpha: Float? = null
+    alpha: Float? = null,
+    private var mosaicBrush: Brush? = null
 ): AbstractShape() {
 
     init {
@@ -25,9 +28,15 @@ class BrushShape(
     private var prevOffSet = Offset.Zero
 
     override fun draw(drawScope: DrawScope) {
+        val brushToUse = if (isMosaic && mosaicBrush != null) {
+            mosaicBrush!!
+        } else {
+            SolidColor(mColor)
+        }
+
         drawScope.drawPath(
             path = path,
-            brush = SolidColor(mColor),
+            brush = brushToUse,
             style = Stroke(
                 width = mWidth,
                 cap = StrokeCap.Round,

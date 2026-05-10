@@ -83,10 +83,19 @@ class TextModeViewModel @Inject constructor(
         }
     }
 
-    var shouldGoToNextScreen = false
+    private val _shouldGoToNextScreen = MutableStateFlow(false)
+    val shouldGoToNextScreen: StateFlow<Boolean> = _shouldGoToNextScreen
+
+    fun onNextScreenRequested() {
+        _shouldGoToNextScreen.value = true
+    }
+
+    fun onNextScreenConsumed() {
+        _shouldGoToNextScreen.value = false
+    }
 
     fun handleStateBeforeCaptureScreenshot() {
-        shouldGoToNextScreen = true
+        _shouldGoToNextScreen.value = true
         updateViewSelection(null)
         _state.update {
             it.copy(showBottomToolbarExtension = false)

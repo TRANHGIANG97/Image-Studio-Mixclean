@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -25,6 +26,7 @@ import com.abizer_r.quickedit.ui.drawMode.stateHandling.DrawModeEvent
 import com.abizer_r.quickedit.ui.drawMode.drawingCanvas.drawingTool.shapes.AbstractShape
 import com.abizer_r.quickedit.ui.drawMode.drawingCanvas.models.PathDetails
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarItem
+import com.abizer_r.quickedit.utils.drawMode.DrawModeUtils
 import com.abizer_r.quickedit.utils.drawMode.getShape
 import com.abizer_r.quickedit.utils.drawMode.getWidthOrNull
 import com.abizer_r.quickedit.utils.drawMode.toPx
@@ -86,6 +88,7 @@ fun DrawingCanvas(
                         getCurrentShape = { currentManualShape },
                         updateCurrentShape = { currentManualShape = it },
                         triggerDraw = { drawPhaseTrigger += 0.1 }
+
                     )
                 }
             }
@@ -119,6 +122,7 @@ private fun handleManualTouch(
             shape.initShape(adjX, adjY)
             updateCurrentShape(shape)
         }
+
         MotionEvent.ACTION_MOVE -> {
             getCurrentShape()?.moveShape(adjX, adjY)
             triggerDraw()

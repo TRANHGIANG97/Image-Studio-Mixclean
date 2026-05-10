@@ -4,9 +4,17 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.abizer_r.quickedit.ui.effectsMode.effectsPreview.EffectItem
 import com.abizer_r.quickedit.utils.AppUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 
 object EffectsModeUtils {
+
+    private const val MAX_CONCURRENT_FILTERS = 4
+    private val concurrencyLimit = Semaphore(MAX_CONCURRENT_FILTERS)
 
     fun getEffectsPreviewList(
         context: Context,
@@ -14,7 +22,48 @@ object EffectsModeUtils {
     ) = flow<ArrayList<EffectItem>> {
         val effectList = arrayListOf<EffectItem>()
 
-        val filterFile = listOf(
+        effectList.add(
+            EffectItem(
+                ogBitmap = bitmap,
+                previewBitmap = getScaledPreviewBitmap(context, bitmap),
+                label = "original"
+            )
+        )
+
+        val filterDefs = mutableListOf<suspend () -> EffectItem?>()
+
+        // Grayscale
+        filterDefs.add {
+            try {
+                val grayBitmap = BitmapGrayscaleFilter.apply(bitmap)
+                EffectItem(
+                    ogBitmap = grayBitmap,
+                    previewBitmap = getScaledPreviewBitmap(context, grayBitmap),
+                    label = "grayscale"
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+
+        // Blur
+        filterDefs.add {
+            try {
+                val blurBitmap = BitmapBlurFilter.apply(context, bitmap)
+                EffectItem(
+                    ogBitmap = blurBitmap,
+                    previewBitmap = getScaledPreviewBitmap(context, blurBitmap),
+                    label = "blur"
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+
+        // ACV filters
+        val filterFiles = listOf(
             "acv/Fade.acv",
             "acv/Pistol.acv",
             "acv/Cinnamon_darkness.acv",
@@ -41,65 +90,48 @@ object EffectsModeUtils {
             "acv/Tropical_Beach.acv"
         )
 
-        effectList.add(
-            EffectItem(
-                ogBitmap = bitmap,
-                previewBitmap = getScaledPreviewBitmap(context, bitmap),
-                label = "original"
-            )
-        )
-
-        try {
-            val grayBitmap = BitmapGrayscaleFilter.apply(bitmap)
-            effectList.add(
-                EffectItem(
-                    ogBitmap = grayBitmap,
-                    previewBitmap = getScaledPreviewBitmap(context, grayBitmap),
-                    label = "grayscale"
-                )
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        try {
-            val blurBitmap = BitmapBlurFilter.apply(context, bitmap)
-            effectList.add(
-                EffectItem(
-                    ogBitmap = blurBitmap,
-                    previewBitmap = getScaledPreviewBitmap(context, blurBitmap),
-                    label = "blur"
-                )
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        filterFile.forEach { fileName ->
-            try {
-                context.assets.open(fileName).use { stream ->
-                    val curve = AcvToneCurveParser.parse(stream)
-                    val filtered = BitmapToneCurveFilter.apply(bitmap, curve)
-                    effectList.add(
-                        EffectItem(
-                            ogBitmap = filtered,
-                            previewBitmap = getScaledPreviewBitmap(context, filtered),
-                            label = fileName.drop(4).dropLast(4).replace("_", " ")
-                        )
-                    )
+        filterFiles.forEach { fileName ->
+            filterDefs.add {
+                try {
+                    concurrencyLimit.withPermit {
+                        context.assets.open(fileName).use { stream ->
+                            val curve = AcvToneCurveParser.parse(stream)
+                            val filtered = BitmapToneCurveFilter.apply(bitmap, curve)
+                            EffectItem(
+                                ogBitmap = filtered,
+                                previewBitmap = getScaledPreviewBitmap(context, filtered),
+                                label = fileName.drop(4).dropLast(4).replace("_", " ")
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
                 }
-
-                if (effectList.size >= 10) {
-                    emit(ArrayList(effectList))
-                    effectList.clear()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
 
-        if (effectList.isNotEmpty()) {
-            emit(effectList)
+        // Apply all filters in parallel with concurrency limit
+        coroutineScope {
+            val deferredItems = filterDefs.map { filterDef ->
+                async(Dispatchers.Default) { filterDef() }
+            }
+            var batchCount = 0
+            for (deferred in deferredItems) {
+                val item = deferred.await()
+                if (item != null) {
+                    effectList.add(item)
+                    batchCount++
+                    if (batchCount >= 10) {
+                        emit(ArrayList(effectList))
+                        effectList.clear()
+                        batchCount = 0
+                    }
+                }
+            }
+            if (effectList.isNotEmpty()) {
+                emit(effectList)
+            }
         }
     }
 

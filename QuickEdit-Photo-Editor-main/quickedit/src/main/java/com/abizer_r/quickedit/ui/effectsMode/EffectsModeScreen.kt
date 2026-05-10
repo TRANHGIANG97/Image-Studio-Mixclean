@@ -8,6 +8,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -37,7 +39,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.theme.QuickEditTheme
 // ToolBarBackgroundColor removed from imports
@@ -54,9 +55,6 @@ import com.abizer_r.quickedit.ui.effectsMode.effectsPreview.EffectsPreviewListFu
 import com.abizer_r.quickedit.utils.effectsMode.EffectsModeUtils
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
-import com.smarttoolfactory.screenshot.ImageResult
-import com.smarttoolfactory.screenshot.ScreenshotBox
-import com.smarttoolfactory.screenshot.rememberScreenshotState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -73,6 +71,7 @@ fun EffectsModeScreen(
 ) {
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
 
     val viewModel: EffectsModeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -101,10 +100,8 @@ fun EffectsModeScreen(
         }
     }
 
-    val screenshotState = rememberScreenshotState()
-
     val onCloseClickedLambda = remember<() -> Unit> { {
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             toolbarVisible = false
             delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
             onBackPressed()
@@ -116,36 +113,12 @@ fun EffectsModeScreen(
     }
 
     val onDoneClickedLambda = remember<() -> Unit> { {
-        viewModel.shouldGoToNextScreen = true
-        screenshotState.capture()
-    }}
-
-    val handleScreenshotResult = remember<(Bitmap) -> Unit> {{ bitmap ->
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             toolbarVisible = false
             delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
-            onDoneClicked(bitmap)
+            onDoneClicked(currentBitmap)
         }
     }}
-
-    // TODO effects - Try to use the original bitmap from the effectList instead of taking screenshot
-    when (screenshotState.imageState.value) {
-        ImageResult.Initial -> {}
-        is ImageResult.Error -> {
-            viewModel.shouldGoToNextScreen = false
-            context.defaultErrorToast()
-        }
-
-        is ImageResult.Success -> {
-            if (viewModel.shouldGoToNextScreen) {
-                viewModel.shouldGoToNextScreen = false
-                screenshotState.bitmap?.let { mBitmap ->
-                    handleScreenshotResult(mBitmap)
-                } ?: context.defaultErrorToast()
-            }
-        }
-    }
-
 
     val onEffectItemClicked = remember<(Int, EffectItem) -> Unit> {{ index, effectItem ->
         viewModel.selectEffect(index)
@@ -159,7 +132,7 @@ fun EffectsModeScreen(
             .statusBarsPadding()
             .imePadding()
     ) {
-        val (topToolBar, screenshotBox, effectsPreviewList, navBarZone) = createRefs()
+        val (topToolBar, imageBox, effectsPreviewList, navBarZone) = createRefs()
 
         // Inviolable Zone for System Navigation Keys
         Spacer(
@@ -188,9 +161,9 @@ fun EffectsModeScreen(
         val aspectRatio = bitmap.let {
             bitmap.width.toFloat() / bitmap.height.toFloat()
         }
-        ScreenshotBox(
+        Box(
             modifier = Modifier
-                .constrainAs(screenshotBox) {
+                .constrainAs(imageBox) {
                     top.linkTo(topToolBar.bottom)
                     bottom.linkTo(effectsPreviewList.top)
                     start.linkTo(parent.start)
@@ -200,23 +173,12 @@ fun EffectsModeScreen(
                 }
                 .padding(top = 0.dp, bottom = 0.dp)
                 .aspectRatio(aspectRatio)
-//                .sharedElement(
-//                    state = rememberSharedContentState(key = "centerImage"),
-//                    animatedVisibilityScope = animatedVisibilityScope,
-//                    boundsTransform = { _, _ ->
-//                        tween(300)
-//                    },
-//                )
-            ,
-            screenshotState = screenshotState
         ) {
-
             Image(
                 modifier = Modifier.fillMaxSize(),
                 bitmap = currentBitmap.asImageBitmap(),
                 contentDescription = null
             )
-
         }
 
 

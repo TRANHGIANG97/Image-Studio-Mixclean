@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.AutoFixHigh
+import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.Category
@@ -174,7 +175,7 @@ fun ToolbarItem(
         )
         is BottomToolbarItem.MagicBrush -> Pair(
             Icons.Outlined.Brush,
-            stringResource(id = R.string.brush)
+            "Tẩy xoá"
         )
         is BottomToolbarItem.BackgroundMode -> Pair(
             Icons.Outlined.Collections,
@@ -183,7 +184,11 @@ fun ToolbarItem(
 
         is BottomToolbarItem.EraserTool -> Pair(
             ImageVector.vectorResource(id = R.drawable.ic_eraser),
-            "Manual"
+            stringResource(id = R.string.eraser)
+        )
+        is BottomToolbarItem.MosaicTool -> Pair(
+            androidx.compose.material.icons.Icons.Default.Grain,
+            stringResource(id = R.string.mosaic)
         )
 
 

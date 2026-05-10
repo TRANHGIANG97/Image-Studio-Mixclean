@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.*
@@ -34,8 +35,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.theme.QuickEditTheme
 import com.abizer_r.quickedit.utils.defaultErrorToast
@@ -69,7 +68,7 @@ fun CropperScreen(
 
     val context = LocalContext.current
     val activity = LocalContext.current.getActivity()
-    val lifeCycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
 
     val colorOnBackground = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -106,7 +105,7 @@ fun CropperScreen(
     }
 
     val onCloseClickedLambda = remember<() -> Unit> { {
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             toolbarVisible = false
             delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
             onBackPressed()
@@ -123,7 +122,7 @@ fun CropperScreen(
 
 
     val handleCropResult = remember<(Bitmap) -> Unit> {{ bitmap ->
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             toolbarVisible = false
             delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
             onDoneClicked(bitmap)

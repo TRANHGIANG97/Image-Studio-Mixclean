@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -49,7 +50,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
+import com.abizer_r.quickedit.ui.common.ConfirmExitDialog
 import com.abizer_r.quickedit.utils.ImmutableList
 import com.abizer_r.quickedit.utils.defaultErrorToast
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
@@ -90,11 +91,13 @@ fun DrawModeScreen(
 
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
 
     val viewModel: DrawModeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle(
         lifecycleOwner = lifeCycleOwner
     )
+    val shouldGoToNextScreen by viewModel.shouldGoToNextScreen.collectAsStateWithLifecycle()
 
     val colorOnBackground = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -137,6 +140,7 @@ fun DrawModeScreen(
     }
 
     var toolbarVisible by remember { mutableStateOf(false) }
+    var showExitDialog by remember { mutableStateOf(false) }
     val showResetZoomPanBtn by remember {
         derivedStateOf { scale != 1f || offset != Offset.Zero }
     }
@@ -152,7 +156,7 @@ fun DrawModeScreen(
     }
 
     val resetZoomAndPan = remember<() -> Unit> {{
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             animateZoomPan = true
             scale = 1f // reset zoom
             offset = Offset.Zero    // reset pan
@@ -164,7 +168,7 @@ fun DrawModeScreen(
     val screenshotState = rememberScreenshotState()
 
     val onCloseClickedLambda = remember<() -> Unit> {{
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             resetZoomAndPan()
             if (state.showBottomToolbarExtension) {
                 viewModel.onEvent(DrawModeEvent.UpdateToolbarExtensionVisibility(false))
@@ -179,13 +183,25 @@ fun DrawModeScreen(
     BackHandler {
         if (state.showBottomToolbarExtension) {
             viewModel.onEvent(DrawModeEvent.UpdateToolbarExtensionVisibility(false))
+        } else if (state.pathDetailStack.isNotEmpty()) {
+            showExitDialog = true
         } else {
             onCloseClickedLambda()
         }
     }
 
+    if (showExitDialog) {
+        ConfirmExitDialog(
+            onDismiss = { showExitDialog = false },
+            onConfirm = {
+                showExitDialog = false
+                onCloseClickedLambda()
+            }
+        )
+    }
+
     val onDoneClickedLambda = remember<() -> Unit> {{
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             resetZoomAndPan()
             viewModel.handleStateBeforeCaptureScreenshot()
             delay(400)  /* Delay to update the ToolbarExtensionView Visibility and zoom/pan in ui */
@@ -194,7 +210,7 @@ fun DrawModeScreen(
     }}
 
     val handleScreenshotResult = remember<(Bitmap) -> Unit> {{ bitmap ->
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             toolbarVisible = false
             delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
             onDoneClicked(bitmap)
@@ -204,12 +220,12 @@ fun DrawModeScreen(
     when (screenshotState.imageState.value) {
         ImageResult.Initial -> {}
         is ImageResult.Error -> {
-            viewModel.shouldGoToNextScreen = false
+            viewModel.onNextScreenConsumed()
             context.defaultErrorToast()
         }
         is ImageResult.Success -> {
-            if (viewModel.shouldGoToNextScreen) {
-                viewModel.shouldGoToNextScreen = false
+            if (shouldGoToNextScreen) {
+                viewModel.onNextScreenConsumed()
                 screenshotState.bitmap?.let { mBitmap ->
                     handleScreenshotResult(mBitmap)
                 } ?: context.defaultErrorToast()
@@ -276,7 +292,7 @@ fun DrawModeScreen(
             }
 
 
-        if (viewModel.shouldGoToNextScreen) {
+        if (shouldGoToNextScreen) {
             // constraint the screenshot box to cover only the required area
             screenshotBoxModifier = screenshotBoxModifier.aspectRatio(aspectRatio)
         }

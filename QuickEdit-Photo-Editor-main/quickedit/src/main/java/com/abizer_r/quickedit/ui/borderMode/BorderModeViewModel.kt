@@ -13,7 +13,12 @@ class BorderModeViewModel @Inject constructor() : ViewModel() {
     private val _state = MutableStateFlow(BorderModeState())
     val state: StateFlow<BorderModeState> = _state
 
-    var shouldGoToNextScreen = false
+    private val _shouldGoToNextScreen = MutableStateFlow(false)
+    val shouldGoToNextScreen: StateFlow<Boolean> = _shouldGoToNextScreen
+
+    fun onNextScreenRequested() {
+        _shouldGoToNextScreen.value = true
+    }
 
     fun updateBorderColor(colorArgb: Int) {
         _state.update { it.copy(borderColorArgb = colorArgb) }

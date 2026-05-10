@@ -109,7 +109,11 @@
       "Bash(./gradlew :QuickEdit-Photo-Editor-main:quickedit:compileDebugKotlin)",
       "Bash(./gradlew :core-util:compileDebugKotlin :quickedit:compileDebugKotlin)",
       "Bash(./gradlew --stop)",
-      "Bash(./gradlew :core-util:compileDebugKotlin :quickedit:compileDebugKotlin --rerun-tasks)"
+      "Bash(./gradlew :core-util:compileDebugKotlin :quickedit:compileDebugKotlin --rerun-tasks)",
+      "Bash(ls gradlew *)",
+      "Bash(ls gradle/wrapper/gradle-wrapper.jar)",
+      "Bash(java -jar gradle/wrapper/gradle-wrapper.jar --version)",
+      "PowerShell(Get-Command *)"
     ]
   }
 }

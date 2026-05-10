@@ -14,6 +14,12 @@ import com.abizer_r.quickedit.ui.drawMode.drawingCanvas.drawingTool.shapes.Shape
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarItem
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.max
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+
 
 object DrawModeUtils {
 
@@ -32,10 +38,6 @@ object DrawModeUtils {
                 opacity = DrawingConstants.DEFAULT_STROKE_OPACITY,
                 shapeType = ShapeType.LINE
             ),
-            BottomToolbarItem.EraserTool(
-                width = DrawingConstants.DEFAULT_STROKE_WIDTH
-            ),
-
         )
     }
 
@@ -56,12 +58,20 @@ object DrawModeUtils {
         return Offset(x.toFloat(), y.toFloat())
     }
 
+
+    private const val MAX_BLOCK_SIZE_AUTO = 256
+
+    
 }
+
+
+
 
 fun BottomToolbarItem.getShape(
     selectedColor: Color,
-    scale: Float = 1f,
+    scale: Float = 1f
 ): AbstractShape {
+
     return when (val toolbarItem = this) {
         is BottomToolbarItem.BrushTool -> {
             BrushShape(
@@ -93,14 +103,18 @@ fun BottomToolbarItem.getShape(
 
         else -> {
             val isEraser = toolbarItem is BottomToolbarItem.EraserTool
+            val isMosaic = toolbarItem is BottomToolbarItem.MosaicTool
             val width = when (toolbarItem) {
                 is BottomToolbarItem.EraserTool -> toolbarItem.width
+                is BottomToolbarItem.MosaicTool -> toolbarItem.width
                 else -> DrawingConstants.DEFAULT_STROKE_WIDTH
             }
             BrushShape(
                 isEraser = isEraser,
+                isMosaic = isMosaic,
                 width = width / scale
             )
+
         }
     }
 }
@@ -109,6 +123,7 @@ fun BottomToolbarItem.getWidthOrNull(): Float? {
     return when (this) {
         is BottomToolbarItem.BrushTool -> this.width
         is BottomToolbarItem.EraserTool -> this.width
+        is BottomToolbarItem.MosaicTool -> this.width
         is BottomToolbarItem.ShapeTool -> this.width
 
         else -> null
@@ -119,6 +134,7 @@ fun BottomToolbarItem.setWidthIfPossible(mWidth: Float): BottomToolbarItem {
     when (this) {
         is BottomToolbarItem.BrushTool -> this.width = mWidth
         is BottomToolbarItem.EraserTool -> this.width = mWidth
+        is BottomToolbarItem.MosaicTool -> this.width = mWidth
         is BottomToolbarItem.ShapeTool -> this.width = mWidth
 
         else -> {}

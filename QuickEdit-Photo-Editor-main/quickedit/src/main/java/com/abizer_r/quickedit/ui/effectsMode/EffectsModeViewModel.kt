@@ -18,7 +18,16 @@ class EffectsModeViewModel @Inject constructor(
     private val _state = MutableStateFlow(EffectsModeState())
     val state: StateFlow<EffectsModeState> = _state
 
-    var shouldGoToNextScreen = false
+    private val _shouldGoToNextScreen = MutableStateFlow(false)
+    val shouldGoToNextScreen: StateFlow<Boolean> = _shouldGoToNextScreen
+
+    fun onNextScreenRequested() {
+        _shouldGoToNextScreen.value = true
+    }
+
+    fun onNextScreenConsumed() {
+        _shouldGoToNextScreen.value = false
+    }
 
     fun updateEffectList(effectList: ArrayList<EffectItem>) {
         _state.update { it.copy(effectsList = effectList) }

@@ -39,9 +39,18 @@ class DrawModeViewModel @Inject constructor(
     private val _state = MutableStateFlow(DrawModeState())
     val state: StateFlow<DrawModeState> = _state
 
-    var shouldGoToNextScreen = false
+    private val _shouldGoToNextScreen = MutableStateFlow(false)
+    val shouldGoToNextScreen: StateFlow<Boolean> = _shouldGoToNextScreen
     // shows the icon initially, then show selected color
     var showColorPickerIconInToolbar = true
+
+    fun onNextScreenRequested() {
+        _shouldGoToNextScreen.value = true
+    }
+
+    fun onNextScreenConsumed() {
+        _shouldGoToNextScreen.value = false
+    }
 
     fun setWorkingBitmap(bitmap: Bitmap) {
         _state.update {
@@ -50,7 +59,7 @@ class DrawModeViewModel @Inject constructor(
     }
 
     fun handleStateBeforeCaptureScreenshot() {
-        shouldGoToNextScreen = true
+        _shouldGoToNextScreen.value = true
         _state.update {
             it.copy(showBottomToolbarExtension = false)
         }

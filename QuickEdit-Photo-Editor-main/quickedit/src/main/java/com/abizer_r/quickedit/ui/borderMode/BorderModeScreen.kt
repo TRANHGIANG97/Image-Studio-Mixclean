@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -33,7 +34,6 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.theme.QuickEditTheme
 // ToolBarBackgroundColor removed from imports
@@ -65,6 +65,7 @@ fun BorderModeScreen(
 ) {
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
 
     val viewModel: BorderModeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -101,7 +102,7 @@ fun BorderModeScreen(
     }
 
     val onCloseClickedLambda = remember<() -> Unit> { {
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             toolbarVisible = false
             delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
             onBackPressed()
@@ -113,7 +114,7 @@ fun BorderModeScreen(
     }
 
     val onDoneClickedLambda = remember<() -> Unit> { {
-        lifeCycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             toolbarVisible = false
             viewModel.setApplyingBorder(true)
             delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
