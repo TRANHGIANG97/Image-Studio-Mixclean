@@ -16,7 +16,12 @@ import java.io.FileInputStream
 object FileUtils {
 
     fun getUriForFile(context: Context, file: File): Uri? {
-        return FileProvider.getUriForFile(context, "com.thgiang.image.fileprovider", file)
+        return try {
+            FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     fun saveFileToAppFolder(
@@ -63,8 +68,13 @@ object FileUtils {
 
         val uri = context.contentResolver.insert(contentUri, contentValues)
         if (uri != null) {
-            copyFileToUri(context.contentResolver, file, uri)
-            onSuccess()
+            try {
+                copyFileToUri(context.contentResolver, file, uri)
+                onSuccess()
+            } catch (e: Exception) {
+                context.contentResolver.delete(uri, null, null)
+                onFailure(e.message)
+            }
         } else {
             onFailure(context.getString(R.string.fail_to_insert_uri_in_content_resolver))
             return
@@ -103,8 +113,13 @@ object FileUtils {
 
 
         if (uri != null) {
-            copyFileToUri(context.contentResolver, file, uri)
-            onSuccess()
+            try {
+                copyFileToUri(context.contentResolver, file, uri)
+                onSuccess()
+            } catch (e: Exception) {
+                context.contentResolver.delete(uri, null, null)
+                onFailure(e.message)
+            }
         } else {
             onFailure(context.getString(R.string.fail_to_insert_uri_in_content_resolver))
             return
@@ -117,7 +132,8 @@ object FileUtils {
 
     private fun getMimeTypeFromFile(file: File): String {
         return when (file.extension.lowercase()) {
-            "jpg", "jpeg", "png" -> "image/${file.extension.lowercase()}"
+            "jpg", "jpeg" -> "image/jpeg"
+            "png" -> "image/png"
             "mp4" -> "video/mp4"
             else -> "application/octet-stream"
         }
@@ -144,7 +160,7 @@ object FileUtils {
             FileInputStream(file).use { inputStream ->
                 inputStream.copyTo(outputStream)
             }
-        }
+        } ?: throw IllegalStateException("Cannot open output stream for $uri")
     }
 
     fun copyFile(sourceFile: File, destFile: File) {

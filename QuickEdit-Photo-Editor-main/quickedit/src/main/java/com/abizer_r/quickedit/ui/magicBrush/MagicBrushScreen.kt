@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.abizer_r.quickedit.ui.common.rememberCheckerboardBrush
 import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.ui.magicBrush.components.MagicEraserCanvas
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapCache
@@ -57,12 +59,13 @@ fun MagicBrushScreen(
     onDoneClicked: (Bitmap) -> Unit
 ) {
     val viewModel: MagicBrushViewModel = hiltViewModel()
-    val currentBitmap by viewModel.currentBitmap.collectAsStateWithLifecycle()
-    val tolerance by viewModel.tolerance.collectAsStateWithLifecycle()
-    val selectedTool by viewModel.selectedTool.collectAsStateWithLifecycle()
-    val isProcessing by viewModel.isProcessing.collectAsStateWithLifecycle()
-    val canUndo by viewModel.canUndo.collectAsStateWithLifecycle()
-    val canRedo by viewModel.canRedo.collectAsStateWithLifecycle()
+    val lifeCycleOwner = LocalLifecycleOwner.current
+    val currentBitmap by viewModel.currentBitmap.collectAsStateWithLifecycle(lifecycleOwner = lifeCycleOwner)
+    val tolerance by viewModel.tolerance.collectAsStateWithLifecycle(lifecycleOwner = lifeCycleOwner)
+    val selectedTool by viewModel.selectedTool.collectAsStateWithLifecycle(lifecycleOwner = lifeCycleOwner)
+    val isProcessing by viewModel.isProcessing.collectAsStateWithLifecycle(lifecycleOwner = lifeCycleOwner)
+    val canUndo by viewModel.canUndo.collectAsStateWithLifecycle(lifecycleOwner = lifeCycleOwner)
+    val canRedo by viewModel.canRedo.collectAsStateWithLifecycle(lifecycleOwner = lifeCycleOwner)
 
     val density = LocalDensity.current
     var scale by remember { mutableFloatStateOf(1f) }
@@ -128,6 +131,7 @@ fun MagicBrushScreen(
 
                     MagicBrushTool.BLUR -> {
                         currentBitmap?.let { bmp ->
+                            if (containerSize.width == 0 || containerSize.height == 0) return@let
                             com.abizer_r.quickedit.ui.magicBrush.components.MosaicDrawingCanvas(
                                 originalBitmap = bmp,
                                 pixelBlockSize = 30,
@@ -148,6 +152,7 @@ fun MagicBrushScreen(
                     }
                     MagicBrushTool.BRUSH_ERASE -> {
                         currentBitmap?.let { bmp ->
+                            if (containerSize.width == 0 || containerSize.height == 0) return@let // FIX: Guard against zero size
                             val containerAspect = containerSize.width.toFloat() / containerSize.height.toFloat()
                             val bitmapAspect = bmp.width.toFloat() / bmp.height.toFloat()
                             val (drawW, drawH) = if (containerAspect > bitmapAspect) {
@@ -185,6 +190,7 @@ fun MagicBrushScreen(
                                 .fillMaxSize()
                                 .pointerInteropFilter { event ->
                                     if (selectedTool == MagicBrushTool.SMART_ERASE && event.action == MotionEvent.ACTION_DOWN) {
+                                        if (containerSize.width == 0 || containerSize.height == 0) return@pointerInteropFilter false // FIX: Guard against zero size
                                         val bitmap = currentBitmap ?: return@pointerInteropFilter false
                                         val containerAspect = containerSize.width.toFloat() / containerSize.height.toFloat()
                                         val bitmapAspect = bitmap.width.toFloat() / bitmap.height.toFloat()
@@ -364,7 +370,7 @@ fun MagicBrushScreen(
                         selected = selectedTool == MagicBrushTool.BLUR,
                         onClick = { viewModel.selectTool(MagicBrushTool.BLUR) },
                         icon = Icons.Default.Grain,
-                        label = stringResource(R.string.effect_blur)
+                        label = stringResource(R.string.mosaic)
                     )
 
 
@@ -384,34 +390,6 @@ fun MagicBrushScreen(
     BackHandler { onBackPressed() }
 }
 
-@Composable
-fun rememberCheckerboardBrush(): ShaderBrush {
-    val density = LocalDensity.current
-    val tilePx = with(density) { 8.dp.toPx().roundToInt().coerceAtLeast(1) }
-    val size = tilePx * 2
-    
-    val bmp = remember(tilePx) {
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(bitmap)
-        val paint = android.graphics.Paint().apply { isAntiAlias = false }
-        
-        paint.color = android.graphics.Color.WHITE
-        canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paint)
-        
-        paint.color = android.graphics.Color.parseColor("#EEEEEE") // Xám rất nhạt
-        canvas.drawRect(0f, 0f, tilePx.toFloat(), tilePx.toFloat(), paint)
-        canvas.drawRect(tilePx.toFloat(), tilePx.toFloat(), size.toFloat(), size.toFloat(), paint)
-        bitmap
-    }
-    
-    DisposableEffect(bmp) {
-        onDispose { if (!bmp.isRecycled) bmp.recycle() }
-    }
-    
-    return remember(bmp) {
-        ShaderBrush(ImageShader(bmp.asImageBitmap(), TileMode.Repeated, TileMode.Repeated))
-    }
-}
 
 @Composable
 fun ToolButton(

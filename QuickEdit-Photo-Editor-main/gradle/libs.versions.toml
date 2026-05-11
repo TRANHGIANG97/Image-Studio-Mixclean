@@ -22,6 +22,11 @@ lifecycleRuntimeKtx = "2.8.2"
 material = "1.12.0"
 navigationCompose = "2.7.7"
 composeAnimation = "1.7.0-beta04"
+coroutines = "1.10.2"
+datastorePreferences = "1.1.1"
+jetbrainsKotlinJvm = "2.1.10"
+playServicesMlkitSubjectSegmentation = "16.0.0-beta1"
+visionCommon = "17.3.0"
 
 
 [libraries]
@@ -46,6 +51,8 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended"}
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "composeAnimation"}
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
 colorpicker = { module = "io.mhssn:colorpicker", version.ref = "colorpicker" }
 compose-screenshot = { module = "com.github.SmartToolFactory:Compose-Screenshot", version.ref = "composeScreenshot" }
@@ -53,8 +60,11 @@ gpuimage = { module = "jp.co.cyberagent.android:gpuimage", version.ref = "gpuima
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 junit = { module = "junit:junit", version.ref = "junit" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+play-services-mlkit-subject-segmentation = { module = "com.google.android.gms:play-services-mlkit-subject-segmentation", version.ref = "playServicesMlkitSubjectSegmentation" }
+vision-common = { module = "com.google.mlkit:vision-common", version.ref = "visionCommon" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp"}
@@ -65,3 +75,5 @@ kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin"}
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid"}
 android-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid"}
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp"}
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }

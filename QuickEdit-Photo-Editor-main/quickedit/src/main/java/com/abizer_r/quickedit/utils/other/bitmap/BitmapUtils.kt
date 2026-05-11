@@ -81,9 +81,15 @@ object BitmapUtils {
         return Pair(onlyBoundsOptions.outWidth, onlyBoundsOptions.outHeight)
     }
 
-    fun saveBitmap(bitmap: Bitmap, file: File) {
+    fun saveBitmap(
+        bitmap: Bitmap,
+        file: File,
+        format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
+        quality: Int = 100
+    ) {
+        file.parentFile?.mkdirs()
         FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            bitmap.compress(format, quality, out)
         }
     }
 

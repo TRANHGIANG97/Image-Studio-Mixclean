@@ -4,7 +4,10 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.jetbrains.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.dagger.hilt) apply false
+    alias(libs.plugins.google.devtools.ksp) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
 //    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0-RC3" apply false
 }

@@ -44,11 +44,11 @@ import com.abizer_r.quickedit.ui.editorScreen.EditorScreen
 import com.abizer_r.quickedit.ui.editorScreen.EditorScreenState
 import com.abizer_r.quickedit.ui.effectsMode.EffectsModeScreen
 import com.abizer_r.quickedit.ui.navigation.NavDestinations
-import com.abizer_r.quickedit.ui.textMode.TextModeScreen
 import com.abizer_r.quickedit.ui.borderMode.BorderModeScreen
 import com.abizer_r.quickedit.ui.studioMode.StudioModeScreen
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundModeScreen
 import com.abizer_r.quickedit.ui.magicBrush.MagicBrushScreen
+import com.abizer_r.quickedit.ui.textMode.TextModeScreen
 import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
@@ -58,8 +58,6 @@ import java.util.Stack
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.feature.editor.model.DraftManager
 import com.thgiang.image.feature.editor.model.LayerSnapshot
@@ -207,41 +205,32 @@ fun QuickEditEditorNavigation(
         return
     }
 
-    val goToCropModeScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.CROPPER_SCREEN)
+    val goToCropModeScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.CropperScreen)
     } }
-    val goToDrawModeScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.DRAW_MODE_SCREEN)
+    val goToDrawModeScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.DrawModeScreen)
     } }
-    val goToTextModeScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.TEXT_MODE_SCREEN)
+    val goToTextModeScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.TextModeScreen)
     } }
-    val goToEffectsModeScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.EFFECTS_MODE_SCREEN)
+    val goToEffectsModeScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.EffectsModeScreen)
     } }
-    val goToBorderModeScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.BORDER_MODE_SCREEN)
+    val goToBorderModeScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.BorderModeScreen)
     } }
-    val goToStudioModeScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.STUDIO_MODE_SCREEN)
+    val goToStudioModeScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.StudioModeScreen)
     } }
-    val goToRemoveBgScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.REMOVE_BG_SCREEN)
+    val goToRemoveBgScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.RemoveBgScreen)
     } }
-    val goToBackgroundModeScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.BACKGROUND_MODE_SCREEN)
+    val goToBackgroundModeScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.BackgroundModeScreen)
     } }
-    val goToMagicBrushScreen = remember { { state: EditorScreenState ->
-        sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.MAGIC_BRUSH_SCREEN)
+    val goToMagicBrushScreen = remember { { _: EditorScreenState ->
+        navController.navigate(NavDestinations.MagicBrushScreen)
     } }
 
     val onBackPressed = remember { {
@@ -252,8 +241,8 @@ fun QuickEditEditorNavigation(
         sharedEditorViewModel.addBitmapToStack(
             bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false),
         )
-        navController.navigate(NavDestinations.EDITOR_SCREEN) {
-            popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+        navController.navigate(NavDestinations.EditorScreen) {
+            popUpTo(NavDestinations.EditorScreen) { inclusive = true }
         }
     } }
 
@@ -316,13 +305,13 @@ fun QuickEditEditorNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = NavDestinations.EDITOR_SCREEN,
+        startDestination = NavDestinations.EditorScreen,
     ) {
-        composable(route = NavDestinations.EDITOR_SCREEN) {
+        composable<NavDestinations.EditorScreen> {
             LaunchedEffect(bitmapLoaded, autoRemoveBackground) {
                 if (bitmapLoaded && autoRemoveBackground && !autoRemoveDone) {
                     autoRemoveDone = true
-                    navController.navigate(NavDestinations.REMOVE_BG_SCREEN)
+                    navController.navigate(NavDestinations.RemoveBgScreen)
                 }
             }
             val visualState by sharedEditorViewModel.recompositionTrigger
@@ -353,78 +342,86 @@ fun QuickEditEditorNavigation(
             )
         }
 
-        composable(route = NavDestinations.CROPPER_SCREEN) {
+        composable<NavDestinations.CropperScreen> {
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
             CropperScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                immutableBitmap = ImmutableBitmap(currentBitmap),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
             )
         }
 
-        composable(route = NavDestinations.DRAW_MODE_SCREEN) {
+        composable<NavDestinations.DrawModeScreen> {
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
             DrawModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                immutableBitmap = ImmutableBitmap(currentBitmap),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
             )
         }
 
-        composable(route = NavDestinations.TEXT_MODE_SCREEN) {
+        composable<NavDestinations.TextModeScreen> {
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
             TextModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                immutableBitmap = ImmutableBitmap(currentBitmap),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
             )
         }
 
-        composable(route = NavDestinations.EFFECTS_MODE_SCREEN) {
+        composable<NavDestinations.EffectsModeScreen> {
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
             EffectsModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                immutableBitmap = ImmutableBitmap(currentBitmap),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
             )
         }
 
-        composable(route = NavDestinations.BORDER_MODE_SCREEN) {
+        composable<NavDestinations.BorderModeScreen> {
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
             BorderModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                immutableBitmap = ImmutableBitmap(currentBitmap),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
             )
         }
         
-        composable(route = NavDestinations.STUDIO_MODE_SCREEN) {
+        composable<NavDestinations.StudioModeScreen> {
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
             StudioModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                immutableBitmap = ImmutableBitmap(currentBitmap),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
                 onCheckClicked = if (rewardedAdManager != null) onStudioCheckClicked else null
             )
         }
 
-        composable(route = NavDestinations.REMOVE_BG_SCREEN) {
+        composable<NavDestinations.RemoveBgScreen> {
             val repo = backgroundRemoverRepository
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
             if (repo != null) {
                 RemoveBgScreen(
-                    bitmap = sharedEditorViewModel.getCurrentBitmap(),
+                    bitmap = currentBitmap,
                     backgroundRemoverRepository = repo,
                     onBackPressed = { navController.navigateUp() },
                     onDoneClicked = { resultBitmap ->
                         val result = resultBitmap.copy(Bitmap.Config.ARGB_8888, true)
                         result.setHasAlpha(true)
                         sharedEditorViewModel.addBitmapToStack(bitmap = result)
-                        navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                            popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                        navController.navigate(NavDestinations.EditorScreen) {
+                            popUpTo(NavDestinations.EditorScreen) { inclusive = true }
                         }
                     }
                 )
             }
         }
 
-        composable(route = NavDestinations.BACKGROUND_MODE_SCREEN) { entry ->
+        composable<NavDestinations.BackgroundModeScreen> { entry ->
             val pickedImageUri = entry.savedStateHandle.get<Uri>("background_image_uri")
             var pickedBitmap by remember { mutableStateOf<Bitmap?>(null) }
             val ctx = LocalContext.current
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
 
             LaunchedEffect(pickedImageUri) {
                 pickedImageUri?.let { uri ->
@@ -435,26 +432,17 @@ fun QuickEditEditorNavigation(
             }
 
             BackgroundModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                immutableBitmap = ImmutableBitmap(currentBitmap),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
                 onPickImageRequest = {
-                    navController.navigate(NavDestinations.SINGLE_IMAGE_PICKER_SCREEN + "?autoRemove=false")
+                    navController.navigate(NavDestinations.SingleImagePickerScreen(autoRemove = false))
                 },
                 pickedImage = pickedBitmap
             )
         }
 
-        composable(
-            route = NavDestinations.SINGLE_IMAGE_PICKER_SCREEN + "?autoRemove={autoRemove}",
-            arguments = listOf(
-                navArgument("autoRemove") {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            )
-        ) { backStackEntry ->
-            val autoRemove = backStackEntry.arguments?.getBoolean("autoRemove") ?: false
+        composable<NavDestinations.SingleImagePickerScreen> {
             SingleImagePickerScreen(
                 onImageSelected = { uri ->
                     navController.previousBackStackEntry
@@ -468,16 +456,17 @@ fun QuickEditEditorNavigation(
             )
         }
 
-        composable(route = NavDestinations.MAGIC_BRUSH_SCREEN) {
+        composable<NavDestinations.MagicBrushScreen> {
+            val currentBitmap = sharedEditorViewModel.getCurrentBitmap() ?: return@composable
             MagicBrushScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                immutableBitmap = ImmutableBitmap(currentBitmap),
                 onBackPressed = { navController.navigateUp() },
                 onDoneClicked = { resultBitmap: Bitmap ->
                     sharedEditorViewModel.addBitmapToStack(
                         bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
                     )
-                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                    navController.navigate(NavDestinations.EditorScreen) {
+                        popUpTo(NavDestinations.EditorScreen) { inclusive = true }
                     }
                 }
             )

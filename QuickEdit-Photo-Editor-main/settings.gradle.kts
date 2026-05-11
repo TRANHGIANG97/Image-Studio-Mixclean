@@ -17,3 +17,12 @@ dependencyResolutionManagement {
 rootProject.name = "QuickEdit"
 include(":app")
 include(":quickedit")
+include(":core-data")
+include(":core-domain")
+include(":core-util")
+include(":core-ad")
+
+project(":core-data").projectDir = file("../core-data")
+project(":core-domain").projectDir = file("../core-domain")
+project(":core-util").projectDir = file("../core-util")
+project(":core-ad").projectDir = file("../core-ad")
