@@ -1,7 +1,90 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" ?>
 <resources>
     <string name="app_name">QuickEdit</string>
-    <string name="app_name_full">QuickEdit - Editor Foto</string>
-    <string name="color">Color</string><string name="format">Format</string><string name="font">Font</string><string name="brush">Brush</string><string name="pan">Pan</string><string name="zoom">Zoom</string><string name="shape">Shape</string><string name="eraser">Eraser</string><string name="crop">Crop</string><string name="draw">Draw</string><string name="text">Text</string><string name="effects">Effects</string><string name="width">Width</string><string name="opacity">Opacity</string><string name="done">Done</string><string name="something_went_wrong">Something went wrong</string><string name="enter_your_text">Enter your text</string><string name="pick_image">Pick Image</string><string name="capture_image">Capture Image</string><string name="saving_image">Saving Image</string><string name="image_saved_successfully">Image saved successfully</string><string name="failed_to_save_image">Failed to save image</string><string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="okay">Okay</string><string name="storage_permission_rationale">App needs storage permission to save edited files to your device.</string><string name="storage_permission_permanently_declined">It seems you have permanently declined storage permission. You can grant it in app settings.</string><string name="following_permissions_are_required">Following permissions are required to perform this action:
-</string><string name="perm_item_storage">- Storage
-</string><string name="app_not_found">App not found</string><string name="fail_to_insert_uri_in_content_resolver">Fail to insert URI in ContentResolver</string><string name="enter_aspect_ratio">Enter aspect ratio</string><string name="x">X</string><string name="y">Y</string><string name="select">Select</string><string name="not_a_valid_number">Not a valid number</string><string name="fields_cannot_be_empty">Fields cannot be empty</string><string name="ratio_lesser_than_minimum">Ratio lesser than minimum allowed</string><string name="ratio_greater_than_minimum">Ratio greater than maximum allowed</string><string name="border">Border</string><string name="studio">Studio</string><string name="blur">Blur</string><string name="portrait">Portrait</string><string name="clean">Clean</string><string name="darken">Darken</string><string name="remove_bg">Remove BG</string><string name="studio_intensity">Intensity</string><string name="background">Background</string><string name="gradient">Gradient</string><string name="remove_bg_warning">Please remove background before adding background</string><string name="back">Back</string><string name="original">Original</string><string name="save_draft">Save Draft</string><string name="failed_to_apply_effect">Failed to apply effect</string><string name="failed_to_apply_background">Failed to apply background</string><string name="aspect_ratio_equals">Aspect Ratio = %1$s</string><string name="min_allowed_aspect_ratio">Min Allowed Aspect Ratio = %1$.2f</string><string name="max_allowed_aspect_ratio">Max Allowed Aspect Ratio = %1$.2f</string><string name="invalid">Invalid</string><string name="app_logo">App Logo</string></resources>
+    <string name="app_name_full">QuickEdit - Photo Editor</string>
+    <string name="color">Color</string>
+    <string name="format">Format</string>
+    <string name="font">Font</string>
+    <string name="brush">Brush</string>
+    <string name="pan">Geser</string>
+    <string name="zoom">Zoom</string>
+    <string name="shape">Shape</string>
+    <string name="eraser">Eraser</string>
+    <string name="crop">Crop</string>
+    <string name="draw">Draw</string>
+    <string name="text">Text</string>
+    <string name="effects">Effects</string>
+    <string name="width">Width</string>
+    <string name="opacity">Opacity</string>
+    <string name="done">Done</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="enter_your_text">Enter your text</string>
+    <string name="pick_image">Pick Image</string>
+    <string name="capture_image">Capture Image</string>
+    <string name="saving_image">Saving Image</string>
+    <string name="image_saved_successfully">Image saved successfully</string>
+    <string name="failed_to_save_image">Failed to save image</string>
+    <string name="permission_required">Permission required</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="okay">Okay</string>
+    <string name="storage_permission_rationale">App needs storage permission to save edited files to your device.</string>
+    <string name="storage_permission_permanently_declined">It seems you have permanently declined storage permission. You can grant it in app settings.</string>
+    <string name="following_permissions_are_required">Following permissions are required to perform this action:
+</string>
+    <string name="perm_item_storage">- Storage
+</string>
+    <string name="app_not_found">App not found</string>
+    <string name="fail_to_insert_uri_in_content_resolver">Fail to insert URI in ContentResolver</string>
+    <string name="enter_aspect_ratio">Enter aspect ratio</string>
+    <string name="x">X</string>
+    <string name="y">Y</string>
+    <string name="select">Select</string>
+    <string name="not_a_valid_number">Not a valid number</string>
+    <string name="fields_cannot_be_empty">Fields cannot be empty</string>
+    <string name="ratio_lesser_than_minimum">Ratio lesser than minimum allowed</string>
+    <string name="ratio_greater_than_minimum">Ratio greater than maximum allowed</string>
+    <string name="border">Bingkai</string>
+    <string name="studio">Studio</string>
+    <string name="blur">Blur</string>
+    <string name="portrait">Portrait</string>
+    <string name="clean">Clean</string>
+    <string name="darken">Darken</string>
+    <string name="remove_bg">Hapus latar</string>
+    <string name="studio_intensity">Intensity</string>
+    <string name="background">Latar belakang</string>
+    <string name="gradient">Gradient</string>
+    <string name="remove_bg_warning">Please remove background before adding background</string>
+    <string name="back">Back</string>
+    <string name="original">Original</string>
+    <string name="save_draft">Save Draft</string>
+    <string name="failed_to_apply_effect">Failed to apply effect</string>
+    <string name="failed_to_apply_background">Failed to apply background</string>
+    <string name="aspect_ratio_equals">Aspect Ratio = %1$s</string>
+    <string name="min_allowed_aspect_ratio">Min Allowed Aspect Ratio = %1$.2f</string>
+    <string name="max_allowed_aspect_ratio">Max Allowed Aspect Ratio = %1$.2f</string>
+    <string name="invalid">Invalid</string>
+    <string name="magic_brush">Kuas Ajaib</string>
+    <string name="remove_object">Remove</string>
+    <string name="mosaic">Mosaic</string>
+    <string name="app_logo">App Logo</string>
+    <string name="confirm_exit_title">Discard changes?</string>
+    <string name="confirm_exit_message">You have unsaved edits.</string>
+    <string name="discard">Discard</string>
+    <string name="cancel">Cancel</string>
+    <string name="tool_magic_brush">Kuas Ajaib</string>
+    <string name="label_magic_wand">Tongkat ajaib</string>
+    <string name="label_offset">Offset</string>
+    <string name="label_brush_size">Brush size</string>
+    <string name="label_tolerance">Tolerance</string>
+    <string name="label_erase_brush">Kuas penghapus</string>
+    <string name="effect_original">Original</string>
+    <string name="effect_grayscale">Grayscale</string>
+    <string name="effect_blur">Blur</string>
+    <string name="crop_free">Free</string>
+    <string name="crop_custom">Custom</string>
+    <string name="crop_square">Square</string>
+    <string name="error_apply_effect">Failed to apply effect</string>
+    <string name="error_apply_background">Failed to apply background</string>
+    <string name="error_auto_removal_failed">Auto background removal failed: %1$s</string>
+    <string name="error_recycled_bitmap">Bitmap already recycled</string>
+</resources>

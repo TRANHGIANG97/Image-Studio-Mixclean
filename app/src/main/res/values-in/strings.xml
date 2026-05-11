@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - Penghapus Latar Belakang</string>
     <string name="app_title">Alat Gambar</string>
@@ -13,7 +13,7 @@
     <string name="language_title">Bahasa</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">Pilih bahasa aplikasi.</string>
-    <string name="language_system">Default sistem</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Bahasa saat ini: %1$s</string>
     <string name="current_language_menu">Saat ini: %1$s</string>
-
     <string name="settings_title">Pengaturan</string>
     <string name="licenses_title">Lisensi sumber terbuka</string>
     <string name="dark_mode_title">Mode gelap</string>
     <string name="dark_mode_description">Aktifkan atau nonaktifkan tema gelap.</string>
-
     <string name="home_remove_background_title">Hapus Latar</string>
     <string name="home_remove_background_subtitle">Pilih gambar dan hapus latar dengan satu ketukan.</string>
     <string name="dashboard_hero_title">Penghapus Latar AI</string>
@@ -52,7 +50,7 @@
     <string name="dashboard_feature_fast">Cepat</string>
     <string name="dashboard_feature_smart">Pintar</string>
     <string name="dashboard_feature_secure">Aman</string>
-    <string name="choose_image">Pilih gambar</string>
+    <string name="choose_image">Pilih Gambar</string>
     <string name="remove_background">Hapus latar</string>
     <string name="home_choose_image_and_remove_background">Pilih gambar và hapus latar belakang</string>
     <string name="multi_image_remove">Hapus latar banyak gambar</string>
@@ -82,14 +80,12 @@
     <string name="editor_redo">Ulangi</string>
     <string name="border_presets_title">Preset bingkai</string>
     <string name="border_applying">Menerapkan bingkai…</string>
-
     <string name="blur_title">Blur Gambar</string>
     <string name="blur_subtitle">Hanya blur latar; subjek tetap tajam (mode potret).</string>
     <string name="blur_pick_hint">Ketuk «Pilih gambar» untuk mulai</string>
     <string name="blur_intensity">Intensitas: %1$d</string>
     <string name="blur_detecting_subject">Mendeteksi subjek…</string>
     <string name="portrait_preview_export_failed">Tidak dapat membuat pratinjau. Coba lagi.</string>
-
     <string name="multi_title">Hapus Latar Banyak</string>
     <string name="multi_description">Pilih beberapa gambar, lalu proses secara berurutan.</string>
     <string name="multi_select_images">Pilih gambar</string>
@@ -114,10 +110,9 @@
     <string name="multi_saved_successfully">Gambar berhasil disimpan</string>
     <string name="multi_save_failed">Gagal menyimpan</string>
     <string name="exit_dialog_title">Keluar aplikasi</string>
-    <string name="exit_dialog_message">Apakah Anda ingin keluar dari aplikasi?</string>
+    <string name="exit_dialog_message">Apakah Anda muốn keluar từ aplikasi?</string>
     <string name="exit_dialog_cancel">Batal</string>
     <string name="exit_dialog_exit">Keluar</string>
-
     <string name="quality_label">Kualitas</string>
     <string name="quality_standard">Standar</string>
     <string name="quality_basic">Basic</string>
@@ -131,17 +126,13 @@
     <string name="premium_benefit_unlimited">Penghapusan latar tanpa batas</string>
     <string name="settings_removal_quality">Kualitas penghapusan</string>
     <string name="settings_removal_quality_summary">Standar (termasuk) • Pro (Premium)</string>
-
-    
     <string name="lightning_title">Peningkatan Kilat</string>
     <string name="lightning_pick_hint">Pilih gambar untuk mulai</string>
     <string name="lightning_compare_hint">Bandingkan sebelum / sesudah</string>
     <string name="lightning_intensity">Intensitas: %1$d</string>
-
     <string name="lightning_action_portrait">Potret</string>
     <string name="lightning_action_darken">Gelapkan</string>
     <string name="lightning_action_clean">Bersih</string>
-
     <string name="home_background_presets">Preset latar</string>
     <string name="home_applying_preset">Menerapkan preset…</string>
     <string name="upgrade_sheet_title">Buka Pro untuk fitur ini</string>
@@ -153,6 +144,7 @@
     <string name="home_dock_blur">Blur</string>
     <string name="home_dock_pick_image">Pilih Gambar</string>
     <string name="home_dock_photo_editor">Editor Foto</string>
+    <string name="home_dock_quick_edit">Edit Cepat</string>
     <string name="home_dock_hd_export">Ekspor HD</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Draf</string>
@@ -177,7 +169,6 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="sheet_no_image_selected">Tidak ada gambar dipilih</string>
     <string name="cd_ai_removal_preview">Pratinjau penghapusan latar</string>
-
     <string name="settings_app_preferences">Preferensi aplikasi</string>
     <string name="settings_section_appearance">Tampilan</string>
     <string name="settings_section_ai">Pemrosesan AI</string>
@@ -185,13 +176,10 @@
     <string name="settings_app_version_label">Aplikasi %1$s</string>
     <string name="multi_selected_inline">%1$d dipilih</string>
     <string name="editor_text_error">Teks: %1$s</string>
-
     <string name="premium_free_trial_cta">3 HARI GRATIS →</string>
     <string name="premium_after_trial_price">680.000đ/bulan setelah uji coba berakhir</string>
     <string name="premium_restore">Pulihkan</string>
     <string name="premium_brand_title">Retouch</string>
-
-
     <string name="premium_unlock_all_features">Buka semua fitur</string>
     <string name="premium_plan_month">bulan</string>
     <string name="premium_plan_week">minggu</string>
@@ -206,7 +194,6 @@
     <string name="premium_cta_trial">Mulai Uji Coba Gratis 3 Hari</string>
     <string name="pro_feature_expand">Ekspansi AI Halus</string>
     <string name="pro_see_details">Detail &gt;</string>
-
     <string name="premium_price_week">180.000đ</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">Langganan diperpanjang otomatis kecuali dibatalkan setidaknya 24 jam sebelum akhir periode saat ini. Pembayaran dikenakan ke akun Anda setelah uji coba berakhir. Kelola atau batalkan kapan saja di pengaturan akun.</string>
@@ -242,25 +229,24 @@
     <string name="filter_artistic_title">Filter Artistik</string>
     <string name="tool_rotate">Rotasi</string>
     <string name="tool_background">Latar Belakang</string>
-    <string name="home_dock_quick_edit">Edit Cepat</string>
-    <string name="crop">Potong</string>
-    <string name="draw">Gambar</string>
-    <string name="text">Teks</string>
-    <string name="effects">Efek</string>
-    <string name="eraser">Penghapus</string>
-    <string name="brush">Kuas</string>
-    <string name="shape">Bentuk</string>
-    <string name="zoom">Zoom</string>
-    <string name="color">Warna</string>
-    <string name="format">Format</string>
-    <string name="font">Font</string>
-    <string name="image_saved_successfully">Gambar berhasil disimpan</string>
-    <string name="failed_to_save_image">Gagal menyimpan gambar</string>
-    <string name="something_went_wrong">Ada yang salah</string>
-    <string name="fail_to_insert_uri_in_content_resolver">Gagal memasukkan URI di ContentResolver</string>
-    <string name="app_not_found">Aplikasi tidak ditemukan</string>
     <string name="tool_studio">Studio</string>
-    <string name="select">Pilih</string>
-    <string name="permission_required">Izin diperlukan</string>
-    <string name="grant_permission">Berikan izin</string>
-<string name="removing_background">Menghapus latar belakang...</string><string name="draft_saved_successfully">Draf berhasil disimpan</string><string name="bg_remover_not_available">Penghapus latar tidak tersedia</string><string name="bg_removal_failed">Gagal menghapus latar belakang</string><string name="go_back">Kembali</string><string name="draft_name_prefix">Draf</string><string name="draft_copy_suffix">Salinan</string><string name="old_project_name">Proyek Lama</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">Menghapus latar belakang...</string>
+    <string name="draft_saved_successfully">Draf berhasil disimpan</string>
+    <string name="bg_remover_not_available">Penghapus latar tidak tersedia</string>
+    <string name="bg_removal_failed">Gagal menghapus latar belakang</string>
+    <string name="go_back">Kembali</string>
+    <string name="draft_name_prefix">Draf</string>
+    <string name="draft_copy_suffix">Salinan</string>
+    <string name="old_project_name">Proyek Lama</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>

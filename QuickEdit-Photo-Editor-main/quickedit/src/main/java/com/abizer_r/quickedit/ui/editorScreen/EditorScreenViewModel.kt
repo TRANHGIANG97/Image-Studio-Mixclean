@@ -17,42 +17,54 @@ class EditorScreenViewModel @Inject constructor(
     private val _state = MutableStateFlow(EditorScreenState())
     val state: StateFlow<EditorScreenState> = _state
 
-    /**
-     * Call this function after making sure that the bitmapStack won't be empty
-     */
-    @Throws(Exception::class)
     fun getCurrentBitmap(): Bitmap {
-        val bitmapStack = state.value.bitmapStack
-        if (bitmapStack.isEmpty()) {
-            throw Exception("EmptyStackException: The bitmapStack should contain at least one bitmap")
+        val stack = _state.value.bitmapStack
+        if (stack.isEmpty()) {
+            throw Exception("EmptyStackException")
         }
-        return bitmapStack.peek()
+        return stack.last()
     }
 
-    fun undoEnabled() = state.value.bitmapStack.size > 1   /* there should always be an initial bitmap */
-    fun redoEnabled() = state.value.bitmapRedoStack.isNotEmpty()
-
+    fun undoEnabled() = _state.value.bitmapStack.size > 1
+    fun redoEnabled() = _state.value.bitmapRedoStack.isNotEmpty()
 
     fun updateInitialState(initialState: EditorScreenState) {
         _state.update { initialState }
     }
 
     fun onUndo() {
-        _state.update {
-            if (undoEnabled()) {
-                it.bitmapRedoStack.push(it.bitmapStack.pop())
-            }
-            it.copy(recompositionTrigger = it.recompositionTrigger + 1)
+        _state.update { current ->
+            if (!undoEnabled()) return@update current
+            
+            val newStack = current.bitmapStack.toMutableList()
+            val newRedo = current.bitmapRedoStack.toMutableList()
+            
+            val removed = newStack.removeAt(newStack.lastIndex)
+            newRedo.add(removed)
+            
+            current.copy(
+                bitmapStack = newStack,
+                bitmapRedoStack = newRedo,
+                recompositionTrigger = current.recompositionTrigger + 1
+            )
         }
     }
 
     fun onRedo() {
-        _state.update {
-            if (redoEnabled()) {
-                it.bitmapStack.push(it.bitmapRedoStack.pop())
-            }
-            it.copy(recompositionTrigger = it.recompositionTrigger + 1)
+        _state.update { current ->
+            if (!redoEnabled()) return@update current
+            
+            val newStack = current.bitmapStack.toMutableList()
+            val newRedo = current.bitmapRedoStack.toMutableList()
+            
+            val restored = newRedo.removeAt(newRedo.lastIndex)
+            newStack.add(restored)
+            
+            current.copy(
+                bitmapStack = newStack,
+                bitmapRedoStack = newRedo,
+                recompositionTrigger = current.recompositionTrigger + 1
+            )
         }
     }
-
 }

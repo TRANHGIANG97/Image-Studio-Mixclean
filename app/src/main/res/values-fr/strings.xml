@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - Effaceur de fond</string>
     <string name="app_title">Outils image</string>
@@ -13,7 +13,7 @@
     <string name="language_title">Langue</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">Choisissez la langue de l\'application.</string>
-    <string name="language_system">Langue du système</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -110,7 +110,7 @@
     <string name="multi_saved_successfully">Image enregistrée</string>
     <string name="multi_save_failed">Échec de l\'enregistrement</string>
     <string name="exit_dialog_title">Quitter l\'application</string>
-    <string name="exit_dialog_message">Voulez-vous quitter l\'application ?</string>
+    <string name="exit_dialog_message">Voulez-vous quitter l'application ?</string>
     <string name="exit_dialog_cancel">Annuler</string>
     <string name="exit_dialog_exit">Quitter</string>
     <string name="quality_label">Qualité</string>
@@ -142,8 +142,9 @@
     <string name="home_quick_tools">Outils rapides</string>
     <string name="home_dock_batch">Lot</string>
     <string name="home_dock_blur">Flou</string>
-    <string name="home_dock_pick_image">Pick Image</string>
-    <string name="home_dock_photo_editor">Photo Editor</string>
+    <string name="home_dock_pick_image">Choisir une image</string>
+    <string name="home_dock_photo_editor">Éditeur de photos</string>
+    <string name="home_dock_quick_edit">Modification rapide</string>
     <string name="home_dock_hd_export">Export HD</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Brouillon</string>
@@ -151,7 +152,7 @@
     <string name="draft_deselect_all">Tout désélectionner</string>
     <string name="draft_delete_selected">Supprimer (%1$d)</string>
     <string name="draft_selected_count">%1$d sélectionné(s)</string>
-    <string name="draft_confirm_delete_multiple">Voulez-vous vraiment supprimer les %1$d brouillons sélectionnés ?</string>
+    <string name="draft_confirm_delete_multiple">Êtes-vous sûr de vouloir supprimer les %1$d brouillons sélectionnés ?</string>
     <string name="action_discard">Abandonner</string>
     <string name="home_preview_placeholder">L\'aperçu s\'affichera ici après le choix d\'une image.</string>
     <string name="compare_label_before">Avant</string>
@@ -228,27 +229,7 @@
     <string name="filter_artistic_title">Filtres artistiques</string>
     <string name="tool_rotate">Faire pivoter</string>
     <string name="tool_background">Arrière-plan</string>
-    <string name="home_dock_quick_edit">Modification rapide</string>
-    <string name="crop">Recadrer</string>
-    <string name="draw">Dessiner</string>
-    <string name="text">Texte</string>
-    <string name="effects">Effets</string>
-    <string name="eraser">Gomme</string>
-    <string name="brush">Pinceau</string>
-    <string name="shape">Forme</string>
-    <string name="zoom">Zoom</string>
-    <string name="color">Couleur</string>
-    <string name="format">Format</string>
-    <string name="font">Police</string>
-    <string name="image_saved_successfully">Image enregistrée avec succès</string>
-    <string name="failed_to_save_image">Échec de l\'enregistrement de l\'image</string>
-    <string name="something_went_wrong">Un problème est survenu</string>
-    <string name="fail_to_insert_uri_in_content_resolver">Échec de l\'insertion de l\'URI dans ContentResolver</string>
-    <string name="app_not_found">Application introuvable</string>
     <string name="tool_studio">Studio</string>
-    <string name="select">Sélectionner</string>
-    <string name="permission_required">Permission requise</string>
-    <string name="grant_permission">Accorder la permission</string>
     <string name="removing_background">Suppression de l\'arrière-plan...</string>
     <string name="draft_saved_successfully">Brouillon enregistré</string>
     <string name="bg_remover_not_available">Outil de suppression non disponible</string>
@@ -268,4 +249,4 @@
     <string name="picker_no_photos">Aucune photo trouvée</string>
     <string name="picker_capture_btn">Prendre une photo</string>
     <string name="cd_capture_photo">Prendre une photo</string>
-</resources>
+    <string name="permission_required">Autorisation requise</string><string name="grant_permission">Accorder</string><string name="select">Sélectionner</string></resources>

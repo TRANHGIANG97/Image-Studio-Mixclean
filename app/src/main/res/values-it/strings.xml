@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - Rimuovi sfondo</string>
     <string name="app_title">Strumenti immagine</string>
@@ -13,7 +13,7 @@
     <string name="language_title">Lingua</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">Scegli la lingua dell\'app.</string>
-    <string name="language_system">Predefinita di sistema</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Current language: %1$s</string>
     <string name="current_language_menu">Current: %1$s</string>
-
     <string name="settings_title">Impostazioni</string>
     <string name="licenses_title">Licenze open source</string>
     <string name="dark_mode_title">Tema scuro</string>
     <string name="dark_mode_description">Attiva o disattiva il tema scuro.</string>
-
     <string name="home_remove_background_title">Rimuovi sfondo</string>
     <string name="home_remove_background_subtitle">Scegli un\'immagine e rimuovi lo sfondo con un tocco.</string>
     <string name="dashboard_hero_title">Rimozione sfondo con IA</string>
@@ -82,14 +80,12 @@
     <string name="editor_redo">Ripeti</string>
     <string name="border_presets_title">Preset bordo</string>
     <string name="border_applying">Applicazione bordo…</string>
-
     <string name="blur_title">Sfocatura immagine</string>
     <string name="blur_subtitle">Sfoca solo lo sfondo; il soggetto resta nitido (modalità ritratto).</string>
     <string name="blur_pick_hint">Tocca «Scegli immagine» per iniziare</string>
     <string name="blur_intensity">Intensità: %1$d</string>
     <string name="blur_detecting_subject">Rilevamento soggetto…</string>
     <string name="portrait_preview_export_failed">Impossibile creare l\'anteprima. Riprova.</string>
-
     <string name="multi_title">Rimuovi sfondo (multiplo)</string>
     <string name="multi_description">Seleziona più immagini, poi elaborale in sequenza.</string>
     <string name="multi_select_images">Seleziona immagini</string>
@@ -114,10 +110,9 @@
     <string name="multi_saved_successfully">Immagine salvata</string>
     <string name="multi_save_failed">Salvataggio non riuscito</string>
     <string name="exit_dialog_title">Esci dall\'app</string>
-    <string name="exit_dialog_message">Vuoi uscire dall\'app?</string>
+    <string name="exit_dialog_message">Vuoi uscire dall'applicazione?</string>
     <string name="exit_dialog_cancel">Annulla</string>
     <string name="exit_dialog_exit">Esci</string>
-
     <string name="quality_label">Qualità</string>
     <string name="quality_standard">Standard</string>
     <string name="quality_basic">Basic</string>
@@ -131,17 +126,13 @@
     <string name="premium_benefit_unlimited">Rimozioni sfondo illimitate</string>
     <string name="settings_removal_quality">Qualità rimozione</string>
     <string name="settings_removal_quality_summary">Standard (incluso) • Pro (Premium)</string>
-
-    
     <string name="lightning_title">Miglioramento rapido</string>
     <string name="lightning_pick_hint">Scegli un\'immagine per iniziare</string>
     <string name="lightning_compare_hint">Confronta prima / dopo</string>
     <string name="lightning_intensity">Intensità: %1$d</string>
-
     <string name="lightning_action_portrait">Ritratto</string>
     <string name="lightning_action_darken">Scurisci</string>
     <string name="lightning_action_clean">Pulisci</string>
-
     <string name="home_background_presets">Preset sfondo</string>
     <string name="home_applying_preset">Applicazione preset…</string>
     <string name="upgrade_sheet_title">Sblocca Pro per questa funzione</string>
@@ -151,8 +142,9 @@
     <string name="home_quick_tools">Strumenti rapidi</string>
     <string name="home_dock_batch">Multiplo</string>
     <string name="home_dock_blur">Sfoca</string>
-    <string name="home_dock_pick_image">Pick Image</string>
-    <string name="home_dock_photo_editor">Photo Editor</string>
+    <string name="home_dock_pick_image">Scegli immagine</string>
+    <string name="home_dock_photo_editor">Editor foto</string>
+    <string name="home_dock_quick_edit">Modifica rapida</string>
     <string name="home_dock_hd_export">Export HD</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Bozza</string>
@@ -160,7 +152,7 @@
     <string name="draft_deselect_all">Deseleziona tutto</string>
     <string name="draft_delete_selected">Elimina (%1$d)</string>
     <string name="draft_selected_count">%1$d selezionati</string>
-    <string name="draft_confirm_delete_multiple">Vuoi davvero eliminare le %1$d bozze selezionate?</string>
+    <string name="draft_confirm_delete_multiple">Sei sicuro di voler eliminare %1$d bozze selezionate?</string>
     <string name="action_discard">Scarta</string>
     <string name="home_preview_placeholder">L\'anteprima apparirà qui dopo aver scelto un\'immagine.</string>
     <string name="compare_label_before">Prima</string>
@@ -177,7 +169,6 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="sheet_no_image_selected">Nessuna immagine selezionata</string>
     <string name="cd_ai_removal_preview">Anteprima rimozione sfondo</string>
-
     <string name="settings_app_preferences">Preferenze app</string>
     <string name="settings_section_appearance">Aspetto</string>
     <string name="settings_section_ai">Elaborazione IA</string>
@@ -185,13 +176,10 @@
     <string name="settings_app_version_label">App %1$s</string>
     <string name="multi_selected_inline">%1$d selezionate</string>
     <string name="editor_text_error">Testo: %1$s</string>
-
     <string name="premium_free_trial_cta">3 GIORNI DI PROVA GRATUITA →</string>
     <string name="premium_after_trial_price">680.000đ/mese dopo la prova</string>
     <string name="premium_restore">Ripristina acquisti</string>
     <string name="premium_brand_title">Retouch</string>
-
-
     <string name="premium_unlock_all_features">Sblocca tutte le funzioni</string>
     <string name="premium_plan_month">mese</string>
     <string name="premium_plan_week">settimana</string>
@@ -206,7 +194,6 @@
     <string name="premium_cta_trial">Inizia la prova gratuita di 3 giorni</string>
     <string name="pro_feature_expand">Espansione IA fluida</string>
     <string name="pro_see_details">Dettagli &gt;</string>
-
     <string name="premium_price_week">180.000đ</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">L\'abbonamento si rinnova automaticamente salvo disdetta almeno 24 ore prima della fine del periodo in corso. Dopo la prova l\'addebito avviene sul tuo account. Gestisci o annulla in qualsiasi momento dalle impostazioni account.</string>
@@ -242,25 +229,24 @@
     <string name="filter_artistic_title">Filtri artistici</string>
     <string name="tool_rotate">Ruota</string>
     <string name="tool_background">Sfondo</string>
-    <string name="home_dock_quick_edit">Modifica rapida</string>
-    <string name="crop">Ritaglia</string>
-    <string name="draw">Disegna</string>
-    <string name="text">Testo</string>
-    <string name="effects">Effetti</string>
-    <string name="eraser">Gomma</string>
-    <string name="brush">Pennello</string>
-    <string name="shape">Forma</string>
-    <string name="zoom">Zoom</string>
-    <string name="color">Colore</string>
-    <string name="format">Formato</string>
-    <string name="font">Font</string>
-    <string name="image_saved_successfully">Immagine salvata con successo</string>
-    <string name="failed_to_save_image">Impossibile salvare l\'immagine</string>
-    <string name="something_went_wrong">Qualcosa è andato storto</string>
-    <string name="fail_to_insert_uri_in_content_resolver">Impossibile inserire l\'URI in ContentResolver</string>
-    <string name="app_not_found">App non trovata</string>
     <string name="tool_studio">Studio</string>
-    <string name="select">Seleziona</string>
-    <string name="permission_required">Permesso richiesto</string>
-    <string name="grant_permission">Concedi permesso</string>
-<string name="removing_background">Rimozione sfondo...</string><string name="draft_saved_successfully">Bozza salvata</string><string name="bg_remover_not_available">Rimozione sfondo non disponibile</string><string name="bg_removal_failed">Rimozione sfondo fallita</string><string name="go_back">Indietro</string><string name="draft_name_prefix">Bozza</string><string name="draft_copy_suffix">Copia</string><string name="old_project_name">Vecchio progetto</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">Rimozione sfondo...</string>
+    <string name="draft_saved_successfully">Bozza salvata</string>
+    <string name="bg_remover_not_available">Rimozione sfondo non disponibile</string>
+    <string name="bg_removal_failed">Rimozione sfondo fallita</string>
+    <string name="go_back">Indietro</string>
+    <string name="draft_name_prefix">Bozza</string>
+    <string name="draft_copy_suffix">Copia</string>
+    <string name="old_project_name">Vecchio progetto</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>

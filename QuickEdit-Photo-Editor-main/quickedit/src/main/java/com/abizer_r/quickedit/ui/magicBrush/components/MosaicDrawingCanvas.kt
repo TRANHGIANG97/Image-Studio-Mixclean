@@ -79,14 +79,18 @@ fun MosaicDrawingCanvas(
         isGenerating = true
         errorMessage = null
 
+        // Lưu bitmap cũ để recycle sau
+        val oldBitmap = mosaicBitmap
+        
         val result = withContext(Dispatchers.Default) {
             createMosaicBitmapWithFallback(originalBitmap, pixelBlockSize)
         }
 
         when (result) {
             is MosaicResult.Success -> {
-                mosaicBitmap?.let { old ->
-                    if (old !== originalBitmap && !old.isRecycled) old.recycle()
+                // Recycle bitmap cũ TRƯỚC KHI gán bitmap mới
+                if (oldBitmap != null && oldBitmap !== originalBitmap && !oldBitmap.isRecycled) {
+                    oldBitmap.recycle()
                 }
                 mosaicBitmap = result.bitmap
 
@@ -101,7 +105,9 @@ fun MosaicDrawingCanvas(
                 Log.e(TAG, result.message)
                 errorMessage = result.message
                 onError?.invoke(result.message)
-                if (mosaicBitmap == null) mosaicBitmap = originalBitmap
+                if (mosaicBitmap == null && !originalBitmap.isRecycled) {
+                    mosaicBitmap = originalBitmap
+                }
             }
         }
         isGenerating = false

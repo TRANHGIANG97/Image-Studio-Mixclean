@@ -27,8 +27,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-import com.abizer_r.quickedit.utils.drawMode.getToleranceOrNull
-import com.abizer_r.quickedit.utils.drawMode.getWidthOrNull
 import javax.inject.Inject
 
 @HiltViewModel
@@ -89,52 +87,69 @@ class DrawModeViewModel @Inject constructor(
             }
 
             is DrawModeEvent.AddNewPath -> {
-                _state.update {
-                    val action = EditingAction.ManualPath(event.pathDetail)
-                    it.historyStack.push(action)
-                    it.pathDetailStack.push(event.pathDetail) // Keep for rendering
-                    it.redoStack.clear()
-                    it.copy(recompositionTrigger = it.recompositionTrigger + 1)
+                _state.update { current ->
+                    val newHistory = java.util.Stack<EditingAction>().apply {
+                        addAll(current.historyStack)
+                        push(EditingAction.ManualPath(event.pathDetail))
+                    }
+                    val newPaths = rebuildPathStack(newHistory)
+                    
+                    current.copy(
+                        historyStack = newHistory,
+                        pathDetailStack = newPaths,
+                        redoStack = java.util.Stack(), // Clear redo khi có action mới
+                        recompositionTrigger = current.recompositionTrigger + 1
+                    )
                 }
             }
-
-
         }
     }
 
-    private fun performUndo() {
-        _state.update {
-            if (it.historyStack.isNotEmpty()) {
-                val action = it.historyStack.pop()
-                it.redoStack.push(action)
-                
-                when (action) {
-                    is EditingAction.ManualPath -> {
-                        if (it.pathDetailStack.isNotEmpty()) {
-                            it.pathDetailStack.pop()
-                        }
-                    }
+    private fun rebuildPathStack(history: java.util.Stack<EditingAction>): List<com.abizer_r.quickedit.ui.drawMode.drawingCanvas.models.PathDetails> {
+        return history.filterIsInstance<EditingAction.ManualPath>()
+            .map { it.path }
+    }
 
-                }
+
+    private fun performUndo() {
+        _state.update { current ->
+            if (current.historyStack.isEmpty()) return@update current
+            
+            val action = current.historyStack.pop()
+            val newRedo = java.util.Stack<EditingAction>().apply {
+                addAll(current.redoStack)
+                push(action)
             }
-            it.copy(recompositionTrigger = it.recompositionTrigger + 1)
+            
+            // Rebuild pathDetailStack từ historyStack
+            val newPaths = rebuildPathStack(current.historyStack)
+            
+            current.copy(
+                redoStack = newRedo,
+                pathDetailStack = newPaths,
+                recompositionTrigger = current.recompositionTrigger + 1
+            )
         }
     }
 
     private fun performRedo() {
-        _state.update {
-            if (it.redoStack.isNotEmpty()) {
-                val action = it.redoStack.pop()
-                it.historyStack.push(action)
-                
-                when (action) {
-                    is EditingAction.ManualPath -> {
-                        it.pathDetailStack.push(action.path)
-                    }
-
-                }
+        _state.update { current ->
+            if (current.redoStack.isEmpty()) return@update current
+            
+            val action = current.redoStack.pop()
+            val newHistory = java.util.Stack<EditingAction>().apply {
+                addAll(current.historyStack)
+                push(action)
             }
-            it.copy(recompositionTrigger = it.recompositionTrigger + 1)
+            
+            // Rebuild pathDetailStack từ historyStack
+            val newPaths = rebuildPathStack(newHistory)
+            
+            current.copy(
+                historyStack = newHistory,
+                pathDetailStack = newPaths,
+                recompositionTrigger = current.recompositionTrigger + 1
+            )
         }
     }
 
@@ -175,7 +190,7 @@ class DrawModeViewModel @Inject constructor(
                 ) }
             }
 
-            else -> {}
+
         }
     }
 

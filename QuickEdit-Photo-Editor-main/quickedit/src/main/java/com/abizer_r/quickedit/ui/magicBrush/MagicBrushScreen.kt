@@ -272,7 +272,7 @@ fun MagicBrushScreen(
                     ) {
                         // Slider Bù trừ (Offset)
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Bù trừ", style = MaterialTheme.typography.labelMedium)
+                            Text(text = stringResource(R.string.label_offset), style = MaterialTheme.typography.labelMedium)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Slider(
                                     value = cursorOffset,
@@ -295,7 +295,7 @@ fun MagicBrushScreen(
                         
                         // Slider Kích thước (Size)
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Kích thước", style = MaterialTheme.typography.labelMedium)
+                            Text(text = stringResource(R.string.label_brush_size), style = MaterialTheme.typography.labelMedium)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Slider(
                                     value = brushSize,
@@ -322,7 +322,7 @@ fun MagicBrushScreen(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Độ nhạy", style = MaterialTheme.typography.labelMedium)
+                        Text(text = stringResource(R.string.label_tolerance), style = MaterialTheme.typography.labelMedium)
                         Slider(
                             value = tolerance,
                             onValueChange = { viewModel.updateTolerance(it) },
@@ -348,7 +348,7 @@ fun MagicBrushScreen(
                         selected = selectedTool == MagicBrushTool.SMART_ERASE,
                         onClick = { viewModel.selectTool(MagicBrushTool.SMART_ERASE) },
                         iconId = R.drawable.ic_eraser,
-                        label = "Magic wand"
+                        label = stringResource(R.string.label_magic_wand)
                     )
 
                     // Brush Erase Tool (Cọ xóa)
@@ -356,7 +356,7 @@ fun MagicBrushScreen(
                         selected = selectedTool == MagicBrushTool.BRUSH_ERASE,
                         onClick = { viewModel.selectTool(MagicBrushTool.BRUSH_ERASE) },
                         icon = Icons.Default.Edit,
-                        label = "Cọ xóa"
+                        label = stringResource(R.string.label_erase_brush)
                     )
 
                     // Blur Tool (Mờ)
@@ -364,7 +364,7 @@ fun MagicBrushScreen(
                         selected = selectedTool == MagicBrushTool.BLUR,
                         onClick = { viewModel.selectTool(MagicBrushTool.BLUR) },
                         icon = Icons.Default.Grain,
-                        label = "Mờ"
+                        label = stringResource(R.string.effect_blur)
                     )
 
 

@@ -88,6 +88,7 @@ object AppUtils {
             val shareIntent = Intent(Intent.ACTION_SEND)
             shareIntent.type = type
             shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             if (appName != null) {
                 var appFound = false
                 val pm: PackageManager = context.packageManager
@@ -118,6 +119,7 @@ object AppUtils {
                     Intent.EXTRA_SUBJECT,
                     context.resources.getString(R.string.app_name)
                 )
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 context.startActivity(Intent.createChooser(shareIntent, "choose one"))
             }
 

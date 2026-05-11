@@ -50,12 +50,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,7 +103,7 @@ fun AppRoot(
     var showPremiumScreen by remember { mutableStateOf(false) }
     var showQualitySheet by remember { mutableStateOf(false) }
     var showRewardedAdDialog by remember { mutableStateOf(false) }
-    var isAutoRemoveForPicker by remember { mutableStateOf(false) }
+    var isAutoRemoveForPicker by rememberSaveable { mutableStateOf(false) }
     var isRemoveBgEditorForPicker by remember { mutableStateOf(false) }
     var isPresetModeForPicker by remember { mutableStateOf(false) }
     val qualitySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -430,9 +433,7 @@ fun AppRoot(
                     HomeDashboardScreen(
                         onOpenRemoveBgEditor = {
                             if (!appViewModel.isAdDismissedRecently()) {
-                                isAutoRemoveForPicker = true
-                                isPresetModeForPicker = false
-                                navController.navigate(Screen.SingleImagePicker.route)
+                                navController.navigate(Screen.SingleImagePicker.route + "?autoRemove=true")
                             }
                         },
                         onBatchRemove = {
@@ -454,9 +455,7 @@ fun AppRoot(
                         },
                         onSimplePick = {
                             if (!appViewModel.isAdDismissedRecently()) {
-                                isAutoRemoveForPicker = false
-                                isPresetModeForPicker = false
-                                navController.navigate(Screen.SingleImagePicker.route)
+                                navController.navigate(Screen.SingleImagePicker.route + "?autoRemove=false")
                             }
                         },
                         pickedUriFromPicker = pickedUri,
@@ -472,7 +471,17 @@ fun AppRoot(
                         isDarkMode = appState.isDarkMode
                     )
                 }
-                composable(Screen.SingleImagePicker.route) {
+                composable(
+                    route = Screen.SingleImagePicker.route + "?autoRemove={autoRemove}",
+                    arguments = listOf(
+                        navArgument("autoRemove") {
+                            type = NavType.BoolType
+                            defaultValue = false
+                        }
+                    )
+                ) { backStackEntry ->
+                    val autoRemove = backStackEntry.arguments?.getBoolean("autoRemove") ?: false
+                    
                     SingleImagePickerScreen(
                         onImageSelected = { uri ->
                             if (isPresetModeForPicker) {
@@ -484,10 +493,10 @@ fun AppRoot(
                                 activity?.startActivity(
                                     QuickEditActivity.createIntent(
                                         context, uri,
-                                        autoRemoveBackground = isAutoRemoveForPicker
+                                        autoRemoveBackground = autoRemove
                                     )
                                 )
-                                isAutoRemoveForPicker = false
+                                isPresetModeForPicker = false
                                 isRemoveBgEditorForPicker = false
                             }
                         },

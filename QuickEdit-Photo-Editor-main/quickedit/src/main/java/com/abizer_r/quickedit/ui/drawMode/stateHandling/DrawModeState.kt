@@ -17,15 +17,13 @@ data class DrawModeState(
     val selectedTool: BottomToolbarItem = BottomToolbarItem.NONE,
     val showBottomToolbarExtension: Boolean = false,
     
-    // Unified History System
+    // Unified History - chỉ dùng 1 stack
     val historyStack: Stack<EditingAction> = Stack(),
     val redoStack: Stack<EditingAction> = Stack(),
     
-    // Legacy support (to avoid breaking current DrawingCanvas immediately)
-    val pathDetailStack: Stack<PathDetails> = Stack(),
+    // Render list - derived từ historyStack
+    val pathDetailStack: List<PathDetails> = emptyList(),
     
-
     val workingBitmap: Bitmap? = null,
-    
     val recompositionTrigger: Long = 0
 )

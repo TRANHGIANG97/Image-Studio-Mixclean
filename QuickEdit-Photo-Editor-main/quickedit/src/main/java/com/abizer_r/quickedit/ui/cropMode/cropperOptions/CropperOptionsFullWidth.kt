@@ -198,7 +198,7 @@ fun Preview_EffectsPreviewList() {
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(vertical = 12.dp),
-            cropperOptionList = CropModeUtils.getCropperOptionsList(),
+            cropperOptionList = CropModeUtils.getCropperOptionsList(androidx.compose.ui.platform.LocalContext.current),
             selectedIndex = 0,
             onItemClicked = {_, _ ->}
         )

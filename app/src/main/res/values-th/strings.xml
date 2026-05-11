@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - ลบพื้นหลัง</string>
     <string name="app_title">เครื่องมือรูปภาพ</string>
@@ -13,7 +13,7 @@
     <string name="language_title">ภาษา</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">เลือกภาษาของแอป</string>
-    <string name="language_system">ค่าเริ่มต้นของระบบ</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Current language: %1$s</string>
     <string name="current_language_menu">Current: %1$s</string>
-
     <string name="settings_title">การตั้งค่า</string>
     <string name="licenses_title">ใบอนุญาตโอเพนซอร์ส</string>
     <string name="dark_mode_title">โหมดมืด</string>
     <string name="dark_mode_description">เปิดหรือปิดธีมมืดของแอป</string>
-
     <string name="home_remove_background_title">ลบพื้นหลัง</string>
     <string name="home_remove_background_subtitle">เลือกรูปแล้วลบพื้นหลังได้ในคลิกเดียว</string>
     <string name="dashboard_hero_title">ลบพื้นหลังด้วย AI</string>
@@ -52,7 +50,7 @@
     <string name="dashboard_feature_fast">เร็ว</string>
     <string name="dashboard_feature_smart">ฉลาด</string>
     <string name="dashboard_feature_secure">ปลอดภัย</string>
-    <string name="choose_image">เลือกรูป</string>
+    <string name="choose_image">เลือกรูปภาพ</string>
     <string name="remove_background">ลบพื้นหลัง</string>
     <string name="home_choose_image_and_remove_background">เลือกรูปภาพ và ลบพื้นหลัง</string>
     <string name="multi_image_remove">ลบพื้นหลังหลายรูป</string>
@@ -82,14 +80,12 @@
     <string name="editor_redo">ทำซ้ำ</string>
     <string name="border_presets_title">พรีเซ็ตขอบ</string>
     <string name="border_applying">กำลังใส่ขอบ…</string>
-
     <string name="blur_title">เบลอรูป</string>
     <string name="blur_subtitle">เบลอเฉพาะพื้นหลัง วัตถุหลักยังคม (โหมดพอร์เทรต)</string>
     <string name="blur_pick_hint">แตะ «เลือกรูป» เพื่อเริ่ม</string>
     <string name="blur_intensity">ความเข้ม: %1$d</string>
     <string name="blur_detecting_subject">กำลังตรวจจับวัตถุ…</string>
     <string name="portrait_preview_export_failed">สร้างตัวอย่างไม่ได้ ลองอีกครั้ง</string>
-
     <string name="multi_title">ลบพื้นหลังหลายรูป</string>
     <string name="multi_description">เลือกหลายรูปแล้วประมวลผลทีละรูป</string>
     <string name="multi_select_images">เลือกรูป</string>
@@ -114,10 +110,9 @@
     <string name="multi_saved_successfully">บันทึกรูปสำเร็จ</string>
     <string name="multi_save_failed">บันทึกไม่สำเร็จ</string>
     <string name="exit_dialog_title">ออกจากแอป</string>
-    <string name="exit_dialog_message">ต้องการออกจากแอปหรือไม่?</string>
+    <string name="exit_dialog_message">คุณต้องการออกจากแอปหรือไม่?</string>
     <string name="exit_dialog_cancel">ยกเลิก</string>
     <string name="exit_dialog_exit">ออก</string>
-
     <string name="quality_label">คุณภาพ</string>
     <string name="quality_standard">มาตรฐาน</string>
     <string name="quality_basic">Basic</string>
@@ -131,17 +126,13 @@
     <string name="premium_benefit_unlimited">ลบพื้นหลังไม่จำกัด</string>
     <string name="settings_removal_quality">คุณภาพการลบพื้นหลัง</string>
     <string name="settings_removal_quality_summary">มาตรฐาน (รวม) • Pro (Premium)</string>
-
-    
     <string name="lightning_title">แต่งภาพด่วน</string>
     <string name="lightning_pick_hint">เลือกรูปเพื่อเริ่ม</string>
     <string name="lightning_compare_hint">เปรียบเทียบก่อน / หลัง</string>
     <string name="lightning_intensity">ความเข้ม: %1$d</string>
-
     <string name="lightning_action_portrait">พอร์เทรต</string>
     <string name="lightning_action_darken">มืดลง</string>
     <string name="lightning_action_clean">คลีน</string>
-
     <string name="home_background_presets">พรีเซ็ตพื้นหลัง</string>
     <string name="home_applying_preset">กำลังใช้พรีเซ็ต…</string>
     <string name="upgrade_sheet_title">ปลดล็อก Pro เพื่อใช้ฟีเจอร์นี้</string>
@@ -151,8 +142,9 @@
     <string name="home_quick_tools">เครื่องมือด่วน</string>
     <string name="home_dock_batch">แบทช์</string>
     <string name="home_dock_blur">เบลอ</string>
-    <string name="home_dock_pick_image">Pick Image</string>
-    <string name="home_dock_photo_editor">Photo Editor</string>
+    <string name="home_dock_pick_image">เลือกรูปภาพ</string>
+    <string name="home_dock_photo_editor">แก้ไขรูปภาพ</string>
+    <string name="home_dock_quick_edit">แก้ไขด่วน</string>
     <string name="home_dock_hd_export">ส่งออก HD</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">ฉบับร่าง</string>
@@ -160,7 +152,7 @@
     <string name="draft_deselect_all">ยกเลิกการเลือกทั้งหมด</string>
     <string name="draft_delete_selected">ลบ (%1$d)</string>
     <string name="draft_selected_count">เลือกแล้ว %1$d</string>
-    <string name="draft_confirm_delete_multiple">คุณแน่ใจหรือไม่ว่าต้องการลบฉบับร่างที่เลือก %1$d รายการ?</string>
+    <string name="draft_confirm_delete_multiple">คุณแน่ใจหรือไม่ว่าต้องการลบ %1$d ร่างที่เลือก?</string>
     <string name="action_discard">ละทิ้ง</string>
     <string name="home_preview_placeholder">เลือกรูปแล้วตัวอย่างจะแสดงที่นี่</string>
     <string name="compare_label_before">ก่อน</string>
@@ -177,7 +169,6 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="sheet_no_image_selected">ยังไม่ได้เลือกรูป</string>
     <string name="cd_ai_removal_preview">ตัวอย่างการลบพื้นหลัง</string>
-
     <string name="settings_app_preferences">การตั้งค่าแอป</string>
     <string name="settings_section_appearance">รูปลักษณ์</string>
     <string name="settings_section_ai">การประมวลผล AI</string>
@@ -185,13 +176,10 @@
     <string name="settings_app_version_label">แอป %1$s</string>
     <string name="multi_selected_inline">เลือกแล้ว %1$d รูป</string>
     <string name="editor_text_error">ข้อความ: %1$s</string>
-
     <string name="premium_free_trial_cta">ทดลองใช้ฟรี 3 วัน →</string>
     <string name="premium_after_trial_price">680.000đ/เดือนหลังหมดทดลอง</string>
     <string name="premium_restore">กู้คืนการซื้อ</string>
     <string name="premium_brand_title">Retouch</string>
-
-
     <string name="premium_unlock_all_features">ปลดล็อกทุกฟีเจอร์</string>
     <string name="premium_plan_month">เดือน</string>
     <string name="premium_plan_week">สัปดาห์</string>
@@ -206,7 +194,6 @@
     <string name="premium_cta_trial">เริ่มทดลองใช้ฟรี 3 วัน</string>
     <string name="pro_feature_expand">ขยายภาพด้วย AI แบบเนียนตา</string>
     <string name="pro_see_details">รายละเอียด &gt;</string>
-
     <string name="premium_price_week">180.000đ</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">การสมัครจะต่ออายุอัตโนมัติเว้นแต่ยกเลิกก่อนสิ้นรอบปัจจุบันอย่างน้อย 24 ชั่วโมง หลังทดลองจะเรียกเก็บเงินจากบัญชีของคุณ จัดการหรือยกเลิกได้ในการตั้งค่าบัญชี</string>
@@ -242,25 +229,24 @@
     <string name="filter_artistic_title">ฟิลเตอร์อาร์ต</string>
     <string name="tool_rotate">หมุน</string>
     <string name="tool_background">พื้นหลัง</string>
-    <string name="home_dock_quick_edit">แก้ไขด่วน</string>
-    <string name="crop">ครอบตัด</string>
-    <string name="draw">วาด</string>
-    <string name="text">ข้อความ</string>
-    <string name="effects">เอฟเฟกต์</string>
-    <string name="eraser">ยางลบ</string>
-    <string name="brush">แปรง</string>
-    <string name="shape">รูปร่าง</string>
-    <string name="zoom">ซูม</string>
-    <string name="color">สี</string>
-    <string name="format">รูปแบบ</string>
-    <string name="font">ฟอนต์</string>
-    <string name="image_saved_successfully">บันทึกรูปภาพสำเร็จแล้ว</string>
-    <string name="failed_to_save_image">บันทึกรูปภาพไม่สำเร็จ</string>
-    <string name="something_went_wrong">มีบางอย่างผิดพลาด</string>
-    <string name="fail_to_insert_uri_in_content_resolver">ไม่สามารถใส่ URI ใน ContentResolver</string>
-    <string name="app_not_found">ไม่พบแอปพลิเคชัน</string>
     <string name="tool_studio">สตูดิโอ</string>
-    <string name="select">เลือก</string>
-    <string name="permission_required">ต้องมีการอนุญาต</string>
-    <string name="grant_permission">อนุญาต</string>
-<string name="removing_background">กำลังลบพื้นหลัง...</string><string name="draft_saved_successfully">บันทึกร่างจดหมายแล้ว</string><string name="bg_remover_not_available">เครื่องมือลบพื้นหลังไม่พร้อมใช้งาน</string><string name="bg_removal_failed">การลบพื้นหลังล้มเหลว</string><string name="go_back">กลับ</string><string name="draft_name_prefix">ฉบับร่าง</string><string name="draft_copy_suffix">สำเนา</string><string name="old_project_name">โครงการเก่า</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">กำลังลบพื้นหลัง...</string>
+    <string name="draft_saved_successfully">บันทึกร่างจดหมายแล้ว</string>
+    <string name="bg_remover_not_available">เครื่องมือลบพื้นหลังไม่พร้อมใช้งาน</string>
+    <string name="bg_removal_failed">การลบพื้นหลังล้มเหลว</string>
+    <string name="go_back">กลับ</string>
+    <string name="draft_name_prefix">ฉบับร่าง</string>
+    <string name="draft_copy_suffix">สำเนา</string>
+    <string name="old_project_name">โครงการเก่า</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>

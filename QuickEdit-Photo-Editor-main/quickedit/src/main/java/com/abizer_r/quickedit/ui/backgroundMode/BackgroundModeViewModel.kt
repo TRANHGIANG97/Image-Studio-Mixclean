@@ -3,6 +3,7 @@ package com.abizer_r.quickedit.ui.backgroundMode
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.abizer_r.quickedit.R
 import androidx.lifecycle.viewModelScope
 import com.thgiang.image.core.util.ImageEffectProcessor
 import com.thgiang.image.core.util.ImageEffectProcessor.BackgroundType
@@ -77,7 +78,7 @@ class BackgroundModeViewModel @Inject constructor(
                     withContext(Dispatchers.Main) {
                         _state.value = _state.value.copy(
                             isProcessing = false,
-                            error = "Không thể tự động xóa phông: ${e.message}",
+                            error = context.getString(com.abizer_r.quickedit.R.string.error_auto_removal_failed, e.message),
                             hasAlpha = false // Show warning if failed
                         )
                     }
@@ -144,7 +145,12 @@ class BackgroundModeViewModel @Inject constructor(
         if (result != null) {
             _state.value = _state.value.copy(processedBitmap = result, isProcessing = false)
         } else {
-            _state.value = _state.value.copy(isProcessing = false, error = "Failed to apply background")
+            _state.value = _state.value.copy(isProcessing = false, error = context.getString(com.abizer_r.quickedit.R.string.error_apply_background))
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        foregroundBitmap = null
     }
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - 背景移除</string>
     <string name="app_title">图像工具</string>
@@ -13,7 +13,7 @@
     <string name="language_title">语言</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">选择应用显示语言。</string>
-    <string name="language_system">跟随系统</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Current language: %1$s</string>
     <string name="current_language_menu">Current: %1$s</string>
-
     <string name="settings_title">设置</string>
     <string name="licenses_title">开源许可</string>
     <string name="dark_mode_title">深色模式</string>
     <string name="dark_mode_description">开启或关闭深色主题。</string>
-
     <string name="home_remove_background_title">去除背景</string>
     <string name="home_remove_background_subtitle">选择图片，一键去除背景。</string>
     <string name="dashboard_hero_title">AI 去除背景</string>
@@ -82,14 +80,12 @@
     <string name="editor_redo">重做</string>
     <string name="border_presets_title">边框预设</string>
     <string name="border_applying">正在应用边框…</string>
-
     <string name="blur_title">图像模糊</string>
     <string name="blur_subtitle">仅模糊背景，主体保持清晰（人像模式）。</string>
     <string name="blur_pick_hint">点按「选择图片」开始</string>
     <string name="blur_intensity">强度：%1$d</string>
     <string name="blur_detecting_subject">正在检测主体…</string>
     <string name="portrait_preview_export_failed">无法生成预览，请重试。</string>
-
     <string name="multi_title">批量去除背景</string>
     <string name="multi_description">选择多张图片，按顺序处理。</string>
     <string name="multi_select_images">选择图片</string>
@@ -114,13 +110,13 @@
     <string name="multi_saved_successfully">图片已保存</string>
     <string name="multi_save_failed">保存失败</string>
     <string name="exit_dialog_title">退出应用</string>
-    <string name="exit_dialog_message">确定要退出应用吗？</string>
+    <string name="exit_dialog_message">您确定要退出应用吗？</string>
     <string name="exit_dialog_cancel">取消</string>
     <string name="exit_dialog_exit">退出</string>
-
     <string name="quality_label">质量</string>
     <string name="quality_standard">标准</string>
-
+    <string name="quality_basic">Basic</string>
+    <string name="quality_pro">Pro</string>
     <string name="quality_pro_locked">Pro 🔒</string>
     <string name="quality_subtitle">Pro = 更锐利边缘、更丰富细节（Premium）</string>
     <string name="upgrade_to_use_pro">升级 Pro 以使用增强质量</string>
@@ -130,17 +126,13 @@
     <string name="premium_benefit_unlimited">无限次去除背景</string>
     <string name="settings_removal_quality">去除背景质量</string>
     <string name="settings_removal_quality_summary">标准（含）• Pro（Premium）</string>
-
-    
     <string name="lightning_title">闪电增强</string>
     <string name="lightning_pick_hint">选择图片开始</string>
     <string name="lightning_compare_hint">对比处理前 / 后</string>
     <string name="lightning_intensity">强度：%1$d</string>
-
     <string name="lightning_action_portrait">人像</string>
     <string name="lightning_action_darken">压暗</string>
     <string name="lightning_action_clean">净化</string>
-
     <string name="home_background_presets">背景预设</string>
     <string name="home_applying_preset">正在应用预设…</string>
     <string name="upgrade_sheet_title">解锁 Pro 以使用此功能</string>
@@ -150,8 +142,9 @@
     <string name="home_quick_tools">快捷工具</string>
     <string name="home_dock_batch">批量</string>
     <string name="home_dock_blur">模糊</string>
-    <string name="home_dock_pick_image">Pick Image</string>
-    <string name="home_dock_photo_editor">Photo Editor</string>
+    <string name="home_dock_pick_image">选择图片</string>
+    <string name="home_dock_photo_editor">照片编辑</string>
+    <string name="home_dock_quick_edit">快速编辑</string>
     <string name="home_dock_hd_export">高清导出</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">草稿箱</string>
@@ -159,7 +152,7 @@
     <string name="draft_deselect_all">取消全选</string>
     <string name="draft_delete_selected">删除 (%1$d)</string>
     <string name="draft_selected_count">已选 %1$d</string>
-    <string name="draft_confirm_delete_multiple">确定要删除选中的 %1$d 个草稿吗？</string>
+    <string name="draft_confirm_delete_multiple">您确定要删除选中的 %1$d 个草稿吗？</string>
     <string name="action_discard">放弃</string>
     <string name="home_preview_placeholder">选择图片后，预览将显示在此处。</string>
     <string name="compare_label_before">前</string>
@@ -176,7 +169,6 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="sheet_no_image_selected">未选择图片</string>
     <string name="cd_ai_removal_preview">去除背景预览</string>
-
     <string name="settings_app_preferences">应用偏好</string>
     <string name="settings_section_appearance">外观</string>
     <string name="settings_section_ai">AI 处理</string>
@@ -184,13 +176,10 @@
     <string name="settings_app_version_label">应用 %1$s</string>
     <string name="multi_selected_inline">已选 %1$d 张</string>
     <string name="editor_text_error">文字：%1$s</string>
-
     <string name="premium_free_trial_cta">3 天免费试用 →</string>
     <string name="premium_after_trial_price">试用结束后 680.000đ/月</string>
     <string name="premium_restore">恢复购买</string>
     <string name="premium_brand_title">Retouch</string>
-
-
     <string name="premium_unlock_all_features">解锁全部功能</string>
     <string name="premium_plan_month">月</string>
     <string name="premium_plan_week">周</string>
@@ -205,7 +194,6 @@
     <string name="premium_cta_trial">开始 3 天免费试用</string>
     <string name="pro_feature_expand">平滑 AI 扩图</string>
     <string name="pro_see_details">查看详情 &gt;</string>
-
     <string name="premium_price_week">180.000đ</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">除非在当前周期结束前至少提前 24 小时取消，否则订阅将自动续订。试用结束后将向您的账户扣款。可随时在账户设置中管理或取消。</string>
@@ -241,25 +229,24 @@
     <string name="filter_artistic_title">艺术滤镜</string>
     <string name="tool_rotate">旋转</string>
     <string name="tool_background">背景</string>
-    <string name="home_dock_quick_edit">快速编辑</string>
-    <string name="crop">裁剪</string>
-    <string name="draw">绘制</string>
-    <string name="text">文字</string>
-    <string name="effects">效果</string>
-    <string name="eraser">橡皮擦</string>
-    <string name="brush">画笔</string>
-    <string name="shape">形状</string>
-    <string name="zoom">缩放</string>
-    <string name="color">颜色</string>
-    <string name="format">格式</string>
-    <string name="font">字体</string>
-    <string name="image_saved_successfully">图片保存成功</string>
-    <string name="failed_to_save_image">保存图片失败</string>
-    <string name="something_went_wrong">出错了</string>
-    <string name="fail_to_insert_uri_in_content_resolver">插入 URI 到 ContentResolver 失败</string>
-    <string name="app_not_found">找不到应用</string>
     <string name="tool_studio">影棚</string>
-    <string name="select">选择</string>
-    <string name="permission_required">需要权限</string>
-    <string name="grant_permission">授予权限</string>
-<string name="removing_background">正在删除背景...</string><string name="draft_saved_successfully">草稿已保存</string><string name="bg_remover_not_available">背景移除工具不可用</string><string name="bg_removal_failed">背景移除失败</string><string name="go_back">返回</string><string name="draft_name_prefix">草稿</string><string name="draft_copy_suffix">副本</string><string name="old_project_name">旧项目</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">正在删除背景...</string>
+    <string name="draft_saved_successfully">草稿已保存</string>
+    <string name="bg_remover_not_available">背景移除工具不可用</string>
+    <string name="bg_removal_failed">背景移除失败</string>
+    <string name="go_back">返回</string>
+    <string name="draft_name_prefix">草稿</string>
+    <string name="draft_copy_suffix">副本</string>
+    <string name="old_project_name">旧项目</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>

@@ -3,6 +3,7 @@ package com.abizer_r.quickedit.utils.effectsMode
 import android.content.Context
 import android.graphics.Bitmap
 import com.abizer_r.quickedit.ui.effectsMode.effectsPreview.EffectItem
+import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.utils.AppUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -26,7 +27,7 @@ object EffectsModeUtils {
             EffectItem(
                 ogBitmap = bitmap,
                 previewBitmap = getScaledPreviewBitmap(context, bitmap),
-                label = "original"
+                label = context.getString(com.abizer_r.quickedit.R.string.effect_original)
             )
         )
 
@@ -39,7 +40,7 @@ object EffectsModeUtils {
                 EffectItem(
                     ogBitmap = grayBitmap,
                     previewBitmap = getScaledPreviewBitmap(context, grayBitmap),
-                    label = "grayscale"
+                    label = context.getString(com.abizer_r.quickedit.R.string.effect_grayscale)
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -54,7 +55,7 @@ object EffectsModeUtils {
                 EffectItem(
                     ogBitmap = blurBitmap,
                     previewBitmap = getScaledPreviewBitmap(context, blurBitmap),
-                    label = "blur"
+                    label = context.getString(com.abizer_r.quickedit.R.string.effect_blur)
                 )
             } catch (e: Exception) {
                 e.printStackTrace()

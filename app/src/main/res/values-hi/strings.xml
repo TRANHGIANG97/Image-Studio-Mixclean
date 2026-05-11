@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - बैकग्राउंड हटाने वाला</string>
     <string name="app_title">इमेज टूल्स</string>
@@ -13,7 +13,7 @@
     <string name="language_title">भाषा</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">ऐप की भाषा चुनें।</string>
-    <string name="language_system">सिस्टम डिफ़ॉल्ट</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Current language: %1$s</string>
     <string name="current_language_menu">Current: %1$s</string>
-
     <string name="settings_title">सेटिंग्स</string>
     <string name="licenses_title">ओपन सोर्स लाइसेंस</string>
     <string name="dark_mode_title">डार्क मोड</string>
     <string name="dark_mode_description">डार्क थीम चालू या बंद करें।</string>
-
     <string name="home_remove_background_title">पृष्ठभूमि हटाएँ</string>
     <string name="home_remove_background_subtitle">इमेज चुनें और एक टैप में पृष्ठभूमि हटाएँ।</string>
     <string name="dashboard_hero_title">AI पृष्ठभूमि हटाना</string>
@@ -52,7 +50,7 @@
     <string name="dashboard_feature_fast">तेज़</string>
     <string name="dashboard_feature_smart">स्मार्ट</string>
     <string name="dashboard_feature_secure">सुरक्षित</string>
-    <string name="choose_image">इमेज चुनें</string>
+    <string name="choose_image">छवि चुनें</string>
     <string name="remove_background">पृष्ठभूमि हटाएँ</string>
     <string name="home_choose_image_and_remove_background">चित्र चुनें और पृष्ठभूमि हटाएँ</string>
     <string name="multi_image_remove">कई इमेज — पृष्ठभूमि</string>
@@ -82,14 +80,12 @@
     <string name="editor_redo">रीडू</string>
     <string name="border_presets_title">बॉर्डर प्रीसेट</string>
     <string name="border_applying">बॉर्डर लग रहा है…</string>
-
     <string name="blur_title">इमेज ब्लर</string>
     <string name="blur_subtitle">केवल पृष्ठभूमि ब्लर; विषय तेज़ रहे (पोर्ट्रेट मोड)।</string>
     <string name="blur_pick_hint">शुरू करने के लिए «इमेज चुनें» पर टैप करें</string>
     <string name="blur_intensity">तीव्रता: %1$d</string>
     <string name="blur_detecting_subject">विषय पहचाना जा रहा है…</string>
     <string name="portrait_preview_export_failed">प्रीव्यू नहीं बन सका। फिर कोशिश करें।</string>
-
     <string name="multi_title">कई इमेज — पृष्ठभूमि</string>
     <string name="multi_description">कई इमेज चुनें, फिर क्रम से प्रोसेस करें।</string>
     <string name="multi_select_images">इमेज चुनें</string>
@@ -114,10 +110,9 @@
     <string name="multi_saved_successfully">इमेज सेव हो गई</string>
     <string name="multi_save_failed">सेव विफल</string>
     <string name="exit_dialog_title">ऐप बंद करें</string>
-    <string name="exit_dialog_message">क्या आप ऐप बंद करना चाहते हैं?</string>
+    <string name="exit_dialog_message">क्या आप ऐप से बाहर निकलना चाहते हैं?</string>
     <string name="exit_dialog_cancel">रद्द करें</string>
     <string name="exit_dialog_exit">बाहर निकलें</string>
-
     <string name="quality_label">क्वालिटी</string>
     <string name="quality_standard">स्टैंडर्ड</string>
     <string name="quality_basic">Basic</string>
@@ -131,17 +126,13 @@
     <string name="premium_benefit_unlimited">असीमित पृष्ठभूमि हटाना</string>
     <string name="settings_removal_quality">हटाने की क्वालिटी</string>
     <string name="settings_removal_quality_summary">स्टैंडर्ड (शामिल) • Pro (Premium)</string>
-
-    
     <string name="lightning_title">लाइटनिंग एन्हांस</string>
     <string name="lightning_pick_hint">शुरू करने के लिए इमेज चुनें</string>
     <string name="lightning_compare_hint">पहले / बाद में तुलना</string>
     <string name="lightning_intensity">तीव्रता: %1$d</string>
-
     <string name="lightning_action_portrait">पोर्ट्रेट</string>
     <string name="lightning_action_darken">डार्कन</string>
     <string name="lightning_action_clean">क्लीन</string>
-
     <string name="home_background_presets">पृष्ठभूमि प्रीसेट</string>
     <string name="home_applying_preset">प्रीसेट लग रहा है…</string>
     <string name="upgrade_sheet_title">इस फ़ीचर के लिए Pro अनलॉक करें</string>
@@ -151,8 +142,9 @@
     <string name="home_quick_tools">क्विक टूल्स</string>
     <string name="home_dock_batch">बैच</string>
     <string name="home_dock_blur">ब्लर</string>
-    <string name="home_dock_pick_image">Pick Image</string>
-    <string name="home_dock_photo_editor">Photo Editor</string>
+    <string name="home_dock_pick_image">छवि चुनें</string>
+    <string name="home_dock_photo_editor">फोटो संपादक</string>
+    <string name="home_dock_quick_edit">त्वरित संपादन</string>
     <string name="home_dock_hd_export">HD एक्सपोर्ट</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">ड्राफ़्ट</string>
@@ -160,7 +152,7 @@
     <string name="draft_deselect_all">सभी का चयन रद्द करें</string>
     <string name="draft_delete_selected">हटाएँ (%1$d)</string>
     <string name="draft_selected_count">%1$d चयनित</string>
-    <string name="draft_confirm_delete_multiple">क्या आप वाकई %1$d चयनित ड्राफ़्ट हटाना चाहते हैं?</string>
+    <string name="draft_confirm_delete_multiple">क्या आप वाकई %1$d चयनित ड्राफ्ट हटाना चाहते हैं?</string>
     <string name="action_discard">छोड़ें</string>
     <string name="home_preview_placeholder">इमेज चुनने के बाद प्रीव्यू यहाँ दिखेगा।</string>
     <string name="compare_label_before">पहले</string>
@@ -177,7 +169,6 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="sheet_no_image_selected">कोई इमेज नहीं चुनी</string>
     <string name="cd_ai_removal_preview">पृष्ठभूमि हटाने का प्रीव्यू</string>
-
     <string name="settings_app_preferences">ऐप प्राथमिकताएँ</string>
     <string name="settings_section_appearance">दिखावट</string>
     <string name="settings_section_ai">AI प्रोसेसिंग</string>
@@ -185,13 +176,10 @@
     <string name="settings_app_version_label">ऐप %1$s</string>
     <string name="multi_selected_inline">%1$d चुनी गईं</string>
     <string name="editor_text_error">टेक्स्ट: %1$s</string>
-
     <string name="premium_free_trial_cta">3 दिन मुफ़्त ट्रायल →</string>
     <string name="premium_after_trial_price">ट्रायल के बाद 680.000đ/माह</string>
     <string name="premium_restore">रिस्टोर</string>
     <string name="premium_brand_title">Retouch</string>
-
-
     <string name="premium_unlock_all_features">सभी फ़ीचर अनलॉक करें</string>
     <string name="premium_plan_month">माह</string>
     <string name="premium_plan_week">सप्ताह</string>
@@ -206,7 +194,6 @@
     <string name="premium_cta_trial">3-दिन का मुफ़्त ट्रायल शुरू करें</string>
     <string name="pro_feature_expand">स्मूथ AI एक्सपेंशन</string>
     <string name="pro_see_details">विवरण &gt;</string>
-
     <string name="premium_price_week">180.000đ</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">वर्तमान अवधि समाप्त होने से कम से कम 24 घंटे पहले रद्द न करने पर सदस्यता अपने आप नवीनीकृत होगी। ट्रायल के बाद भुगतान आपके खाते से लिया जाएगा। खाता सेटिंग्स में कभी भी प्रबंधित या रद्द करें।</string>
@@ -242,25 +229,24 @@
     <string name="filter_artistic_title">आर्टिस्टिक फ़िल्टर</string>
     <string name="tool_rotate">घुमाएँ</string>
     <string name="tool_background">बैकग्राउंड</string>
-    <string name="home_dock_quick_edit">त्वरित संपादन</string>
-    <string name="crop">क्रॉप करें</string>
-    <string name="draw">ड्रा करें</string>
-    <string name="text">टेक्स्ट</string>
-    <string name="effects">प्रभाव</string>
-    <string name="eraser">इरेज़र</string>
-    <string name="brush">ब्रश</string>
-    <string name="shape">आकार</string>
-    <string name="zoom">ज़ूम</string>
-    <string name="color">रंग</string>
-    <string name="format">फॉर्मेट</string>
-    <string name="font">फ़ॉन्ट</string>
-    <string name="image_saved_successfully">छवि सफलतापूर्वक सहेजी गई</string>
-    <string name="failed_to_save_image">छवि सहेजने में विफल</string>
-    <string name="something_went_wrong">कुछ गलत हो गया</string>
-    <string name="fail_to_insert_uri_in_content_resolver">ContentResolver में URI डालने में विफल</string>
-    <string name="app_not_found">ऐप नहीं मिला</string>
     <string name="tool_studio">स्टूडियो</string>
-    <string name="select">चुनें</string>
-    <string name="permission_required">अनुमति आवश्यक है</string>
-    <string name="grant_permission">अनुमति दें</string>
-<string name="removing_background">पृष्ठभूमि हटा रहा है...</string><string name="draft_saved_successfully">ड्राफ्ट सहेजा गया</string><string name="bg_remover_not_available">बैकग्राउंड रिमूवर उपलब्ध नहीं है</string><string name="bg_removal_failed">पृष्ठभूमि हटाना विफल रहा</string><string name="go_back">वापस जाएं</string><string name="draft_name_prefix">ड्राफ्ट</string><string name="draft_copy_suffix">प्रतिलिपि</string><string name="old_project_name">पुराना प्रोजेक्ट</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">पृष्ठभूमि हटा रहा है...</string>
+    <string name="draft_saved_successfully">ड्राफ्ट सहेजा गया</string>
+    <string name="bg_remover_not_available">बैकग्राउंड रिमूवर उपलब्ध नहीं है</string>
+    <string name="bg_removal_failed">पृष्ठभूमि हटाना विफल रहा</string>
+    <string name="go_back">वापस जाएं</string>
+    <string name="draft_name_prefix">ड्राफ्ट</string>
+    <string name="draft_copy_suffix">प्रतिलिपि</string>
+    <string name="old_project_name">पुराना प्रोजेक्ट</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>

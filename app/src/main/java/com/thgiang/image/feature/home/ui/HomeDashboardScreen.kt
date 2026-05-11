@@ -192,8 +192,8 @@ fun HomeDashboardScreen(
                         lastSliderAfterUri = uiState.lastSliderAfterUri,
                         onPickImage = {
                             if (!homeViewModel.isAdDismissedRecently()) {
-                                isAutoRemoveMode = false
-                                onSimplePick()
+                                isAutoRemoveMode = true
+                                onOpenRemoveBgEditor()
                             }
                         }
                     )

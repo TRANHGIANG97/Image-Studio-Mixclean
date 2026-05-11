@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - Arka Plan Silici</string>
     <string name="app_title">Resim Araçları</string>
@@ -13,7 +13,7 @@
     <string name="language_title">Dil</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">Uygulama dilini seçin.</string>
-    <string name="language_system">Sistem varsayılanı</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Current language: %1$s</string>
     <string name="current_language_menu">Current: %1$s</string>
-
     <string name="settings_title">Ayarlar</string>
     <string name="licenses_title">Açık kaynak lisansları</string>
     <string name="dark_mode_title">Karanlık mod</string>
     <string name="dark_mode_description">Karanlık temayı aç/kapat.</string>
-
     <string name="home_remove_background_title">Arka Planı Kaldır</string>
     <string name="home_remove_background_subtitle">Bir resim seçin ve tek dokunuşla arka planı kaldırın.</string>
     <string name="dashboard_hero_title">AI Arka Plan Silici</string>
@@ -52,7 +50,7 @@
     <string name="dashboard_feature_fast">Hızlı</string>
     <string name="dashboard_feature_smart">Akıllı</string>
     <string name="dashboard_feature_secure">Güvenli</string>
-    <string name="choose_image">Resim seç</string>
+    <string name="choose_image">Resim Seç</string>
     <string name="remove_background">Arka planı kaldır</string>
     <string name="home_choose_image_and_remove_background">Resim seç ve arka planı kaldır</string>
     <string name="multi_image_remove">Çoklu resim kaldırma</string>
@@ -82,14 +80,12 @@
     <string name="editor_redo">Yinele</string>
     <string name="border_presets_title">Kenarlık ön ayarları</string>
     <string name="border_applying">Kenarlık uygulanıyor…</string>
-
     <string name="blur_title">Resim Bulanıklaştırma</string>
     <string name="blur_subtitle">Sadece arka planı bulanıklaştır; özne keskin kalsın (portre modu).</string>
     <string name="blur_pick_hint">Başlamak için \"Resim seç\"e dokunun</string>
     <string name="blur_intensity">Yoğunluk: %1$d</string>
     <string name="blur_detecting_subject">Özne algılanıyor…</string>
     <string name="portrait_preview_export_failed">Önizleme oluşturulamadı. Tekrar deneyin.</string>
-
     <string name="multi_title">Çoklu Resim Kaldırma</string>
     <string name="multi_description">Birden fazla resim seçin ve bunları sırayla işleyin.</string>
     <string name="multi_select_images">Resimleri seçin</string>
@@ -117,7 +113,6 @@
     <string name="exit_dialog_message">Uygulamadan çıkmak istiyor musunuz?</string>
     <string name="exit_dialog_cancel">İptal</string>
     <string name="exit_dialog_exit">Çıkış</string>
-
     <string name="quality_label">Kalite</string>
     <string name="quality_standard">Standart</string>
     <string name="quality_basic">Basic</string>
@@ -131,17 +126,13 @@
     <string name="premium_benefit_unlimited">Sınırsız arka plan kaldırma</string>
     <string name="settings_removal_quality">Kaldırma kalitesi</string>
     <string name="settings_removal_quality_summary">Standart (dahil) • Pro (Premium)</string>
-
-    
     <string name="lightning_title">Hızlı İyileştirme</string>
     <string name="lightning_pick_hint">Başlamak için bir resim seçin</string>
     <string name="lightning_compare_hint">Önce / Sonra karşılaştır</string>
     <string name="lightning_intensity">Yoğunluk: %1$d</string>
-
     <string name="lightning_action_portrait">Portre</string>
     <string name="lightning_action_darken">Koyulaştır</string>
     <string name="lightning_action_clean">Temizle</string>
-
     <string name="home_background_presets">Arka plan ön ayarları</string>
     <string name="home_applying_preset">Ön ayar uygulanıyor…</string>
     <string name="upgrade_sheet_title">Bu özelliği kullanmak için Pro\'nun kilidini açın</string>
@@ -152,7 +143,8 @@
     <string name="home_dock_batch">Toplu</string>
     <string name="home_dock_blur">Bulanıklık</string>
     <string name="home_dock_pick_image">Resim Seç</string>
-    <string name="home_dock_photo_editor">Fotoğraf Editörü</string>
+    <string name="home_dock_photo_editor">Fotoğraf Düzenleyici</string>
+    <string name="home_dock_quick_edit">Hızlı Düzenle</string>
     <string name="home_dock_hd_export">HD Dışa Aktar</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Taslak</string>
@@ -177,7 +169,6 @@
     <string name="progress_percent">%% %1$d</string>
     <string name="sheet_no_image_selected">Resim seçilmedi</string>
     <string name="cd_ai_removal_preview">Arka plan kaldırma önizlemesi</string>
-
     <string name="settings_app_preferences">Uygulama tercihleri</string>
     <string name="settings_section_appearance">Görünüm</string>
     <string name="settings_section_ai">AI işleme</string>
@@ -185,13 +176,10 @@
     <string name="settings_app_version_label">Uygulama %1$s</string>
     <string name="multi_selected_inline">%1$d seçildi</string>
     <string name="editor_text_error">Metin: %1$s</string>
-
     <string name="premium_free_trial_cta">3 GÜNLÜK ÜCRETSİZ DENEME →</string>
     <string name="premium_after_trial_price">Deneme bittikten sonra %1$s / yıl</string>
     <string name="premium_restore">GERİ YÜKLE</string>
     <string name="premium_brand_title">MixClean</string>
-
-
     <string name="premium_unlock_all_features">Tüm özelliklerin kilidini aç</string>
     <string name="premium_plan_month">ay</string>
     <string name="premium_plan_week">hafta</string>
@@ -206,7 +194,6 @@
     <string name="premium_cta_trial">3 Günlük Ücretsiz Denemeyi Başlat</string>
     <string name="pro_feature_expand">Pürüzsüz AI Genişletme</string>
     <string name="pro_see_details">Detaylar &gt;</string>
-
     <string name="premium_price_week">180.000đ</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">Abonelik, mevcut dönemin bitiminden en az 24 saat önce iptal edilmediği sürece otomatik olarak yenilenir. Deneme bittikten sonra ödeme hesabınızdan tahsil edilir. İstediğiniz zaman hesap ayarlarından yönetebilir veya iptal edebilirsiniz.</string>
@@ -242,25 +229,24 @@
     <string name="filter_artistic_title">Artistik Filtreler</string>
     <string name="tool_rotate">Döndür</string>
     <string name="tool_background">Arka Plan</string>
-    <string name="home_dock_quick_edit">Hızlı Düzenle</string>
-    <string name="crop">Kırp</string>
-    <string name="draw">Çiz</string>
-    <string name="text">Metin</string>
-    <string name="effects">Efektler</string>
-    <string name="eraser">Silgi</string>
-    <string name="brush">Fırça</string>
-    <string name="shape">Şekil</string>
-    <string name="zoom">Yakınlaştır</string>
-    <string name="color">Renk</string>
-    <string name="format">Format</string>
-    <string name="font">Yazı Tipi</string>
-    <string name="image_saved_successfully">Resim başarıyla kaydedildi</string>
-    <string name="failed_to_save_image">Resim kaydedilemedi</string>
-    <string name="something_went_wrong">Bir şeyler yanlış gitti</string>
-    <string name="fail_to_insert_uri_in_content_resolver">ContentResolver\'a URI eklenemedi</string>
-    <string name="app_not_found">Uygulama bulunamadı</string>
     <string name="tool_studio">Stüdyo</string>
-    <string name="select">Seç</string>
-    <string name="permission_required">İzin gerekiyor</string>
-    <string name="grant_permission">İzin ver</string>
-<string name="removing_background">Arka plan siliniyor...</string><string name="draft_saved_successfully">Taslak kaydedildi</string><string name="bg_remover_not_available">Arka plan silici mevcut değil</string><string name="bg_removal_failed">Arka plan silme başarısız</string><string name="go_back">Geri dön</string><string name="draft_name_prefix">Taslak</string><string name="draft_copy_suffix">Kopya</string><string name="old_project_name">Eski Proje</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">Arka plan siliniyor...</string>
+    <string name="draft_saved_successfully">Taslak kaydedildi</string>
+    <string name="bg_remover_not_available">Arka plan silici mevcut değil</string>
+    <string name="bg_removal_failed">Arka plan silme başarısız</string>
+    <string name="go_back">Geri dön</string>
+    <string name="draft_name_prefix">Taslak</string>
+    <string name="draft_copy_suffix">Kopya</string>
+    <string name="old_project_name">Eski Proje</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>

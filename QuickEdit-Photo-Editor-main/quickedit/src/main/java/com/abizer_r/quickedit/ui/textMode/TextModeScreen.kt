@@ -192,37 +192,10 @@ fun TextModeScreen(
     }}
 
     val handleScreenshotResult = remember<(Bitmap) -> Unit> {{ bitmap ->
-        // Vẽ text overlays lên bitmap đã capture
-        val finalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-        val canvas = android.graphics.Canvas(finalBitmap)
-        val density = context.resources.displayMetrics.density
-
-        for (viewState in state.transformableViewStateList) {
-            if (viewState is TransformableTextBoxState && viewState.text.isNotBlank()) {
-                val paint = android.graphics.Paint(
-                    android.graphics.Paint.ANTI_ALIAS_FLAG or android.graphics.Paint.LINEAR_TEXT_FLAG
-                ).apply {
-                    color = viewState.textColor.hashCode()
-                    textSize = viewState.textFont.value * density
-                    textAlign = android.graphics.Paint.Align.CENTER
-                    if (viewState.textStyleAttr.isBold) isFakeBoldText = true
-                }
-                canvas.save()
-                canvas.translate(
-                    (bitmap.width / 2f) + viewState.positionOffset.x,
-                    (bitmap.height / 2f) + viewState.positionOffset.y
-                )
-                canvas.scale(viewState.scale, viewState.scale)
-                canvas.rotate(viewState.rotation)
-                canvas.drawText(viewState.text, 0f, 0f, paint)
-                canvas.restore()
-            }
-        }
-
         coroutineScope.launch(Dispatchers.Main) {
             toolbarVisible = false
             delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
-            onDoneClicked(finalBitmap)
+            onDoneClicked(bitmap)
         }
     }}
 
@@ -257,7 +230,7 @@ fun TextModeScreen(
             .background(Color.Black)
             .statusBarsPadding()
     ) {
-        val (topToolBar, bottomToolbar, bottomToolbarExtension, editorBox, editorBoxBgStretched, textInputView, navBarZone) = createRefs()
+        val (topToolBar, bottomToolbar, bottomToolbarExtension, editorBox, textInputView, navBarZone) = createRefs()
 
         // Inviolable Zone for System Navigation Keys
         Spacer(
@@ -288,6 +261,9 @@ fun TextModeScreen(
         val aspectRatio = bitmap.let {
             bitmap.width.toFloat() / bitmap.height.toFloat()
         }
+        val density = androidx.compose.ui.platform.LocalDensity.current
+        val checkerboardBrush = rememberCheckerboardBrush(density)
+
         ScreenshotBox(
             modifier = Modifier
                 .constrainAs(editorBox) {
@@ -298,9 +274,9 @@ fun TextModeScreen(
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                 }
-                .padding(top = 0.dp, bottom = 0.dp)
                 .aspectRatio(aspectRatio)
-                .clipToBounds(),
+                .clipToBounds()
+                .background(checkerboardBrush),
             screenshotState = screenshotState
         ) {
 
@@ -313,23 +289,6 @@ fun TextModeScreen(
                 onBgClicked = onBgClickedLambda
             )
 
-            Box(modifier = Modifier.fillMaxSize())
-        }
-
-        Box(
-            modifier = Modifier
-                .constrainAs(editorBoxBgStretched) {
-                    top.linkTo(topToolBar.bottom)
-                    bottom.linkTo(bottomToolbar.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-                .clipToBounds()
-        ) {
-
-
             if (showTextEditor.not()) {
                 DrawAllTransformableViews(
                     centerAlignModifier = Modifier,
@@ -338,7 +297,6 @@ fun TextModeScreen(
                     recompositionTrigger = state.recompositionTrigger
                 )
             }
-
         }
 
         AnimatedVisibility(
@@ -403,4 +361,35 @@ fun TextModeScreen(
         }
         }
     }
+}
+
+@Composable
+private fun rememberCheckerboardBrush(density: androidx.compose.ui.unit.Density): androidx.compose.ui.graphics.ShaderBrush {
+    val bmp = remember(density) { createCheckerboardBitmap(density) }
+    DisposableEffect(bmp) { onDispose { if (!bmp.isRecycled) bmp.recycle() } }
+    return remember(bmp) {
+        androidx.compose.ui.graphics.ShaderBrush(
+            androidx.compose.ui.graphics.ImageShader(
+                bmp.asImageBitmap(),
+                androidx.compose.ui.graphics.TileMode.Repeated,
+                androidx.compose.ui.graphics.TileMode.Repeated
+            )
+        )
+    }
+}
+
+private fun createCheckerboardBitmap(density: androidx.compose.ui.unit.Density): Bitmap {
+    val tilePx = with(density) { 8.dp.toPx().toInt().coerceAtLeast(1) }
+    val size = tilePx * 2
+    val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(bmp)
+    val paint = android.graphics.Paint().apply {
+        isAntiAlias = false
+        color = android.graphics.Color.WHITE
+    }
+    canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paint)
+    paint.color = android.graphics.Color.parseColor("#E0E0E0") // Light gray
+    canvas.drawRect(0f, 0f, tilePx.toFloat(), tilePx.toFloat(), paint)
+    canvas.drawRect(tilePx.toFloat(), tilePx.toFloat(), size.toFloat(), size.toFloat(), paint)
+    return bmp
 }

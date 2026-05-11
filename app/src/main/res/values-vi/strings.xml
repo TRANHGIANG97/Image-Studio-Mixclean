@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - Xoá nền chuyên nghiệp</string>
     <string name="app_title">Công cụ ảnh</string>
@@ -13,7 +13,7 @@
     <string name="language_title">Ngôn ngữ</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">Chọn ngôn ngữ ứng dụng.</string>
-    <string name="language_system">Theo hệ thống</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Current language: %1$s</string>
     <string name="current_language_menu">Current: %1$s</string>
-
     <string name="settings_title">Cài đặt</string>
     <string name="licenses_title">Giấy phép mã nguồn mở</string>
     <string name="dark_mode_title">Chế độ tối</string>
     <string name="dark_mode_description">Bật/tắt giao diện tối cho ứng dụng.</string>
-
     <string name="home_remove_background_title">Xoá phông</string>
     <string name="home_remove_background_subtitle">Chọn ảnh và xoá phông chỉ với một lần chạm.</string>
     <string name="dashboard_hero_title">AI xoá phông</string>
@@ -52,13 +50,13 @@
     <string name="dashboard_feature_fast">Nhanh</string>
     <string name="dashboard_feature_smart">Thông minh</string>
     <string name="dashboard_feature_secure">An toàn</string>
-    <string name="choose_image">Xoá phông</string>
+    <string name="choose_image">Chọn ảnh</string>
     <string name="remove_background">Xoá nền</string>
     <string name="home_choose_image_and_remove_background">Chọn ảnh và xoá nền</string>
     <string name="multi_image_remove">Xoá nền hàng loạt</string>
     <string name="done_save_or_share">Hoàn tất! Bạn có thể lưu hoặc chia sẻ kết quả.</string>
     <string name="removing_background_wait">Đang xoá nền, vui lòng chờ...</string>
-    <string name="tap_remove_background_to_start">Nhấn "Xoá nền" để bắt đầu.</string>
+    <string name="tap_remove_background_to_start">Nhấn \"Xoá nền\" để bắt đầu.</string>
     <string name="step_choose_image">Bước 1: Chọn ảnh từ thư viện.</string>
     <string name="compare_before_after">So sánh trước / sau</string>
     <string name="status_idle">Sẵn sàng</string>
@@ -69,11 +67,9 @@
     <string name="action_edit">Chỉnh sửa</string>
     <string name="action_close">Đóng</string>
     <string name="crop_apply">Áp dụng</string>
-
     <string name="tool_border">Viền</string>
     <string name="border_color">Màu viền</string>
     <string name="border_thickness">Độ dày</string>
-
     <string name="edit_image_failed">Không mở được trình sửa. Vui lòng thử lại.</string>
     <string name="editor_add_text_title">Thêm chữ</string>
     <string name="editor_add_text_hint">Nhập nội dung</string>
@@ -84,14 +80,12 @@
     <string name="editor_redo">Làm lại</string>
     <string name="border_presets_title">Mẫu viền ảnh</string>
     <string name="border_applying">Đang tạo viền…</string>
-
     <string name="blur_title">Làm mờ ảnh</string>
     <string name="blur_subtitle">Chỉ làm mờ nền; chủ thể vẫn nét (chế độ chân dung).</string>
     <string name="blur_pick_hint">Nhấn \"Chọn ảnh\" để bắt đầu</string>
     <string name="blur_intensity">Cường độ: %1$d</string>
     <string name="blur_detecting_subject">Đang nhận diện chủ thể…</string>
     <string name="portrait_preview_export_failed">Không tạo được bản xem trước. Hãy thử lại.</string>
-
     <string name="multi_title">Xoá nền hàng loạt</string>
     <string name="multi_description">Chọn nhiều ảnh và xử lý tuần tự.</string>
     <string name="multi_select_images">Chọn ảnh</string>
@@ -119,7 +113,6 @@
     <string name="exit_dialog_message">Bạn có muốn thoát ứng dụng không?</string>
     <string name="exit_dialog_cancel">Huỷ</string>
     <string name="exit_dialog_exit">Thoát</string>
-
     <string name="quality_label">Chất lượng</string>
     <string name="quality_standard">Chuẩn</string>
     <string name="quality_basic">Cơ bản</string>
@@ -133,17 +126,13 @@
     <string name="premium_benefit_unlimited">Xoá phông không giới hạn</string>
     <string name="settings_removal_quality">Chất lượng xoá nền</string>
     <string name="settings_removal_quality_summary">Chuẩn (miễn phí) • Pro (Premium)</string>
-
-    
     <string name="lightning_title">Tăng cường nhanh</string>
     <string name="lightning_pick_hint">Chọn ảnh để bắt đầu</string>
     <string name="lightning_compare_hint">So sánh trước / sau</string>
     <string name="lightning_intensity">Cường độ: %1$d</string>
-
     <string name="lightning_action_portrait">Chân dung</string>
     <string name="lightning_action_darken">Tối nền</string>
     <string name="lightning_action_clean">Làm sạch nền</string>
-
     <string name="home_background_presets">Mẫu nền</string>
     <string name="home_applying_preset">Đang áp dụng mẫu…</string>
     <string name="upgrade_sheet_title">Mở khoá Pro để dùng tính năng này</string>
@@ -153,8 +142,9 @@
     <string name="home_quick_tools">Công cụ nhanh</string>
     <string name="home_dock_batch">Hàng loạt</string>
     <string name="home_dock_blur">Làm mờ</string>
-    <string name="home_dock_pick_image">Xoá phông</string>
+    <string name="home_dock_pick_image">Chọn ảnh</string>
     <string name="home_dock_photo_editor">Sửa ảnh</string>
+    <string name="home_dock_quick_edit">Sửa nhanh</string>
     <string name="home_dock_hd_export">Xuất ảnh HD</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Bản nháp</string>
@@ -162,7 +152,7 @@
     <string name="draft_deselect_all">Bỏ chọn tất cả</string>
     <string name="draft_delete_selected">Xoá (%1$d)</string>
     <string name="draft_selected_count">Đã chọn %1$d</string>
-    <string name="draft_confirm_delete_multiple">Bạn có chắc muốn xoá %1$d bản nháp đã chọn?</string>
+    <string name="draft_confirm_delete_multiple">Bạn có chắc chắn muốn xóa %1$d bản nháp đã chọn không?</string>
     <string name="action_discard">Loại bỏ</string>
     <string name="home_preview_placeholder">Chọn ảnh để xem trước tại đây.</string>
     <string name="compare_label_before">Trước</string>
@@ -179,7 +169,6 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="sheet_no_image_selected">Chưa chọn ảnh</string>
     <string name="cd_ai_removal_preview">Xem trước xoá nền</string>
-
     <string name="settings_app_preferences">Tuỳ chọn ứng dụng</string>
     <string name="settings_section_appearance">Giao diện</string>
     <string name="settings_section_ai">Bộ xử lý AI</string>
@@ -187,13 +176,10 @@
     <string name="settings_app_version_label">Ứng dụng %1$s</string>
     <string name="multi_selected_inline">Đã chọn %1$d</string>
     <string name="editor_text_error">Chữ: %1$s</string>
-
     <string name="premium_free_trial_cta">DÙNG THỬ 3 NGÀY →</string>
     <string name="premium_after_trial_price">Sau khi hết dùng thử là %1$s / năm</string>
     <string name="premium_restore">KHÔI PHỤC</string>
     <string name="premium_brand_title">MixClean</string>
-
-
     <string name="premium_unlock_all_features">Mở khóa tất cả tính năng</string>
     <string name="premium_plan_month">Tháng</string>
     <string name="premium_plan_week">Tuần</string>
@@ -208,7 +194,6 @@
     <string name="premium_cta_trial">Bắt đầu dùng thử miễn phí 3 ngày</string>
     <string name="pro_feature_expand">Mở rộng AI mượt mà</string>
     <string name="pro_see_details">Chi tiết &gt;</string>
-
     <string name="premium_price_week">180.000₫</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">Gói sẽ tự gia hạn trừ khi bạn huỷ ít nhất 24 giờ trước khi kỳ hiện tại kết thúc. Sau khi hết dùng thử, phí sẽ được trừ vào tài khoản của bạn. Bạn có thể quản lý hoặc huỷ bất cứ lúc nào trong cài đặt tài khoản.</string>
@@ -244,25 +229,24 @@
     <string name="filter_artistic_title">Bộ lọc nghệ thuật</string>
     <string name="tool_rotate">Xoay</string>
     <string name="tool_background">Nền</string>
-    <string name="home_dock_quick_edit">Sửa nhanh</string>
-    <string name="crop">Cắt ảnh</string>
-    <string name="draw">Vẽ</string>
-    <string name="text">Văn bản</string>
-    <string name="effects">Hiệu ứng</string>
-    <string name="eraser">Tẩy</string>
-    <string name="brush">Cọ</string>
-    <string name="shape">Hình dạng</string>
-    <string name="zoom">Phóng to</string>
-    <string name="color">Màu sắc</string>
-    <string name="format">Định dạng</string>
-    <string name="font">Phông chữ</string>
-    <string name="image_saved_successfully">Lưu ảnh thành công</string>
-    <string name="failed_to_save_image">Lưu ảnh thất bại</string>
-    <string name="something_went_wrong">Đã có lỗi xảy ra</string>
-    <string name="fail_to_insert_uri_in_content_resolver">Lỗi chèn URI vào ContentResolver</string>
-    <string name="app_not_found">Không tìm thấy ứng dụng</string>
     <string name="tool_studio">Studio</string>
-    <string name="select">Chọn</string>
-    <string name="permission_required">Yêu cầu quyền</string>
-    <string name="grant_permission">Cấp quyền</string>
-<string name="removing_background">Đang xóa nền...</string><string name="draft_saved_successfully">Đã lưu bản nháp thành công</string><string name="bg_remover_not_available">Công cụ xóa nền không khả dụng</string><string name="bg_removal_failed">Xóa nền thất bại</string><string name="go_back">Quay lại</string><string name="draft_name_prefix">Bản nháp</string><string name="draft_copy_suffix">Bản sao</string><string name="old_project_name">Dự án cũ</string><string name="picker_title">Chọn ảnh</string><string name="picker_tab_all">Tất cả ảnh</string><string name="picker_tab_albums">Album</string><string name="picker_no_albums">Không có album nào</string><string name="picker_camera_item">Máy ảnh</string><string name="picker_photo_count">%1$d ảnh</string><string name="picker_permission_title">Cần quyền truy cập ảnh</string><string name="picker_permission_desc">Ứng dụng cần quyền đọc ảnh để hiển thị thư viện của bạn.</string><string name="picker_no_photos">Không tìm thấy ảnh</string><string name="picker_capture_btn">Chụp ảnh bằng camera</string><string name="cd_capture_photo">Chụp ảnh</string></resources>
+    <string name="removing_background">Đang xóa nền...</string>
+    <string name="draft_saved_successfully">Đã lưu bản nháp thành công</string>
+    <string name="bg_remover_not_available">Công cụ xóa nền không khả dụng</string>
+    <string name="bg_removal_failed">Xóa nền thất bại</string>
+    <string name="go_back">Quay lại</string>
+    <string name="draft_name_prefix">Bản nháp</string>
+    <string name="draft_copy_suffix">Bản sao</string>
+    <string name="old_project_name">Dự án cũ</string>
+    <string name="picker_title">Chọn ảnh</string>
+    <string name="picker_tab_all">Tất cả ảnh</string>
+    <string name="picker_tab_albums">Album</string>
+    <string name="picker_no_albums">Không có album nào</string>
+    <string name="picker_camera_item">Máy ảnh</string>
+    <string name="picker_photo_count">%1$d ảnh</string>
+    <string name="picker_permission_title">Cần quyền truy cập ảnh</string>
+    <string name="picker_permission_desc">Ứng dụng cần quyền đọc ảnh để hiển thị thư viện của bạn.</string>
+    <string name="picker_no_photos">Không tìm thấy ảnh</string>
+    <string name="picker_capture_btn">Chụp ảnh bằng camera</string>
+    <string name="cd_capture_photo">Chụp ảnh</string>
+    <string name="permission_required">Cần cấp quyền</string><string name="grant_permission">Cấp quyền</string><string name="select">Chọn</string></resources>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - Background Remover</string>
     <string name="app_title">Image Tools</string>
@@ -158,22 +158,6 @@
     <string name="home_dock_quick_edit">QuickEdit</string>
     <string name="home_dock_hd_export">HD Export</string>
     
-    <string name="crop">Crop</string>
-    <string name="draw">Draw</string>
-    <string name="text">Text</string>
-    <string name="effects">Effects</string>
-    <string name="eraser">Eraser</string>
-    <string name="brush">Brush</string>
-    <string name="shape">Shape</string>
-    <string name="zoom">Zoom</string>
-    <string name="color">Color</string>
-    <string name="format">Format</string>
-    <string name="font">Font</string>
-    <string name="image_saved_successfully">Image saved successfully</string>
-    <string name="failed_to_save_image">Failed to save image</string>
-    <string name="something_went_wrong">Something went wrong</string>
-    <string name="fail_to_insert_uri_in_content_resolver">Fail to insert URI in ContentResolver</string>
-    <string name="app_not_found">App not found</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Draft</string>
     <string name="draft_select_all">Select all</string>
@@ -263,7 +247,9 @@
     <string name="tool_rotate">Rotate</string>
     <string name="tool_background">Background</string>
     <string name="tool_studio">Studio</string>
-    <string name="select">Select</string>
-    <string name="permission_required">Permission required</string>
-    <string name="grant_permission">Grant permission</string>
-    <string name="removing_background">Removing background...</string><string name="draft_saved_successfully">Draft saved successfully</string><string name="bg_remover_not_available">Background remover not available</string><string name="bg_removal_failed">Background removal failed</string><string name="go_back">Go back</string><string name="draft_name_prefix">Draft</string><string name="draft_copy_suffix">Copy</string><string name="old_project_name">Old Project</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">Removing background...</string><string name="draft_saved_successfully">Draft saved successfully</string><string name="bg_remover_not_available">Background remover not available</string><string name="bg_removal_failed">Background removal failed</string><string name="go_back">Go back</string><string name="draft_name_prefix">Draft</string><string name="draft_copy_suffix">Copy</string><string name="old_project_name">Old Project</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+
+    
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>

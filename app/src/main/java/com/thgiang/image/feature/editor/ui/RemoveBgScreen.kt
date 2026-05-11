@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +41,10 @@ import kotlinx.coroutines.withContext
 import androidx.compose.ui.res.stringResource
 import com.thgiang.image.R
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun RemoveBgScreen(
@@ -63,6 +66,8 @@ fun RemoveBgScreen(
             onSuccess = { fg ->
                 resultBitmap = fg
                 processing = false
+                // Automatically done for a seamless experience
+                onDoneClicked(fg)
             },
             onFailure = { e ->
                 errorMessage = e.message ?: "Background removal failed"
@@ -71,94 +76,49 @@ fun RemoveBgScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        when {
-            processing -> {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(stringResource(R.string.removing_background), style = MaterialTheme.typography.bodyMedium)
-                }
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        // Show current state image
+        val displayBitmap = resultBitmap ?: bitmap
+        Image(
+            bitmap = displayBitmap.asImageBitmap(),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        if (processing) {
+            val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animation/animation.lottie"))
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                LottieAnimation(
+                    composition = composition,
+                    iterations = LottieConstants.IterateForever,
+                    modifier = Modifier.size(300.dp)
+                )
             }
-            errorMessage != null -> {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+        }
+
+        if (errorMessage != null) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.7f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "${stringResource(R.string.bg_removal_failed)}: ${errorMessage}",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium
+                        text = errorMessage!!,
+                        color = Color.White,
+                        modifier = Modifier.padding(16.dp)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onBackPressed) {
-                        Text(stringResource(R.string.go_back))
-                    }
-                }
-            }
-            resultBitmap != null -> {
-                val fg = resultBitmap!!
-
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Image(
-                        bitmap = fg.asImageBitmap(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 80.dp)
-                    )
-
-                    // Bottom action bar - Simplified to only Cancel and Apply
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .navigationBarsPadding()
-                            .fillMaxWidth()
-                            .background(Color.Black.copy(alpha = 0.6f))
-                            .padding(horizontal = 24.dp, vertical = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(
-                            onClick = onBackPressed,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White.copy(alpha = 0.2f)
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.height(48.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.multi_cancel), style = MaterialTheme.typography.labelMedium)
-                        }
-
-                        Button(
-                            onClick = { onDoneClicked(fg) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.height(48.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.crop_apply), style = MaterialTheme.typography.labelMedium)
-                        }
+                        Text(stringResource(R.string.action_close))
                     }
                 }
             }
         }
+
     }
 }

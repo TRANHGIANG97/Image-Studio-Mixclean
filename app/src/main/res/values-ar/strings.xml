@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - إزالة الخلفية</string>
     <string name="app_title">أدوات الصور</string>
@@ -13,7 +13,7 @@
     <string name="language_title">اللغة</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">اختر لغة التطبيق.</string>
-    <string name="language_system">النظام الافتراضي</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Current language: %1$s</string>
     <string name="current_language_menu">Current: %1$s</string>
-
     <string name="settings_title">الإعدادات</string>
     <string name="licenses_title">تراخيص مفتوحة المصدر</string>
     <string name="dark_mode_title">الوضع الداكن</string>
     <string name="dark_mode_description">تفعيل أو إيقاف المظهر الداكن.</string>
-
     <string name="home_remove_background_title">إزالة الخلفية</string>
     <string name="home_remove_background_subtitle">اختر صورة وأزل الخلفية بلمسة واحدة.</string>
     <string name="dashboard_hero_title">إزالة الخلفية بالذكاء الاصطناعي</string>
@@ -82,14 +80,12 @@
     <string name="editor_redo">إعادة</string>
     <string name="border_presets_title">إعدادات مسبقة للإطار</string>
     <string name="border_applying">جارٍ تطبيق الإطار…</string>
-
     <string name="blur_title">ضبابية الصورة</string>
     <string name="blur_subtitle">ضبابية الخلفية فقط؛ يبقى الموضوع واضحًا (وضع بورتريه).</string>
     <string name="blur_pick_hint">اضغط «اختر صورة» للبدء</string>
     <string name="blur_intensity">الشدة: %1$d</string>
     <string name="blur_detecting_subject">جارٍ اكتشاف الموضوع…</string>
     <string name="portrait_preview_export_failed">تعذّر إنشاء المعاينة. حاول مرة أخرى.</string>
-
     <string name="multi_title">إزالة متعددة</string>
     <string name="multi_description">اختر عدة صور ثم عالجها بالتتابع.</string>
     <string name="multi_select_images">اختر الصور</string>
@@ -114,10 +110,9 @@
     <string name="multi_saved_successfully">تم حفظ الصورة بنجاح</string>
     <string name="multi_save_failed">فشل الحفظ</string>
     <string name="exit_dialog_title">إغلاق التطبيق</string>
-    <string name="exit_dialog_message">هل تريد إغلاق التطبيق؟</string>
+    <string name="exit_dialog_message">هل تريد الخروج من التطبيق؟</string>
     <string name="exit_dialog_cancel">إلغاء</string>
     <string name="exit_dialog_exit">خروج</string>
-
     <string name="quality_label">الجودة</string>
     <string name="quality_standard">قياسي</string>
     <string name="quality_basic">أساسي</string>
@@ -131,17 +126,13 @@
     <string name="premium_benefit_unlimited">إزالات خلفية غير محدودة</string>
     <string name="settings_removal_quality">جودة الإزالة</string>
     <string name="settings_removal_quality_summary">قياسي (مضمّن) • برو (بريميوم)</string>
-
-    
     <string name="lightning_title">تحسين سريع</string>
     <string name="lightning_pick_hint">اختر صورة للبدء</string>
     <string name="lightning_compare_hint">قبل / بعد</string>
     <string name="lightning_intensity">الشدة: %1$d</string>
-
     <string name="lightning_action_portrait">بورتريه</string>
     <string name="lightning_action_darken">تغميق</string>
     <string name="lightning_action_clean">تنظيف</string>
-
     <string name="home_background_presets">إعدادات الخلفية</string>
     <string name="home_applying_preset">جارٍ تطبيق الإعداد…</string>
     <string name="upgrade_sheet_title">افتح برو لاستخدام هذه الميزة</string>
@@ -151,8 +142,9 @@
     <string name="home_quick_tools">أدوات سريعة</string>
     <string name="home_dock_batch">دفعة</string>
     <string name="home_dock_blur">ضبابية</string>
-    <string name="home_dock_pick_image">إزالة الخلفية</string>
+    <string name="home_dock_pick_image">اختر صورة</string>
     <string name="home_dock_photo_editor">محرر الصور</string>
+    <string name="home_dock_quick_edit">تحرير سريع</string>
     <string name="home_dock_hd_export">تصدير HD</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">مسودة</string>
@@ -160,7 +152,7 @@
     <string name="draft_deselect_all">إلغاء تحديد الكل</string>
     <string name="draft_delete_selected">حذف (%1$d)</string>
     <string name="draft_selected_count">%1$d محددة</string>
-    <string name="draft_confirm_delete_multiple">هل أنت متأكد أنك تريد حذف %1$d مسودة محددة؟</string>
+    <string name="draft_confirm_delete_multiple">هل أنت متأكد أنك تريد حذف %1$d من المسودات المختارة؟</string>
     <string name="action_discard">تجاهل</string>
     <string name="home_preview_placeholder">ستظهر المعاينة هنا بعد اختيار صورة.</string>
     <string name="compare_label_before">قبل</string>
@@ -177,7 +169,6 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="sheet_no_image_selected">لم يتم اختيار صورة</string>
     <string name="cd_ai_removal_preview">معاينة إزالة الخلفية</string>
-
     <string name="settings_app_preferences">تفضيلات التطبيق</string>
     <string name="settings_section_appearance">المظهر</string>
     <string name="settings_section_ai">معالجة الذكاء الاصطناعي</string>
@@ -185,13 +176,10 @@
     <string name="settings_app_version_label">التطبيق %1$s</string>
     <string name="multi_selected_inline">%1$d محددة</string>
     <string name="editor_text_error">النص: %1$s</string>
-
     <string name="premium_free_trial_cta">تجربة مجانية 3 أيام ←</string>
     <string name="premium_after_trial_price">بعد انتهاء الفترة التجريبية ستكون %1$s / سنة</string>
     <string name="premium_restore">استعادة</string>
     <string name="premium_brand_title">MixClean</string>
-
-
     <string name="premium_unlock_all_features">فتح كل الميزات</string>
     <string name="premium_plan_month">شهر</string>
     <string name="premium_plan_week">أسبوع</string>
@@ -206,7 +194,6 @@
     <string name="premium_cta_trial">بدء تجربة مجانية لمدة 3 أيام</string>
     <string name="pro_feature_expand">توسيع ذكي بالذكاء الاصطناعي</string>
     <string name="pro_see_details">التفاصيل &gt;</string>
-
     <string name="premium_price_week">180.000₫</string>
     <string name="premium_price_arrow">←</string>
     <string name="premium_subscription_legal">يتجدد الاشتراك تلقائيًا ما لم يُلغَ قبل 24 ساعة على الأقل من نهاية الفترة الحالية. يُخصم الدفع من حسابك بعد انتهاء التجربة. يمكنك الإدارة أو الإلغاء في أي وقت من إعدادات الحساب.</string>
@@ -242,25 +229,24 @@
     <string name="filter_artistic_title">فلاتر فنية</string>
     <string name="tool_rotate">تدوير</string>
     <string name="tool_background">الخلفية</string>
-    <string name="home_dock_quick_edit">تحرير سريع</string>
-    <string name="crop">قص</string>
-    <string name="draw">رسم</string>
-    <string name="text">نص</string>
-    <string name="effects">تأثيرات</string>
-    <string name="eraser">ممحاة</string>
-    <string name="brush">فرشاة</string>
-    <string name="shape">شكل</string>
-    <string name="zoom">تكبير</string>
-    <string name="color">لون</string>
-    <string name="format">تنسيق</string>
-    <string name="font">خط</string>
-    <string name="image_saved_successfully">تم حفظ الصورة بنجاح</string>
-    <string name="failed_to_save_image">فشل حفظ الصورة</string>
-    <string name="something_went_wrong">حدث خطأ ما</string>
-    <string name="fail_to_insert_uri_in_content_resolver">فشل إدراج URI في ContentResolver</string>
-    <string name="app_not_found">التطبيق غير موجود</string>
     <string name="tool_studio">استوديو</string>
-    <string name="select">تحديد</string>
-    <string name="permission_required">الإذن مطلوب</string>
-    <string name="grant_permission">منح الإذن</string>
-<string name="removing_background">جاري إزالة الخلفية...</string><string name="draft_saved_successfully">تم حفظ المسودة</string><string name="bg_remover_not_available">أداة إزالة الخلفية غير متوفرة</string><string name="bg_removal_failed">فشل إزالة الخلفية</string><string name="go_back">رجوع</string><string name="draft_name_prefix">مسودة</string><string name="draft_copy_suffix">نسخة</string><string name="old_project_name">مشروع قديم</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">جاري إزالة الخلفية...</string>
+    <string name="draft_saved_successfully">تم حفظ المسودة</string>
+    <string name="bg_remover_not_available">أداة إزالة الخلفية غير متوفرة</string>
+    <string name="bg_removal_failed">فشل إزالة الخلفية</string>
+    <string name="go_back">رجوع</string>
+    <string name="draft_name_prefix">مسودة</string>
+    <string name="draft_copy_suffix">نسخة</string>
+    <string name="old_project_name">مشروع قديم</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>

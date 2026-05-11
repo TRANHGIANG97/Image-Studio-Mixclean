@@ -87,7 +87,7 @@ fun BottomToolBarStatic(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(16.dp))
         toolbarItems.items.forEachIndexed { index, mToolbarItem ->
             ToolbarItem(
                 toolbarItem = mToolbarItem,
@@ -96,9 +96,9 @@ fun BottomToolBarStatic(
                 isSelected = mToolbarItem == selectedItem,
                 onEvent = onEvent
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
         }
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(16.dp))
     }
 }
 
@@ -114,7 +114,7 @@ fun ToolbarItem(
 ) {
     val labelTextStyle = MaterialTheme.typography.bodySmall.copy(color = defaultTextColor())
 
-    val commonPaddingModifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+    val commonPaddingModifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
 
     if (toolbarItem is BottomToolbarItem.ColorItem) {
         ColorToolbarItem(
@@ -132,12 +132,11 @@ fun ToolbarItem(
     }
     if (isSelected) {
         columnModifier = columnModifier
-            .clip(RoundedCornerShape(3.dp))
-            .background(MaterialTheme.colorScheme.onBackground)
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
             .padding((0.5).dp)
-            .clip(RoundedCornerShape(3.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
-//            .padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
     }
     columnModifier = columnModifier.then(commonPaddingModifier)
 
@@ -175,7 +174,7 @@ fun ToolbarItem(
         )
         is BottomToolbarItem.MagicBrush -> Pair(
             Icons.Outlined.Brush,
-            "Tẩy xoá"
+            stringResource(id = R.string.tool_magic_brush)
         )
         is BottomToolbarItem.BackgroundMode -> Pair(
             Icons.Outlined.Collections,
@@ -251,7 +250,9 @@ fun ToolbarItem(
         if (labelText.isNotBlank()) {
             Text(
                 style = labelTextStyle,
-                text = labelText
+                text = labelText,
+                maxLines = 1,
+                softWrap = false
             )
         }
     }

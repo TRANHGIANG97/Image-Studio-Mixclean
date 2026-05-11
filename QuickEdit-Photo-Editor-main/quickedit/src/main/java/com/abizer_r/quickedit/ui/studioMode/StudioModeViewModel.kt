@@ -2,6 +2,7 @@ package com.abizer_r.quickedit.ui.studioMode
 
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
+import com.abizer_r.quickedit.R
 import androidx.lifecycle.viewModelScope
 import android.content.Context
 import com.thgiang.image.core.util.ImageEffectProcessor
@@ -138,9 +139,15 @@ class StudioModeViewModel @Inject constructor(
             } else {
                 _state.value = _state.value.copy(
                     isProcessing = false,
-                    error = "Failed to apply effect"
+                    error = context.getString(com.abizer_r.quickedit.R.string.error_apply_effect)
                 )
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        originalBitmap = null
+        foregroundBitmap = null
     }
 }

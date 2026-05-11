@@ -9,11 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.StrictMode
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -56,6 +58,8 @@ import java.util.Stack
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.feature.editor.model.DraftManager
 import com.thgiang.image.feature.editor.model.LayerSnapshot
@@ -95,8 +99,9 @@ class QuickEditActivity : AppCompatActivity() {
         enableEdgeToEdge()
         @Suppress("DEPRECATION")
         val uri = intent.getParcelableExtra<Uri>(EXTRA_IMAGE_URI)
-        val draftId = intent.getStringExtra(EXTRA_DRAFT_ID)
+        val draftId = if (intent.hasExtra(EXTRA_DRAFT_ID)) intent.getStringExtra(EXTRA_DRAFT_ID) else null
         val autoRemoveBg = intent.getBooleanExtra(EXTRA_AUTO_REMOVE_BG, false)
+        android.util.Log.d("QuickEditActivity", "autoRemoveBackground flag: $autoRemoveBg")
 
         setContent {
             QuickEditTheme {
@@ -193,36 +198,7 @@ fun QuickEditEditorNavigation(
         }
     }
 
-    // Auto remove background on startup
-    var isAutoRemoving by remember { mutableStateOf(false) }
-    var autoRemoveDone by remember { mutableStateOf(false) }
 
-    if (bitmapLoaded && autoRemoveBackground && !autoRemoveDone && !isAutoRemoving) {
-        LaunchedEffect(bitmapLoaded) {
-            isAutoRemoving = true
-            val repo = backgroundRemoverRepository ?: return@LaunchedEffect
-            val current = sharedEditorViewModel.getCurrentBitmap()
-            repo.getForegroundBitmap(current).onSuccess { fg ->
-                sharedEditorViewModel.addBitmapToStack(
-                    bitmap = fg.copy(Bitmap.Config.ARGB_8888, false),
-                    triggerRecomposition = true
-                )
-            }
-            autoRemoveDone = true
-            isAutoRemoving = false
-        }
-    }
-
-    if (isAutoRemoving) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(stringResource(com.thgiang.image.R.string.removing_background), style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-        return
-    }
 
     if (!bitmapLoaded) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -332,15 +308,23 @@ fun QuickEditEditorNavigation(
                     }
                 }
             }
-            context.toast(context.getString(com.thgiang.image.R.string.draft_saved_successfully))
         }
     } }
+
+    // Auto-remove background on startup state
+    var autoRemoveDone by remember { mutableStateOf(false) }
 
     NavHost(
         navController = navController,
         startDestination = NavDestinations.EDITOR_SCREEN,
     ) {
         composable(route = NavDestinations.EDITOR_SCREEN) {
+            LaunchedEffect(bitmapLoaded, autoRemoveBackground) {
+                if (bitmapLoaded && autoRemoveBackground && !autoRemoveDone) {
+                    autoRemoveDone = true
+                    navController.navigate(NavDestinations.REMOVE_BG_SCREEN)
+                }
+            }
             val visualState by sharedEditorViewModel.recompositionTrigger
                 .collectAsStateWithLifecycle()
 
@@ -426,18 +410,14 @@ fun QuickEditEditorNavigation(
                     backgroundRemoverRepository = repo,
                     onBackPressed = { navController.navigateUp() },
                     onDoneClicked = { resultBitmap ->
-                        sharedEditorViewModel.addBitmapToStack(
-                            bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
-                        )
+                        val result = resultBitmap.copy(Bitmap.Config.ARGB_8888, true)
+                        result.setHasAlpha(true)
+                        sharedEditorViewModel.addBitmapToStack(bitmap = result)
                         navController.navigate(NavDestinations.EDITOR_SCREEN) {
                             popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
                         }
                     }
                 )
-            } else {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(com.thgiang.image.R.string.bg_remover_not_available))
-                }
             }
         }
 
@@ -459,13 +439,22 @@ fun QuickEditEditorNavigation(
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
                 onPickImageRequest = {
-                    navController.navigate(NavDestinations.SINGLE_IMAGE_PICKER_SCREEN)
+                    navController.navigate(NavDestinations.SINGLE_IMAGE_PICKER_SCREEN + "?autoRemove=false")
                 },
                 pickedImage = pickedBitmap
             )
         }
 
-        composable(route = NavDestinations.SINGLE_IMAGE_PICKER_SCREEN) {
+        composable(
+            route = NavDestinations.SINGLE_IMAGE_PICKER_SCREEN + "?autoRemove={autoRemove}",
+            arguments = listOf(
+                navArgument("autoRemove") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) { backStackEntry ->
+            val autoRemove = backStackEntry.arguments?.getBoolean("autoRemove") ?: false
             SingleImagePickerScreen(
                 onImageSelected = { uri ->
                     navController.previousBackStackEntry

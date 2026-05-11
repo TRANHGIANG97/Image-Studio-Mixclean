@@ -15,29 +15,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ShaderBrush
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.abizer_r.quickedit.ui.drawMode.stateHandling.DrawModeEvent
 import com.abizer_r.quickedit.ui.drawMode.drawingCanvas.drawingTool.shapes.AbstractShape
 import com.abizer_r.quickedit.ui.drawMode.drawingCanvas.models.PathDetails
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarItem
-import com.abizer_r.quickedit.utils.drawMode.DrawModeUtils
 import com.abizer_r.quickedit.utils.drawMode.getShape
-import com.abizer_r.quickedit.utils.drawMode.getWidthOrNull
 import com.abizer_r.quickedit.utils.drawMode.toPx
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
-import java.util.Stack
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DrawingCanvas(
     modifier: Modifier = Modifier,
-    pathDetailStack: Stack<PathDetails>,
+    pathDetailStack: List<PathDetails>, // Changed from Stack to List
     selectedColor: Color,
     currentTool: BottomToolbarItem,
     scale: Float,
@@ -137,10 +131,8 @@ private fun handleManualTouch(
     }
 }
 
-
-
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawManualLayer(
-    pathDetailStack: Stack<PathDetails>,
+    pathDetailStack: List<PathDetails>, // Changed from Stack to List
     currentShape: AbstractShape?,
     shouldDrawCurrent: Boolean
 ) {

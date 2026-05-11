@@ -55,4 +55,8 @@ class EffectsModeViewModel @Inject constructor(
             filteredBitmap = state.value.effectsList[selectedIndex].ogBitmap
         ) }
     }
+
+    override fun onCleared() {
+        super.onCleared()
+    }
 }

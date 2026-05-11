@@ -98,7 +98,7 @@ fun CropperScreen(
 
     var shouldCrop by remember { mutableStateOf(false) }
     var showCropRatioDialog by remember { mutableStateOf(false) }
-    val cropperOptionsList = remember { CropModeUtils.getCropperOptionsList() }
+    val cropperOptionsList = remember { CropModeUtils.getCropperOptionsList(context) }
     var selectedCropOption by remember { mutableIntStateOf(0) }
     var cropImageOptions by remember {
         mutableStateOf(CropImageOptions())

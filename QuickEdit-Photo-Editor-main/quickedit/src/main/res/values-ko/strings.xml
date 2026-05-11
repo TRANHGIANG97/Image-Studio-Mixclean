@@ -1,7 +1,90 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" ?>
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - 사진 편집기</string>
-    <string name="color">Color</string><string name="format">Format</string><string name="font">Font</string><string name="brush">Brush</string><string name="pan">Pan</string><string name="zoom">Zoom</string><string name="shape">Shape</string><string name="eraser">Eraser</string><string name="crop">Crop</string><string name="draw">Draw</string><string name="text">Text</string><string name="effects">Effects</string><string name="width">Width</string><string name="opacity">Opacity</string><string name="done">Done</string><string name="something_went_wrong">Something went wrong</string><string name="enter_your_text">Enter your text</string><string name="pick_image">Pick Image</string><string name="capture_image">Capture Image</string><string name="saving_image">Saving Image</string><string name="image_saved_successfully">Image saved successfully</string><string name="failed_to_save_image">Failed to save image</string><string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="okay">Okay</string><string name="storage_permission_rationale">App needs storage permission to save edited files to your device.</string><string name="storage_permission_permanently_declined">It seems you have permanently declined storage permission. You can grant it in app settings.</string><string name="following_permissions_are_required">Following permissions are required to perform this action:
-</string><string name="perm_item_storage">- Storage
-</string><string name="app_not_found">App not found</string><string name="fail_to_insert_uri_in_content_resolver">Fail to insert URI in ContentResolver</string><string name="enter_aspect_ratio">Enter aspect ratio</string><string name="x">X</string><string name="y">Y</string><string name="select">Select</string><string name="not_a_valid_number">Not a valid number</string><string name="fields_cannot_be_empty">Fields cannot be empty</string><string name="ratio_lesser_than_minimum">Ratio lesser than minimum allowed</string><string name="ratio_greater_than_minimum">Ratio greater than maximum allowed</string><string name="border">Border</string><string name="studio">Studio</string><string name="blur">Blur</string><string name="portrait">Portrait</string><string name="clean">Clean</string><string name="darken">Darken</string><string name="remove_bg">Remove BG</string><string name="studio_intensity">Intensity</string><string name="background">Background</string><string name="gradient">Gradient</string><string name="remove_bg_warning">Please remove background before adding background</string><string name="back">Back</string><string name="original">Original</string><string name="save_draft">Save Draft</string><string name="failed_to_apply_effect">Failed to apply effect</string><string name="failed_to_apply_background">Failed to apply background</string><string name="aspect_ratio_equals">Aspect Ratio = %1$s</string><string name="min_allowed_aspect_ratio">Min Allowed Aspect Ratio = %1$.2f</string><string name="max_allowed_aspect_ratio">Max Allowed Aspect Ratio = %1$.2f</string><string name="invalid">Invalid</string><string name="app_logo">App Logo</string></resources>
+    <string name="color">색상</string>
+    <string name="format">형식</string>
+    <string name="font">글꼴</string>
+    <string name="brush">브러시</string>
+    <string name="pan">팬</string>
+    <string name="zoom">확대/축소</string>
+    <string name="shape">모양</string>
+    <string name="eraser">지우개</string>
+    <string name="crop">자르기</string>
+    <string name="draw">그리기</string>
+    <string name="text">텍스트</string>
+    <string name="effects">효과</string>
+    <string name="width">너비</string>
+    <string name="opacity">불투명도</string>
+    <string name="done">완료</string>
+    <string name="something_went_wrong">문제가 발생했습니다</string>
+    <string name="enter_your_text">텍스트를 입력하세요</string>
+    <string name="pick_image">이미지 선택</string>
+    <string name="capture_image">사진 촬영</string>
+    <string name="saving_image">저장 중</string>
+    <string name="image_saved_successfully">저장되었습니다</string>
+    <string name="failed_to_save_image">저장 실패</string>
+    <string name="permission_required">권한 필요</string>
+    <string name="grant_permission">권한 허용</string>
+    <string name="okay">확인</string>
+    <string name="storage_permission_rationale">편집된 파일을 저장하려면 저장소 권한이 필요합니다.</string>
+    <string name="storage_permission_permanently_declined">저장소 권한을 영구적으로 거부한 것 같습니다. 설정에서 허용할 수 있습니다.</string>
+    <string name="following_permissions_are_required">Following permissions are required to perform this action:
+</string>
+    <string name="perm_item_storage">- Storage
+</string>
+    <string name="app_not_found">앱을 찾을 수 없음</string>
+    <string name="fail_to_insert_uri_in_content_resolver">Fail to insert URI in ContentResolver</string>
+    <string name="enter_aspect_ratio">가로세로 비율 입력</string>
+    <string name="x">X</string>
+    <string name="y">Y</string>
+    <string name="select">선택</string>
+    <string name="not_a_valid_number">Not a valid number</string>
+    <string name="fields_cannot_be_empty">Fields cannot be empty</string>
+    <string name="ratio_lesser_than_minimum">Ratio lesser than minimum allowed</string>
+    <string name="ratio_greater_than_minimum">Ratio greater than maximum allowed</string>
+    <string name="border">테두리</string>
+    <string name="studio">스튜디오</string>
+    <string name="blur">흐림</string>
+    <string name="portrait">인물 사진</string>
+    <string name="clean">깨끗하게</string>
+    <string name="darken">어둡게</string>
+    <string name="remove_bg">배경 제거</string>
+    <string name="studio_intensity">Intensity</string>
+    <string name="background">배경</string>
+    <string name="gradient">Gradient</string>
+    <string name="remove_bg_warning">배경을 먼저 제거해 주세요</string>
+    <string name="back">뒤로</string>
+    <string name="original">원본</string>
+    <string name="save_draft">초안 저장</string>
+    <string name="failed_to_apply_effect">효과를 적용하지 못했습니다</string>
+    <string name="failed_to_apply_background">배경을 적용하지 못했습니다</string>
+    <string name="aspect_ratio_equals">가로세로 비율 = %1$s</string>
+    <string name="min_allowed_aspect_ratio">최소 허용 비율 = %1$.2f</string>
+    <string name="max_allowed_aspect_ratio">최대 허용 비율 = %1$.2f</string>
+    <string name="invalid">Invalid</string>
+    <string name="magic_brush">매직 브러시</string>
+    <string name="remove_object">제거</string>
+    <string name="mosaic">모자이크</string>
+    <string name="app_logo">App Logo</string>
+    <string name="confirm_exit_title">Discard changes?</string>
+    <string name="confirm_exit_message">You have unsaved edits.</string>
+    <string name="discard">Discard</string>
+    <string name="cancel">취소</string>
+    <string name="tool_magic_brush">매직 브러시</string>
+    <string name="label_magic_wand">마법 지팡이</string>
+    <string name="label_offset">오프셋</string>
+    <string name="label_brush_size">브러시 크기</string>
+    <string name="label_tolerance">허용 오차</string>
+    <string name="label_erase_brush">지우개 브러시</string>
+    <string name="effect_original">원본</string>
+    <string name="effect_grayscale">회색조</string>
+    <string name="effect_blur">흐림</string>
+    <string name="crop_free">자유형</string>
+    <string name="crop_custom">사용자 정의</string>
+    <string name="crop_square">정사각형</string>
+    <string name="error_apply_effect">효과 적용 오류</string>
+    <string name="error_apply_background">배경 적용 오류</string>
+    <string name="error_auto_removal_failed">자동 배경 제거 실패: %1$s</string>
+    <string name="error_recycled_bitmap">비트맵이 이미 재활용되었습니다</string>
+</resources>

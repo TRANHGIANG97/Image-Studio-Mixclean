@@ -1,26 +1,27 @@
 package com.abizer_r.quickedit.utils.editorScreen
 
 import com.abizer_r.quickedit.ui.cropMode.cropperOptions.CropperOption
+import com.abizer_r.quickedit.R
 
 object CropModeUtils {
 
-    fun getCropperOptionsList(): ArrayList<CropperOption> {
+    fun getCropperOptionsList(context: android.content.Context): ArrayList<CropperOption> {
 
         val cropperOptionList = arrayListOf(
             CropperOption(
                 aspectRatioX = -1f,
                 aspectRatioY = -1f,
-                label = "free"
+                label = context.getString(com.abizer_r.quickedit.R.string.crop_free)
             ),
             CropperOption(
                 aspectRatioX = -2f,
                 aspectRatioY = -2f,
-                label = "custom"
+                label = context.getString(com.abizer_r.quickedit.R.string.crop_custom)
             ),
             CropperOption(
                 aspectRatioX = 1f,
                 aspectRatioY = 1f,
-                label = "square"
+                label = context.getString(com.abizer_r.quickedit.R.string.crop_square)
             ),
             CropperOption(
                 aspectRatioX = 3f,

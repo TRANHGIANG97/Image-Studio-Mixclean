@@ -1,4 +1,6 @@
 package com.abizer_r.quickedit.ui.magicBrush.components
+ 
+import com.abizer_r.quickedit.R
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -118,6 +120,7 @@ fun MagicEraserCanvas(
         return
     }
 
+    val mContext = androidx.compose.ui.platform.LocalContext.current
     val density = LocalDensity.current
     val brushSizePx = remember(brushSizeDp, density) { with(density) { brushSizeDp.toPx() } }
     val offsetDistancePx = remember(offsetDistanceDp, density) { with(density) { offsetDistanceDp.toPx() } }
@@ -148,26 +151,35 @@ fun MagicEraserCanvas(
             return@produceState
         }
         var scaled: Bitmap? = null
+        val oldImageBitmap = value // Lưu lại ảnh cũ
         try {
             scaled = withContext(Dispatchers.Default) {
                 Bitmap.createScaledBitmap(currentBitmap, canvasSize.width, canvasSize.height, true)
             }
-            value = scaled.asImageBitmap()
+            value = scaled.asImageBitmap() // Gán ảnh mới
+            // ImageBitmap không có hàm close() trên Android, GC sẽ tự thu hồi khi gán value mới
         } catch (e: kotlinx.coroutines.CancellationException) {
+            scaled?.recycle() // Chỉ recycle ảnh mới nếu coroutine bị hủy giữa chừng
             throw e
         } catch (e: Exception) {
-            Log.e(TAG, "Loi scale bitmap", e)
+            Log.e(TAG, "Lỗi scale bitmap", e)
+            scaled?.recycle() // Xử lý rác nếu có lỗi
             value = null
-            return@produceState
         }
-        // Bo recycle() de tranh crash khi Canvas dang ve do dang. 
-        // He thong se tu dong giai phong bo nho thong qua Garbage Collector.
+        // TUYỆT ĐỐI KHÔNG dùng khối finally để recycle 'scaled' ở đây
     }
 
     // Xóa pending paths khi ảnh mới đã thực sự được scale và hiển thị xong
     LaunchedEffect(displayImage) {
         if (displayImage != null) {
             drawState.clearPending()
+        }
+    }
+
+    // THÊM DisposableEffect để dọn dẹp khi composable bị khỏi cây UI
+    DisposableEffect(displayImage) {
+        onDispose {
+            // displayImage?.close() // Bỏ qua vì ImageBitmap không có close()
         }
     }
 
@@ -188,7 +200,7 @@ fun MagicEraserCanvas(
     fun finalizePath() {
         if (drawState.path.isEmpty || canvasSize.width <= 0 || canvasSize.height <= 0) return
         try {
-            if (currentBitmap.isRecycled) error("Bitmap da bi huy")
+            if (currentBitmap.isRecycled) error(mContext.getString(com.abizer_r.quickedit.R.string.error_recycled_bitmap))
             
             // Lưu vào pending paths để hiển thị trong lúc chờ ViewModel xử lý
             val currentPathCopy = Path().apply { addPath(drawState.path) }

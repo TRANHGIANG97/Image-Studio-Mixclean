@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - 背景移除</string>
     <string name="app_title">圖像工具</string>
@@ -13,7 +13,7 @@
     <string name="language_title">語言</string>
     <string name="language_icon" translatable="false">🌐</string>
     <string name="language_description">選擇應用程式顯示語言。</string>
-    <string name="language_system">跟隨系統</string>
+    <string name="language_system">System default</string>
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
@@ -33,12 +33,10 @@
     <string name="language_italian">Italiano</string>
     <string name="current_language">Current language: %1$s</string>
     <string name="current_language_menu">Current: %1$s</string>
-
     <string name="settings_title">設定</string>
     <string name="licenses_title">開放原始碼授權</string>
     <string name="dark_mode_title">深色模式</string>
     <string name="dark_mode_description">開啟或關閉深色主題。</string>
-
     <string name="home_remove_background_title">去背</string>
     <string name="home_remove_background_subtitle">選擇圖片，一鍵去除背景。</string>
     <string name="dashboard_hero_title">AI 去背</string>
@@ -82,14 +80,12 @@
     <string name="editor_redo">重做</string>
     <string name="border_presets_title">邊框預設</string>
     <string name="border_applying">正在套用邊框…</string>
-
     <string name="blur_title">圖像模糊</string>
     <string name="blur_subtitle">僅模糊背景，主體保持清晰（人像模式）。</string>
     <string name="blur_pick_hint">輕觸「選擇圖片」開始</string>
     <string name="blur_intensity">強度：%1$d</string>
     <string name="blur_detecting_subject">正在偵測主體…</string>
     <string name="portrait_preview_export_failed">無法產生預覽，請再試一次。</string>
-
     <string name="multi_title">批次去背</string>
     <string name="multi_description">選擇多張圖片，依序處理。</string>
     <string name="multi_select_images">選擇圖片</string>
@@ -117,7 +113,6 @@
     <string name="exit_dialog_message">確定要結束應用程式嗎？</string>
     <string name="exit_dialog_cancel">取消</string>
     <string name="exit_dialog_exit">結束</string>
-
     <string name="quality_label">品質</string>
     <string name="quality_standard">標準</string>
     <string name="quality_basic">Basic</string>
@@ -131,17 +126,13 @@
     <string name="premium_benefit_unlimited">無限次去背</string>
     <string name="settings_removal_quality">去背品質</string>
     <string name="settings_removal_quality_summary">標準（含）• Pro（Premium）</string>
-
-    
     <string name="lightning_title">閃電增強</string>
     <string name="lightning_pick_hint">選擇圖片開始</string>
     <string name="lightning_compare_hint">對比處理前 / 後</string>
     <string name="lightning_intensity">強度：%1$d</string>
-
     <string name="lightning_action_portrait">人像</string>
     <string name="lightning_action_darken">壓暗</string>
     <string name="lightning_action_clean">淨化</string>
-
     <string name="home_background_presets">背景預設</string>
     <string name="home_applying_preset">正在套用預設…</string>
     <string name="upgrade_sheet_title">解鎖 Pro 以使用此功能</string>
@@ -153,6 +144,7 @@
     <string name="home_dock_blur">模糊</string>
     <string name="home_dock_pick_image">Pick Image</string>
     <string name="home_dock_photo_editor">Photo Editor</string>
+    <string name="home_dock_quick_edit">快速編輯</string>
     <string name="home_dock_hd_export">HD 匯出</string>
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">草稿箱</string>
@@ -177,7 +169,6 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="sheet_no_image_selected">未選擇圖片</string>
     <string name="cd_ai_removal_preview">去背預覽</string>
-
     <string name="settings_app_preferences">應用程式偏好</string>
     <string name="settings_section_appearance">外觀</string>
     <string name="settings_section_ai">AI 處理</string>
@@ -185,13 +176,10 @@
     <string name="settings_app_version_label">應用程式 %1$s</string>
     <string name="multi_selected_inline">已選 %1$d 張</string>
     <string name="editor_text_error">文字：%1$s</string>
-
     <string name="premium_free_trial_cta">3 天免費試用 →</string>
     <string name="premium_after_trial_price">試用結束後 680.000đ/月</string>
     <string name="premium_restore">恢復購買</string>
     <string name="premium_brand_title">Retouch</string>
-
-
     <string name="premium_unlock_all_features">解鎖全部功能</string>
     <string name="premium_plan_month">月</string>
     <string name="premium_plan_week">週</string>
@@ -206,7 +194,6 @@
     <string name="premium_cta_trial">開始 3 天免費試用</string>
     <string name="pro_feature_expand">平滑 AI 擴圖</string>
     <string name="pro_see_details">查看詳情 &gt;</string>
-
     <string name="premium_price_week">180.000đ</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">除非在目前週期結束前至少提前 24 小時取消，否則訂閱將自動續訂。試用結束後將向您的帳戶扣款。可隨時在帳戶設定中管理或取消。</string>
@@ -242,25 +229,24 @@
     <string name="filter_artistic_title">藝術濾鏡</string>
     <string name="tool_rotate">旋轉</string>
     <string name="tool_background">背景</string>
-    <string name="home_dock_quick_edit">快速編輯</string>
-    <string name="crop">裁剪</string>
-    <string name="draw">繪製</string>
-    <string name="text">文字</string>
-    <string name="effects">效果</string>
-    <string name="eraser">橡皮擦</string>
-    <string name="brush">畫筆</string>
-    <string name="shape">形狀</string>
-    <string name="zoom">縮放</string>
-    <string name="color">顏色</string>
-    <string name="format">格式</string>
-    <string name="font">字體</string>
-    <string name="image_saved_successfully">圖片保存成功</string>
-    <string name="failed_to_save_image">保存圖片失敗</string>
-    <string name="something_went_wrong">出錯了</string>
-    <string name="fail_to_insert_uri_in_content_resolver">插入 URI 到 ContentResolver 失敗</string>
-    <string name="app_not_found">找不到應用</string>
     <string name="tool_studio">影棚</string>
-    <string name="select">選擇</string>
-    <string name="permission_required">需要權限</string>
-    <string name="grant_permission">授予權限</string>
-<string name="removing_background">正在刪除背景...</string><string name="draft_saved_successfully">草稿已儲存</string><string name="bg_remover_not_available">背景移除工具不可用</string><string name="bg_removal_failed">背景移除失敗</string><string name="go_back">返回</string><string name="draft_name_prefix">草稿</string><string name="draft_copy_suffix">副本</string><string name="old_project_name">舊專案</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string><string name="picker_no_photos">No photos found</string><string name="picker_capture_btn">Capture from Camera</string><string name="cd_capture_photo">Capture Photo</string></resources>
+    <string name="removing_background">正在刪除背景...</string>
+    <string name="draft_saved_successfully">草稿已儲存</string>
+    <string name="bg_remover_not_available">背景移除工具不可用</string>
+    <string name="bg_removal_failed">背景移除失敗</string>
+    <string name="go_back">返回</string>
+    <string name="draft_name_prefix">草稿</string>
+    <string name="draft_copy_suffix">副本</string>
+    <string name="old_project_name">舊專案</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_capture_btn">Capture from Camera</string>
+    <string name="cd_capture_photo">Capture Photo</string>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>
