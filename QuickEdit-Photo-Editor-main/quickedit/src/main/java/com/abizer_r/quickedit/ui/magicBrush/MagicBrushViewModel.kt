@@ -106,25 +106,15 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onMagicErase(x: Int, y: Int) {
-        if (_selectedTool.value != MagicBrushTool.SMART_ERASE) return
-        
+        val bitmap = _currentBitmap.value ?: return
+        if (_isProcessing.value || _selectedTool.value != MagicBrushTool.SMART_ERASE) return
+        if (x !in 0 until bitmap.width || y !in 0 until bitmap.height) return
+
         cancelEraseQueue() 
         _isProcessing.value = true
         viewModelScope.launch {
             bitmapMutex.withLock {
                 if (isDisposed) return@withLock
-                
-                // FIX: Move bitmap access inside mutex to avoid race condition
-                val bitmap = _currentBitmap.value ?: run {
-                    _isProcessing.value = false
-                    return@withLock
-                }
-                
-                if (x !in 0 until bitmap.width || y !in 0 until bitmap.height) {
-                    _isProcessing.value = false
-                    return@withLock
-                }
-
                 try {
                     val result: Bitmap? = withContext(Dispatchers.Default) {
                         val snapshot = bitmap.copy(Bitmap.Config.ARGB_8888, true)
@@ -147,14 +137,6 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
                         }
                     }
                     if (result != null && !isDisposed) {
-                        // FIX: Lưu bitmap cũ để recycle
-                        val oldBitmap = _currentBitmap.value
-                        
-                        // FIX: Recycle bitmap cũ nếu khác kết quả mới và không phải original
-                        if (oldBitmap != null && oldBitmap !== result && oldBitmap !== _originalBitmap.value && !oldBitmap.isRecycled) {
-                            oldBitmap.recycle()
-                        }
-                        
                         _currentBitmap.value = result
                         updateUndoRedoStates()
                     }
@@ -169,10 +151,6 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
 
     fun applyBlurResult(path: Path, mosaicBitmap: Bitmap, brushSizePx: Float, canvasWidth: Int, canvasHeight: Int) {
         val bitmap = _currentBitmap.value ?: return
-        if (canvasWidth <= 0 || canvasHeight <= 0) {
-            Log.e("MagicBrushViewModel", "applyBlurResult skipped: invalid canvas size $canvasWidth x $canvasHeight")
-            return
-        }
         if (_isProcessing.value) return
 
         _isProcessing.value = true
@@ -217,14 +195,6 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
                     bitmap.copy(Bitmap.Config.ARGB_8888, true)
                 }
                 if (!isDisposed) {
-                    // FIX: Lưu bitmap cũ để recycle
-                    val oldBitmap = _currentBitmap.value
-                    
-                    // FIX: Recycle bitmap cũ
-                    if (oldBitmap != null && oldBitmap !== result && oldBitmap !== _originalBitmap.value && !oldBitmap.isRecycled) {
-                        oldBitmap.recycle()
-                    }
-
                     _currentBitmap.value = result
                     updateUndoRedoStates()
                     _isProcessing.value = false
@@ -287,14 +257,6 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
                     }
                     
                     if (!isDisposed) {
-                        // FIX: Lưu bitmap cũ để recycle
-                        val oldBitmap = _currentBitmap.value
-                        
-                        // FIX: Recycle bitmap cũ
-                        if (oldBitmap != null && oldBitmap !== result && oldBitmap !== _originalBitmap.value && !oldBitmap.isRecycled) {
-                            oldBitmap.recycle()
-                        }
-
                         _currentBitmap.value = result
                         updateUndoRedoStates()
                     }

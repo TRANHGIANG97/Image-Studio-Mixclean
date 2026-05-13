@@ -60,13 +60,10 @@ import com.abizer_r.quickedit.utils.editorScreen.EditorScreenUtils
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapUtils
 import com.abizer_r.quickedit.utils.toast
-import com.abizer_r.quickedit.ui.common.rememberCheckerboardBrush
 import com.thgiang.image.core.ad.BannerAdView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.Alignment
 import java.io.File
 
 @Composable
@@ -86,94 +83,76 @@ fun EditorScreen(
     isPremium: Boolean = false,
     onSaveDraftClicked: (Bitmap) -> Unit = {}
 ) {
+    if (initialEditorScreenState.bitmapStack.isEmpty()) {
+        throw Exception("EmptyStackException: The bitmapStack of initial state should contain at least one bitmap")
+    }
+
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current
 
     val viewModel: EditorScreenViewModel = hiltViewModel()
-    
+    val state by viewModel.state.collectAsStateWithLifecycle(
+        lifecycleOwner = lifeCycleOwner
+    )
+
     LaunchedEffect(key1 = Unit) {
         viewModel.updateInitialState(initialEditorScreenState)
     }
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle(
-        lifecycleOwner = lifeCycleOwner
-    )
+    if (state.bitmapStack.isNotEmpty()) {
+        // Adding this check because the default state in viewModel will have empty stack
+        // After updating the initialEditorScreenState, we will have non-empty stack
+        val currentBitmap = viewModel.getCurrentBitmap()
 
-    when (val stateValue = uiState) {
-        is EditorScreenUiState.Loading -> {
-            com.abizer_r.quickedit.ui.common.LoadingView(modifier = Modifier.fillMaxSize())
-        }
-        is EditorScreenUiState.Error -> {
-            com.abizer_r.quickedit.ui.common.ErrorView(
-                modifier = Modifier.fillMaxSize(),
-                errorText = stateValue.message
-            )
-            // Thêm nút Go Back nếu cần, hoặc lồng ErrorView vào Column
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-                androidx.compose.material3.Button(
-                    onClick = goToMainScreen,
-                    modifier = Modifier.padding(bottom = 32.dp)
-                ) {
-                    androidx.compose.material3.Text(stringResource(R.string.go_back))
+        val onBottomToolbarEvent = remember { { toolbarEvent: BottomToolbarEvent ->
+            if (toolbarEvent is BottomToolbarEvent.OnItemClicked) {
+                when (toolbarEvent.toolbarItem) {
+                    BottomToolbarItem.CropMode -> {
+                        goToCropModeScreen(state)
+                    }
+                    BottomToolbarItem.DrawMode -> {
+                        goToDrawModeScreen(state)
+                    }
+                    BottomToolbarItem.TextMode -> {
+                        goToTextModeScreen(state)
+                    }
+                    BottomToolbarItem.EffectsMode -> {
+                        goToEffectsModeScreen(state)
+                    }
+                    BottomToolbarItem.BorderMode -> {
+                        goToBorderModeScreen(state)
+                    }
+                    BottomToolbarItem.StudioMode -> {
+                        goToStudioModeScreen(state)
+                    }
+                    BottomToolbarItem.RemoveBg -> {
+                        goToRemoveBgScreen(state)
+                    }
+                    BottomToolbarItem.MagicBrush -> {
+                        goToMagicBrushScreen(state)
+                    }
+                    BottomToolbarItem.BackgroundMode -> {
+                        goToBackgroundModeScreen(state)
+                    }
+                    else -> {}
                 }
             }
-        }
-        is EditorScreenUiState.Success -> {
-            val state by viewModel.state.collectAsStateWithLifecycle(
-                lifecycleOwner = lifeCycleOwner
-            )
-            
-            val currentBitmap = viewModel.getCurrentBitmap()
+        } }
 
-            val onBottomToolbarEvent = remember { { toolbarEvent: BottomToolbarEvent ->
-                if (toolbarEvent is BottomToolbarEvent.OnItemClicked) {
-                    when (toolbarEvent.toolbarItem) {
-                        BottomToolbarItem.CropMode -> {
-                            goToCropModeScreen(state)
-                        }
-                        BottomToolbarItem.DrawMode -> {
-                            goToDrawModeScreen(state)
-                        }
-                        BottomToolbarItem.TextMode -> {
-                            goToTextModeScreen(state)
-                        }
-                        BottomToolbarItem.EffectsMode -> {
-                            goToEffectsModeScreen(state)
-                        }
-                        BottomToolbarItem.BorderMode -> {
-                            goToBorderModeScreen(state)
-                        }
-                        BottomToolbarItem.StudioMode -> {
-                            goToStudioModeScreen(state)
-                        }
-                        BottomToolbarItem.RemoveBg -> {
-                            goToRemoveBgScreen(state)
-                        }
-                        BottomToolbarItem.MagicBrush -> {
-                            goToMagicBrushScreen(state)
-                        }
-                        BottomToolbarItem.BackgroundMode -> {
-                            goToBackgroundModeScreen(state)
-                        }
-                        else -> {}
-                    }
-                }
-            } }
-
-            EditorScreenLayout(
-                modifier = modifier,
-                currentBitmap = currentBitmap,
-                undoEnabled = viewModel.undoEnabled(),
-                redoEnabled = viewModel.redoEnabled(),
-                onUndo = viewModel::onUndo,
-                onRedo = viewModel::onRedo,
-                onBottomToolbarEvent = onBottomToolbarEvent,
-                goToMainScreen = goToMainScreen,
-                isPremium = isPremium,
-                onSaveDraftClicked = onSaveDraftClicked
-            )
-        }
+        EditorScreenLayout(
+            modifier = modifier,
+            currentBitmap = currentBitmap,
+            undoEnabled = viewModel.undoEnabled(),
+            redoEnabled = viewModel.redoEnabled(),
+            onUndo = viewModel::onUndo,
+            onRedo = viewModel::onRedo,
+            onBottomToolbarEvent = onBottomToolbarEvent,
+            goToMainScreen = goToMainScreen,
+            isPremium = isPremium,
+            onSaveDraftClicked = onSaveDraftClicked
+        )
     }
+
 }
 
 @Composable
@@ -225,61 +204,37 @@ private fun EditorScreenLayout(
         onCloseClickedLambda()
     }
     val onSaveClickedLambda = remember { {
-        // FIX: Chuyển I/O sang background thread để tránh ANR
-        coroutineScope.launch(Dispatchers.IO) {
-            try {
-                val imgFile = File(context.filesDir, "edited_image.png")
-                BitmapUtils.saveBitmap(currentBitmap, imgFile)
-                FileUtils.saveFileToAppFolder(
-                    context = context,
-                    file = imgFile,
-                    onSuccess = {
-                        // FIX: UI callback phải về Main thread
-                        coroutineScope.launch(Dispatchers.Main) {
-                            context.toast(R.string.image_saved_successfully)
-                        }
-                    },
-                    onFailure = {
-                        coroutineScope.launch(Dispatchers.Main) {
-                            context.toast(R.string.failed_to_save_image)
-                        }
-                    },
-                )
-            } catch (e: Exception) {
-                coroutineScope.launch(Dispatchers.Main) {
-                    context.toast(R.string.failed_to_save_image)
-                }
-            }
-        }
-        Unit
+        val imgFile = File(context.filesDir, "edited_image.jpg")
+        BitmapUtils.saveBitmap(currentBitmap, imgFile)
+        FileUtils.saveFileToAppFolder(
+            context = context,
+            file = imgFile,
+            onSuccess = { context.toast(R.string.image_saved_successfully) },
+            onFailure = { context.toast(R.string.failed_to_save_image) },
+        )
     } }
 
     val onShareClickedLambda = remember { {
-        // FIX: Chuyển I/O sang background thread để tránh ANR
-        coroutineScope.launch(Dispatchers.IO) {
-            try {
-                val imgFile = File(context.cacheDir, "quickedit_share/edited_image.png")
-                BitmapUtils.saveBitmap(currentBitmap, imgFile)
-                coroutineScope.launch(Dispatchers.Main) {
-                    val uri = FileUtils.getUriForFile(context, imgFile)
-                    if (uri != null) {
-                        AppUtils.shareOnApp(
-                            context = context,
-                            appName = null,
-                            uri = uri,
-                            type = "image/png"
-                        )
-                    } else {
-                        context.toast(R.string.something_went_wrong)
-                    }
+        val imgFile = File(context.filesDir, "edited_image.jpg")
+        BitmapUtils.saveBitmap(currentBitmap, imgFile)
+        FileUtils.saveFileToAppFolder(
+            context = context,
+            file = imgFile,
+            onSuccess = {
+                val uri = FileUtils.getUriForFile(context, imgFile)
+                if (uri != null) {
+                    AppUtils.shareOnApp(
+                        context = context,
+                        appName = null,
+                        uri = uri,
+                        type = "image/jpeg"
+                    )
+                } else {
+                    context.toast(R.string.something_went_wrong)
                 }
-            } catch (e: Exception) {
-                coroutineScope.launch(Dispatchers.Main) {
-                    context.toast(R.string.failed_to_save_image)
-                }
-            }
-        }
-        Unit
+            },
+            onFailure = { context.toast(R.string.failed_to_save_image) },
+        )
     } }
 
     ConstraintLayout(
@@ -377,7 +332,30 @@ private fun EditorScreenLayout(
 
 
 
-
+@Composable
+fun rememberCheckerboardBrush(): ShaderBrush {
+    val density = LocalDensity.current
+    val tilePx = with(density) { 8.dp.toPx().toInt().coerceAtLeast(1) }
+    val size = tilePx * 2
+    
+    val bmp = remember(tilePx) {
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        val paint = android.graphics.Paint().apply { isAntiAlias = false }
+        
+        paint.color = android.graphics.Color.WHITE
+        canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paint)
+        
+        paint.color = android.graphics.Color.parseColor("#EEEEEE")
+        canvas.drawRect(0f, 0f, tilePx.toFloat(), tilePx.toFloat(), paint)
+        canvas.drawRect(tilePx.toFloat(), tilePx.toFloat(), size.toFloat(), size.toFloat(), paint)
+        bitmap
+    }
+    
+    return remember(bmp) {
+        ShaderBrush(ImageShader(bmp.asImageBitmap(), TileMode.Repeated, TileMode.Repeated))
+    }
+}
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

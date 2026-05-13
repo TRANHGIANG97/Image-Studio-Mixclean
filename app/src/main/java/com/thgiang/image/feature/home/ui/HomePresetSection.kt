@@ -62,10 +62,10 @@ fun PresetDock(
         PresetItem("Clean", PresetStyle.CLEAN, locked = false, lightLabel = false),
         PresetItem("Aurora", PresetStyle.AURORA, locked = false, lightLabel = true),
         PresetItem("Duotone", PresetStyle.DUOTONE, locked = false, lightLabel = true),
-        PresetItem("Neon Grid", PresetStyle.NEON_GRID, locked = !isPremium, lightLabel = true),
-        PresetItem("Liquid", PresetStyle.LIQUID_GLASS, locked = !isPremium, lightLabel = false),
-        PresetItem("Sunset", PresetStyle.SUNSET_FILM, locked = !isPremium, lightLabel = true),
-        PresetItem("Carbon X", PresetStyle.CARBON_X, locked = !isPremium, lightLabel = true),
+        PresetItem("Neon Grid", PresetStyle.NEON_GRID, locked = false, lightLabel = true),
+        PresetItem("Liquid", PresetStyle.LIQUID_GLASS, locked = false, lightLabel = false),
+        PresetItem("Sunset", PresetStyle.SUNSET_FILM, locked = false, lightLabel = true),
+        PresetItem("Carbon X", PresetStyle.CARBON_X, locked = false, lightLabel = true),
     )
 
     val isDark = useHomeDarkStyle || isSystemInDarkTheme()

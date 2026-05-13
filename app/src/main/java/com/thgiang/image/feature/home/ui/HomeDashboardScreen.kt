@@ -73,7 +73,8 @@ fun HomeDashboardScreen(
     onSimplePick: () -> Unit = {},
     pickedUriFromPicker: Uri? = null,
     onConsumePickedUri: () -> Unit = {},
-    isDarkMode: Boolean = false
+    isDarkMode: Boolean = false,
+    isHomePreviewEnabled: Boolean = false
 ) {
     var showUpgradeSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -180,25 +181,28 @@ fun HomeDashboardScreen(
                     Spacer(modifier = Modifier.height(4.dp))
 
 
-                    HomeRemoveBackgroundSection(
-                        selectedImageUri = uiState.selectedImageUri,
-                        processedImageUri = uiState.processedImageUri,
-                        processedHasAlpha = uiState.processedHasAlpha,
-                        isProcessing = uiState.isProcessing,
-                        progress = uiState.progress,
-                        previewHeight = previewHeight,
-                        useHomeDarkStyle = isHomeDarkStyle,
-                        lastSliderBeforeUri = uiState.lastSliderBeforeUri,
-                        lastSliderAfterUri = uiState.lastSliderAfterUri,
-                        onPickImage = {
-                            if (!homeViewModel.isAdDismissedRecently()) {
-                                isAutoRemoveMode = true
-                                onOpenRemoveBgEditor()
+                    if (isHomePreviewEnabled) {
+                        HomeRemoveBackgroundSection(
+                            selectedImageUri = uiState.selectedImageUri,
+                            processedImageUri = uiState.processedImageUri,
+                            processedHasAlpha = uiState.processedHasAlpha,
+                            isProcessing = uiState.isProcessing,
+                            progress = uiState.progress,
+                            previewHeight = previewHeight,
+                            useHomeDarkStyle = isHomeDarkStyle,
+                            isAutoSliderEnabled = true, // Animation is on if preview is enabled
+                            lastSliderBeforeUri = uiState.lastSliderBeforeUri,
+                            lastSliderAfterUri = uiState.lastSliderAfterUri,
+                            onPickImage = {
+                                if (!homeViewModel.isAdDismissedRecently()) {
+                                    isAutoRemoveMode = true
+                                    onOpenRemoveBgEditor()
+                                }
                             }
-                        }
-                    )
+                        )
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                        Spacer(modifier = Modifier.height(18.dp))
+                    }
 
                     AiToolDock(
                         isPremium = isPremium,

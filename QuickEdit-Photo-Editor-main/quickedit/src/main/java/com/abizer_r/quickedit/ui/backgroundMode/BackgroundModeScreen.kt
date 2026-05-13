@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.*
+import com.thgiang.image.core.model.PresetStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -133,8 +134,9 @@ fun BackgroundModeScreen(
         ) {
                 Row(
                     modifier = Modifier
-                        .height(topToolbarHeight)
-                        .background(MaterialTheme.colorScheme.surface),
+                        .background(MaterialTheme.colorScheme.surface)
+                        .statusBarsPadding()
+                        .height(topToolbarHeight),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = {
@@ -199,6 +201,12 @@ fun BackgroundModeScreen(
                                 onGradientSelected = { viewModel.applyGradientBackground(it) }
                             )
                         }
+                        BackgroundModeViewModel.BackgroundTab.PRESET -> {
+                            PresetSelector(
+                                selectedPreset = state.selectedPresetStyle,
+                                onPresetSelected = { viewModel.applyPresetBackground(it) }
+                            )
+                        }
                     }
                 }
 
@@ -227,6 +235,12 @@ fun BackgroundModeScreen(
                         label = stringResource(R.string.gradient),
                         isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.GRADIENT,
                         onClick = { viewModel.setTab(BackgroundModeViewModel.BackgroundTab.GRADIENT) }
+                    )
+                    BackgroundTabItem(
+                        icon = Icons.Default.ColorLens, // Using ColorLens as placeholder for Presets
+                        label = stringResource(R.string.presets),
+                        isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.PRESET,
+                        onClick = { viewModel.setTab(BackgroundModeViewModel.BackgroundTab.PRESET) }
                     )
                 }
             }
@@ -397,6 +411,65 @@ fun GradientSelector(
                     )
                     .clickable { onGradientSelected(grad) }
             )
+        }
+    }
+}
+
+@Composable
+fun PresetSelector(
+    selectedPreset: PresetStyle?,
+    onPresetSelected: (PresetStyle) -> Unit
+) {
+    val presets = PresetStyle.values()
+
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(presets) { style ->
+            val isSelected = selectedPreset == style
+            Column(
+                modifier = Modifier
+                    .width(72.dp)
+                    .clickable { onPresetSelected(style) },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            when (style) {
+                                PresetStyle.NOIR -> Color.Black
+                                PresetStyle.CLEAN -> Color.White
+                                PresetStyle.AURORA -> Color(0xFF1A1C3A)
+                                PresetStyle.DUOTONE -> Color(0xFF5F4B8B)
+                                PresetStyle.NEON_GRID -> Color(0xFF040912)
+                                PresetStyle.LIQUID_GLASS -> Color(0xFFF6F4FF)
+                                PresetStyle.SUNSET_FILM -> Color(0xFF8A3E6B)
+                                PresetStyle.CARBON_X -> Color(0xFF0A0A0D)
+                            }
+                        )
+                        .border(
+                            width = 2.dp,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isSelected) {
+                        Icon(Icons.Default.Check, contentDescription = null, tint = if (style == PresetStyle.CLEAN) Color.Black else Color.White)
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = style.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1
+                )
+            }
         }
     }
 }

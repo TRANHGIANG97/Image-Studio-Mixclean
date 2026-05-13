@@ -12,6 +12,6 @@ data class TextEditorState(
     val shouldRequestFocus: Boolean = true, /* initial value is true as the textField is visible initially */
     val text: String = "",
     val textAlign: TextAlign = TextAlign.Center,
-    val textColorList: ArrayList<Color> = ColorUtils.defaultColorList,
+    val textColorList: List<Color> = ColorUtils.defaultColorList,
     val selectedColor: Color = Color.White,
 )

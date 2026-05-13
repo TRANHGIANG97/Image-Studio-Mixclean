@@ -154,7 +154,7 @@ class TextModeViewModel @Inject constructor(
                 }
                 
                 _state.update { it.copy(
-                    transformableViewStateList = ArrayList(newList),
+                    transformableViewStateList = newList,
                     recompositionTrigger = it.recompositionTrigger + 1
                 ) }
 
@@ -181,7 +181,10 @@ class TextModeViewModel @Inject constructor(
             }
 
             is TransformableBoxEvents.OnCloseClicked -> {
-                stateList.remove(viewItem)
+                onEvent(TextModeEvent.UpdateTransformableViewsList(
+                    stateList.filter { it.id != viewItem.id }
+                ))
+                return
             }
 
             is TransformableBoxEvents.OnTapped -> {
@@ -354,7 +357,7 @@ class TextModeViewModel @Inject constructor(
         }
 
         _state.update { it.copy(
-            transformableViewStateList = ArrayList(newList),
+            transformableViewStateList = newList,
             selectedViewStateUpdateTrigger = it.selectedViewStateUpdateTrigger + 1,
             recompositionTrigger = it.recompositionTrigger + 1
         ) }

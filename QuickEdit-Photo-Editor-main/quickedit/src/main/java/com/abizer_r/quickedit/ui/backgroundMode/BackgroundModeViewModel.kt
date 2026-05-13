@@ -23,7 +23,7 @@ class BackgroundModeViewModel @Inject constructor(
 ) : ViewModel() {
 
     enum class BackgroundTab {
-        IMAGE, COLOR, GRADIENT
+        IMAGE, COLOR, GRADIENT, PRESET
     }
 
     data class BackgroundModeState(
@@ -32,6 +32,7 @@ class BackgroundModeViewModel @Inject constructor(
         val selectedColor: Int? = null,
         val selectedGradient: IntArray? = null,
         val selectedImage: Bitmap? = null,
+        val selectedPresetStyle: com.thgiang.image.core.model.PresetStyle? = null,
         val isProcessing: Boolean = false,
         val hasAlpha: Boolean = true,
         val error: String? = null
@@ -129,13 +130,27 @@ class BackgroundModeViewModel @Inject constructor(
 
     fun applyImageBackground(bgImage: Bitmap) {
         val fg = foregroundBitmap ?: return
-        _state.value = _state.value.copy(isProcessing = true, selectedImage = bgImage, selectedColor = null, selectedGradient = null)
+        _state.value = _state.value.copy(isProcessing = true, selectedImage = bgImage, selectedColor = null, selectedGradient = null, selectedPresetStyle = null)
         
         viewModelScope.launch {
             val result = ImageEffectProcessor.applyBackground(
                 foreground = fg,
                 backgroundType = BackgroundType.IMAGE,
                 backgroundImage = bgImage
+            )
+            updateResult(result)
+        }
+    }
+
+    fun applyPresetBackground(style: com.thgiang.image.core.model.PresetStyle) {
+        val fg = foregroundBitmap ?: return
+        _state.value = _state.value.copy(isProcessing = true, selectedPresetStyle = style, selectedColor = null, selectedGradient = null, selectedImage = null)
+        
+        viewModelScope.launch {
+            val result = ImageEffectProcessor.applyBackground(
+                foreground = fg,
+                backgroundType = BackgroundType.PRESET,
+                backgroundPreset = style
             )
             updateResult(result)
         }

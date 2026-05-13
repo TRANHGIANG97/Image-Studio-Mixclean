@@ -42,7 +42,7 @@ import com.abizer_r.quickedit.utils.editorScreen.CropModeUtils
 fun CropperOptionsFullWidth(
     modifier: Modifier = Modifier,
     toolbarHeight: Dp = TOOLBAR_HEIGHT_LARGE,
-    cropperOptionList: ArrayList<CropperOption>,
+    cropperOptionList: List<CropperOption>,
     selectedIndex: Int,
     onItemClicked: (position: Int, effectItem: CropperOption) -> Unit
 ) {

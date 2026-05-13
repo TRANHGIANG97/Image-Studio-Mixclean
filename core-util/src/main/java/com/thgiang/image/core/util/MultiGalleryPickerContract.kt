@@ -30,15 +30,15 @@ class MultiGalleryPickerContract : ActivityResultContract<Unit, List<Uri>>() {
         val uris = mutableListOf<Uri>()
         
         // Check ClipData for multiple selections
-        if (intent.clipData != null) {
-            val clipData = intent.clipData!!
+        val clipData = intent.clipData
+        if (clipData != null) {
             for (i in 0 until clipData.itemCount) {
                 clipData.getItemAt(i).uri?.let { uris.add(it) }
             }
         } 
         // Fallback to data if only one was selected natively
-        else if (intent.data != null) {
-            uris.add(intent.data!!)
+        else {
+            intent.data?.let { uris.add(it) }
         }
         
         return uris

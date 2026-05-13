@@ -38,6 +38,8 @@
     <string name="licenses_title">Open source licenses</string>
     <string name="dark_mode_title">Dark mode</string>
     <string name="dark_mode_description">Toggle dark theme for the app.</string>
+    <string name="home_preview_title">Show Home Preview</string>
+    <string name="home_preview_description">Show the before/after comparison box on the home screen.</string>
 
     <string name="home_remove_background_title">Remove Background</string>
     <string name="home_remove_background_subtitle">Pick an image and remove the background in one tap.</string>
@@ -153,7 +155,7 @@
     <string name="home_quick_tools">Quick tools</string>
     <string name="home_dock_batch">Batch</string>
     <string name="home_dock_blur">Blur</string>
-    <string name="home_dock_pick_image">Remove Background</string>
+    <string name="home_dock_pick_image">Remove BG</string>
     <string name="home_dock_photo_editor">Photo Editor</string>
     <string name="home_dock_quick_edit">QuickEdit</string>
     <string name="home_dock_hd_export">HD Export</string>

@@ -214,6 +214,7 @@ fun HomeRemoveBackgroundSection(
     progress: Int,
     previewHeight: Dp,
     useHomeDarkStyle: Boolean,
+    isAutoSliderEnabled: Boolean = false,
     lastSliderBeforeUri: Uri? = null,
     lastSliderAfterUri: Uri? = null,
     onPickImage: () -> Unit
@@ -260,6 +261,7 @@ fun HomeRemoveBackgroundSection(
                         BeforeAfterAutoSlider(
                             originalUri = selectedImageUri ?: processedImageUri,
                             processedUri = processedImageUri,
+                            autoAnimate = isAutoSliderEnabled,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
@@ -305,6 +307,7 @@ fun HomeRemoveBackgroundSection(
                         BeforeAfterAutoSlider(
                             originalUri = lastSliderBeforeUri,
                             processedUri = lastSliderAfterUri,
+                            autoAnimate = isAutoSliderEnabled,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {

@@ -142,7 +142,7 @@
     <string name="home_quick_tools">빠른 도구</string>
     <string name="home_dock_batch">일괄</string>
     <string name="home_dock_blur">블러</string>
-    <string name="home_dock_pick_image">이미지 선택</string>
+    <string name="home_dock_pick_image">배경 제거</string>
     <string name="home_dock_photo_editor">사진 편집</string>
     <string name="home_dock_quick_edit">퀵 편집</string>
     <string name="home_dock_hd_export">HD Export</string>

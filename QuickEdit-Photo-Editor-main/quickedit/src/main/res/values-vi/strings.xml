@@ -53,6 +53,7 @@
     <string name="studio_intensity">Cường độ</string>
     <string name="background">Nền</string>
     <string name="gradient">Gradient</string>
+    <string name="presets">Mẫu</string>
     <string name="remove_bg_warning">Vui lòng xóa nền trước</string>
     <string name="back">Quay lại</string>
     <string name="original">Gốc</string>

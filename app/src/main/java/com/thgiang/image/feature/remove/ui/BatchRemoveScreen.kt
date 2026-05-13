@@ -275,8 +275,7 @@ fun BatchRemoveScreen(
             }
 
             // Zoom Overlay
-            if (zoomedUri != null) {
-                val uriToShow = zoomedUri!!
+            zoomedUri?.let { uriToShow ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

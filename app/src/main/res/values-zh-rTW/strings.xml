@@ -142,7 +142,7 @@
     <string name="home_quick_tools">快捷工具</string>
     <string name="home_dock_batch">批次</string>
     <string name="home_dock_blur">模糊</string>
-    <string name="home_dock_pick_image">Pick Image</string>
+    <string name="home_dock_pick_image">移除背景</string>
     <string name="home_dock_photo_editor">Photo Editor</string>
     <string name="home_dock_quick_edit">快速編輯</string>
     <string name="home_dock_hd_export">HD 匯出</string>

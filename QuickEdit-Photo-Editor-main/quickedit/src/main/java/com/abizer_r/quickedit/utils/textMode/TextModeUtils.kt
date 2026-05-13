@@ -41,7 +41,7 @@ object TextModeUtils {
     @Composable
     fun DrawAllTransformableViews(
         centerAlignModifier: Modifier,
-        transformableViewsList: ArrayList<TransformableBoxState>,
+        transformableViewsList: List<TransformableBoxState>,
         onTransformableBoxEvent: (event: TransformableBoxEvents) -> Unit,
         recompositionTrigger: Long = 0
     ) {
@@ -70,7 +70,7 @@ object TextModeUtils {
     @Composable
     fun BorderForSelectedViews(
         centerAlignModifier: Modifier,
-        transformableViewsList: ArrayList<TransformableBoxState>,
+        transformableViewsList: List<TransformableBoxState>,
         onTransformableBoxEvent: (event: TransformableBoxEvents) -> Unit
     ) {
         transformableViewsList
@@ -94,9 +94,9 @@ object TextModeUtils {
     fun getBottomToolbarItemsList(
         selectedViewState: TransformableBoxState?,
         selectedItem: BottomToolbarItem? = null
-    ): ArrayList<BottomToolbarItem> {
+    ): List<BottomToolbarItem> {
 
-        val toolbarItems: ArrayList<BottomToolbarItem> = arrayListOf()
+        val toolbarItems = mutableListOf<BottomToolbarItem>()
         toolbarItems.add(BottomToolbarItem.AddItem)
         if (selectedViewState == null || selectedViewState !is TransformableTextBoxState) {
             return toolbarItems
@@ -131,7 +131,7 @@ object TextModeUtils {
 
     val DEFAULT_TEXT_ALIGN = TextAlign.Center
 
-    fun getTextAlignOptions() = arrayListOf(
+    fun getTextAlignOptions() = listOf(
         TextAlign.Start,
         TextAlign.Center,
         TextAlign.End
@@ -144,7 +144,7 @@ object TextModeUtils {
                 toolbarItem is BottomToolbarItem.TextFontFamily
     }
 
-    fun getNewSelectedToolItem(toolbarItems: ArrayList<BottomToolbarItem>, prevSelectedTool: BottomToolbarItem): BottomToolbarItem {
+    fun getNewSelectedToolItem(toolbarItems: List<BottomToolbarItem>, prevSelectedTool: BottomToolbarItem): BottomToolbarItem {
         val newSelectedTool = when (prevSelectedTool) {
             is BottomToolbarItem.TextFormat -> toolbarItems.find { it is BottomToolbarItem.TextFormat }
             is BottomToolbarItem.TextFontFamily -> toolbarItems.find { it is BottomToolbarItem.TextFontFamily }

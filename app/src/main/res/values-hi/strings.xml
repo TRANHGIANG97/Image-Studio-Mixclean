@@ -142,7 +142,7 @@
     <string name="home_quick_tools">क्विक टूल्स</string>
     <string name="home_dock_batch">बैच</string>
     <string name="home_dock_blur">ब्लर</string>
-    <string name="home_dock_pick_image">छवि चुनें</string>
+    <string name="home_dock_pick_image">पृष्ठभूमि हटाएँ</string>
     <string name="home_dock_photo_editor">फोटो संपादक</string>
     <string name="home_dock_quick_edit">त्वरित संपादन</string>
     <string name="home_dock_hd_export">HD एक्सपोर्ट</string>

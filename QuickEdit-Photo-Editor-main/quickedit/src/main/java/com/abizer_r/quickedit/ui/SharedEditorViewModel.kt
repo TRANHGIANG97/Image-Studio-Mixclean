@@ -16,17 +16,11 @@ class SharedEditorViewModel @Inject constructor(
 ): ViewModel() {
 
     companion object {
-        const val MAX_BITMAP_STACK_SIZE = 10
-        const val MAX_REDO_STACK_SIZE = 5 // Giới hạn redo stack
-        const val MAX_BITMAP_DIMENSION = 2048
+        const val MAX_BITMAP_STACK_SIZE = 10  // Giới hạn tối đa
+        const val MAX_BITMAP_DIMENSION = 2048 // Resize xuống nếu quá lớn
     }
 
-    private val _useTransition = MutableStateFlow(false)
-    val useTransition: StateFlow<Boolean> = _useTransition
-
-    fun setUseTransition(value: Boolean) {
-        _useTransition.value = value
-    }
+    var useTransition = false
 
     private val _bitmapStack = mutableListOf<Bitmap>()
     private val _bitmapRedoStack = mutableListOf<Bitmap>()
@@ -40,13 +34,10 @@ class SharedEditorViewModel @Inject constructor(
 
     private var latestTimeForAddingBitmapToStack: Long = 0
 
-    /**
-     * Returns the current bitmap from the stack.
-     * Returns null if the stack is empty.
-     */
-    fun getCurrentBitmap(): Bitmap? {
+    @Throws(Exception::class)
+    fun getCurrentBitmap(): Bitmap {
         if (_bitmapStack.isEmpty()) {
-            return null
+            throw Exception("EmptyStackException: The bitmapStack should contain at least one bitmap")
         }
         return _bitmapStack.last()
     }
@@ -59,7 +50,7 @@ class SharedEditorViewModel @Inject constructor(
     fun addBitmapToStack(
         bitmap: Bitmap,
         triggerRecomposition: Boolean = false,
-        addSafelyWithoutMultipleTriggers: Boolean = false
+        addSafelyWithoutMultipleTriggers: Boolean = true
     ) {
         val currTime = System.currentTimeMillis()
         if (addSafelyWithoutMultipleTriggers) {
@@ -89,16 +80,10 @@ class SharedEditorViewModel @Inject constructor(
     }
 
     fun undo(): Boolean {
-        if (_bitmapStack.size <= 1) return false
+        if (_bitmapStack.size <= 1) return false // Giữ ít nhất 1 bitmap
         
         val current = _bitmapStack.removeAt(_bitmapStack.lastIndex)
         _bitmapRedoStack.add(current)
-        
-        // Giới hạn redo stack
-        while (_bitmapRedoStack.size > MAX_REDO_STACK_SIZE) {
-            val removed = _bitmapRedoStack.removeAt(0)
-            recycleSafely(removed)
-        }
         return true
     }
 
@@ -107,12 +92,6 @@ class SharedEditorViewModel @Inject constructor(
         
         val bitmap = _bitmapRedoStack.removeAt(_bitmapRedoStack.lastIndex)
         _bitmapStack.add(bitmap)
-        
-        // Giới hạn stack size (đề phòng)
-        while (_bitmapStack.size > MAX_BITMAP_STACK_SIZE) {
-            val removed = _bitmapStack.removeAt(0)
-            recycleSafely(removed)
-        }
         return true
     }
 

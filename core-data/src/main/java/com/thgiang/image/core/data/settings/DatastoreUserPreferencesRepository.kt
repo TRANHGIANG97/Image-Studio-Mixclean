@@ -14,6 +14,7 @@ private const val DATASTORE_NAME = "user_preferences"
 private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
 private val LANGUAGE_TAG_KEY = stringPreferencesKey("language_tag")
 private val REMOVAL_QUALITY_KEY = stringPreferencesKey("removal_quality")
+private val HOME_PREVIEW_ENABLED_KEY = booleanPreferencesKey("home_preview_enabled")
 
 private val Context.dataStore by preferencesDataStore(
     name = DATASTORE_NAME
@@ -28,7 +29,8 @@ class DatastoreUserPreferencesRepository(
             UserPreferences(
                 isDarkMode = prefs[DARK_MODE_KEY] ?: false,
                 selectedLanguage = prefs[LANGUAGE_TAG_KEY] ?: "system",
-                preferredRemovalQuality = prefs[REMOVAL_QUALITY_KEY] ?: "standard"
+                preferredRemovalQuality = prefs[REMOVAL_QUALITY_KEY] ?: "standard",
+                isHomePreviewEnabled = prefs[HOME_PREVIEW_ENABLED_KEY] ?: false
             )
         }
 
@@ -47,6 +49,12 @@ class DatastoreUserPreferencesRepository(
     override suspend fun setPreferredRemovalQuality(quality: String) {
         context.dataStore.edit { prefs ->
             prefs[REMOVAL_QUALITY_KEY] = quality
+        }
+    }
+
+    override suspend fun setHomePreviewEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[HOME_PREVIEW_ENABLED_KEY] = enabled
         }
     }
 }

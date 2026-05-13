@@ -468,7 +468,8 @@ fun AppRoot(
                         preferredRemovalQuality = appState.preferredRemovalQuality,
                         onPreferredRemovalQualityChange = appViewModel::setPreferredRemovalQuality,
                         onOpenDrafts = { navController.navigate(Screen.Drafts.route) },
-                        isDarkMode = appState.isDarkMode
+                        isDarkMode = appState.isDarkMode,
+                        isHomePreviewEnabled = appState.isHomePreviewEnabled
                     )
                 }
                 composable(
@@ -555,6 +556,8 @@ fun AppRoot(
                         onLanguageChange = appViewModel::setLanguage,
                         preferredRemovalQuality = appState.preferredRemovalQuality,
                         onPreferredRemovalQualityChange = appViewModel::setPreferredRemovalQuality,
+                        isHomePreviewEnabled = appState.isHomePreviewEnabled,
+                        onHomePreviewEnabledChange = appViewModel::setHomePreviewEnabled,
                         isPremium = appState.isPremium,
                         modifier = Modifier
                             .fillMaxSize()

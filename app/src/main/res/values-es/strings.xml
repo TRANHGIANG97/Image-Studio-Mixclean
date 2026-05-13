@@ -142,7 +142,7 @@
     <string name="home_quick_tools">Herramientas rápidas</string>
     <string name="home_dock_batch">Lote</string>
     <string name="home_dock_blur">Desenfoque</string>
-    <string name="home_dock_pick_image">Elegir imagen</string>
+    <string name="home_dock_pick_image">Quitar fondo</string>
     <string name="home_dock_photo_editor">Editor de fotos</string>
     <string name="home_dock_quick_edit">Edición rápida</string>
     <string name="home_dock_hd_export">Exportar HD</string>

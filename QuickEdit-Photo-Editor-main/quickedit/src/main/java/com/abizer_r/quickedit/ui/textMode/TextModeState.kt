@@ -9,7 +9,7 @@ import com.abizer_r.quickedit.utils.ColorUtils
 import com.abizer_r.quickedit.ui.transformableViews.base.TransformableBoxState
 
 data class TextModeState(
-    val transformableViewStateList: ArrayList<TransformableBoxState> = arrayListOf(),
+    val transformableViewStateList: List<TransformableBoxState> = emptyList(),
     val selectedTool: BottomToolbarItem = BottomToolbarItem.NONE,
     val showBottomToolbarExtension: Boolean = false,
     val recompositionTrigger: Long = 0,

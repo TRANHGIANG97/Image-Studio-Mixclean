@@ -12,9 +12,9 @@ android {
     defaultConfig {
         applicationId = "com.thgiang.image"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 12
-        versionName = "1.6.3"
+        targetSdk = 35
+        versionCode = 13
+        versionName = "1.6.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -69,7 +69,8 @@ android {
 
     packaging {
         jniLibs {
-            // Force extraction to fix 16KB alignment issues on Android 15+
+            // Enable legacy packaging (compressing native libs) to bypass the 16KB ELF alignment
+            // requirement for third-party prebuilt .so libraries.
             useLegacyPackaging = true
         }
     }

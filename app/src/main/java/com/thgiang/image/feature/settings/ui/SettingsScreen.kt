@@ -38,6 +38,8 @@ fun SettingsScreen(
     onLanguageChange: (String) -> Unit,
     preferredRemovalQuality: String = "standard",
     onPreferredRemovalQualityChange: (String) -> Unit = {},
+    isHomePreviewEnabled: Boolean = false,
+    onHomePreviewEnabledChange: (Boolean) -> Unit = {},
     isPremium: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -162,6 +164,25 @@ fun SettingsScreen(
                             )
                         }
                     }
+                }
+
+                Divider(modifier = Modifier.padding(start = 72.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f))
+
+                SettingsItemRow(
+                    icon = Icons.Rounded.AutoAwesome,
+                    iconTint = Color(0xFF6366F1), // Indigo
+                    iconBackground = Color(0xFFE0E7FF),
+                    title = stringResource(R.string.home_preview_title),
+                    subtitle = stringResource(R.string.home_preview_description),
+                    onClick = { onHomePreviewEnabledChange(!isHomePreviewEnabled) }
+                ) {
+                    Switch(
+                        checked = isHomePreviewEnabled,
+                        onCheckedChange = onHomePreviewEnabledChange,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color(0xFF6366F1)
+                        )
+                    )
                 }
             }
         }

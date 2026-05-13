@@ -142,7 +142,7 @@
     <string name="home_quick_tools">Quick tools</string>
     <string name="home_dock_batch">Batch</string>
     <string name="home_dock_blur">Blur</string>
-    <string name="home_dock_pick_image">Выбрать изображение</string>
+    <string name="home_dock_pick_image">Удалить фон</string>
     <string name="home_dock_photo_editor">Фоторедактор</string>
     <string name="home_dock_quick_edit">QuickEdit</string>
     <string name="home_dock_hd_export">HD Export</string>

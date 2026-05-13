@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,9 +44,9 @@ import com.thgiang.image.core.design.components.TransparentBackgroundPattern
 import com.thgiang.image.core.design.theme.ImageDesign
 
 /** Ảnh chưa xoá phông (before) — dùng khi chưa có cặp ảnh từ user, có thể tái sử dụng cho màn khác */
-private const val DEMO_IMG_BEFORE = "remHomeDemo/img1.jpg"
+private const val DEMO_IMG_BEFORE = "rem_home_demo/img1.jpg"
 /** Ảnh đã xoá phông (after) — dùng khi chưa có cặp ảnh từ user, có thể tái sử dụng cho màn khác */
-private const val DEMO_IMG_AFTER = "remHomeDemo/img2.png"
+private const val DEMO_IMG_AFTER = "rem_home_demo/img2.png"
 
 /**
  * Slider before/after tự chạy qua lại.
@@ -56,35 +57,27 @@ private const val DEMO_IMG_AFTER = "remHomeDemo/img2.png"
 fun BeforeAfterAutoSlider(
     originalUri: Uri? = null,
     processedUri: Uri? = null,
+    autoAnimate: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val aiColor = ImageDesign.semantic.aiAccent.copy(alpha = 0.5f)
     val useDemoImages = originalUri == null && processedUri == null
 
-    val demoImgBefore: ImageBitmap? = remember(useDemoImages) {
-        if (!useDemoImages) return@remember null
-        runCatching {
-            context.assets.open(DEMO_IMG_BEFORE).use { BitmapFactory.decodeStream(it)?.asImageBitmap() }
-        }.getOrNull()
-    }
-    val demoImgAfter: ImageBitmap? = remember(useDemoImages) {
-        if (!useDemoImages) return@remember null
-        runCatching {
-            context.assets.open(DEMO_IMG_AFTER).use { BitmapFactory.decodeStream(it)?.asImageBitmap() }
-        }.getOrNull()
-    }
-
     val infiniteTransition = rememberInfiniteTransition(label = "beforeAfterSlider")
-    val progress by infiniteTransition.animateFloat(
-        initialValue = 0.15f,
-        targetValue = 0.85f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(7000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "sliderProgress"
-    )
+    val progress by if (autoAnimate) {
+        infiniteTransition.animateFloat(
+            initialValue = 0.15f,
+            targetValue = 0.85f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(7000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "sliderProgress"
+        )
+    } else {
+        remember { mutableFloatStateOf(0.5f) }
+    }
 
     val beforeAlpha = ((progress - 0.25f) * 5f).coerceIn(0f, 1f)
     val afterAlpha = ((0.75f - progress) * 5f).coerceIn(0f, 1f)
@@ -93,8 +86,11 @@ fun BeforeAfterAutoSlider(
         val clipWidthDp = maxWidth * progress
         val progressFraction = progress
 
-        val showContent = (useDemoImages && demoImgBefore != null && demoImgAfter != null) || (!useDemoImages && originalUri != null)
+        val showContent = useDemoImages || originalUri != null
         if (showContent) {
+            val beforeModel = if (useDemoImages) "file:///android_asset/$DEMO_IMG_BEFORE" else originalUri
+            val afterModel = if (useDemoImages) "file:///android_asset/$DEMO_IMG_AFTER" else (processedUri ?: originalUri)
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -107,58 +103,30 @@ fun BeforeAfterAutoSlider(
                         )
                     }
             ) {
-                if (useDemoImages && demoImgBefore != null && demoImgAfter != null) {
-                    Image(
-                        bitmap = demoImgBefore,
-                        contentDescription = "Before",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .drawWithContent {
-                                clipRect(left = 0f, top = 0f, right = size.width * progressFraction, bottom = size.height) {
-                                    this@drawWithContent.drawContent()
-                                }
+                AsyncImage(
+                    model = beforeModel,
+                    contentDescription = "Before",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .drawWithContent {
+                            clipRect(left = 0f, top = 0f, right = size.width * progressFraction, bottom = size.height) {
+                                this@drawWithContent.drawContent()
                             }
-                    ) {
-                        TransparentBackgroundPattern(modifier = Modifier.matchParentSize())
-                        Image(
-                            bitmap = demoImgAfter,
-                            contentDescription = "After",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                } else {
-                    val beforeUri = originalUri!!
-                    val afterUri = processedUri ?: originalUri
-                    AsyncImage(
-                        model = beforeUri,
-                        contentDescription = "Before",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .drawWithContent {
-                                clipRect(left = 0f, top = 0f, right = size.width * progressFraction, bottom = size.height) {
-                                    this@drawWithContent.drawContent()
-                                }
-                            }
-                    ) {
-                        if (processedUri != null) {
-                            TransparentBackgroundPattern(modifier = Modifier.matchParentSize())
                         }
-                        AsyncImage(
-                            model = afterUri,
-                            contentDescription = "After",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
+                ) {
+                    if (useDemoImages || processedUri != null) {
+                        TransparentBackgroundPattern(modifier = Modifier.matchParentSize())
                     }
+                    AsyncImage(
+                        model = afterModel,
+                        contentDescription = "After",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
                 }
 
                 Box(
@@ -227,7 +195,6 @@ fun BeforeAfterAutoSlider(
         }
     }
 }
-
 
 
 

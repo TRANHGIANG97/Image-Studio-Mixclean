@@ -142,7 +142,7 @@
     <string name="home_quick_tools">Schnelltools</string>
     <string name="home_dock_batch">Stapel</string>
     <string name="home_dock_blur">Weichzeichnen</string>
-    <string name="home_dock_pick_image">Bild auswählen</string>
+    <string name="home_dock_pick_image">HG entfernen</string>
     <string name="home_dock_photo_editor">Foto-Editor</string>
     <string name="home_dock_quick_edit">Schnellbearbeitung</string>
     <string name="home_dock_hd_export">HD-Export</string>

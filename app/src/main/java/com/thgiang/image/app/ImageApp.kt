@@ -6,8 +6,9 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -19,13 +20,15 @@ class ImageApp : Application() {
     @Inject
     lateinit var backgroundRemoverRepository: BackgroundRemoverRepository
 
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate() {
         super.onCreate()
         // Khởi tạo AdMob SDK ngay khi app mở
         com.google.android.gms.ads.MobileAds.initialize(this)
         
-        GlobalScope.launch(Dispatchers.IO) {
+        appScope.launch {
             delay(3000)
             fixTransportRuntimeDbIfNeeded()
         }

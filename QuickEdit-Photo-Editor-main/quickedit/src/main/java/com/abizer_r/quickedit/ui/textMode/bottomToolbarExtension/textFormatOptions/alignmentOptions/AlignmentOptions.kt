@@ -38,7 +38,7 @@ fun TextAlignOptions(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     selectedAlignment: TextAlign = TextModeUtils.DEFAULT_TEXT_ALIGN,
-    optionList: ArrayList<TextAlign> = TextModeUtils.getTextAlignOptions(),
+    optionList: List<TextAlign> = TextModeUtils.getTextAlignOptions(),
     onItemClicked: (position: Int, textAlign: TextAlign) -> Unit
 ) {
 

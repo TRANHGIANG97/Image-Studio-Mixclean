@@ -5,9 +5,9 @@ import com.abizer_r.quickedit.R
 
 object CropModeUtils {
 
-    fun getCropperOptionsList(context: android.content.Context): ArrayList<CropperOption> {
+    fun getCropperOptionsList(context: android.content.Context): List<CropperOption> {
 
-        val cropperOptionList = arrayListOf(
+        val cropperOptionList = listOf(
             CropperOption(
                 aspectRatioX = -1f,
                 aspectRatioY = -1f,

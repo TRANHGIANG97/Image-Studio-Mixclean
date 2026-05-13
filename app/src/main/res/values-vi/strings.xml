@@ -37,6 +37,8 @@
     <string name="licenses_title">Giấy phép mã nguồn mở</string>
     <string name="dark_mode_title">Chế độ tối</string>
     <string name="dark_mode_description">Bật/tắt giao diện tối cho ứng dụng.</string>
+    <string name="home_preview_title">Hiển thị khung xem trước</string>
+    <string name="home_preview_description">Hiển thị khung so sánh trước/sau tại màn hình chính.</string>
     <string name="home_remove_background_title">Xoá phông</string>
     <string name="home_remove_background_subtitle">Chọn ảnh và xoá phông chỉ với một lần chạm.</string>
     <string name="dashboard_hero_title">AI xoá phông</string>
@@ -142,7 +144,7 @@
     <string name="home_quick_tools">Công cụ nhanh</string>
     <string name="home_dock_batch">Hàng loạt</string>
     <string name="home_dock_blur">Làm mờ</string>
-    <string name="home_dock_pick_image">Chọn ảnh</string>
+    <string name="home_dock_pick_image">Xoá nền</string>
     <string name="home_dock_photo_editor">Sửa ảnh</string>
     <string name="home_dock_quick_edit">Sửa nhanh</string>
     <string name="home_dock_hd_export">Xuất ảnh HD</string>

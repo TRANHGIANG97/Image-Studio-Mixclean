@@ -110,7 +110,7 @@
     <string name="multi_saved_successfully">Image enregistrée</string>
     <string name="multi_save_failed">Échec de l\'enregistrement</string>
     <string name="exit_dialog_title">Quitter l\'application</string>
-    <string name="exit_dialog_message">Voulez-vous quitter l'application ?</string>
+    <string name="exit_dialog_message">Voulez-vous quitter l\'application ?</string>
     <string name="exit_dialog_cancel">Annuler</string>
     <string name="exit_dialog_exit">Quitter</string>
     <string name="quality_label">Qualité</string>
@@ -142,7 +142,7 @@
     <string name="home_quick_tools">Outils rapides</string>
     <string name="home_dock_batch">Lot</string>
     <string name="home_dock_blur">Flou</string>
-    <string name="home_dock_pick_image">Choisir une image</string>
+    <string name="home_dock_pick_image">Suppr. fond</string>
     <string name="home_dock_photo_editor">Éditeur de photos</string>
     <string name="home_dock_quick_edit">Modification rapide</string>
     <string name="home_dock_hd_export">Export HD</string>

@@ -52,6 +52,7 @@
     <string name="studio_intensity">Intensity</string>
     <string name="background">Background</string>
     <string name="gradient">Gradient</string>
+    <string name="presets">Presets</string>
     <string name="remove_bg_warning">Please remove background before adding background</string>
     <string name="back">Back</string>
     <string name="original">Original</string>

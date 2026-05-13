@@ -29,6 +29,7 @@ data class AppUiState(
     val selectedLanguage: String = "system",
     val isPremium: Boolean = false,
     val preferredRemovalQuality: String = "standard",
+    val isHomePreviewEnabled: Boolean = false,
     val batchUris: List<android.net.Uri> = emptyList()
 )
 
@@ -58,7 +59,8 @@ class AppViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     isDarkMode = prefs.isDarkMode,
                     selectedLanguage = prefs.selectedLanguage,
-                    preferredRemovalQuality = prefs.preferredRemovalQuality
+                    preferredRemovalQuality = prefs.preferredRemovalQuality,
+                    isHomePreviewEnabled = prefs.isHomePreviewEnabled
                 )
                 _selectedLanguage.value = prefs.selectedLanguage
             }
@@ -96,6 +98,12 @@ class AppViewModel @Inject constructor(
             preferencesRepository.setPreferredRemovalQuality(quality)
         }
         _uiState.value = _uiState.value.copy(preferredRemovalQuality = quality)
+    }
+
+    fun setHomePreviewEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setHomePreviewEnabled(enabled)
+        }
     }
 
     fun setBatchUris(uris: List<android.net.Uri>) {

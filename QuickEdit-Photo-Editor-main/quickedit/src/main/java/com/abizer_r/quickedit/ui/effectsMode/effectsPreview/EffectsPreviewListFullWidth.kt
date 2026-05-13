@@ -48,7 +48,7 @@ import com.abizer_r.quickedit.utils.defaultTextColor
 fun EffectsPreviewListFullWidth(
     modifier: Modifier = Modifier,
     toolbarHeight: Dp = TOOLBAR_HEIGHT_EXTRA_LARGE,
-    effectsList: ArrayList<EffectItem>,
+    effectsList: List<EffectItem>,
     selectedIndex: Int,
     onItemClicked: (position: Int, effectItem: EffectItem) -> Unit
 ) {
@@ -172,7 +172,7 @@ fun Unselected_EffectPreviewItem() {
 @Composable
 fun Preview_EffectsPreviewList() {
     val bitmap = ImageBitmap.imageResource(id = R.drawable.placeholder_image_3).asAndroidBitmap()
-    val mEffectsList = arrayListOf(
+    val mEffectsList = listOf(
         EffectItem(
             ogBitmap = bitmap,
             previewBitmap = bitmap,

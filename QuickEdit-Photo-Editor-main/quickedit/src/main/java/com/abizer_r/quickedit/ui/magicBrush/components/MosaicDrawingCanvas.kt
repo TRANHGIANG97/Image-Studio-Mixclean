@@ -88,10 +88,6 @@ fun MosaicDrawingCanvas(
 
         when (result) {
             is MosaicResult.Success -> {
-                // Recycle bitmap cũ TRƯỚC KHI gán bitmap mới
-                if (oldBitmap != null && oldBitmap !== originalBitmap && !oldBitmap.isRecycled) {
-                    oldBitmap.recycle()
-                }
                 mosaicBitmap = result.bitmap
 
                 if (result.wasFallback) {
@@ -115,9 +111,7 @@ fun MosaicDrawingCanvas(
 
     DisposableEffect(Unit) {
         onDispose {
-            mosaicBitmap?.let {
-                if (it !== originalBitmap && !it.isRecycled) it.recycle()
-            }
+            mosaicBitmap = null
         }
     }
 

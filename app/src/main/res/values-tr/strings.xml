@@ -142,7 +142,7 @@
     <string name="home_quick_tools">Hızlı araçlar</string>
     <string name="home_dock_batch">Toplu</string>
     <string name="home_dock_blur">Bulanıklık</string>
-    <string name="home_dock_pick_image">Resim Seç</string>
+    <string name="home_dock_pick_image">Arka Planı Sil</string>
     <string name="home_dock_photo_editor">Fotoğraf Düzenleyici</string>
     <string name="home_dock_quick_edit">Hızlı Düzenle</string>
     <string name="home_dock_hd_export">HD Dışa Aktar</string>

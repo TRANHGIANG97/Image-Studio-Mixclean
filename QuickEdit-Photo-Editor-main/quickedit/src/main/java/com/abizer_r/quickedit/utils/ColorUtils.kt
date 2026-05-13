@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 object ColorUtils {
 
-    val defaultColorList = arrayListOf(
+    val defaultColorList = listOf(
         Color.White,
         Color.Black,
         Color.Red,

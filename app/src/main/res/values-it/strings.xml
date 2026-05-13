@@ -110,7 +110,7 @@
     <string name="multi_saved_successfully">Immagine salvata</string>
     <string name="multi_save_failed">Salvataggio non riuscito</string>
     <string name="exit_dialog_title">Esci dall\'app</string>
-    <string name="exit_dialog_message">Vuoi uscire dall'applicazione?</string>
+    <string name="exit_dialog_message">Vuoi uscire dall\'applicazione?</string>
     <string name="exit_dialog_cancel">Annulla</string>
     <string name="exit_dialog_exit">Esci</string>
     <string name="quality_label">Qualità</string>
@@ -142,7 +142,7 @@
     <string name="home_quick_tools">Strumenti rapidi</string>
     <string name="home_dock_batch">Multiplo</string>
     <string name="home_dock_blur">Sfoca</string>
-    <string name="home_dock_pick_image">Scegli immagine</string>
+    <string name="home_dock_pick_image">Rimuovi sfondo</string>
     <string name="home_dock_photo_editor">Editor foto</string>
     <string name="home_dock_quick_edit">Modifica rapida</string>
     <string name="home_dock_hd_export">Export HD</string>

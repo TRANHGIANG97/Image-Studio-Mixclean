@@ -142,7 +142,7 @@
     <string name="home_quick_tools">Szybkie narzędzia</string>
     <string name="home_dock_batch">Wsadowe</string>
     <string name="home_dock_blur">Rozmycie</string>
-    <string name="home_dock_pick_image">Wybierz obraz</string>
+    <string name="home_dock_pick_image">Remove BG</string>
     <string name="home_dock_photo_editor">Edytor zdjęć</string>
     <string name="home_dock_quick_edit">Szybka edycja</string>
     <string name="home_dock_hd_export">Eksport HD</string>

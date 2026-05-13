@@ -142,7 +142,7 @@
     <string name="home_quick_tools">أدوات سريعة</string>
     <string name="home_dock_batch">دفعة</string>
     <string name="home_dock_blur">ضبابية</string>
-    <string name="home_dock_pick_image">اختر صورة</string>
+    <string name="home_dock_pick_image">Remove BG</string>
     <string name="home_dock_photo_editor">محرر الصور</string>
     <string name="home_dock_quick_edit">تحرير سريع</string>
     <string name="home_dock_hd_export">تصدير HD</string>
