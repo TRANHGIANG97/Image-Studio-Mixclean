@@ -116,7 +116,10 @@ fun CustomSliderItem(
                 height = Dimension.value(28.dp)
             },
             value = sliderValueLocal,
-            onValueChange = onValueChangeLambda,
+            onValueChange = {
+                sliderValueLocal = it
+                onValueChange(it) // Real-time update
+            },
             onValueChangeFinished = onValueChangeFinishedLambda,
             valueRange = minValue..maxValue,
             colors = SliderDefaults.colors(

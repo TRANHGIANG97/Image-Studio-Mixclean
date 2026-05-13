@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.core.model.BorderRenderMode
 import com.thgiang.image.core.model.HomeStyleRequest
-import com.thgiang.image.feature.home.ui.preset.composePresetBackgroundBitmap
+
 import javax.inject.Inject
 
 class ComposeStyledBitmapUseCase @Inject constructor(
@@ -15,7 +15,11 @@ class ComposeStyledBitmapUseCase @Inject constructor(
         request: HomeStyleRequest
     ): Result<Bitmap> = when (request) {
         is HomeStyleRequest.Background -> runCatching {
-            composePresetBackgroundBitmap(foreground = foreground, style = request.style)
+            com.thgiang.image.core.util.ImageEffectProcessor.applyBackground(
+                foreground = foreground,
+                backgroundType = com.thgiang.image.core.util.ImageEffectProcessor.BackgroundType.PRESET,
+                backgroundPreset = request.style
+            ) ?: throw Exception("Failed to apply preset background")
         }
         is HomeStyleRequest.Border -> when (val mode = request.renderMode) {
             is BorderRenderMode.Solid -> imageSaveRepository.applyBorderToBitmap(

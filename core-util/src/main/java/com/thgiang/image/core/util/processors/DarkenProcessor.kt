@@ -19,7 +19,7 @@ object DarkenProcessor {
         backgroundRemoverRepository: BackgroundRemoverRepository
     ): Bitmap? = runCatching {
         val clamped = intensity.coerceIn(0f, 1f)
-        val darkenAlpha = 0.15f + clamped * 0.35f
+        val darkenAlpha = 1.0f - clamped
         PortraitProcessor.applyPortrait(
             context = context,
             bitmap = bitmap,
@@ -37,7 +37,7 @@ object DarkenProcessor {
         vignette: Boolean
     ): Bitmap? = runCatching {
         val clamped = intensity.coerceIn(0f, 1f)
-        val darkenAlpha = 0.15f + clamped * 0.35f
+        val darkenAlpha = 1.0f - clamped
         PortraitProcessor.applyPortraitCached(
             bitmap = bitmap,
             foreground = foreground,

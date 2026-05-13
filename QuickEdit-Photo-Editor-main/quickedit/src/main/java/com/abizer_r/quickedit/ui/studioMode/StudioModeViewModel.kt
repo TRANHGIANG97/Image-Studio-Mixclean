@@ -23,6 +23,8 @@ class StudioModeViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
+    private var processingJob: kotlinx.coroutines.Job? = null
+
     enum class StudioEffect {
         NONE,
         BLUR,
@@ -70,19 +72,19 @@ class StudioModeViewModel @Inject constructor(
     fun updateIntensity(value: Float) {
         val clamped = value.coerceIn(0f, 1f)
         _state.value = _state.value.copy(intensity = clamped)
-        applyEffect(_state.value.currentEffect, clamped)
+        applyEffect(_state.value.currentEffect, clamped, isIntensityUpdate = true)
     }
 
     fun applyEffect(effect: StudioEffect) {
-        applyEffect(effect, _state.value.intensity)
+        applyEffect(effect, _state.value.intensity, isIntensityUpdate = false)
     }
 
-    private fun applyEffect(effect: StudioEffect, intensity: Float) {
+    private fun applyEffect(effect: StudioEffect, intensity: Float, isIntensityUpdate: Boolean) {
         val original = originalBitmap ?: return
         if (effect == lastAppliedEffect && intensity == lastAppliedIntensity) return
-        if (_state.value.isProcessing) return
 
         if (effect == StudioEffect.NONE) {
+            processingJob?.cancel()
             lastAppliedEffect = effect
             lastAppliedIntensity = intensity
             _state.value = _state.value.copy(
@@ -95,18 +97,32 @@ class StudioModeViewModel @Inject constructor(
 
         lastAppliedEffect = effect
         lastAppliedIntensity = intensity
-        _state.value = _state.value.copy(isProcessing = true, currentEffect = effect)
+        
+        // Only show loader for the very first effect application (if foreground is not ready)
+        // For intensity updates, we want real-time response without a flickering loader.
+        val shouldShowLoader = !isIntensityUpdate && foregroundBitmap == null
+        _state.value = _state.value.copy(
+            isProcessing = shouldShowLoader,
+            currentEffect = effect
+        )
 
-        viewModelScope.launch {
+        processingJob?.cancel()
+        processingJob = viewModelScope.launch {
             val result = withContext(Dispatchers.Default) {
                 val fg = foregroundBitmap
+                
+                // Intensity mapping based on user feedback:
+                // 0% -> dark (darkenAlpha = 1.0), 100% -> bright (darkenAlpha = 0.0)
+                val mappedDarkenAlpha = (1.0f - intensity).coerceIn(0f, 1f)
+                val mappedBlurRadius = (intensity * 25f).coerceIn(0f, 25f)
+
                 if (fg != null) {
                     when (effect) {
                         StudioEffect.BLUR -> ImageEffectProcessor.applyBlur(original, intensity * 25f)
                         StudioEffect.PORTRAIT -> ImageEffectProcessor.applyPortraitCached(
                             original, fg,
-                            blurRadius = intensity * 20f,
-                            darkenAlpha = 0.15f + intensity * 0.35f,
+                            blurRadius = mappedBlurRadius,
+                            darkenAlpha = mappedDarkenAlpha,
                             vignette = true
                         )
                         StudioEffect.CLEAN -> ImageEffectProcessor.applyCleanCached(original, fg, intensity)
@@ -119,8 +135,8 @@ class StudioModeViewModel @Inject constructor(
                         StudioEffect.BLUR -> ImageEffectProcessor.applyBlur(original, intensity * 25f)
                         StudioEffect.PORTRAIT -> ImageEffectProcessor.applyPortrait(
                             context, original,
-                            blurRadius = intensity * 20f,
-                            darkenAlpha = 0.15f + intensity * 0.35f,
+                            blurRadius = mappedBlurRadius,
+                            darkenAlpha = mappedDarkenAlpha,
                             vignette = true,
                             backgroundRemoverRepository = backgroundRemoverRepository
                         )

@@ -235,9 +235,12 @@ fun StudioModeScreen(
                     
                     Slider(
                         value = sliderValue.value,
-                        onValueChange = { sliderValue.value = it },
+                        onValueChange = { 
+                            sliderValue.value = it
+                            viewModel.updateIntensity(it)
+                        },
                         onValueChangeFinished = {
-                            viewModel.updateIntensity(sliderValue.value)
+                            // Already handled in real-time
                         },
                         valueRange = 0f..1f,
                         colors = SliderDefaults.colors(
