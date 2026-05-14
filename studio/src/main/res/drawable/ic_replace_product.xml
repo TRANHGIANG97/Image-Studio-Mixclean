@@ -1,0 +1,36 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Nền tròn với Gradient để tạo hiệu ứng "Premium" -->
+    <path android:pathData="M32,32m-28,0a28,28 0,1 1,56 0a28,28 0,1 1,-56 0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="60"
+                android:endY="60"
+                android:startX="4"
+                android:startY="4"
+                android:type="linear">
+                <item android:color="#FF5B7F" android:offset="0" />
+                <item android:color="#FF2E54" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Biểu tượng bức ảnh (Sửa lại cho hiện đại) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M20,22h18c1.65,0 3,1.35 3,3v10h-2.5V25c0,-0.28 -0.22,-0.5 -0.5,-0.5H20c-0.28,0 -0.5,0.22 -0.5,0.5v14c0,0.28 0.22,0.5 0.5,0.5h10v2.5H20c-1.65,0 -3,-1.35 -3,-3V25c0,-1.65 1.35,-3 3,-3z" />
+    <!-- Núi và mặt trời bên trong ảnh -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M21,36l4,-5l3,4l4,-6l5,7z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M33,28m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+    <!-- Biểu tượng mũi tên xoay (Thay thế) ở góc dưới bên phải -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M42,36c-4.42,0 -8,3.58 -8,8s3.58,8 8,8s8,-3.58 8,-8s-3.58,-8 -8,-8zm0,13.5c-3.03,0 -5.5,-2.47 -5.5,-5.5c0,-1.42 0.55,-2.72 1.45,-3.7l-1.45,-1.45L40.5,38v4l-1.5,-1.5c-0.6,0.65 -1,1.53 -1,2.5c0,1.93 1.57,3.5 3.5,3.5s3.5,-1.57 3.5,-3.5c0,-0.97 -0.4,-1.85 -1,-2.5l1.75,-1.75c1.09,1.19 1.75,2.77 1.75,4.5c0,3.03 -2.47,5.5 -5.5,5.5z" />
+</vector>

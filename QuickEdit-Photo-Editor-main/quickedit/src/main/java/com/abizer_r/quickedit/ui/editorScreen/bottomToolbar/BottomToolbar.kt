@@ -180,6 +180,10 @@ fun ToolbarItem(
             Icons.Outlined.Collections,
             stringResource(id = R.string.background)
         )
+        is BottomToolbarItem.RotateItem -> Pair(
+            ImageVector.vectorResource(id = com.abizer_r.quickedit.R.drawable.ic_rotate_right),
+            stringResource(id = R.string.rotate)
+        )
 
         is BottomToolbarItem.EraserTool -> Pair(
             ImageVector.vectorResource(id = R.drawable.ic_eraser),

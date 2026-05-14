@@ -251,4 +251,5 @@
     <string name="picker_no_photos">Không tìm thấy ảnh</string>
     <string name="picker_capture_btn">Chụp ảnh bằng camera</string>
     <string name="cd_capture_photo">Chụp ảnh</string>
-    <string name="permission_required">Cần cấp quyền</string><string name="grant_permission">Cấp quyền</string><string name="select">Chọn</string></resources>
+    <string name="permission_required">Cần cấp quyền</string><string name="grant_permission">Cấp quyền</string><string name="select">Chọn</string>
+</resources>

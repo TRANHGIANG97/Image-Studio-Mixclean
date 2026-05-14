@@ -89,4 +89,16 @@
     <string name="error_apply_background">Lỗi áp dụng nền</string>
     <string name="error_auto_removal_failed">Tự động xóa nền thất bại: %1$s</string>
     <string name="error_recycled_bitmap">Dữ liệu ảnh đã bị giải phóng</string>
+
+    <!-- Magic Brush Tooltips -->
+    <string name="magic_brush_hint_smart_erase">Chạm vào vùng muốn xoá trên ảnh</string>
+    <string name="magic_brush_hint_brush_erase">Vuốt để xoá thủ công các vùng</string>
+    <string name="magic_brush_hint_blur">Vuốt để làm mờ / pixel hoá vùng chọn</string>
+    <string name="magic_brush_guide_title">Hướng dẫn sử dụng Tẩy xoá AI</string>
+    <string name="magic_brush_guide_wand">Chạm vào đối tượng để tự động xoá. Điều chỉnh Độ nhạy để kiểm soát vùng chọn.</string>
+    <string name="magic_brush_guide_brush">Vuốt để xoá thủ công. Điều chỉnh Kích thước và Bù trừ để chính xác hơn.</string>
+    <string name="magic_brush_guide_blur">Vuốt để làm mờ vùng chọn với hiệu ứng mosaic.</string>
+    <string name="magic_brush_guide_pan">Kéo để di chuyển khi phóng to. Chụm để phóng to/thu nhỏ.</string>
+    <string name="magic_brush_guide_tip">Mẹo: dùng Undo/Redo nếu xoá nhầm.</string>
+    <string name="magic_brush_got_it">Đã hiểu!</string>
 </resources>

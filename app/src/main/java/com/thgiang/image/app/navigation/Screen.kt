@@ -8,4 +8,10 @@ sealed class Screen(val route: String) {
     data object Settings : Screen("settings")
     data object Premium : Screen("premium")
     data object Drafts : Screen("drafts")
+
+    // Studio module
+    data object StudioThemeplateList : Screen("studio_themeplate_list")
+    data object StudioEditor : Screen("studio_editor/{themeplateId}") {
+        fun createRoute(themeplateId: String) = "studio_editor/$themeplateId"
+    }
 }

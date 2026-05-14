@@ -34,6 +34,11 @@ object PortraitProcessor {
         blurRadius: Float
     ): Bitmap?
 
+    private external fun nativeApplySubjectBlur(
+        srcBitmap: Bitmap,
+        blurRadius: Float
+    ): Bitmap?
+
     suspend fun applyBlurOnly(
         bitmap: Bitmap,
         blurRadius: Float
@@ -45,6 +50,27 @@ object PortraitProcessor {
             if (job?.isActive != true) return@runCatching null
 
             val output = nativeApplyBlur(
+                srcBitmap = source,
+                blurRadius = blurRadius.coerceIn(0f, 25f)
+            )
+
+            if (!source.isRecycled) source.recycle()
+
+            output
+        }.onFailure { e -> ProcessorUtils.logOom(TAG, e) }.getOrNull()
+    }
+
+    suspend fun applySubjectBlur(
+        bitmap: Bitmap,
+        blurRadius: Float
+    ): Bitmap? = withContext(Dispatchers.Default) {
+        val job = coroutineContext[Job]
+        runCatching {
+            val source = bitmap.toArgbBitmap() ?: return@runCatching null
+
+            if (job?.isActive != true) return@runCatching null
+
+            val output = nativeApplySubjectBlur(
                 srcBitmap = source,
                 blurRadius = blurRadius.coerceIn(0f, 25f)
             )

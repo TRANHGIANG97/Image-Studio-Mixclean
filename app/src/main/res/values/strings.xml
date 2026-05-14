@@ -254,4 +254,5 @@
     <string name="cd_capture_photo">Capture Photo</string>
 
     
-    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>
+    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string>
+</resources>

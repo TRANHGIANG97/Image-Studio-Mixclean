@@ -51,6 +51,7 @@ import com.thgiang.image.feature.editor.ui.QuickEditActivity
 import com.thgiang.image.core.design.theme.HomeDarkStyle
 import com.thgiang.image.core.design.theme.ImageDesign
 import com.thgiang.image.feature.home.viewmodel.HomeViewModel
+import com.thgiang.image.studio.ui.home.StudioSection
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -71,6 +72,7 @@ fun HomeDashboardScreen(
     onOpenDrafts: () -> Unit = {},
     onNavigateToPicker: () -> Unit = {},
     onSimplePick: () -> Unit = {},
+    onOpenStudio: () -> Unit = {},
     pickedUriFromPicker: Uri? = null,
     onConsumePickedUri: () -> Unit = {},
     isDarkMode: Boolean = false,
@@ -232,6 +234,17 @@ fun HomeDashboardScreen(
                             if (isBusy || homeViewModel.isAdDismissedRecently()) return@PresetDock
                             homeViewModel.onPresetSelected(preset.style)
                             onNavigateToPicker()
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(HomeSpacing.section))
+
+                    StudioSection(
+                        useHomeDarkStyle = isHomeDarkStyle,
+                        onCategoryClick = { category ->
+                            if (category.id == "cosmetics") {
+                                onOpenStudio()
+                            }
                         }
                     )
 

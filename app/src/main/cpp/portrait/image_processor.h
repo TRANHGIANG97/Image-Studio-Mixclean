@@ -55,6 +55,28 @@ uint8_t* applyBlurOnly(const uint8_t* srcPixels,
  */
 void freeBlurResult(uint8_t* ptr);
 
+/**
+ * Alpha-aware subject blur: unpremultiply → blur RGBA → premultiply back.
+ * Prevents dark fringes at semi-transparent edges by operating on true
+ * (unpremultiplied) color values in linear space.
+ *
+ * @param srcPixels  RGBA_8888 source pixel buffer (foreground with alpha)
+ * @param width      Image width in pixels
+ * @param height     Image height in pixels
+ * @param blurRadius Blur radius [0..25]. 0 = copy without blur.
+ *
+ * @return Newly allocated RGBA_8888 buffer. Caller must free via freeSubjectBlurResult().
+ *         Returns nullptr on failure.
+ */
+uint8_t* applySubjectBlur(const uint8_t* srcPixels,
+                          int width, int height,
+                          float blurRadius);
+
+/**
+ * Frees a buffer returned by applySubjectBlur().
+ */
+void freeSubjectBlurResult(uint8_t* ptr);
+
 #ifdef __cplusplus
 }
 #endif

@@ -34,6 +34,11 @@ object ImageEffectProcessor {
         radius: Float
     ): Bitmap? = PortraitProcessor.applyBlurOnly(bitmap, radius)
 
+    suspend fun applySubjectBlur(
+        bitmap: Bitmap,
+        radius: Float
+    ): Bitmap? = PortraitProcessor.applySubjectBlur(bitmap, radius)
+
     // --- Portrait ---
     suspend fun applyPortrait(
         context: Context,

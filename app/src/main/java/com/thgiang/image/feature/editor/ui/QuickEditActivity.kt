@@ -50,6 +50,7 @@ import com.abizer_r.quickedit.ui.borderMode.BorderModeScreen
 import com.abizer_r.quickedit.ui.studioMode.StudioModeScreen
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundModeScreen
 import com.abizer_r.quickedit.ui.magicBrush.MagicBrushScreen
+import com.abizer_r.quickedit.ui.rotateMode.RotateModeScreen
 import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
@@ -271,6 +272,11 @@ fun QuickEditEditorNavigation(
         sharedEditorViewModel.updateStacksFromEditorState(state)
         navController.navigate(NavDestinations.MAGIC_BRUSH_SCREEN)
     } }
+    val goToRotateModeScreenNav = remember { { state: EditorScreenState ->
+        android.util.Log.d("RotateDebug", "goToRotateModeScreen: navigating")
+        sharedEditorViewModel.updateStacksFromEditorState(state)
+        navController.navigate(NavDestinations.ROTATE_SCREEN)
+    } }
 
     val onBackPressed = remember { {
         navController.navigateUp()
@@ -393,6 +399,7 @@ fun QuickEditEditorNavigation(
                     goToRemoveBgScreen = goToRemoveBgScreen,
                     goToBackgroundModeScreen = goToBackgroundModeScreen,
                     goToMagicBrushScreen = goToMagicBrushScreen,
+                    goToRotateModeScreen = goToRotateModeScreenNav,
                     goToMainScreen = {
                         sharedEditorViewModel.resetStacks()
                         (context as? android.app.Activity)?.finish()
@@ -529,6 +536,15 @@ fun QuickEditEditorNavigation(
                         popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable(route = NavDestinations.ROTATE_SCREEN) {
+            android.util.Log.d("RotateDebug", "ROTATE_SCREEN composable: rendering RotateModeScreen (QuickEditActivity)")
+            RotateModeScreen(
+                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                onBackPressed = onBackPressed,
+                onDoneClicked = onDoneClicked,
             )
         }
     }

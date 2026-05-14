@@ -19,6 +19,7 @@ sealed class BottomToolbarItem {
     object RemoveBg : BottomToolbarItem()
     object MagicBrush : BottomToolbarItem()
     object BackgroundMode : BottomToolbarItem()
+    object RotateItem : BottomToolbarItem()
     // ---------- EditorScreen Items - End
 
 

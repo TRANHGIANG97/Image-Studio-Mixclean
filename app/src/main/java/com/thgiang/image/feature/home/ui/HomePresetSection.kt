@@ -66,6 +66,11 @@ fun PresetDock(
         PresetItem("Liquid", PresetStyle.LIQUID_GLASS, locked = false, lightLabel = false),
         PresetItem("Sunset", PresetStyle.SUNSET_FILM, locked = false, lightLabel = true),
         PresetItem("Carbon X", PresetStyle.CARBON_X, locked = false, lightLabel = true),
+        PresetItem("Rose Garden", PresetStyle.ROSE_GARDEN, locked = false, lightLabel = true),
+        PresetItem("Peach Sky", PresetStyle.PEACH_SKY, locked = false, lightLabel = true),
+        PresetItem("Golden Sunset", PresetStyle.GOLDEN_SUNSET, locked = false, lightLabel = true),
+        PresetItem("Lavender Dawn", PresetStyle.LAVENDER_DAWN, locked = false, lightLabel = false),
+        PresetItem("Aqua Breeze", PresetStyle.AQUA_BREEZE, locked = false, lightLabel = true),
     )
 
     val isDark = useHomeDarkStyle || isSystemInDarkTheme()

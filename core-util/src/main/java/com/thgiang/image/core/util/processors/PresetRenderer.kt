@@ -15,8 +15,8 @@ object PresetRenderer {
 
         when (style) {
             PresetStyle.NOIR -> {
-                canvas.drawColor(Color.BLACK)
-                drawVignette(canvas, width, height, Color.DKGRAY)
+                canvas.drawColor(Color.parseColor("#FF0D1019"))
+                drawVignette(canvas, width, height, Color.parseColor("#FF000000"))
             }
             PresetStyle.CLEAN -> {
                 canvas.drawColor(Color.WHITE)
@@ -69,6 +69,62 @@ object PresetRenderer {
             PresetStyle.CARBON_X -> {
                 canvas.drawColor(Color.parseColor("#FF121212"))
                 drawVignette(canvas, width, height, Color.BLACK)
+            }
+            // ── New bright presets ──────────────────────────────────────────────
+            PresetStyle.ROSE_GARDEN -> {
+                val shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                    intArrayOf(
+                        Color.parseColor("#FF5B2C8F"),  // deep purple top-left
+                        Color.parseColor("#FFC0486C"),  // pink mid
+                        Color.parseColor("#FFF4A261")   // warm orange bottom-right
+                    ),
+                    null, Shader.TileMode.CLAMP)
+                paint.shader = shader
+                canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+            }
+            PresetStyle.PEACH_SKY -> {
+                val shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                    intArrayOf(
+                        Color.parseColor("#FF667eea"),  // blue top-left
+                        Color.parseColor("#FF764ba2"),  // purple mid
+                        Color.parseColor("#FFF093FB")   // pink bottom-right
+                    ),
+                    null, Shader.TileMode.CLAMP)
+                paint.shader = shader
+                canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+            }
+            PresetStyle.GOLDEN_SUNSET -> {
+                val shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                    intArrayOf(
+                        Color.parseColor("#FFFF6B6B"),  // coral top-left
+                        Color.parseColor("#FFFFE66D"),  // yellow mid
+                        Color.parseColor("#FF4ECDC4")   // teal bottom-right
+                    ),
+                    null, Shader.TileMode.CLAMP)
+                paint.shader = shader
+                canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+            }
+            PresetStyle.LAVENDER_DAWN -> {
+                val shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                    intArrayOf(
+                        Color.parseColor("#FFa18cd1"),  // lavender top-left
+                        Color.parseColor("#FFfbc2eb"),  // pink mid
+                        Color.parseColor("#FFf6d365")   // peach bottom-right
+                    ),
+                    null, Shader.TileMode.CLAMP)
+                paint.shader = shader
+                canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+            }
+            PresetStyle.AQUA_BREEZE -> {
+                val shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                    intArrayOf(
+                        Color.parseColor("#FF4facfe"),  // bright blue top-left
+                        Color.parseColor("#FF00f2fe"),  // cyan mid
+                        Color.parseColor("#FF43e97b")   // mint green bottom-right
+                    ),
+                    null, Shader.TileMode.CLAMP)
+                paint.shader = shader
+                canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
             }
         }
         return bitmap

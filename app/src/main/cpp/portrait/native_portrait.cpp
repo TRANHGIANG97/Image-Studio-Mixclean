@@ -180,6 +180,98 @@ Java_com_thgiang_image_core_util_processors_PortraitProcessor_nativeApplyBlur(
     return env->PopLocalFrame(outBitmap);
 }
 
+// ─── JNI — Subject Blur (alpha-aware) ─────────────────────────────────────────
+// package  : com.thgiang.image.core.util.processors
+// class    : PortraitProcessor
+// method   : nativeApplySubjectBlur
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_thgiang_image_core_util_processors_PortraitProcessor_nativeApplySubjectBlur(
+        JNIEnv*  env,
+        jclass   /*clazz*/,
+        jobject  srcBitmap,
+        jfloat   blurRadius) {
+
+    if (!env || !srcBitmap) {
+        LOGE("nativeApplySubjectBlur: null env or srcBitmap");
+        return nullptr;
+    }
+
+    if (env->PushLocalFrame(32) != 0) {
+        LOGE("nativeApplySubjectBlur: PushLocalFrame(32) failed");
+        return nullptr;
+    }
+
+    // Validate & lock source bitmap
+    AndroidBitmapInfo srcInfo;
+    if (!getBitmapInfo(env, srcBitmap, srcInfo, "src")) {
+        env->PopLocalFrame(nullptr);
+        return nullptr;
+    }
+    const int width  = static_cast<int>(srcInfo.width);
+    const int height = static_cast<int>(srcInfo.height);
+
+    BitmapGuard srcGuard(env, srcBitmap);
+    if (!srcGuard.isLocked()) {
+        LOGE("nativeApplySubjectBlur: lockPixels(src) failed");
+        env->PopLocalFrame(nullptr);
+        return nullptr;
+    }
+    const auto* srcPixels = static_cast<const uint8_t*>(srcGuard.getPixels());
+
+    // Process with alpha-aware blur
+    uint8_t* result = applySubjectBlur(srcPixels, width, height, blurRadius);
+    if (!result) {
+        LOGE("nativeApplySubjectBlur: applySubjectBlur returned nullptr");
+        env->PopLocalFrame(nullptr);
+        return nullptr;
+    }
+
+    // Create output Bitmap via JNI reflection
+    const jclass  bmpClass    = env->FindClass("android/graphics/Bitmap");
+    const jclass  cfgClass    = env->FindClass("android/graphics/Bitmap$Config");
+    if (checkException(env, "FindClass") || !bmpClass || !cfgClass) {
+        freeSubjectBlurResult(result);
+        env->PopLocalFrame(nullptr);
+        return nullptr;
+    }
+
+    const jmethodID createBitmap = env->GetStaticMethodID(
+        bmpClass, "createBitmap",
+        "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
+    const jfieldID  argb8888    = env->GetStaticFieldID(
+        cfgClass, "ARGB_8888", "Landroid/graphics/Bitmap$Config;");
+    if (checkException(env, "GetID") || !createBitmap || !argb8888) {
+        freeSubjectBlurResult(result);
+        env->PopLocalFrame(nullptr);
+        return nullptr;
+    }
+
+    const jobject config    = env->GetStaticObjectField(cfgClass, argb8888);
+    const jobject outBitmap = env->CallStaticObjectMethod(
+        bmpClass, createBitmap, width, height, config);
+    if (checkException(env, "createBitmap") || !outBitmap) {
+        freeSubjectBlurResult(result);
+        env->PopLocalFrame(nullptr);
+        return nullptr;
+    }
+
+    // Copy native buffer → Bitmap pixels
+    void* outPixels = nullptr;
+    if (AndroidBitmap_lockPixels(env, outBitmap, &outPixels) != ANDROID_BITMAP_RESULT_SUCCESS) {
+        LOGE("nativeApplySubjectBlur: lockPixels(out) failed");
+        freeSubjectBlurResult(result);
+        env->PopLocalFrame(nullptr);
+        return nullptr;
+    }
+    std::memcpy(outPixels, result, static_cast<size_t>(width) * height * 4u);
+    AndroidBitmap_unlockPixels(env, outBitmap);
+
+    freeSubjectBlurResult(result);
+
+    return env->PopLocalFrame(outBitmap);
+}
+
 // ─── JNI — Portrait ───────────────────────────────────────────────────────────
 // JNI name must match:
 //   package  : com.thgiang.image.core.util.processors

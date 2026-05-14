@@ -41,6 +41,7 @@ import com.abizer_r.quickedit.ui.mainScreen.MainScreen
 import com.abizer_r.quickedit.ui.studioMode.StudioModeScreen
 import com.abizer_r.quickedit.ui.textMode.TextModeScreen
 import com.abizer_r.quickedit.ui.magicBrush.MagicBrushScreen
+import com.abizer_r.quickedit.ui.rotateMode.RotateModeScreen
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
 import com.abizer_r.quickedit.utils.other.anim.enterTransition
 import com.abizer_r.quickedit.utils.other.anim.exitTransition
@@ -100,9 +101,16 @@ fun QuickEditNavigation(
         sharedEditorViewModel.updateStacksFromEditorState(finalEditorState)
         navController.navigate(NavDestinations.MAGIC_BRUSH_SCREEN)
     }}
+    val goToRotateModeScreenLambda = remember<(EditorScreenState) -> Unit> {{ finalEditorState ->
+        android.util.Log.d("RotateDebug", "goToRotateModeScreenLambda: updating stacks")
+        sharedEditorViewModel.updateStacksFromEditorState(finalEditorState)
+        android.util.Log.d("RotateDebug", "goToRotateModeScreenLambda: navigating to ${NavDestinations.ROTATE_SCREEN}")
+        navController.navigate(NavDestinations.ROTATE_SCREEN)
+    }}
 
 
     val goToMainScreenLambda = remember<() -> Unit> {{
+        android.util.Log.d("RotateDebug", "goToMainScreenLambda: resetting stacks and navigating to main")
         sharedEditorViewModel.resetStacks()
         sharedEditorViewModel.useTransition = true
         navController.navigateUp()
@@ -110,12 +118,15 @@ fun QuickEditNavigation(
 
 
     val onBackPressedLambda = remember<() -> Unit> {{
+        android.util.Log.d("RotateDebug", "onBackPressedLambda: navigating up, current back stack: ${navController.currentBackStackEntry?.destination?.route}")
         navController.navigateUp()
     }}
-    val onDoneClickedLambda = remember<(Bitmap) -> Unit> {{
+    val onDoneClickedLambda = remember<(Bitmap) -> Unit> {{ resultBitmap ->
+        android.util.Log.d("RotateDebug", "onDoneClickedLambda: adding bitmap to stack")
         sharedEditorViewModel.addBitmapToStack(
-            bitmap = it.copy(Bitmap.Config.ARGB_8888, false),
+            bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
         )
+        android.util.Log.d("RotateDebug", "onDoneClickedLambda: navigating back to EDITOR_SCREEN")
         navController.navigate(
             NavDestinations.EDITOR_SCREEN,
             navOptions = NavOptions.Builder()
@@ -182,6 +193,7 @@ fun QuickEditNavigation(
                     navController.navigate(NavDestinations.BACKGROUND_MODE_SCREEN)
                 },
                 goToMagicBrushScreen = goToMagicBrushScreenLambda,
+                goToRotateModeScreen = goToRotateModeScreenLambda,
                 goToMainScreen = goToMainScreenLambda
             )
 
@@ -283,6 +295,15 @@ fun QuickEditNavigation(
 
         composable(route = NavDestinations.STUDIO_MODE_SCREEN) { entry ->
             StudioModeScreen(
+                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                onBackPressed = onBackPressedLambda,
+                onDoneClicked = onDoneClickedLambda,
+            )
+        }
+
+        composable(route = NavDestinations.ROTATE_SCREEN) {
+            android.util.Log.d("RotateDebug", "ROTATE_SCREEN composable: rendering RotateModeScreen")
+            RotateModeScreen(
                 immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
                 onBackPressed = onBackPressedLambda,
                 onDoneClicked = onDoneClickedLambda,

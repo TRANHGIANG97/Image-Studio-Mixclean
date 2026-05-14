@@ -7,7 +7,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import kotlin.math.min
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -25,14 +27,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -91,8 +99,9 @@ fun BackgroundModeScreen(
         val (topToolBar, mainImage, bottomToolbar, overlay) = createRefs()
 
         // Main Image Preview
-        val currentBitmap = state.processedBitmap ?: immutableBitmap.bitmap
-        val aspectRatio = currentBitmap.width.toFloat() / currentBitmap.height.toFloat()
+        val aspectRatio = immutableBitmap.bitmap.width.toFloat() / immutableBitmap.bitmap.height.toFloat()
+        var previewPxSize by remember { mutableStateOf(IntSize.Zero) }
+        val density = LocalDensity.current
 
         Box(
             modifier = Modifier
@@ -105,15 +114,66 @@ fun BackgroundModeScreen(
                     height = Dimension.wrapContent
                 }
                 .padding(top = topToolbarHeight, bottom = 120.dp)
-                .aspectRatio(aspectRatio),
+                .aspectRatio(aspectRatio)
+                .onSizeChanged { previewPxSize = it },
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                modifier = Modifier.fillMaxSize(),
-                bitmap = currentBitmap.asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.Fit
-            )
+            // Background layer (fixed)
+            val bgBitmap = state.backgroundBitmap
+            if (bgBitmap != null) {
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    bitmap = bgBitmap.asImageBitmap(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                // Fallback: show original image before any background is set
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    bitmap = immutableBitmap.bitmap.asImageBitmap(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            // Foreground overlay (draggable on top of background)
+            val fgBitmap = state.foregroundBitmap
+            if (fgBitmap != null && bgBitmap != null) {
+                val compScale = min(
+                    bgBitmap.width.toFloat() / fgBitmap.width,
+                    bgBitmap.height.toFloat() / fgBitmap.height
+                )
+                val drawW = fgBitmap.width * compScale
+                val drawH = fgBitmap.height * compScale
+
+                Image(
+                    bitmap = fgBitmap.asImageBitmap(),
+                    modifier = Modifier
+                        .offset {
+                            val pxPerUnit = if (previewPxSize.width > 0)
+                                previewPxSize.width.toFloat() / bgBitmap.width else 0f
+                            IntOffset(
+                                x = (((bgBitmap.width - drawW) / 2f + state.foregroundOffsetX) * pxPerUnit).toInt(),
+                                y = (((bgBitmap.height - drawH) / 2f + state.foregroundOffsetY) * pxPerUnit).toInt()
+                            )
+                        }
+                        .size(with(density) { drawW.toDp() }, with(density) { drawH.toDp() })
+                        .pointerInput(fgBitmap) {
+                            detectDragGestures { _, dragAmount ->
+                                if (previewPxSize.width > 0) {
+                                    val pxPerUnit = previewPxSize.width.toFloat() / bgBitmap.width
+                                    viewModel.updateForegroundOffset(
+                                        dragAmount.x / pxPerUnit,
+                                        dragAmount.y / pxPerUnit
+                                    )
+                                }
+                            }
+                        },
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
+                )
+            }
 
             if (state.isProcessing) {
                 Box(
@@ -153,7 +213,7 @@ fun BackgroundModeScreen(
                     textAlign = TextAlign.Center
                 )
                 IconButton(onClick = {
-                    state.processedBitmap?.let { onDoneClicked(it) }
+                    viewModel.getFinalBitmap()?.let { onDoneClicked(it) }
                 }) {
                     Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 }
@@ -367,28 +427,34 @@ fun GradientSelector(
     onGradientSelected: (IntArray) -> Unit
 ) {
     val gradients = listOf(
-        // Sunrise
-        intArrayOf(AndroidColor.parseColor("#FF512F"), AndroidColor.parseColor("#DD2476")),
-        // Ocean
-        intArrayOf(AndroidColor.parseColor("#2193b0"), AndroidColor.parseColor("#6dd5ed")),
-        // Aurora
-        intArrayOf(AndroidColor.parseColor("#00b09b"), AndroidColor.parseColor("#96c93d")),
-        // Dusk
-        intArrayOf(AndroidColor.parseColor("#a8c0ff"), AndroidColor.parseColor("#3f2b96")),
-        // Rose
-        intArrayOf(AndroidColor.parseColor("#e91e63"), AndroidColor.parseColor("#f06292")),
-        // Cyber
-        intArrayOf(AndroidColor.parseColor("#8E2DE2"), AndroidColor.parseColor("#4A00E0")),
-        // Deep Sea
-        intArrayOf(AndroidColor.parseColor("#2C3E50"), AndroidColor.parseColor("#4CA1AF")),
-        // Lush
-        intArrayOf(AndroidColor.parseColor("#56ab2f"), AndroidColor.parseColor("#a8e063")),
-        // Kye Meh
-        intArrayOf(AndroidColor.parseColor("#833ab4"), AndroidColor.parseColor("#fd1d1d"), AndroidColor.parseColor("#fcb045")),
-        // Royal Blue
-        intArrayOf(AndroidColor.parseColor("#24c6dc"), AndroidColor.parseColor("#514a9d")),
-        // Soft Grass
-        intArrayOf(AndroidColor.parseColor("#c1dfc4"), AndroidColor.parseColor("#deecdd"))
+        // Peach Sky — blue → purple → pink
+        intArrayOf(0xFF667EEA.toInt(), 0xFF764BA2.toInt(), 0xFFF093FB.toInt()),
+        // Rose Garden — deep purple → pink → orange
+        intArrayOf(0xFF5B2C8F.toInt(), 0xFFC0486C.toInt(), 0xFFF4A261.toInt()),
+        // Golden Sunset — coral → yellow → teal
+        intArrayOf(0xFFFF6B6B.toInt(), 0xFFFFE66D.toInt(), 0xFF4ECDC4.toInt()),
+        // Lavender Dawn — lavender → pink → peach
+        intArrayOf(0xFFA18CD1.toInt(), 0xFFFBC2EB.toInt(), 0xFFF6D365.toInt()),
+        // Aqua Breeze — bright blue → cyan → mint
+        intArrayOf(0xFF4FACFE.toInt(), 0xFF00F2FE.toInt(), 0xFF43E97B.toInt()),
+        // Sunset Blaze — orange → pink → magenta
+        intArrayOf(0xFFFC4A1A.toInt(), 0xFFF7B733.toInt(), 0xFFF093FB.toInt()),
+        // Twilight — indigo → purple → warm yellow
+        intArrayOf(0xFF4158D0.toInt(), 0xFFC850C0.toInt(), 0xFFFFCC70.toInt()),
+        // Strawberry — red → pink → sky blue
+        intArrayOf(0xFFFF0844.toInt(), 0xFFFFB199.toInt(), 0xFF00B4DB.toInt()),
+        // Emerald — forest green → lime → yellow
+        intArrayOf(0xFF11998E.toInt(), 0xFF38EF7D.toInt(), 0xFFF6D365.toInt()),
+        // Tropical — bright cyan → blue → deep navy
+        intArrayOf(0xFF00D2FF.toInt(), 0xFF3A7BD5.toInt(), 0xFF003973.toInt()),
+        // Sakura — pink → lavender → sky blue
+        intArrayOf(0xFFFF9A9E.toInt(), 0xFFFECFEF.toInt(), 0xFFA8EDEA.toInt()),
+        // Amber Glow — golden amber → orange → coral
+        intArrayOf(0xFFFFD93D.toInt(), 0xFFFF6B35.toInt(), 0xFFFF3B3B.toInt()),
+        // Oceanic — deep blue → teal → cyan
+        intArrayOf(0xFF0F2027.toInt(), 0xFF203A43.toInt(), 0xFF2C5364.toInt()),
+        // Minty — soft teal → mint → pale green
+        intArrayOf(0xFF11998E.toInt(), 0xFFA8E6CF.toInt(), 0xFFDCEDC1.toInt())
     )
 
     LazyRow(
@@ -402,7 +468,11 @@ fun GradientSelector(
                     .size(56.dp)
                     .clip(CircleShape)
                     .background(
-                        Brush.verticalGradient(grad.map { Color(it) })
+                        Brush.linearGradient(
+                            colors = grad.map { Color(it) },
+                            start = Offset.Zero,
+                            end = Offset.Infinite
+                        )
                     )
                     .border(
                         width = 2.dp,
@@ -441,7 +511,7 @@ fun PresetSelector(
                         .clip(RoundedCornerShape(12.dp))
                         .background(
                             when (style) {
-                                PresetStyle.NOIR -> Color.Black
+                                PresetStyle.NOIR -> Color(0xFF0D1019)
                                 PresetStyle.CLEAN -> Color.White
                                 PresetStyle.AURORA -> Color(0xFF1A1C3A)
                                 PresetStyle.DUOTONE -> Color(0xFF5F4B8B)
@@ -449,6 +519,11 @@ fun PresetSelector(
                                 PresetStyle.LIQUID_GLASS -> Color(0xFFF6F4FF)
                                 PresetStyle.SUNSET_FILM -> Color(0xFF8A3E6B)
                                 PresetStyle.CARBON_X -> Color(0xFF0A0A0D)
+                                PresetStyle.ROSE_GARDEN -> Color(0xFF8B3A8F)
+                                PresetStyle.PEACH_SKY -> Color(0xFF764ba2)
+                                PresetStyle.GOLDEN_SUNSET -> Color(0xFFE86868)
+                                PresetStyle.LAVENDER_DAWN -> Color(0xFFd4a5d4)
+                                PresetStyle.AQUA_BREEZE -> Color(0xFF4facfe)
                             }
                         )
                         .border(
@@ -459,7 +534,8 @@ fun PresetSelector(
                     contentAlignment = Alignment.Center
                 ) {
                     if (isSelected) {
-                        Icon(Icons.Default.Check, contentDescription = null, tint = if (style == PresetStyle.CLEAN) Color.Black else Color.White)
+                        val isLight = style == PresetStyle.CLEAN || style == PresetStyle.LIQUID_GLASS || style == PresetStyle.LAVENDER_DAWN
+                        Icon(Icons.Default.Check, contentDescription = null, tint = if (isLight) Color.Black else Color.White)
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))

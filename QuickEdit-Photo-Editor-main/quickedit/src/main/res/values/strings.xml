@@ -90,4 +90,23 @@
     <string name="error_apply_background">Failed to apply background</string>
     <string name="error_auto_removal_failed">Auto background removal failed: %1$s</string>
     <string name="error_recycled_bitmap">Bitmap already recycled</string>
+
+    <!-- Rotate/Flip -->
+    <string name="rotate">Rotate</string>
+    <string name="rotate_left">Rot L</string>
+    <string name="rotate_right">Rot R</string>
+    <string name="flip_horizontal">Flip H</string>
+    <string name="flip_vertical">Flip V</string>
+
+    <!-- Magic Brush Tooltips -->
+    <string name="magic_brush_hint_smart_erase">Tap the area you want to erase</string>
+    <string name="magic_brush_hint_brush_erase">Drag to manually erase areas</string>
+    <string name="magic_brush_hint_blur">Drag to blur/pixelate areas</string>
+    <string name="magic_brush_guide_title">How to use Magic Brush</string>
+    <string name="magic_brush_guide_wand">Tap on an object to automatically erase it. Adjust Tolerance to control the selection range.</string>
+    <string name="magic_brush_guide_brush">Drag to manually erase specific areas. Adjust Size and Offset for precision.</string>
+    <string name="magic_brush_guide_blur">Drag to apply mosaic blur effect to selected areas.</string>
+    <string name="magic_brush_guide_pan">Drag to move around when zoomed in. Pinch to zoom in/out.</string>
+    <string name="magic_brush_guide_tip">Tip: use Undo/Redo if you make a mistake.</string>
+    <string name="magic_brush_got_it">Got it!</string>
 </resources>

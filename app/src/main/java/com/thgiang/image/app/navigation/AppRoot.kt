@@ -80,6 +80,9 @@ import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.thgiang.image.feature.remove.ui.BatchRemoveScreen
 import com.thgiang.image.feature.remove.ui.MultiImagePickerScreen
 import com.thgiang.image.feature.settings.ui.SettingsScreen
+import com.thgiang.image.studio.ui.list.ThemeplateListScreen
+import com.thgiang.image.studio.ui.editor.ThemeplateEditorScreen
+import com.thgiang.image.studio.model.StudioThemeplates
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -458,6 +461,9 @@ fun AppRoot(
                                 navController.navigate(Screen.SingleImagePicker.route + "?autoRemove=false")
                             }
                         },
+                        onOpenStudio = {
+                            navController.navigate(Screen.StudioThemeplateList.route)
+                        },
                         pickedUriFromPicker = pickedUri,
                         onConsumePickedUri = { 
                             backStackEntry.savedStateHandle.remove<android.net.Uri>("picked_uri")
@@ -574,6 +580,32 @@ fun AppRoot(
                             )
                         }
                     )
+                }
+                composable(Screen.StudioThemeplateList.route) {
+                    ThemeplateListScreen(
+                        onBack = { navController.popBackStack() },
+                        onThemeplateSelected = { themeplate ->
+                            navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
+                        }
+                    )
+                }
+                composable(
+                    route = Screen.StudioEditor.route,
+                    arguments = listOf(
+                        navArgument("themeplateId") {
+                            type = NavType.StringType
+                        }
+                    )
+                ) {
+                    val themeplateId = it.arguments?.getString("themeplateId") ?: ""
+                    val themeplate = StudioThemeplates.findById(themeplateId)
+                    if (themeplate != null) {
+                        ThemeplateEditorScreen(
+                            themeplate = themeplate,
+                            onBack = { navController.popBackStack() },
+                            onDone = { /* Handle export / save */ }
+                        )
+                    }
                 }
             }
         }

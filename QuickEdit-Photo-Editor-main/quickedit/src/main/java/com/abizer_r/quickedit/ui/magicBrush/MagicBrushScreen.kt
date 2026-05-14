@@ -16,9 +16,13 @@ import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.PanTool
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -52,7 +56,7 @@ import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MagicBrushScreen(
     immutableBitmap: ImmutableBitmap,
@@ -66,12 +70,14 @@ fun MagicBrushScreen(
     val isProcessing by viewModel.isProcessing.collectAsStateWithLifecycle()
     val canUndo by viewModel.canUndo.collectAsStateWithLifecycle()
     val canRedo by viewModel.canRedo.collectAsStateWithLifecycle()
+    val showGuide by viewModel.showGuide.collectAsStateWithLifecycle()
 
     val density = LocalDensity.current
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
-    
+    var showGuideDialog by remember { mutableStateOf(false) }
+
     var cursorOffset by remember { mutableFloatStateOf(35f) }
     var brushSize by remember { mutableFloatStateOf(13f) }
 
@@ -86,6 +92,14 @@ fun MagicBrushScreen(
     LaunchedEffect(immutableBitmap) {
         viewModel.setBitmapCache(BitmapCache(context))
         viewModel.setInitialBitmap(immutableBitmap.bitmap)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.checkFirstLaunch()
+    }
+
+    LaunchedEffect(showGuide) {
+        if (showGuide) showGuideDialog = true
     }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -103,10 +117,28 @@ fun MagicBrushScreen(
                 IconButton(onClick = onBackPressed) {
                     Icon(Icons.Default.Close, contentDescription = null)
                 }
-                Text(
-                    text = stringResource(R.string.magic_brush),
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.magic_brush),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(
+                        onClick = { viewModel.dismissGuide(); showGuideDialog = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = "Help",
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
                 TextButton(
                     onClick = { currentBitmap?.let { onDoneClicked(it) } },
                     enabled = !isProcessing
@@ -340,6 +372,24 @@ fun MagicBrushScreen(
                     }
                 }
 
+                // Hint text for current tool
+                if (selectedTool != MagicBrushTool.PAN) {
+                    Text(
+                        text = when (selectedTool) {
+                            MagicBrushTool.SMART_ERASE -> stringResource(R.string.magic_brush_hint_smart_erase)
+                            MagicBrushTool.BRUSH_ERASE -> stringResource(R.string.magic_brush_hint_brush_erase)
+                            MagicBrushTool.BLUR -> stringResource(R.string.magic_brush_hint_blur)
+                            else -> ""
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp, vertical = 2.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Start
+                    )
+                }
+
                 // Tool Switcher
                 Row(
                     modifier = Modifier.fillMaxWidth().height(72.dp),
@@ -384,7 +434,150 @@ fun MagicBrushScreen(
         }
     }
 
+    // Guide BottomSheet
+    if (showGuideDialog) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                viewModel.dismissGuide()
+                showGuideDialog = false
+            },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        ) {
+            GuideContent(
+                onDismiss = {
+                    viewModel.dismissGuide()
+                    showGuideDialog = false
+                }
+            )
+        }
+    }
+
     BackHandler { onBackPressed() }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GuideContent(onDismiss: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        // Title
+        Text(
+            text = stringResource(R.string.magic_brush_guide_title),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Start
+        )
+
+        HorizontalDivider(color =MaterialTheme.colorScheme.outlineVariant)
+
+        // Magic Wand guide
+        GuideRow(
+            icon = { Icon(ImageVector.vectorResource(id = R.drawable.ic_eraser), contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = stringResource(R.string.label_magic_wand),
+            description = stringResource(R.string.magic_brush_guide_wand)
+        )
+
+        // Erase Brush guide
+        GuideRow(
+            icon = { Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = stringResource(R.string.label_erase_brush),
+            description = stringResource(R.string.magic_brush_guide_brush)
+        )
+
+        // Blur guide
+        GuideRow(
+            icon = { Icon(Icons.Default.Grain, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = stringResource(R.string.effect_blur),
+            description = stringResource(R.string.magic_brush_guide_blur)
+        )
+
+        // Pan guide
+        GuideRow(
+            icon = { Icon(Icons.Outlined.PanTool, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = stringResource(R.string.pan),
+            description = stringResource(R.string.magic_brush_guide_pan)
+        )
+
+        HorizontalDivider(color =MaterialTheme.colorScheme.outlineVariant)
+
+        // Tip
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.tertiaryContainer, shape = RoundedCornerShape(12.dp))
+                .padding(12.dp)
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.Undo,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.magic_brush_guide_tip),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        }
+
+        // Got it button
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.magic_brush_got_it),
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun GuideRow(
+    icon: @Composable () -> Unit,
+    title: String,
+    description: String
+) {
+    Row(
+        verticalAlignment = Alignment.Top,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            icon()
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
+    }
 }
 
 @Composable

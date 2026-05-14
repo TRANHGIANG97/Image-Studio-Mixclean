@@ -136,7 +136,13 @@
       "PowerShell(.\\\\gradlew.bat :app:compileDebugKotlin 2>&1 | Select-Object -Last 10)",
       "PowerShell(.\\\\gradlew.bat :quickedit:compileDebugKotlin 2>&1 | Select-Object -Last 10)",
       "PowerShell(.\\\\gradlew.bat :quickedit:compileDebugKotlin 2>&1)",
-      "Bash(./gradlew :app:compileDebugKotlin :app:externalNativeBuildDebug)"
+      "Bash(./gradlew :app:compileDebugKotlin :app:externalNativeBuildDebug)",
+      "Bash(./gradlew projects *)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(gradlew.bat :quickedit:compileDebugKotlin)",
+      "Bash(Get-Content *)",
+      "Bash(./gradlew :studio:assembleDebug)",
+      "PowerShell(New-Item *)"
     ]
   }
 }

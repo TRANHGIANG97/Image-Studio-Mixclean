@@ -378,7 +378,7 @@ class StudioModeViewModel @Inject constructor(
                     }
                 }
                 StudioEffect.BLUR_SUBJECT -> {
-                    val blurredFg = ImageEffectProcessor.applyBlur(pf, mappedBlurRadius)
+                    val blurredFg = ImageEffectProcessor.applySubjectBlur(pf, mappedBlurRadius)
                     if (blurredFg != null) {
                         ImageEffectProcessor.applyPortraitCached(
                             src, blurredFg, blurRadius = 0f, darkenAlpha = 0f, vignette = false
@@ -442,7 +442,7 @@ class StudioModeViewModel @Inject constructor(
             withContext(Dispatchers.Default) {
                 for (i in blurLevels.indices) {
                     if (!isActive) break
-                    subjectBlurCache[i] = ImageEffectProcessor.applyBlur(src, blurLevels[i].toFloat())
+                    subjectBlurCache[i] = ImageEffectProcessor.applySubjectBlur(src, blurLevels[i].toFloat())
                 }
             }
             subjectCacheReadyFor = if (isActive) src else null
@@ -460,7 +460,7 @@ class StudioModeViewModel @Inject constructor(
             )
             StudioEffect.BLUR -> ImageEffectProcessor.applyBlur(original, intensity * 25f)
             StudioEffect.BLUR_SUBJECT -> {
-                val blurredFg = ImageEffectProcessor.applyBlur(fg, intensity * 25f)
+                val blurredFg = ImageEffectProcessor.applySubjectBlur(fg, intensity * 25f)
                 if (blurredFg != null) {
                     ImageEffectProcessor.applyPortraitCached(
                         original, blurredFg, blurRadius = 0f, darkenAlpha = 0f, vignette = false

@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -52,6 +53,8 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.theme.QuickEditTheme
 import com.abizer_r.quickedit.utils.ImmutableList
@@ -89,6 +92,7 @@ fun EditorScreen(
     goToBackgroundModeScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToRemoveBgScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToMagicBrushScreen: (finalEditorState: EditorScreenState) -> Unit = { },
+    goToRotateModeScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToMainScreen: () -> Unit,
     isPremium: Boolean = false,
     onSaveDraftClicked: (Bitmap) -> Unit = {}
@@ -144,6 +148,11 @@ fun EditorScreen(
                     BottomToolbarItem.BackgroundMode -> {
                         goToBackgroundModeScreen(state)
                     }
+                    BottomToolbarItem.RotateItem -> {
+                        android.util.Log.d("RotateDebug", "RotateItem clicked, navigating to rotate screen")
+                        goToRotateModeScreen(state)
+                        android.util.Log.d("RotateDebug", "goToRotateModeScreen called")
+                    }
                     else -> {}
                 }
             }
@@ -195,11 +204,25 @@ private fun EditorScreenLayout(
 
     LaunchedEffect(key1 = Unit) { toolbarVisible = true }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                toolbarVisible = true
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     val mOnBottomToolbarEvent = remember { { toolbarEvent: BottomToolbarEvent ->
         if (toolbarEvent is BottomToolbarEvent.OnItemClicked) {
+            android.util.Log.d("RotateDebug", "Toolbar item clicked: ${toolbarEvent.toolbarItem}")
             coroutineScope.launch(Dispatchers.Main) {
                 toolbarVisible = false
+                android.util.Log.d("RotateDebug", "Toolbar hidden, waiting ${AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST}ms")
                 delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
+                android.util.Log.d("RotateDebug", "Delay done, calling onBottomToolbarEvent")
                 onBottomToolbarEvent(toolbarEvent)
             }
         }

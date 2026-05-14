@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Studio Ảnh Sản Phẩm AI</string>
+    <string name="studio_category_electronics">Điện Tử</string>
+    <string name="studio_category_fashion">Thời Trang</string>
+    <string name="studio_category_cosmetics">Mỹ Phẩm</string>
+    <string name="studio_category_home">Nhà Cửa &amp; Đời Sống</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Studio Mỹ Phẩm 1</string>
+    <string name="themeplate_cosmetics_02">Studio Mỹ Phẩm 2</string>
+    <string name="themeplate_cosmetics_03">Studio Mỹ Phẩm 3</string>
+    <string name="themeplate_cosmetics_04">Studio Mỹ Phẩm 4</string>
+    <string name="themeplate_cosmetics_05">Studio Mỹ Phẩm 5</string>
+    <string name="themeplate_cosmetics_06">Studio Mỹ Phẩm 6</string>
+    <string name="themeplate_cosmetics_07">Studio Mỹ Phẩm 7</string>
+    <string name="themeplate_cosmetics_08">Studio Mỹ Phẩm 8</string>
+    <string name="themeplate_cosmetics_09">Studio Mỹ Phẩm 9</string>
+    <string name="studio_back">Quay lại</string>
+    <string name="studio_done">Xong</string>
+    <string name="studio_tap_to_pick_product">Chạm để chọn ảnh sản phẩm</string>
+    <string name="studio_tool_replace">Thay ảnh</string>
+    <string name="studio_tool_layout">Bố cục</string>
+    <string name="studio_tool_shadow">Đổ bóng</string>
+    <string name="studio_tool_transparency">Độ mờ</string>
+    <string name="studio_tool_crop">Cắt</string>
+    <string name="studio_tool_rotateflip">Xoay/lật</string>
+    <string name="studio_replace_hint">Chạm Thay ảnh để chọn ảnh sản phẩm từ thư viện</string>
+    <string name="studio_layout_hint">Kéo để di chuyển · Chụm để phóng to · Xoay bằng 2 ngón</string>
+    <string name="studio_shadow_label">Đổ bóng: %1$d%%</string>
+    <string name="studio_transparency_label">Độ mờ: %1$d%%</string>
+    <string name="studio_crop_label">Tỷ lệ khung hình</string>
+    <string name="studio_processing">Đang xóa nền…</string>
+    <string name="studio_export_success">Đã lưu vào thư viện</string>
+    <string name="studio_export_error">Xuất thất bại</string>
+    <string name="studio_layout_rotate_left">Xoay trái</string>
+    <string name="studio_layout_rotate_right">Xoay phải</string>
+    <string name="studio_layout_flip_horizontal">Lật ngang</string>
+    <string name="studio_layout_flip_vertical">Lật dọc</string>
+</resources>

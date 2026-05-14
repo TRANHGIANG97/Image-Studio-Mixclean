@@ -94,6 +94,37 @@ class DefaultBackgroundGenerator : BackgroundGenerator {
                     paint.color = 0x5244E8FF.toInt()
                     canvas.drawRect(width * 0.65f, 0f, width * 0.73f, height.toFloat(), paint)
                 }
+                PresetStyle.ROSE_GARDEN -> {
+                    paint.shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                        intArrayOf(0xFF5B2C8F.toInt(), 0xFFC0486C.toInt(), 0xFFF4A261.toInt()),
+                        null, Shader.TileMode.CLAMP)
+                    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+                    drawDiagonalLines(canvas, width, height, 0x1FFFFFFF.toInt(), 1.5f)
+                }
+                PresetStyle.PEACH_SKY -> {
+                    paint.shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                        intArrayOf(0xFF667EEA.toInt(), 0xFF764BA2.toInt(), 0xFFF093FB.toInt()),
+                        null, Shader.TileMode.CLAMP)
+                    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+                }
+                PresetStyle.GOLDEN_SUNSET -> {
+                    paint.shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                        intArrayOf(0xFFFF6B6B.toInt(), 0xFFFFE66D.toInt(), 0xFF4ECDC4.toInt()),
+                        null, Shader.TileMode.CLAMP)
+                    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+                }
+                PresetStyle.LAVENDER_DAWN -> {
+                    paint.shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                        intArrayOf(0xFFA18CD1.toInt(), 0xFFFBC2EB.toInt(), 0xFFF6D365.toInt()),
+                        null, Shader.TileMode.CLAMP)
+                    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+                }
+                PresetStyle.AQUA_BREEZE -> {
+                    paint.shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(),
+                        intArrayOf(0xFF4FACFE.toInt(), 0xFF00F2FE.toInt(), 0xFF43E97B.toInt()),
+                        null, Shader.TileMode.CLAMP)
+                    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+                }
             }
             result
         }

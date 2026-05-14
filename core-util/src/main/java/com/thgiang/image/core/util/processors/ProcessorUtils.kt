@@ -107,28 +107,38 @@ object ProcessorUtils {
     }
 
     fun compositeForegroundOverBackground(background: Bitmap, foreground: Bitmap): Bitmap {
+        return compositeForegroundOverBackground(background, foreground, 0f, 0f)
+    }
+
+    fun compositeForegroundOverBackground(
+        background: Bitmap, foreground: Bitmap,
+        offsetX: Float, offsetY: Float
+    ): Bitmap {
         val result = Bitmap.createBitmap(background.width, background.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-        
+
         canvas.drawBitmap(background, 0f, 0f, paint)
-        
+
         if (foreground.width != background.width || foreground.height != background.height) {
             val scaleX = background.width.toFloat() / foreground.width
             val scaleY = background.height.toFloat() / foreground.height
             val scale = minOf(scaleX, scaleY)
-            val dx = (background.width - foreground.width * scale) / 2
-            val dy = (background.height - foreground.height * scale) / 2
-            
+            val drawW = foreground.width * scale
+            val drawH = foreground.height * scale
+            // Base centering + user offset
+            val dx = (background.width - drawW) / 2 + offsetX
+            val dy = (background.height - drawH) / 2 + offsetY
+
             canvas.save()
             canvas.translate(dx, dy)
             canvas.scale(scale, scale)
             canvas.drawBitmap(foreground, 0f, 0f, paint)
             canvas.restore()
         } else {
-            canvas.drawBitmap(foreground, 0f, 0f, paint)
+            canvas.drawBitmap(foreground, offsetX, offsetY, paint)
         }
-        
+
         return result
     }
 

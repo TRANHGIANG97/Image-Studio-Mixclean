@@ -13,6 +13,7 @@ object EditorScreenUtils {
             BottomToolbarItem.MagicBrush,
             BottomToolbarItem.RemoveBg,
 
+            BottomToolbarItem.RotateItem,
             BottomToolbarItem.StudioMode,
             BottomToolbarItem.BorderMode,
             BottomToolbarItem.BackgroundMode

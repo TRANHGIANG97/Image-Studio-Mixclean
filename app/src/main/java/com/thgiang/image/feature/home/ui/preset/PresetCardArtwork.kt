@@ -48,6 +48,26 @@ internal fun PresetCardArtwork(
         PresetStyle.CARBON_X -> Brush.linearGradient(
             colors = listOf(Color(0xFF0A0A0D), Color(0xFF181A20), Color(0xFF101116))
         )
+        PresetStyle.ROSE_GARDEN -> Brush.linearGradient(
+            colors = listOf(Color(0xFF5B2C8F), Color(0xFFC0486C), Color(0xFFF4A261)),
+            start = Offset.Zero, end = Offset.Infinite
+        )
+        PresetStyle.PEACH_SKY -> Brush.linearGradient(
+            colors = listOf(Color(0xFF667eea), Color(0xFF764ba2), Color(0xFFF093FB)),
+            start = Offset.Zero, end = Offset.Infinite
+        )
+        PresetStyle.GOLDEN_SUNSET -> Brush.linearGradient(
+            colors = listOf(Color(0xFFFF6B6B), Color(0xFFFFE66D), Color(0xFF4ECDC4)),
+            start = Offset.Zero, end = Offset.Infinite
+        )
+        PresetStyle.LAVENDER_DAWN -> Brush.linearGradient(
+            colors = listOf(Color(0xFFa18cd1), Color(0xFFfbc2eb), Color(0xFFf6d365)),
+            start = Offset.Zero, end = Offset.Infinite
+        )
+        PresetStyle.AQUA_BREEZE -> Brush.linearGradient(
+            colors = listOf(Color(0xFF4facfe), Color(0xFF00f2fe), Color(0xFF43e97b)),
+            start = Offset.Zero, end = Offset.Infinite
+        )
     }
 
     Box(
@@ -119,6 +139,70 @@ internal fun PresetCardArtwork(
                             topLeft = Offset(size.width * 0.55f, 0f),
                             size = Size(size.width * 0.08f, size.height)
                         )
+                    }
+                    PresetStyle.ROSE_GARDEN -> {
+                        val step = size.width / 8f
+                        for (i in -1..9) {
+                            val x = i * step
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.12f),
+                                start = Offset(x, 0f),
+                                end = Offset(x + size.height * 0.5f, size.height),
+                                strokeWidth = 1.5f
+                            )
+                        }
+                    }
+                    PresetStyle.PEACH_SKY -> {
+                        val cx = size.width / 2
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.20f),
+                            radius = size.minDimension * 0.15f,
+                            center = Offset(cx - 12f, size.height * 0.25f)
+                        )
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.15f),
+                            radius = size.minDimension * 0.10f,
+                            center = Offset(cx + 20f, size.height * 0.35f)
+                        )
+                    }
+                    PresetStyle.GOLDEN_SUNSET -> {
+                        val step = size.width / 5f
+                        for (i in 0..5) {
+                            val x = i * step
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.10f),
+                                start = Offset(x, 0f),
+                                end = Offset(x, size.height),
+                                strokeWidth = 1f
+                            )
+                        }
+                    }
+                    PresetStyle.LAVENDER_DAWN -> {
+                        val cx = size.width / 2
+                        val cy = size.height / 2
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.18f),
+                            radius = size.minDimension * 0.12f,
+                            center = Offset(cx - 8f, cy - 6f)
+                        )
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.12f),
+                            radius = size.minDimension * 0.08f,
+                            center = Offset(cx + 16f, cy + 10f)
+                        )
+                    }
+                    PresetStyle.AQUA_BREEZE -> {
+                        val stepX = size.width / 6f
+                        val stepY = size.height / 4f
+                        val grid = Color.White.copy(alpha = 0.15f)
+                        for (i in 1..5) {
+                            val x = i * stepX
+                            drawLine(grid, Offset(x, 0f), Offset(x, size.height), strokeWidth = 0.5f)
+                        }
+                        for (i in 1..3) {
+                            val y = i * stepY
+                            drawLine(grid, Offset(0f, y), Offset(size.width, y), strokeWidth = 0.5f)
+                        }
                     }
                     else -> Unit
                 }

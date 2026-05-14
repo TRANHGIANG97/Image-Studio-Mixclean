@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Product Studio</string>
+    <string name="studio_category_electronics">Electronics</string>
+    <string name="studio_category_fashion">Fashion</string>
+    <string name="studio_category_cosmetics">Cosmetics</string>
+    <string name="studio_category_home">Home &amp; Living</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Cosmetics Studio 1</string>
+    <string name="themeplate_cosmetics_02">Cosmetics Studio 2</string>
+    <string name="themeplate_cosmetics_03">Cosmetics Studio 3</string>
+    <string name="themeplate_cosmetics_04">Cosmetics Studio 4</string>
+    <string name="themeplate_cosmetics_05">Cosmetics Studio 5</string>
+    <string name="themeplate_cosmetics_06">Cosmetics Studio 6</string>
+    <string name="themeplate_cosmetics_07">Cosmetics Studio 7</string>
+    <string name="themeplate_cosmetics_08">Cosmetics Studio 8</string>
+    <string name="themeplate_cosmetics_09">Cosmetics Studio 9</string>
+    <string name="studio_back">Back</string>
+    <string name="studio_done">Done</string>
+    <string name="studio_tap_to_pick_product">Tap to pick a product image</string>
+    <string name="studio_tool_replace">Replace</string>
+    <string name="studio_tool_layout">Layout</string>
+    <string name="studio_tool_shadow">Shadow</string>
+    <string name="studio_tool_transparency">Opacity</string>
+    <string name="studio_tool_crop">Crop</string>
+    <string name="studio_tool_rotateflip">Rotate/Flip</string>
+    <string name="studio_replace_hint">Tap Replace to choose a product photo from your gallery</string>
+    <string name="studio_layout_hint">Drag to move · Pinch to zoom · Two-finger rotate</string>
+    <string name="studio_shadow_label">Shadow: %1$d%%</string>
+    <string name="studio_transparency_label">Opacity: %1$d%%</string>
+    <string name="studio_crop_label">Aspect ratio</string>
+    <string name="studio_processing">Removing background…</string>
+    <string name="studio_export_success">Saved to gallery</string>
+    <string name="studio_export_error">Export failed</string>
+    <string name="studio_layout_rotate_left">Rotate Left</string>
+    <string name="studio_layout_rotate_right">Rotate Right</string>
+    <string name="studio_layout_flip_horizontal">Flip H</string>
+    <string name="studio_layout_flip_vertical">Flip V</string>
+</resources>

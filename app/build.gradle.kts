@@ -92,6 +92,7 @@ dependencies {
     implementation(project(":core-data"))
     implementation(project(":core-util"))
     implementation(project(":quickedit"))
+    implementation(project(":studio"))
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.ui)

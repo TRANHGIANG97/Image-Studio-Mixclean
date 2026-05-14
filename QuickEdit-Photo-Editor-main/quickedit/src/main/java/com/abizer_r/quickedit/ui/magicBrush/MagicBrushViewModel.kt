@@ -34,7 +34,9 @@ enum class MagicBrushTool {
 
 
 @HiltViewModel
-class MagicBrushViewModel @Inject constructor() : ViewModel() {
+class MagicBrushViewModel @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
+) : ViewModel() {
 
     private val _currentBitmap = MutableStateFlow<Bitmap?>(null)
     val currentBitmap: StateFlow<Bitmap?> = _currentBitmap
@@ -53,6 +55,23 @@ class MagicBrushViewModel @Inject constructor() : ViewModel() {
 
     private val _canRedo = MutableStateFlow(false)
     val canRedo: StateFlow<Boolean> = _canRedo
+
+    private val _showGuide = MutableStateFlow(false)
+    val showGuide: StateFlow<Boolean> = _showGuide
+
+    private val prefs = context.getSharedPreferences("magic_brush_prefs", android.content.Context.MODE_PRIVATE)
+
+    fun checkFirstLaunch() {
+        val guideShown = prefs.getBoolean("guide_shown", false)
+        if (!guideShown) {
+            _showGuide.value = true
+            prefs.edit().putBoolean("guide_shown", true).apply()
+        }
+    }
+
+    fun dismissGuide() {
+        _showGuide.value = false
+    }
 
     // Cache IDs for undo/redo stacks
     private val undoStack = LinkedList<String>()
