@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.media.ExifInterface
 import android.net.Uri
 import android.util.Log
 import com.thgiang.image.core.util.MemoryUtil
@@ -33,13 +34,46 @@ object ProcessorUtils {
                         inJustDecodeBounds = false
                     }
                 }
-                context.contentResolver.openInputStream(uri)?.use { stream ->
+                val bitmap = context.contentResolver.openInputStream(uri)?.use { stream ->
                     BitmapFactory.decodeStream(stream, null, opts)
-                }?.toArgbBitmap()
+                }
+                // Apply EXIF orientation
+                val rotation = getExifRotation(context, uri)
+                (if (rotation != 0 && bitmap != null) {
+                    rotateBitmap(bitmap, rotation)
+                } else {
+                    bitmap
+                })?.toArgbBitmap()
             }.onFailure { e ->
                 if (e is OutOfMemoryError) Log.e(TAG, "OOM decoding bitmap from URI", e)
             }.getOrNull()
         }
+
+    /** Read EXIF orientation from URI, return clockwise rotation degrees. */
+    private fun getExifRotation(context: Context, uri: Uri): Int {
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                val exif = ExifInterface(stream)
+                when (exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL
+                )) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                    ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                    ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                    else -> 0
+                }
+            } ?: 0
+        } catch (e: Exception) { 0 }
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Int): Bitmap {
+        if (degrees == 0) return bitmap
+        val matrix = android.graphics.Matrix().apply { postRotate(degrees.toFloat()) }
+        val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        if (rotated !== bitmap && !bitmap.isRecycled) bitmap.recycle()
+        return rotated
+    }
 
     fun createColorBitmap(width: Int, height: Int, color: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)

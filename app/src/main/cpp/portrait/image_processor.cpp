@@ -3,6 +3,7 @@
 
 #include <android/log.h>
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <memory>
@@ -37,10 +38,29 @@ public:
         const int wh  = width  * height;
         const int div = radius * 2 + 1;
 
-        // Intermediate sums from horizontal pass (not yet divided)
-        std::vector<int> r(wh), g(wh), b(wh);
+        // Persistent scratch buffers — no memset cost on repeated calls
+        static std::vector<int> s_r, s_g, s_b;
+        const size_t needed = static_cast<size_t>(wh);
+        if (s_r.size() < needed) {
+            s_r.resize(needed);
+            s_g.resize(needed);
+            s_b.resize(needed);
+        }
+        int* const r = s_r.data();
+        int* const g = s_g.data();
+        int* const b = s_b.data();
+
+        // Edge-clamp LUTs — saves 2 min/max + 2 branches per pixel in the inner loops
+        std::vector<int> xOutLut(width), xInLut(width);
+        for (int x = 0; x < width; ++x) {
+            xOutLut[x] = std::max(0, x - radius);
+            xInLut[x]  = std::min(wm, x + radius + 1);
+        }
 
         // ── Horizontal pass ──────────────────────────────────────────────────
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
         for (int y = 0; y < height; ++y) {
             int rsum = 0, gsum = 0, bsum = 0;
             const int yi = y * width;
@@ -53,20 +73,23 @@ public:
             }
 
             for (int x = 0; x < width; ++x) {
-                // Store AVERAGE (divided by div), not raw sum.
-                // The vertical pass will also divide by div — total divisor = div*div = correct.
                 r[yi + x] = rsum / div;
                 g[yi + x] = gsum / div;
                 b[yi + x] = bsum / div;
 
-                const int xOut = std::max(0,  x - radius);
-                const int xIn  = std::min(wm, x + radius + 1);
-                const uint8_t* pOut = pixels + (yi + xOut) * 4;
-                const uint8_t* pIn  = pixels + (yi + xIn)  * 4;
+                const uint8_t* pOut = pixels + (yi + xOutLut[x]) * 4;
+                const uint8_t* pIn  = pixels + (yi + xInLut[x])  * 4;
                 rsum += pIn[0] - pOut[0];
                 gsum += pIn[1] - pOut[1];
                 bsum += pIn[2] - pOut[2];
             }
+        }
+
+        // Vertical LUTs
+        std::vector<int> yOutLut(height), yInLut(height);
+        for (int y = 0; y < height; ++y) {
+            yOutLut[y] = std::max(0, y - radius);
+            yInLut[y]  = std::min(hm, y + radius + 1);
         }
 
         // ── Vertical pass (writes divided result directly to pixels) ─────────
@@ -88,11 +111,9 @@ public:
                 pixels[idx + 2] = static_cast<uint8_t>(bsum / div);
                 // pixels[idx + 3] = Alpha unchanged
 
-                const int yOut = std::max(0,  y - radius);
-                const int yIn  = std::min(hm, y + radius + 1);
-                rsum += r[yIn * width + x] - r[yOut * width + x];
-                gsum += g[yIn * width + x] - g[yOut * width + x];
-                bsum += b[yIn * width + x] - b[yOut * width + x];
+                rsum += r[yInLut[y] * width + x] - r[yOutLut[y] * width + x];
+                gsum += g[yInLut[y] * width + x] - g[yOutLut[y] * width + x];
+                bsum += b[yInLut[y] * width + x] - b[yOutLut[y] * width + x];
             }
         }
     }
@@ -206,7 +227,62 @@ public:
 
 } // anonymous namespace
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// ─── Public API — Blur-only ────────────────────────────────────────────────────
+
+uint8_t* applyBlurOnly(const uint8_t* srcPixels,
+                       int width, int height,
+                       float blurRadius) {
+    if (!srcPixels) {
+        LOGE("applyBlurOnly: srcPixels is null");
+        return nullptr;
+    }
+    if (width < MIN_DIMENSION || height < MIN_DIMENSION ||
+        width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        LOGE("applyBlurOnly: invalid dimensions %dx%d", width, height);
+        return nullptr;
+    }
+
+    const size_t bufSize = static_cast<size_t>(width) * height * 4u;
+    if (bufSize > MAX_BUFFER_BYTES) {
+        LOGE("applyBlurOnly: buffer too large (%zu MB)", bufSize >> 20);
+        return nullptr;
+    }
+
+    const auto tStart = std::chrono::steady_clock::now();
+
+    auto* result = new (std::nothrow) uint8_t[bufSize];
+    if (!result) {
+        LOGE("applyBlurOnly: OOM allocating %dx%d buffer", width, height);
+        return nullptr;
+    }
+    std::memcpy(result, srcPixels, bufSize);
+
+    const int blurR = static_cast<int>(
+        std::max(0.0f, std::min(blurRadius, static_cast<float>(MAX_BLUR_RADIUS))));
+    const auto tAlloc = std::chrono::steady_clock::now();
+
+    if (blurR > 0) {
+        FastBoxBlur::apply(result, width, height, blurR);
+    }
+    const auto tEnd = std::chrono::steady_clock::now();
+
+    const auto ms = [](auto start, auto end) {
+        return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0f;
+    };
+
+    LOGI("BlurOnly %dx%d blurR=%d: alloc=%.2fms blur=%.2fms total=%.2fms",
+         width, height, blurR,
+         ms(tStart, tAlloc), ms(tAlloc, tEnd),
+         ms(tStart, tEnd));
+
+    return result;
+}
+
+void freeBlurResult(uint8_t* ptr) {
+    delete[] ptr;
+}
+
+// ─── Public API — Portrait ────────────────────────────────────────────────────
 
 uint8_t* processPortrait(const uint8_t* srcPixels,
                          const uint8_t* fgPixels,
@@ -231,6 +307,8 @@ uint8_t* processPortrait(const uint8_t* srcPixels,
     }
 
     // Allocate result buffer (caller / JNI layer must free via freePortraitResult)
+    const auto tStart = std::chrono::steady_clock::now();
+
     auto* result = new (std::nothrow) uint8_t[bufSize];
     if (!result) {
         LOGE("processPortrait: OOM allocating %dx%d buffer", width, height);
@@ -238,23 +316,34 @@ uint8_t* processPortrait(const uint8_t* srcPixels,
     }
     std::memcpy(result, srcPixels, bufSize);
 
-    // 1. Blur (RGB only, alpha preserved)
     const int blurR = static_cast<int>(
         std::max(0.0f, std::min(blurRadius, static_cast<float>(MAX_BLUR_RADIUS))));
+    const auto tAlloc = std::chrono::steady_clock::now();
+
+    // 1. Blur (RGB only, alpha preserved)
     if (blurR > 0) {
         FastBoxBlur::apply(result, width, height, blurR);
     }
+    const auto tBlur = std::chrono::steady_clock::now();
 
     // 2. Darken / Vignette  (FIX: skipped when darkenAlpha <= 0)
     VignetteProcessor::apply(result, width, height, darkenAlpha, vignette);
+    const auto tDarken = std::chrono::steady_clock::now();
 
     // 3. Composite foreground (optional)
     if (fgPixels) {
         CompositeProcessor::apply(result, fgPixels, width, height);
     }
+    const auto tEnd = std::chrono::steady_clock::now();
 
-    LOGI("processPortrait: done %dx%d blur=%d darken=%.2f vignette=%d",
-         width, height, blurR, darkenAlpha, static_cast<int>(vignette));
+    const auto ms = [](auto start, auto end) {
+        return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0f;
+    };
+
+    LOGI("Portrait %dx%d blurR=%d: alloc=%.2fms blur=%.2fms darken=%.2fms composite=%.2fms total=%.2fms",
+         width, height, blurR,
+         ms(tStart, tAlloc), ms(tAlloc, tBlur), ms(tBlur, tDarken), ms(tDarken, tEnd),
+         ms(tStart, tEnd));
 
     return result;
 }

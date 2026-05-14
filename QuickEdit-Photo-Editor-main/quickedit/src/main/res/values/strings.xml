@@ -45,6 +45,7 @@
     <string name="border">Border</string>
     <string name="studio">Studio</string>
     <string name="blur">Blur</string>
+    <string name="blur_subject">Blur Subject</string>
     <string name="portrait">Portrait</string>
     <string name="clean">Clean</string>
     <string name="darken">Darken</string>

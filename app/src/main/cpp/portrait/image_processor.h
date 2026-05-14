@@ -35,6 +35,26 @@ uint8_t* processPortrait(const uint8_t* srcPixels,
  */
 void freePortraitResult(uint8_t* ptr);
 
+/**
+ * Apply blur only (no darken, no composite). Reuses the same FastBoxBlur engine.
+ *
+ * @param srcPixels  RGBA_8888 source pixel buffer
+ * @param width      Image width in pixels
+ * @param height     Image height in pixels
+ * @param blurRadius Blur radius [0..25]. 0 = copy without blur.
+ *
+ * @return Newly allocated RGBA_8888 buffer. Caller must free via freeBlurResult().
+ *         Returns nullptr on failure.
+ */
+uint8_t* applyBlurOnly(const uint8_t* srcPixels,
+                       int width, int height,
+                       float blurRadius);
+
+/**
+ * Frees a buffer returned by applyBlurOnly().
+ */
+void freeBlurResult(uint8_t* ptr);
+
 #ifdef __cplusplus
 }
 #endif

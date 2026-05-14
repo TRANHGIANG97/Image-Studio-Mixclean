@@ -3,6 +3,7 @@ package com.abizer_r.quickedit.utils.other.bitmap
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.ExifInterface
 import android.net.Uri
 import com.abizer_r.quickedit.utils.AppUtils
 import kotlinx.coroutines.flow.flow
@@ -30,25 +31,62 @@ object BitmapUtils {
         uri: Uri,
     ): Bitmap? {
         // First decode with inJustDecodeBounds=true to check dimensions
-        return BitmapFactory.Options().run {
-            inJustDecodeBounds = true
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream, null, this)
+        val bitmapSize = run {
+            val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream, null, opts)
             }
+            Pair(opts.outWidth, opts.outHeight)
+        }
 
-            // Decode bitmap with inSampleSize set
-            inJustDecodeBounds = false
+        val screenSize = AppUtils.getScreenWidthAndHeight(context)
+        val inSampleSize = calculateInSampleSize(screenSize, bitmapSize)
 
-            val screenSize = AppUtils.getScreenWidthAndHeight(context)
-            val bitmapSize = getWidthAndHeightFromUri(context, uri)
-            // Calculate inSampleSize
-            inSampleSize = calculateInSampleSize(screenSize, bitmapSize)
+        val options = BitmapFactory.Options().apply {
+            this.inSampleSize = inSampleSize
+        }
 
-            val bitmap: Bitmap? = context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream, null, this)
-            }
+        val bitmap: Bitmap? = context.contentResolver.openInputStream(uri)?.use { stream ->
+            BitmapFactory.decodeStream(stream, null, options)
+        }
+
+        // Apply EXIF orientation — front-camera photos store pixel data in landscape
+        // but include a rotation tag. Without this, images appear sideways.
+        val rotation = getExifRotation(context, uri)
+        return if (rotation != 0 && bitmap != null) {
+            rotateBitmap(bitmap, rotation)
+        } else {
             bitmap
         }
+    }
+
+    /** Read EXIF orientation from URI and return clockwise rotation in degrees. */
+    private fun getExifRotation(context: Context, uri: Uri): Int {
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                val exif = ExifInterface(stream)
+                when (exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL
+                )) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                    ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                    ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                    else -> 0
+                }
+            } ?: 0
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    /** Rotate bitmap by degrees, recycling the original. */
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Int): Bitmap {
+        if (degrees == 0) return bitmap
+        val matrix = android.graphics.Matrix().apply { postRotate(degrees.toFloat()) }
+        val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        if (rotated !== bitmap && !bitmap.isRecycled) bitmap.recycle()
+        return rotated
     }
 
     private fun calculateInSampleSize(
@@ -71,16 +109,6 @@ object BitmapUtils {
         return inSampleSize
     }
 
-    private fun getWidthAndHeightFromUri(context: Context, uri: Uri): Pair<Int, Int> {
-        val onlyBoundsOptions = BitmapFactory.Options()
-        onlyBoundsOptions.inJustDecodeBounds = true
-        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888 //optional
-        context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            BitmapFactory.decodeStream(inputStream, null, onlyBoundsOptions)
-        }
-        return Pair(onlyBoundsOptions.outWidth, onlyBoundsOptions.outHeight)
-    }
-
     fun saveBitmap(
         bitmap: Bitmap,
         file: File,
@@ -95,8 +123,49 @@ object BitmapUtils {
 
     fun getBitmapFromUri(context: Context, uri: Uri): Bitmap? {
         return try {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
+            val bitmap = context.contentResolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream)
+            }
+            // Apply EXIF orientation for consistency
+            val rotation = getExifRotation(context, uri)
+            if (rotation != 0 && bitmap != null) {
+                rotateBitmap(bitmap, rotation)
+            } else {
+                bitmap
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Decode a bitmap from URI, applying EXIF orientation, with down-sampling
+     * to keep the larger dimension within [maxPx].
+     */
+    fun getDownSampledBitmap(context: Context, uri: Uri, maxPx: Int): Bitmap? {
+        return try {
+            // Read bounds
+            val boundsOpts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream, null, boundsOpts)
+            }
+            val w = boundsOpts.outWidth
+            val h = boundsOpts.outHeight
+            if (w <= 0 || h <= 0) return null
+
+            var sample = 1
+            while (w / sample > maxPx || h / sample > maxPx) sample *= 2
+
+            val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+            val bitmap = context.contentResolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream, null, opts)
+            }
+
+            val rotation = getExifRotation(context, uri)
+            if (rotation != 0 && bitmap != null) {
+                rotateBitmap(bitmap, rotation)
+            } else {
+                bitmap
             }
         } catch (e: Exception) {
             null

@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Close
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun StudioModeScreen(
@@ -59,6 +60,7 @@ fun StudioModeScreen(
     val context = LocalContext.current
     val viewModel: StudioModeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(immutableBitmap) {
         viewModel.setInitialBitmap(immutableBitmap.bitmap)
@@ -78,8 +80,13 @@ fun StudioModeScreen(
     } }
 
     val onCheckClickedLambda = remember { {
-        state.processedBitmap?.let { bitmap ->
-            onCheckClicked?.invoke(bitmap)
+        if (state.currentEffect == StudioEffect.PORTRAIT || state.currentEffect == StudioEffect.BLUR_SUBJECT) {
+            scope.launch {
+                val finalBmp = viewModel.renderFinalForExport()
+                if (finalBmp != null) onCheckClicked?.invoke(finalBmp)
+            }
+        } else {
+            state.processedBitmap?.let { onCheckClicked?.invoke(it) }
         }
         Unit
     } }
@@ -89,7 +96,14 @@ fun StudioModeScreen(
     }
 
     val onDoneClickedLambda = remember { {
-        state.processedBitmap?.let { onDoneClicked(it) }
+        if (state.currentEffect == StudioEffect.PORTRAIT || state.currentEffect == StudioEffect.BLUR_SUBJECT) {
+            scope.launch {
+                val finalBmp = viewModel.renderFinalForExport()
+                if (finalBmp != null) onDoneClicked(finalBmp)
+            }
+        } else {
+            state.processedBitmap?.let { onDoneClicked(it) }
+        }
         Unit
     } }
 
@@ -284,6 +298,7 @@ fun StudioOptionsList(
         StudioOption(StudioEffect.NONE, stringResource(R.string.original), Icons.Outlined.Image),
         StudioOption(StudioEffect.BLUR, stringResource(R.string.blur), Icons.Outlined.BlurOn),
         StudioOption(StudioEffect.PORTRAIT, stringResource(R.string.portrait), Icons.Outlined.FaceRetouchingNatural),
+        StudioOption(StudioEffect.BLUR_SUBJECT, stringResource(R.string.blur_subject), Icons.Outlined.Face),
         StudioOption(StudioEffect.CLEAN, stringResource(R.string.clean), Icons.Outlined.AutoFixHigh),
         StudioOption(StudioEffect.DARKEN, stringResource(R.string.darken), Icons.Outlined.DarkMode)
     )

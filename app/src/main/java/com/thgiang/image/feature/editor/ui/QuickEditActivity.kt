@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -207,6 +208,7 @@ fun QuickEditEditorNavigation(
         return
     }
 
+    val scope = rememberCoroutineScope()
     val goToCropModeScreen = remember { { state: EditorScreenState ->
         sharedEditorViewModel.updateStacksFromEditorState(state)
         navController.navigate(NavDestinations.CROPPER_SCREEN)
@@ -231,9 +233,35 @@ fun QuickEditEditorNavigation(
         sharedEditorViewModel.updateStacksFromEditorState(state)
         navController.navigate(NavDestinations.STUDIO_MODE_SCREEN)
     } }
+    // Auto-remove background on startup state
+    var autoRemoveDone by remember { mutableStateOf(false) }
+    var isRemovingBg by remember { mutableStateOf(false) }
+
     val goToRemoveBgScreen = remember { { state: EditorScreenState ->
         sharedEditorViewModel.updateStacksFromEditorState(state)
-        navController.navigate(NavDestinations.REMOVE_BG_SCREEN)
+        val bitmap = sharedEditorViewModel.getCurrentBitmap()
+        isRemovingBg = true
+        scope.launch {
+            val result = withContext(Dispatchers.Default) {
+                backgroundRemoverRepository?.getForegroundBitmap(bitmap)
+            }
+            result?.fold(
+                onSuccess = { fg ->
+                    val resultBitmap = fg.copy(Bitmap.Config.ARGB_8888, true)
+                    resultBitmap.setHasAlpha(true)
+                    sharedEditorViewModel.addBitmapToStack(bitmap = resultBitmap, triggerRecomposition = true)
+                    isRemovingBg = false
+                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                    }
+                },
+                onFailure = { e ->
+                    isRemovingBg = false
+                    context.toast("Background removal failed")
+                }
+            )
+        }
+        Unit
     } }
     val goToBackgroundModeScreen = remember { { state: EditorScreenState ->
         sharedEditorViewModel.updateStacksFromEditorState(state)
@@ -276,7 +304,6 @@ fun QuickEditEditorNavigation(
         }
     }
 
-    val scope = rememberCoroutineScope()
     val onSaveDraftClicked: (Bitmap) -> Unit = remember { { bitmap: Bitmap ->
         scope.launch {
             val draftName = "Draft_${System.currentTimeMillis()}"
@@ -311,20 +338,41 @@ fun QuickEditEditorNavigation(
         }
     } }
 
-    // Auto-remove background on startup state
-    var autoRemoveDone by remember { mutableStateOf(false) }
-
     NavHost(
         navController = navController,
         startDestination = NavDestinations.EDITOR_SCREEN,
     ) {
         composable(route = NavDestinations.EDITOR_SCREEN) {
+            var autoRemoveResult by remember { mutableStateOf<Bitmap?>(null) }
+
             LaunchedEffect(bitmapLoaded, autoRemoveBackground) {
                 if (bitmapLoaded && autoRemoveBackground && !autoRemoveDone) {
                     autoRemoveDone = true
-                    navController.navigate(NavDestinations.REMOVE_BG_SCREEN)
+                    isRemovingBg = true
+                    val bitmap = sharedEditorViewModel.getCurrentBitmap()
+                    val result = withContext(Dispatchers.Default) {
+                        backgroundRemoverRepository?.getForegroundBitmap(bitmap)
+                    }
+                    result?.fold(
+                        onSuccess = { fg ->
+                            autoRemoveResult = fg.copy(Bitmap.Config.ARGB_8888, true).also { it.setHasAlpha(true) }
+                        },
+                        onFailure = { }
+                    )
+                    isRemovingBg = false
                 }
             }
+
+            LaunchedEffect(autoRemoveResult) {
+                if (autoRemoveResult != null) {
+                    sharedEditorViewModel.addBitmapToStack(bitmap = autoRemoveResult!!, triggerRecomposition = true)
+                    autoRemoveResult = null
+                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                    }
+                }
+            }
+
             val visualState by sharedEditorViewModel.recompositionTrigger
                 .collectAsStateWithLifecycle()
 
@@ -332,25 +380,45 @@ fun QuickEditEditorNavigation(
                 sharedEditorViewModel.bitmapStack,
                 sharedEditorViewModel.bitmapRedoStack
             )
-            EditorScreen(
-                modifier = Modifier.fillMaxSize(),
-                initialEditorScreenState = initialEditorState,
-                goToCropModeScreen = goToCropModeScreen,
-                goToDrawModeScreen = goToDrawModeScreen,
-                goToTextModeScreen = goToTextModeScreen,
-                goToEffectsModeScreen = goToEffectsModeScreen,
-                goToBorderModeScreen = goToBorderModeScreen,
-                goToStudioModeScreen = goToStudioModeScreen,
-                goToRemoveBgScreen = goToRemoveBgScreen,
-                goToBackgroundModeScreen = goToBackgroundModeScreen,
-                goToMagicBrushScreen = goToMagicBrushScreen,
-                goToMainScreen = {
-                    sharedEditorViewModel.resetStacks()
-                    (context as? android.app.Activity)?.finish()
-                },
-                isPremium = isPremium,
-                onSaveDraftClicked = onSaveDraftClicked
-            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                EditorScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    initialEditorScreenState = initialEditorState,
+                    goToCropModeScreen = goToCropModeScreen,
+                    goToDrawModeScreen = goToDrawModeScreen,
+                    goToTextModeScreen = goToTextModeScreen,
+                    goToEffectsModeScreen = goToEffectsModeScreen,
+                    goToBorderModeScreen = goToBorderModeScreen,
+                    goToStudioModeScreen = goToStudioModeScreen,
+                    goToRemoveBgScreen = goToRemoveBgScreen,
+                    goToBackgroundModeScreen = goToBackgroundModeScreen,
+                    goToMagicBrushScreen = goToMagicBrushScreen,
+                    goToMainScreen = {
+                        sharedEditorViewModel.resetStacks()
+                        (context as? android.app.Activity)?.finish()
+                    },
+                    isPremium = isPremium,
+                    onSaveDraftClicked = onSaveDraftClicked
+                )
+
+                if (isRemovingBg) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = Color.White)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "Removing background...",
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         composable(route = NavDestinations.CROPPER_SCREEN) {
@@ -400,25 +468,6 @@ fun QuickEditEditorNavigation(
                 onDoneClicked = onDoneClicked,
                 onCheckClicked = if (rewardedAdManager != null) onStudioCheckClicked else null
             )
-        }
-
-        composable(route = NavDestinations.REMOVE_BG_SCREEN) {
-            val repo = backgroundRemoverRepository
-            if (repo != null) {
-                RemoveBgScreen(
-                    bitmap = sharedEditorViewModel.getCurrentBitmap(),
-                    backgroundRemoverRepository = repo,
-                    onBackPressed = { navController.navigateUp() },
-                    onDoneClicked = { resultBitmap ->
-                        val result = resultBitmap.copy(Bitmap.Config.ARGB_8888, true)
-                        result.setHasAlpha(true)
-                        sharedEditorViewModel.addBitmapToStack(bitmap = result)
-                        navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                            popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
-                        }
-                    }
-                )
-            }
         }
 
         composable(route = NavDestinations.BACKGROUND_MODE_SCREEN) { entry ->

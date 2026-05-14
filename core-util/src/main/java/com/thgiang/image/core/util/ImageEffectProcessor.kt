@@ -32,14 +32,7 @@ object ImageEffectProcessor {
     suspend fun applyBlur(
         bitmap: Bitmap,
         radius: Float
-    ): Bitmap? = withContext(Dispatchers.Default) {
-        runCatching {
-            val source = bitmap.toArgbBitmap() ?: return@runCatching null
-            val result = blurBitmapForPortraitExport(source, radius.coerceIn(0f, 25f))
-            if (result !== source && !source.isRecycled) source.recycle()
-            result
-        }.onFailure { e -> ProcessorUtils.logOom(TAG, e) }.getOrNull()
-    }
+    ): Bitmap? = PortraitProcessor.applyBlurOnly(bitmap, radius)
 
     // --- Portrait ---
     suspend fun applyPortrait(

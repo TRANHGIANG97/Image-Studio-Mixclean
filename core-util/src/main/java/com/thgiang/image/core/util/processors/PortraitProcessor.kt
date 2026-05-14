@@ -29,6 +29,32 @@ object PortraitProcessor {
         vignette: Boolean
     ): Bitmap?
 
+    private external fun nativeApplyBlur(
+        srcBitmap: Bitmap,
+        blurRadius: Float
+    ): Bitmap?
+
+    suspend fun applyBlurOnly(
+        bitmap: Bitmap,
+        blurRadius: Float
+    ): Bitmap? = withContext(Dispatchers.Default) {
+        val job = coroutineContext[Job]
+        runCatching {
+            val source = bitmap.toArgbBitmap() ?: return@runCatching null
+
+            if (job?.isActive != true) return@runCatching null
+
+            val output = nativeApplyBlur(
+                srcBitmap = source,
+                blurRadius = blurRadius.coerceIn(0f, 25f)
+            )
+
+            if (!source.isRecycled) source.recycle()
+
+            output
+        }.onFailure { e -> ProcessorUtils.logOom(TAG, e) }.getOrNull()
+    }
+
     suspend fun applyPortrait(
         context: Context,
         bitmap: Bitmap,
@@ -73,17 +99,23 @@ object PortraitProcessor {
             val source = bitmap.toArgbBitmap() ?: return@runCatching null
 
             if (job?.isActive != true) return@runCatching null
-            
+
+            val fgReady = if (foreground.config == Bitmap.Config.ARGB_8888) {
+                foreground
+            } else {
+                foreground.toArgbBitmap() ?: return@runCatching null
+            }
+
             val output = nativeApplyPortrait(
                 srcBitmap = source,
-                fgBitmap = foreground,
+                fgBitmap = fgReady,
                 blurRadius = blurRadius.coerceIn(0f, 25f),
                 darkenAlpha = darkenAlpha.coerceIn(0f, 1f),
                 vignette = vignette
             )
-            
+
             if (!source.isRecycled) source.recycle()
-            // Note: caller usually owns 'foreground', so we don't recycle it here
+            if (fgReady !== foreground && !fgReady.isRecycled) fgReady.recycle()
             output
         }.onFailure { e -> ProcessorUtils.logOom(TAG, e) }.getOrNull()
     }

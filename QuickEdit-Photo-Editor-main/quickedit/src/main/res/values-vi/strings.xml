@@ -46,6 +46,7 @@
     <string name="border">Viền</string>
     <string name="studio">Studio</string>
     <string name="blur">Làm mờ</string>
+    <string name="blur_subject">Làm mờ đối tượng</string>
     <string name="portrait">Chân dung</string>
     <string name="clean">Làm sạch</string>
     <string name="darken">Làm tối</string>

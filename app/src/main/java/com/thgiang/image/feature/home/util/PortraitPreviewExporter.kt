@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import android.media.ExifInterface
 import android.net.Uri
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.core.util.blurBitmapForPortraitExport
@@ -121,5 +122,38 @@ private suspend fun decodeBitmapForPortraitExport(
         inSampleSize = sample
         inPreferredConfig = Bitmap.Config.ARGB_8888
     }
-    open()?.use { BitmapFactory.decodeStream(it, null, opts) }
+    val bitmap = open()?.use { BitmapFactory.decodeStream(it, null, opts) }
+
+    // Apply EXIF orientation
+    val rotation = getExifRotation(context, uri)
+    if (rotation != 0 && bitmap != null) {
+        rotateBitmap(bitmap, rotation)
+    } else {
+        bitmap
+    }
+}
+
+private fun getExifRotation(context: Context, uri: Uri): Int {
+    return try {
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            val exif = ExifInterface(stream)
+            when (exif.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                else -> 0
+            }
+        } ?: 0
+    } catch (e: Exception) { 0 }
+}
+
+private fun rotateBitmap(bitmap: Bitmap, degrees: Int): Bitmap {
+    if (degrees == 0) return bitmap
+    val matrix = android.graphics.Matrix().apply { postRotate(degrees.toFloat()) }
+    val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    if (rotated !== bitmap && !bitmap.isRecycled) bitmap.recycle()
+    return rotated
 }
