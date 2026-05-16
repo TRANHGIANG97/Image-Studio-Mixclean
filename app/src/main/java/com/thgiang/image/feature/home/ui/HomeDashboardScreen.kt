@@ -240,7 +240,7 @@ fun HomeDashboardScreen(
                     Spacer(modifier = Modifier.height(HomeSpacing.section))
 
                     StudioSection(
-                        useHomeDarkStyle = isHomeDarkStyle,
+                        forceDarkStyle = isHomeDarkStyle,
                         onCategoryClick = { category ->
                             if (category.id == "cosmetics") {
                                 onOpenStudio()

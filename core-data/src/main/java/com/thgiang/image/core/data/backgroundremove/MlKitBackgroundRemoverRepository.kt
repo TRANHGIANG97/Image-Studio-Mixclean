@@ -4,43 +4,64 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
+import com.google.android.gms.common.moduleinstall.InstallStatusListener
+import com.google.android.gms.common.moduleinstall.ModuleInstall
+import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
+import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate.InstallState.STATE_CANCELED
+import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate.InstallState.STATE_COMPLETED
+import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate.InstallState.STATE_FAILED
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmentation
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmenter
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmenterOptions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import kotlin.math.*
+import kotlinx.coroutines.withTimeoutOrNull
+import java.nio.ByteBuffer
+import kotlin.coroutines.resume
+import kotlin.math.sqrt
 
 /**
- * Repository xóa phông sử dụng ML Kit Subject Segmentation.
- * Giữ ML Kit's alpha gốc (full resolution), chỉ thêm erosion + feathering + edge blur
- * để strip fringe + khử răng cưa viền mà không làm mờ interior.
+ * Background remover backed by ML Kit Subject Segmentation.
+ *
+ * Subject Segmentation is attempted on every ABI, including x86 emulators.
+ * Selfie Segmentation is intentionally disabled by default because it is weak
+ * for objects/products and should only be used by explicitly opted-in callers.
  */
 class MlKitBackgroundRemoverRepository(
     private val context: Context,
-    private val maxDecodeSize: Int = 2048,                // giới hạn kích thước ảnh decode
-    private val createDisplayCopy: Boolean = true,        // có copy bitmap để hiển thị hay không
-    private val alphaSmoothingRadius: Float = 1.5f        // bán kính blur cho alpha (pixel)
+    private val maxDecodeSize: Int = 2048,
+    private val createDisplayCopy: Boolean = true,
+    @Suppress("unused") private val alphaSmoothingRadius: Float = 1.5f,
+    private val allowSelfieFallback: Boolean = false
 ) : BackgroundRemoverRepository {
 
     private companion object {
         private const val MIN_PRE_UPSCALE_PIXELS = 300_000
+        private const val SUBJECT_MODULE_INSTALL_TIMEOUT_MS = 15_000L
+        private const val TAG = "MlKitRemover"
     }
+
+    @Volatile
+    private var selfieFallbackUsedInLastOperation: Boolean = false
 
     private val segmenter: SubjectSegmenter by lazy {
         val options = SubjectSegmenterOptions.Builder()
             .enableForegroundBitmap()
+            .enableForegroundConfidenceMask()
             .build()
         SubjectSegmentation.getClient(options)
     }
 
-    // =============================== API công khai ===============================
-
     override suspend fun removeBackground(imageUri: Uri): Result<BackgroundRemovalOutput> = runCatching {
+        selfieFallbackUsedInLastOperation = false
+        Log.d(TAG, "removeBackground: start uri=$imageUri")
         val original = decodeBitmapWithResize(imageUri)
             ?: error("Cannot decode selected image (OOM or invalid image)")
+        Log.d(TAG, "removeBackground: decoded original=${original.width}x${original.height}")
 
         val foreground = runCatching {
             getForegroundBitmapInternal(original)
@@ -48,6 +69,7 @@ class MlKitBackgroundRemoverRepository(
             original.recycle()
             throw e
         }
+        Log.d(TAG, "removeBackground: foreground ready=${foreground.width}x${foreground.height}")
         original.recycle()
 
         val display = if (createDisplayCopy) {
@@ -63,19 +85,30 @@ class MlKitBackgroundRemoverRepository(
     }
 
     override suspend fun getForegroundBitmap(bitmap: Bitmap): Result<Bitmap> = runCatching {
+        selfieFallbackUsedInLastOperation = false
         validateBitmap(bitmap)
+        Log.d(TAG, "getForegroundBitmap: input=${bitmap.width}x${bitmap.height} hasAlpha=${bitmap.hasAlpha()}")
         getForegroundBitmapInternal(bitmap)
     }
 
     override suspend fun getPortraitConfidenceMask(bitmap: Bitmap): Result<PortraitConfidenceMask> =
         runCatching {
+            selfieFallbackUsedInLastOperation = false
             validateBitmap(bitmap)
             val input = InputImage.fromBitmap(bitmap, 0)
-            val result = withContext(Dispatchers.Default) {
-                segmenter.process(input).await()
-            }
-            val buffer = result.foregroundConfidenceMask
-                ?: error("Foreground confidence mask not available")
+
+            val buffer = withContext(Dispatchers.Default) {
+                try {
+                    ensureSubjectSegmenterModuleAvailable()
+                    val result = segmenter.process(input).await()
+                    result.foregroundConfidenceMask
+                } catch (e: Exception) {
+                    if (!allowSelfieFallback) throw e
+                    Log.e(TAG, "Subject confidence mask failed, falling back to selfie", e)
+                    getSelfieSegmentationMask(input).asFloatBuffer()
+                }
+            } ?: error("Foreground confidence mask not available")
+
             buffer.rewind()
             val count = buffer.remaining()
             val values = FloatArray(count)
@@ -99,12 +132,16 @@ class MlKitBackgroundRemoverRepository(
         runCatching { segmenter.close() }
     }
 
-    // =============================== Xử lý nội bộ ===============================
+    override fun consumeSelfieFallbackWarning(): Boolean {
+        val used = selfieFallbackUsedInLastOperation
+        selfieFallbackUsedInLastOperation = false
+        return used
+    }
 
     private suspend fun getForegroundBitmapInternal(bitmap: Bitmap): Bitmap = withContext(Dispatchers.Default) {
-        // Pre-upscale ảnh nhỏ để ML Kit có thêm pixel → mask mịn hơn → giảm răng cưa viền
         val pixels = bitmap.width * bitmap.height
         val needsUpscale = pixels < MIN_PRE_UPSCALE_PIXELS
+        Log.d(TAG, "getForegroundBitmapInternal: pixels=$pixels needsUpscale=$needsUpscale")
         val processedBitmap = if (needsUpscale) {
             val scale = sqrt(MIN_PRE_UPSCALE_PIXELS.toFloat() / pixels)
             Bitmap.createScaledBitmap(
@@ -113,30 +150,143 @@ class MlKitBackgroundRemoverRepository(
                 (bitmap.height * scale).toInt().coerceAtLeast(bitmap.height + 1),
                 true
             )
-        } else bitmap
+        } else {
+            bitmap
+        }
 
         val input = InputImage.fromBitmap(processedBitmap, 0)
-        val result = segmenter.process(input).await()
-        val foreground = result.foregroundBitmap?.copy(Bitmap.Config.ARGB_8888, true)
-            ?: error("Foreground extraction failed")
+
+        val foreground = try {
+            Log.d(TAG, "getForegroundBitmapInternal: using SubjectSegmenter")
+            ensureSubjectSegmenterModuleAvailable()
+            val result = segmenter.process(input).await()
+            result.foregroundBitmap?.copy(Bitmap.Config.ARGB_8888, true)
+                ?: error("Foreground extraction failed")
+        } catch (e: Exception) {
+            if (!allowSelfieFallback) throw e
+            Log.e(TAG, "Subject segmenter failed, falling back to selfie segmenter", e)
+            selfieFallbackUsedInLastOperation = true
+            processWithSelfieSegmenter(processedBitmap, input)
+        }
 
         try {
-            // Native refinement: erosion + feathering + edge-aware blur (C++ JNI)
             BackgroundRefinerNative.nativeRefineForeground(foreground, processedBitmap)
 
             if (needsUpscale) {
                 if (processedBitmap !== bitmap && !processedBitmap.isRecycled) processedBitmap.recycle()
                 val scaledDown = Bitmap.createScaledBitmap(foreground, bitmap.width, bitmap.height, true)
                 if (scaledDown !== foreground && !foreground.isRecycled) foreground.recycle()
+                Log.d(TAG, "getForegroundBitmapInternal: returning scaledDown=${scaledDown.width}x${scaledDown.height}")
                 scaledDown
-            } else foreground
+            } else {
+                Log.d(TAG, "getForegroundBitmapInternal: returning foreground=${foreground.width}x${foreground.height}")
+                foreground
+            }
         } catch (e: Exception) {
             foreground.recycle()
             throw e
         }
     }
 
-    // =============================== Tiện ích ===============================
+    private suspend fun ensureSubjectSegmenterModuleAvailable() {
+        runCatching {
+            val moduleInstallClient = ModuleInstall.getClient(context)
+            val availability = moduleInstallClient.areModulesAvailable(segmenter).await()
+            if (availability.areModulesAvailable()) {
+                Log.d(TAG, "SubjectSegmenter module already available")
+                return
+            }
+
+            Log.d(TAG, "SubjectSegmenter module missing; requesting install")
+            val installed = requestSubjectSegmenterModuleInstall(moduleInstallClient)
+            Log.d(TAG, "SubjectSegmenter module install completed=$installed")
+        }.onFailure { e ->
+            Log.e(TAG, "SubjectSegmenter module availability/install check failed", e)
+        }
+    }
+
+    private suspend fun requestSubjectSegmenterModuleInstall(
+        moduleInstallClient: com.google.android.gms.common.moduleinstall.ModuleInstallClient
+    ): Boolean {
+        return withTimeoutOrNull(SUBJECT_MODULE_INSTALL_TIMEOUT_MS) {
+            suspendCancellableCoroutine { continuation ->
+                var listener: InstallStatusListener? = null
+
+                fun finish(installed: Boolean) {
+                    listener?.let { moduleInstallClient.unregisterListener(it) }
+                    if (continuation.isActive) continuation.resume(installed)
+                }
+
+                listener = InstallStatusListener { update ->
+                    when (update.installState) {
+                        STATE_COMPLETED -> finish(true)
+                        STATE_CANCELED, STATE_FAILED -> finish(false)
+                    }
+                }
+
+                continuation.invokeOnCancellation {
+                    listener?.let { moduleInstallClient.unregisterListener(it) }
+                }
+
+                val request = ModuleInstallRequest.newBuilder()
+                    .addApi(segmenter)
+                    .setListener(listener)
+                    .build()
+
+                moduleInstallClient.installModules(request)
+                    .addOnSuccessListener { response ->
+                        if (response.areModulesAlreadyInstalled()) {
+                            finish(true)
+                        } else {
+                            Log.d(TAG, "SubjectSegmenter module install request accepted")
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "SubjectSegmenter module install request failed", e)
+                        finish(false)
+                    }
+            }
+        } ?: false
+    }
+
+    private suspend fun getSelfieSegmentationMask(input: InputImage): ByteBuffer {
+        val options = com.google.mlkit.vision.segmentation.selfie.SelfieSegmenterOptions.Builder()
+            .setDetectorMode(com.google.mlkit.vision.segmentation.selfie.SelfieSegmenterOptions.SINGLE_IMAGE_MODE)
+            .build()
+        val selfieSegmenter = com.google.mlkit.vision.segmentation.Segmentation.getClient(options)
+        return selfieSegmenter.process(input).await().buffer
+    }
+
+    private suspend fun processWithSelfieSegmenter(bitmap: Bitmap, input: InputImage): Bitmap {
+        val mask = getSelfieSegmentationMask(input)
+        val maskWidth = input.width
+        val maskHeight = input.height
+
+        mask.rewind()
+        val bgRemovedBitmap = Bitmap.createBitmap(maskWidth, maskHeight, Bitmap.Config.ARGB_8888)
+        val pixels = IntArray(maskWidth * maskHeight)
+        val originalPixels = IntArray(maskWidth * maskHeight)
+
+        val scaledOriginal = if (bitmap.width != maskWidth || bitmap.height != maskHeight) {
+            Bitmap.createScaledBitmap(bitmap, maskWidth, maskHeight, true)
+        } else {
+            bitmap
+        }
+
+        scaledOriginal.getPixels(originalPixels, 0, maskWidth, 0, 0, maskWidth, maskHeight)
+
+        for (i in 0 until maskWidth * maskHeight) {
+            val confidence = mask.getFloat()
+            val alpha = (confidence * 255).toInt().coerceIn(0, 255)
+            val pixel = originalPixels[i]
+            pixels[i] = (alpha shl 24) or (pixel and 0x00FFFFFF)
+        }
+
+        bgRemovedBitmap.setPixels(pixels, 0, maskWidth, 0, 0, maskWidth, maskHeight)
+        if (scaledOriginal !== bitmap) scaledOriginal.recycle()
+
+        return bgRemovedBitmap
+    }
 
     private fun validateBitmap(bitmap: Bitmap) {
         require(!bitmap.isRecycled) { "Bitmap is already recycled" }
@@ -165,5 +315,4 @@ class MlKitBackgroundRemoverRepository(
             }
         }.getOrNull()
     }
-
 }

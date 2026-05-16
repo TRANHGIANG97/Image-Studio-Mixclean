@@ -12,10 +12,11 @@ object NavDestinations {
     const val EFFECTS_MODE_SCREEN = "effects_mode_screen"
     const val BORDER_MODE_SCREEN = "border_mode_screen"
     const val STUDIO_MODE_SCREEN = "studio_mode_screen"
-    const val REMOVE_BG_SCREEN = "remove_bg_screen"
+    const val REMOVE_BG_MODE_SCREEN = "remove_bg_mode_screen"
     const val MAGIC_BRUSH_SCREEN = "magic_brush_screen"
     const val BACKGROUND_MODE_SCREEN = "background_mode_screen"
     const val ROTATE_SCREEN = "rotate_screen"
 
     const val SINGLE_IMAGE_PICKER_SCREEN = "single_image_picker_screen"
+    const val ADD_IMAGE_PICKER_SCREEN = "add_image_picker_screen"
 }

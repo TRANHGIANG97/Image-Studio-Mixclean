@@ -51,6 +51,9 @@
     <string name="clean">Làm sạch</string>
     <string name="darken">Làm tối</string>
     <string name="remove_bg">Xoá nền</string>
+    <string name="hair_detail">Chi tiết tóc</string>
+    <string name="hair_detail_processing">Đang làm rõ chi tiết tóc...</string>
+    <string name="remove_bg_processing">Đang xoá nền...</string>
     <string name="studio_intensity">Cường độ</string>
     <string name="background">Nền</string>
     <string name="gradient">Gradient</string>
@@ -59,6 +62,9 @@
     <string name="back">Quay lại</string>
     <string name="original">Gốc</string>
     <string name="save_draft">Lưu nháp</string>
+    <string name="save_draft_confirm_title">Lưu bản nháp?</string>
+    <string name="save_draft_confirm_message">Bạn có muốn lưu bản nháp không?</string>
+    <string name="save_draft_confirm_action">Lưu</string>
     <string name="failed_to_apply_effect">Lỗi áp dụng hiệu ứng</string>
     <string name="failed_to_apply_background">Lỗi áp dụng nền</string>
     <string name="aspect_ratio_equals">Tỷ lệ khung hình = %1$s</string>

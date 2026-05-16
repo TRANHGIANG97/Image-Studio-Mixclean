@@ -15,10 +15,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material3.TextButton
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.material3.Icon
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +67,7 @@ import androidx.compose.ui.platform.LocalDensity
 import com.abizer_r.quickedit.theme.EditorAccent
 import com.abizer_r.quickedit.theme.EditorAccentVariant
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -90,7 +112,9 @@ fun EditorScreen(
     goToBorderModeScreen: (finalEditorState: EditorScreenState) -> Unit,
     goToStudioModeScreen: (finalEditorState: EditorScreenState) -> Unit,
     goToBackgroundModeScreen: (finalEditorState: EditorScreenState) -> Unit = { },
+    goToAddImageScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToRemoveBgScreen: (finalEditorState: EditorScreenState) -> Unit = { },
+
     goToMagicBrushScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToRotateModeScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToMainScreen: () -> Unit,
@@ -109,7 +133,11 @@ fun EditorScreen(
         lifecycleOwner = lifeCycleOwner
     )
 
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(
+        initialEditorScreenState.recompositionTrigger,
+        initialEditorScreenState.bitmapStack.size,
+        initialEditorScreenState.bitmapRedoStack.size
+    ) {
         viewModel.updateInitialState(initialEditorScreenState)
     }
 
@@ -142,11 +170,15 @@ fun EditorScreen(
                     BottomToolbarItem.RemoveBg -> {
                         goToRemoveBgScreen(state)
                     }
+
                     BottomToolbarItem.MagicBrush -> {
                         goToMagicBrushScreen(state)
                     }
                     BottomToolbarItem.BackgroundMode -> {
                         goToBackgroundModeScreen(state)
+                    }
+                    BottomToolbarItem.AddImage -> {
+                        goToAddImageScreen(state)
                     }
                     BottomToolbarItem.RotateItem -> {
                         android.util.Log.d("RotateDebug", "RotateItem clicked, navigating to rotate screen")
@@ -165,6 +197,11 @@ fun EditorScreen(
             redoEnabled = viewModel.redoEnabled(),
             onUndo = viewModel::onUndo,
             onRedo = viewModel::onRedo,
+            onDeleteImage = {
+                val transparentBitmap = android.graphics.Bitmap.createBitmap(1, 1, android.graphics.Bitmap.Config.ARGB_8888)
+                transparentBitmap.setHasAlpha(true)
+                viewModel.addBitmapToStack(transparentBitmap)
+            },
             onBottomToolbarEvent = onBottomToolbarEvent,
             goToMainScreen = goToMainScreen,
             isPremium = isPremium,
@@ -182,6 +219,7 @@ private fun EditorScreenLayout(
     redoEnabled: Boolean,
     onUndo: () -> Unit,
     onRedo: () -> Unit,
+    onDeleteImage: () -> Unit,
     onBottomToolbarEvent: (BottomToolbarEvent) -> Unit,
     goToMainScreen: () -> Unit,
     isPremium: Boolean = false,
@@ -190,6 +228,8 @@ private fun EditorScreenLayout(
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    var showSaveDraftDialog by remember { mutableStateOf(false) }
+    var showExitConfirmDialog by remember { mutableStateOf(false) }
 
     val bottomToolbarItems = remember {
         ImmutableList(EditorScreenUtils.getDefaultBottomToolbarItemsList())
@@ -215,28 +255,43 @@ private fun EditorScreenLayout(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    val mOnBottomToolbarEvent = remember { { toolbarEvent: BottomToolbarEvent ->
+    val mOnBottomToolbarEvent = remember(currentBitmap) { { toolbarEvent: BottomToolbarEvent ->
         if (toolbarEvent is BottomToolbarEvent.OnItemClicked) {
             android.util.Log.d("RotateDebug", "Toolbar item clicked: ${toolbarEvent.toolbarItem}")
-            coroutineScope.launch(Dispatchers.Main) {
-                toolbarVisible = false
-                android.util.Log.d("RotateDebug", "Toolbar hidden, waiting ${AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST}ms")
-                delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
-                android.util.Log.d("RotateDebug", "Delay done, calling onBottomToolbarEvent")
+
+            if (currentBitmap.width <= 1 || currentBitmap.height <= 1) {
+                if (toolbarEvent.toolbarItem != BottomToolbarItem.AddImage) {
+                    context.toast("Vui lòng thêm ảnh trước")
+                    return@remember
+                }
+            }
+
+            if (toolbarEvent.toolbarItem == BottomToolbarItem.RemoveBg) {
                 onBottomToolbarEvent(toolbarEvent)
+            } else {
+                coroutineScope.launch(Dispatchers.Main) {
+                    toolbarVisible = false
+                    android.util.Log.d("RotateDebug", "Toolbar hidden, waiting ${AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST}ms")
+                    delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
+                    android.util.Log.d("RotateDebug", "Delay done, calling onBottomToolbarEvent")
+                    onBottomToolbarEvent(toolbarEvent)
+                }
             }
         }
     } }
 
-    val onCloseClickedLambda = remember { {
-        // TODO - confirmation dialog (add throughout the app)
-        goToMainScreen()
+    val onCloseClickedLambda = remember(undoEnabled, redoEnabled, onUndo) { {
+        if (undoEnabled) {
+            onUndo()
+        } else {
+            showExitConfirmDialog = true
+        }
     } }
 
     BackHandler {
         onCloseClickedLambda()
     }
-    val onSaveClickedLambda = remember { {
+    val onSaveClickedLambda = remember(currentBitmap) { {
         val imgFile = File(context.filesDir, "edited_image.jpg")
         BitmapUtils.saveBitmap(currentBitmap, imgFile)
         FileUtils.saveFileToAppFolder(
@@ -247,7 +302,7 @@ private fun EditorScreenLayout(
         )
     } }
 
-    val onShareClickedLambda = remember { {
+    val onShareClickedLambda = remember(currentBitmap) { {
         val imgFile = File(context.filesDir, "edited_image.jpg")
         BitmapUtils.saveBitmap(currentBitmap, imgFile)
         FileUtils.saveFileToAppFolder(
@@ -271,19 +326,25 @@ private fun EditorScreenLayout(
     } }
 
     var scale by remember { mutableFloatStateOf(1f) }
+    var rotation by remember { mutableFloatStateOf(0f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
     val isZoomedOrPanned by remember {
-        derivedStateOf { scale != 1f || offset != Offset.Zero }
+        derivedStateOf { scale != 1f || offset != Offset.Zero || rotation != 0f }
     }
-    val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
-        scale = (scale * zoomChange).coerceIn(1f, 5f)
-        offset += panChange * scale
+    val transformableState = rememberTransformableState { zoomChange, panChange, rotationChange ->
+        val minScale = 0.1f // Allow zooming out for both opaque and transparent images
+        scale = (scale * zoomChange).coerceIn(minScale, 5f)
+        offset += panChange
+        rotation += rotationChange
     }
+
+    val checkerboardBrush = rememberCheckerboardBrush()
+    val bgBrush = if (currentBitmap.hasAlpha()) checkerboardBrush else SolidColor(MaterialTheme.colorScheme.background)
 
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(bgBrush)
     ) {
         val (topToolbar, bottomToolbar, bgImage) = createRefs()
 
@@ -302,14 +363,61 @@ private fun EditorScreenLayout(
                 onCloseClicked = onCloseClickedLambda,
                 onSaveClicked = onSaveClickedLambda,
                 onShareClicked = onShareClickedLambda,
-                onSaveDraftClicked = { onSaveDraftClicked(currentBitmap) }
+                onSaveDraftClicked = { showSaveDraftDialog = true }
+            )
+        }
+
+        if (showSaveDraftDialog) {
+            AlertDialog(
+                onDismissRequest = { showSaveDraftDialog = false },
+                title = { Text(stringResource(R.string.save_draft_confirm_title)) },
+                text = { Text(stringResource(R.string.save_draft_confirm_message)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onSaveDraftClicked(currentBitmap)
+                            showSaveDraftDialog = false
+                        }
+                    ) {
+                        Text(stringResource(R.string.save_draft_confirm_action))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showSaveDraftDialog = false }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
+            )
+        }
+
+        if (showExitConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = { showExitConfirmDialog = false },
+                title = { Text(stringResource(R.string.confirm_exit_title)) },
+                text = { Text(stringResource(R.string.confirm_exit_message)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showExitConfirmDialog = false
+                            goToMainScreen()
+                        }
+                    ) {
+                        Text(stringResource(R.string.discard))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showExitConfirmDialog = false }
+                    ) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
             )
         }
 
         val topToolbarHeight =  TOOLBAR_HEIGHT_SMALL
         val bottomToolbarHeight = TOOLBAR_HEIGHT_MEDIUM
 
-        val checkerboardBrush = rememberCheckerboardBrush()
         val aspectRatio = remember(currentBitmap) {
             currentBitmap.width.toFloat() / currentBitmap.height.toFloat()
         }
@@ -323,18 +431,18 @@ private fun EditorScreenLayout(
                     width = Dimension.wrapContent
                     height = Dimension.wrapContent
                 }
-                .padding(top = topToolbarHeight, bottom = bottomToolbarHeight)
-                .aspectRatio(aspectRatio)
-                .then(
-                    if (currentBitmap.hasAlpha()) Modifier.background(checkerboardBrush)
-                    else Modifier
+                .padding(
+                    top = topToolbarHeight + androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 16.dp, 
+                    bottom = bottomToolbarHeight + androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
                 )
+                .aspectRatio(aspectRatio)
                 .transformable(transformableState)
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
                     translationX = offset.x,
-                    translationY = offset.y
+                    translationY = offset.y,
+                    rotationZ = rotation
                 ),
         ) {
 
@@ -347,20 +455,60 @@ private fun EditorScreenLayout(
                 alpha = 1f
             )
 
-            // Reset zoom button
-            if (isZoomedOrPanned) {
-                TextButton(
-                    onClick = {
+            if (currentBitmap.width > 1 || currentBitmap.height > 1) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                        .size(28.dp)
+                        .shadow(4.dp, androidx.compose.foundation.shape.CircleShape)
+                        .background(Color.Black.copy(alpha = 0.7f), androidx.compose.foundation.shape.CircleShape)
+                        .clickable(onClick = onDeleteImage),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = "Xoá ảnh",
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+
+        }
+
+        // Fixed Reset zoom button in the bottom left of working area
+        if (isZoomedOrPanned) {
+            Box(
+                modifier = Modifier
+                    .constrainAs(createRef()) {
+                        bottom.linkTo(bottomToolbar.top, margin = 16.dp)
+                        start.linkTo(parent.start, margin = 16.dp)
+                    }
+                    .shadow(8.dp, RoundedCornerShape(24.dp))
+                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(24.dp))
+                    .clip(RoundedCornerShape(24.dp))
+                    .clickable {
                         scale = 1f
                         offset = Offset.Zero
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp)
-                ) {
+                        rotation = 0f
+                    }
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Rounded.RestartAlt,
+                        contentDescription = "Reset",
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Reset",
-                        color = Color.White
+                        text = "Reset",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -436,6 +584,7 @@ fun PreviewEditorScreen() {
             redoEnabled = false,
             onUndo = {},
             onRedo = {},
+            onDeleteImage = {},
             onBottomToolbarEvent = {},
             goToMainScreen = {}
         )

@@ -7,7 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import kotlin.math.min
 import androidx.compose.foundation.lazy.LazyRow
@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import com.thgiang.image.core.model.PresetStyle
 import androidx.compose.runtime.*
@@ -31,8 +32,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -50,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abizer_r.quickedit.R
 // ToolBarBackgroundColor removed from imports
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
+import com.abizer_r.quickedit.ui.common.LoadingView
 import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
 import com.abizer_r.quickedit.ui.common.topToolbarModifier
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_EXTRA_LARGE
@@ -102,6 +105,19 @@ fun BackgroundModeScreen(
         val aspectRatio = immutableBitmap.bitmap.width.toFloat() / immutableBitmap.bitmap.height.toFloat()
         var previewPxSize by remember { mutableStateOf(IntSize.Zero) }
         val density = LocalDensity.current
+        val bgBitmap = state.backgroundBitmap
+        val fgBitmap = state.foregroundBitmap
+        val pxPerUnit = remember(previewPxSize, bgBitmap) {
+            val bg = bgBitmap
+            if (bg != null && previewPxSize.width > 0 && previewPxSize.height > 0) {
+                min(
+                    previewPxSize.width.toFloat() / bg.width.toFloat(),
+                    previewPxSize.height.toFloat() / bg.height.toFloat()
+                )
+            } else {
+                0f
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -115,11 +131,33 @@ fun BackgroundModeScreen(
                 }
                 .padding(top = topToolbarHeight, bottom = 120.dp)
                 .aspectRatio(aspectRatio)
-                .onSizeChanged { previewPxSize = it },
+                .onSizeChanged { previewPxSize = it }
+                .pointerInput(pxPerUnit, bgBitmap, fgBitmap, state.isProcessing) {
+                    detectTransformGestures { _, pan, zoomChange, rotationChange ->
+                        if (
+                            pxPerUnit <= 0f ||
+                            bgBitmap == null ||
+                            fgBitmap == null ||
+                            state.isProcessing
+                        ) return@detectTransformGestures
+
+                        if (pan != Offset.Zero) {
+                            viewModel.updateForegroundOffset(
+                                dx = pan.x / pxPerUnit,
+                                dy = pan.y / pxPerUnit
+                            )
+                        }
+                        if (zoomChange != 1f || rotationChange != 0f) {
+                            viewModel.updateForegroundTransform(
+                                zoomChange = zoomChange,
+                                rotationChange = rotationChange
+                            )
+                        }
+                    }
+                },
             contentAlignment = Alignment.Center
         ) {
             // Background layer (fixed)
-            val bgBitmap = state.backgroundBitmap
             if (bgBitmap != null) {
                 Image(
                     modifier = Modifier.fillMaxSize(),
@@ -138,7 +176,6 @@ fun BackgroundModeScreen(
             }
 
             // Foreground overlay (draggable on top of background)
-            val fgBitmap = state.foregroundBitmap
             if (fgBitmap != null && bgBitmap != null) {
                 val compScale = min(
                     bgBitmap.width.toFloat() / fgBitmap.width,
@@ -146,33 +183,31 @@ fun BackgroundModeScreen(
                 )
                 val drawW = fgBitmap.width * compScale
                 val drawH = fgBitmap.height * compScale
+                val previewDrawW = drawW * state.foregroundScale * pxPerUnit
+                val previewDrawH = drawH * state.foregroundScale * pxPerUnit
 
-                Image(
-                    bitmap = fgBitmap.asImageBitmap(),
+                Box(
                     modifier = Modifier
                         .offset {
-                            val pxPerUnit = if (previewPxSize.width > 0)
-                                previewPxSize.width.toFloat() / bgBitmap.width else 0f
                             IntOffset(
-                                x = (((bgBitmap.width - drawW) / 2f + state.foregroundOffsetX) * pxPerUnit).toInt(),
-                                y = (((bgBitmap.height - drawH) / 2f + state.foregroundOffsetY) * pxPerUnit).toInt()
+                                x = (state.foregroundOffsetX * pxPerUnit).toInt(),
+                                y = (state.foregroundOffsetY * pxPerUnit).toInt()
                             )
                         }
-                        .size(with(density) { drawW.toDp() }, with(density) { drawH.toDp() })
-                        .pointerInput(fgBitmap) {
-                            detectDragGestures { _, dragAmount ->
-                                if (previewPxSize.width > 0) {
-                                    val pxPerUnit = previewPxSize.width.toFloat() / bgBitmap.width
-                                    viewModel.updateForegroundOffset(
-                                        dragAmount.x / pxPerUnit,
-                                        dragAmount.y / pxPerUnit
-                                    )
-                                }
-                            }
-                        },
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit
-                )
+                        .graphicsLayer(rotationZ = state.foregroundRotation)
+                        .size(
+                            width = with(density) { previewDrawW.toDp() },
+                            height = with(density) { previewDrawH.toDp() }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        modifier = Modifier.fillMaxSize(),
+                        bitmap = fgBitmap.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
 
             if (state.isProcessing) {
@@ -182,7 +217,11 @@ fun BackgroundModeScreen(
                         .background(Color.Black.copy(alpha = 0.3f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = Color.White)
+                    LoadingView(
+                        modifier = Modifier.fillMaxSize(),
+                        progressBarSize = 96.dp,
+                        progressBarColor = Color.White
+                    )
                 }
             }
         }
@@ -237,35 +276,49 @@ fun BackgroundModeScreen(
                         .height(80.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    when (state.currentTab) {
-                        BackgroundModeViewModel.BackgroundTab.IMAGE -> {
-                            Button(
-                                onClick = onPickImageRequest,
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                            ) {
-                                Icon(Icons.Default.AddPhotoAlternate, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.pick_image))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = viewModel::resetForegroundPosition) {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        when (state.currentTab) {
+                            BackgroundModeViewModel.BackgroundTab.IMAGE -> {
+                                Button(
+                                    onClick = onPickImageRequest,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                                ) {
+                                    Icon(Icons.Default.AddPhotoAlternate, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(R.string.pick_image))
+                                }
                             }
-                        }
-                        BackgroundModeViewModel.BackgroundTab.COLOR -> {
-                            ColorSelector(
-                                selectedColor = state.selectedColor,
-                                onColorSelected = { viewModel.applyColorBackground(it) }
-                            )
-                        }
-                        BackgroundModeViewModel.BackgroundTab.GRADIENT -> {
-                            GradientSelector(
-                                selectedGradient = state.selectedGradient,
-                                onGradientSelected = { viewModel.applyGradientBackground(it) }
-                            )
-                        }
-                        BackgroundModeViewModel.BackgroundTab.PRESET -> {
-                            PresetSelector(
-                                selectedPreset = state.selectedPresetStyle,
-                                onPresetSelected = { viewModel.applyPresetBackground(it) }
-                            )
+                            BackgroundModeViewModel.BackgroundTab.COLOR -> {
+                                ColorSelector(
+                                    selectedColor = state.selectedColor,
+                                    onColorSelected = { viewModel.applyColorBackground(it) }
+                                )
+                            }
+                            BackgroundModeViewModel.BackgroundTab.GRADIENT -> {
+                                GradientSelector(
+                                    selectedGradient = state.selectedGradient,
+                                    onGradientSelected = { viewModel.applyGradientBackground(it) }
+                                )
+                            }
+                            BackgroundModeViewModel.BackgroundTab.PRESET -> {
+                                PresetSelector(
+                                    selectedPreset = state.selectedPresetStyle,
+                                    onPresetSelected = { viewModel.applyPresetBackground(it) }
+                                )
+                            }
                         }
                     }
                 }

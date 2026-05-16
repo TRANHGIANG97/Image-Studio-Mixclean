@@ -28,6 +28,18 @@ class EditorScreenViewModel @Inject constructor(
     fun undoEnabled() = _state.value.bitmapStack.size > 1
     fun redoEnabled() = _state.value.bitmapRedoStack.isNotEmpty()
 
+    fun addBitmapToStack(bitmap: Bitmap) {
+        _state.update { current ->
+            val newStack = current.bitmapStack.toMutableList()
+            newStack.add(bitmap)
+            current.copy(
+                bitmapStack = newStack,
+                bitmapRedoStack = emptyList(),
+                recompositionTrigger = current.recompositionTrigger + 1
+            )
+        }
+    }
+
     fun updateInitialState(initialState: EditorScreenState) {
         _state.update { initialState }
     }

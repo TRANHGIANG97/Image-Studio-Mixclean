@@ -22,6 +22,8 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.vision.common)
     implementation(libs.play.services.mlkit.subject.segmentation)
+    implementation(libs.play.services.base)
+    implementation(libs.mlkit.segmentation.selfie)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation("androidx.exifinterface:exifinterface:1.3.7")
 }

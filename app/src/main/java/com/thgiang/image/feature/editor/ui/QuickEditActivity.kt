@@ -11,16 +11,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.ui.unit.dp
+import com.thgiang.image.core.util.processors.ProcessorUtils
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +50,7 @@ import com.abizer_r.quickedit.ui.studioMode.StudioModeScreen
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundModeScreen
 import com.abizer_r.quickedit.ui.magicBrush.MagicBrushScreen
 import com.abizer_r.quickedit.ui.rotateMode.RotateModeScreen
+import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
 import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
@@ -62,18 +62,28 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.compose.ui.zIndex
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
+import com.thgiang.image.core.diagnostics.ImageProcessingCrashReporter
 import com.thgiang.image.feature.editor.model.DraftManager
 import com.thgiang.image.feature.editor.model.LayerSnapshot
 import com.thgiang.image.feature.editor.model.ProjectSnapshot
+import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 import com.abizer_r.quickedit.utils.toast
+import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import com.thgiang.image.feature.premium.domain.PremiumRepository
 import java.util.UUID
 import java.io.File
 import javax.inject.Inject
+import android.util.Log
+
+private const val TAG = "QuickEditRemoveBg"
+private const val QUICK_TOOLS_FACE_DETECTION_TIMEOUT_MS = 10_000L
+private const val QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS = 45_000L
 
 @AndroidEntryPoint
 class QuickEditActivity : AppCompatActivity() {
@@ -83,6 +93,9 @@ class QuickEditActivity : AppCompatActivity() {
 
     @Inject
     lateinit var backgroundRemoverRepository: BackgroundRemoverRepository
+
+    @Inject
+    lateinit var hairDetailBackgroundRemoverRepository: ModNetBackgroundRemoverRepository
 
     @Inject
     lateinit var rewardedAdManager: com.thgiang.image.core.ad.RewardedAdManager
@@ -103,7 +116,7 @@ class QuickEditActivity : AppCompatActivity() {
         val uri = intent.getParcelableExtra<Uri>(EXTRA_IMAGE_URI)
         val draftId = if (intent.hasExtra(EXTRA_DRAFT_ID)) intent.getStringExtra(EXTRA_DRAFT_ID) else null
         val autoRemoveBg = intent.getBooleanExtra(EXTRA_AUTO_REMOVE_BG, false)
-        android.util.Log.d("QuickEditActivity", "autoRemoveBackground flag: $autoRemoveBg")
+        Log.d(TAG, "onCreate autoRemoveBackground=$autoRemoveBg draftId=$draftId uri=$uri")
 
         setContent {
             QuickEditTheme {
@@ -113,6 +126,7 @@ class QuickEditActivity : AppCompatActivity() {
                     draftManager = draftManager,
                     autoRemoveBackground = autoRemoveBg,
                     backgroundRemoverRepository = backgroundRemoverRepository,
+                    hairDetailBackgroundRemoverRepository = hairDetailBackgroundRemoverRepository,
                     rewardedAdManager = rewardedAdManager,
                     premiumRepository = premiumRepository
                 )
@@ -147,6 +161,7 @@ fun QuickEditEditorNavigation(
     draftManager: DraftManager,
     autoRemoveBackground: Boolean = false,
     backgroundRemoverRepository: BackgroundRemoverRepository? = null,
+    hairDetailBackgroundRemoverRepository: ModNetBackgroundRemoverRepository? = null,
     rewardedAdManager: com.thgiang.image.core.ad.RewardedAdManager? = null,
     premiumRepository: PremiumRepository? = null
 ) {
@@ -156,6 +171,7 @@ fun QuickEditEditorNavigation(
     val navController = rememberNavController()
     val sharedEditorViewModel: SharedEditorViewModel = viewModel()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var bitmapLoaded by remember { mutableStateOf(false) }
     var loadError by remember { mutableStateOf(false) }
@@ -203,13 +219,20 @@ fun QuickEditEditorNavigation(
 
 
     if (!bitmapLoaded) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
+        BackgroundRemovalLoadingOverlay(
+            modifier = Modifier.fillMaxSize(),
+            message = stringResource(id = com.thgiang.image.R.string.loading_image)
+        )
         return
     }
 
     val scope = rememberCoroutineScope()
+    val selfieFallbackWarning = stringResource(id = com.thgiang.image.R.string.remove_bg_selfie_fallback_warning)
+    val showSelfieFallbackWarning = {
+        scope.launch {
+            snackbarHostState.showSnackbar(selfieFallbackWarning)
+        }
+    }
     val goToCropModeScreen = remember { { state: EditorScreenState ->
         sharedEditorViewModel.updateStacksFromEditorState(state)
         navController.navigate(NavDestinations.CROPPER_SCREEN)
@@ -237,36 +260,21 @@ fun QuickEditEditorNavigation(
     // Auto-remove background on startup state
     var autoRemoveDone by remember { mutableStateOf(false) }
     var isRemovingBg by remember { mutableStateOf(false) }
+    var autoRemoveStatusMessage by remember { mutableStateOf<String?>(null) }
+    val quickToolsPortraitClassifier = remember { QuickToolsPortraitClassifier() }
 
     val goToRemoveBgScreen = remember { { state: EditorScreenState ->
         sharedEditorViewModel.updateStacksFromEditorState(state)
-        val bitmap = sharedEditorViewModel.getCurrentBitmap()
-        isRemovingBg = true
-        scope.launch {
-            val result = withContext(Dispatchers.Default) {
-                backgroundRemoverRepository?.getForegroundBitmap(bitmap)
-            }
-            result?.fold(
-                onSuccess = { fg ->
-                    val resultBitmap = fg.copy(Bitmap.Config.ARGB_8888, true)
-                    resultBitmap.setHasAlpha(true)
-                    sharedEditorViewModel.addBitmapToStack(bitmap = resultBitmap, triggerRecomposition = true)
-                    isRemovingBg = false
-                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
-                    }
-                },
-                onFailure = { e ->
-                    isRemovingBg = false
-                    context.toast("Background removal failed")
-                }
-            )
-        }
-        Unit
+        navController.navigate(NavDestinations.REMOVE_BG_MODE_SCREEN)
     } }
+
     val goToBackgroundModeScreen = remember { { state: EditorScreenState ->
         sharedEditorViewModel.updateStacksFromEditorState(state)
         navController.navigate(NavDestinations.BACKGROUND_MODE_SCREEN)
+    } }
+    val goToAddImageScreen = remember { { state: EditorScreenState ->
+        sharedEditorViewModel.updateStacksFromEditorState(state)
+        navController.navigate(NavDestinations.ADD_IMAGE_PICKER_SCREEN)
     } }
     val goToMagicBrushScreen = remember { { state: EditorScreenState ->
         sharedEditorViewModel.updateStacksFromEditorState(state)
@@ -285,6 +293,16 @@ fun QuickEditEditorNavigation(
     val onDoneClicked = remember { { bitmap: Bitmap ->
         sharedEditorViewModel.addBitmapToStack(
             bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false),
+        )
+        navController.navigate(NavDestinations.EDITOR_SCREEN) {
+            popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+        }
+    } }
+    val onHairDetailDoneClicked = remember { { bitmap: Bitmap ->
+        sharedEditorViewModel.addBitmapToStack(
+            bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true).also { it.setHasAlpha(true) },
+            triggerRecomposition = true,
+            addSafelyWithoutMultipleTriggers = false
         )
         navController.navigate(NavDestinations.EDITOR_SCREEN) {
             popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
@@ -329,16 +347,13 @@ fun QuickEditEditorNavigation(
             
             withContext(Dispatchers.IO) {
                 val id = draftManager.createDraft(draftName, snapshot)
-                if (id != null) {
-                    // Save bitmap
-                    val draftDir = draftManager.getDraftDir(id)
-                    val bitmapFile = File(draftDir, cacheFileName)
-                    val fos = java.io.FileOutputStream(bitmapFile)
-                    try {
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                    } finally {
-                        fos.close()
-                    }
+                val draftDir = draftManager.getDraftDir(id)
+                val bitmapFile = File(draftDir, cacheFileName)
+                val fos = java.io.FileOutputStream(bitmapFile)
+                try {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                } finally {
+                    fos.close()
                 }
             }
         }
@@ -348,33 +363,158 @@ fun QuickEditEditorNavigation(
         navController = navController,
         startDestination = NavDestinations.EDITOR_SCREEN,
     ) {
-        composable(route = NavDestinations.EDITOR_SCREEN) {
-            var autoRemoveResult by remember { mutableStateOf<Bitmap?>(null) }
+        composable(route = NavDestinations.EDITOR_SCREEN) { entry ->
+            val pickedAddImageUri = entry.savedStateHandle.get<Uri>("add_image_uri")
+            val ctx = LocalContext.current
+            LaunchedEffect(pickedAddImageUri) {
+                pickedAddImageUri?.let { uri ->
+                    withContext(Dispatchers.IO) {
+                        BitmapUtils.getScaledBitmap(ctx, uri).collect { status ->
+                            if (status is BitmapStatus.Success) {
+                                withContext(Dispatchers.Main) {
+                                    sharedEditorViewModel.addBitmapToStack(
+                                        bitmap = status.scaledBitmap.copy(Bitmap.Config.ARGB_8888, false),
+                                        triggerRecomposition = true,
+                                        addSafelyWithoutMultipleTriggers = false
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    entry.savedStateHandle.remove<Uri>("add_image_uri")
+                }
+            }
 
             LaunchedEffect(bitmapLoaded, autoRemoveBackground) {
                 if (bitmapLoaded && autoRemoveBackground && !autoRemoveDone) {
                     autoRemoveDone = true
-                    isRemovingBg = true
-                    val bitmap = sharedEditorViewModel.getCurrentBitmap()
-                    val result = withContext(Dispatchers.Default) {
-                        backgroundRemoverRepository?.getForegroundBitmap(bitmap)
+                    val subjectRemover = backgroundRemoverRepository
+                    if (subjectRemover == null) {
+                        context.toast("Background remover not available")
+                        return@LaunchedEffect
                     }
-                    result?.fold(
-                        onSuccess = { fg ->
-                            autoRemoveResult = fg.copy(Bitmap.Config.ARGB_8888, true).also { it.setHasAlpha(true) }
-                        },
-                        onFailure = { }
-                    )
-                    isRemovingBg = false
-                }
-            }
+                    isRemovingBg = true
+                    autoRemoveStatusMessage = "Đang tìm khuôn mặt"
+                    try {
+                        val bitmap = sharedEditorViewModel.getCurrentBitmap()
+                        ImageProcessingCrashReporter.setActiveTool("quick_tools_remove_bg")
+                        ImageProcessingCrashReporter.setBitmapInfo("input", bitmap)
+                        ImageProcessingCrashReporter.setRemoveBgRoute(isAutoRemove = true)
+                        Log.d(TAG, "autoRemoveBackground flow start bitmap=${bitmap.width}x${bitmap.height} hasAlpha=${bitmap.hasAlpha()}")
+                        ImageProcessingCrashReporter.setStage("quick_tools_face_detection")
+                        val faceStartMs = android.os.SystemClock.elapsedRealtime()
+                        val hasFace = runCatching {
+                            withTimeout(QUICK_TOOLS_FACE_DETECTION_TIMEOUT_MS) {
+                                quickToolsPortraitClassifier.hasDetectableFace(bitmap).getOrThrow()
+                            }
+                        }
+                            .also {
+                                ImageProcessingCrashReporter.setDuration(
+                                    stage = "face_detection",
+                                    durationMs = android.os.SystemClock.elapsedRealtime() - faceStartMs
+                                )
+                            }
+                            .onFailure {
+                                Log.e(TAG, "autoRemoveBackground: face detection failed", it)
+                                ImageProcessingCrashReporter.recordNonFatal(it, "quick_tools_face_detection")
+                            }
+                            .getOrDefault(false)
+                        val modNetRemover = hairDetailBackgroundRemoverRepository
+                        val useModNet = hasFace && modNetRemover != null
+                        autoRemoveStatusMessage = if (hasFace) {
+                            "Xác định có khuôn mặt\nĐang tiến hành xoá phông"
+                        } else {
+                            "Xác định không có khuôn mặt\nĐang tiến hành xoá phông"
+                        }
 
-            LaunchedEffect(autoRemoveResult) {
-                if (autoRemoveResult != null) {
-                    sharedEditorViewModel.addBitmapToStack(bitmap = autoRemoveResult!!, triggerRecomposition = true)
-                    autoRemoveResult = null
-                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                        Log.d(
+                            TAG,
+                            "autoRemoveBackground: hasFace=$hasFace remover=${if (useModNet) "ModNet" else "ML Kit Subject"}"
+                        )
+                        val selectedRemoverName = if (useModNet) "modnet" else "mlkit_subject"
+                        ImageProcessingCrashReporter.setRemoveBgRoute(
+                            isAutoRemove = true,
+                            hasFace = hasFace,
+                            remover = selectedRemoverName
+                        )
+
+                        ImageProcessingCrashReporter.setStage("quick_tools_remove_bg")
+                        val removeStartMs = android.os.SystemClock.elapsedRealtime()
+                        var result = runCatching {
+                            withTimeout(QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS) {
+                                withContext(Dispatchers.Default) {
+                                    if (useModNet) {
+                                        Log.d(TAG, "autoRemoveBackground: calling ModNet remover")
+                                        ImageProcessingCrashReporter.setStage("quick_tools_call_modnet")
+                                        modNetRemover!!.getForegroundBitmap(bitmap).getOrThrow()
+                                    } else {
+                                        Log.d(TAG, "autoRemoveBackground: calling ML Kit Subject remover")
+                                        ImageProcessingCrashReporter.setStage("quick_tools_call_mlkit_subject")
+                                        subjectRemover.getForegroundBitmap(bitmap).getOrThrow()
+                                    }
+                                }
+                            }
+                        }.also {
+                            ImageProcessingCrashReporter.setDuration(
+                                stage = "remove_bg",
+                                durationMs = android.os.SystemClock.elapsedRealtime() - removeStartMs
+                            )
+                        }
+
+                        if (result.isFailure && useModNet) {
+                            result.exceptionOrNull()?.let {
+                                Log.e(TAG, "autoRemoveBackground: ModNet failed, falling back to ML Kit Subject", it)
+                                ImageProcessingCrashReporter.recordNonFatal(it, "quick_tools_modnet_fallback")
+                            }
+                            ImageProcessingCrashReporter.setRemoveBgRoute(
+                                isAutoRemove = true,
+                                hasFace = hasFace,
+                                remover = "mlkit_subject_fallback"
+                            )
+                            ImageProcessingCrashReporter.setStage("quick_tools_remove_bg_fallback")
+                            val fallbackStartMs = android.os.SystemClock.elapsedRealtime()
+                            result = runCatching {
+                                withTimeout(QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS) {
+                                    withContext(Dispatchers.Default) {
+                                        subjectRemover.getForegroundBitmap(bitmap).getOrThrow()
+                                    }
+                                }
+                            }.also {
+                                ImageProcessingCrashReporter.setDuration(
+                                    stage = "fallback_remove_bg",
+                                    durationMs = android.os.SystemClock.elapsedRealtime() - fallbackStartMs
+                                )
+                            }
+                        }
+
+                        result.fold(
+                            onSuccess = { fg ->
+                                Log.d(TAG, "autoRemoveBackground: remover success fg=${fg.width}x${fg.height} hasAlpha=${fg.hasAlpha()}")
+                        val resultBitmap = ProcessorUtils.trimTransparentBounds(
+                                    fg.copy(Bitmap.Config.ARGB_8888, true)
+                                ).also { it.setHasAlpha(true) }
+                                ImageProcessingCrashReporter.setBitmapInfo("output", resultBitmap)
+                                Log.d(TAG, "autoRemoveBackground: trimmed result prepared=${resultBitmap.width}x${resultBitmap.height}")
+                                Log.d(TAG, "autoRemoveBackground: adding result to stack sizeBefore=${sharedEditorViewModel.bitmapStack.size}")
+                                sharedEditorViewModel.addBitmapToStack(
+                                    bitmap = resultBitmap,
+                                    triggerRecomposition = true,
+                                    addSafelyWithoutMultipleTriggers = false
+                                )
+                                Log.d(TAG, "autoRemoveBackground: added result to stack sizeAfter=${sharedEditorViewModel.bitmapStack.size}")
+                                if (subjectRemover.consumeSelfieFallbackWarning()) {
+                                    showSelfieFallbackWarning()
+                                }
+                            },
+                            onFailure = {
+                                Log.e(TAG, "autoRemoveBackground: remover failed", it)
+                                ImageProcessingCrashReporter.recordNonFatal(it, "quick_tools_remove_bg")
+                                context.toast("Background removal failed")
+                            }
+                        )
+                    } finally {
+                        autoRemoveStatusMessage = null
+                        isRemovingBg = false
                     }
                 }
             }
@@ -384,7 +524,8 @@ fun QuickEditEditorNavigation(
 
             val initialEditorState = EditorScreenState(
                 sharedEditorViewModel.bitmapStack,
-                sharedEditorViewModel.bitmapRedoStack
+                sharedEditorViewModel.bitmapRedoStack,
+                recompositionTrigger = visualState
             )
             Box(modifier = Modifier.fillMaxSize()) {
                 EditorScreen(
@@ -397,7 +538,9 @@ fun QuickEditEditorNavigation(
                     goToBorderModeScreen = goToBorderModeScreen,
                     goToStudioModeScreen = goToStudioModeScreen,
                     goToRemoveBgScreen = goToRemoveBgScreen,
+
                     goToBackgroundModeScreen = goToBackgroundModeScreen,
+                    goToAddImageScreen = goToAddImageScreen,
                     goToMagicBrushScreen = goToMagicBrushScreen,
                     goToRotateModeScreen = goToRotateModeScreenNav,
                     goToMainScreen = {
@@ -409,22 +552,20 @@ fun QuickEditEditorNavigation(
                 )
 
                 if (isRemovingBg) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.5f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(color = Color.White)
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = "Removing background...",
-                                color = Color.White
-                            )
-                        }
-                    }
+                    BackgroundRemovalLoadingOverlay(
+                        modifier = Modifier.fillMaxSize(),
+                        message = autoRemoveStatusMessage,
+                        showMessage = autoRemoveStatusMessage != null
+                    )
                 }
+
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 16.dp)
+                        .zIndex(10f)
+                )
             }
         }
 
@@ -477,6 +618,14 @@ fun QuickEditEditorNavigation(
             )
         }
 
+        composable(route = NavDestinations.REMOVE_BG_MODE_SCREEN) {
+            com.abizer_r.quickedit.ui.removeBgMode.RemoveBgModeScreen(
+                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
+                onBackPressed = onBackPressed,
+                onDoneClicked = onDoneClicked
+            )
+        }
+
         composable(route = NavDestinations.BACKGROUND_MODE_SCREEN) { entry ->
             val pickedImageUri = entry.savedStateHandle.get<Uri>("background_image_uri")
             var pickedBitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -516,6 +665,20 @@ fun QuickEditEditorNavigation(
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("background_image_uri", uri)
+                    navController.popBackStack()
+                },
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = NavDestinations.ADD_IMAGE_PICKER_SCREEN) {
+            SingleImagePickerScreen(
+                onImageSelected = { uri ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("add_image_uri", uri)
                     navController.popBackStack()
                 },
                 onCancel = {

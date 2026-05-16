@@ -205,7 +205,11 @@ fun StudioModeScreen(
                         .background(Color.Black.copy(alpha = 0.3f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = Color.White)
+                    LoadingView(
+                        modifier = Modifier.fillMaxSize(),
+                        progressBarSize = 96.dp,
+                        progressBarColor = Color.White
+                    )
                 }
             }
         }

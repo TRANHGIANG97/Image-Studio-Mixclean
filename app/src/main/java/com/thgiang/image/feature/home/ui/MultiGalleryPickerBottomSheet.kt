@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.thgiang.image.R
+import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.feature.home.viewmodel.GalleryViewModel
 import com.thgiang.image.core.data.gallery.GalleryRepository
 
@@ -205,9 +206,10 @@ fun RecentTabContent(
         }
 
         if (isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            BackgroundRemovalLoadingOverlay(
+                modifier = Modifier.fillMaxSize(),
+                message = stringResource(R.string.loading_image)
+            )
         } else if (images.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = "No images found", style = MaterialTheme.typography.bodyMedium)

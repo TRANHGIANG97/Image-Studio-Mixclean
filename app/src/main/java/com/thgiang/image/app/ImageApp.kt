@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +26,7 @@ class ImageApp : Application() {
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate() {
         super.onCreate()
+        FirebaseCrashlytics.getInstance().setCustomKey("app_start_package", packageName)
         // Khởi tạo AdMob SDK ngay khi app mở
         com.google.android.gms.ads.MobileAds.initialize(this)
         

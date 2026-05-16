@@ -1,11 +1,9 @@
 package com.thgiang.image.feature.remove.ui
 
 import android.Manifest
-import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
@@ -35,15 +33,25 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import coil.compose.AsyncImage
+import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.core.design.components.GradientPrimaryButton
 import com.thgiang.image.core.design.theme.ImageDesign
+import com.thgiang.image.feature.common.media.isSupportedByApp
+import com.thgiang.image.feature.common.media.loadPickerImageUris
+import com.thgiang.image.feature.common.media.resolveDisplayName
+import com.thgiang.image.feature.common.media.resolveMimeType
 import com.thgiang.image.R
 import androidx.compose.ui.res.stringResource
+import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val MAX_SELECTION = 20
@@ -59,6 +67,8 @@ fun MultiImagePickerScreen(
     onCancel: () -> Unit
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val refreshScope = rememberCoroutineScope()
 
     // ── Permission state ──────────────────────────────────────────────────────
     val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -85,12 +95,30 @@ fun MultiImagePickerScreen(
     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
 
+    suspend fun refreshImages(showLoader: Boolean) {
+        if (hasPermission) {
+            if (showLoader) isLoading = true
+            images = loadPickerImageUris(context)
+            isLoading = false
+        }
+    }
+
     // Load images whenever permission is granted
     LaunchedEffect(hasPermission) {
-        if (hasPermission) {
-            isLoading = true
-            images = loadImagesFromMediaStore(context)
-            isLoading = false
+        refreshImages(showLoader = true)
+    }
+
+    DisposableEffect(lifecycleOwner, hasPermission) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && hasPermission) {
+                refreshScope.launch {
+                    refreshImages(showLoader = images.isEmpty())
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -204,14 +232,12 @@ fun MultiImagePickerScreen(
                             .padding(innerPadding)
                     )
 
-                    isLoading -> Box(
+                    isLoading -> BackgroundRemovalLoadingOverlay(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = ImageDesign.semantic.aiAccent)
-                    }
+                        message = stringResource(R.string.loading_image)
+                    )
 
                     images.isEmpty() -> Box(
                         modifier = Modifier
@@ -260,13 +286,14 @@ fun MultiImagePickerScreen(
                                 selectionOrder = order,
                                 canSelectMore = selectedUris.size < MAX_SELECTION,
                                 onToggle = {
-                                    selectedUris = if (isSelected) {
-                                        selectedUris - uri
-                                    } else if (selectedUris.size < MAX_SELECTION) {
-                                        selectedUris + uri
-                                    } else {
-                                        selectedUris
-                                    }
+                                    handleImageToggle(
+                                        context = context,
+                                        uri = uri,
+                                        isSelected = isSelected,
+                                        selectedUris = selectedUris,
+                                        canSelectMore = selectedUris.size < MAX_SELECTION,
+                                        onSelectionChanged = { next -> selectedUris = next }
+                                    )
                                 }
                             )
                         }
@@ -384,6 +411,39 @@ private fun PickerImageItem(
     }
 }
 
+private fun handleImageToggle(
+    context: Context,
+    uri: Uri,
+    isSelected: Boolean,
+    selectedUris: List<Uri>,
+    canSelectMore: Boolean,
+    onSelectionChanged: (List<Uri>) -> Unit
+) {
+    if (isSelected) {
+        onSelectionChanged(selectedUris - uri)
+        return
+    }
+
+    val displayName = resolveDisplayName(context, uri)
+    val mimeType = resolveMimeType(context, uri)
+    if (!isSupportedByApp(displayName, mimeType)) {
+        val extension = displayName?.substringAfterLast('.', "")?.lowercase().orEmpty()
+        Toast.makeText(
+            context,
+            context.getString(
+                R.string.picker_unsupported_image_format,
+                extension.ifBlank { "unknown" }
+            ),
+            Toast.LENGTH_SHORT
+        ).show()
+        return
+    }
+
+    if (canSelectMore) {
+        onSelectionChanged(selectedUris + uri)
+    }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Permission denied state
 // ─────────────────────────────────────────────────────────────────────────────
@@ -433,32 +493,3 @@ private fun PermissionDeniedView(
 // MediaStore query (runs on IO dispatcher)
 // ─────────────────────────────────────────────────────────────────────────────
 
-private suspend fun loadImagesFromMediaStore(context: Context): List<Uri> =
-    withContext(Dispatchers.IO) {
-        val list = mutableListOf<Uri>()
-        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
-        val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DATE_ADDED
-        )
-        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
-
-        context.contentResolver.query(
-            collection, projection, null, null, sortOrder
-        )?.use { cursor ->
-            val idCol = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idCol)
-                list.add(
-                    ContentUris.withAppendedId(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id
-                    )
-                )
-            }
-        }
-        list
-    }

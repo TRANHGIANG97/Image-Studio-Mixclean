@@ -6,17 +6,17 @@ object EditorScreenUtils {
 
     fun getDefaultBottomToolbarItemsList(): ArrayList<BottomToolbarItem> {
         return arrayListOf(
+            BottomToolbarItem.RemoveBg,
+            BottomToolbarItem.MagicBrush,
+            BottomToolbarItem.AddImage,
+            BottomToolbarItem.RotateItem,
             BottomToolbarItem.CropMode,
             BottomToolbarItem.DrawMode,
             BottomToolbarItem.TextMode,
-            BottomToolbarItem.EffectsMode,
-            BottomToolbarItem.MagicBrush,
-            BottomToolbarItem.RemoveBg,
-
-            BottomToolbarItem.RotateItem,
             BottomToolbarItem.StudioMode,
             BottomToolbarItem.BorderMode,
-            BottomToolbarItem.BackgroundMode
+            BottomToolbarItem.BackgroundMode,
+            BottomToolbarItem.EffectsMode
         )
     }
 }

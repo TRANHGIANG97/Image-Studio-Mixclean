@@ -6,6 +6,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,18 +35,30 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import coil.compose.AsyncImage
+import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.core.design.components.GradientPrimaryButton
 import com.thgiang.image.core.design.theme.ImageDesign
+import com.thgiang.image.feature.common.media.isSupportedByApp
+import com.thgiang.image.feature.common.media.loadDownloadImageUris
+import com.thgiang.image.feature.common.media.loadPickerImageUris
+import com.thgiang.image.feature.common.media.resolveDisplayName
+import com.thgiang.image.feature.common.media.resolveMimeType
 import com.thgiang.image.R
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val DOWNLOAD_ALBUM_ID = "__download_images__"
 
 data class MediaAlbum(
     val id: String,
@@ -61,6 +74,8 @@ fun SingleImagePickerScreen(
     onCancel: () -> Unit
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val refreshScope = rememberCoroutineScope()
 
     val galleryPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         Manifest.permission.READ_MEDIA_IMAGES
@@ -125,13 +140,20 @@ fun SingleImagePickerScreen(
     var selectedAlbum by remember { mutableStateOf<MediaAlbum?>(null) }
     var albumImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
-    LaunchedEffect(hasGalleryPermission) {
+    suspend fun refreshGallery(showLoader: Boolean) {
         if (hasGalleryPermission) {
-            isLoading = true
+            if (showLoader) isLoading = true
             images = loadGalleryImages(context)
             albums = loadAlbums(context)
+            selectedAlbum?.let { album ->
+                albumImages = loadAlbumImages(context, album.id)
+            }
             isLoading = false
         }
+    }
+
+    LaunchedEffect(hasGalleryPermission) {
+        refreshGallery(showLoader = true)
     }
 
     LaunchedEffect(selectedAlbum) {
@@ -139,6 +161,20 @@ fun SingleImagePickerScreen(
             isLoading = true
             albumImages = loadAlbumImages(context, album.id)
             isLoading = false
+        }
+    }
+
+    DisposableEffect(lifecycleOwner, hasGalleryPermission, selectedAlbum) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && hasGalleryPermission) {
+                refreshScope.launch {
+                    refreshGallery(showLoader = images.isEmpty() && albums.isEmpty())
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -236,14 +272,12 @@ fun SingleImagePickerScreen(
                             .padding(innerPadding)
                     )
 
-                    isLoading -> Box(
+                    isLoading -> BackgroundRemovalLoadingOverlay(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = ImageDesign.semantic.aiAccent)
-                    }
+                        message = stringResource(R.string.loading_image)
+                    )
 
                     selectedAlbum != null -> {
                         LazyVerticalGrid(
@@ -256,7 +290,10 @@ fun SingleImagePickerScreen(
                             verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             items(albumImages, key = { it.toString() }) { uri ->
-                                GalleryImageCell(uri = uri, onClick = { onImageSelected(uri) })
+                                GalleryImageCell(
+                                    uri = uri,
+                                    onClick = { handleImageSelection(context, uri, onImageSelected) }
+                                )
                             }
                         }
                     }
@@ -285,7 +322,10 @@ fun SingleImagePickerScreen(
                                     CameraCell(onClick = ::launchCamera)
                                 }
                                 items(images, key = { it.toString() }) { uri ->
-                                    GalleryImageCell(uri = uri, onClick = { onImageSelected(uri) })
+                                    GalleryImageCell(
+                                        uri = uri,
+                                        onClick = { handleImageSelection(context, uri, onImageSelected) }
+                                    )
                                 }
                             }
                         }
@@ -379,6 +419,28 @@ private fun GalleryImageCell(uri: Uri, onClick: () -> Unit) {
             contentScale = ContentScale.Crop
         )
     }
+}
+
+private fun handleImageSelection(
+    context: Context,
+    uri: Uri,
+    onImageSelected: (Uri) -> Unit
+) {
+    val displayName = resolveDisplayName(context, uri)
+    val mimeType = resolveMimeType(context, uri)
+    if (!isSupportedByApp(displayName, mimeType)) {
+        val extension = displayName?.substringAfterLast('.', "")?.lowercase().orEmpty()
+        Toast.makeText(
+            context,
+            context.getString(
+                R.string.picker_unsupported_image_format,
+                extension.ifBlank { "unknown" }
+            ),
+            Toast.LENGTH_SHORT
+        ).show()
+        return
+    }
+    onImageSelected(uri)
 }
 
 @Composable
@@ -482,36 +544,7 @@ private fun EmptyGalleryView(onOpenCamera: () -> Unit) {
 }
 
 private suspend fun loadGalleryImages(context: Context): List<Uri> =
-    withContext(Dispatchers.IO) {
-        val list = mutableListOf<Uri>()
-        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
-        val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DATE_ADDED
-        )
-        context.contentResolver.query(
-            collection,
-            projection,
-            null,
-            null,
-            "${MediaStore.Images.Media.DATE_ADDED} DESC"
-        )?.use { cursor ->
-            val idCol = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            while (cursor.moveToNext()) {
-                list.add(
-                    ContentUris.withAppendedId(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        cursor.getLong(idCol)
-                    )
-                )
-            }
-        }
-        list
-    }
+    withContext(Dispatchers.IO) { loadPickerImageUris(context) }
 
 private suspend fun loadAlbums(context: Context): List<MediaAlbum> =
     withContext(Dispatchers.IO) {
@@ -550,11 +583,26 @@ private suspend fun loadAlbums(context: Context): List<MediaAlbum> =
                 }
             }
         }
+
+        val downloadUris = loadDownloadImageUris(context)
+        if (downloadUris.isNotEmpty()) {
+            albumMap[DOWNLOAD_ALBUM_ID] = MediaAlbum(
+                id = DOWNLOAD_ALBUM_ID,
+                name = "Download",
+                coverUri = downloadUris.first(),
+                count = downloadUris.size
+            )
+        }
+
         albumMap.values.toList()
     }
 
 private suspend fun loadAlbumImages(context: Context, bucketId: String): List<Uri> =
     withContext(Dispatchers.IO) {
+        if (bucketId == DOWNLOAD_ALBUM_ID) {
+            return@withContext loadDownloadImageUris(context)
+        }
+
         val list = mutableListOf<Uri>()
         val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)

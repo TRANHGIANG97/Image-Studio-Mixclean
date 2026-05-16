@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abizer_r.quickedit.R
+import com.abizer_r.quickedit.ui.common.LoadingView
 import com.abizer_r.quickedit.ui.magicBrush.components.MagicEraserCanvas
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapCache
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
@@ -260,9 +261,10 @@ fun MagicBrushScreen(
 
 
                 if (isProcessing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(48.dp),
-                        color = MaterialTheme.colorScheme.primary
+                    LoadingView(
+                        modifier = Modifier.fillMaxSize(),
+                        progressBarSize = 96.dp,
+                        progressBarColor = MaterialTheme.colorScheme.primary
                     )
                 }
 

@@ -1,8 +1,41 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.android.hilt)
     alias(libs.plugins.google.devtools.ksp)
+}
+
+val localSigningProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { stream -> load(stream) }
+    }
+}
+
+fun releaseSigningValue(name: String): String? {
+    return providers.gradleProperty(name).orNull
+        ?: localSigningProperties.getProperty(name)
+        ?: providers.environmentVariable(name).orNull
+}
+
+val releaseStoreFilePath = releaseSigningValue("RELEASE_STORE_FILE")
+val releaseStorePassword = releaseSigningValue("RELEASE_STORE_PASSWORD")
+val releaseKeyAlias = releaseSigningValue("RELEASE_KEY_ALIAS")
+val releaseKeyPassword = releaseSigningValue("RELEASE_KEY_PASSWORD")
+val hasReleaseSigningConfig = listOf(
+    releaseStoreFilePath,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword
+).all { !it.isNullOrBlank() }
+val googleServicesFile = project.file("google-services.json")
+val hasGoogleServicesFile = googleServicesFile.exists()
+
+if (hasGoogleServicesFile) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
 }
 
 android {
@@ -28,10 +61,12 @@ android {
     }
     signingConfigs {
         create("release") {
-            storeFile = file("my-release-key.jks")
-            storePassword = "135798"
-            keyAlias = "my-key-alias"
-            keyPassword = "135798"
+            if (hasReleaseSigningConfig) {
+                storeFile = file(releaseStoreFilePath!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
         }
     }
     buildTypes {
@@ -40,7 +75,9 @@ android {
             isMinifyEnabled = true
 
             // Gán cấu hình ký vừa tạo ở trên vào đây
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -103,6 +140,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
@@ -113,6 +152,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.compose.material:material-icons-extended")
     implementation(libs.vision.common)
+    implementation(libs.mlkit.face.detection)
     implementation(libs.play.services.mlkit.subject.segmentation)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation)

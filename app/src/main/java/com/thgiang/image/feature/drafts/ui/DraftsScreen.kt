@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.feature.drafts.viewmodel.DraftsViewModel
 import com.thgiang.image.feature.editor.model.DraftMetadata
 import java.io.File
@@ -194,7 +195,10 @@ fun DraftsScreen(
             }
 
             if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                BackgroundRemovalLoadingOverlay(
+                    modifier = Modifier.fillMaxSize(),
+                    message = stringResource(com.thgiang.image.R.string.loading_image)
+                )
             }
         }
     }

@@ -51,7 +51,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     debugImplementation(libs.androidx.compose.ui.tooling)
-
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.colorpicker)
     implementation(libs.compose.screenshot)
@@ -59,6 +58,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(libs.mlkit.face.detection)
+    implementation(libs.vision.common)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.animation)
@@ -66,10 +68,14 @@ dependencies {
 
     implementation(libs.cloudy)
     implementation(libs.gpuimage)
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.25.0")
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
 
     implementation(libs.android.image.cropper)
     implementation(project(":core-data"))
     implementation(project(":core-domain"))
     implementation(project(":core-util"))
     implementation(project(":core-ad"))
+    implementation(project(":studio"))
 }

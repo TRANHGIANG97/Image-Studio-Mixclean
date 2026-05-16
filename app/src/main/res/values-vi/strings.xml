@@ -58,6 +58,8 @@
     <string name="multi_image_remove">Xoá nền hàng loạt</string>
     <string name="done_save_or_share">Hoàn tất! Bạn có thể lưu hoặc chia sẻ kết quả.</string>
     <string name="removing_background_wait">Đang xoá nền, vui lòng chờ...</string>
+    <string name="remove_bg_selfie_fallback_warning">Thiết bị của bạn chưa hỗ trợ nhận dạng vật thể không phải người, điều này sẽ ảnh hưởng đến chất lượng</string>
+    <string name="loading_image">Đang tải ảnh...</string>
     <string name="tap_remove_background_to_start">Nhấn \"Xoá nền\" để bắt đầu.</string>
     <string name="step_choose_image">Bước 1: Chọn ảnh từ thư viện.</string>
     <string name="compare_before_after">So sánh trước / sau</string>
@@ -249,6 +251,7 @@
     <string name="picker_permission_title">Cần quyền truy cập ảnh</string>
     <string name="picker_permission_desc">Ứng dụng cần quyền đọc ảnh để hiển thị thư viện của bạn.</string>
     <string name="picker_no_photos">Không tìm thấy ảnh</string>
+    <string name="picker_unsupported_image_format">Định dạng ảnh (.%1$s) này chưa được hỗ trợ.</string>
     <string name="picker_capture_btn">Chụp ảnh bằng camera</string>
     <string name="cd_capture_photo">Chụp ảnh</string>
     <string name="permission_required">Cần cấp quyền</string><string name="grant_permission">Cấp quyền</string><string name="select">Chọn</string>

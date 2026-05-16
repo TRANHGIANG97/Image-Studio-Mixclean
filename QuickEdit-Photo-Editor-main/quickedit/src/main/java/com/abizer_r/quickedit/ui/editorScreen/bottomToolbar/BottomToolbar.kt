@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Crop
@@ -183,6 +184,10 @@ fun ToolbarItem(
         is BottomToolbarItem.RotateItem -> Pair(
             ImageVector.vectorResource(id = com.abizer_r.quickedit.R.drawable.ic_rotate_right),
             stringResource(id = R.string.rotate)
+        )
+        is BottomToolbarItem.AddImage -> Pair(
+            Icons.Default.AddCircleOutline,
+            "Thêm ảnh"
         )
 
         is BottomToolbarItem.EraserTool -> Pair(

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.thgiang.image.app.navigation.AppRoot
 import com.thgiang.image.app.navigation.AppViewModel
 import com.thgiang.image.core.ad.AppOpenAdManager
@@ -80,6 +84,15 @@ private fun SplashAdScreen(
     isPremium: Boolean,
     onDone: () -> Unit
 ) {
+    val composition by rememberLottieComposition(
+        LottieCompositionSpec.Asset("animation/animation.lottie")
+    )
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever,
+        isPlaying = true
+    )
+
     LaunchedEffect(Unit) {
         if (isPremium) {
             onDone()
@@ -107,10 +120,10 @@ private fun SplashAdScreen(
                 fontWeight = FontWeight.Bold,
                 fontSize = 32.sp
             )
-            CircularProgressIndicator(
-                modifier = Modifier.size(24.dp),
-                color = Color(0xFF007AFF),
-                strokeWidth = 2.dp
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
+                modifier = Modifier.size(132.dp)
             )
         }
     }

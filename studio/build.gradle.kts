@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
 
     implementation(project(":core-util"))
     implementation(project(":core-domain"))

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "297160205228",
+    "project_id": "image-analist",
+    "storage_bucket": "image-analist.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297160205228:android:d9f626263b9e12ad709009",
+        "android_client_info": {
+          "package_name": "com.thgiang.image"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDDHJz2c2YozaQPhDg11ZNLwuQiNAMEEo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

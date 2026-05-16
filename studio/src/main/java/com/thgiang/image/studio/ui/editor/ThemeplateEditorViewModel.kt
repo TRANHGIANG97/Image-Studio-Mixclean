@@ -1,412 +1,456 @@
 package com.thgiang.image.studio.ui.editor
 
-import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Paint
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import android.util.Log
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntSize
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.core.data.save.ImageSaveRepository
-import com.thgiang.image.core.util.processors.PortraitProcessor
 import com.thgiang.image.core.util.processors.ProcessorUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import kotlin.math.abs
 
-enum class EditorTool {
-    REPLACE,
-    LAYOUT,
-    ROTATE,
-    SHADOW,
-    TRANSPARENCY,
-    CROP
-}
-
-enum class CropRatio(val label: String, val width: Float, val height: Float) {
-    RATIO_1_1("1:1", 1f, 1f),
-    RATIO_3_4("3:4", 3f, 4f),
-    RATIO_4_3("4:3", 4f, 3f)
-}
-
-data class EditorUiState(
-    val productImageUri: Uri? = null,
-    val foregroundCacheUri: Uri? = null,
-    val foregroundBitmap: Bitmap? = null,
-    val offsetX: Float = 0f,
-    val offsetY: Float = 0f,
-    val scaleX: Float = 1f,
-    val scaleY: Float = 1f,
-    val rotation: Float = 0f,
-    val flippedH: Boolean = false,
-    val flippedV: Boolean = false,
-    val shadowIntensity: Float = 0.3f,
-    val alpha: Float = 1f,
-    val selectedTool: EditorTool = EditorTool.LAYOUT,
+/**
+ * EditorState v2 - Immutable, with copy-optimization
+ */
+data class EditorState(
+    val template: EditorTemplate = EditorTemplate(),
+    val product: EditorProduct = EditorProduct(),
+    val viewport: EditorViewport = EditorViewport(),
+    val appearance: EditorAppearance = EditorAppearance(),
+    val selectedTool: EditorTool = EditorTool.Layout,
     val cropRatio: CropRatio = CropRatio.RATIO_1_1,
-    val isProcessing: Boolean = false,
-    val isBackgroundRemoved: Boolean = false,
     val isExporting: Boolean = false,
     val exportResult: Uri? = null,
-    val originalImageUri: Uri? = null,
-    val contentWidth: Float = 0f,
-    val contentHeight: Float = 0f
-)
-
+    val errorMessage: String? = null
+) : java.io.Serializable {
+    val canExport: Boolean
+        get() = product.isBackgroundRemoved && !isExporting && template.loaded
+}
 
 @HiltViewModel
 class ThemeplateEditorViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val backgroundRemoverRepository: BackgroundRemoverRepository,
-    private val imageSaveRepository: ImageSaveRepository
+    private val imageSaveRepository: ImageSaveRepository,
+    private val renderer: EditorRenderer,
+    private val historyManager: EditorHistoryManager,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     companion object {
-        private const val TAG = "ThemeplateEditorVM"
+        private const val TAG = "EditorVM"
+        private const val MIN_SCALE = 0.2f
+        private const val MAX_SCALE = 5f
+        private const val SNAP_ANGLE_THRESHOLD = 5f
+        private val SNAP_ANGLES = listOf(0f, 90f, 180f, 270f)
+        private const val HISTORY_DEBOUNCE_MS = 300L
+        private const val GESTURE_THROTTLE_MS = 16L // ~60fps
     }
 
-    private val _uiState = MutableStateFlow(EditorUiState())
-    val uiState: StateFlow<EditorUiState> = _uiState.asStateFlow()
+    private val _state = MutableStateFlow(
+        savedStateHandle.get<EditorState>("editor_state") ?: EditorState()
+    )
+    val state: StateFlow<EditorState> = _state.asStateFlow()
 
-    override fun onCleared() {
-        super.onCleared()
-        _uiState.value.foregroundBitmap?.let {
-            if (!it.isRecycled) it.recycle()
-        }
-    }
+    val canUndo: StateFlow<Boolean> = historyManager.canUndo
+    val canRedo: StateFlow<Boolean> = historyManager.canRedo
 
-    fun setProductImage(uri: Uri) {
-        // Recycle previous foreground bitmap to free memory
-        _uiState.value.foregroundBitmap?.let {
-            if (!it.isRecycled) it.recycle()
-        }
-        _uiState.value = _uiState.value.copy(
-            productImageUri = uri,
-            originalImageUri = uri,
-            foregroundBitmap = null,
-            foregroundCacheUri = null,
-            isProcessing = true,
-            isBackgroundRemoved = false,
-            offsetX = 0f,
-            offsetY = 0f,
-            scaleX = 1f,
-            scaleY = 1f,
-            rotation = 0f,
-            flippedH = false,
-            flippedV = false,
-            contentWidth = 0f,
-            contentHeight = 0f
-        )
-        removeBackground(uri)
-    }
+    // Debounced history push for gesture operations
+    private val historyPushFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val gestureThrottleFlow = MutableSharedFlow<GestureDelta>(extraBufferCapacity = 1)
 
-    private fun removeBackground(uri: Uri) {
+    private var templateLoadJob: Job? = null
+    private var bgRemoveJob: Job? = null
+    private var exportJob: Job? = null
+    private var historyPushJob: Job? = null
+
+    init {
+        // Debounced history push
         viewModelScope.launch {
+            historyPushFlow
+                .debounce(HISTORY_DEBOUNCE_MS)
+                .collect { pushHistoryInternal() }
+        }
+        
+        // Throttled gesture updates for smooth 60fps
+        viewModelScope.launch {
+            gestureThrottleFlow
+                .throttleLatest(GESTURE_THROTTLE_MS)
+                .collect { delta ->
+                    applyGestureDelta(delta)
+                }
+        }
+        
+        // Restore state if available
+        savedStateHandle.get<String>("template_path")?.let {
+            if (!_state.value.template.loaded) {
+                loadTemplate(it)
+            }
+        }
+    }
+
+    fun onEvent(event: EditorEvent) {
+        when (event) {
+            is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath)
+            is EditorEvent.SetProductImage -> setProductImage(event.uri)
+            is EditorEvent.UpdateOffset -> {
+                _state.update { it.copy(viewport = it.viewport.copy(offset = it.viewport.offset + event.delta)) }
+                requestHistoryPush()
+            }
+            is EditorEvent.SetOffset -> {
+                _state.update { it.copy(viewport = it.viewport.copy(offset = event.offset)) }
+                pushHistory()
+            }
+            is EditorEvent.UpdateScale -> updateScale(event.factor)
+            is EditorEvent.SetScale -> {
+                _state.update { it.copy(viewport = it.viewport.copy(scale = event.scale.coerceIn(MIN_SCALE, MAX_SCALE))) }
+                pushHistory()
+            }
+            is EditorEvent.UpdateRotation -> updateRotation(event.delta)
+            is EditorEvent.SetRotation -> {
+                var normalized = event.degrees % 360f
+                if (normalized < 0) normalized += 360f
+                _state.update { it.copy(viewport = it.viewport.copy(rotation = normalized)) }
+                pushHistory()
+            }
+            EditorEvent.FlipHorizontal -> {
+                _state.update { it.copy(viewport = it.viewport.copy(flippedH = !it.viewport.flippedH)) }
+                pushHistory()
+            }
+            EditorEvent.FlipVertical -> {
+                _state.update { it.copy(viewport = it.viewport.copy(flippedV = !it.viewport.flippedV)) }
+                pushHistory()
+            }
+            is EditorEvent.UpdateShadow -> {
+                _state.update { it.copy(appearance = it.appearance.copy(shadowIntensity = event.intensity.coerceIn(0f, 1f))) }
+            }
+            is EditorEvent.UpdateAlpha -> {
+                _state.update { it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f))) }
+            }
+            is EditorEvent.SelectTool -> _state.update { it.copy(selectedTool = event.tool) }
+            is EditorEvent.SelectCropRatio -> {
+                _state.update { it.copy(cropRatio = event.ratio) }
+                pushHistory()
+            }
+            EditorEvent.CommitTransform -> pushHistory()
+            EditorEvent.Undo -> undo()
+            EditorEvent.Redo -> redo()
+            is EditorEvent.Export -> export(event.templateAssetPath)
+        }
+    }
+
+    // ============ Template Loading ============
+
+    private fun loadTemplate(assetPath: String) {
+        if (_state.value.template.loaded && _state.value.template.assetPath == assetPath) return
+        
+        savedStateHandle["template_path"] = assetPath
+        
+        templateLoadJob?.cancel()
+        templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                val decoded = ProcessorUtils.decodeBitmapFromUri(context, uri)
+                context.assets.open(assetPath).use { input ->
+                    val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    BitmapFactory.decodeStream(input, null, opts)
+                    
+                    _state.update {
+                        it.copy(
+                            template = EditorTemplate(
+                                assetPath = assetPath,
+                                originalSize = IntSize(opts.outWidth, opts.outHeight),
+                                loaded = true
+                            )
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "loadTemplate failed", e)
+                _state.update { it.copy(errorMessage = "Không thể tải template") }
+            }
+        }
+    }
+
+    // ============ Product Image with Atomic State Updates ============
+
+    private fun setProductImage(uri: Uri) {
+        bgRemoveJob?.cancel()
+        
+        // Atomic reset
+        _state.update {
+            it.copy(
+                product = EditorProduct(originalUri = uri, processing = true),
+                viewport = EditorViewport(),
+                exportResult = null,
+                errorMessage = null
+            )
+        }
+        historyManager.clear()
+        
+        bgRemoveJob = viewModelScope.launch {
+            try {
+                // Step 1: Decode (CPU-bound → Default dispatcher)
+                val decoded = withContext(Dispatchers.Default) {
+                    ProcessorUtils.decodeBitmapFromUri(context, uri)
+                }
+                
                 if (decoded == null) {
-                    Log.w(TAG, "removeBackground: decode failed for $uri")
-                    _uiState.value = _uiState.value.copy(isProcessing = false)
+                    _state.update { it.copy(product = it.product.copy(processing = false)) }
                     return@launch
                 }
 
+                // Step 2: Background removal (ML inference → Default/ML dispatcher)
                 val foreground = withContext(Dispatchers.Default) {
                     backgroundRemoverRepository.getForegroundBitmap(decoded).getOrNull()
                 }
-                decoded.recycle()
 
                 if (foreground == null) {
-                    Log.w(TAG, "removeBackground: getForegroundBitmap returned null")
-                    _uiState.value = _uiState.value.copy(isProcessing = false)
+                    decoded.recycle()
+                    _state.update { it.copy(product = it.product.copy(processing = false)) }
                     return@launch
                 }
 
+                // Step 3: Cache result (IO-bound)
                 val cachedUri = withContext(Dispatchers.IO) {
                     imageSaveRepository.cacheBitmap(foreground).getOrNull()
                 }
-                foreground.recycle()
 
-                if (cachedUri == null) {
-                    Log.w(TAG, "removeBackground: cacheBitmap returned null")
-                    // Still show the foreground bitmap even if caching fails
-                    _uiState.value = _uiState.value.copy(isProcessing = false, foregroundBitmap = foreground)
-                    return@launch
+                if (cachedUri != null) {
+                    val tw = _state.value.template.originalSize.width
+                    val th = _state.value.template.originalSize.height
+                    
+                    val baseSize = if (tw > 0 && th > 0) {
+                        val baseFitScale = kotlin.math.min(
+                            tw.toFloat() / foreground.width,
+                            th.toFloat() / foreground.height
+                        )
+                        IntSize(
+                            (foreground.width * baseFitScale).toInt(),
+                            (foreground.height * baseFitScale).toInt()
+                        )
+                    } else {
+                        IntSize(foreground.width, foreground.height)
+                    }
+
+                    // Atomic state update with all new data
+                    _state.update {
+                        it.copy(
+                            product = EditorProduct(
+                                originalUri = uri,
+                                foregroundUri = cachedUri,
+                                isBackgroundRemoved = true,
+                                baseSize = baseSize,
+                                processing = false
+                            ),
+                            viewport = EditorViewport(scale = 1f, offset = Offset.Zero)
+                        )
+                    }
+                    pushHistory()
+                } else {
+                    _state.update { it.copy(product = it.product.copy(processing = false)) }
                 }
-
-                _uiState.value = _uiState.value.copy(
-                    isProcessing = false,
-                    isBackgroundRemoved = true,
-                    foregroundBitmap = foreground,
-                    foregroundCacheUri = cachedUri
-                )
-                Log.d(TAG, "removeBackground: success, cachedUri=$cachedUri")
+                
+                // Cleanup original decoded bitmap
+                decoded.recycle()
+                
+            } catch (e: CancellationException) {
+                throw e // Don't swallow cancellation
             } catch (e: Exception) {
-                Log.e(TAG, "removeBackground failed", e)
-                _uiState.value = _uiState.value.copy(isProcessing = false)
+                android.util.Log.e(TAG, "removeBackground failed", e)
+                _state.update { 
+                    it.copy(
+                        product = it.product.copy(processing = false),
+                        errorMessage = e.message ?: "Lỗi xử lý ảnh"
+                    ) 
+                }
             }
         }
     }
 
-    fun exportFinalImage(
-        templateAssetPath: String,
-        onSuccess: (Uri) -> Unit,
-        onError: (String) -> Unit
-    ) {
-        if (_uiState.value.isExporting) return
-
-        _uiState.value = _uiState.value.copy(isExporting = true)
-        viewModelScope.launch {
-            try {
-                val state = _uiState.value
-                val resultUri = withContext(Dispatchers.IO) {
-                    performExport(templateAssetPath, state)
-                }
-                resultUri?.let {
-                    _uiState.value = _uiState.value.copy(
-                        isExporting = false,
-                        exportResult = it
-                    )
-                    onSuccess(it)
-                } ?: run {
-                    _uiState.value = _uiState.value.copy(isExporting = false)
-                    onError("Export failed")
-                }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isExporting = false)
-                onError(e.message ?: "Export error")
-            }
+    // ============ Transform Operations ============
+    
+    private fun updateScale(factor: Float) {
+        _state.update {
+            val newScale = (it.viewport.scale * factor).coerceIn(MIN_SCALE, MAX_SCALE)
+            it.copy(viewport = it.viewport.copy(scale = newScale))
         }
     }
 
-    private suspend fun performExport(
-        templateAssetPath: String,
-        state: EditorUiState
-    ): Uri? {
-        val foregroundUri = state.foregroundCacheUri ?: return null
-
-        val template = loadTemplateFromAssets(templateAssetPath) ?: return null
-        val foreground = ProcessorUtils.decodeBitmapFromUri(context, foregroundUri) ?: run {
-            template.recycle()
-            return null
+    private fun updateRotation(delta: Float) {
+        _state.update {
+            var newRotation = (it.viewport.rotation + delta) % 360f
+            if (newRotation < 0) newRotation += 360f
+            
+            val snapped = SNAP_ANGLES.minByOrNull { angle -> abs(angle - newRotation) }
+            if (snapped != null && abs(snapped - newRotation) < SNAP_ANGLE_THRESHOLD) {
+                newRotation = snapped
+            }
+            
+            it.copy(viewport = it.viewport.copy(rotation = newRotation))
         }
+    }
 
-        val result = Bitmap.createBitmap(
-            template.width, template.height, Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(result)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    private fun applyGestureDelta(delta: GestureDelta) {
+        _state.update { current ->
+            var newViewport = current.viewport
+            
+            if (delta.pan != Offset.Zero) {
+                newViewport = newViewport.copy(offset = newViewport.offset + delta.pan)
+            }
+            if (delta.scale != 1f) {
+                val newScale = (newViewport.scale * delta.scale).coerceIn(MIN_SCALE, MAX_SCALE)
+                newViewport = newViewport.copy(scale = newScale)
+            }
+            if (delta.rotation != 0f) {
+                var newRotation = (newViewport.rotation + delta.rotation) % 360f
+                if (newRotation < 0) newRotation += 360f
+                newViewport = newViewport.copy(rotation = newRotation)
+            }
+            
+            current.copy(viewport = newViewport)
+        }
+    }
 
-        // 1. Draw template background
-        canvas.drawBitmap(template, 0f, 0f, paint)
-
-        // 2. Calculate foreground drawing rect (centered + user offset + per-axis scale)
-        val baseFitScale = minOf(
-            template.width.toFloat() / foreground.width,
-            template.height.toFloat() / foreground.height
-        )
-        val fitScaleX = baseFitScale * state.scaleX
-        val fitScaleY = baseFitScale * state.scaleY
-        val drawW = foreground.width * fitScaleX
-        val drawH = foreground.height * fitScaleY
-        val baseX = (template.width - drawW) / 2f
-        val baseY = (template.height - drawH) / 2f
-        val dx = baseX + state.offsetX
-        val dy = baseY + state.offsetY
-
-        // 3. Draw native C++ blurred shadow (FastBoxBlur via JNI/NEON)
-        if (state.shadowIntensity > 0.05f) {
-            val shadow = PortraitProcessor.applyBlurOnly(
-                bitmap = foreground,
-                blurRadius = state.shadowIntensity * 15f
+    // ============ History with Debounce ============
+    
+    private fun requestHistoryPush() {
+        historyPushFlow.tryEmit(Unit)
+    }
+    
+    private fun pushHistory() {
+        historyPushJob?.cancel()
+        historyPushJob = viewModelScope.launch {
+            pushHistoryInternal()
+        }
+    }
+    
+    private fun pushHistoryInternal() {
+        val current = _state.value
+        historyManager.push(
+            TransformSnapshot(
+                viewport = current.viewport,
+                appearance = current.appearance,
+                cropRatio = current.cropRatio
             )
-            if (shadow != null) {
-                val shadowPaint = Paint().apply {
-                    isAntiAlias = true
-                    isFilterBitmap = true
-                    alpha = (state.shadowIntensity * 140).toInt().coerceIn(0, 255)
-                }
-                canvas.save()
-                canvas.translate(dx + 12f, dy + 12f)
-                canvas.scale(
-                    fitScaleX * (if (state.flippedH) -1f else 1f),
-                    fitScaleY * (if (state.flippedV) -1f else 1f)
+        )
+    }
+
+    private fun undo() {
+        historyManager.undo()?.let { snapshot ->
+            _state.update {
+                it.copy(
+                    viewport = snapshot.viewport,
+                    appearance = snapshot.appearance,
+                    cropRatio = snapshot.cropRatio
                 )
-                canvas.rotate(state.rotation, shadow.width / 2f, shadow.height / 2f)
-                val sdX = if (state.flippedH) -shadow.width.toFloat() else 0f
-                val sdY = if (state.flippedV) -shadow.height.toFloat() else 0f
-                canvas.drawBitmap(shadow, sdX, sdY, shadowPaint)
-                canvas.restore()
-                shadow.recycle()
             }
-        }
-
-        // 4. Draw foreground product (with flip + rotation)
-        paint.alpha = (state.alpha * 255).toInt()
-        canvas.save()
-        canvas.translate(dx, dy)
-        canvas.scale(
-            fitScaleX * (if (state.flippedH) -1f else 1f),
-            fitScaleY * (if (state.flippedV) -1f else 1f)
-        )
-        canvas.rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
-        val fgOffX = if (state.flippedH) -foreground.width.toFloat() else 0f
-        val fgOffY = if (state.flippedV) -foreground.height.toFloat() else 0f
-        canvas.drawBitmap(foreground, fgOffX, fgOffY, paint)
-        canvas.restore()
-
-        // Cleanup intermediates
-        template.recycle()
-        foreground.recycle()
-
-        // Save to gallery
-        return saveBitmapToGallery(result)
-    }
-
-    private fun loadTemplateFromAssets(assetPath: String): Bitmap? {
-        return try {
-            context.assets.open(assetPath).use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
-            }
-        } catch (e: Exception) {
-            null
         }
     }
 
-    private fun saveBitmapToGallery(bitmap: Bitmap): Uri? {
-        return try {
-            val fileName = "Studio_${System.currentTimeMillis()}.png"
-            val resolver = context.contentResolver
+    private fun redo() {
+        historyManager.redo()?.let { snapshot ->
+            _state.update {
+                it.copy(
+                    viewport = snapshot.viewport,
+                    appearance = snapshot.appearance,
+                    cropRatio = snapshot.cropRatio
+                )
+            }
+        }
+    }
 
-            val contentValues = ContentValues().apply {
-                put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MixClean")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.Images.Media.IS_PENDING, 1)
+    // ============ Export with Cancellation Support ============
+    
+    private fun export(templateAssetPath: String) {
+        if (_state.value.isExporting || !_state.value.canExport) return
+        
+        val currentState = _state.value
+        val foregroundUri = currentState.product.foregroundUri ?: return
+        val templateSize = currentState.template.originalSize
+        
+        if (templateSize.width == 0 || templateSize.height == 0) return
+
+        exportJob?.cancel()
+        exportJob = viewModelScope.launch {
+            _state.update { it.copy(isExporting = true, errorMessage = null) }
+            
+            try {
+                val result = renderer.render(
+                    EditorRenderer.RenderRequest(
+                        templateAssetPath = templateAssetPath,
+                        foregroundUri = foregroundUri,
+                        templateSize = templateSize,
+                        viewport = currentState.viewport,
+                        appearance = currentState.appearance,
+                        baseSize = currentState.product.baseSize
+                    )
+                )
+
+                result.fold(
+                    onSuccess = { bitmap ->
+                        val uri = withContext(Dispatchers.IO) {
+                            imageSaveRepository.saveBitmap(bitmap).getOrNull()
+                        }
+                        
+                        if (uri != null) {
+                            _state.update { it.copy(isExporting = false, exportResult = uri) }
+                        } else {
+                            _state.update { 
+                                it.copy(isExporting = false, errorMessage = "Lưu ảnh thất bại") 
+                            }
+                        }
+                    },
+                    onFailure = { e ->
+                        _state.update { 
+                            it.copy(isExporting = false, errorMessage = e.message ?: "Render thất bại") 
+                        }
+                    }
+                )
+            } catch (e: CancellationException) {
+                _state.update { it.copy(isExporting = false) }
+                throw e
+            } catch (e: Exception) {
+                _state.update { 
+                    it.copy(isExporting = false, errorMessage = e.message ?: "Lỗi không xác định") 
                 }
             }
-
-            val uri = resolver.insert(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            ) ?: return null
-
-            resolver.openOutputStream(uri)?.use { outputStream ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                outputStream.flush()
-            } ?: return null
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val pendingOff = ContentValues().apply {
-                    put(MediaStore.Images.Media.IS_PENDING, 0)
-                }
-                resolver.update(uri, pendingOff, null, null)
-            }
-
-            bitmap.recycle()
-            uri
-        } catch (e: Exception) {
-            null
         }
     }
 
-    fun updateOffset(dx: Float, dy: Float) {
-        Log.d(TAG, "updateOffset: dx=$dx dy=$dy")
-        val state = _uiState.value
-        _uiState.value = state.copy(
-            offsetX = state.offsetX + dx,
-            offsetY = state.offsetY + dy
-        )
+    // ============ SavedState Persistence ============
+    
+    private fun persistState() {
+        savedStateHandle["editor_state"] = _state.value
     }
 
-    fun updateScaleUniform(factor: Float) {
-        val state = _uiState.value
-        _uiState.value = state.copy(
-            scaleX = (state.scaleX * factor).coerceIn(0.3f, 3f),
-            scaleY = (state.scaleY * factor).coerceIn(0.3f, 3f)
-        )
+    override fun onCleared() {
+        super.onCleared()
+        persistState()
+        templateLoadJob?.cancel()
+        bgRemoveJob?.cancel()
+        exportJob?.cancel()
+        historyPushJob?.cancel()
+        historyManager.clear()
     }
+}
 
-    fun updateScaleX(value: Float) {
-        _uiState.value = _uiState.value.copy(
-            scaleX = value.coerceIn(0.3f, 3f)
-        )
-    }
-
-    fun updateScaleY(value: Float) {
-        _uiState.value = _uiState.value.copy(
-            scaleY = value.coerceIn(0.3f, 3f)
-        )
-    }
-
-    fun updateContentSize(width: Float, height: Float) {
-        if (width <= 0f || height <= 0f) return
-        if (width == _uiState.value.contentWidth && height == _uiState.value.contentHeight) return
-        Log.d(TAG, "updateContentSize: w=$width h=$height")
-        _uiState.value = _uiState.value.copy(
-            contentWidth = width,
-            contentHeight = height
-        )
-    }
-
-    fun updateRotation(degrees: Float) {
-        _uiState.value = _uiState.value.copy(
-            rotation = (_uiState.value.rotation + degrees) % 360f
-        )
-    }
-
-    fun setRotation(degrees: Float) {
-        _uiState.value = _uiState.value.copy(
-            rotation = degrees % 360f
-        )
-    }
-
-    fun setScale(value: Float) {
-        val clamped = value.coerceIn(0.2f, 5f)
-        _uiState.value = _uiState.value.copy(
-            scaleX = clamped,
-            scaleY = clamped
-        )
-    }
-
-    fun flipHorizontal() {
-        _uiState.value = _uiState.value.copy(flippedH = !_uiState.value.flippedH)
-    }
-
-    fun flipVertical() {
-        _uiState.value = _uiState.value.copy(flippedV = !_uiState.value.flippedV)
-    }
-
-    fun updateShadowIntensity(intensity: Float) {
-        _uiState.value = _uiState.value.copy(
-            shadowIntensity = intensity.coerceIn(0f, 1f)
-        )
-    }
-
-    fun updateAlpha(alpha: Float) {
-        _uiState.value = _uiState.value.copy(
-            alpha = alpha.coerceIn(0.1f, 1f)
-        )
-    }
-
-    fun selectTool(tool: EditorTool) {
-        _uiState.value = _uiState.value.copy(selectedTool = tool)
-    }
-
-    fun selectCropRatio(ratio: CropRatio) {
-        _uiState.value = _uiState.value.copy(cropRatio = ratio)
+// Extension for throttling
+@OptIn(FlowPreview::class)
+private fun <T> Flow<T>.throttleLatest(periodMillis: Long): Flow<T> = flow {
+    var lastTime = 0L
+    collect { value ->
+        val now = System.currentTimeMillis()
+        if (now - lastTime >= periodMillis) {
+            lastTime = now
+            emit(value)
+        }
     }
 }

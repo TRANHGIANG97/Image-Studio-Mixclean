@@ -39,7 +39,9 @@ class BackgroundModeViewModel @Inject constructor(
         val hasAlpha: Boolean = true,
         val error: String? = null,
         val foregroundOffsetX: Float = 0f,
-        val foregroundOffsetY: Float = 0f
+        val foregroundOffsetY: Float = 0f,
+        val foregroundScale: Float = 1f,
+        val foregroundRotation: Float = 0f
     )
 
     private val _state = MutableStateFlow(BackgroundModeState())
@@ -48,7 +50,6 @@ class BackgroundModeViewModel @Inject constructor(
     private var sourceWidth: Int = 0
     private var sourceHeight: Int = 0
 
-    // Max drag offset so foreground stays within background bounds (fraction of dimension)
     private var maxOffsetX: Float = 0f
     private var maxOffsetY: Float = 0f
 
@@ -59,22 +60,37 @@ class BackgroundModeViewModel @Inject constructor(
 
         if (hasAlpha) {
             _state.value = _state.value.copy(
-                foregroundBitmap = bitmap,
+                foregroundBitmap = ProcessorUtils.trimTransparentBounds(bitmap),
                 hasAlpha = true,
-                isProcessing = false
+                isProcessing = false,
+                foregroundOffsetX = 0f,
+                foregroundOffsetY = 0f,
+                foregroundScale = 1f,
+                foregroundRotation = 0f
             )
             applyColorBackground(android.graphics.Color.WHITE)
         } else {
             _state.value = _state.value.copy(
                 hasAlpha = true,
-                isProcessing = true
+                isProcessing = true,
+                foregroundOffsetX = 0f,
+                foregroundOffsetY = 0f,
+                foregroundScale = 1f,
+                foregroundRotation = 0f
             )
 
             viewModelScope.launch(Dispatchers.Default) {
                 val result = backgroundRemoverRepository.getForegroundBitmap(bitmap)
                 result.onSuccess { fg ->
                     withContext(Dispatchers.Main) {
-                        _state.value = _state.value.copy(foregroundBitmap = fg, isProcessing = false)
+                        _state.value = _state.value.copy(
+                            foregroundBitmap = ProcessorUtils.trimTransparentBounds(fg),
+                            isProcessing = false,
+                            foregroundOffsetX = 0f,
+                            foregroundOffsetY = 0f,
+                            foregroundScale = 1f,
+                            foregroundRotation = 0f
+                        )
                         applyColorBackground(android.graphics.Color.WHITE)
                     }
                 }.onFailure { e ->
@@ -91,7 +107,7 @@ class BackgroundModeViewModel @Inject constructor(
     }
 
     private fun checkHasAlpha(bitmap: Bitmap): Boolean {
-        return bitmap.hasAlpha()
+        return ProcessorUtils.hasMeaningfulTransparency(bitmap)
     }
 
     fun setTab(tab: BackgroundTab) {
@@ -106,7 +122,28 @@ class BackgroundModeViewModel @Inject constructor(
     }
 
     fun resetForegroundPosition() {
-        _state.value = _state.value.copy(foregroundOffsetX = 0f, foregroundOffsetY = 0f)
+        _state.value = _state.value.copy(
+            foregroundOffsetX = 0f,
+            foregroundOffsetY = 0f,
+            foregroundScale = 1f,
+            foregroundRotation = 0f
+        )
+    }
+
+    fun updateForegroundTransform(zoomChange: Float, rotationChange: Float) {
+        val current = _state.value
+        val newScale = (current.foregroundScale * zoomChange).coerceIn(0.5f, 3f)
+        updateDragBounds(current.backgroundBitmap, current.foregroundBitmap, newScale)
+        val clampedOffset = clampOffset(
+            offsetX = current.foregroundOffsetX,
+            offsetY = current.foregroundOffsetY
+        )
+        _state.value = current.copy(
+            foregroundOffsetX = clampedOffset.first,
+            foregroundOffsetY = clampedOffset.second,
+            foregroundScale = newScale,
+            foregroundRotation = current.foregroundRotation + rotationChange
+        )
     }
 
     fun applyColorBackground(color: Int) {
@@ -119,9 +156,7 @@ class BackgroundModeViewModel @Inject constructor(
             selectedColor = color,
             selectedGradient = null,
             selectedImage = null,
-            selectedPresetStyle = null,
-            foregroundOffsetX = 0f,
-            foregroundOffsetY = 0f
+            selectedPresetStyle = null
         )
 
         viewModelScope.launch {
@@ -142,9 +177,7 @@ class BackgroundModeViewModel @Inject constructor(
             selectedGradient = colors,
             selectedColor = null,
             selectedImage = null,
-            selectedPresetStyle = null,
-            foregroundOffsetX = 0f,
-            foregroundOffsetY = 0f
+            selectedPresetStyle = null
         )
 
         viewModelScope.launch {
@@ -161,16 +194,17 @@ class BackgroundModeViewModel @Inject constructor(
             selectedImage = bgImage,
             selectedColor = null,
             selectedGradient = null,
-            selectedPresetStyle = null,
-            foregroundOffsetX = 0f,
-            foregroundOffsetY = 0f
+            selectedPresetStyle = null
         )
 
         viewModelScope.launch {
             val w = sourceWidth
             val h = sourceHeight
             val fg = _state.value.foregroundBitmap
-            if (w <= 0 || h <= 0 || fg == null) return@launch
+            if (w <= 0 || h <= 0 || fg == null) {
+                _state.value = _state.value.copy(isProcessing = false)
+                return@launch
+            }
 
             val bg = withContext(Dispatchers.Default) {
                 val scaledBg = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
@@ -204,9 +238,7 @@ class BackgroundModeViewModel @Inject constructor(
             selectedPresetStyle = style,
             selectedColor = null,
             selectedGradient = null,
-            selectedImage = null,
-            foregroundOffsetX = 0f,
-            foregroundOffsetY = 0f
+            selectedImage = null
         )
 
         viewModelScope.launch {
@@ -219,26 +251,45 @@ class BackgroundModeViewModel @Inject constructor(
 
     private fun updateBackgroundBitmap(bg: Bitmap) {
         val s = _state.value
-        val fg = s.foregroundBitmap
-        if (fg != null && fg.width > 0 && fg.height > 0) {
-            val scaleX = bg.width.toFloat() / fg.width
-            val scaleY = bg.height.toFloat() / fg.height
-            val scale = minOf(scaleX, scaleY)
-            val drawW = fg.width * scale
-            val drawH = fg.height * scale
-            // Allow dragging up to 40% of background dimension in each direction
-            maxOffsetX = bg.width * 0.4f
-            maxOffsetY = bg.height * 0.4f
-        } else {
-            maxOffsetX = 0f
-            maxOffsetY = 0f
-        }
+        updateDragBounds(bg, s.foregroundBitmap, s.foregroundScale)
+        val clampedOffset = clampOffset(s.foregroundOffsetX, s.foregroundOffsetY)
 
         _state.value = _state.value.copy(
             backgroundBitmap = bg,
             isProcessing = false,
-            foregroundOffsetX = 0f,
-            foregroundOffsetY = 0f
+            foregroundOffsetX = clampedOffset.first,
+            foregroundOffsetY = clampedOffset.second
+        )
+    }
+
+    private fun updateDragBounds(background: Bitmap?, foreground: Bitmap?, scale: Float) {
+        if (
+            background == null ||
+            foreground == null ||
+            background.width <= 0 ||
+            background.height <= 0 ||
+            foreground.width <= 0 ||
+            foreground.height <= 0
+        ) {
+            maxOffsetX = 0f
+            maxOffsetY = 0f
+            return
+        }
+
+        val baseScale = minOf(
+            background.width.toFloat() / foreground.width.toFloat(),
+            background.height.toFloat() / foreground.height.toFloat()
+        )
+        val drawW = foreground.width * baseScale * scale
+        val drawH = foreground.height * baseScale * scale
+        maxOffsetX = maxOf(background.width * 0.5f, drawW * 0.5f)
+        maxOffsetY = maxOf(background.height * 0.5f, drawH * 0.5f)
+    }
+
+    private fun clampOffset(offsetX: Float, offsetY: Float): Pair<Float, Float> {
+        return Pair(
+            offsetX.coerceIn(-maxOffsetX, maxOffsetX),
+            offsetY.coerceIn(-maxOffsetY, maxOffsetY)
         )
     }
 
@@ -247,6 +298,13 @@ class BackgroundModeViewModel @Inject constructor(
         val s = _state.value
         val bg = s.backgroundBitmap ?: return null
         val fg = s.foregroundBitmap ?: return null
-        return ProcessorUtils.compositeForegroundOverBackground(bg, fg, s.foregroundOffsetX, s.foregroundOffsetY)
+        return ProcessorUtils.compositeForegroundOverBackground(
+            background = bg,
+            foreground = fg,
+            offsetX = s.foregroundOffsetX,
+            offsetY = s.foregroundOffsetY,
+            scale = s.foregroundScale,
+            rotationDegrees = s.foregroundRotation
+        )
     }
 }

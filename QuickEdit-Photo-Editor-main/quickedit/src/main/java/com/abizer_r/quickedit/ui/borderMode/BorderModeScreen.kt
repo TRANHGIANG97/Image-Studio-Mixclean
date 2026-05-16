@@ -50,7 +50,6 @@ import com.abizer_r.quickedit.utils.ImmutableList
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import com.abizer_r.quickedit.utils.textMode.colorList.ColorListFullWidth
-import com.abizer_r.quickedit.utils.textMode.colorList.SelectableColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

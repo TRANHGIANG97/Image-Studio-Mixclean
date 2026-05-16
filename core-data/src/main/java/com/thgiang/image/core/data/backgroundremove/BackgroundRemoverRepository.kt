@@ -8,5 +8,6 @@ interface BackgroundRemoverRepository {
     suspend fun getForegroundBitmap(bitmap: Bitmap): Result<Bitmap>
     /** ML Kit / magic-portrait style per-pixel subject confidence for blending. */
     suspend fun getPortraitConfidenceMask(bitmap: Bitmap): Result<PortraitConfidenceMask>
+    fun consumeSelfieFallbackWarning(): Boolean
     fun close()
 }

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +27,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.abizer_r.quickedit.ui.common.LoadingView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -208,7 +208,11 @@ fun MosaicDrawingCanvas(
         }
 
         if (isGenerating) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = loadingColor)
+            LoadingView(
+                modifier = Modifier.fillMaxSize(),
+                progressBarSize = 96.dp,
+                progressBarColor = loadingColor
+            )
         }
 
         errorMessage?.let { msg ->

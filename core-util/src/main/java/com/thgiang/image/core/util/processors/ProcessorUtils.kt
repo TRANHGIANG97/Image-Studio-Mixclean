@@ -106,13 +106,108 @@ object ProcessorUtils {
         return Bitmap.createScaledBitmap(source, newW, newH, true)
     }
 
+    fun trimTransparentBounds(
+        source: Bitmap,
+        alphaThreshold: Int = 96
+    ): Bitmap {
+        val bitmap = if (source.config == Bitmap.Config.ARGB_8888) {
+            source
+        } else {
+            source.copy(Bitmap.Config.ARGB_8888, true)
+        }
+
+        val width = bitmap.width
+        val height = bitmap.height
+        if (width == 0 || height == 0) return bitmap
+
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        val rowCounts = IntArray(height)
+        val colCounts = IntArray(width)
+
+        for (y in 0 until height) {
+            val rowOffset = y * width
+            for (x in 0 until width) {
+                val alpha = android.graphics.Color.alpha(pixels[rowOffset + x])
+                if (alpha > alphaThreshold) {
+                    rowCounts[y]++
+                    colCounts[x]++
+                }
+            }
+        }
+
+        val minRowPixels = maxOf(2, (width * 0.01f).toInt())
+        val minColPixels = maxOf(2, (height * 0.01f).toInt())
+
+        var top = rowCounts.indexOfFirst { it >= minRowPixels }
+        var bottom = rowCounts.indexOfLast { it >= minRowPixels }
+        var left = colCounts.indexOfFirst { it >= minColPixels }
+        var right = colCounts.indexOfLast { it >= minColPixels }
+
+        if (left < 0 || right < 0 || top < 0 || bottom < 0) {
+            top = height
+            bottom = -1
+            left = width
+            right = -1
+            for (y in 0 until height) {
+                val rowOffset = y * width
+                for (x in 0 until width) {
+                    val alpha = android.graphics.Color.alpha(pixels[rowOffset + x])
+                    if (alpha > alphaThreshold) {
+                        if (x < left) left = x
+                        if (x > right) right = x
+                        if (y < top) top = y
+                        if (y > bottom) bottom = y
+                    }
+                }
+            }
+        }
+
+        if (right < left || bottom < top) {
+            return bitmap
+        }
+
+        if (left == 0 && top == 0 && right == width - 1 && bottom == height - 1) {
+            return bitmap
+        }
+
+        return Bitmap.createBitmap(bitmap, left, top, right - left + 1, bottom - top + 1)
+    }
+
+    fun hasMeaningfulTransparency(
+        bitmap: Bitmap,
+        alphaThreshold: Int = 245,
+        minTransparentRatio: Float = 0.008f
+    ): Boolean {
+        if (!bitmap.hasAlpha() || bitmap.width == 0 || bitmap.height == 0) return false
+
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        var transparentPixels = 0
+        for (pixel in pixels) {
+            if (android.graphics.Color.alpha(pixel) < alphaThreshold) {
+                transparentPixels++
+            }
+        }
+
+        return transparentPixels.toFloat() / pixels.size.toFloat() >= minTransparentRatio
+    }
+
     fun compositeForegroundOverBackground(background: Bitmap, foreground: Bitmap): Bitmap {
-        return compositeForegroundOverBackground(background, foreground, 0f, 0f)
+        return compositeForegroundOverBackground(background, foreground, 0f, 0f, 1f, 0f)
     }
 
     fun compositeForegroundOverBackground(
-        background: Bitmap, foreground: Bitmap,
-        offsetX: Float, offsetY: Float
+        background: Bitmap,
+        foreground: Bitmap,
+        offsetX: Float,
+        offsetY: Float,
+        scale: Float = 1f,
+        rotationDegrees: Float = 0f
     ): Bitmap {
         val result = Bitmap.createBitmap(background.width, background.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
@@ -120,24 +215,32 @@ object ProcessorUtils {
 
         canvas.drawBitmap(background, 0f, 0f, paint)
 
-        if (foreground.width != background.width || foreground.height != background.height) {
-            val scaleX = background.width.toFloat() / foreground.width
-            val scaleY = background.height.toFloat() / foreground.height
-            val scale = minOf(scaleX, scaleY)
-            val drawW = foreground.width * scale
-            val drawH = foreground.height * scale
-            // Base centering + user offset
-            val dx = (background.width - drawW) / 2 + offsetX
-            val dy = (background.height - drawH) / 2 + offsetY
-
-            canvas.save()
-            canvas.translate(dx, dy)
-            canvas.scale(scale, scale)
-            canvas.drawBitmap(foreground, 0f, 0f, paint)
-            canvas.restore()
+        val baseScale = if (foreground.width != background.width || foreground.height != background.height) {
+            minOf(
+                background.width.toFloat() / foreground.width,
+                background.height.toFloat() / foreground.height
+            )
         } else {
-            canvas.drawBitmap(foreground, offsetX, offsetY, paint)
+            1f
         }
+
+        val totalScale = baseScale * scale.coerceAtLeast(0.05f)
+        val centerX = background.width / 2f + offsetX
+        val centerY = background.height / 2f + offsetY
+
+        canvas.save()
+        canvas.translate(centerX, centerY)
+        if (rotationDegrees != 0f) {
+            canvas.rotate(rotationDegrees)
+        }
+        canvas.scale(totalScale, totalScale)
+        canvas.drawBitmap(
+            foreground,
+            -foreground.width / 2f,
+            -foreground.height / 2f,
+            paint
+        )
+        canvas.restore()
 
         return result
     }

@@ -60,6 +60,8 @@
     <string name="multi_image_remove">Multi-image remove</string>
     <string name="done_save_or_share">Done! You can now save or share the result.</string>
     <string name="removing_background_wait">Removing background, this may take a few seconds...</string>
+    <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
+    <string name="loading_image">Loading image...</string>
     <string name="tap_remove_background_to_start">Tap "Remove background" to start processing.</string>
     <string name="step_choose_image">Step 1: Choose an image from your gallery.</string>
     <string name="compare_before_after">Compare before / after</string>
@@ -249,7 +251,7 @@
     <string name="tool_rotate">Rotate</string>
     <string name="tool_background">Background</string>
     <string name="tool_studio">Studio</string>
-    <string name="removing_background">Removing background...</string><string name="draft_saved_successfully">Draft saved successfully</string><string name="bg_remover_not_available">Background remover not available</string><string name="bg_removal_failed">Background removal failed</string><string name="go_back">Go back</string><string name="draft_name_prefix">Draft</string><string name="draft_copy_suffix">Copy</string><string name="old_project_name">Old Project</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>    <string name="picker_no_photos">No photos found</string>
+    <string name="removing_background">Removing background...</string><string name="draft_saved_successfully">Draft saved successfully</string><string name="bg_remover_not_available">Background remover not available</string><string name="bg_removal_failed">Background removal failed</string><string name="go_back">Go back</string><string name="draft_name_prefix">Draft</string><string name="draft_copy_suffix">Copy</string><string name="old_project_name">Old Project</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>    <string name="picker_no_photos">No photos found</string><string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
     <string name="picker_capture_btn">Capture from Camera</string>
     <string name="cd_capture_photo">Capture Photo</string>
 
