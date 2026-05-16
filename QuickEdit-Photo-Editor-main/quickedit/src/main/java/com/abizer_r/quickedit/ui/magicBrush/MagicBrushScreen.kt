@@ -52,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.ui.common.LoadingView
 import com.abizer_r.quickedit.ui.magicBrush.components.MagicEraserCanvas
+import com.abizer_r.quickedit.ui.magicBrush.components.MagicWandTooltipDialog
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapCache
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 
@@ -72,6 +73,7 @@ fun MagicBrushScreen(
     val canUndo by viewModel.canUndo.collectAsStateWithLifecycle()
     val canRedo by viewModel.canRedo.collectAsStateWithLifecycle()
     val showGuide by viewModel.showGuide.collectAsStateWithLifecycle()
+    val showSmartEraseTooltip by viewModel.showSmartEraseTooltip.collectAsStateWithLifecycle()
 
     val density = LocalDensity.current
     var scale by remember { mutableFloatStateOf(1f) }
@@ -371,6 +373,17 @@ fun MagicBrushScreen(
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.width(30.dp)
                         )
+                        IconButton(
+                            onClick = { viewModel.forceShowSmartEraseTooltip() },
+                            modifier = Modifier.size(24.dp).padding(start = 4.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = "Tooltip",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
 
@@ -434,6 +447,14 @@ fun MagicBrushScreen(
 
             }
         }
+    }
+
+    if (selectedTool == MagicBrushTool.SMART_ERASE && showSmartEraseTooltip) {
+        MagicWandTooltipDialog(
+            onDismiss = { dontShowAgain ->
+                viewModel.dismissSmartEraseTooltip(dontShowAgain)
+            }
+        )
     }
 
     // Guide BottomSheet

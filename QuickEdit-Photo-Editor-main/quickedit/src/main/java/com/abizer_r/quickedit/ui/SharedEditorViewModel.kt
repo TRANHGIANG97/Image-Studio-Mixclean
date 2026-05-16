@@ -5,9 +5,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.abizer_r.quickedit.ui.editorScreen.EditorScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,6 +37,10 @@ class SharedEditorViewModel @Inject constructor(
     private val _recompositionTrigger = MutableStateFlow<Long>(0)
     val recompositionTrigger: StateFlow<Long> = _recompositionTrigger
 
+    private val _showOverlay = MutableStateFlow(false)
+    val showOverlay: StateFlow<Boolean> = _showOverlay.asStateFlow()
+
+    private var overlayJob: Job? = null
     private var latestTimeForAddingBitmapToStack: Long = 0
 
     @Throws(Exception::class)
@@ -130,6 +139,16 @@ class SharedEditorViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        overlayJob?.cancel()
         resetStacks()
+    }
+
+    fun triggerOverlay() {
+        _showOverlay.value = true
+        overlayJob?.cancel()
+        overlayJob = viewModelScope.launch {
+            delay(2000)
+            _showOverlay.value = false
+        }
     }
 }

@@ -207,7 +207,9 @@ object ProcessorUtils {
         offsetX: Float,
         offsetY: Float,
         scale: Float = 1f,
-        rotationDegrees: Float = 0f
+        rotationDegrees: Float = 0f,
+        flipHorizontal: Boolean = false,
+        flipVertical: Boolean = false
     ): Bitmap {
         val result = Bitmap.createBitmap(background.width, background.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
@@ -233,7 +235,10 @@ object ProcessorUtils {
         if (rotationDegrees != 0f) {
             canvas.rotate(rotationDegrees)
         }
-        canvas.scale(totalScale, totalScale)
+        canvas.scale(
+            totalScale * if (flipHorizontal) -1f else 1f,
+            totalScale * if (flipVertical) -1f else 1f
+        )
         canvas.drawBitmap(
             foreground,
             -foreground.width / 2f,

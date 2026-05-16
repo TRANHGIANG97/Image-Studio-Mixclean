@@ -10,13 +10,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -27,6 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -45,6 +49,7 @@ import com.abizer_r.quickedit.theme.QuickEditTheme
 import com.abizer_r.quickedit.utils.defaultErrorToast
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
 import com.abizer_r.quickedit.ui.common.LoadingView
+import com.abizer_r.quickedit.ui.common.StablePreviewStage
 import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
 import com.abizer_r.quickedit.ui.common.topToolbarModifier
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_EXTRA_LARGE
@@ -161,7 +166,7 @@ fun EffectsModeScreen(
         val aspectRatio = bitmap.let {
             bitmap.width.toFloat() / bitmap.height.toFloat()
         }
-        Box(
+        StablePreviewStage(
             modifier = Modifier
                 .constrainAs(imageBox) {
                     top.linkTo(topToolBar.bottom)
@@ -171,13 +176,15 @@ fun EffectsModeScreen(
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                 }
-                .padding(top = 0.dp, bottom = 0.dp)
-                .aspectRatio(aspectRatio)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            aspectRatio = aspectRatio
         ) {
             Image(
                 modifier = Modifier.fillMaxSize(),
                 bitmap = currentBitmap.asImageBitmap(),
-                contentDescription = null
+                contentDescription = null,
+                contentScale = ContentScale.Fit
             )
         }
 

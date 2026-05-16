@@ -71,6 +71,7 @@ import com.thgiang.image.feature.editor.model.ProjectSnapshot
 import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 import com.abizer_r.quickedit.utils.toast
 import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
+import com.thgiang.image.core.design.theme.ImageTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -501,6 +502,7 @@ fun QuickEditEditorNavigation(
                                     triggerRecomposition = true,
                                     addSafelyWithoutMultipleTriggers = false
                                 )
+                                sharedEditorViewModel.triggerOverlay()
                                 Log.d(TAG, "autoRemoveBackground: added result to stack sizeAfter=${sharedEditorViewModel.bitmapStack.size}")
                                 if (subjectRemover.consumeSelfieFallbackWarning()) {
                                     showSelfieFallbackWarning()
@@ -521,11 +523,14 @@ fun QuickEditEditorNavigation(
 
             val visualState by sharedEditorViewModel.recompositionTrigger
                 .collectAsStateWithLifecycle()
+            val showOverlay by sharedEditorViewModel.showOverlay
+                .collectAsStateWithLifecycle()
 
             val initialEditorState = EditorScreenState(
                 sharedEditorViewModel.bitmapStack,
                 sharedEditorViewModel.bitmapRedoStack,
-                recompositionTrigger = visualState
+                recompositionTrigger = visualState,
+                showOverlay = showOverlay
             )
             Box(modifier = Modifier.fillMaxSize()) {
                 EditorScreen(
@@ -660,31 +665,35 @@ fun QuickEditEditorNavigation(
             )
         ) { backStackEntry ->
             val autoRemove = backStackEntry.arguments?.getBoolean("autoRemove") ?: false
-            SingleImagePickerScreen(
-                onImageSelected = { uri ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("background_image_uri", uri)
-                    navController.popBackStack()
-                },
-                onCancel = {
-                    navController.popBackStack()
-                }
-            )
+            ImageTheme(darkTheme = false) {
+                SingleImagePickerScreen(
+                    onImageSelected = { uri ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("background_image_uri", uri)
+                        navController.popBackStack()
+                    },
+                    onCancel = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable(route = NavDestinations.ADD_IMAGE_PICKER_SCREEN) {
-            SingleImagePickerScreen(
-                onImageSelected = { uri ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("add_image_uri", uri)
-                    navController.popBackStack()
-                },
-                onCancel = {
-                    navController.popBackStack()
-                }
-            )
+            ImageTheme(darkTheme = false) {
+                SingleImagePickerScreen(
+                    onImageSelected = { uri ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("add_image_uri", uri)
+                        navController.popBackStack()
+                    },
+                    onCancel = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable(route = NavDestinations.MAGIC_BRUSH_SCREEN) {

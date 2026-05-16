@@ -59,7 +59,14 @@ class MagicBrushViewModel @Inject constructor(
     private val _showGuide = MutableStateFlow(false)
     val showGuide: StateFlow<Boolean> = _showGuide
 
+    private val _showSmartEraseTooltip = MutableStateFlow(false)
+    val showSmartEraseTooltip: StateFlow<Boolean> = _showSmartEraseTooltip
+
     private val prefs = context.getSharedPreferences("magic_brush_prefs", android.content.Context.MODE_PRIVATE)
+
+    init {
+        _showSmartEraseTooltip.value = prefs.getBoolean("show_smart_erase_tooltip", true)
+    }
 
     fun checkFirstLaunch() {
         val guideShown = prefs.getBoolean("guide_shown", false)
@@ -71,6 +78,17 @@ class MagicBrushViewModel @Inject constructor(
 
     fun dismissGuide() {
         _showGuide.value = false
+    }
+
+    fun dismissSmartEraseTooltip(dontShowAgain: Boolean) {
+        _showSmartEraseTooltip.value = false
+        if (dontShowAgain) {
+            prefs.edit().putBoolean("show_smart_erase_tooltip", false).apply()
+        }
+    }
+
+    fun forceShowSmartEraseTooltip() {
+        _showSmartEraseTooltip.value = true
     }
 
     // Cache IDs for undo/redo stacks

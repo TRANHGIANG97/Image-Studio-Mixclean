@@ -4,17 +4,14 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -60,10 +57,12 @@ import com.abizer_r.quickedit.utils.defaultTextColor
 import com.abizer_r.quickedit.utils.drawMode.DrawModeUtils
 import com.abizer_r.quickedit.utils.editorScreen.EditorScreenUtils
 import com.abizer_r.quickedit.utils.textMode.TextModeUtils
+import com.abizer_r.quickedit.ui.editorScreen.components.EditorBottomToolbarTemplate
+import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButton
 import java.util.UUID
 
 val TOOLBAR_HEIGHT_SMALL = 48.dp
-val TOOLBAR_HEIGHT_MEDIUM = 64.dp
+val TOOLBAR_HEIGHT_MEDIUM = 72.dp
 val TOOLBAR_HEIGHT_LARGE = 88.dp
 val TOOLBAR_HEIGHT_EXTRA_LARGE = 104.dp
 
@@ -78,18 +77,11 @@ fun BottomToolBarStatic(
     onEvent: (BottomToolbarEvent) -> Unit
 ) {
 
-    val scrollState = rememberScrollState()
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(toolbarHeight)
-            .background(MaterialTheme.colorScheme.surface)
-            .horizontalScroll(scrollState),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
+    EditorBottomToolbarTemplate(
+        modifier = modifier,
+        toolbarHeight = toolbarHeight
     ) {
-        Spacer(modifier = Modifier.width(16.dp))
-        toolbarItems.items.forEachIndexed { index, mToolbarItem ->
+        toolbarItems.items.forEach { mToolbarItem ->
             ToolbarItem(
                 toolbarItem = mToolbarItem,
                 selectedColor = selectedColor,
@@ -97,9 +89,7 @@ fun BottomToolBarStatic(
                 isSelected = mToolbarItem == selectedItem,
                 onEvent = onEvent
             )
-            Spacer(modifier = Modifier.width(12.dp))
         }
-        Spacer(modifier = Modifier.width(16.dp))
     }
 }
 
@@ -115,11 +105,9 @@ fun ToolbarItem(
 ) {
     val labelTextStyle = MaterialTheme.typography.bodySmall.copy(color = defaultTextColor())
 
-    val commonPaddingModifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-
     if (toolbarItem is BottomToolbarItem.ColorItem) {
         ColorToolbarItem(
-            modifier = modifier.then(commonPaddingModifier),
+            modifier = modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             selectedColor = selectedColor,
             showColorPickerIcon = showColorPickerIcon,
             colorItem = toolbarItem,
@@ -128,20 +116,6 @@ fun ToolbarItem(
         )
         return
     }
-    var columnModifier = modifier.clickable {
-        onEvent(BottomToolbarEvent.OnItemClicked(toolbarItem))
-    }
-    if (isSelected) {
-        columnModifier = columnModifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
-            .padding((0.5).dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-    }
-    columnModifier = columnModifier.then(commonPaddingModifier)
-
-
     val (imageVector, labelText) = when (toolbarItem) {
 
         is BottomToolbarItem.CropMode -> Pair(
@@ -187,7 +161,7 @@ fun ToolbarItem(
         )
         is BottomToolbarItem.AddImage -> Pair(
             Icons.Default.AddCircleOutline,
-            "Thêm ảnh"
+            stringResource(id = R.string.add_image)
         )
 
         is BottomToolbarItem.EraserTool -> Pair(
@@ -234,37 +208,15 @@ fun ToolbarItem(
     }
 
 
-    Column(
-        modifier = columnModifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-
-        val verticalPaddingBeforeSize = if (labelText.isBlank()) 4.dp else 0.dp
-        val imageSize = if (labelText.isBlank()) 32.dp else 28.dp
-        Image(
-            modifier = Modifier
-                .padding(vertical = verticalPaddingBeforeSize)
-                .size(imageSize),
-            contentDescription = null,
-            imageVector = imageVector,
-            colorFilter = ColorFilter.tint(
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        )
-        Spacer(modifier = Modifier.size(
-            if (labelText.isNotBlank()) 4.dp else 0.dp
-        ))
-
-        if (labelText.isNotBlank()) {
-            Text(
-                style = labelTextStyle,
-                text = labelText,
-                maxLines = 1,
-                softWrap = false
-            )
-        }
-    }
+    EditorToolButton(
+        icon = imageVector,
+        contentDescription = labelText,
+        onClick = { onEvent(BottomToolbarEvent.OnItemClicked(toolbarItem)) },
+        modifier = modifier,
+        label = labelText,
+        selected = isSelected,
+        compact = false
+    )
 }
 
 @Composable

@@ -117,7 +117,8 @@ object FileUtils {
 
     private fun getMimeTypeFromFile(file: File): String {
         return when (file.extension.lowercase()) {
-            "jpg", "jpeg", "png" -> "image/${file.extension.lowercase()}"
+            "jpg", "jpeg" -> "image/jpeg"
+            "png" -> "image/png"
             "mp4" -> "video/mp4"
             else -> "application/octet-stream"
         }

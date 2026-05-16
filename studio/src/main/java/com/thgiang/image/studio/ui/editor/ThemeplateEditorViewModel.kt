@@ -30,7 +30,8 @@ data class EditorState(
     val cropRatio: CropRatio = CropRatio.RATIO_1_1,
     val isExporting: Boolean = false,
     val exportResult: Uri? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val showOverlay: Boolean = false
 ) : java.io.Serializable {
     val canExport: Boolean
         get() = product.isBackgroundRemoved && !isExporting && template.loaded
@@ -72,6 +73,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private var bgRemoveJob: Job? = null
     private var exportJob: Job? = null
     private var historyPushJob: Job? = null
+    private var overlayJob: Job? = null
 
     init {
         // Debounced history push
@@ -253,6 +255,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                             viewport = EditorViewport(scale = 1f, offset = Offset.Zero)
                         )
                     }
+                    triggerOverlay()
                     pushHistory()
                 } else {
                     _state.update { it.copy(product = it.product.copy(processing = false)) }
@@ -438,7 +441,17 @@ class ThemeplateEditorViewModel @Inject constructor(
         bgRemoveJob?.cancel()
         exportJob?.cancel()
         historyPushJob?.cancel()
+        overlayJob?.cancel()
         historyManager.clear()
+    }
+
+    fun triggerOverlay() {
+        _state.update { it.copy(showOverlay = true) }
+        overlayJob?.cancel()
+        overlayJob = viewModelScope.launch {
+            delay(2000)
+            _state.update { it.copy(showOverlay = false) }
+        }
     }
 }
 

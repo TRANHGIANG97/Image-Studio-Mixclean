@@ -21,6 +21,7 @@
     <string name="something_went_wrong">Something went wrong</string>
     <string name="enter_your_text">Enter your text</string>
     <string name="pick_image">Pick Image</string>
+    <string name="add_image">Add Image</string>
     <string name="capture_image">Capture Image</string>
     <string name="saving_image">Saving Image</string>
     <string name="image_saved_successfully">Image saved successfully</string>
@@ -56,6 +57,8 @@
     <string name="remove_bg_processing_auto">Đang phân tích tự động...</string>
     <string name="remove_bg_processing_portrait">Đang tách chi tiết chân dung...</string>
     <string name="remove_bg_processing_object">Đang tách vật thể...</string>
+    <string name="remove_bg_portrait_no_face_warning">Không phát hiện khuôn mặt, hãy chọn chế độ tự động hoặc chế độ vật thể để có kết quả tốt nhất</string>
+    <string name="remove_bg_object_has_face_warning">Phát hiện khuôn mặt, hãy chọn chế độ tự động hoặc chế độ chân dung để có kết quả tốt nhất</string>
     <string name="hair_detail">Hair Detail</string>
     <string name="hair_detail_processing">Refining hair detail...</string>
     <string name="remove_bg_processing">Removing background...</string>
@@ -96,6 +99,13 @@
     <string name="label_brush_size">Brush size</string>
     <string name="label_tolerance">Tolerance</string>
     <string name="label_erase_brush">Erase brush</string>
+
+    <!-- Magic Wand Tooltip -->
+    <string name="magic_wand_tooltip_title">Đũa thần (Magic Wand)</string>
+    <string name="magic_wand_tooltip_desc">Tự động xoá các vùng có màu sắc tương đồng nhau. Chạm vào màn hình để xoá.</string>
+    <string name="magic_wand_tooltip_warning">⚠️ Lưu ý: Không phù hợp với ảnh có nền nhiều chi tiết phức tạp hoặc màu sắc của vật thể bị hòa lẫn với nền.</string>
+    <string name="dont_show_again">Không hiện lại</string>
+    <string name="got_it">Đã hiểu</string>
     <string name="effect_original">Original</string>
     <string name="effect_grayscale">Grayscale</string>
     <string name="effect_blur">Blur</string>
@@ -125,4 +135,5 @@
     <string name="magic_brush_guide_pan">Drag to move around when zoomed in. Pinch to zoom in/out.</string>
     <string name="magic_brush_guide_tip">Tip: use Undo/Redo if you make a mistake.</string>
     <string name="magic_brush_got_it">Got it!</string>
+    <string name="studio_effect_requires_background">This feature is only available when the subject has a background</string>
 </resources>

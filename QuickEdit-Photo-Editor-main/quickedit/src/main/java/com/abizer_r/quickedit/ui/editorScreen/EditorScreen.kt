@@ -3,6 +3,9 @@ package com.abizer_r.quickedit.ui.editorScreen
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -24,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.Close
@@ -88,6 +92,8 @@ import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_MEDIU
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarEvent
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarItem
+import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButton
+import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButtonTemplate
 import com.abizer_r.quickedit.ui.editorScreen.topToolbar.EditorTopToolBar
 import com.abizer_r.quickedit.utils.AppUtils
 import com.abizer_r.quickedit.utils.FileUtils
@@ -136,7 +142,8 @@ fun EditorScreen(
     LaunchedEffect(
         initialEditorScreenState.recompositionTrigger,
         initialEditorScreenState.bitmapStack.size,
-        initialEditorScreenState.bitmapRedoStack.size
+        initialEditorScreenState.bitmapRedoStack.size,
+        initialEditorScreenState.showOverlay
     ) {
         viewModel.updateInitialState(initialEditorScreenState)
     }
@@ -205,7 +212,8 @@ fun EditorScreen(
             onBottomToolbarEvent = onBottomToolbarEvent,
             goToMainScreen = goToMainScreen,
             isPremium = isPremium,
-            onSaveDraftClicked = onSaveDraftClicked
+            onSaveDraftClicked = onSaveDraftClicked,
+            showOverlay = state.showOverlay
         )
     }
 
@@ -223,7 +231,8 @@ private fun EditorScreenLayout(
     onBottomToolbarEvent: (BottomToolbarEvent) -> Unit,
     goToMainScreen: () -> Unit,
     isPremium: Boolean = false,
-    onSaveDraftClicked: (Bitmap) -> Unit = {}
+    onSaveDraftClicked: (Bitmap) -> Unit = {},
+    showOverlay: Boolean = false
 ) {
 
     val context = LocalContext.current
@@ -292,8 +301,12 @@ private fun EditorScreenLayout(
         onCloseClickedLambda()
     }
     val onSaveClickedLambda = remember(currentBitmap) { {
-        val imgFile = File(context.filesDir, "edited_image.jpg")
-        BitmapUtils.saveBitmap(currentBitmap, imgFile)
+        val hasTransparency = BitmapUtils.hasTransparentPixels(currentBitmap)
+        val extension = if (hasTransparency) "png" else "jpg"
+        val format = if (hasTransparency) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+        
+        val imgFile = File(context.filesDir, "edited_image.$extension")
+        BitmapUtils.saveBitmap(currentBitmap, imgFile, format = format)
         FileUtils.saveFileToAppFolder(
             context = context,
             file = imgFile,
@@ -303,8 +316,13 @@ private fun EditorScreenLayout(
     } }
 
     val onShareClickedLambda = remember(currentBitmap) { {
-        val imgFile = File(context.filesDir, "edited_image.jpg")
-        BitmapUtils.saveBitmap(currentBitmap, imgFile)
+        val hasTransparency = BitmapUtils.hasTransparentPixels(currentBitmap)
+        val extension = if (hasTransparency) "png" else "jpg"
+        val format = if (hasTransparency) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+        val mimeType = if (hasTransparency) "image/png" else "image/jpeg"
+
+        val imgFile = File(context.filesDir, "edited_image.$extension")
+        BitmapUtils.saveBitmap(currentBitmap, imgFile, format = format)
         FileUtils.saveFileToAppFolder(
             context = context,
             file = imgFile,
@@ -315,7 +333,7 @@ private fun EditorScreenLayout(
                         context = context,
                         appName = null,
                         uri = uri,
-                        type = "image/jpeg"
+                        type = mimeType
                     )
                 } else {
                     context.toast(R.string.something_went_wrong)
@@ -344,7 +362,7 @@ private fun EditorScreenLayout(
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
-            .background(bgBrush)
+            .background(EditorToolButtonTemplate.ToolbarBackgroundColor)
     ) {
         val (topToolbar, bottomToolbar, bgImage) = createRefs()
 
@@ -424,27 +442,29 @@ private fun EditorScreenLayout(
         Box(
             modifier = Modifier
                 .constrainAs(bgImage) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
+                    top.linkTo(topToolbar.bottom)
+                    bottom.linkTo(bottomToolbar.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    width = Dimension.wrapContent
-                    height = Dimension.wrapContent
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
                 }
-                .padding(
-                    top = topToolbarHeight + androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 16.dp, 
-                    bottom = bottomToolbarHeight + androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
-                )
-                .aspectRatio(aspectRatio)
-                .transformable(transformableState)
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offset.x,
-                    translationY = offset.y,
-                    rotationZ = rotation
-                ),
+                .background(bgBrush),
+            contentAlignment = Alignment.Center
         ) {
+            Box(
+                modifier = Modifier
+                    .aspectRatio(aspectRatio)
+                    .transformable(transformableState)
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x,
+                        translationY = offset.y,
+                        rotationZ = rotation
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
 
             Image(
                 modifier = Modifier
@@ -455,63 +475,56 @@ private fun EditorScreenLayout(
                 alpha = 1f
             )
 
+            // Pink Overlay (Subject Mask)
+            AnimatedVisibility(
+                visible = showOverlay,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    bitmap = currentBitmap.asImageBitmap(),
+                    contentScale = ContentScale.Fit,
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(Color(0xFFFF2D55).copy(alpha = 0.6f))
+                )
+            }
+
             if (currentBitmap.width > 1 || currentBitmap.height > 1) {
-                Box(
+                EditorToolButton(
+                    icon = Icons.Rounded.Close,
+                    contentDescription = "Xoá ảnh",
+                    onClick = onDeleteImage,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(12.dp)
-                        .size(28.dp)
-                        .shadow(4.dp, androidx.compose.foundation.shape.CircleShape)
-                        .background(Color.Black.copy(alpha = 0.7f), androidx.compose.foundation.shape.CircleShape)
-                        .clickable(onClick = onDeleteImage),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription = "Xoá ảnh",
-                        tint = Color.White,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
+                        .padding(12.dp),
+                    compact = true,
+                    containerColorOverride = EditorToolButtonTemplate.ToolbarBackgroundColor.copy(alpha = 0.92f)
+                )
+            }
             }
 
         }
 
         // Fixed Reset zoom button in the bottom left of working area
         if (isZoomedOrPanned) {
-            Box(
+            EditorToolButton(
+                icon = Icons.Rounded.RestartAlt,
+                contentDescription = "Reset",
+                onClick = {
+                    scale = 1f
+                    offset = Offset.Zero
+                    rotation = 0f
+                },
                 modifier = Modifier
                     .constrainAs(createRef()) {
                         bottom.linkTo(bottomToolbar.top, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
-                    }
-                    .shadow(8.dp, RoundedCornerShape(24.dp))
-                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(24.dp))
-                    .clip(RoundedCornerShape(24.dp))
-                    .clickable {
-                        scale = 1f
-                        offset = Offset.Zero
-                        rotation = 0f
-                    }
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Rounded.RestartAlt,
-                        contentDescription = "Reset",
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Reset",
-                        color = Color.White,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+                    },
+                label = "Reset",
+                containerColorOverride = EditorToolButtonTemplate.ToolbarBackgroundColor.copy(alpha = 0.92f)
+            )
         }
 
 
@@ -522,7 +535,7 @@ private fun EditorScreenLayout(
         ) {
             Column(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(EditorToolButtonTemplate.ToolbarBackgroundColor)
                     .navigationBarsPadding()
             ) {
                 BottomToolBarStatic(

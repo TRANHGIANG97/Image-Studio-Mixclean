@@ -39,13 +39,17 @@ class RemoveBgModeViewModel @Inject constructor(
         val currentOption: RemoveBgOption = RemoveBgOption.AUTO,
         val isProcessing: Boolean = false,
         val processingMessage: String? = null,
-        val error: String? = null
+        val error: String? = null,
+        val hasFace: Boolean? = null,
+        val warningMessage: String? = null,
+        val showOverlay: Boolean = false
     )
 
     private val _state = MutableStateFlow(RemoveBgState())
     val state: StateFlow<RemoveBgState> = _state.asStateFlow()
 
     private var processingJob: Job? = null
+    private var overlayJob: Job? = null
     private val portraitClassifier = QuickToolsPortraitClassifier()
 
     // Caches to avoid re-processing if user clicks back and forth
@@ -79,6 +83,16 @@ class RemoveBgModeViewModel @Inject constructor(
         )
 
         processingJob = viewModelScope.launch {
+            ensureFaceDetected(original)
+            
+            val warning = when (option) {
+                RemoveBgOption.PORTRAIT -> if (_state.value.hasFace == false) context.getString(R.string.remove_bg_portrait_no_face_warning) else null
+                RemoveBgOption.OBJECT -> if (_state.value.hasFace == true) context.getString(R.string.remove_bg_object_has_face_warning) else null
+                else -> null
+            }
+            
+            _state.value = _state.value.copy(warningMessage = warning)
+
             val result = withContext(Dispatchers.Default) {
                 runCatching {
                     when (option) {
@@ -109,8 +123,16 @@ class RemoveBgModeViewModel @Inject constructor(
                         _state.value = _state.value.copy(
                             processedBitmap = finalResult,
                             isProcessing = false,
-                            processingMessage = null
+                            processingMessage = null,
+                            showOverlay = true
                         )
+
+                        // Hide overlay after 2 seconds
+                        overlayJob?.cancel()
+                        overlayJob = viewModelScope.launch {
+                            kotlinx.coroutines.delay(2000)
+                            _state.value = _state.value.copy(showOverlay = false)
+                        }
                     } else {
                         _state.value = _state.value.copy(
                             isProcessing = false,
@@ -146,6 +168,13 @@ class RemoveBgModeViewModel @Inject constructor(
             cachedObjectBitmap = result
         }
         return result
+    }
+
+    private suspend fun ensureFaceDetected(bitmap: Bitmap) {
+        if (_state.value.hasFace == null) {
+            val hasFace = portraitClassifier.hasDetectableFace(bitmap).getOrDefault(false)
+            _state.value = _state.value.copy(hasFace = hasFace)
+        }
     }
 
     private fun getProcessingMessage(option: RemoveBgOption): String {

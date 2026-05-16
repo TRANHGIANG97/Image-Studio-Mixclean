@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -29,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -42,6 +44,8 @@ import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
 import com.abizer_r.quickedit.ui.common.topToolbarModifier
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_EXTRA_LARGE
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
+import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButtonTemplate
+import com.abizer_r.quickedit.utils.toast
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
@@ -112,7 +116,7 @@ fun StudioModeScreen(
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(EditorToolButtonTemplate.ToolbarBackgroundColor)
             .statusBarsPadding()
     ) {
         val (topToolBar, mainImage, sliderRef, bottomToolbar, navBarZone) = createRefs()
@@ -139,7 +143,7 @@ fun StudioModeScreen(
             Row(
                 modifier = Modifier
                     .height(topToolbarHeight)
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(EditorToolButtonTemplate.ToolbarBackgroundColor),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -174,8 +178,9 @@ fun StudioModeScreen(
             }
         }
 
-        val currentBitmap = state.processedBitmap ?: immutableBitmap.bitmap
-        val aspectRatio = currentBitmap.width.toFloat() / currentBitmap.height.toFloat()
+    val currentBitmap = state.processedBitmap ?: immutableBitmap.bitmap
+    val hasForegroundBackground = !currentBitmap.hasAlpha()
+    val aspectRatio = currentBitmap.width.toFloat() / currentBitmap.height.toFloat()
 
         Box(
             modifier = Modifier
@@ -187,16 +192,38 @@ fun StudioModeScreen(
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                 }
-                .padding(top = 0.dp, bottom = 0.dp)
-                .aspectRatio(aspectRatio),
+                .clipToBounds()
+                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                modifier = Modifier.fillMaxSize(),
-                bitmap = currentBitmap.asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.Fit
-            )
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                val imageRatio = aspectRatio
+                val stageRatio = if (maxHeight.value > 0f) maxWidth / maxHeight else imageRatio
+                val displaySize = if (imageRatio > stageRatio) {
+                    val width = maxWidth
+                    width to (width / imageRatio)
+                } else {
+                    val height = maxHeight
+                    (height * imageRatio) to height
+                }
+
+                Box(
+                    modifier = Modifier.size(displaySize.first, displaySize.second),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        modifier = Modifier.fillMaxSize(),
+                        bitmap = currentBitmap.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
 
             if (state.isProcessing) {
                 Box(
@@ -284,8 +311,12 @@ fun StudioModeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(bottomToolbarHeight)
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(EditorToolButtonTemplate.ToolbarBackgroundColor),
                 selectedEffect = state.currentEffect,
+                canUseForegroundEffects = hasForegroundBackground,
+                onBlockedEffectAttempt = {
+                    context.toast(R.string.studio_effect_requires_background)
+                },
                 onEffectSelected = { viewModel.applyEffect(it) }
             )
         }
@@ -296,6 +327,8 @@ fun StudioModeScreen(
 fun StudioOptionsList(
     modifier: Modifier = Modifier,
     selectedEffect: StudioEffect,
+    canUseForegroundEffects: Boolean,
+    onBlockedEffectAttempt: () -> Unit,
     onEffectSelected: (StudioEffect) -> Unit
 ) {
     val options = listOf(
@@ -314,10 +347,21 @@ fun StudioOptionsList(
         verticalAlignment = Alignment.CenterVertically
     ) {
         items(options) { option ->
+            val blocked = !canUseForegroundEffects && (
+                option.effect == StudioEffect.PORTRAIT ||
+                option.effect == StudioEffect.CLEAN ||
+                option.effect == StudioEffect.DARKEN
+            )
             StudioOptionItem(
                 option = option,
                 isSelected = selectedEffect == option.effect,
-                onClick = { onEffectSelected(option.effect) }
+                onClick = {
+                    if (blocked) {
+                        onBlockedEffectAttempt()
+                    } else {
+                        onEffectSelected(option.effect)
+                    }
+                }
             )
         }
     }
@@ -331,7 +375,7 @@ fun StudioOptionItem(
 ) {
     Column(
         modifier = Modifier
-            .width(72.dp)
+            .widthIn(min = 76.dp)
             .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -339,7 +383,13 @@ fun StudioOptionItem(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.1f))
+                .background(
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        Color.White.copy(alpha = 0.1f)
+                    }
+                )
                 .border(2.dp, if (isSelected) Color.White else Color.Transparent, CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -358,7 +408,8 @@ fun StudioOptionItem(
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
             ),
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

@@ -4,9 +4,13 @@ import android.graphics.Bitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,6 +20,8 @@ class EditorScreenViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(EditorScreenState())
     val state: StateFlow<EditorScreenState> = _state
+
+    private var overlayJob: Job? = null
 
     fun getCurrentBitmap(): Bitmap {
         val stack = _state.value.bitmapStack
@@ -77,6 +83,15 @@ class EditorScreenViewModel @Inject constructor(
                 bitmapRedoStack = newRedo,
                 recompositionTrigger = current.recompositionTrigger + 1
             )
+        }
+    }
+
+    fun triggerOverlay() {
+        _state.update { it.copy(showOverlay = true) }
+        overlayJob?.cancel()
+        overlayJob = viewModelScope.launch {
+            delay(2000)
+            _state.update { it.copy(showOverlay = false) }
         }
     }
 }

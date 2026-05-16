@@ -13,6 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -23,8 +25,20 @@ class BackgroundModeViewModel @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
+    private var overlayJob: Job? = null
+
     enum class BackgroundTab {
         IMAGE, COLOR, GRADIENT, PRESET
+    }
+
+    enum class CanvasRatio(val widthRatio: Float, val heightRatio: Float, val label: String) {
+        RATIO_9_16(9f, 16f, "9:16"),
+        RATIO_16_9(16f, 9f, "16:9"),
+        RATIO_1_1(1f, 1f, "1:1"),
+        RATIO_4_5(4f, 5f, "4:5"),
+        RATIO_3_4(3f, 4f, "3:4"),
+        RATIO_4_3(4f, 3f, "4:3"),
+        RATIO_ORIGINAL(0f, 0f, "Gốc")
     }
 
     data class BackgroundModeState(
@@ -41,7 +55,11 @@ class BackgroundModeViewModel @Inject constructor(
         val foregroundOffsetX: Float = 0f,
         val foregroundOffsetY: Float = 0f,
         val foregroundScale: Float = 1f,
-        val foregroundRotation: Float = 0f
+        val foregroundRotation: Float = 0f,
+        val foregroundFlippedH: Boolean = false,
+        val foregroundFlippedV: Boolean = false,
+        val showOverlay: Boolean = false,
+        val selectedRatio: CanvasRatio = CanvasRatio.RATIO_9_16
     )
 
     private val _state = MutableStateFlow(BackgroundModeState())
@@ -49,49 +67,138 @@ class BackgroundModeViewModel @Inject constructor(
 
     private var sourceWidth: Int = 0
     private var sourceHeight: Int = 0
+    private var originalWidth: Int = 0
+    private var originalHeight: Int = 0
 
     private var maxOffsetX: Float = 0f
     private var maxOffsetY: Float = 0f
 
+    private fun calculateCanvasSize(ratio: CanvasRatio): Pair<Int, Int> {
+        val w = originalWidth
+        val h = originalHeight
+        
+        if (ratio == CanvasRatio.RATIO_ORIGINAL) {
+            return Pair(w, h)
+        }
+
+        val targetRatio = ratio.widthRatio / ratio.heightRatio
+        
+        // We want to keep the max dimension roughly the same to maintain high resolution
+        val maxDim = maxOf(w, h)
+        
+        return if (targetRatio <= 1f) { // Vertical or Square
+            val targetH = maxDim
+            val targetW = (targetH * targetRatio).toInt()
+            Pair(targetW, targetH)
+        } else { // Horizontal
+            val targetW = maxDim
+            val targetH = (targetW / targetRatio).toInt()
+            Pair(targetW, targetH)
+        }
+    }
+
+    fun setCanvasRatio(ratio: CanvasRatio) {
+        if (_state.value.selectedRatio == ratio) return
+        
+        _state.value = _state.value.copy(selectedRatio = ratio)
+        val (targetW, targetH) = calculateCanvasSize(ratio)
+        sourceWidth = targetW
+        sourceHeight = targetH
+        reanchorForeground()
+        
+        refreshBackground()
+    }
+
+    private fun refreshBackground() {
+        val current = _state.value
+        when {
+            current.selectedColor != null -> applyColorBackground(current.selectedColor)
+            current.selectedGradient != null -> applyGradientBackground(current.selectedGradient)
+            current.selectedPresetStyle != null -> applyPresetBackground(current.selectedPresetStyle)
+            current.selectedImage != null -> applyImageBackground(current.selectedImage)
+        }
+    }
+
+    private fun calculateInitialForegroundScale(foreground: Bitmap?): Float {
+        if (foreground == null || sourceWidth <= 0 || sourceHeight <= 0) return 1f
+        return 1f
+    }
+
+    private fun calculateInitialOffsetY(foreground: Bitmap?, scale: Float): Float {
+        return 0f
+    }
+
+    private fun reanchorForeground() {
+        val current = _state.value
+        val fg = current.foregroundBitmap ?: return
+        val defaultScale = calculateInitialForegroundScale(fg)
+        _state.value = current.copy(
+            foregroundOffsetX = 0f,
+            foregroundOffsetY = calculateInitialOffsetY(fg, defaultScale),
+            foregroundScale = defaultScale,
+            foregroundRotation = 0f,
+            foregroundFlippedH = false,
+            foregroundFlippedV = false
+        )
+    }
+
     fun setInitialBitmap(bitmap: Bitmap) {
-        sourceWidth = bitmap.width
-        sourceHeight = bitmap.height
+        originalWidth = bitmap.width
+        originalHeight = bitmap.height
+        
+        val (targetW, targetH) = calculateCanvasSize(_state.value.selectedRatio)
+        sourceWidth = targetW
+        sourceHeight = targetH
         val hasAlpha = checkHasAlpha(bitmap)
 
         if (hasAlpha) {
+            val fg = ProcessorUtils.trimTransparentBounds(bitmap)
+            val defaultScale = calculateInitialForegroundScale(fg)
+            val offsetY = calculateInitialOffsetY(fg, defaultScale)
             _state.value = _state.value.copy(
-                foregroundBitmap = ProcessorUtils.trimTransparentBounds(bitmap),
+                foregroundBitmap = fg,
                 hasAlpha = true,
                 isProcessing = false,
                 foregroundOffsetX = 0f,
-                foregroundOffsetY = 0f,
-                foregroundScale = 1f,
-                foregroundRotation = 0f
+                foregroundOffsetY = offsetY,
+                foregroundScale = defaultScale,
+                foregroundRotation = 0f,
+                foregroundFlippedH = false,
+                foregroundFlippedV = false
             )
             applyColorBackground(android.graphics.Color.WHITE)
         } else {
+            val defaultScale = 1.0f
             _state.value = _state.value.copy(
                 hasAlpha = true,
                 isProcessing = true,
                 foregroundOffsetX = 0f,
                 foregroundOffsetY = 0f,
-                foregroundScale = 1f,
-                foregroundRotation = 0f
+                foregroundScale = defaultScale,
+                foregroundRotation = 0f,
+                foregroundFlippedH = false,
+                foregroundFlippedV = false
             )
 
             viewModelScope.launch(Dispatchers.Default) {
                 val result = backgroundRemoverRepository.getForegroundBitmap(bitmap)
-                result.onSuccess { fg ->
+                result.onSuccess { fgRaw ->
                     withContext(Dispatchers.Main) {
+                        val fg = ProcessorUtils.trimTransparentBounds(fgRaw)
+                        val defaultScale = calculateInitialForegroundScale(fg)
+                        val offsetY = calculateInitialOffsetY(fg, defaultScale)
                         _state.value = _state.value.copy(
-                            foregroundBitmap = ProcessorUtils.trimTransparentBounds(fg),
+                            foregroundBitmap = fg,
                             isProcessing = false,
                             foregroundOffsetX = 0f,
-                            foregroundOffsetY = 0f,
-                            foregroundScale = 1f,
-                            foregroundRotation = 0f
+                            foregroundOffsetY = offsetY,
+                            foregroundScale = defaultScale,
+                            foregroundRotation = 0f,
+                            foregroundFlippedH = false,
+                            foregroundFlippedV = false
                         )
                         applyColorBackground(android.graphics.Color.WHITE)
+                        triggerOverlay()
                     }
                 }.onFailure { e ->
                     withContext(Dispatchers.Main) {
@@ -122,12 +229,28 @@ class BackgroundModeViewModel @Inject constructor(
     }
 
     fun resetForegroundPosition() {
-        _state.value = _state.value.copy(
+        val current = _state.value
+        val defaultScale = calculateInitialForegroundScale(current.foregroundBitmap)
+        val offsetY = calculateInitialOffsetY(current.foregroundBitmap, defaultScale)
+        
+        _state.value = current.copy(
             foregroundOffsetX = 0f,
-            foregroundOffsetY = 0f,
-            foregroundScale = 1f,
-            foregroundRotation = 0f
+            foregroundOffsetY = offsetY,
+            foregroundScale = defaultScale,
+            foregroundRotation = 0f,
+            foregroundFlippedH = false,
+            foregroundFlippedV = false
         )
+    }
+
+    fun toggleForegroundFlipHorizontal() {
+        val current = _state.value
+        _state.value = current.copy(foregroundFlippedH = !current.foregroundFlippedH)
+    }
+
+    fun toggleForegroundFlipVertical() {
+        val current = _state.value
+        _state.value = current.copy(foregroundFlippedV = !current.foregroundFlippedV)
     }
 
     fun updateForegroundTransform(zoomChange: Float, rotationChange: Float) {
@@ -304,7 +427,18 @@ class BackgroundModeViewModel @Inject constructor(
             offsetX = s.foregroundOffsetX,
             offsetY = s.foregroundOffsetY,
             scale = s.foregroundScale,
-            rotationDegrees = s.foregroundRotation
+            rotationDegrees = s.foregroundRotation,
+            flipHorizontal = s.foregroundFlippedH,
+            flipVertical = s.foregroundFlippedV
         )
+    }
+
+    fun triggerOverlay() {
+        _state.value = _state.value.copy(showOverlay = true)
+        overlayJob?.cancel()
+        overlayJob = viewModelScope.launch {
+            delay(2000)
+            _state.value = _state.value.copy(showOverlay = false)
+        }
     }
 }

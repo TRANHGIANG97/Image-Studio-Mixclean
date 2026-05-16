@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -183,6 +184,7 @@ fun ThemeplateEditorScreen(
                     },
                     onGestureEnd = { viewModel.onEvent(EditorEvent.CommitTransform) },
                     onPickImage = { pickImageLauncher.launch("image/*") },
+                    showOverlay = state.showOverlay,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
@@ -244,72 +246,67 @@ private fun EditorCanvasV2(
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     onPickImage: () -> Unit,
+    showOverlay: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
     
-    BoxWithConstraints(modifier = modifier) {
-        val currentMaxWidth = maxWidth
-        val currentMaxHeight = maxHeight
-        
-        val calculatedScale by remember(templateSize, currentMaxWidth, currentMaxHeight) {
-            derivedStateOf {
-                with(density) {
-                    val templateW = templateSize.width.toDp()
-                    val templateH = templateSize.height.toDp()
-                    kotlin.math.min(
-                        currentMaxWidth / templateW,
-                        currentMaxHeight / templateH
-                    ).coerceAtMost(1.2f)
-                }
-            }
-        }
-        
-        val displayWidth = with(density) { templateSize.width.toDp() } * calculatedScale
-        val displayHeight = with(density) { templateSize.height.toDp() } * calculatedScale
-
-        Box(
-            modifier = Modifier.size(displayWidth, displayHeight),
-            contentAlignment = Alignment.Center
-        ) {
-            AsyncImage(
-                model = "file:///android_asset/$templateAssetPath",
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
-
-            if (product.isBackgroundRemoved && product.foregroundUri != null) {
-                ProductLayerV2(
-                    product = product,
-                    viewport = viewport,
-                    appearance = appearance,
-                    displayScale = calculatedScale,
-                    templateSize = templateSize,
-                    onGesture = onGesture,
-                    onGestureEnd = onGestureEnd
-                )
-            } else {
-                PickImagePlaceholder(
-                    onClick = onPickImage,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-
-            if (product.processing) {
-                Box(
-                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        StudioLottieLoader(
-                            modifier = Modifier.fillMaxWidth(0.72f)
-                        )
-                    }
-                }
-            }
-        }
-    }
+//    BoxWithConstraints(modifier = modifier) {
+//        val templateWidth = with(density) { templateSize.width.toDp() }
+//        val templateHeight = with(density) { templateSize.height.toDp() }
+//        val calculatedScale = with(density) {
+//            kotlin.math.min(
+//                maxWidth / templateWidth,
+//                maxHeight / templateHeight
+//            ).coerceAtMost(1.2f)
+//        }
+//
+//        val displayWidth = templateWidth * calculatedScale
+//        val displayHeight = templateHeight * calculatedScale
+//
+//        Box(
+//            modifier = Modifier.size(displayWidth, displayHeight),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            AsyncImage(
+//                model = "file:///android_asset/$templateAssetPath",
+//                contentDescription = null,
+//                modifier = Modifier.fillMaxSize(),
+//                contentScale = ContentScale.Fit
+//            )
+//
+//            if (product.isBackgroundRemoved && product.foregroundUri != null) {
+//                ProductLayerV2(
+//                    product = product,
+//                    viewport = viewport,
+//                    appearance = appearance,
+//                    displayScale = calculatedScale,
+//                    templateSize = templateSize,
+//                    onGesture = onGesture,
+//                    onGestureEnd = onGestureEnd,
+//                    showOverlay = showOverlay
+//                )
+//            } else {
+//                PickImagePlaceholder(
+//                    onClick = onPickImage,
+//                    modifier = Modifier.align(Alignment.Center)
+//                )
+//            }
+//
+//            if (product.processing) {
+//                Box(
+//                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                        StudioLottieLoader(
+//                            modifier = Modifier.fillMaxWidth(0.72f)
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 @Composable
@@ -339,7 +336,8 @@ private fun ProductLayerV2(
     displayScale: Float,
     templateSize: androidx.compose.ui.unit.IntSize,
     onGesture: (GestureDelta) -> Unit,
-    onGestureEnd: () -> Unit
+    onGestureEnd: () -> Unit,
+    showOverlay: Boolean = false
 ) {
     val density = LocalDensity.current
     
@@ -431,6 +429,22 @@ private fun ProductLayerV2(
                 }
             }
         )
+
+        // Pink Overlay (Subject Mask)
+        AnimatedVisibility(
+            visible = showOverlay,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            AsyncImage(
+                model = product.foregroundUri,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(Color(0xFFFF2D55).copy(alpha = 0.6f))
+            )
+        }
 
         BoundingBoxOverlayV6(
             modifier = Modifier

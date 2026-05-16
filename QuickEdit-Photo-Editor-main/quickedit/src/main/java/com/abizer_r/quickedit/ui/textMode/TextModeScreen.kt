@@ -9,14 +9,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.unit.dp
@@ -49,6 +46,7 @@ import com.abizer_r.quickedit.utils.textMode.blurBackground.BlurBitmapBackground
 import com.abizer_r.quickedit.utils.defaultErrorToast
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
 import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
+import com.abizer_r.quickedit.ui.common.StablePreviewStage
 import com.abizer_r.quickedit.ui.common.topToolbarModifier
 import com.abizer_r.quickedit.ui.textMode.TextModeEvent.*
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.BottomToolBarStatic
@@ -264,7 +262,7 @@ fun TextModeScreen(
         val density = androidx.compose.ui.platform.LocalDensity.current
         val checkerboardBrush = rememberCheckerboardBrush(density)
 
-        ScreenshotBox(
+        StablePreviewStage(
             modifier = Modifier
                 .constrainAs(editorBox) {
                     top.linkTo(topToolBar.bottom)
@@ -274,28 +272,30 @@ fun TextModeScreen(
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                 }
-                .aspectRatio(aspectRatio)
-                .clipToBounds()
                 .background(checkerboardBrush),
-            screenshotState = screenshotState
+            aspectRatio = aspectRatio
         ) {
-
-            BlurBitmapBackground(
+            ScreenshotBox(
                 modifier = Modifier.fillMaxSize(),
-                imageBitmap = bitmap.asImageBitmap(),
-                shouldBlur = showTextEditor,
-                contentScale = if (showTextEditor.not()) ContentScale.Fit else ContentScale.Crop,
-                blurRadius = 15,
-                onBgClicked = onBgClickedLambda
-            )
-
-            if (showTextEditor.not()) {
-                DrawAllTransformableViews(
-                    centerAlignModifier = Modifier,
-                    transformableViewsList = state.transformableViewStateList,
-                    onTransformableBoxEvent = viewModel::onTransformableBoxEvent,
-                    recompositionTrigger = state.recompositionTrigger
+                screenshotState = screenshotState
+            ) {
+                BlurBitmapBackground(
+                    modifier = Modifier.fillMaxSize(),
+                    imageBitmap = bitmap.asImageBitmap(),
+                    shouldBlur = showTextEditor,
+                    contentScale = if (showTextEditor.not()) ContentScale.Fit else ContentScale.Crop,
+                    blurRadius = 15,
+                    onBgClicked = onBgClickedLambda
                 )
+
+                if (showTextEditor.not()) {
+                    DrawAllTransformableViews(
+                        centerAlignModifier = Modifier,
+                        transformableViewsList = state.transformableViewStateList,
+                        onTransformableBoxEvent = viewModel::onTransformableBoxEvent,
+                        recompositionTrigger = state.recompositionTrigger
+                    )
+                }
             }
         }
 

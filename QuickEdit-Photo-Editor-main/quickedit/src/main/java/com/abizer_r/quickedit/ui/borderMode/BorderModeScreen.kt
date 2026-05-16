@@ -5,14 +5,12 @@ import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +38,7 @@ import com.abizer_r.quickedit.theme.QuickEditTheme
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
 import com.abizer_r.quickedit.ui.common.LoadingView
 import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
+import com.abizer_r.quickedit.ui.common.StablePreviewStage
 import com.abizer_r.quickedit.ui.common.topToolbarModifier
 import com.abizer_r.quickedit.ui.drawMode.bottomToolbarExtension.CustomSliderItem
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_EXTRA_LARGE
@@ -162,18 +161,18 @@ fun BorderModeScreen(
             it.width.toFloat() / it.height.toFloat()
         }
         
-        Box(
+        StablePreviewStage(
             modifier = Modifier
                 .constrainAs(imageBox) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
+                    top.linkTo(topToolBar.bottom)
+                    bottom.linkTo(bottomToolBar.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    width = Dimension.wrapContent
-                    height = Dimension.wrapContent
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
                 }
-                .padding(top = topToolbarHeight, bottom = bottomToolbarHeight)
-                .aspectRatio(aspectRatio)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            aspectRatio = aspectRatio
         ) {
             Image(
                 modifier = Modifier.fillMaxSize(),

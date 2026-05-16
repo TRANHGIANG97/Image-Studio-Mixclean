@@ -20,6 +20,7 @@
     <string name="something_went_wrong">Đã có lỗi xảy ra</string>
     <string name="enter_your_text">Nhập văn bản</string>
     <string name="pick_image">Chọn ảnh</string>
+    <string name="add_image">Thêm ảnh</string>
     <string name="capture_image">Chụp ảnh</string>
     <string name="saving_image">Đang lưu ảnh</string>
     <string name="image_saved_successfully">Đã lưu ảnh thành công</string>
@@ -107,4 +108,5 @@
     <string name="magic_brush_guide_pan">Kéo để di chuyển khi phóng to. Chụm để phóng to/thu nhỏ.</string>
     <string name="magic_brush_guide_tip">Mẹo: dùng Undo/Redo nếu xoá nhầm.</string>
     <string name="magic_brush_got_it">Đã hiểu!</string>
+    <string name="studio_effect_requires_background">Tính năng này chỉ khả dụng khi đối tượng có nền</string>
 </resources>

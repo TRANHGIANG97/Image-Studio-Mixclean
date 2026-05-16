@@ -3,6 +3,14 @@ package com.abizer_r.quickedit.ui.backgroundMode
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,7 +23,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.ColorLens
+import androidx.compose.material.icons.outlined.Gradient
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ColorLens
@@ -28,9 +41,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,6 +55,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -84,7 +101,9 @@ fun BackgroundModeScreen(
     val topToolbarHeight = TOOLBAR_HEIGHT_SMALL
     val bottomToolbarHeight = TOOLBAR_HEIGHT_EXTRA_LARGE + 60.dp // Extra space for tabs
 
-    var toolbarVisible by remember { mutableStateOf(false) }
+    var toolbarVisible by remember { mutableStateOf(true) }
+    var showRatioSelector by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         toolbarVisible = true
     }
@@ -99,14 +118,21 @@ fun BackgroundModeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        val (topToolBar, mainImage, bottomToolbar, overlay) = createRefs()
+        val (topToolBar, mainImage, bottomToolbar, overlay, ratioOverlay) = createRefs()
 
         // Main Image Preview
-        val aspectRatio = immutableBitmap.bitmap.width.toFloat() / immutableBitmap.bitmap.height.toFloat()
         var previewPxSize by remember { mutableStateOf(IntSize.Zero) }
         val density = LocalDensity.current
         val bgBitmap = state.backgroundBitmap
         val fgBitmap = state.foregroundBitmap
+        val canvasAspectRatio = remember(bgBitmap, state.selectedRatio, immutableBitmap.bitmap) {
+            bgBitmap?.let { it.width.toFloat() / it.height.toFloat() }
+                ?: if (state.selectedRatio.widthRatio > 0f && state.selectedRatio.heightRatio > 0f) {
+                    state.selectedRatio.widthRatio / state.selectedRatio.heightRatio
+                } else {
+                    immutableBitmap.bitmap.width.toFloat() / immutableBitmap.bitmap.height.toFloat()
+                }
+        }
         val pxPerUnit = remember(previewPxSize, bgBitmap) {
             val bg = bgBitmap
             if (bg != null && previewPxSize.width > 0 && previewPxSize.height > 0) {
@@ -119,109 +145,149 @@ fun BackgroundModeScreen(
             }
         }
 
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .constrainAs(mainImage) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(bottomToolbar.top)
+                    top.linkTo(topToolBar.bottom)
+                    if (showRatioSelector) {
+                        bottom.linkTo(ratioOverlay.top)
+                    } else {
+                        bottom.linkTo(bottomToolbar.top)
+                    }
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    width = Dimension.wrapContent
-                    height = Dimension.wrapContent
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
                 }
-                .padding(top = topToolbarHeight, bottom = 120.dp)
-                .aspectRatio(aspectRatio)
-                .onSizeChanged { previewPxSize = it }
-                .pointerInput(pxPerUnit, bgBitmap, fgBitmap, state.isProcessing) {
-                    detectTransformGestures { _, pan, zoomChange, rotationChange ->
-                        if (
-                            pxPerUnit <= 0f ||
-                            bgBitmap == null ||
-                            fgBitmap == null ||
-                            state.isProcessing
-                        ) return@detectTransformGestures
-
-                        if (pan != Offset.Zero) {
-                            viewModel.updateForegroundOffset(
-                                dx = pan.x / pxPerUnit,
-                                dy = pan.y / pxPerUnit
-                            )
-                        }
-                        if (zoomChange != 1f || rotationChange != 0f) {
-                            viewModel.updateForegroundTransform(
-                                zoomChange = zoomChange,
-                                rotationChange = rotationChange
-                            )
-                        }
-                    }
-                },
+                .clipToBounds(),
             contentAlignment = Alignment.Center
         ) {
-            // Background layer (fixed)
-            if (bgBitmap != null) {
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    bitmap = bgBitmap.asImageBitmap(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit
-                )
+            val boundsRatio = if (maxHeight > 0.dp) maxWidth / maxHeight else canvasAspectRatio
+            val canvasModifier = if (canvasAspectRatio > boundsRatio) {
+                Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(canvasAspectRatio)
             } else {
-                // Fallback: show original image before any background is set
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    bitmap = immutableBitmap.bitmap.asImageBitmap(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit
-                )
+                Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(canvasAspectRatio, matchHeightConstraintsFirst = true)
             }
 
-            // Foreground overlay (draggable on top of background)
-            if (fgBitmap != null && bgBitmap != null) {
-                val compScale = min(
-                    bgBitmap.width.toFloat() / fgBitmap.width,
-                    bgBitmap.height.toFloat() / fgBitmap.height
-                )
-                val drawW = fgBitmap.width * compScale
-                val drawH = fgBitmap.height * compScale
-                val previewDrawW = drawW * state.foregroundScale * pxPerUnit
-                val previewDrawH = drawH * state.foregroundScale * pxPerUnit
+            Box(
+                modifier = canvasModifier
+                    .align(Alignment.Center)
+                    .onSizeChanged { previewPxSize = it }
+                    .pointerInput(pxPerUnit, bgBitmap, fgBitmap, state.isProcessing) {
+                        detectTransformGestures { _, pan, zoomChange, rotationChange ->
+                            if (
+                                pxPerUnit <= 0f ||
+                                bgBitmap == null ||
+                                fgBitmap == null ||
+                                state.isProcessing
+                            ) return@detectTransformGestures
 
-                Box(
-                    modifier = Modifier
-                        .offset {
-                            IntOffset(
-                                x = (state.foregroundOffsetX * pxPerUnit).toInt(),
-                                y = (state.foregroundOffsetY * pxPerUnit).toInt()
-                            )
+                            if (pan != Offset.Zero) {
+                                viewModel.updateForegroundOffset(
+                                    dx = pan.x / pxPerUnit,
+                                    dy = pan.y / pxPerUnit
+                                )
+                            }
+                            if (zoomChange != 1f || rotationChange != 0f) {
+                                viewModel.updateForegroundTransform(
+                                    zoomChange = zoomChange,
+                                    rotationChange = rotationChange
+                                )
+                            }
                         }
-                        .graphicsLayer(rotationZ = state.foregroundRotation)
-                        .size(
-                            width = with(density) { previewDrawW.toDp() },
-                            height = with(density) { previewDrawH.toDp() }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                // Background layer (fixed)
+                if (bgBitmap != null) {
                     Image(
                         modifier = Modifier.fillMaxSize(),
-                        bitmap = fgBitmap.asImageBitmap(),
+                        bitmap = bgBitmap.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds
+                    )
+                } else {
+                    // Fallback: show original image before any background is set
+                    Image(
+                        modifier = Modifier.fillMaxSize(),
+                        bitmap = immutableBitmap.bitmap.asImageBitmap(),
                         contentDescription = null,
                         contentScale = ContentScale.Fit
                     )
                 }
-            }
 
-            if (state.isProcessing) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.3f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LoadingView(
-                        modifier = Modifier.fillMaxSize(),
-                        progressBarSize = 96.dp,
-                        progressBarColor = Color.White
+                // Foreground overlay (draggable on top of background)
+                if (fgBitmap != null && bgBitmap != null) {
+                    val compScale = min(
+                        bgBitmap.width.toFloat() / fgBitmap.width,
+                        bgBitmap.height.toFloat() / fgBitmap.height
                     )
+                    val drawW = fgBitmap.width * compScale
+                    val drawH = fgBitmap.height * compScale
+                    val previewDrawW = drawW * state.foregroundScale * pxPerUnit
+                    val previewDrawH = drawH * state.foregroundScale * pxPerUnit
+
+                    Box(
+                        modifier = Modifier
+                            .offset {
+                                IntOffset(
+                                    x = (state.foregroundOffsetX * pxPerUnit).toInt(),
+                                    y = (state.foregroundOffsetY * pxPerUnit).toInt()
+                                )
+                            }
+                            .graphicsLayer(
+                                rotationZ = state.foregroundRotation,
+                                scaleX = if (state.foregroundFlippedH) -1f else 1f,
+                                scaleY = if (state.foregroundFlippedV) -1f else 1f
+                            )
+                            .size(
+                                width = with(density) { previewDrawW.toDp() },
+                                height = with(density) { previewDrawH.toDp() }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            modifier = Modifier.fillMaxSize(),
+                            bitmap = fgBitmap.asImageBitmap(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit
+                        )
+
+                        // Pink Overlay (Subject Mask)
+                        AnimatedVisibility(
+                            visible = state.showOverlay,
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Image(
+                                modifier = Modifier.fillMaxSize(),
+                                bitmap = fgBitmap.asImageBitmap(),
+                                contentDescription = null,
+                                contentScale = ContentScale.Fit,
+                                colorFilter = ColorFilter.tint(Color(0xFFFF2D55).copy(alpha = 0.6f))
+                            )
+                        }
+                    }
+                }
+
+                if (state.isProcessing) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingView(
+                            modifier = Modifier.fillMaxSize(),
+                            progressBarSize = 96.dp,
+                            progressBarColor = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -251,12 +317,40 @@ fun BackgroundModeScreen(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
-                IconButton(onClick = {
-                    viewModel.getFinalBitmap()?.let { onDoneClicked(it) }
-                }) {
-                    Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    IconButton(onClick = { showRatioSelector = !showRatioSelector }) {
+                        Icon(
+                            Icons.Default.AspectRatio,
+                            contentDescription = "Chọn Tỉ lệ",
+                            tint = if (showRatioSelector) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    IconButton(onClick = viewModel::resetForegroundPosition) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(onClick = viewModel::toggleForegroundFlipHorizontal) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_flip_horizontal),
+                            contentDescription = stringResource(R.string.flip_horizontal),
+                            tint = if (state.foregroundFlippedH) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    IconButton(onClick = viewModel::toggleForegroundFlipVertical) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_flip_vertical),
+                            contentDescription = stringResource(R.string.flip_vertical),
+                            tint = if (state.foregroundFlippedV) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    IconButton(onClick = {
+                        viewModel.getFinalBitmap()?.let { onDoneClicked(it) }
+                    }) {
+                        Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    }
                 }
-            }
         }
 
         // Bottom Controls
@@ -264,98 +358,144 @@ fun BackgroundModeScreen(
             toolbarVisible = toolbarVisible,
             modifier = bottomToolbarModifier(bottomToolbar)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                tonalElevation = 8.dp,
+                shadowElevation = 16.dp,
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
             ) {
-                // Tab Content
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp),
-                    contentAlignment = Alignment.Center
+                        .padding(bottom = 16.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                    // Tab Content
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(110.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = viewModel::resetForegroundPosition) {
-                            Icon(
-                                Icons.Default.Refresh,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        when (state.currentTab) {
-                            BackgroundModeViewModel.BackgroundTab.IMAGE -> {
-                                Button(
-                                    onClick = onPickImageRequest,
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                                ) {
-                                    Icon(Icons.Default.AddPhotoAlternate, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.pick_image))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            when (state.currentTab) {
+                                BackgroundModeViewModel.BackgroundTab.IMAGE -> {
+                                    Button(
+                                        onClick = onPickImageRequest,
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                                        modifier = Modifier.height(56.dp).padding(horizontal = 16.dp)
+                                    ) {
+                                        Icon(Icons.Outlined.AddPhotoAlternate, contentDescription = null)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(stringResource(R.string.pick_image), fontWeight = FontWeight.Bold)
+                                    }
                                 }
-                            }
-                            BackgroundModeViewModel.BackgroundTab.COLOR -> {
-                                ColorSelector(
-                                    selectedColor = state.selectedColor,
-                                    onColorSelected = { viewModel.applyColorBackground(it) }
-                                )
-                            }
-                            BackgroundModeViewModel.BackgroundTab.GRADIENT -> {
-                                GradientSelector(
-                                    selectedGradient = state.selectedGradient,
-                                    onGradientSelected = { viewModel.applyGradientBackground(it) }
-                                )
-                            }
-                            BackgroundModeViewModel.BackgroundTab.PRESET -> {
-                                PresetSelector(
-                                    selectedPreset = state.selectedPresetStyle,
-                                    onPresetSelected = { viewModel.applyPresetBackground(it) }
-                                )
+                                BackgroundModeViewModel.BackgroundTab.COLOR -> {
+                                    ColorSelector(
+                                        selectedColor = state.selectedColor,
+                                        onColorSelected = { viewModel.applyColorBackground(it) }
+                                    )
+                                }
+                                BackgroundModeViewModel.BackgroundTab.GRADIENT -> {
+                                    GradientSelector(
+                                        selectedGradient = state.selectedGradient,
+                                        onGradientSelected = { viewModel.applyGradientBackground(it) }
+                                    )
+                                }
+                                BackgroundModeViewModel.BackgroundTab.PRESET -> {
+                                    PresetSelector(
+                                        selectedPreset = state.selectedPresetStyle,
+                                        onPresetSelected = { viewModel.applyPresetBackground(it) }
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
-                // Tabs
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(TOOLBAR_HEIGHT_EXTRA_LARGE),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    BackgroundTabItem(
-                        icon = Icons.Default.Image,
-                        label = stringResource(R.string.pick_image),
-                        isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.IMAGE,
-                        onClick = { viewModel.setTab(BackgroundModeViewModel.BackgroundTab.IMAGE) }
-                    )
-                    BackgroundTabItem(
-                        icon = Icons.Default.ColorLens,
-                        label = stringResource(R.string.color),
-                        isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.COLOR,
-                        onClick = { viewModel.setTab(BackgroundModeViewModel.BackgroundTab.COLOR) }
-                    )
-                    BackgroundTabItem(
-                        icon = Icons.Default.Gradient,
-                        label = stringResource(R.string.gradient),
-                        isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.GRADIENT,
-                        onClick = { viewModel.setTab(BackgroundModeViewModel.BackgroundTab.GRADIENT) }
-                    )
-                    BackgroundTabItem(
-                        icon = Icons.Default.ColorLens, // Using ColorLens as placeholder for Presets
-                        label = stringResource(R.string.presets),
-                        isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.PRESET,
-                        onClick = { viewModel.setTab(BackgroundModeViewModel.BackgroundTab.PRESET) }
-                    )
+                    // Tabs
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(72.dp)
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        BackgroundTabItem(
+                            icon = Icons.Outlined.Image,
+                            selectedIcon = Icons.Default.Image,
+                            label = stringResource(R.string.pick_image),
+                            isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.IMAGE,
+                            onClick = { 
+                                showRatioSelector = false
+                                viewModel.setTab(BackgroundModeViewModel.BackgroundTab.IMAGE) 
+                            }
+                        )
+                        BackgroundTabItem(
+                            icon = Icons.Outlined.ColorLens,
+                            selectedIcon = Icons.Default.ColorLens,
+                            label = stringResource(R.string.color),
+                            isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.COLOR,
+                            onClick = { 
+                                showRatioSelector = false
+                                viewModel.setTab(BackgroundModeViewModel.BackgroundTab.COLOR) 
+                            }
+                        )
+                        BackgroundTabItem(
+                            icon = Icons.Outlined.Gradient,
+                            selectedIcon = Icons.Default.Gradient,
+                            label = stringResource(R.string.gradient),
+                            isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.GRADIENT,
+                            onClick = { 
+                                showRatioSelector = false
+                                viewModel.setTab(BackgroundModeViewModel.BackgroundTab.GRADIENT) 
+                            }
+                        )
+                        BackgroundTabItem(
+                            icon = Icons.Outlined.ColorLens,
+                            selectedIcon = Icons.Default.ColorLens,
+                            label = stringResource(R.string.presets),
+                            isSelected = state.currentTab == BackgroundModeViewModel.BackgroundTab.PRESET,
+                            onClick = { 
+                                showRatioSelector = false
+                                viewModel.setTab(BackgroundModeViewModel.BackgroundTab.PRESET) 
+                            }
+                        )
+                    }
                 }
+            }
+        }
+
+        // Ratio Selector Overlay
+        AnimatedVisibility(
+            visible = showRatioSelector,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
+            modifier = Modifier
+                .constrainAs(ratioOverlay) {
+                    bottom.linkTo(bottomToolbar.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                tonalElevation = 8.dp,
+                shadowElevation = 16.dp,
+                shape = RoundedCornerShape(24.dp)
+            ) {
+                RatioSelector(
+                    selectedRatio = state.selectedRatio,
+                    onRatioSelected = { viewModel.setCanvasRatio(it) }
+                )
             }
         }
 
@@ -454,22 +594,33 @@ fun ColorSelector(
 
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         items(colors) { colorInt ->
+            val isSelected = selectedColor == colorInt
+            val size by animateDpAsState(if (isSelected) 64.dp else 52.dp)
+            
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(Color(colorInt))
-                    .border(
-                        width = 2.dp,
-                        color = if (selectedColor == colorInt) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.1f),
-                        shape = CircleShape
-                    )
-                    .clickable { onColorSelected(colorInt) }
-            )
+                    .size(64.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(size)
+                        .shadow(if (isSelected) 8.dp else 2.dp, CircleShape)
+                        .clip(CircleShape)
+                        .background(Color(colorInt))
+                        .border(
+                            width = 3.dp,
+                            color = if (isSelected) Color.White else Color.Transparent,
+                            shape = CircleShape
+                        )
+                        .clickable { onColorSelected(colorInt) }
+                )
+            }
         }
     }
 }
@@ -512,28 +663,39 @@ fun GradientSelector(
 
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         items(gradients) { grad ->
+            val isSelected = selectedGradient?.contentEquals(grad) == true
+            val size by animateDpAsState(if (isSelected) 64.dp else 52.dp)
+
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.linearGradient(
-                            colors = grad.map { Color(it) },
-                            start = Offset.Zero,
-                            end = Offset.Infinite
+                    .size(64.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(size)
+                        .shadow(if (isSelected) 8.dp else 2.dp, CircleShape)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.linearGradient(
+                                colors = grad.map { Color(it) },
+                                start = Offset.Zero,
+                                end = Offset.Infinite
+                            )
                         )
-                    )
-                    .border(
-                        width = 2.dp,
-                        color = if (selectedGradient?.contentEquals(grad) == true) MaterialTheme.colorScheme.primary else Color.Transparent,
-                        shape = CircleShape
-                    )
-                    .clickable { onGradientSelected(grad) }
-            )
+                        .border(
+                            width = 3.dp,
+                            color = if (isSelected) Color.White else Color.Transparent,
+                            shape = CircleShape
+                        )
+                        .clickable { onGradientSelected(grad) }
+                )
+            }
         }
     }
 }
@@ -547,11 +709,14 @@ fun PresetSelector(
 
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         items(presets) { style ->
             val isSelected = selectedPreset == style
+            val size by animateDpAsState(if (isSelected) 64.dp else 52.dp)
+
             Column(
                 modifier = Modifier
                     .width(72.dp)
@@ -560,35 +725,42 @@ fun PresetSelector(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            when (style) {
-                                PresetStyle.NOIR -> Color(0xFF0D1019)
-                                PresetStyle.CLEAN -> Color.White
-                                PresetStyle.AURORA -> Color(0xFF1A1C3A)
-                                PresetStyle.DUOTONE -> Color(0xFF5F4B8B)
-                                PresetStyle.NEON_GRID -> Color(0xFF040912)
-                                PresetStyle.LIQUID_GLASS -> Color(0xFFF6F4FF)
-                                PresetStyle.SUNSET_FILM -> Color(0xFF8A3E6B)
-                                PresetStyle.CARBON_X -> Color(0xFF0A0A0D)
-                                PresetStyle.ROSE_GARDEN -> Color(0xFF8B3A8F)
-                                PresetStyle.PEACH_SKY -> Color(0xFF764ba2)
-                                PresetStyle.GOLDEN_SUNSET -> Color(0xFFE86868)
-                                PresetStyle.LAVENDER_DAWN -> Color(0xFFd4a5d4)
-                                PresetStyle.AQUA_BREEZE -> Color(0xFF4facfe)
-                            }
-                        )
-                        .border(
-                            width = 2.dp,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp)
-                        ),
+                        .size(64.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (isSelected) {
-                        val isLight = style == PresetStyle.CLEAN || style == PresetStyle.LIQUID_GLASS || style == PresetStyle.LAVENDER_DAWN
-                        Icon(Icons.Default.Check, contentDescription = null, tint = if (isLight) Color.Black else Color.White)
+                    Box(
+                        modifier = Modifier
+                            .size(size)
+                            .shadow(if (isSelected) 8.dp else 2.dp, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                when (style) {
+                                    PresetStyle.NOIR -> Color(0xFF0D1019)
+                                    PresetStyle.CLEAN -> Color.White
+                                    PresetStyle.AURORA -> Color(0xFF1A1C3A)
+                                    PresetStyle.DUOTONE -> Color(0xFF5F4B8B)
+                                    PresetStyle.NEON_GRID -> Color(0xFF040912)
+                                    PresetStyle.LIQUID_GLASS -> Color(0xFFF6F4FF)
+                                    PresetStyle.SUNSET_FILM -> Color(0xFF8A3E6B)
+                                    PresetStyle.CARBON_X -> Color(0xFF0A0A0D)
+                                    PresetStyle.ROSE_GARDEN -> Color(0xFF8B3A8F)
+                                    PresetStyle.PEACH_SKY -> Color(0xFF764ba2)
+                                    PresetStyle.GOLDEN_SUNSET -> Color(0xFFE86868)
+                                    PresetStyle.LAVENDER_DAWN -> Color(0xFFd4a5d4)
+                                    PresetStyle.AQUA_BREEZE -> Color(0xFF4facfe)
+                                }
+                            )
+                            .border(
+                                width = 3.dp,
+                                color = if (isSelected) Color.White else Color.Transparent,
+                                shape = RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isSelected) {
+                            val isLight = style == PresetStyle.CLEAN || style == PresetStyle.LIQUID_GLASS || style == PresetStyle.LAVENDER_DAWN
+                            Icon(Icons.Default.Check, contentDescription = null, tint = if (isLight) Color.Black else Color.White)
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -597,6 +769,129 @@ fun PresetSelector(
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BackgroundTabItem(
+    icon: ImageVector,
+    selectedIcon: ImageVector,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val color by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+        animationSpec = tween(300),
+        label = "tabColor"
+    )
+
+    Column(
+        modifier = Modifier
+            .width(88.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = if (isSelected) selectedIcon else icon,
+            contentDescription = label,
+            tint = color,
+            modifier = Modifier.size(26.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = color,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+            textAlign = TextAlign.Center
+        )
+        
+        // Sliding indicator
+        AnimatedVisibility(
+            visible = isSelected,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .size(width = 24.dp, height = 3.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
+    }
+}
+
+@Composable
+fun RatioSelector(
+    selectedRatio: BackgroundModeViewModel.CanvasRatio,
+    onRatioSelected: (BackgroundModeViewModel.CanvasRatio) -> Unit
+) {
+    val ratios = BackgroundModeViewModel.CanvasRatio.values()
+
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items(ratios) { ratio ->
+            val isSelected = selectedRatio == ratio
+            val color by animateColorAsState(
+                targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+            
+            Column(
+                modifier = Modifier
+                    .width(64.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { onRatioSelected(ratio) }
+                    .padding(vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Ratio Icon representation
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .border(
+                            width = 2.dp,
+                            color = color,
+                            shape = RoundedCornerShape(8.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (ratio == BackgroundModeViewModel.CanvasRatio.RATIO_ORIGINAL) {
+                        Icon(Icons.Default.Image, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
+                    } else {
+                        // Create a visual box that roughly matches the ratio
+                        val w = if (ratio.widthRatio > ratio.heightRatio) 24.dp else (24.dp * ratio.widthRatio / ratio.heightRatio)
+                        val h = if (ratio.heightRatio > ratio.widthRatio) 24.dp else (24.dp * ratio.heightRatio / ratio.widthRatio)
+                        Box(
+                            modifier = Modifier
+                                .size(w, h)
+                                .background(color.copy(alpha = 0.2f), RoundedCornerShape(4.dp))
+                                .border(1.dp, color, RoundedCornerShape(4.dp))
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = ratio.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = color,
+                    fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal
                 )
             }
         }
