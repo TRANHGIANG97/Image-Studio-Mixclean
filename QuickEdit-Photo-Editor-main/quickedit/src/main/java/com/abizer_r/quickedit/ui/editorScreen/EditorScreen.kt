@@ -126,7 +126,8 @@ fun EditorScreen(
     goToRotateModeScreen: (finalEditorState: EditorScreenState) -> Unit = { },
     goToMainScreen: () -> Unit,
     isPremium: Boolean = false,
-    onSaveDraftClicked: (Bitmap) -> Unit = {}
+    onSaveDraftClicked: (Bitmap) -> Unit = {},
+    onRequireSaveAd: ((() -> Unit) -> Unit)? = null
 ) {
     if (initialEditorScreenState.bitmapStack.isEmpty()) {
         throw Exception("EmptyStackException: The bitmapStack of initial state should contain at least one bitmap")
@@ -214,6 +215,7 @@ fun EditorScreen(
             goToMainScreen = goToMainScreen,
             isPremium = isPremium,
             onSaveDraftClicked = onSaveDraftClicked,
+            onRequireSaveAd = onRequireSaveAd,
             showOverlay = state.showOverlay
         )
     }
@@ -233,6 +235,7 @@ private fun EditorScreenLayout(
     goToMainScreen: () -> Unit,
     isPremium: Boolean = false,
     onSaveDraftClicked: (Bitmap) -> Unit = {},
+    onRequireSaveAd: ((() -> Unit) -> Unit)? = null,
     showOverlay: Boolean = false
 ) {
 
@@ -302,18 +305,21 @@ private fun EditorScreenLayout(
         onCloseClickedLambda()
     }
     val onSaveClickedLambda = remember(currentBitmap) { {
-        val hasTransparency = BitmapUtils.hasTransparentPixels(currentBitmap)
-        val extension = if (hasTransparency) "png" else "jpg"
-        val format = if (hasTransparency) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
-        
-        val imgFile = File(context.filesDir, "edited_image.$extension")
-        BitmapUtils.saveBitmap(currentBitmap, imgFile, format = format)
-        FileUtils.saveFileToAppFolder(
-            context = context,
-            file = imgFile,
-            onSuccess = { context.toast(R.string.image_saved_successfully) },
-            onFailure = { context.toast(R.string.failed_to_save_image) },
-        )
+        val saveAction = {
+            val hasTransparency = BitmapUtils.hasTransparentPixels(currentBitmap)
+            val extension = if (hasTransparency) "png" else "jpg"
+            val format = if (hasTransparency) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+
+            val imgFile = File(context.filesDir, "edited_image.$extension")
+            BitmapUtils.saveBitmap(currentBitmap, imgFile, format = format)
+            FileUtils.saveFileToAppFolder(
+                context = context,
+                file = imgFile,
+                onSuccess = { context.toast(R.string.image_saved_successfully) },
+                onFailure = { context.toast(R.string.failed_to_save_image) },
+            )
+        }
+        onRequireSaveAd?.invoke(saveAction) ?: saveAction()
     } }
 
     val onShareClickedLambda = remember(currentBitmap) { {

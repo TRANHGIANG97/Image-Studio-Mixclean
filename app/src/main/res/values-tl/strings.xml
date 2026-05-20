@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Tinutukoy ang mukha...</string>
+    <string name="quickedit_face_detected_removing_bg">May nakitang mukha\nInaalis ang background...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Walang nakitang mukha\nInaalis ang background...</string>
+    <string name="border_style">Estilo ng hangganan</string>
+    <string name="border_mode_solid">Solido</string>
+    <string name="border_gradient_aurora_mist">Hamog ng aurora</string>
+    <string name="border_gradient_neon_bloom">Pamumulaklak ng neon</string>
+    <string name="border_gradient_sunset_pulse">Pintig ng paglubog ng araw</string>
+    <string name="border_gradient_velvet_sky">Makinis na langit</string>
+    <string name="border_gradient_ocean_drive">Daan sa karagatan</string>
+    <string name="border_gradient_peach_cloud">Ulap ng milokoton</string>
+    <string name="border_gradient_midnight_fade">Pagkupas ng hatinggabi</string>
+    <string name="border_gradient_ember_glass">Salamin ng baga</string>
+    <string name="solid_color">Solidong kulay</string>
 </resources>

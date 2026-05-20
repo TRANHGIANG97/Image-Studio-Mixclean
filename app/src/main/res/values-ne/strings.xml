@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">अनुहार पत्ता लगाउँदै...</string>
+    <string name="quickedit_face_detected_removing_bg">अनुहार भेटियो\nपृष्ठभूमि हटाउँदै...</string>
+    <string name="quickedit_no_face_detected_removing_bg">कुनै अनुहार भेटिएन\nपृष्ठभूमि हटाउँदै...</string>
+    <string name="border_style">सीमा शैली</string>
+    <string name="border_mode_solid">ठोस</string>
+    <string name="border_gradient_aurora_mist">अरोरा कुहिरो</string>
+    <string name="border_gradient_neon_bloom">नियोन फुलाइ</string>
+    <string name="border_gradient_sunset_pulse">सूर्यास्तको धड्कन</string>
+    <string name="border_gradient_velvet_sky">मखमल आकाश</string>
+    <string name="border_gradient_ocean_drive">महासागर मार्ग</string>
+    <string name="border_gradient_peach_cloud">पीच बादल</string>
+    <string name="border_gradient_midnight_fade">मध्यरातको फिक्कापन</string>
+    <string name="border_gradient_ember_glass">भुसको गिलास</string>
+    <string name="solid_color">ठोस रङ</string>
 </resources>

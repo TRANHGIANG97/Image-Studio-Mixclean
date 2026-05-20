@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Ihlola ubuso...</string>
+    <string name="quickedit_face_detected_removing_bg">Ubuso butholakele\nIsusa ingemuva...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Abukho ubuso obutholakele\nIsusa ingemuva...</string>
+    <string name="border_style">Isitayela somngcele</string>
+    <string name="border_mode_solid">Okuqinile</string>
+    <string name="border_gradient_aurora_mist">Inkungu ye-aurora</string>
+    <string name="border_gradient_neon_bloom">Ukuqhakaza kwe-neon</string>
+    <string name="border_gradient_sunset_pulse">Ukushaya kwenhliziyo yokushona kwelanga</string>
+    <string name="border_gradient_velvet_sky">Isibhakabhaka esithambile</string>
+    <string name="border_gradient_ocean_drive">Umgwaqo wasolwandle</string>
+    <string name="border_gradient_peach_cloud">Ifu lepentshisi</string>
+    <string name="border_gradient_midnight_fade">Ukufiphala kwaphakathi kwamabili</string>
+    <string name="border_gradient_ember_glass">Ingilazi yamalahle</string>
+    <string name="solid_color">Umbala oqinile</string>
 </resources>

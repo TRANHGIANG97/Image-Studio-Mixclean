@@ -265,6 +265,13 @@ fun QuickEditEditorNavigation(
 
     val scope = rememberCoroutineScope()
     val selfieFallbackWarning = stringResource(id = com.thgiang.image.R.string.remove_bg_selfie_fallback_warning)
+    val bgRemoverNotAvailableMessage = stringResource(id = com.thgiang.image.R.string.bg_remover_not_available)
+    val bgRemovalFailedMessage = stringResource(id = com.thgiang.image.R.string.bg_removal_failed)
+    val quickEditDetectingFaceMessage = stringResource(id = com.thgiang.image.R.string.quickedit_detecting_face)
+    val quickEditFaceDetectedRemovingBgMessage =
+        stringResource(id = com.thgiang.image.R.string.quickedit_face_detected_removing_bg)
+    val quickEditNoFaceDetectedRemovingBgMessage =
+        stringResource(id = com.thgiang.image.R.string.quickedit_no_face_detected_removing_bg)
     val showSelfieFallbackWarning = {
         scope.launch {
             snackbarHostState.showSnackbar(selfieFallbackWarning)
@@ -346,22 +353,26 @@ fun QuickEditEditorNavigation(
         }
     } }
 
-    // ── Studio ad state ──────────────────────────────────────────────────
-    var showStudioAdDialog by remember { mutableStateOf(false) }
-    var isStudioAdLoading by remember { mutableStateOf(false) }
-    var studioAdWatchCount by remember { mutableStateOf(0) }
-    var pendingStudioBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var showSaveAdDialog by remember { mutableStateOf(false) }
+    var isSaveAdLoading by remember { mutableStateOf(false) }
+    var saveAdWatchCount by remember { mutableStateOf(0) }
+    var pendingSaveAction by remember { mutableStateOf<(() -> Unit)?>(null) }
 
-    val onStudioCheckClicked: (Bitmap) -> Unit = remember {
-        { bitmap ->
-            pendingStudioBitmap = bitmap
-            studioAdWatchCount = 0
-            isStudioAdLoading = true
-            rewardedAdManager?.loadAd(
-                onLoaded = { isStudioAdLoading = false },
-                onFailed = { isStudioAdLoading = false }
-            )
-            showStudioAdDialog = true
+    val requestSaveAd: ((() -> Unit) -> Unit) = remember(rewardedAdManager) {
+        { action ->
+            val manager = rewardedAdManager
+            if (manager == null) {
+                action()
+            } else {
+                pendingSaveAction = action
+                saveAdWatchCount = 0
+                isSaveAdLoading = true
+                manager.loadAd(
+                    onLoaded = { isSaveAdLoading = false },
+                    onFailed = { isSaveAdLoading = false }
+                )
+                showSaveAdDialog = true
+            }
         }
     }
 
@@ -427,11 +438,11 @@ fun QuickEditEditorNavigation(
                     autoRemoveDone = true
                     val subjectRemover = backgroundRemoverRepository
                     if (subjectRemover == null) {
-                        context.toast("Background remover not available")
+                        context.toast(bgRemoverNotAvailableMessage)
                         return@LaunchedEffect
                     }
                     isRemovingBg = true
-                    autoRemoveStatusMessage = "Đang tìm khuôn mặt"
+                    autoRemoveStatusMessage = quickEditDetectingFaceMessage
                     try {
                         val bitmap = sharedEditorViewModel.getCurrentBitmap()
                         ImageProcessingCrashReporter.setActiveTool("quick_tools_remove_bg")
@@ -459,9 +470,9 @@ fun QuickEditEditorNavigation(
                         val modNetRemover = hairDetailBackgroundRemoverRepository
                         val useModNet = hasFace && modNetRemover != null
                         autoRemoveStatusMessage = if (hasFace) {
-                            "Xác định có khuôn mặt\nĐang tiến hành xoá phông"
+                            quickEditFaceDetectedRemovingBgMessage
                         } else {
-                            "Xác định không có khuôn mặt\nĐang tiến hành xoá phông"
+                            quickEditNoFaceDetectedRemovingBgMessage
                         }
 
                         Log.d(
@@ -568,7 +579,7 @@ fun QuickEditEditorNavigation(
                             onFailure = {
                                 Log.e(TAG, "autoRemoveBackground: remover failed", it)
                                 ImageProcessingCrashReporter.recordNonFatal(it, "quick_tools_remove_bg")
-                                context.toast("Background removal failed")
+                                context.toast(bgRemovalFailedMessage)
                             }
                         )
                     } finally {
@@ -610,7 +621,8 @@ fun QuickEditEditorNavigation(
                         (context as? android.app.Activity)?.finish()
                     },
                     isPremium = isPremium,
-                    onSaveDraftClicked = onSaveDraftClicked
+                    onSaveDraftClicked = onSaveDraftClicked,
+                    onRequireSaveAd = requestSaveAd
                 )
 
                 if (isRemovingBg) {
@@ -688,7 +700,7 @@ fun QuickEditEditorNavigation(
                 immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
-                onCheckClicked = if (rewardedAdManager != null) onStudioCheckClicked else null
+                onCheckClicked = null
             )
         }
 
@@ -802,48 +814,50 @@ fun QuickEditEditorNavigation(
         }
     }
 
-    // ── Rewarded Ad dialog for Studio save ──────────────────────────────
-    if (showStudioAdDialog && rewardedAdManager != null) {
+    if (showSaveAdDialog && rewardedAdManager != null) {
         val activity = context as? android.app.Activity
         com.thgiang.image.core.design.components.ModernRewardedAdDialog(
-            count = studioAdWatchCount,
-            isLoading = isStudioAdLoading,
+            count = saveAdWatchCount,
+            isLoading = isSaveAdLoading,
+            title = "Watch video to save",
+            message = "Watch a short video before saving this image.",
+            watchButtonText = "WATCH VIDEO",
+            showUpgradeButton = false,
             onWatchAd = {
                 activity?.let {
                     rewardedAdManager.showAd(
                         activity = it,
                         onRewardReceived = {
-                            studioAdWatchCount = 1
+                            saveAdWatchCount = 1
                         },
                         onAdClosed = {
-                            if (studioAdWatchCount >= 1) {
-                                showStudioAdDialog = false
-                                pendingStudioBitmap?.let { bmp ->
-                                    onDoneClicked(bmp)
-                                }
-                                pendingStudioBitmap = null
-                                studioAdWatchCount = 0
+                            if (saveAdWatchCount >= 1) {
+                                val action = pendingSaveAction
+                                showSaveAdDialog = false
+                                pendingSaveAction = null
+                                saveAdWatchCount = 0
+                                action?.invoke()
                             } else {
-                                isStudioAdLoading = true
+                                isSaveAdLoading = true
                                 rewardedAdManager.loadAd(
-                                    onLoaded = { isStudioAdLoading = false },
-                                    onFailed = { isStudioAdLoading = false }
+                                    onLoaded = { isSaveAdLoading = false },
+                                    onFailed = { isSaveAdLoading = false }
                                 )
                             }
                         },
                         onFailedToShow = {
-                            isStudioAdLoading = false
+                            isSaveAdLoading = false
                         }
                     )
                 }
             },
             onUpgrade = {
-                showStudioAdDialog = false
-                pendingStudioBitmap = null
+                showSaveAdDialog = false
+                pendingSaveAction = null
             },
             onDismiss = {
-                showStudioAdDialog = false
-                pendingStudioBitmap = null
+                showSaveAdDialog = false
+                pendingSaveAction = null
             }
         )
     }

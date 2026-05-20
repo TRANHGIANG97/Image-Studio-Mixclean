@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">ಮುಖ ಪತ್ತೆ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
+    <string name="quickedit_face_detected_removing_bg">ಮುಖ ಪತ್ತೆಯಾಗಿದೆ\nಹಿನ್ನೆಲೆ ತೆಗೆಯಲಾಗುತ್ತಿದೆ...</string>
+    <string name="quickedit_no_face_detected_removing_bg">ಯಾವುದೇ ಮುಖ ಪತ್ತೆಯಾಗಿಲ್ಲ\nಹಿನ್ನೆಲೆ ತೆಗೆಯಲಾಗುತ್ತಿದೆ...</string>
+    <string name="border_style">ಗಡಿ ಶೈಲಿ</string>
+    <string name="border_mode_solid">ಘನ</string>
+    <string name="border_gradient_aurora_mist">ಅರೋರಾ ಮಂಜು</string>
+    <string name="border_gradient_neon_bloom">ನಿಯಾನ್ ಹೂವು</string>
+    <string name="border_gradient_sunset_pulse">ಸೂರ್ಯಾಸ್ತ ನಾಡಿ</string>
+    <string name="border_gradient_velvet_sky">ವೆಲ್ವೆಟ್ ಆಕಾಶ</string>
+    <string name="border_gradient_ocean_drive">ಸಾಗರ ಮಾರ್ಗ</string>
+    <string name="border_gradient_peach_cloud">ಪೀಚ್ ಮೋಡ</string>
+    <string name="border_gradient_midnight_fade">ಮಧ್ಯರಾತ್ರಿ ಮಸುಕು</string>
+    <string name="border_gradient_ember_glass">ಕೆಂಡ ಗಾಜು</string>
+    <string name="solid_color">ಘನ ಬಣ್ಣ</string>
 </resources>

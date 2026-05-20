@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Detekcia tváre...</string>
+    <string name="quickedit_face_detected_removing_bg">Tvár detekovaná\nOdstraňovanie pozadia...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Tvár nebola detekovaná\nOdstraňovanie pozadia...</string>
+    <string name="border_style">Štýl okraja</string>
+    <string name="border_mode_solid">Jednoliata</string>
+    <string name="border_gradient_aurora_mist">Polárna hmla</string>
+    <string name="border_gradient_neon_bloom">Neónový rozkvet</string>
+    <string name="border_gradient_sunset_pulse">Pulz západu slnka</string>
+    <string name="border_gradient_velvet_sky">Zamatová obloha</string>
+    <string name="border_gradient_ocean_drive">Oceánska cesta</string>
+    <string name="border_gradient_peach_cloud">Broskyňový oblak</string>
+    <string name="border_gradient_midnight_fade">Polnočné vyblednutie</string>
+    <string name="border_gradient_ember_glass">Sklo žeravých uhlíkov</string>
+    <string name="solid_color">Jednoliata farba</string>
 </resources>

@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Arc felismerése...</string>
+    <string name="quickedit_face_detected_removing_bg">Arc felismerve\nHáttér eltávolítása...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Nem észlelhető arc\nHáttér eltávolítása...</string>
+    <string name="border_style">Szegélystílus</string>
+    <string name="border_mode_solid">Egyszínű</string>
+    <string name="border_gradient_aurora_mist">Auróra köd</string>
+    <string name="border_gradient_neon_bloom">Neonvirágzás</string>
+    <string name="border_gradient_sunset_pulse">Naplemente pulzus</string>
+    <string name="border_gradient_velvet_sky">Bársony égbolt</string>
+    <string name="border_gradient_ocean_drive">Óceáni út</string>
+    <string name="border_gradient_peach_cloud">Őszibarack felhő</string>
+    <string name="border_gradient_midnight_fade">Éjféli fakulás</string>
+    <string name="border_gradient_ember_glass">Parázsüveg</string>
+    <string name="solid_color">Egyszínű</string>
 </resources>

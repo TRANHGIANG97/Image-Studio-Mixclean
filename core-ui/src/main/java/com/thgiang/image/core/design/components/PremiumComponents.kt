@@ -375,7 +375,11 @@ fun ModernRewardedAdDialog(
     isLoading: Boolean,
     onWatchAd: () -> Unit,
     onUpgrade: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    title: String = "Unlock Batch Mode",
+    message: String = "Watch a short ad to process multiple images at once instantly.",
+    watchButtonText: String = "WATCH AD TO UNLOCK",
+    showUpgradeButton: Boolean = true
 ) {
     val aiAccent = ImageDesign.semantic.aiAccent
     val isDark = isSystemInDarkTheme()
@@ -411,7 +415,7 @@ fun ModernRewardedAdDialog(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "Unlock Batch Mode",
+                    text = title,
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = if (isDark) Color.White else Color.Black,
                     textAlign = TextAlign.Center
@@ -420,7 +424,7 @@ fun ModernRewardedAdDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Watch a short ad to process multiple images at once instantly.",
+                    text = message,
                     style = MaterialTheme.typography.bodyMedium,
                     color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.6f),
                     textAlign = TextAlign.Center
@@ -478,22 +482,24 @@ fun ModernRewardedAdDialog(
                     )
                 } else {
                     ShimmerGradientButton(
-                        text = "WATCH AD TO UNLOCK",
+                        text = watchButtonText,
                         onClick = onWatchAd
                     )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                TextButton(onClick = onUpgrade) {
-                    Text(
-                        text = "GO PRO - NO ADS",
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
-                        ),
-                        color = aiAccent
-                    )
+                if (showUpgradeButton) {
+                    TextButton(onClick = onUpgrade) {
+                        Text(
+                            text = "GO PRO - NO ADS",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            ),
+                            color = aiAccent
+                        )
+                    }
                 }
 
                 TextButton(onClick = onDismiss) {

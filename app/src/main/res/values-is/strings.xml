@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Greini andlit...</string>
+    <string name="quickedit_face_detected_removing_bg">Andlit greint\nFjarlægi bakgrunn...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Ekkert andlit greint\nFjarlægi bakgrunn...</string>
+    <string name="border_style">Jaðarstíll</string>
+    <string name="border_mode_solid">Heill</string>
+    <string name="border_gradient_aurora_mist">Segulljósaþoka</string>
+    <string name="border_gradient_neon_bloom">Neonblómgun</string>
+    <string name="border_gradient_sunset_pulse">Sólarlagspúls</string>
+    <string name="border_gradient_velvet_sky">Flauelshiminn</string>
+    <string name="border_gradient_ocean_drive">Hafleið</string>
+    <string name="border_gradient_peach_cloud">Ferskjuský</string>
+    <string name="border_gradient_midnight_fade">Miðnæturdoðnun</string>
+    <string name="border_gradient_ember_glass">Glóðargler</string>
+    <string name="solid_color">Heill litur</string>
 </resources>

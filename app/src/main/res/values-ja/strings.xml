@@ -213,9 +213,7 @@
     <string name="premium_price_save">$25.00 節約</string>
     <string name="premium_most_popular">一番人気</string>
     <string name="premium_free_trial_desc">3日間の無料トライアル。その後は $9.99 / 年</string>
-    <string name="premium_cta_trial">3日間の無料トライアルを開始</string>
-    <string name="pro_feature_expand">滑らかなAI画像拡張</string>
-    <string name="pro_see_details">詳細 &gt;</string>
+
 
     <string name="premium_price_week">$6.99</string>
     <string name="premium_price_arrow">→</string>
@@ -277,4 +275,21 @@
     <string name="permission_required">権限が必要です</string>
     <string name="grant_permission">権限を許可</string>
     <string name="select">選択</string>
+    <string name="quickedit_detecting_face">顔を検出中...</string>
+    <string name="quickedit_face_detected_removing_bg">顔を検出しました\n背景を削除中...</string>
+    <string name="quickedit_no_face_detected_removing_bg">顔が検出されませんでした\n背景を削除中...</string>
+    <string name="border_style">枠線スタイル</string>
+    <string name="solid_color">単色</string>
+    <string name="border_mode_solid">単色</string>
+    <string name="border_gradient_aurora_mist">オーロラミスト</string>
+    <string name="border_gradient_neon_bloom">ネオンブルーム</string>
+    <string name="border_gradient_sunset_pulse">サンセットパルス</string>
+    <string name="border_gradient_velvet_sky">ベルベットスカイ</string>
+    <string name="border_gradient_ocean_drive">オーシャンドライブ</string>
+    <string name="border_gradient_peach_cloud">ピーチクラウド</string>
+    <string name="border_gradient_midnight_fade">ミッドナイトフェード</string>
+    <string name="border_gradient_ember_glass">エンバーグラス</string>
+    <string name="premium_cta_trial">3日間の無料トライアルを始める</string>
+    <string name="pro_feature_expand">スムーズAI拡張</string>
+    <string name="pro_see_details">詳細 ></string>
 </resources>

@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Tunnistetaan kasvoja...</string>
+    <string name="quickedit_face_detected_removing_bg">Kasvot tunnistettu\nPoistetaan taustaa...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Kasvoja ei tunnistettu\nPoistetaan taustaa...</string>
+    <string name="border_style">Reunatyyli</string>
+    <string name="border_mode_solid">Yhtenäinen</string>
+    <string name="border_gradient_aurora_mist">Revontuliusva</string>
+    <string name="border_gradient_neon_bloom">Neonkukinta</string>
+    <string name="border_gradient_sunset_pulse">Auringonlaskun pulssi</string>
+    <string name="border_gradient_velvet_sky">Samettitaivas</string>
+    <string name="border_gradient_ocean_drive">Valtamerireitti</string>
+    <string name="border_gradient_peach_cloud">Persikkapilvi</string>
+    <string name="border_gradient_midnight_fade">Keskiyön häivytys</string>
+    <string name="border_gradient_ember_glass">Hiillasi</string>
+    <string name="solid_color">Yhtenäinen väri</string>
 </resources>

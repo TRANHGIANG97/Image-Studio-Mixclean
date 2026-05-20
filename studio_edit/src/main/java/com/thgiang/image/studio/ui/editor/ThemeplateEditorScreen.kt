@@ -58,6 +58,7 @@ fun ThemeplateEditorScreen(
     themeplate: StudioThemeplate,
     onBack: () -> Unit,
     onDone: (Uri?) -> Unit = {},
+    onRequireExportAd: ((() -> Unit) -> Unit)? = null,
     viewModel: ThemeplateEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -137,7 +138,10 @@ fun ThemeplateEditorScreen(
                     } else {
                         IconButton(
                             onClick = {
-                                viewModel.onEvent(EditorEvent.Export(themeplate.assetPath))
+                                val exportAction = {
+                                    viewModel.onEvent(EditorEvent.Export(themeplate.assetPath))
+                                }
+                                onRequireExportAd?.invoke(exportAction) ?: exportAction()
                             },
                             enabled = state.canExport
                         ) {

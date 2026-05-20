@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Oppdager ansikt...</string>
+    <string name="quickedit_face_detected_removing_bg">Ansikt oppdaget\nFjerner bakgrunn...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Ingen ansikt oppdaget\nFjerner bakgrunn...</string>
+    <string name="border_style">Kantstil</string>
+    <string name="border_mode_solid">Helfarge</string>
+    <string name="border_gradient_aurora_mist">Auroratåke</string>
+    <string name="border_gradient_neon_bloom">Neonblomstring</string>
+    <string name="border_gradient_sunset_pulse">Solnedgangspuls</string>
+    <string name="border_gradient_velvet_sky">Fløyelshimmel</string>
+    <string name="border_gradient_ocean_drive">Oseanrute</string>
+    <string name="border_gradient_peach_cloud">Ferskensky</string>
+    <string name="border_gradient_midnight_fade">Midnattssvekkelse</string>
+    <string name="border_gradient_ember_glass">Glørglass</string>
+    <string name="solid_color">Helfarge</string>
 </resources>

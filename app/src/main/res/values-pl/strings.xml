@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Wykrywanie twarzy...</string>
+    <string name="quickedit_face_detected_removing_bg">Wykryto twarz\nUsuwanie tła...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Nie wykryto twarzy\nUsuwanie tła...</string>
+    <string name="border_style">Styl obramowania</string>
+    <string name="border_mode_solid">Jednolity</string>
+    <string name="border_gradient_aurora_mist">Mgła zorzy</string>
+    <string name="border_gradient_neon_bloom">Neonowy rozkwit</string>
+    <string name="border_gradient_sunset_pulse">Puls zachodu słońca</string>
+    <string name="border_gradient_velvet_sky">Aksamitne niebo</string>
+    <string name="border_gradient_ocean_drive">Oceaniczna trasa</string>
+    <string name="border_gradient_peach_cloud">Brzoskwiniowa chmura</string>
+    <string name="border_gradient_midnight_fade">Północne zanikanie</string>
+    <string name="border_gradient_ember_glass">Szkło żaru</string>
+    <string name="solid_color">Jednolity kolor</string>
 </resources>

@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">ముఖాన్ని గుర్తిస్తోంది...</string>
+    <string name="quickedit_face_detected_removing_bg">ముఖం గుర్తించబడింది\nనేపథ్యం తొలగిస్తోంది...</string>
+    <string name="quickedit_no_face_detected_removing_bg">ముఖం గుర్తించబడలేదు\nనేపథ్యం తొలగిస్తోంది...</string>
+    <string name="border_style">సరిహద్దు శైలి</string>
+    <string name="border_mode_solid">ఘనం</string>
+    <string name="border_gradient_aurora_mist">అరోరా పొగమంచు</string>
+    <string name="border_gradient_neon_bloom">నియాన్ పుష్పం</string>
+    <string name="border_gradient_sunset_pulse">సూర్యాస్తమయ నాడి</string>
+    <string name="border_gradient_velvet_sky">వెల్వెట్ ఆకాశం</string>
+    <string name="border_gradient_ocean_drive">మహాసముద్ర మార్గం</string>
+    <string name="border_gradient_peach_cloud">పీచ్ మేఘం</string>
+    <string name="border_gradient_midnight_fade">అర్ధరాత్రి క్షీణత</string>
+    <string name="border_gradient_ember_glass">నిప్పు గాజు</string>
+    <string name="solid_color">ఘన రంగు</string>
 </resources>

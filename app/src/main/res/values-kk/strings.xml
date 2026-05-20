@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Бетті анықтау...</string>
+    <string name="quickedit_face_detected_removing_bg">Бет анықталды\nФон жойылуда...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Бет анықталмады\nФон жойылуда...</string>
+    <string name="border_style">Шекара стилі</string>
+    <string name="border_mode_solid">Тұтас</string>
+    <string name="border_gradient_aurora_mist">Аврора тұманы</string>
+    <string name="border_gradient_neon_bloom">Неон гүлденуі</string>
+    <string name="border_gradient_sunset_pulse">Күн бату импульсі</string>
+    <string name="border_gradient_velvet_sky">Барқыт аспан</string>
+    <string name="border_gradient_ocean_drive">Мұхит жолы</string>
+    <string name="border_gradient_peach_cloud">Шабдалы бұлты</string>
+    <string name="border_gradient_midnight_fade">Түн ортасында өшу</string>
+    <string name="border_gradient_ember_glass">Шоқ шыны</string>
+    <string name="solid_color">Тұтас түс</string>
 </resources>

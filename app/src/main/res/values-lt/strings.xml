@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Aptinkamas veidas...</string>
+    <string name="quickedit_face_detected_removing_bg">Veidas aptiktas\nŠalinamas fonas...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Veidas neaptiktas\nŠalinamas fonas...</string>
+    <string name="border_style">Krašto stilius</string>
+    <string name="border_mode_solid">Vientisa</string>
+    <string name="border_gradient_aurora_mist">Auroros migla</string>
+    <string name="border_gradient_neon_bloom">Neoninis žydėjimas</string>
+    <string name="border_gradient_sunset_pulse">Saulėlydžio pulsas</string>
+    <string name="border_gradient_velvet_sky">Aksominis dangus</string>
+    <string name="border_gradient_ocean_drive">Vandenyno kelias</string>
+    <string name="border_gradient_peach_cloud">Persikų debesis</string>
+    <string name="border_gradient_midnight_fade">Vidurnakčio išblukimas</string>
+    <string name="border_gradient_ember_glass">Žarijų stiklas</string>
+    <string name="solid_color">Vientisa spalva</string>
 </resources>

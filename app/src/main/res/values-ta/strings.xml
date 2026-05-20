@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">முகத்தைக் கண்டறிகிறது...</string>
+    <string name="quickedit_face_detected_removing_bg">முகம் கண்டறியப்பட்டது\nபின்னணி அகற்றப்படுகிறது...</string>
+    <string name="quickedit_no_face_detected_removing_bg">முகம் எதுவும் கண்டறியப்படவில்லை\nபின்னணி அகற்றப்படுகிறது...</string>
+    <string name="border_style">எல்லை பாணி</string>
+    <string name="border_mode_solid">திடம்</string>
+    <string name="border_gradient_aurora_mist">அரோரா மூடுபனி</string>
+    <string name="border_gradient_neon_bloom">நியான் பூப்பு</string>
+    <string name="border_gradient_sunset_pulse">சூரிய மறைவு துடிப்பு</string>
+    <string name="border_gradient_velvet_sky">வெல்வெட் வானம்</string>
+    <string name="border_gradient_ocean_drive">கடல் பாதை</string>
+    <string name="border_gradient_peach_cloud">பீச் மேகம்</string>
+    <string name="border_gradient_midnight_fade">நள்ளிரவு மறைதல்</string>
+    <string name="border_gradient_ember_glass">கனல் கண்ணாடி</string>
+    <string name="solid_color">திட நிறம்</string>
 </resources>

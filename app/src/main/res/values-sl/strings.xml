@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Zaznavanje obraza...</string>
+    <string name="quickedit_face_detected_removing_bg">Obraz zaznan\nOdstranjevanje ozadja...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Obraz ni zaznan\nOdstranjevanje ozadja...</string>
+    <string name="border_style">Slog obrobe</string>
+    <string name="border_mode_solid">Enobarvno</string>
+    <string name="border_gradient_aurora_mist">Aurora megla</string>
+    <string name="border_gradient_neon_bloom">Neonski razcvet</string>
+    <string name="border_gradient_sunset_pulse">Utrip sončnega zahoda</string>
+    <string name="border_gradient_velvet_sky">Žametno nebo</string>
+    <string name="border_gradient_ocean_drive">Oceanska pot</string>
+    <string name="border_gradient_peach_cloud">Breskov oblak</string>
+    <string name="border_gradient_midnight_fade">Polnočno bledenje</string>
+    <string name="border_gradient_ember_glass">Steklo žerjavice</string>
+    <string name="solid_color">Enobarvno</string>
 </resources>

@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Rilevamento volto...</string>
+    <string name="quickedit_face_detected_removing_bg">Viso rilevato\nRimozione sfondo...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Nessun viso rilevato\nRimozione sfondo...</string>
+    <string name="border_style">Stile del bordo</string>
+    <string name="border_mode_solid">Tinta unita</string>
+    <string name="border_gradient_aurora_mist">Nebbia d’aurora</string>
+    <string name="border_gradient_neon_bloom">Fioritura neon</string>
+    <string name="border_gradient_sunset_pulse">Battito del tramonto</string>
+    <string name="border_gradient_velvet_sky">Cielo di velluto</string>
+    <string name="border_gradient_ocean_drive">Strada oceanica</string>
+    <string name="border_gradient_peach_cloud">Nuvola di pesca</string>
+    <string name="border_gradient_midnight_fade">Dissolvenza di mezzanotte</string>
+    <string name="border_gradient_ember_glass">Vetro di brace</string>
+    <string name="solid_color">Tinta unita</string>
 </resources>

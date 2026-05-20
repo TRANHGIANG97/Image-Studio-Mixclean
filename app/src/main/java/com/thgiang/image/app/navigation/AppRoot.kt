@@ -107,36 +107,29 @@ fun AppRoot(
     var showPremiumScreen by remember { mutableStateOf(false) }
     var showQualitySheet by remember { mutableStateOf(false) }
     var showRewardedAdDialog by remember { mutableStateOf(false) }
+    var showSaveRewardedAdDialog by remember { mutableStateOf(false) }
+    var pendingSaveAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var isAutoRemoveForPicker by rememberSaveable { mutableStateOf(false) }
     var isRemoveBgEditorForPicker by remember { mutableStateOf(false) }
     var isPresetModeForPicker by remember { mutableStateOf(false) }
     val qualitySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val selectedLanguageLabel = when (appState.selectedLanguage) {
-        "vi" -> stringResource(R.string.language_vietnamese)
-        "ja" -> stringResource(R.string.language_japanese)
-        "en" -> stringResource(R.string.language_english)
-        "es" -> stringResource(R.string.language_spanish)
-        "fr" -> stringResource(R.string.language_french)
-        "de" -> stringResource(R.string.language_german)
-        "it" -> stringResource(R.string.language_italian)
-        "pt-BR" -> stringResource(R.string.language_portuguese_br)
-        "ko" -> stringResource(R.string.language_korean)
-        "zh-CN" -> stringResource(R.string.language_chinese_simplified)
-        "zh-TW" -> stringResource(R.string.language_chinese_traditional)
-        "ar" -> stringResource(R.string.language_arabic)
-        "id" -> stringResource(R.string.language_indonesian)
-        "hi-IN" -> stringResource(R.string.language_hindi)
-        "th" -> stringResource(R.string.language_thai)
-        "tr-TR" -> stringResource(R.string.language_turkish)
-        "pl" -> stringResource(R.string.language_polish)
-        else -> stringResource(R.string.language_system)
-    }
+    val languageOptions = homeLanguageOptions()
+    val selectedLanguageLabel = languageOptions
+        .firstOrNull { it.code == appState.selectedLanguage }
+        ?.label
+        ?: stringResource(R.string.language_system)
 
     BackHandler {
         when {
             showRewardedAdDialog -> {
                 showRewardedAdDialog = false
+                appViewModel.resetBatchAdState()
+                return@BackHandler
+            }
+            showSaveRewardedAdDialog -> {
+                showSaveRewardedAdDialog = false
+                pendingSaveAction = null
                 appViewModel.resetBatchAdState()
                 return@BackHandler
             }
@@ -165,6 +158,12 @@ fun AppRoot(
         navController.navigate(Screen.Home.route) {
             popUpTo(0) { inclusive = true }
         }
+    }
+
+    fun requestSaveVideoAd(action: () -> Unit) {
+        pendingSaveAction = action
+        appViewModel.requestBatchAccess()
+        showSaveRewardedAdDialog = true
     }
 
     ModalNavigationDrawer(
@@ -243,7 +242,6 @@ fun AppRoot(
                     },
                     actions = {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            ProBadgeButton(onClick = { showPremiumScreen = true })
                             Box {
                                 IconButton(onClick = { languageMenuExpanded = true }) {
                                     Icon(
@@ -260,168 +258,17 @@ fun AppRoot(
                                             Text(stringResource(R.string.current_language_menu, selectedLanguageLabel))
                                         }
                                     )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_system),
-                                        code = "system",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_english),
-                                        code = "en",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_vietnamese),
-                                        code = "vi",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_japanese),
-                                        code = "ja",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_spanish),
-                                        code = "es",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_french),
-                                        code = "fr",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_german),
-                                        code = "de",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_italian),
-                                        code = "it",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_portuguese_br),
-                                        code = "pt-BR",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_korean),
-                                        code = "ko",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_chinese_simplified),
-                                        code = "zh-CN",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_chinese_traditional),
-                                        code = "zh-TW",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_arabic),
-                                        code = "ar",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_indonesian),
-                                        code = "id",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_hindi),
-                                        code = "hi-IN",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_thai),
-                                        code = "th",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_turkish),
-                                        code = "tr-TR",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
-                                    LanguageDropdownItem(
-                                        label = stringResource(R.string.language_polish),
-                                        code = "pl",
-                                        selectedLanguage = appState.selectedLanguage,
-                                        onLanguageClick = { code ->
-                                            languageMenuExpanded = false
-                                            appViewModel.setLanguage(code)
-                                        }
-                                    )
+                                    languageOptions.forEach { option ->
+                                        LanguageDropdownItem(
+                                            label = option.label,
+                                            code = option.code,
+                                            selectedLanguage = appState.selectedLanguage,
+                                            onLanguageClick = { code ->
+                                                languageMenuExpanded = false
+                                                appViewModel.setLanguage(code)
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -448,13 +295,8 @@ fun AppRoot(
                         },
                         onBatchRemove = {
                             if (appViewModel.isAdDismissedRecently()) return@HomeDashboardScreen
-                            if (appState.isPremium) {
-                                appViewModel.setBatchUris(emptyList())
-                                navController.navigate(Screen.BatchPicker.route)
-                            } else {
-                                appViewModel.requestBatchAccess()
-                                showRewardedAdDialog = true
-                            }
+                            appViewModel.setBatchUris(emptyList())
+                            navController.navigate(Screen.BatchPicker.route)
                         },
                         onNavigateToPicker = {
                             if (!appViewModel.isAdDismissedRecently()) {
@@ -632,7 +474,8 @@ fun AppRoot(
                             )
                         },
                         onAddMore = { navController.navigate(Screen.BatchPicker.route) },
-                        contentPadding = innerPadding
+                        contentPadding = innerPadding,
+                        onRequireSaveAd = { action -> requestSaveVideoAd(action) }
                     )
                 }
                 composable(Screen.Settings.route) {
@@ -678,7 +521,8 @@ fun AppRoot(
                             onBack = { navController.popBackStack() },
                             onDone = { _ ->
                                 navController.popBackStack(Screen.Home.route, inclusive = false)
-                            }
+                            },
+                            onRequireExportAd = { action -> requestSaveVideoAd(action) }
                         )
                     }
                 }
@@ -710,6 +554,40 @@ fun AppRoot(
             },
             onDismiss = {
                 showRewardedAdDialog = false
+                appViewModel.resetBatchAdState()
+            }
+        )
+    }
+
+    if (showSaveRewardedAdDialog) {
+        val adState by appViewModel.batchAdState.collectAsState()
+        val watchCount by appViewModel.batchAdWatchCount.collectAsState()
+
+        ModernRewardedAdDialog(
+            count = watchCount,
+            isLoading = adState is BatchAdState.Loading,
+            title = "Watch video to save",
+            message = "Watch a short video before saving this image.",
+            watchButtonText = "WATCH VIDEO",
+            showUpgradeButton = false,
+            onWatchAd = {
+                activity?.let {
+                    appViewModel.watchAdForBatch(it) {
+                        val action = pendingSaveAction
+                        showSaveRewardedAdDialog = false
+                        pendingSaveAction = null
+                        action?.invoke()
+                    }
+                }
+            },
+            onUpgrade = {
+                showSaveRewardedAdDialog = false
+                pendingSaveAction = null
+                appViewModel.resetBatchAdState()
+            },
+            onDismiss = {
+                showSaveRewardedAdDialog = false
+                pendingSaveAction = null
                 appViewModel.resetBatchAdState()
             }
         )
@@ -796,6 +674,84 @@ private fun LanguageDropdownItem(
         onClick = { onLanguageClick(code) }
     )
 }
+
+private data class HomeLanguageOption(
+    val code: String,
+    val label: String
+)
+
+@Composable
+private fun homeLanguageOptions(): List<HomeLanguageOption> = listOf(
+    HomeLanguageOption("system", stringResource(R.string.language_system)),
+    HomeLanguageOption("en", stringResource(R.string.language_english)),
+    HomeLanguageOption("af", "Afrikaans"),
+    HomeLanguageOption("am", "አማርኛ"),
+    HomeLanguageOption("ar", stringResource(R.string.language_arabic)),
+    HomeLanguageOption("az", "Azərbaycanca"),
+    HomeLanguageOption("be", "Беларуская"),
+    HomeLanguageOption("bg", "Български"),
+    HomeLanguageOption("bn", "বাংলা"),
+    HomeLanguageOption("ca", "Català"),
+    HomeLanguageOption("cs", "Čeština"),
+    HomeLanguageOption("da", "Dansk"),
+    HomeLanguageOption("de", stringResource(R.string.language_german)),
+    HomeLanguageOption("el", "Ελληνικά"),
+    HomeLanguageOption("es", stringResource(R.string.language_spanish)),
+    HomeLanguageOption("et", "Eesti"),
+    HomeLanguageOption("eu", "Euskara"),
+    HomeLanguageOption("fa", "فارسی"),
+    HomeLanguageOption("fi", "Suomi"),
+    HomeLanguageOption("fr", stringResource(R.string.language_french)),
+    HomeLanguageOption("gl", "Galego"),
+    HomeLanguageOption("gu", "ગુજરાતી"),
+    HomeLanguageOption("hi-IN", stringResource(R.string.language_hindi)),
+    HomeLanguageOption("hr", "Hrvatski"),
+    HomeLanguageOption("hu", "Magyar"),
+    HomeLanguageOption("id", stringResource(R.string.language_indonesian)),
+    HomeLanguageOption("is", "Íslenska"),
+    HomeLanguageOption("it", stringResource(R.string.language_italian)),
+    HomeLanguageOption("he", "עברית"),
+    HomeLanguageOption("ja", stringResource(R.string.language_japanese)),
+    HomeLanguageOption("ka", "ქართული"),
+    HomeLanguageOption("kk", "Қазақша"),
+    HomeLanguageOption("km", "ខ្មែរ"),
+    HomeLanguageOption("kn", "ಕನ್ನಡ"),
+    HomeLanguageOption("ko", stringResource(R.string.language_korean)),
+    HomeLanguageOption("lo", "ລາວ"),
+    HomeLanguageOption("lt", "Lietuvių"),
+    HomeLanguageOption("lv", "Latviešu"),
+    HomeLanguageOption("mk", "Македонски"),
+    HomeLanguageOption("ml", "മലയാളം"),
+    HomeLanguageOption("mn", "Монгол"),
+    HomeLanguageOption("mr", "मराठी"),
+    HomeLanguageOption("ms", "Bahasa Melayu"),
+    HomeLanguageOption("my", "မြန်မာ"),
+    HomeLanguageOption("ne", "नेपाली"),
+    HomeLanguageOption("nl", "Nederlands"),
+    HomeLanguageOption("no", "Norsk"),
+    HomeLanguageOption("pl", stringResource(R.string.language_polish)),
+    HomeLanguageOption("pt-BR", stringResource(R.string.language_portuguese_br)),
+    HomeLanguageOption("ro", "Română"),
+    HomeLanguageOption("ru", "Русский"),
+    HomeLanguageOption("si", "සිංහල"),
+    HomeLanguageOption("sk", "Slovenčina"),
+    HomeLanguageOption("sl", "Slovenščina"),
+    HomeLanguageOption("sr", "Српски"),
+    HomeLanguageOption("sv", "Svenska"),
+    HomeLanguageOption("sw", "Kiswahili"),
+    HomeLanguageOption("ta", "தமிழ்"),
+    HomeLanguageOption("te", "తెలుగు"),
+    HomeLanguageOption("th", stringResource(R.string.language_thai)),
+    HomeLanguageOption("tl", "Filipino"),
+    HomeLanguageOption("tr-TR", stringResource(R.string.language_turkish)),
+    HomeLanguageOption("uk", "Українська"),
+    HomeLanguageOption("ur", "اردو"),
+    HomeLanguageOption("uz", "Oʻzbek"),
+    HomeLanguageOption("vi", stringResource(R.string.language_vietnamese)),
+    HomeLanguageOption("zh-CN", stringResource(R.string.language_chinese_simplified)),
+    HomeLanguageOption("zh-TW", stringResource(R.string.language_chinese_traditional)),
+    HomeLanguageOption("zu", "IsiZulu")
+)
 
 @Composable
 private fun ProBadgeButton(onClick: () -> Unit) {

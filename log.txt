@@ -1,0 +1,64 @@
+Reusing configuration cache.
+> Task :core-data:preBuild UP-TO-DATE
+> Task :core-domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core-data:preDebugBuild UP-TO-DATE
+> Task :core-util:preBuild UP-TO-DATE
+> Task :studio:preBuild UP-TO-DATE
+> Task :core-domain:processResources NO-SOURCE
+> Task :core-util:preDebugBuild UP-TO-DATE
+> Task :studio:preDebugBuild UP-TO-DATE
+> Task :core-data:javaPreCompileDebug UP-TO-DATE
+> Task :core-data:generateDebugResources UP-TO-DATE
+> Task :core-data:processDebugNavigationResources UP-TO-DATE
+> Task :core-util:generateDebugResources UP-TO-DATE
+> Task :core-util:processDebugNavigationResources UP-TO-DATE
+> Task :core-util:javaPreCompileDebug UP-TO-DATE
+> Task :studio:generateDebugResources UP-TO-DATE
+> Task :studio:processDebugNavigationResources UP-TO-DATE
+> Task :core-util:packageDebugResources UP-TO-DATE
+> Task :studio:packageDebugResources UP-TO-DATE
+> Task :core-data:packageDebugResources UP-TO-DATE
+> Task :core-domain:compileKotlin UP-TO-DATE
+> Task :core-util:parseDebugLocalResources UP-TO-DATE
+> Task :studio:parseDebugLocalResources UP-TO-DATE
+> Task :core-data:parseDebugLocalResources UP-TO-DATE
+> Task :core-domain:compileJava NO-SOURCE
+> Task :core-domain:classes UP-TO-DATE
+> Task :core-util:generateDebugRFile UP-TO-DATE
+> Task :studio:generateDebugRFile UP-TO-DATE
+> Task :core-data:generateDebugRFile UP-TO-DATE
+> Task :core-domain:jar UP-TO-DATE
+> Task :core-data:compileDebugKotlin UP-TO-DATE
+> Task :core-data:compileDebugJavaWithJavac NO-SOURCE
+> Task :core-data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core-util:compileDebugKotlin UP-TO-DATE
+> Task :core-util:compileDebugJavaWithJavac NO-SOURCE
+> Task :core-util:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :studio:kspDebugKotlin UP-TO-DATE
+
+> Task :studio:compileDebugKotlin FAILED
+e: file:///C:/Users/Toshiba/Desktop/imageProduction-main/studio/src/main/java/com/thgiang/image/studio/ui/editor/EditorBitmapPool.kt:38:72 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'Bitmap.Config?'.
+e: file:///C:/Users/Toshiba/Desktop/imageProduction-main/studio/src/main/java/com/thgiang/image/studio/ui/editor/ThemeplateEditorScreen.kt:356:13 Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+val Icons.Filled.Image: ImageVector
+e: file:///C:/Users/Toshiba/Desktop/imageProduction-main/studio/src/main/java/com/thgiang/image/studio/ui/editor/ThemeplateEditorScreen.kt:373:9 Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+val Icons.Filled.Image: ImageVector
+e: file:///C:/Users/Toshiba/Desktop/imageProduction-main/studio/src/main/java/com/thgiang/image/studio/ui/editor/ThemeplateEditorViewModel.kt:342:35 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Toshiba/Desktop/imageProduction-main/studio/src/main/java/com/thgiang/image/studio/ui/editor/ThemeplateEditorViewModel.kt:343:49 Unresolved reference 'saveToGallery'.
+e: file:///C:/Users/Toshiba/Desktop/imageProduction-main/studio/src/main/java/com/thgiang/image/studio/ui/editor/ThemeplateEditorViewModel.kt:347:89 Argument type mismatch: actual type is 'Any', but 'Uri?' was expected.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':studio:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 4s
+25 actionable tasks: 1 executed, 24 up-to-date
+Configuration cache entry reused.

@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">در حال تشخیص چهره...</string>
+    <string name="quickedit_face_detected_removing_bg">چهره تشخیص داده شد\nدر حال حذف پس‌زمینه...</string>
+    <string name="quickedit_no_face_detected_removing_bg">چهره‌ای تشخیص داده نشد\nدر حال حذف پس‌زمینه...</string>
+    <string name="border_style">سبک حاشیه</string>
+    <string name="border_mode_solid">توپر</string>
+    <string name="border_gradient_aurora_mist">مه شفقی</string>
+    <string name="border_gradient_neon_bloom">شکوفه نئونی</string>
+    <string name="border_gradient_sunset_pulse">تپش غروب</string>
+    <string name="border_gradient_velvet_sky">آسمان مخملی</string>
+    <string name="border_gradient_ocean_drive">مسیر اقیانوس</string>
+    <string name="border_gradient_peach_cloud">ابر هلویی</string>
+    <string name="border_gradient_midnight_fade">محو نیمه شب</string>
+    <string name="border_gradient_ember_glass">شیشه اخگر</string>
+    <string name="solid_color">رنگ توپر</string>
 </resources>

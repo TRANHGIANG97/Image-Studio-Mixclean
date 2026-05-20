@@ -5,7 +5,7 @@
     <string name="menu_title">Menu</string>
     <string name="nav_home">Home</string>
     <string name="nav_remove_background">Remove Background</string>
-    <string name="nav_multi_remove">Multi-Image Remove</string>
+    <string name="nav_multi_remove">Batch Remove</string>
     <string name="nav_editor">Editor</string>
     <string name="nav_gallery">Gallery</string>
     <string name="nav_settings">Settings</string>
@@ -15,7 +15,7 @@
     <string name="language_description">Choose app language.</string>
     <string name="language_system">System default</string>
     <string name="language_english">English</string>
-<string name="language_vietnamese">Tiếng Việt</string>
+    <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_japanese">日本語</string>
     <string name="language_spanish">Español</string>
     <string name="language_french">Français</string>
@@ -62,7 +62,7 @@
     <string name="removing_background_wait">Removing background, this may take a few seconds...</string>
     <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
     <string name="loading_image">Loading image...</string>
-    <string name="tap_remove_background_to_start">Tap "Remove background" to start processing.</string>
+    <string name="tap_remove_background_to_start">Tap \"Remove background\" to start processing.</string>
     <string name="step_choose_image">Step 1: Choose an image from your gallery.</string>
     <string name="compare_before_after">Compare before / after</string>
     <string name="status_idle">Ready</string>
@@ -96,7 +96,7 @@
     <string name="blur_detecting_subject">Detecting subject…</string>
     <string name="portrait_preview_export_failed">Could not build preview. Try again.</string>
 
-    <string name="multi_title">Multi-Image Remove</string>
+    <string name="multi_title">Batch Remove</string>
     <string name="multi_description">Select multiple images, then process them sequentially.</string>
     <string name="multi_select_images">Select images</string>
     <string name="multi_process">Process (%1$d)</string>
@@ -138,7 +138,6 @@
     <string name="settings_removal_quality">Removal quality</string>
     <string name="settings_removal_quality_summary">Standard (included) • Pro (Premium)</string>
 
-    
     <string name="lightning_title">Lightning Enhance</string>
     <string name="lightning_pick_hint">Choose an image to start</string>
     <string name="lightning_compare_hint">Compare before / after</string>
@@ -165,7 +164,7 @@
     <string name="home_dock_photo_editor">Photo Editor</string>
     <string name="home_dock_quick_edit">QuickEdit</string>
     <string name="home_dock_hd_export">HD Export</string>
-    
+
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Draft</string>
     <string name="draft_select_all">Select all</string>
@@ -199,27 +198,22 @@
     <string name="editor_text_error">Text: %1$s</string>
 
     <string name="premium_free_trial_cta">3 DAYS FREE TRIAL →</string>
-    <string name="premium_after_trial_price">After trial ends it will be %1$s / year</string>
+    <string name="premium_after_trial_price">After trial ends it will be $9.99 / year</string>
     <string name="premium_restore">RESTORE</string>
     <string name="premium_brand_title">MixClean</string>
-
 
     <string name="premium_unlock_all_features">Unlock all features</string>
     <string name="premium_plan_month">month</string>
     <string name="premium_plan_week">week</string>
-    <string name="premium_price_month_original">1.250.000₫</string>
-    <string name="premium_price_year_current">262.000 ₫/Year</string>
-    <string name="premium_price_month_current">94.000 ₫/Month</string>
+    <string name="premium_price_month_original">$49.99</string>
+    <string name="premium_price_year_current">$9.99/Year</string>
+    <string name="premium_price_month_current">$3.99/Month</string>
     <string name="premium_price_save_percent">80% OFF</string>
-    <string name="premium_price_month">680.000₫</string>
-    <string name="premium_price_save">SAVE 570.000₫</string>
+    <string name="premium_price_month">$24.99</string>
+    <string name="premium_price_save">SAVE $25.00</string>
     <string name="premium_most_popular">Most Popular</string>
-    <string name="premium_free_trial_desc">3 days free trial. After that 262.000 ₫ / year</string>
-    <string name="premium_cta_trial">Start 3-Day Free Trial</string>
-    <string name="pro_feature_expand">Smooth AI Expansion</string>
-    <string name="pro_see_details">Details &gt;</string>
-
-    <string name="premium_price_week">180.000₫</string>
+    <string name="premium_free_trial_desc">3 days free trial. After that $9.99 / year</string>
+    <string name="premium_price_week">$6.99</string>
     <string name="premium_price_arrow">→</string>
     <string name="premium_subscription_legal">Subscription automatically renews unless canceled at least 24 hours before the end of the current period. Payment is charged to your account after the trial ends. Manage or cancel anytime in account settings.</string>
     <string name="batch_pending">Pending</string>
@@ -255,10 +249,45 @@
     <string name="tool_rotate">Rotate</string>
     <string name="tool_background">Background</string>
     <string name="tool_studio">Studio</string>
-    <string name="removing_background">Removing background...</string><string name="draft_saved_successfully">Draft saved successfully</string><string name="bg_remover_not_available">Background remover not available</string><string name="bg_removal_failed">Background removal failed</string><string name="go_back">Go back</string><string name="draft_name_prefix">Draft</string><string name="draft_copy_suffix">Copy</string><string name="old_project_name">Old Project</string><string name="picker_title">Select Photo</string><string name="picker_tab_all">All Photos</string><string name="picker_tab_albums">Albums</string><string name="picker_no_albums">No albums found</string><string name="picker_camera_item">Camera</string><string name="picker_photo_count">%1$d photos</string><string name="picker_permission_title">Photo Access Required</string><string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>    <string name="picker_no_photos">No photos found</string><string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
+    <string name="removing_background">Removing background...</string>
+    <string name="draft_saved_successfully">Draft saved successfully</string>
+    <string name="bg_remover_not_available">Background remover not available</string>
+    <string name="bg_removal_failed">Background removal failed</string>
+    <string name="go_back">Go back</string>
+    <string name="draft_name_prefix">Draft</string>
+    <string name="draft_copy_suffix">Copy</string>
+    <string name="old_project_name">Old Project</string>
+    <string name="picker_title">Select Photo</string>
+    <string name="picker_tab_all">All Photos</string>
+    <string name="picker_tab_albums">Albums</string>
+    <string name="picker_no_albums">No albums found</string>
+    <string name="picker_camera_item">Camera</string>
+    <string name="picker_photo_count">%1$d photos</string>
+    <string name="picker_permission_title">Photo Access Required</string>
+    <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
+    <string name="picker_no_photos">No photos found</string>
+    <string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
     <string name="picker_capture_btn">Capture from Camera</string>
     <string name="cd_capture_photo">Capture Photo</string>
 
-    
-    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string>
+    <string name="permission_required">Permission required</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Detecting face...</string>
+    <string name="quickedit_face_detected_removing_bg">Face detected\nRemoving background...</string>
+    <string name="quickedit_no_face_detected_removing_bg">No face detected\nRemoving background...</string>
+    <string name="border_style">Border Style</string>
+    <string name="solid_color">Solid Color</string>
+    <string name="border_mode_solid">Solid</string>
+    <string name="border_gradient_aurora_mist">Aurora Mist</string>
+    <string name="border_gradient_neon_bloom">Neon Bloom</string>
+    <string name="border_gradient_sunset_pulse">Sunset Pulse</string>
+    <string name="border_gradient_velvet_sky">Velvet Sky</string>
+    <string name="border_gradient_ocean_drive">Ocean Drive</string>
+    <string name="border_gradient_peach_cloud">Peach Cloud</string>
+    <string name="border_gradient_midnight_fade">Midnight Fade</string>
+    <string name="border_gradient_ember_glass">Ember Glass</string>
+    <string name="premium_cta_trial">Start 3-Day Free Trial</string>
+    <string name="pro_feature_expand">Smooth AI Expansion</string>
+    <string name="pro_see_details">Details ></string>
 </resources>

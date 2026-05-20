@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">မျက်နှာရှာဖွေနေသည်...</string>
+    <string name="quickedit_face_detected_removing_bg">မျက်နှာတွေ့ရှိသည်\nနောက်ခံဖယ်ရှားနေသည်...</string>
+    <string name="quickedit_no_face_detected_removing_bg">မျက်နှာမတွေ့ပါ\nနောက်ခံဖယ်ရှားနေသည်...</string>
+    <string name="border_style">ဘောင်စတိုင်</string>
+    <string name="border_mode_solid">အစိုင်အခဲ</string>
+    <string name="border_gradient_aurora_mist">အော်ရိုရာ မြူ</string>
+    <string name="border_gradient_neon_bloom">နီယွန်ပွင့်မှု</string>
+    <string name="border_gradient_sunset_pulse">နေဝင်ချိန်ခုန်နှုန်း</string>
+    <string name="border_gradient_velvet_sky">ကတ္တီပါကောင်းကင်</string>
+    <string name="border_gradient_ocean_drive">သမုဒ္ဒရာလမ်း</string>
+    <string name="border_gradient_peach_cloud">မက်မွန်တိမ်</string>
+    <string name="border_gradient_midnight_fade">သန်းခေါင်မိုးမှိန်</string>
+    <string name="border_gradient_ember_glass">မီးကျီးဖန်</string>
+    <string name="solid_color">အစိုင်အခဲအရောင်</string>
 </resources>

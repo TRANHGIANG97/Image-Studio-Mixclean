@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Mengesan wajah...</string>
+    <string name="quickedit_face_detected_removing_bg">Wajah dikesan\nMengalih keluar latar belakang...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Tiada wajah dikesan\nMengalih keluar latar belakang...</string>
+    <string name="border_style">Gaya sempadan</string>
+    <string name="border_mode_solid">Pejal</string>
+    <string name="border_gradient_aurora_mist">Kabus aurora</string>
+    <string name="border_gradient_neon_bloom">Mekaran neon</string>
+    <string name="border_gradient_sunset_pulse">Denyutan senja</string>
+    <string name="border_gradient_velvet_sky">Langit baldu</string>
+    <string name="border_gradient_ocean_drive">Laluan lautan</string>
+    <string name="border_gradient_peach_cloud">Awan pic</string>
+    <string name="border_gradient_midnight_fade">Luntur tengah malam</string>
+    <string name="border_gradient_ember_glass">Kaca bara</string>
+    <string name="solid_color">Warna pejal</string>
 </resources>

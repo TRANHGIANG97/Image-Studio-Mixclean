@@ -67,6 +67,17 @@
     <string name="studio_intensity">Intensity</string>
     <string name="background">Background</string>
     <string name="gradient">Gradient</string>
+    <string name="border_style">Border style</string>
+    <string name="solid_color">Solid color</string>
+    <string name="border_mode_solid">Solid</string>
+    <string name="border_gradient_aurora_mist">Aurora Mist</string>
+    <string name="border_gradient_neon_bloom">Neon Bloom</string>
+    <string name="border_gradient_sunset_pulse">Sunset Pulse</string>
+    <string name="border_gradient_velvet_sky">Velvet Sky</string>
+    <string name="border_gradient_ocean_drive">Ocean Drive</string>
+    <string name="border_gradient_peach_cloud">Peach Cloud</string>
+    <string name="border_gradient_midnight_fade">Midnight Fade</string>
+    <string name="border_gradient_ember_glass">Ember Glass</string>
     <string name="presets">Presets</string>
     <string name="reset_border">Reset border</string>
     <string name="border_preset_solid">Solid</string>

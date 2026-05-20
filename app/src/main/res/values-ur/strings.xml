@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">چہرہ تلاش کر رہا ہے...</string>
+    <string name="quickedit_face_detected_removing_bg">چہرہ مل گیا\nپس منظر ہٹا رہا ہے...</string>
+    <string name="quickedit_no_face_detected_removing_bg">کوئی چہرہ نہیں ملا\nپس منظر ہٹا رہا ہے...</string>
+    <string name="border_style">بارڈر اسٹائل</string>
+    <string name="border_mode_solid">ٹھوس</string>
+    <string name="border_gradient_aurora_mist">ارورہ دھند</string>
+    <string name="border_gradient_neon_bloom">نیون کھلنا</string>
+    <string name="border_gradient_sunset_pulse">غروب کی دھڑکن</string>
+    <string name="border_gradient_velvet_sky">مخملی آسمان</string>
+    <string name="border_gradient_ocean_drive">سمندری راستہ</string>
+    <string name="border_gradient_peach_cloud">آڑو کا بادل</string>
+    <string name="border_gradient_midnight_fade">آدھی رات کا مدھم</string>
+    <string name="border_gradient_ember_glass">انگارا شیشہ</string>
+    <string name="solid_color">ٹھوس رنگ</string>
 </resources>

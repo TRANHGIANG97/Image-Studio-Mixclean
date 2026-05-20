@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Gezicht detecteren...</string>
+    <string name="quickedit_face_detected_removing_bg">Gezicht gedetecteerd\nAchtergrond verwijderen...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Geen gezicht gedetecteerd\nAchtergrond verwijderen...</string>
+    <string name="border_style">Randstijl</string>
+    <string name="border_mode_solid">Effen</string>
+    <string name="border_gradient_aurora_mist">Aurora-mist</string>
+    <string name="border_gradient_neon_bloom">Neonbloei</string>
+    <string name="border_gradient_sunset_pulse">Zonsondergangpuls</string>
+    <string name="border_gradient_velvet_sky">Fluwelen hemel</string>
+    <string name="border_gradient_ocean_drive">Oceaanroute</string>
+    <string name="border_gradient_peach_cloud">Perzikwolk</string>
+    <string name="border_gradient_midnight_fade">Middernachtvervaging</string>
+    <string name="border_gradient_ember_glass">Gloeiend glas</string>
+    <string name="solid_color">Effen kleur</string>
 </resources>

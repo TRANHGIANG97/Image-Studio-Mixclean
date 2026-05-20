@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Виявлення обличчя...</string>
+    <string name="quickedit_face_detected_removing_bg">Обличчя виявлено\nВидалення фону...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Обличчя не виявлено\nВидалення фону...</string>
+    <string name="border_style">Стиль межі</string>
+    <string name="border_mode_solid">Суцільний</string>
+    <string name="border_gradient_aurora_mist">Туман аврори</string>
+    <string name="border_gradient_neon_bloom">Неонове цвітіння</string>
+    <string name="border_gradient_sunset_pulse">Пульс заходу сонця</string>
+    <string name="border_gradient_velvet_sky">Оксамитове небо</string>
+    <string name="border_gradient_ocean_drive">Океанський шлях</string>
+    <string name="border_gradient_peach_cloud">Персикова хмара</string>
+    <string name="border_gradient_midnight_fade">Опівнічне згасання</string>
+    <string name="border_gradient_ember_glass">Скло жару</string>
+    <string name="solid_color">Суцільний колір</string>
 </resources>

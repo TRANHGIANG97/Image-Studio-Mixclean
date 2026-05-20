@@ -261,4 +261,18 @@
     <string name="permission_required">Требуется разрешение</string>
     <string name="grant_permission">Разрешить</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Обнаружение лица...</string>
+    <string name="quickedit_face_detected_removing_bg">Лицо обнаружено\nУдаление фона...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Лицо не обнаружено\nУдаление фона...</string>
+    <string name="border_style">Стиль рамки</string>
+    <string name="border_mode_solid">Сплошной</string>
+    <string name="border_gradient_aurora_mist">Туман авроры</string>
+    <string name="border_gradient_neon_bloom">Неоновое сияние</string>
+    <string name="border_gradient_sunset_pulse">Пульс заката</string>
+    <string name="border_gradient_velvet_sky">Бархатное небо</string>
+    <string name="border_gradient_ocean_drive">Океанский путь</string>
+    <string name="border_gradient_peach_cloud">Персиковое облако</string>
+    <string name="border_gradient_midnight_fade">Полуночное угасание</string>
+    <string name="border_gradient_ember_glass">Стекло тлеющих углей</string>
+    <string name="solid_color">Сплошной цвет</string>
 </resources>

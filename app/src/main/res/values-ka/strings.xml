@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">სახის ამოცნობა...</string>
+    <string name="quickedit_face_detected_removing_bg">სახე ამოცნობილია\nფონის წაშლა...</string>
+    <string name="quickedit_no_face_detected_removing_bg">სახე არ არის ამოცნობილი\nფონის წაშლა...</string>
+    <string name="border_style">საზღვრის სტილი</string>
+    <string name="border_mode_solid">მყარი</string>
+    <string name="border_gradient_aurora_mist">ავრორის ნისლი</string>
+    <string name="border_gradient_neon_bloom">ნეონის ყვავილობა</string>
+    <string name="border_gradient_sunset_pulse">მზის ჩასვლის პულსი</string>
+    <string name="border_gradient_velvet_sky">ხავერდოვანი ცა</string>
+    <string name="border_gradient_ocean_drive">ოკეანის გზა</string>
+    <string name="border_gradient_peach_cloud">ატმის ღრუბელი</string>
+    <string name="border_gradient_midnight_fade">შუაღამის ქრობა</string>
+    <string name="border_gradient_ember_glass">ცეცხლმოდებული მინა</string>
+    <string name="solid_color">მყარი ფერი</string>
 </resources>

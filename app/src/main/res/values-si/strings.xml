@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">මුහුණ හඳුනාගනිමින්...</string>
+    <string name="quickedit_face_detected_removing_bg">මුහුණ හඳුනාගන්නා ලදී\nපසුබිම ඉවත් කරමින්...</string>
+    <string name="quickedit_no_face_detected_removing_bg">මුහුණක් හමු නොවීය\nපසුබිම ඉවත් කරමින්...</string>
+    <string name="border_style">දාර විලාසය</string>
+    <string name="border_mode_solid">තනි</string>
+    <string name="border_gradient_aurora_mist">අරෝරා මීදුම</string>
+    <string name="border_gradient_neon_bloom">නියොන් පිපීම</string>
+    <string name="border_gradient_sunset_pulse">සූර්යාස්ත ස්පන්දනය</string>
+    <string name="border_gradient_velvet_sky">වෙල්වට් අහස</string>
+    <string name="border_gradient_ocean_drive">සාගර මාර්ගය</string>
+    <string name="border_gradient_peach_cloud">පීච් වලාව</string>
+    <string name="border_gradient_midnight_fade">මධ්යම රාත්‍රී මැකීයාම</string>
+    <string name="border_gradient_ember_glass">අඟුරු වීදුරු</string>
+    <string name="solid_color">තනි වර්ණ</string>
 </resources>

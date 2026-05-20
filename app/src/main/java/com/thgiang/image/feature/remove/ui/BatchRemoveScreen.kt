@@ -68,7 +68,8 @@ fun BatchRemoveScreen(
     onBack: () -> Unit,
     onAddMore: () -> Unit = {},
     viewModel: BatchRemoveViewModel = hiltViewModel(),
-    contentPadding: PaddingValues = PaddingValues()
+    contentPadding: PaddingValues = PaddingValues(),
+    onRequireSaveAd: ((() -> Unit) -> Unit)? = null
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -228,7 +229,10 @@ fun BatchRemoveScreen(
                             isProcessing = state.isProcessing,
                             isSavingAll = state.isSavingAll,
                             onRemove = { viewModel.removeResult(result) },
-                            onSave = { viewModel.saveImage(result) },
+                            onSave = {
+                                val saveAction = { viewModel.saveImage(result) }
+                                onRequireSaveAd?.invoke(saveAction) ?: saveAction()
+                            },
                             onDelete = { viewModel.deleteImage(result) },
                             onZoom = { zoomedUri = result.displayUri }
                         )
@@ -266,7 +270,10 @@ fun BatchRemoveScreen(
                         }
                         GradientPrimaryButton(
                             text = if (state.isSavingAll) stringResource(R.string.multi_saving_all) else stringResource(R.string.multi_save_all),
-                            onClick = { viewModel.onSaveAllClicked() },
+                            onClick = {
+                                val saveAction = { viewModel.onSaveAllClicked() }
+                                onRequireSaveAd?.invoke(saveAction) ?: saveAction()
+                            },
                             enabled = !state.isProcessing && !state.isSavingAll,
                             modifier = Modifier.height(44.dp)
                         )

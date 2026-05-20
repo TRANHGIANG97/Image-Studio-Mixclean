@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">កំពុងរកឃើញផ្ទៃមុខ...</string>
+    <string name="quickedit_face_detected_removing_bg">រកឃើញផ្ទៃមុខ\nកំពុងលុបផ្ទៃខាងក្រោយ...</string>
+    <string name="quickedit_no_face_detected_removing_bg">រកមិនឃើញផ្ទៃមុខ\nកំពុងលុបផ្ទៃខាងក្រោយ...</string>
+    <string name="border_style">រចនាប័ទ្មស៊ុម</string>
+    <string name="border_mode_solid">រឹង</string>
+    <string name="border_gradient_aurora_mist">អ័ព្ទអូរ៉ូរ៉ា</string>
+    <string name="border_gradient_neon_bloom">ផ្កាអ៊ីយ៉ូន</string>
+    <string name="border_gradient_sunset_pulse">ជីពចរថ្ងៃលិច</string>
+    <string name="border_gradient_velvet_sky">មេឃវលវ៉ិត</string>
+    <string name="border_gradient_ocean_drive">ផ្លូវសមុទ្រ</string>
+    <string name="border_gradient_peach_cloud">ពពកប៉ែស</string>
+    <string name="border_gradient_midnight_fade">រសាត់កណ្តាលអធ្រាត្រ</string>
+    <string name="border_gradient_ember_glass">កញ្ចក់រងើកភ្លើង</string>
+    <string name="solid_color">ពណ៌រឹង</string>
 </resources>

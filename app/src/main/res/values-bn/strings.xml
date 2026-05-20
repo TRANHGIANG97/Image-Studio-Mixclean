@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">মুখ সনাক্ত করা হচ্ছে...</string>
+    <string name="quickedit_face_detected_removing_bg">মুখ সনাক্ত হয়েছে\nব্যাকগ্রাউন্ড সরানো হচ্ছে...</string>
+    <string name="quickedit_no_face_detected_removing_bg">কোনো মুখ সনাক্ত করা যায়নি\nব্যাকগ্রাউন্ড সরানো হচ্ছে...</string>
+    <string name="border_style">বর্ডার স্টাইল</string>
+    <string name="border_mode_solid">সলিড</string>
+    <string name="border_gradient_aurora_mist">অরোরা কুয়াশা</string>
+    <string name="border_gradient_neon_bloom">নিয়ন প্রস্ফুটন</string>
+    <string name="border_gradient_sunset_pulse">সূর্যাস্তের স্পন্দন</string>
+    <string name="border_gradient_velvet_sky">মখমল আকাশ</string>
+    <string name="border_gradient_ocean_drive">সমুদ্রপথ</string>
+    <string name="border_gradient_peach_cloud">পীচ মেঘ</string>
+    <string name="border_gradient_midnight_fade">মধ্যরাতের বিবর্ণতা</string>
+    <string name="border_gradient_ember_glass">জ্বলন্ত কাচ</string>
+    <string name="solid_color">সলিড রং</string>
 </resources>

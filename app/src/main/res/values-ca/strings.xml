@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Detectant cara...</string>
+    <string name="quickedit_face_detected_removing_bg">Cara detectada\nEliminant el fons...</string>
+    <string name="quickedit_no_face_detected_removing_bg">No s’ha detectat cap cara\nEliminant el fons...</string>
+    <string name="border_style">Estil de vora</string>
+    <string name="border_mode_solid">Sòlid</string>
+    <string name="border_gradient_aurora_mist">Boira d’aurora</string>
+    <string name="border_gradient_neon_bloom">Floració de neó</string>
+    <string name="border_gradient_sunset_pulse">Pols del capvespre</string>
+    <string name="border_gradient_velvet_sky">Cel de vellut</string>
+    <string name="border_gradient_ocean_drive">Ruta oceànica</string>
+    <string name="border_gradient_peach_cloud">Núvol de préssec</string>
+    <string name="border_gradient_midnight_fade">Esvair-se de mitjanit</string>
+    <string name="border_gradient_ember_glass">Vidre de brasa</string>
+    <string name="solid_color">Color sòlid</string>
 </resources>

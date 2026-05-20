@@ -237,7 +237,7 @@ fun BorderModeScreen(
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Text(
-                        text = "Border style",
+                        text = stringResource(id = R.string.border_style),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
@@ -261,7 +261,7 @@ fun BorderModeScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Solid color",
+                        text = stringResource(id = R.string.solid_color),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
@@ -281,7 +281,7 @@ fun BorderModeScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Gradient",
+                        text = stringResource(id = R.string.gradient),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
@@ -344,13 +344,13 @@ private fun BorderModeToggleRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         BorderToggleChip(
-            text = "Solid",
+            text = stringResource(id = R.string.border_mode_solid),
             selected = !isGradientMode,
             onClick = onSolidClick,
             modifier = Modifier.weight(1f)
         )
         BorderToggleChip(
-            text = "Gradient",
+            text = stringResource(id = R.string.gradient),
             selected = isGradientMode,
             onClick = onGradientClick,
             modifier = Modifier.weight(1f)
@@ -456,7 +456,7 @@ private fun BorderGradientSelector(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = preset.title,
+                    text = gradientPresetLabel(preset),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
@@ -464,6 +464,21 @@ private fun BorderGradientSelector(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun gradientPresetLabel(preset: BorderGradientPreset): String {
+    return when (preset.id) {
+        "aurora_mist" -> stringResource(id = R.string.border_gradient_aurora_mist)
+        "neon_bloom" -> stringResource(id = R.string.border_gradient_neon_bloom)
+        "sunset_pulse" -> stringResource(id = R.string.border_gradient_sunset_pulse)
+        "velvet_sky" -> stringResource(id = R.string.border_gradient_velvet_sky)
+        "ocean_drive" -> stringResource(id = R.string.border_gradient_ocean_drive)
+        "peach_cloud" -> stringResource(id = R.string.border_gradient_peach_cloud)
+        "midnight_fade" -> stringResource(id = R.string.border_gradient_midnight_fade)
+        "ember_glass" -> stringResource(id = R.string.border_gradient_ember_glass)
+        else -> preset.title
     }
 }
 

@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">ກຳລັງກວດພົບໃບໜ້າ...</string>
+    <string name="quickedit_face_detected_removing_bg">ກວດພົບໃບໜ້າແລ້ວ\nກຳລັງລຶບພື້ນຫຼັງ...</string>
+    <string name="quickedit_no_face_detected_removing_bg">ບໍ່ພົບໃບໜ້າ\nກຳລັງລຶບພື້ນຫຼັງ...</string>
+    <string name="border_style">ຮູບແບບຂອບ</string>
+    <string name="border_mode_solid">ຕັນ</string>
+    <string name="border_gradient_aurora_mist">ໝອກອໍໂຣຣ່າ</string>
+    <string name="border_gradient_neon_bloom">ດອກໄຟນີອອນ</string>
+    <string name="border_gradient_sunset_pulse">ກຳມະຈອນຕາເວັນຕົກ</string>
+    <string name="border_gradient_velvet_sky">ທ້ອງຟ້າກຳມະຫຍີ່</string>
+    <string name="border_gradient_ocean_drive">ເສັ້ນທາງມະຫາສະໝຸດ</string>
+    <string name="border_gradient_peach_cloud">ເມກໝາກພີດ</string>
+    <string name="border_gradient_midnight_fade">ຈາງຫາຍຕອນທ່ຽງຄືນ</string>
+    <string name="border_gradient_ember_glass">ແກ້ວຖ່ານ</string>
+    <string name="solid_color">ສີຕັນ</string>
 </resources>

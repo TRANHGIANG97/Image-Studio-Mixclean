@@ -74,6 +74,17 @@
     <string name="tool_border">Viền</string>
     <string name="border_color">Màu viền</string>
     <string name="border_thickness">Độ dày</string>
+    <string name="border_style">Kiểu viền</string>
+    <string name="solid_color">Màu đặc</string>
+    <string name="border_mode_solid">Đặc</string>
+    <string name="border_gradient_aurora_mist">Sương cực quang</string>
+    <string name="border_gradient_neon_bloom">Nở rực neon</string>
+    <string name="border_gradient_sunset_pulse">Nhịp hoàng hôn</string>
+    <string name="border_gradient_velvet_sky">Bầu trời nhung</string>
+    <string name="border_gradient_ocean_drive">Đại dương xanh</string>
+    <string name="border_gradient_peach_cloud">Mây đào</string>
+    <string name="border_gradient_midnight_fade">Phai đêm khuya</string>
+    <string name="border_gradient_ember_glass">Kính than hồng</string>
     <string name="edit_image_failed">Không mở được trình sửa. Vui lòng thử lại.</string>
     <string name="editor_add_text_title">Thêm chữ</string>
     <string name="editor_add_text_hint">Nhập nội dung</string>
@@ -259,4 +270,7 @@
     <string name="picker_capture_btn">Chụp ảnh bằng camera</string>
     <string name="cd_capture_photo">Chụp ảnh</string>
     <string name="permission_required">Cần cấp quyền</string><string name="grant_permission">Cấp quyền</string><string name="select">Chọn</string>
+    <string name="quickedit_detecting_face">Đang phát hiện khuôn mặt...</string>
+    <string name="quickedit_face_detected_removing_bg">Đã phát hiện khuôn mặt\nĐang xóa nền...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Không phát hiện khuôn mặt\nĐang xóa nền...</string>
 </resources>

@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Detectare față...</string>
+    <string name="quickedit_face_detected_removing_bg">Față detectată\nSe elimină fundalul...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Nicio față detectată\nSe elimină fundalul...</string>
+    <string name="border_style">Stil chenar</string>
+    <string name="border_mode_solid">Continuu</string>
+    <string name="border_gradient_aurora_mist">Ceață de auroră</string>
+    <string name="border_gradient_neon_bloom">Înflorire neon</string>
+    <string name="border_gradient_sunset_pulse">Pulsul apusului</string>
+    <string name="border_gradient_velvet_sky">Cer de catifea</string>
+    <string name="border_gradient_ocean_drive">Rută oceanică</string>
+    <string name="border_gradient_peach_cloud">Nor de piersică</string>
+    <string name="border_gradient_midnight_fade">Decolorare de la miezul nopții</string>
+    <string name="border_gradient_ember_glass">Sticlă de jar</string>
+    <string name="solid_color">Culoare solidă</string>
 </resources>

@@ -74,6 +74,17 @@
     <string name="tool_border">Borde</string>
     <string name="border_color">Color del borde</string>
     <string name="border_thickness">Grosor</string>
+    <string name="border_style">Estilo del borde</string>
+    <string name="solid_color">Color sólido</string>
+    <string name="border_mode_solid">Sólido</string>
+    <string name="border_gradient_aurora_mist">Niebla aurora</string>
+    <string name="border_gradient_neon_bloom">Floración neón</string>
+    <string name="border_gradient_sunset_pulse">Pulso del atardecer</string>
+    <string name="border_gradient_velvet_sky">Cielo aterciopelado</string>
+    <string name="border_gradient_ocean_drive">Ruta oceánica</string>
+    <string name="border_gradient_peach_cloud">Nube de durazno</string>
+    <string name="border_gradient_midnight_fade">Desvanecer de medianoche</string>
+    <string name="border_gradient_ember_glass">Cristal de brasas</string>
     <string name="edit_image_failed">No se pudo abrir el editor. Inténtalo de nuevo.</string>
     <string name="editor_add_text_title">Añadir texto</string>
     <string name="editor_add_text_hint">Escribe el texto</string>
@@ -261,4 +272,7 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Detectando rostro...</string>
+    <string name="quickedit_face_detected_removing_bg">Rostro detectado\nEliminando fondo...</string>
+    <string name="quickedit_no_face_detected_removing_bg">No se detectó rostro\nEliminando fondo...</string>
 </resources>

@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Откривање лице...</string>
+    <string name="quickedit_face_detected_removing_bg">Лицето е откриено\nОтстранување на позадина...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Не е откриено лице\nОтстранување на позадина...</string>
+    <string name="border_style">Стил на рамка</string>
+    <string name="border_mode_solid">Цврста</string>
+    <string name="border_gradient_aurora_mist">Магла од аурора</string>
+    <string name="border_gradient_neon_bloom">Неонски цут</string>
+    <string name="border_gradient_sunset_pulse">Пулс на зајдисонце</string>
+    <string name="border_gradient_velvet_sky">Кадифено небо</string>
+    <string name="border_gradient_ocean_drive">Океански пат</string>
+    <string name="border_gradient_peach_cloud">Праска облак</string>
+    <string name="border_gradient_midnight_fade">Полноќно избледување</string>
+    <string name="border_gradient_ember_glass">Стакло од жар</string>
+    <string name="solid_color">Цврста боја</string>
 </resources>

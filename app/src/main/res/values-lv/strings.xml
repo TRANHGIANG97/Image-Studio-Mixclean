@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Notiek sejas noteikšana...</string>
+    <string name="quickedit_face_detected_removing_bg">Seja noteikta\nFona noņemšana...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Seja nav noteikta\nFona noņemšana...</string>
+    <string name="border_style">Apmales stils</string>
+    <string name="border_mode_solid">Blīva</string>
+    <string name="border_gradient_aurora_mist">Auroras migla</string>
+    <string name="border_gradient_neon_bloom">Neona ziedēšana</string>
+    <string name="border_gradient_sunset_pulse">Saulrieta pulss</string>
+    <string name="border_gradient_velvet_sky">Samta debesis</string>
+    <string name="border_gradient_ocean_drive">Okeāna ceļš</string>
+    <string name="border_gradient_peach_cloud">Persiku mākonis</string>
+    <string name="border_gradient_midnight_fade">Pusnakts izbalēšana</string>
+    <string name="border_gradient_ember_glass">Oglīšu stikls</string>
+    <string name="solid_color">Blīva krāsa</string>
 </resources>

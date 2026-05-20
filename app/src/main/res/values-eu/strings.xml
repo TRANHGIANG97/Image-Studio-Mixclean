@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Aurpegia detektatzen...</string>
+    <string name="quickedit_face_detected_removing_bg">Aurpegia detektatuta\nAtzealdea kentzen...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Ez da aurpegirik detektatu\nAtzealdea kentzen...</string>
+    <string name="border_style">Ertz estiloa</string>
+    <string name="border_mode_solid">Uniformea</string>
+    <string name="border_gradient_aurora_mist">Aurora lainoa</string>
+    <string name="border_gradient_neon_bloom">Neoi loraldia</string>
+    <string name="border_gradient_sunset_pulse">Ilunabarraren pultsua</string>
+    <string name="border_gradient_velvet_sky">Belus zerua</string>
+    <string name="border_gradient_ocean_drive">Ozeano bidea</string>
+    <string name="border_gradient_peach_cloud">Mertxika hodeia</string>
+    <string name="border_gradient_midnight_fade">Gauerdiko lausotzea</string>
+    <string name="border_gradient_ember_glass">Txingar beira</string>
+    <string name="solid_color">Kolore uniformea</string>
 </resources>

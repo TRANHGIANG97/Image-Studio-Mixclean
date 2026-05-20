@@ -261,4 +261,18 @@
     <string name="permission_required">Permission required</string>
     <string name="grant_permission">Grant permission</string>
     <string name="select">Select</string>
+    <string name="quickedit_detecting_face">Нүүр илрүүлж байна...</string>
+    <string name="quickedit_face_detected_removing_bg">Нүүр илэрсэн\nДэвсгэрийг устгаж байна...</string>
+    <string name="quickedit_no_face_detected_removing_bg">Нүүр илрээгүй\nДэвсгэрийг устгаж байна...</string>
+    <string name="border_style">Хүрээний загвар</string>
+    <string name="border_mode_solid">Битуу</string>
+    <string name="border_gradient_aurora_mist">Аврора манан</string>
+    <string name="border_gradient_neon_bloom">Неон цэцэглэлт</string>
+    <string name="border_gradient_sunset_pulse">Нар жаргах импульс</string>
+    <string name="border_gradient_velvet_sky">Хилэн тэнгэр</string>
+    <string name="border_gradient_ocean_drive">Далайн зам</string>
+    <string name="border_gradient_peach_cloud">Тоорын үүл</string>
+    <string name="border_gradient_midnight_fade">Шөнө дундын бүдгэрэл</string>
+    <string name="border_gradient_ember_glass">Цогтой шил</string>
+    <string name="solid_color">Битуу өнгө</string>
 </resources>
