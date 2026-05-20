@@ -5,7 +5,6 @@ import android.view.MotionEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.outlined.PanTool
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.rememberScrollState
@@ -74,6 +72,7 @@ fun MagicBrushScreen(
     val canRedo by viewModel.canRedo.collectAsStateWithLifecycle()
     val showGuide by viewModel.showGuide.collectAsStateWithLifecycle()
     val showSmartEraseTooltip by viewModel.showSmartEraseTooltip.collectAsStateWithLifecycle()
+    val demoState by viewModel.magicWandDemoState.collectAsStateWithLifecycle()
 
     val density = LocalDensity.current
     var scale by remember { mutableFloatStateOf(1f) }
@@ -84,12 +83,7 @@ fun MagicBrushScreen(
     var cursorOffset by remember { mutableFloatStateOf(35f) }
     var brushSize by remember { mutableFloatStateOf(13f) }
 
-    val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
-        if (selectedTool == MagicBrushTool.PAN) {
-            scale = (scale * zoomChange).coerceIn(1f, 10f)
-            offset += offsetChange * scale
-        }
-    }
+
 
     val context = LocalContext.current
     LaunchedEffect(immutableBitmap) {
@@ -388,22 +382,19 @@ fun MagicBrushScreen(
                 }
 
                 // Hint text for current tool
-                if (selectedTool != MagicBrushTool.PAN) {
-                    Text(
-                        text = when (selectedTool) {
-                            MagicBrushTool.SMART_ERASE -> stringResource(R.string.magic_brush_hint_smart_erase)
-                            MagicBrushTool.BRUSH_ERASE -> stringResource(R.string.magic_brush_hint_brush_erase)
-                            MagicBrushTool.BLUR -> stringResource(R.string.magic_brush_hint_blur)
-                            else -> ""
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                        modifier = Modifier
-                            .padding(horizontal = 24.dp, vertical = 2.dp)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Start
-                    )
-                }
+                Text(
+                    text = when (selectedTool) {
+                        MagicBrushTool.SMART_ERASE -> stringResource(R.string.magic_brush_hint_smart_erase)
+                        MagicBrushTool.BRUSH_ERASE -> stringResource(R.string.magic_brush_hint_brush_erase)
+                        MagicBrushTool.BLUR -> stringResource(R.string.magic_brush_hint_blur)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp, vertical = 2.dp)
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Start
+                )
 
                 // Tool Switcher
                 Row(
@@ -434,15 +425,6 @@ fun MagicBrushScreen(
                         icon = Icons.Default.Grain,
                         label = stringResource(R.string.effect_blur)
                     )
-
-
-                    // Pan Tool
-                    ToolButton(
-                        selected = selectedTool == MagicBrushTool.PAN,
-                        onClick = { viewModel.selectTool(MagicBrushTool.PAN) },
-                        icon = Icons.Outlined.PanTool,
-                        label = stringResource(R.string.pan)
-                    )
                 }
 
             }
@@ -451,6 +433,8 @@ fun MagicBrushScreen(
 
     if (selectedTool == MagicBrushTool.SMART_ERASE && showSmartEraseTooltip) {
         MagicWandTooltipDialog(
+            demoState = demoState,
+            onPrepareDemo = viewModel::prepareMagicWandDemo,
             onDismiss = { dontShowAgain ->
                 viewModel.dismissSmartEraseTooltip(dontShowAgain)
             }
@@ -520,13 +504,6 @@ private fun GuideContent(onDismiss: () -> Unit) {
             icon = { Icon(Icons.Default.Grain, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
             title = stringResource(R.string.effect_blur),
             description = stringResource(R.string.magic_brush_guide_blur)
-        )
-
-        // Pan guide
-        GuideRow(
-            icon = { Icon(Icons.Outlined.PanTool, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = stringResource(R.string.pan),
-            description = stringResource(R.string.magic_brush_guide_pan)
         )
 
         HorizontalDivider(color =MaterialTheme.colorScheme.outlineVariant)

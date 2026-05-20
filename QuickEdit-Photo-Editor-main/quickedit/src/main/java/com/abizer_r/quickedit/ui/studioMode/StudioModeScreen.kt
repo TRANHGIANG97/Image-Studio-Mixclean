@@ -46,6 +46,7 @@ import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_EXTRA
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
 import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButtonTemplate
 import com.abizer_r.quickedit.utils.toast
+import com.thgiang.image.core.util.processors.ProcessorUtils
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
@@ -179,7 +180,7 @@ fun StudioModeScreen(
         }
 
     val currentBitmap = state.processedBitmap ?: immutableBitmap.bitmap
-    val hasForegroundBackground = !currentBitmap.hasAlpha()
+    val hasForegroundBackground = !ProcessorUtils.hasMeaningfulTransparency(currentBitmap)
     val aspectRatio = currentBitmap.width.toFloat() / currentBitmap.height.toFloat()
 
         Box(

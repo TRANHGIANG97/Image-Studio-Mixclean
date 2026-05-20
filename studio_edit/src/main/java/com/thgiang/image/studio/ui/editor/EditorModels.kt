@@ -10,12 +10,15 @@ import androidx.compose.ui.unit.IntSize
  * Immutable viewport với validation và helper methods
  */
 data class EditorViewport(
-    val offset: Offset = Offset.Zero,
+    val offsetX: Float = 0f,
+    val offsetY: Float = 0f,
     val scale: Float = 1f,
     val rotation: Float = 0f,
     val flippedH: Boolean = false,
     val flippedV: Boolean = false
 ) : java.io.Serializable {
+    val offset: Offset get() = Offset(offsetX, offsetY)
+
     init {
         require(scale > 0) { "Scale must be positive" }
     }
@@ -28,7 +31,7 @@ data class EditorViewport(
     
     fun withScale(newScale: Float): EditorViewport = copy(scale = newScale.coerceIn(0.1f, 5f))
     
-    fun withOffset(newOffset: Offset): EditorViewport = copy(offset = newOffset)
+    fun withOffset(newOffset: Offset): EditorViewport = copy(offsetX = newOffset.x, offsetY = newOffset.y)
     
     fun withRotation(newRotation: Float): EditorViewport {
         var normalized = newRotation % 360f
@@ -39,7 +42,10 @@ data class EditorViewport(
 
 data class EditorAppearance(
     val shadowIntensity: Float = 0.3f,
-    val alpha: Float = 1f
+    val alpha: Float = 1f,
+    val shadowAngle: Float = 45f,
+    val shadowDistance: Float = 12f,
+    val shadowColorArgb: Int = 0xFF000000.toInt()
 ) : java.io.Serializable {
     init {
         require(shadowIntensity in 0f..1f) { "Shadow intensity must be in 0..1" }
@@ -47,20 +53,36 @@ data class EditorAppearance(
     }
 }
 
+fun shadowOpacityFromIntensity(intensity: Float): Float {
+    return (0.10f + (intensity.coerceIn(0f, 1f) * 0.80f)).coerceIn(0.10f, 0.90f)
+}
+
+fun shadowBlurRadiusFromIntensity(intensity: Float): Float {
+    return (18f - (intensity.coerceIn(0f, 1f) * 12f)).coerceAtLeast(4f)
+}
+
 data class EditorTemplate(
     val assetPath: String = "",
-    val originalSize: IntSize = IntSize.Zero,
+    val originalWidth: Int = 0,
+    val originalHeight: Int = 0,
     val loaded: Boolean = false
-) : java.io.Serializable
+) : java.io.Serializable {
+    val originalSize: IntSize get() = IntSize(originalWidth, originalHeight)
+}
 
 data class EditorProduct(
-    val originalUri: Uri? = null,
-    val foregroundUri: Uri? = null,
+    val originalUriString: String? = null,
+    val foregroundUriString: String? = null,
     val isBackgroundRemoved: Boolean = false,
-    val baseSize: IntSize = IntSize.Zero,
+    val baseWidth: Int = 0,
+    val baseHeight: Int = 0,
     val processing: Boolean = false
 ) : java.io.Serializable {
-    constructor() : this(null, null, false, IntSize.Zero, false)
+    val originalUri: Uri? get() = originalUriString?.let { Uri.parse(it) }
+    val foregroundUri: Uri? get() = foregroundUriString?.let { Uri.parse(it) }
+    val baseSize: IntSize get() = IntSize(baseWidth, baseHeight)
+    
+    constructor() : this(null, null, false, 0, 0, false)
 }
 
 // ============ Tool & Config ============

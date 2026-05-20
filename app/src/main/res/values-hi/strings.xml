@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" ?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - बैकग्राउंड हटाने वाला</string>
     <string name="app_title">इमेज टूल्स</string>
@@ -37,6 +37,8 @@
     <string name="licenses_title">ओपन सोर्स लाइसेंस</string>
     <string name="dark_mode_title">डार्क मोड</string>
     <string name="dark_mode_description">डार्क थीम चालू या बंद करें।</string>
+    <string name="home_preview_title">Show Home Preview</string>
+    <string name="home_preview_description">Show the before/after comparison box on the home screen.</string>
     <string name="home_remove_background_title">पृष्ठभूमि हटाएँ</string>
     <string name="home_remove_background_subtitle">इमेज चुनें और एक टैप में पृष्ठभूमि हटाएँ।</string>
     <string name="dashboard_hero_title">AI पृष्ठभूमि हटाना</string>
@@ -56,6 +58,8 @@
     <string name="multi_image_remove">कई इमेज — पृष्ठभूमि</string>
     <string name="done_save_or_share">हो गया! अब परिणाम सेव या शेयर कर सकते हैं।</string>
     <string name="removing_background_wait">पृष्ठभूमि हट रही है, कुछ सेकंड लग सकते हैं…</string>
+    <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
+    <string name="loading_image">Loading image...</string>
     <string name="tap_remove_background_to_start">«पृष्ठभूमि हटाएँ» पर टैप करके शुरू करें।</string>
     <string name="step_choose_image">चरण 1: गैलरी से एक इमेज चुनें।</string>
     <string name="compare_before_after">पहले / बाद में तुलना</string>
@@ -110,7 +114,7 @@
     <string name="multi_saved_successfully">इमेज सेव हो गई</string>
     <string name="multi_save_failed">सेव विफल</string>
     <string name="exit_dialog_title">ऐप बंद करें</string>
-    <string name="exit_dialog_message">क्या आप ऐप से बाहर निकलना चाहते हैं?</string>
+    <string name="exit_dialog_message">Do you want to exit the app?</string>
     <string name="exit_dialog_cancel">रद्द करें</string>
     <string name="exit_dialog_exit">बाहर निकलें</string>
     <string name="quality_label">क्वालिटी</string>
@@ -142,6 +146,10 @@
     <string name="home_quick_tools">क्विक टूल्स</string>
     <string name="home_dock_batch">बैच</string>
     <string name="home_dock_blur">ब्लर</string>
+    <string name="home_dock_effects">Effects</string>
+    <string name="home_dock_studio">Studio</string>
+    <string name="home_dock_magic">Erase</string>
+    <string name="home_dock_more">More</string>
     <string name="home_dock_pick_image">पृष्ठभूमि हटाएँ</string>
     <string name="home_dock_photo_editor">फोटो संपादक</string>
     <string name="home_dock_quick_edit">त्वरित संपादन</string>
@@ -152,7 +160,7 @@
     <string name="draft_deselect_all">सभी का चयन रद्द करें</string>
     <string name="draft_delete_selected">हटाएँ (%1$d)</string>
     <string name="draft_selected_count">%1$d चयनित</string>
-    <string name="draft_confirm_delete_multiple">क्या आप वाकई %1$d चयनित ड्राफ्ट हटाना चाहते हैं?</string>
+    <string name="draft_confirm_delete_multiple">Are you sure you want to delete %1$d selected draft(s)?</string>
     <string name="action_discard">छोड़ें</string>
     <string name="home_preview_placeholder">इमेज चुनने के बाद प्रीव्यू यहाँ दिखेगा।</string>
     <string name="compare_label_before">पहले</string>
@@ -247,6 +255,10 @@
     <string name="picker_permission_title">Photo Access Required</string>
     <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
     <string name="picker_no_photos">No photos found</string>
+    <string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
     <string name="picker_capture_btn">Capture from Camera</string>
     <string name="cd_capture_photo">Capture Photo</string>
-    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>
+    <string name="permission_required">Permission required</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="select">Select</string>
+</resources>

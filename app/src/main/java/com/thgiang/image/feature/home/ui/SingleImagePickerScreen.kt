@@ -13,9 +13,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -46,11 +48,9 @@ import coil.compose.AsyncImage
 import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.core.design.components.GradientPrimaryButton
 import com.thgiang.image.core.design.theme.ImageDesign
-import com.thgiang.image.feature.common.media.isSupportedByApp
+import com.thgiang.image.feature.common.media.loadPickerDemoSampleUris
 import com.thgiang.image.feature.common.media.loadDownloadImageUris
 import com.thgiang.image.feature.common.media.loadPickerImageUris
-import com.thgiang.image.feature.common.media.resolveDisplayName
-import com.thgiang.image.feature.common.media.resolveMimeType
 import com.thgiang.image.R
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
@@ -134,6 +134,7 @@ fun SingleImagePickerScreen(
 
     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var albums by remember { mutableStateOf<List<MediaAlbum>>(emptyList()) }
+    var demoSampleUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -154,6 +155,10 @@ fun SingleImagePickerScreen(
 
     LaunchedEffect(hasGalleryPermission) {
         refreshGallery(showLoader = true)
+    }
+
+    LaunchedEffect(Unit) {
+        demoSampleUris = loadPickerDemoSampleUris(context)
     }
 
     LaunchedEffect(selectedAlbum) {
@@ -264,64 +269,37 @@ fun SingleImagePickerScreen(
                     }
                 }
             ) { innerPadding ->
-                when {
-                    !hasGalleryPermission -> PermissionView(
-                        onRequest = { galleryPermLauncher.launch(galleryPermission) },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    )
-
-                    isLoading -> BackgroundRemovalLoadingOverlay(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        message = stringResource(R.string.loading_image)
-                    )
-
-                    selectedAlbum != null -> {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(3),
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    when {
+                        !hasGalleryPermission -> PermissionView(
+                            onRequest = { galleryPermLauncher.launch(galleryPermission) },
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                            contentPadding = PaddingValues(2.dp),
-                            horizontalArrangement = Arrangement.spacedBy(2.dp),
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            items(albumImages, key = { it.toString() }) { uri ->
-                                GalleryImageCell(
-                                    uri = uri,
-                                    onClick = { handleImageSelection(context, uri, onImageSelected) }
-                                )
-                            }
-                        }
-                    }
+                                .weight(1f)
+                                .fillMaxWidth()
+                        )
 
-                    selectedTabIndex == 0 -> {
-                        if (images.isEmpty()) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(innerPadding),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                EmptyGalleryView(onOpenCamera = ::launchCamera)
-                            }
-                        } else {
+                        isLoading -> BackgroundRemovalLoadingOverlay(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            message = stringResource(R.string.loading_image)
+                        )
+
+                        selectedAlbum != null -> {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(3),
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(innerPadding),
+                                    .weight(1f)
+                                    .fillMaxWidth(),
                                 contentPadding = PaddingValues(2.dp),
                                 horizontalArrangement = Arrangement.spacedBy(2.dp),
                                 verticalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
-                                item {
-                                    CameraCell(onClick = ::launchCamera)
-                                }
-                                items(images, key = { it.toString() }) { uri ->
+                                items(albumImages, key = { it.toString() }) { uri ->
                                     GalleryImageCell(
                                         uri = uri,
                                         onClick = { handleImageSelection(context, uri, onImageSelected) }
@@ -329,30 +307,70 @@ fun SingleImagePickerScreen(
                                 }
                             }
                         }
-                    }
 
-                    selectedTabIndex == 1 -> {
-                        if (albums.isEmpty()) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(innerPadding),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(stringResource(R.string.picker_no_albums), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        selectedTabIndex == 0 -> {
+                            val displayUris = if (selectedAlbum == null) {
+                                demoSampleUris + images
+                            } else {
+                                images
                             }
-                        } else {
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(2),
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(innerPadding),
-                                contentPadding = PaddingValues(12.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                items(albums, key = { it.id }) { album ->
-                                    AlbumCell(album = album, onClick = { selectedAlbum = album })
+
+                            if (displayUris.isEmpty()) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    EmptyGalleryView(onOpenCamera = ::launchCamera)
+                                }
+                            } else {
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(3),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    contentPadding = PaddingValues(2.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    item {
+                                        CameraCell(onClick = ::launchCamera)
+                                    }
+                                    items(displayUris, key = { it.toString() }) { uri ->
+                                        GalleryImageCell(
+                                            uri = uri,
+                                            badgeText = if (demoSampleUris.contains(uri)) "\u004d\u1ea9u" else null,
+                                            onClick = { handleImageSelection(context, uri, onImageSelected) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        selectedTabIndex == 1 -> {
+                            if (albums.isEmpty()) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(stringResource(R.string.picker_no_albums), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            } else {
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(2),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    contentPadding = PaddingValues(12.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    items(albums, key = { it.id }) { album ->
+                                        AlbumCell(album = album, onClick = { selectedAlbum = album })
+                                    }
                                 }
                             }
                         }
@@ -395,7 +413,11 @@ private fun CameraCell(onClick: () -> Unit) {
 }
 
 @Composable
-private fun GalleryImageCell(uri: Uri, onClick: () -> Unit) {
+private fun GalleryImageCell(
+    uri: Uri,
+    onClick: () -> Unit,
+    badgeText: String? = null
+) {
     val scale by animateFloatAsState(
         targetValue = 1f,
         animationSpec = tween(150),
@@ -418,6 +440,22 @@ private fun GalleryImageCell(uri: Uri, onClick: () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+        if (badgeText != null) {
+            Text(
+                text = badgeText,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(4.dp)
+                    .background(Color(0xFFFF9800).copy(alpha = 0.92f))
+                    .padding(horizontal = 5.dp, vertical = 2.dp),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = Color.White,
+                    fontSize = 8.sp
+                ),
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+        }
     }
 }
 
@@ -426,20 +464,6 @@ private fun handleImageSelection(
     uri: Uri,
     onImageSelected: (Uri) -> Unit
 ) {
-    val displayName = resolveDisplayName(context, uri)
-    val mimeType = resolveMimeType(context, uri)
-    if (!isSupportedByApp(displayName, mimeType)) {
-        val extension = displayName?.substringAfterLast('.', "")?.lowercase().orEmpty()
-        Toast.makeText(
-            context,
-            context.getString(
-                R.string.picker_unsupported_image_format,
-                extension.ifBlank { "unknown" }
-            ),
-            Toast.LENGTH_SHORT
-        ).show()
-        return
-    }
     onImageSelected(uri)
 }
 
@@ -634,3 +658,7 @@ private suspend fun loadAlbumImages(context: Context, bucketId: String): List<Ur
         }
         list
     }
+
+
+
+

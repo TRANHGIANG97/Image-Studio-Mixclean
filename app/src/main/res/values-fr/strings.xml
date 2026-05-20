@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" ?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - Effaceur de fond</string>
     <string name="app_title">Outils image</string>
@@ -37,6 +37,8 @@
     <string name="licenses_title">Licences open source</string>
     <string name="dark_mode_title">Mode sombre</string>
     <string name="dark_mode_description">Activer ou désactiver le thème sombre.</string>
+    <string name="home_preview_title">Show Home Preview</string>
+    <string name="home_preview_description">Show the before/after comparison box on the home screen.</string>
     <string name="home_remove_background_title">Supprimer l\'arrière-plan</string>
     <string name="home_remove_background_subtitle">Choisissez une image et supprimez l\'arrière-plan en un geste.</string>
     <string name="dashboard_hero_title">IA suppression d\'arrière-plan</string>
@@ -56,6 +58,8 @@
     <string name="multi_image_remove">Suppression multi-images</string>
     <string name="done_save_or_share">Terminé ! Vous pouvez enregistrer ou partager le résultat.</string>
     <string name="removing_background_wait">Suppression de l\'arrière-plan, veuillez patienter…</string>
+    <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
+    <string name="loading_image">Loading image...</string>
     <string name="tap_remove_background_to_start">Appuyez sur « Supprimer l\'arrière-plan » pour commencer.</string>
     <string name="step_choose_image">Étape 1 : choisissez une image dans votre galerie.</string>
     <string name="compare_before_after">Comparer avant / après</string>
@@ -110,7 +114,7 @@
     <string name="multi_saved_successfully">Image enregistrée</string>
     <string name="multi_save_failed">Échec de l\'enregistrement</string>
     <string name="exit_dialog_title">Quitter l\'application</string>
-    <string name="exit_dialog_message">Voulez-vous quitter l\'application ?</string>
+    <string name="exit_dialog_message">Do you want to exit the app?</string>
     <string name="exit_dialog_cancel">Annuler</string>
     <string name="exit_dialog_exit">Quitter</string>
     <string name="quality_label">Qualité</string>
@@ -142,6 +146,10 @@
     <string name="home_quick_tools">Outils rapides</string>
     <string name="home_dock_batch">Lot</string>
     <string name="home_dock_blur">Flou</string>
+    <string name="home_dock_effects">Effects</string>
+    <string name="home_dock_studio">Studio</string>
+    <string name="home_dock_magic">Erase</string>
+    <string name="home_dock_more">More</string>
     <string name="home_dock_pick_image">Suppr. fond</string>
     <string name="home_dock_photo_editor">Éditeur de photos</string>
     <string name="home_dock_quick_edit">Modification rapide</string>
@@ -152,7 +160,7 @@
     <string name="draft_deselect_all">Tout désélectionner</string>
     <string name="draft_delete_selected">Supprimer (%1$d)</string>
     <string name="draft_selected_count">%1$d sélectionné(s)</string>
-    <string name="draft_confirm_delete_multiple">Êtes-vous sûr de vouloir supprimer les %1$d brouillons sélectionnés ?</string>
+    <string name="draft_confirm_delete_multiple">Are you sure you want to delete %1$d selected draft(s)?</string>
     <string name="action_discard">Abandonner</string>
     <string name="home_preview_placeholder">L\'aperçu s\'affichera ici après le choix d\'une image.</string>
     <string name="compare_label_before">Avant</string>
@@ -247,6 +255,10 @@
     <string name="picker_permission_title">Accès aux photos requis</string>
     <string name="picker_permission_desc">L\'application a besoin d\'accéder à votre galerie.</string>
     <string name="picker_no_photos">Aucune photo trouvée</string>
+    <string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
     <string name="picker_capture_btn">Prendre une photo</string>
     <string name="cd_capture_photo">Prendre une photo</string>
-    <string name="permission_required">Autorisation requise</string><string name="grant_permission">Accorder</string><string name="select">Sélectionner</string></resources>
+    <string name="permission_required">Autorisation requise</string>
+    <string name="grant_permission">Accorder</string>
+    <string name="select">Sélectionner</string>
+</resources>

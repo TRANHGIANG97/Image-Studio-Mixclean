@@ -16,6 +16,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import com.abizer_r.quickedit.theme.QuickEditTheme
 import com.abizer_r.quickedit.utils.defaultTextColor
 import kotlin.math.max
@@ -50,16 +52,15 @@ fun CustomSliderItem(
     )
 
     val interactionSource = remember { MutableInteractionSource() }
+    val isDragged by interactionSource.collectIsDraggedAsState()
 
-    var sliderValueLocal by remember(sliderValue) { mutableFloatStateOf(sliderValue) }
+    var sliderValueLocal by remember { mutableFloatStateOf(sliderValue) }
 
-    val onValueChangeLambda = remember<(Float) -> Unit> {{
-        sliderValueLocal = it
-    }}
-
-    val onValueChangeFinishedLambda = remember<() -> Unit> {{
-        onValueChange(sliderValueLocal)
-    }}
+    LaunchedEffect(sliderValue, isDragged) {
+        if (!isDragged && sliderValueLocal != sliderValue) {
+            sliderValueLocal = sliderValue
+        }
+    }
 
     ConstraintLayout(modifier = modifier.fillMaxWidth()) {
         val (btnMinus, btnPlus, slider, txtLabel, txtCurrValue) = createRefs()
@@ -118,9 +119,11 @@ fun CustomSliderItem(
             value = sliderValueLocal,
             onValueChange = {
                 sliderValueLocal = it
-                onValueChange(it) // Real-time update
+                onValueChange(it)
             },
-            onValueChangeFinished = onValueChangeFinishedLambda,
+            onValueChangeFinished = {
+                onValueChange(sliderValueLocal)
+            },
             valueRange = minValue..maxValue,
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,

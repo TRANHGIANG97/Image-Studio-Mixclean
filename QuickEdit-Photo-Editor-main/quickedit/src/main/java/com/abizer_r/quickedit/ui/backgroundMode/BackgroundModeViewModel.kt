@@ -10,22 +10,30 @@ import com.thgiang.image.core.util.ImageEffectProcessor.BackgroundType
 import com.thgiang.image.core.util.processors.ProcessorUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import com.abizer_r.quickedit.utils.background.GradientBackgroundRenderer
+import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
+import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class BackgroundModeViewModel @Inject constructor(
     private val backgroundRemoverRepository: com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository,
+    private val hairDetailBackgroundRemoverRepository: ModNetBackgroundRemoverRepository,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
+    private val portraitClassifier = QuickToolsPortraitClassifier()
     private var overlayJob: Job? = null
+    private var backgroundRenderJob: Job? = null
+    private var backgroundRenderGeneration: Long = 0L
 
     enum class BackgroundTab {
         IMAGE, COLOR, GRADIENT, PRESET
@@ -46,7 +54,7 @@ class BackgroundModeViewModel @Inject constructor(
         val foregroundBitmap: Bitmap? = null,
         val currentTab: BackgroundTab = BackgroundTab.COLOR,
         val selectedColor: Int? = null,
-        val selectedGradient: IntArray? = null,
+        val selectedGradientPreset: BackgroundGradientPreset? = null,
         val selectedImage: Bitmap? = null,
         val selectedPresetStyle: com.thgiang.image.core.model.PresetStyle? = null,
         val isProcessing: Boolean = false,
@@ -113,10 +121,20 @@ class BackgroundModeViewModel @Inject constructor(
         val current = _state.value
         when {
             current.selectedColor != null -> applyColorBackground(current.selectedColor)
-            current.selectedGradient != null -> applyGradientBackground(current.selectedGradient)
+            current.selectedGradientPreset != null -> applyGradientBackground(current.selectedGradientPreset)
             current.selectedPresetStyle != null -> applyPresetBackground(current.selectedPresetStyle)
             current.selectedImage != null -> applyImageBackground(current.selectedImage)
         }
+    }
+
+    private fun cancelBackgroundRenderJob() {
+        backgroundRenderJob?.cancel()
+        backgroundRenderJob = null
+    }
+
+    private fun nextBackgroundRenderGeneration(): Long {
+        backgroundRenderGeneration += 1
+        return backgroundRenderGeneration
     }
 
     private fun calculateInitialForegroundScale(foreground: Bitmap?): Float {
@@ -142,7 +160,10 @@ class BackgroundModeViewModel @Inject constructor(
         )
     }
 
-    fun setInitialBitmap(bitmap: Bitmap) {
+    fun setInitialBitmap(
+        bitmap: Bitmap,
+        initialGradientPresetId: String? = null
+    ) {
         originalWidth = bitmap.width
         originalHeight = bitmap.height
         
@@ -166,7 +187,7 @@ class BackgroundModeViewModel @Inject constructor(
                 foregroundFlippedH = false,
                 foregroundFlippedV = false
             )
-            applyColorBackground(android.graphics.Color.WHITE)
+            applyInitialBackground(initialGradientPresetId)
         } else {
             val defaultScale = 1.0f
             _state.value = _state.value.copy(
@@ -179,9 +200,38 @@ class BackgroundModeViewModel @Inject constructor(
                 foregroundFlippedH = false,
                 foregroundFlippedV = false
             )
-
             viewModelScope.launch(Dispatchers.Default) {
-                val result = backgroundRemoverRepository.getForegroundBitmap(bitmap)
+                val hasFace = runCatching {
+                    withTimeout(10000L) {
+                        portraitClassifier.hasDetectableFace(bitmap).getOrThrow()
+                    }
+                }.onFailure {
+                    android.util.Log.e("BackgroundModeVM", "Face detection failed", it)
+                }.getOrDefault(false)
+
+                val useModNet = hasFace
+
+                var result = runCatching {
+                    withTimeout(45000L) {
+                        if (useModNet) {
+                            android.util.Log.d("BackgroundModeVM", "Using ModNet for face segmentation")
+                            hairDetailBackgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
+                        } else {
+                            android.util.Log.d("BackgroundModeVM", "Using ML Kit Subject Segmentation")
+                            backgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
+                        }
+                    }
+                }
+
+                if (result.isFailure && useModNet) {
+                    android.util.Log.e("BackgroundModeVM", "ModNet failed, falling back to ML Kit Subject", result.exceptionOrNull())
+                    result = runCatching {
+                        withTimeout(45000L) {
+                            backgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
+                        }
+                    }
+                }
+
                 result.onSuccess { fgRaw ->
                     withContext(Dispatchers.Main) {
                         val fg = ProcessorUtils.trimTransparentBounds(fgRaw)
@@ -197,7 +247,7 @@ class BackgroundModeViewModel @Inject constructor(
                             foregroundFlippedH = false,
                             foregroundFlippedV = false
                         )
-                        applyColorBackground(android.graphics.Color.WHITE)
+                        applyInitialBackground(initialGradientPresetId)
                         triggerOverlay()
                     }
                 }.onFailure { e ->
@@ -255,7 +305,7 @@ class BackgroundModeViewModel @Inject constructor(
 
     fun updateForegroundTransform(zoomChange: Float, rotationChange: Float) {
         val current = _state.value
-        val newScale = (current.foregroundScale * zoomChange).coerceIn(0.5f, 3f)
+        val newScale = (current.foregroundScale * zoomChange).coerceIn(0.1f, 8f)
         updateDragBounds(current.backgroundBitmap, current.foregroundBitmap, newScale)
         val clampedOffset = clampOffset(
             offsetX = current.foregroundOffsetX,
@@ -269,63 +319,102 @@ class BackgroundModeViewModel @Inject constructor(
         )
     }
 
+    fun setForegroundScale(scale: Float) {
+        val current = _state.value
+        val clampedScale = scale.coerceIn(0.1f, 8f)
+        updateDragBounds(current.backgroundBitmap, current.foregroundBitmap, clampedScale)
+        val clampedOffset = clampOffset(
+            offsetX = current.foregroundOffsetX,
+            offsetY = current.foregroundOffsetY
+        )
+        _state.value = current.copy(
+            foregroundOffsetX = clampedOffset.first,
+            foregroundOffsetY = clampedOffset.second,
+            foregroundScale = clampedScale
+        )
+    }
+
     fun applyColorBackground(color: Int) {
         val w = sourceWidth
         val h = sourceHeight
         if (w <= 0 || h <= 0) return
 
+        cancelBackgroundRenderJob()
+        val generation = nextBackgroundRenderGeneration()
         _state.value = _state.value.copy(
             isProcessing = true,
             selectedColor = color,
-            selectedGradient = null,
+            selectedGradientPreset = null,
             selectedImage = null,
             selectedPresetStyle = null
         )
 
-        viewModelScope.launch {
+        backgroundRenderJob = viewModelScope.launch {
             val bg = withContext(Dispatchers.Default) {
                 ProcessorUtils.createColorBitmap(w, h, color)
             }
-            updateBackgroundBitmap(bg)
+            if (generation == backgroundRenderGeneration) {
+                updateBackgroundBitmap(bg)
+            }
         }
     }
 
-    fun applyGradientBackground(colors: IntArray) {
+    private fun applyInitialBackground(initialGradientPresetId: String?) {
+        val preset = initialGradientPresetId?.let { id ->
+            BackgroundGradientPresets.modernPresets.firstOrNull { it.id == id }
+        }
+        if (preset != null) {
+            _state.value = _state.value.copy(currentTab = BackgroundTab.GRADIENT)
+            applyGradientBackground(preset)
+        } else {
+            applyColorBackground(android.graphics.Color.WHITE)
+        }
+    }
+
+    fun applyGradientBackground(preset: BackgroundGradientPreset) {
         val w = sourceWidth
         val h = sourceHeight
         if (w <= 0 || h <= 0) return
 
+        cancelBackgroundRenderJob()
+        val generation = nextBackgroundRenderGeneration()
         _state.value = _state.value.copy(
             isProcessing = true,
-            selectedGradient = colors,
+            selectedGradientPreset = preset,
             selectedColor = null,
             selectedImage = null,
             selectedPresetStyle = null
         )
 
-        viewModelScope.launch {
+        backgroundRenderJob = viewModelScope.launch {
             val bg = withContext(Dispatchers.Default) {
-                ProcessorUtils.createGradientBitmap(w, h, colors)
+                GradientBackgroundRenderer.createGradientBitmap(w, h, preset)
             }
-            updateBackgroundBitmap(bg)
+            if (generation == backgroundRenderGeneration) {
+                updateBackgroundBitmap(bg)
+            }
         }
     }
 
     fun applyImageBackground(bgImage: Bitmap) {
+        cancelBackgroundRenderJob()
+        val generation = nextBackgroundRenderGeneration()
         _state.value = _state.value.copy(
             isProcessing = true,
             selectedImage = bgImage,
             selectedColor = null,
-            selectedGradient = null,
+            selectedGradientPreset = null,
             selectedPresetStyle = null
         )
 
-        viewModelScope.launch {
+        backgroundRenderJob = viewModelScope.launch {
             val w = sourceWidth
             val h = sourceHeight
             val fg = _state.value.foregroundBitmap
             if (w <= 0 || h <= 0 || fg == null) {
-                _state.value = _state.value.copy(isProcessing = false)
+                if (generation == backgroundRenderGeneration) {
+                    _state.value = _state.value.copy(isProcessing = false)
+                }
                 return@launch
             }
 
@@ -347,7 +436,9 @@ class BackgroundModeViewModel @Inject constructor(
                 canvas.restore()
                 scaledBg
             }
-            updateBackgroundBitmap(bg)
+            if (generation == backgroundRenderGeneration) {
+                updateBackgroundBitmap(bg)
+            }
         }
     }
 
@@ -356,19 +447,23 @@ class BackgroundModeViewModel @Inject constructor(
         val h = sourceHeight
         if (w <= 0 || h <= 0) return
 
+        cancelBackgroundRenderJob()
+        val generation = nextBackgroundRenderGeneration()
         _state.value = _state.value.copy(
             isProcessing = true,
             selectedPresetStyle = style,
             selectedColor = null,
-            selectedGradient = null,
+            selectedGradientPreset = null,
             selectedImage = null
         )
 
-        viewModelScope.launch {
+        backgroundRenderJob = viewModelScope.launch {
             val bg = withContext(Dispatchers.Default) {
                 com.thgiang.image.core.util.processors.PresetRenderer.createPresetBitmap(w, h, style)
             }
-            updateBackgroundBitmap(bg)
+            if (generation == backgroundRenderGeneration) {
+                updateBackgroundBitmap(bg)
+            }
         }
     }
 

@@ -50,6 +50,9 @@ android {
         versionName = "1.6.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters.addAll(setOf("arm64-v8a", "armeabi-v7a"))
+        }
         externalNativeBuild {
             cmake {
                 cppFlags += ""
@@ -106,9 +109,13 @@ android {
 
     packaging {
         jniLibs {
-            // Enable legacy packaging (compressing native libs) to bypass the 16KB ELF alignment
-            // requirement for third-party prebuilt .so libraries.
-            useLegacyPackaging = true
+            // Disable legacy packaging to enforce uncompressed native libraries as required by Android 15+ for 16KB page size.
+            useLegacyPackaging = false
+            // Exclude the non-16KB-aligned libraries only for x86 architectures to prevent Play Store rejection
+            // while preserving them for ARM architectures to prevent runtime crashes.
+            excludes.add("lib/x86_64/libxeno_native.so")
+            excludes.add("lib/x86/libxeno_native.so")
+            excludes.add("lib/*/libyuv-decoder.so")
         }
     }
 }
@@ -129,7 +136,7 @@ dependencies {
     implementation(project(":core-data"))
     implementation(project(":core-util"))
     implementation(project(":quickedit"))
-    implementation(project(":studio"))
+    implementation(project(":studio_edit"))
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.ui)
@@ -185,7 +192,6 @@ dependencies {
     implementation(libs.cloudy)
     implementation(libs.colorpicker)
     implementation(libs.compose.screenshot)
-    implementation(libs.gpuimage)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.kotlinx.serialization.json)
 

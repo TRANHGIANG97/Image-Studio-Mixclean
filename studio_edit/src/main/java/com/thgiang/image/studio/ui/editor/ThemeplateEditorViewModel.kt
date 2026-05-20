@@ -31,7 +31,8 @@ data class EditorState(
     val isExporting: Boolean = false,
     val exportResult: Uri? = null,
     val errorMessage: String? = null,
-    val showOverlay: Boolean = false
+    val showOverlay: Boolean = false,
+    val showBoundingBox: Boolean = false
 ) : java.io.Serializable {
     val canExport: Boolean
         get() = product.isBackgroundRemoved && !isExporting && template.loaded
@@ -91,6 +92,11 @@ class ThemeplateEditorViewModel @Inject constructor(
                     applyGestureDelta(delta)
                 }
         }
+
+        // Auto-persist state to SavedStateHandle on every change to protect from process death
+        viewModelScope.launch {
+            _state.collect { persistState() }
+        }
         
         // Restore state if available
         savedStateHandle.get<String>("template_path")?.let {
@@ -104,24 +110,28 @@ class ThemeplateEditorViewModel @Inject constructor(
         when (event) {
             is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath)
             is EditorEvent.SetProductImage -> setProductImage(event.uri)
+            is EditorEvent.UpdateGesture -> {
+                gestureThrottleFlow.tryEmit(event.delta)
+                requestHistoryPush()
+            }
             is EditorEvent.UpdateOffset -> {
-                _state.update { it.copy(viewport = it.viewport.copy(offset = it.viewport.offset + event.delta)) }
+                _state.update { it.copy(viewport = it.viewport.withOffset(it.viewport.offset + event.delta)) }
                 requestHistoryPush()
             }
             is EditorEvent.SetOffset -> {
-                _state.update { it.copy(viewport = it.viewport.copy(offset = event.offset)) }
+                _state.update { it.copy(viewport = it.viewport.withOffset(event.offset)) }
                 pushHistory()
             }
             is EditorEvent.UpdateScale -> updateScale(event.factor)
             is EditorEvent.SetScale -> {
-                _state.update { it.copy(viewport = it.viewport.copy(scale = event.scale.coerceIn(MIN_SCALE, MAX_SCALE))) }
+                _state.update { it.copy(viewport = it.viewport.withScale(event.scale)) }
                 pushHistory()
             }
             is EditorEvent.UpdateRotation -> updateRotation(event.delta)
             is EditorEvent.SetRotation -> {
                 var normalized = event.degrees % 360f
                 if (normalized < 0) normalized += 360f
-                _state.update { it.copy(viewport = it.viewport.copy(rotation = normalized)) }
+                _state.update { it.copy(viewport = it.viewport.withRotation(normalized)) }
                 pushHistory()
             }
             EditorEvent.FlipHorizontal -> {
@@ -135,10 +145,29 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.UpdateShadow -> {
                 _state.update { it.copy(appearance = it.appearance.copy(shadowIntensity = event.intensity.coerceIn(0f, 1f))) }
             }
+            is EditorEvent.UpdateShadowAngle -> {
+                _state.update { it.copy(appearance = it.appearance.copy(shadowAngle = event.angle.coerceIn(0f, 360f))) }
+            }
+            is EditorEvent.UpdateShadowDistance -> {
+                _state.update { it.copy(appearance = it.appearance.copy(shadowDistance = event.distance.coerceIn(0f, 50f))) }
+            }
+            is EditorEvent.UpdateShadowColor -> {
+                _state.update { it.copy(appearance = it.appearance.copy(shadowColorArgb = event.argb)) }
+            }
             is EditorEvent.UpdateAlpha -> {
                 _state.update { it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f))) }
             }
-            is EditorEvent.SelectTool -> _state.update { it.copy(selectedTool = event.tool) }
+            is EditorEvent.SetBoundingBoxVisible -> {
+                _state.update { it.copy(showBoundingBox = event.visible) }
+            }
+            is EditorEvent.SelectTool -> _state.update {
+                val nextTool = if (event.tool == EditorTool.Shadow && it.selectedTool == EditorTool.Shadow) {
+                    EditorTool.Layout
+                } else {
+                    event.tool
+                }
+                it.copy(selectedTool = nextTool)
+            }
             is EditorEvent.SelectCropRatio -> {
                 _state.update { it.copy(cropRatio = event.ratio) }
                 pushHistory()
@@ -150,32 +179,38 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
-    // ============ Template Loading ============
-
     private fun loadTemplate(assetPath: String) {
-        if (_state.value.template.loaded && _state.value.template.assetPath == assetPath) return
+        android.util.Log.d(TAG, "loadTemplate called with path: $assetPath")
+        if (_state.value.template.loaded && _state.value.template.assetPath == assetPath) {
+            android.util.Log.d(TAG, "Template already loaded, ignoring.")
+            return
+        }
         
         savedStateHandle["template_path"] = assetPath
         
         templateLoadJob?.cancel()
         templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
+                android.util.Log.d(TAG, "Opening asset input stream for: $assetPath")
                 context.assets.open(assetPath).use { input ->
                     val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                     BitmapFactory.decodeStream(input, null, opts)
+                    android.util.Log.d(TAG, "Decoded template original bounds: ${opts.outWidth} x ${opts.outHeight}")
                     
                     _state.update {
                         it.copy(
                             template = EditorTemplate(
                                 assetPath = assetPath,
-                                originalSize = IntSize(opts.outWidth, opts.outHeight),
+                                originalWidth = opts.outWidth,
+                                originalHeight = opts.outHeight,
                                 loaded = true
                             )
                         )
                     }
+                    android.util.Log.d(TAG, "Successfully loaded template state")
                 }
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "loadTemplate failed", e)
+                android.util.Log.e(TAG, "loadTemplate failed to load from assets: $assetPath", e)
                 _state.update { it.copy(errorMessage = "Không thể tải template") }
             }
         }
@@ -187,14 +222,15 @@ class ThemeplateEditorViewModel @Inject constructor(
         bgRemoveJob?.cancel()
         
         // Atomic reset
-        _state.update {
-            it.copy(
-                product = EditorProduct(originalUri = uri, processing = true),
-                viewport = EditorViewport(),
-                exportResult = null,
-                errorMessage = null
-            )
-        }
+            _state.update {
+                it.copy(
+                    product = EditorProduct(originalUriString = uri.toString(), processing = true),
+                    viewport = EditorViewport(),
+                    exportResult = null,
+                    errorMessage = null,
+                    showBoundingBox = false
+                )
+            }
         historyManager.clear()
         
         bgRemoveJob = viewModelScope.launch {
@@ -246,13 +282,15 @@ class ThemeplateEditorViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             product = EditorProduct(
-                                originalUri = uri,
-                                foregroundUri = cachedUri,
+                                originalUriString = uri.toString(),
+                                foregroundUriString = cachedUri.toString(),
                                 isBackgroundRemoved = true,
-                                baseSize = baseSize,
+                                baseWidth = baseSize.width,
+                                baseHeight = baseSize.height,
                                 processing = false
                             ),
-                            viewport = EditorViewport(scale = 1f, offset = Offset.Zero)
+                            viewport = EditorViewport(scale = 1f),
+                            showBoundingBox = true
                         )
                     }
                     triggerOverlay()
@@ -261,7 +299,8 @@ class ThemeplateEditorViewModel @Inject constructor(
                     _state.update { it.copy(product = it.product.copy(processing = false)) }
                 }
                 
-                // Cleanup original decoded bitmap
+                // Cleanup bitmaps
+                foreground.recycle()
                 decoded.recycle()
                 
             } catch (e: CancellationException) {
@@ -283,7 +322,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun updateScale(factor: Float) {
         _state.update {
             val newScale = (it.viewport.scale * factor).coerceIn(MIN_SCALE, MAX_SCALE)
-            it.copy(viewport = it.viewport.copy(scale = newScale))
+            it.copy(viewport = it.viewport.withScale(newScale))
         }
     }
 
@@ -297,7 +336,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 newRotation = snapped
             }
             
-            it.copy(viewport = it.viewport.copy(rotation = newRotation))
+            it.copy(viewport = it.viewport.withRotation(newRotation))
         }
     }
 
@@ -306,16 +345,16 @@ class ThemeplateEditorViewModel @Inject constructor(
             var newViewport = current.viewport
             
             if (delta.pan != Offset.Zero) {
-                newViewport = newViewport.copy(offset = newViewport.offset + delta.pan)
+                newViewport = newViewport.withOffset(newViewport.offset + delta.pan)
             }
             if (delta.scale != 1f) {
                 val newScale = (newViewport.scale * delta.scale).coerceIn(MIN_SCALE, MAX_SCALE)
-                newViewport = newViewport.copy(scale = newScale)
+                newViewport = newViewport.withScale(newScale)
             }
             if (delta.rotation != 0f) {
                 var newRotation = (newViewport.rotation + delta.rotation) % 360f
                 if (newRotation < 0) newRotation += 360f
-                newViewport = newViewport.copy(rotation = newRotation)
+                newViewport = newViewport.withRotation(newRotation)
             }
             
             current.copy(viewport = newViewport)

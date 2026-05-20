@@ -6,6 +6,7 @@ package com.abizer_r.quickedit.ui.navigation
 object NavDestinations {
     const val MAIN_SCREEN = "main_screen"
     const val EDITOR_SCREEN = "editor_screen"
+    const val COSMETICS_TEMPLATE_EDITOR_SCREEN = "cosmetics_template_editor_screen/{themeplateId}"
     const val CROPPER_SCREEN = "cropper_screen"
     const val DRAW_MODE_SCREEN = "draw_mode_screen"
     const val TEXT_MODE_SCREEN = "text_mode_screen"
@@ -19,4 +20,8 @@ object NavDestinations {
 
     const val SINGLE_IMAGE_PICKER_SCREEN = "single_image_picker_screen"
     const val ADD_IMAGE_PICKER_SCREEN = "add_image_picker_screen"
+
+    fun cosmeticsTemplateEditor(themeplateId: String): String {
+        return "cosmetics_template_editor_screen/$themeplateId"
+    }
 }

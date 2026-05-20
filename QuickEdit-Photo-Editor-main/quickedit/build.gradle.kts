@@ -67,7 +67,6 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.cloudy)
-    implementation(libs.gpuimage)
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.25.0")
     implementation("com.airbnb.android:lottie-compose:6.4.0")
@@ -77,5 +76,5 @@ dependencies {
     implementation(project(":core-domain"))
     implementation(project(":core-util"))
     implementation(project(":core-ad"))
-    implementation(project(":studio"))
+    implementation(project(":studio_edit"))
 }

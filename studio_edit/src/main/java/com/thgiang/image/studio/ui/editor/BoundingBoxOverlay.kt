@@ -114,12 +114,12 @@ private object EditorColors {
 private object EditorDims {
     val HandleRadiusDp = 8.dp
     val TouchRadiusDp = 24.dp
-    val RotateLineDp = 40.dp
-    val RotateHandleOffsetDp = 18.dp
+    val RotateLineDp = 20.dp
+    val RotateHandleOffsetDp = 9.dp
     val BorderStrokeDp = 2.dp
     val CornerActiveScale = 1.4f
-    val RotateRadiusDp = 18.dp
-    val RotateRadiusActiveDp = 20.dp
+    val RotateRadiusDp = 20.dp
+    val RotateRadiusActiveDp = 22.dp
     val RotateTouchRadiusDp = 42.dp
     val CrosshairSizeDp = 8.dp
 
@@ -185,7 +185,8 @@ fun BoundingBoxOverlayV6(
     templateSize: IntSize,
     lockAspectRatio: Boolean = true,
     onGesture: (GestureDelta) -> Unit,
-    onGestureEnd: () -> Unit
+    onGestureEnd: () -> Unit,
+    showBoundingBox: Boolean = true
 ) {
     require(contentWidth > 0f) { "contentWidth must be > 0" }
     require(contentHeight > 0f) { "contentHeight must be > 0" }
@@ -240,8 +241,7 @@ fun BoundingBoxOverlayV6(
             .pointerInput(contentWidth, contentHeight, displayScale, lockAspectRatio) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
-                    val center = Offset(size.width / 2f, size.height / 2f) +
-                        currentViewport.offset * displayScale
+                    val center = Offset(size.width / 2f, size.height / 2f)
 
                     val screenW = contentWidth * currentViewport.scale * displayScale
                     val screenH = contentHeight * currentViewport.scale * displayScale
@@ -549,7 +549,7 @@ fun BoundingBoxOverlayV6(
             }
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val center = Offset(size.width / 2f, size.height / 2f) + viewport.offset * displayScale
+            val center = Offset(size.width / 2f, size.height / 2f)
             val cx = center.x
             val cy = center.y
 
@@ -558,31 +558,33 @@ fun BoundingBoxOverlayV6(
             val hw = screenW / 2f
             val hh = screenH / 2f
 
-            if (snapAlpha > 0.01f) {
+            if (showBoundingBox && snapAlpha > 0.01f) {
                 drawSnapLines(
                     lines = snapLines,
                     alpha = snapAlpha,
                     displayScale = displayScale,
-                    screenOriginX = cx - hw,
-                    screenOriginY = cy - hh,
+                    screenOriginX = cx - viewport.offset.x * displayScale - (templateSize.width / 2f) * displayScale,
+                    screenOriginY = cy - viewport.offset.y * displayScale - (templateSize.height / 2f) * displayScale,
                     templateSize = templateSize
                 )
             }
 
-            drawRotatedOverlay(
-                cx = cx,
-                cy = cy,
-                hw = hw,
-                hh = hh,
-                screenW = screenW,
-                screenH = screenH,
-                rotation = viewport.rotation,
-                borderColor = borderColor,
-                dimensions = dimensions,
-                gestureMode = gestureMode,
-                activeHandle = activeHandle,
-                isGestureActive = gestureMode != GestureMode.IDLE
-            )
+            if (showBoundingBox) {
+                drawRotatedOverlay(
+                    cx = cx,
+                    cy = cy,
+                    hw = hw,
+                    hh = hh,
+                    screenW = screenW,
+                    screenH = screenH,
+                    rotation = viewport.rotation,
+                    borderColor = borderColor,
+                    dimensions = dimensions,
+                    gestureMode = gestureMode,
+                    activeHandle = activeHandle,
+                    isGestureActive = gestureMode != GestureMode.IDLE
+                )
+            }
         }
     }
 }

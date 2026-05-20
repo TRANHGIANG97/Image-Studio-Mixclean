@@ -1,18 +1,22 @@
 package com.abizer_r.quickedit.ui.magicBrush
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.util.Log
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PointF
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.utils.drawMode.MagicWandPro
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapCache
+import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,13 +32,24 @@ import javax.inject.Inject
 enum class MagicBrushTool {
     SMART_ERASE,
     BRUSH_ERASE,
-    BLUR,
-    PAN
+    BLUR
 }
+
+data class MagicWandDemoState(
+    val sourceBitmap: Bitmap? = null,
+    val erasedBitmap: Bitmap? = null,
+    val foregroundBitmap: Bitmap? = null,
+    val selectedBackgroundBitmap: Bitmap? = null,
+    val boundaryPoints: List<PointF> = emptyList(),
+    val tapXRatio: Float = 0.16f,
+    val tapYRatio: Float = 0.22f,
+    val isPreparing: Boolean = false
+)
 
 
 @HiltViewModel
 class MagicBrushViewModel @Inject constructor(
+    private val backgroundRemoverRepository: BackgroundRemoverRepository,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
@@ -62,7 +77,12 @@ class MagicBrushViewModel @Inject constructor(
     private val _showSmartEraseTooltip = MutableStateFlow(false)
     val showSmartEraseTooltip: StateFlow<Boolean> = _showSmartEraseTooltip
 
+    private val _magicWandDemoState = MutableStateFlow(MagicWandDemoState())
+    val magicWandDemoState: StateFlow<MagicWandDemoState> = _magicWandDemoState
+
     private val prefs = context.getSharedPreferences("magic_brush_prefs", android.content.Context.MODE_PRIVATE)
+
+    private var demoPrepareJob: Job? = null
 
     init {
         _showSmartEraseTooltip.value = prefs.getBoolean("show_smart_erase_tooltip", true)
@@ -89,6 +109,76 @@ class MagicBrushViewModel @Inject constructor(
 
     fun forceShowSmartEraseTooltip() {
         _showSmartEraseTooltip.value = true
+    }
+
+    fun prepareMagicWandDemo() {
+        val current = _magicWandDemoState.value
+        if (current.sourceBitmap != null || current.isPreparing) return
+
+        demoPrepareJob?.cancel()
+        demoPrepareJob = viewModelScope.launch {
+            _magicWandDemoState.value = current.copy(isPreparing = true)
+
+            val demo = withContext(Dispatchers.Default) {
+                runCatching {
+                    val decoded = BitmapFactory.decodeResource(
+                        context.resources,
+                        R.drawable.before_bird
+                    ) ?: return@runCatching null
+
+                    val scaled = decoded.scaledToMaxDimension(DEMO_MAX_DIMENSION)
+                    val source = scaled.copy(Bitmap.Config.ARGB_8888, true)
+                    if (decoded !== source && !decoded.isRecycled) {
+                        decoded.recycle()
+                    }
+                    if (scaled !== decoded && scaled !== source && !scaled.isRecycled) {
+                        scaled.recycle()
+                    }
+
+                    val rawForeground = backgroundRemoverRepository
+                        .getForegroundBitmap(source)
+                        .getOrNull()
+                    val foregroundFromModel = rawForeground
+                        ?.alignedTo(source.width, source.height)
+                    if (
+                        rawForeground != null &&
+                        rawForeground !== foregroundFromModel &&
+                        !rawForeground.isRecycled
+                    ) {
+                        rawForeground.recycle()
+                    }
+
+                    val tapPoint = findDemoBackgroundTap(foregroundFromModel, source)
+                    val eraseSource = source.copy(Bitmap.Config.ARGB_8888, true)
+                    val erased = MagicWandPro.eraseRegion(
+                        srcBitmap = eraseSource,
+                        startX = (tapPoint.x * source.width).toInt().coerceIn(0, source.width - 1),
+                        startY = (tapPoint.y * source.height).toInt().coerceIn(0, source.height - 1),
+                        tolerance = DEMO_MAGIC_WAND_TOLERANCE,
+                        inPlace = true,
+                        eightDir = false
+                    ) ?: eraseSource
+
+                    val foreground = foregroundFromModel
+                        ?: createForegroundFromErasedResult(source, erased)
+                    val selectedBackground = createSelectedBackgroundMask(source, erased)
+                    val boundaryPoints = extractBoundaryPoints(foreground)
+
+                    MagicWandDemoState(
+                        sourceBitmap = source,
+                        erasedBitmap = erased,
+                        foregroundBitmap = foreground,
+                        selectedBackgroundBitmap = selectedBackground,
+                        boundaryPoints = boundaryPoints,
+                        tapXRatio = tapPoint.x,
+                        tapYRatio = tapPoint.y,
+                        isPreparing = false
+                    )
+                }.getOrNull()
+            }
+
+            _magicWandDemoState.value = demo ?: MagicWandDemoState(isPreparing = false)
+        }
     }
 
     // Cache IDs for undo/redo stacks
@@ -399,9 +489,120 @@ class MagicBrushViewModel @Inject constructor(
         _canRedo.value = redoStack.isNotEmpty()
     }
 
+    private fun Bitmap.scaledToMaxDimension(maxDimension: Int): Bitmap {
+        val largestSide = maxOf(width, height)
+        if (largestSide <= maxDimension) return this
+        val scale = maxDimension.toFloat() / largestSide.toFloat()
+        val targetWidth = (width * scale).toInt().coerceAtLeast(1)
+        val targetHeight = (height * scale).toInt().coerceAtLeast(1)
+        return Bitmap.createScaledBitmap(this, targetWidth, targetHeight, true)
+    }
+
+    private fun Bitmap.alignedTo(targetWidth: Int, targetHeight: Int): Bitmap {
+        return if (width == targetWidth && height == targetHeight) {
+            copy(Bitmap.Config.ARGB_8888, true)
+        } else {
+            Bitmap.createScaledBitmap(this, targetWidth, targetHeight, true)
+        }
+    }
+
+    private fun findDemoBackgroundTap(mask: Bitmap?, source: Bitmap): PointF {
+        val candidates = listOf(
+            PointF(0.14f, 0.18f),
+            PointF(0.86f, 0.20f),
+            PointF(0.12f, 0.78f),
+            PointF(0.88f, 0.78f),
+            PointF(0.50f, 0.12f)
+        )
+        if (mask == null || mask.isRecycled) return candidates.first()
+
+        return candidates.firstOrNull { point ->
+            val x = (point.x * mask.width).toInt().coerceIn(0, mask.width - 1)
+            val y = (point.y * mask.height).toInt().coerceIn(0, mask.height - 1)
+            ((mask.getPixel(x, y) ushr 24) and 0xFF) < DEMO_ALPHA_THRESHOLD
+        } ?: PointF(0.14f, 0.18f)
+    }
+
+    private fun createForegroundFromErasedResult(source: Bitmap, erased: Bitmap): Bitmap {
+        val width = source.width
+        val height = source.height
+        val sourcePixels = IntArray(width * height)
+        val erasedPixels = IntArray(width * height)
+        source.getPixels(sourcePixels, 0, width, 0, 0, width, height)
+        erased.getPixels(erasedPixels, 0, width, 0, 0, width, height)
+
+        for (i in sourcePixels.indices) {
+            val alpha = (erasedPixels[i] ushr 24) and 0xFF
+            if (alpha < DEMO_ALPHA_THRESHOLD) {
+                sourcePixels[i] = android.graphics.Color.TRANSPARENT
+            }
+        }
+
+        return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
+            setPixels(sourcePixels, 0, width, 0, 0, width, height)
+        }
+    }
+
+    private fun createSelectedBackgroundMask(source: Bitmap, erased: Bitmap): Bitmap {
+        val width = source.width
+        val height = source.height
+        val sourcePixels = IntArray(width * height)
+        val erasedPixels = IntArray(width * height)
+        source.getPixels(sourcePixels, 0, width, 0, 0, width, height)
+        erased.getPixels(erasedPixels, 0, width, 0, 0, width, height)
+
+        for (i in sourcePixels.indices) {
+            val sourceAlpha = (sourcePixels[i] ushr 24) and 0xFF
+            val erasedAlpha = (erasedPixels[i] ushr 24) and 0xFF
+            if (sourceAlpha <= DEMO_ALPHA_THRESHOLD || erasedAlpha > DEMO_ALPHA_THRESHOLD) {
+                sourcePixels[i] = android.graphics.Color.TRANSPARENT
+            }
+        }
+
+        return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
+            setPixels(sourcePixels, 0, width, 0, 0, width, height)
+        }
+    }
+
+    private fun extractBoundaryPoints(mask: Bitmap): List<PointF> {
+        if (mask.isRecycled || mask.width < 3 || mask.height < 3) return emptyList()
+
+        val width = mask.width
+        val height = mask.height
+        val pixels = IntArray(width * height)
+        mask.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        val points = ArrayList<PointF>(DEMO_MAX_BOUNDARY_POINTS)
+        val step = maxOf(2, maxOf(width, height) / 180)
+
+        fun alphaAt(x: Int, y: Int): Int {
+            return (pixels[y * width + x] ushr 24) and 0xFF
+        }
+
+        for (y in 1 until height - 1 step step) {
+            for (x in 1 until width - 1 step step) {
+                if (alphaAt(x, y) <= DEMO_ALPHA_THRESHOLD) continue
+                val isEdge =
+                    alphaAt(x - 1, y) <= DEMO_ALPHA_THRESHOLD ||
+                        alphaAt(x + 1, y) <= DEMO_ALPHA_THRESHOLD ||
+                        alphaAt(x, y - 1) <= DEMO_ALPHA_THRESHOLD ||
+                        alphaAt(x, y + 1) <= DEMO_ALPHA_THRESHOLD
+                if (isEdge) {
+                    points.add(PointF(x / width.toFloat(), y / height.toFloat()))
+                }
+            }
+        }
+
+        if (points.size <= DEMO_MAX_BOUNDARY_POINTS) return points
+        val stride = (points.size / DEMO_MAX_BOUNDARY_POINTS).coerceAtLeast(1)
+        return points.filterIndexed { index, _ -> index % stride == 0 }
+    }
+
     override fun onCleared() {
         isDisposed = true
         currentEraseJob?.cancel()
+        demoPrepareJob?.cancel()
+        recycleDemoBitmaps(_magicWandDemoState.value)
         
         viewModelScope.launch {
             bitmapMutex.withLock {
@@ -422,5 +623,22 @@ class MagicBrushViewModel @Inject constructor(
         }
         
         super.onCleared()
+    }
+
+    private fun recycleDemoBitmaps(state: MagicWandDemoState) {
+        listOf(state.sourceBitmap, state.erasedBitmap, state.foregroundBitmap, state.selectedBackgroundBitmap)
+            .distinct()
+            .forEach { bitmap ->
+                if (bitmap != null && !bitmap.isRecycled) {
+                    bitmap.recycle()
+                }
+            }
+    }
+
+    private companion object {
+        const val DEMO_MAX_DIMENSION = 520
+        const val DEMO_MAGIC_WAND_TOLERANCE = 44
+        const val DEMO_ALPHA_THRESHOLD = 24
+        const val DEMO_MAX_BOUNDARY_POINTS = 900
     }
 }

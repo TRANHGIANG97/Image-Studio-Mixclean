@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" ?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - ลบพื้นหลัง</string>
     <string name="app_title">เครื่องมือรูปภาพ</string>
@@ -37,6 +37,8 @@
     <string name="licenses_title">ใบอนุญาตโอเพนซอร์ส</string>
     <string name="dark_mode_title">โหมดมืด</string>
     <string name="dark_mode_description">เปิดหรือปิดธีมมืดของแอป</string>
+    <string name="home_preview_title">Show Home Preview</string>
+    <string name="home_preview_description">Show the before/after comparison box on the home screen.</string>
     <string name="home_remove_background_title">ลบพื้นหลัง</string>
     <string name="home_remove_background_subtitle">เลือกรูปแล้วลบพื้นหลังได้ในคลิกเดียว</string>
     <string name="dashboard_hero_title">ลบพื้นหลังด้วย AI</string>
@@ -56,6 +58,8 @@
     <string name="multi_image_remove">ลบพื้นหลังหลายรูป</string>
     <string name="done_save_or_share">เสร็จแล้ว! บันทึกหรือแชร์ผลลัพธ์ได้เลย</string>
     <string name="removing_background_wait">กำลังลบพื้นหลัง อาจใช้เวลาสักครู่…</string>
+    <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
+    <string name="loading_image">Loading image...</string>
     <string name="tap_remove_background_to_start">แตะ «ลบพื้นหลัง» เพื่อเริ่มประมวลผล</string>
     <string name="step_choose_image">ขั้นตอนที่ 1: เลือกรูปจากแกลเลอรี</string>
     <string name="compare_before_after">เปรียบเทียบก่อน / หลัง</string>
@@ -110,7 +114,7 @@
     <string name="multi_saved_successfully">บันทึกรูปสำเร็จ</string>
     <string name="multi_save_failed">บันทึกไม่สำเร็จ</string>
     <string name="exit_dialog_title">ออกจากแอป</string>
-    <string name="exit_dialog_message">คุณต้องการออกจากแอปหรือไม่?</string>
+    <string name="exit_dialog_message">Do you want to exit the app?</string>
     <string name="exit_dialog_cancel">ยกเลิก</string>
     <string name="exit_dialog_exit">ออก</string>
     <string name="quality_label">คุณภาพ</string>
@@ -142,6 +146,10 @@
     <string name="home_quick_tools">เครื่องมือด่วน</string>
     <string name="home_dock_batch">แบทช์</string>
     <string name="home_dock_blur">เบลอ</string>
+    <string name="home_dock_effects">Effects</string>
+    <string name="home_dock_studio">Studio</string>
+    <string name="home_dock_magic">Erase</string>
+    <string name="home_dock_more">More</string>
     <string name="home_dock_pick_image">Remove BG</string>
     <string name="home_dock_photo_editor">แก้ไขรูปภาพ</string>
     <string name="home_dock_quick_edit">แก้ไขด่วน</string>
@@ -152,7 +160,7 @@
     <string name="draft_deselect_all">ยกเลิกการเลือกทั้งหมด</string>
     <string name="draft_delete_selected">ลบ (%1$d)</string>
     <string name="draft_selected_count">เลือกแล้ว %1$d</string>
-    <string name="draft_confirm_delete_multiple">คุณแน่ใจหรือไม่ว่าต้องการลบ %1$d ร่างที่เลือก?</string>
+    <string name="draft_confirm_delete_multiple">Are you sure you want to delete %1$d selected draft(s)?</string>
     <string name="action_discard">ละทิ้ง</string>
     <string name="home_preview_placeholder">เลือกรูปแล้วตัวอย่างจะแสดงที่นี่</string>
     <string name="compare_label_before">ก่อน</string>
@@ -247,6 +255,10 @@
     <string name="picker_permission_title">Photo Access Required</string>
     <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
     <string name="picker_no_photos">No photos found</string>
+    <string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
     <string name="picker_capture_btn">Capture from Camera</string>
     <string name="cd_capture_photo">Capture Photo</string>
-    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>
+    <string name="permission_required">Permission required</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="select">Select</string>
+</resources>

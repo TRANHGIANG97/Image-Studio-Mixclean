@@ -30,8 +30,7 @@ object AppModule {
         @ApplicationContext context: Context
     ): BackgroundRemoverRepository {
         return MlKitBackgroundRemoverRepository(
-            context = context,
-            allowSelfieFallback = shouldAllowSelfieFallbackForCurrentAbi()
+            context = context
         )
     }
 
@@ -90,9 +89,5 @@ object AppModule {
         return com.thgiang.image.feature.editor.model.DraftManager(context)
     }
 
-    private fun shouldAllowSelfieFallbackForCurrentAbi(): Boolean {
-        return Build.SUPPORTED_ABIS.any { abi ->
-            abi.contains("x86", ignoreCase = true)
-        }
-    }
+
 }

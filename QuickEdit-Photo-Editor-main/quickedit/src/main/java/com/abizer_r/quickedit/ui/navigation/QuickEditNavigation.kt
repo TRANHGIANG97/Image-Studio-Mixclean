@@ -49,6 +49,9 @@ import com.abizer_r.quickedit.utils.other.anim.popEnterTransition
 import com.abizer_r.quickedit.utils.other.anim.popExitTransition
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapUtils
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
+import com.thgiang.image.studio.model.StudioThemeplate
+import com.thgiang.image.studio.model.StudioThemeplates
+import com.thgiang.image.studio.ui.editor.ThemeplateEditorScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -72,6 +75,10 @@ fun QuickEditNavigation(
         sharedEditorViewModel.useTransition = true
         navController.navigate(NavDestinations.EDITOR_SCREEN)
     }}
+
+    val onThemeplateSelected = remember<(StudioThemeplate) -> Unit> { { themeplate ->
+        navController.navigate(NavDestinations.cosmeticsTemplateEditor(themeplate.id))
+    } }
 
     val goToCropModeScreenLambda = remember<(EditorScreenState) -> Unit> {{ finalEditorState ->
         sharedEditorViewModel.updateStacksFromEditorState(finalEditorState)
@@ -152,7 +159,8 @@ fun QuickEditNavigation(
         ) {
             MainScreen(
                 initialImageUri = initialImageUri,
-                onImageSelected = onImageSelected
+                onImageSelected = onImageSelected,
+                onThemeplateSelected = onThemeplateSelected
             )
         }
 
@@ -299,6 +307,25 @@ fun QuickEditNavigation(
                 onBackPressed = onBackPressedLambda,
                 onDoneClicked = onDoneClickedLambda,
             )
+        }
+
+        composable(
+            route = NavDestinations.COSMETICS_TEMPLATE_EDITOR_SCREEN,
+            arguments = listOf(
+                androidx.navigation.navArgument("themeplateId") {
+                    type = androidx.navigation.NavType.StringType
+                }
+            )
+        ) { entry ->
+            val themeplateId = entry.arguments?.getString("themeplateId")
+            val themeplate = themeplateId?.let { StudioThemeplates.findById(it) }
+            if (themeplate != null) {
+                ThemeplateEditorScreen(
+                    themeplate = themeplate,
+                    onBack = { navController.popBackStack() },
+                    onDone = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(route = NavDestinations.ROTATE_SCREEN) {

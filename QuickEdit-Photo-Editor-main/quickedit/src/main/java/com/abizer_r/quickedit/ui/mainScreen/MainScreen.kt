@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.abizer_r.quickedit.utils.FileUtils
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapUtils
+import com.thgiang.image.studio.model.StudioThemeplate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -23,6 +24,7 @@ import java.io.File
 fun MainScreen(
     modifier: Modifier = Modifier,
     onImageSelected: (Bitmap) -> Unit,
+    onThemeplateSelected: (StudioThemeplate) -> Unit,
     initialImageUri: Uri? = null,
 ) {
     val context = LocalContext.current
@@ -67,12 +69,15 @@ fun MainScreen(
         }
     }
 
+    LaunchedEffect(scaledBitmapStatus) {
+        val success = scaledBitmapStatus
+        if (success is BitmapStatus.Success) {
+            onImageSelected(success.scaledBitmap)
+        }
+    }
+
     MainScreenLayout(
         modifier = modifier,
-        scaledBitmapStatus = scaledBitmapStatus,
-        cameraImageUri = cameraImageUri,
-        onPhotoPicked = onPhotoPicked,
-        onPhotoCaptured = onPhotoCaptured,
-        onImageSelected = onImageSelected
+        onThemeplateSelected = onThemeplateSelected
     )
 }

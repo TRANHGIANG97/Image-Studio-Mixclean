@@ -8,5 +8,10 @@ enum class PresetStyle {
     NEON_GRID,
     LIQUID_GLASS,
     SUNSET_FILM,
-    CARBON_X
+    CARBON_X,
+    ROSE_GARDEN,
+    PEACH_SKY,
+    GOLDEN_SUNSET,
+    LAVENDER_DAWN,
+    AQUA_BREEZE
 }

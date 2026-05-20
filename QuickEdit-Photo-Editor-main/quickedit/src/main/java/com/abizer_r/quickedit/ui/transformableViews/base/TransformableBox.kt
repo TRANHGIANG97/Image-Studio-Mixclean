@@ -15,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,26 +52,29 @@ fun TransformableBox(
     content: @Composable () -> Unit
 ) {
     val isSelected = viewState.isSelected
+    val currentOnEvent by rememberUpdatedState(onEvent)
     
     // Use the trigger to ensure recomposition when the object state changes
     val _trigger = recompositionTrigger
 
     val posXF = viewState.positionOffset.x
     val posYF = viewState.positionOffset.y
+    val safeScale = viewState.scale.takeIf { it.isFinite() && it > 0f } ?: 1f
+    val safeRotation = viewState.rotation.takeIf { it.isFinite() } ?: 0f
 
     Box(
         modifier = Modifier
             .graphicsLayer(
                 translationX = posXF,
                 translationY = posYF,
-                scaleX = viewState.scale,
-                scaleY = viewState.scale,
-                rotationZ = viewState.rotation
+                scaleX = safeScale,
+                scaleY = safeScale,
+                rotationZ = safeRotation
             )
             .pointerInput(viewState.id) {
                 detectDragGestures { change, dragAmount ->
                     // Rotate the dragAmount back by the current rotation to match screen space
-                    val rad = Math.toRadians(viewState.rotation.toDouble())
+                    val rad = Math.toRadians(safeRotation.toDouble())
                     val cos = Math.cos(rad)
                     val sin = Math.sin(rad)
                     val rotatedDragAmount = Offset(
@@ -77,9 +82,14 @@ fun TransformableBox(
                         (dragAmount.x * sin + dragAmount.y * cos).toFloat()
                     )
 
+                    if (rotatedDragAmount.isNearlyZero()) {
+                        change.consume()
+                        return@detectDragGestures
+                    }
+
                     Log.e("TEST_TEXT_DRAG", "dragAmount=$dragAmount rotated=$rotatedDragAmount pos=${viewState.positionOffset}")
                     change.consume()
-                    onEvent(
+                    currentOnEvent(
                         TransformableBoxEvents.UpdateTransformation(
                             id = viewState.id,
                             dragAmount = rotatedDragAmount,
@@ -92,7 +102,7 @@ fun TransformableBox(
             .pointerInput(viewState.id) {
                 detectTapGestures {
                     Log.e("TEST_TEXT_TAP", "tap id=${viewState.id}")
-                    onEvent(TransformableBoxEvents.OnTapped(viewState.id, null))
+                    currentOnEvent(TransformableBoxEvents.OnTapped(viewState.id, null))
                 }
             }
     ) {
@@ -105,12 +115,12 @@ fun TransformableBox(
                     .onGloballyPositioned {
                         val size = it.size.toSize()
                         if (viewState.innerBoxSize != size) {
-                            onEvent(TransformableBoxEvents.UpdateBoxBorder(viewState.id, size))
+                            currentOnEvent(TransformableBoxEvents.UpdateBoxBorder(viewState.id, size))
                         }
                     }
                     .then(
                         if (isSelected) Modifier.dashedBorder(
-                            strokeWidthInPx = 2f / viewState.scale.coerceAtLeast(0.5f),
+                            strokeWidthInPx = 2f / safeScale.coerceAtLeast(0.5f),
                             color = Color.White,
                             dashOnOffSizePair = Pair(8f, 6f)
                         ) else Modifier
@@ -126,7 +136,7 @@ fun TransformableBox(
                         .align(Alignment.TopStart)
                         .offset(x = (-6).dp, y = (-6).dp),
                     viewState = viewState,
-                    onEvent = onEvent
+                    onEvent = currentOnEvent
                 )
             }
         }
@@ -180,6 +190,10 @@ fun Modifier.dashedBorder(
         )
     )
     drawRoundRect(color, style = stroke, cornerRadius = cornerRadius)
+}
+
+private fun Offset.isNearlyZero(epsilon: Float = 0.35f): Boolean {
+    return kotlin.math.abs(x) <= epsilon && kotlin.math.abs(y) <= epsilon
 }
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)

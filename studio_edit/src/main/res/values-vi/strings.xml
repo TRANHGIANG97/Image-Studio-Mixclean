@@ -28,6 +28,8 @@
     <string name="studio_replace_hint">Chạm Thay ảnh để chọn ảnh sản phẩm từ thư viện</string>
     <string name="studio_layout_hint">Kéo để di chuyển · Chụm để phóng to · Xoay bằng 2 ngón</string>
     <string name="studio_shadow_label">Đổ bóng: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Góc ánh sáng: %1$d°</string>
+    <string name="studio_shadow_distance_label">Khoảng cách bóng: %1$d dp</string>
     <string name="studio_transparency_label">Độ mờ: %1$d%%</string>
     <string name="studio_crop_label">Tỷ lệ khung hình</string>
     <string name="studio_processing">Đang xóa nền…</string>

@@ -146,6 +146,10 @@
     <string name="home_quick_tools">Công cụ nhanh</string>
     <string name="home_dock_batch">Hàng loạt</string>
     <string name="home_dock_blur">Làm mờ</string>
+    <string name="home_dock_effects">Hiệu ứng</string>
+    <string name="home_dock_studio">Studio</string>
+    <string name="home_dock_magic">Tẩy xoá</string>
+    <string name="home_dock_more">Thêm</string>
     <string name="home_dock_pick_image">Xoá nền</string>
     <string name="home_dock_photo_editor">Sửa ảnh</string>
     <string name="home_dock_quick_edit">Sửa nhanh</string>

@@ -48,6 +48,8 @@ import com.abizer_r.quickedit.ui.textMode.TextModeScreen
 import com.abizer_r.quickedit.ui.borderMode.BorderModeScreen
 import com.abizer_r.quickedit.ui.studioMode.StudioModeScreen
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundModeScreen
+import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPresets
+import com.abizer_r.quickedit.utils.BorderGradientPresets
 import com.abizer_r.quickedit.ui.magicBrush.MagicBrushScreen
 import com.abizer_r.quickedit.ui.rotateMode.RotateModeScreen
 import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
@@ -117,6 +119,9 @@ class QuickEditActivity : AppCompatActivity() {
         val uri = intent.getParcelableExtra<Uri>(EXTRA_IMAGE_URI)
         val draftId = if (intent.hasExtra(EXTRA_DRAFT_ID)) intent.getStringExtra(EXTRA_DRAFT_ID) else null
         val autoRemoveBg = intent.getBooleanExtra(EXTRA_AUTO_REMOVE_BG, false)
+        val backgroundGradientPresetId = intent.getStringExtra(EXTRA_BACKGROUND_GRADIENT_PRESET_ID)
+        val borderGradientPresetId = intent.getStringExtra(EXTRA_BORDER_GRADIENT_PRESET_ID)
+        val targetTool = intent.getStringExtra(EXTRA_TARGET_TOOL)
         Log.d(TAG, "onCreate autoRemoveBackground=$autoRemoveBg draftId=$draftId uri=$uri")
 
         setContent {
@@ -126,6 +131,9 @@ class QuickEditActivity : AppCompatActivity() {
                     draftId = draftId,
                     draftManager = draftManager,
                     autoRemoveBackground = autoRemoveBg,
+                    backgroundGradientPresetId = backgroundGradientPresetId,
+                    borderGradientPresetId = borderGradientPresetId,
+                    targetTool = targetTool,
                     backgroundRemoverRepository = backgroundRemoverRepository,
                     hairDetailBackgroundRemoverRepository = hairDetailBackgroundRemoverRepository,
                     rewardedAdManager = rewardedAdManager,
@@ -139,17 +147,32 @@ class QuickEditActivity : AppCompatActivity() {
         private const val EXTRA_IMAGE_URI = "extra_image_uri"
         private const val EXTRA_DRAFT_ID = "extra_draft_id"
         private const val EXTRA_AUTO_REMOVE_BG = "extra_auto_remove_bg"
+        private const val EXTRA_BACKGROUND_GRADIENT_PRESET_ID = "extra_background_gradient_preset_id"
+        private const val EXTRA_BORDER_GRADIENT_PRESET_ID = "extra_border_gradient_preset_id"
+        private const val EXTRA_TARGET_TOOL = "extra_target_tool"
 
         fun createIntent(
             context: Context,
             uri: Uri? = null,
             draftId: String? = null,
-            autoRemoveBackground: Boolean = false
+            autoRemoveBackground: Boolean = false,
+            backgroundGradientPresetId: String? = null,
+            borderGradientPresetId: String? = null,
+            targetTool: String? = null
         ): Intent {
             return Intent(context, QuickEditActivity::class.java).apply {
                 putExtra(EXTRA_IMAGE_URI, uri)
                 putExtra(EXTRA_DRAFT_ID, draftId)
                 putExtra(EXTRA_AUTO_REMOVE_BG, autoRemoveBackground)
+                if (!backgroundGradientPresetId.isNullOrBlank()) {
+                    putExtra(EXTRA_BACKGROUND_GRADIENT_PRESET_ID, backgroundGradientPresetId)
+                }
+                if (!borderGradientPresetId.isNullOrBlank()) {
+                    putExtra(EXTRA_BORDER_GRADIENT_PRESET_ID, borderGradientPresetId)
+                }
+                if (!targetTool.isNullOrBlank()) {
+                    putExtra(EXTRA_TARGET_TOOL, targetTool)
+                }
             }
         }
     }
@@ -161,6 +184,9 @@ fun QuickEditEditorNavigation(
     draftId: String? = null,
     draftManager: DraftManager,
     autoRemoveBackground: Boolean = false,
+    backgroundGradientPresetId: String? = null,
+    borderGradientPresetId: String? = null,
+    targetTool: String? = null,
     backgroundRemoverRepository: BackgroundRemoverRepository? = null,
     hairDetailBackgroundRemoverRepository: ModNetBackgroundRemoverRepository? = null,
     rewardedAdManager: com.thgiang.image.core.ad.RewardedAdManager? = null,
@@ -173,6 +199,16 @@ fun QuickEditEditorNavigation(
     val sharedEditorViewModel: SharedEditorViewModel = viewModel()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val initialBackgroundGradientPreset = remember(backgroundGradientPresetId) {
+        backgroundGradientPresetId?.let { id ->
+            BackgroundGradientPresets.modernPresets.firstOrNull { it.id == id }
+        }
+    }
+    val initialBorderGradientPreset = remember(borderGradientPresetId) {
+        borderGradientPresetId?.let { id ->
+            BorderGradientPresets.modernPresets.firstOrNull { it.id == id }
+        }
+    }
 
     var bitmapLoaded by remember { mutableStateOf(false) }
     var loadError by remember { mutableStateOf(false) }
@@ -507,6 +543,27 @@ fun QuickEditEditorNavigation(
                                 if (subjectRemover.consumeSelfieFallbackWarning()) {
                                     showSelfieFallbackWarning()
                                 }
+                                initialBackgroundGradientPreset?.let { preset ->
+                                    navController.navigate(
+                                        NavDestinations.BACKGROUND_MODE_SCREEN +
+                                            "?gradientPresetId=${preset.id}"
+                                    )
+                                }
+                                if (initialBackgroundGradientPreset == null) {
+                                    initialBorderGradientPreset?.let { preset ->
+                                        navController.navigate(
+                                            NavDestinations.BORDER_MODE_SCREEN +
+                                                "?gradientPresetId=${preset.id}"
+                                        )
+                                    }
+                                }
+                                if (initialBackgroundGradientPreset == null && initialBorderGradientPreset == null) {
+                                    when (targetTool) {
+                                        "effects" -> navController.navigate(NavDestinations.EFFECTS_MODE_SCREEN)
+                                        "studio" -> navController.navigate(NavDestinations.STUDIO_MODE_SCREEN)
+                                        "magic" -> navController.navigate(NavDestinations.MAGIC_BRUSH_SCREEN)
+                                    }
+                                }
                             },
                             onFailure = {
                                 Log.e(TAG, "autoRemoveBackground: remover failed", it)
@@ -606,11 +663,23 @@ fun QuickEditEditorNavigation(
             )
         }
 
-        composable(route = NavDestinations.BORDER_MODE_SCREEN) {
+        composable(
+            route = NavDestinations.BORDER_MODE_SCREEN + "?gradientPresetId={gradientPresetId}",
+            arguments = listOf(
+                navArgument("gradientPresetId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { entry ->
+            val gradientPresetId = entry.arguments
+                ?.getString("gradientPresetId")
+                ?.takeIf { it.isNotBlank() }
             BorderModeScreen(
                 immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
                 onBackPressed = onBackPressed,
                 onDoneClicked = onDoneClicked,
+                initialGradientPresetId = gradientPresetId
             )
         }
         
@@ -631,8 +700,19 @@ fun QuickEditEditorNavigation(
             )
         }
 
-        composable(route = NavDestinations.BACKGROUND_MODE_SCREEN) { entry ->
+        composable(
+            route = NavDestinations.BACKGROUND_MODE_SCREEN + "?gradientPresetId={gradientPresetId}",
+            arguments = listOf(
+                navArgument("gradientPresetId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { entry ->
             val pickedImageUri = entry.savedStateHandle.get<Uri>("background_image_uri")
+            val gradientPresetId = entry.arguments
+                ?.getString("gradientPresetId")
+                ?.takeIf { it.isNotBlank() }
             var pickedBitmap by remember { mutableStateOf<Bitmap?>(null) }
             val ctx = LocalContext.current
 
@@ -651,7 +731,8 @@ fun QuickEditEditorNavigation(
                 onPickImageRequest = {
                     navController.navigate(NavDestinations.SINGLE_IMAGE_PICKER_SCREEN + "?autoRemove=false")
                 },
-                pickedImage = pickedBitmap
+                pickedImage = pickedBitmap,
+                initialGradientPresetId = gradientPresetId
             )
         }
 

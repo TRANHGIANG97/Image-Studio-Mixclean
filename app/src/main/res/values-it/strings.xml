@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" ?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - Rimuovi sfondo</string>
     <string name="app_title">Strumenti immagine</string>
@@ -37,6 +37,8 @@
     <string name="licenses_title">Licenze open source</string>
     <string name="dark_mode_title">Tema scuro</string>
     <string name="dark_mode_description">Attiva o disattiva il tema scuro.</string>
+    <string name="home_preview_title">Show Home Preview</string>
+    <string name="home_preview_description">Show the before/after comparison box on the home screen.</string>
     <string name="home_remove_background_title">Rimuovi sfondo</string>
     <string name="home_remove_background_subtitle">Scegli un\'immagine e rimuovi lo sfondo con un tocco.</string>
     <string name="dashboard_hero_title">Rimozione sfondo con IA</string>
@@ -56,6 +58,8 @@
     <string name="multi_image_remove">Rimuovi sfondo (multiplo)</string>
     <string name="done_save_or_share">Fatto! Ora puoi salvare o condividere il risultato.</string>
     <string name="removing_background_wait">Rimozione dello sfondo in corso, attendi qualche secondo…</string>
+    <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
+    <string name="loading_image">Loading image...</string>
     <string name="tap_remove_background_to_start">Tocca «Rimuovi sfondo» per avviare l\'elaborazione.</string>
     <string name="step_choose_image">Passaggio 1: scegli un\'immagine dalla galleria.</string>
     <string name="compare_before_after">Confronta prima / dopo</string>
@@ -110,7 +114,7 @@
     <string name="multi_saved_successfully">Immagine salvata</string>
     <string name="multi_save_failed">Salvataggio non riuscito</string>
     <string name="exit_dialog_title">Esci dall\'app</string>
-    <string name="exit_dialog_message">Vuoi uscire dall\'applicazione?</string>
+    <string name="exit_dialog_message">Do you want to exit the app?</string>
     <string name="exit_dialog_cancel">Annulla</string>
     <string name="exit_dialog_exit">Esci</string>
     <string name="quality_label">Qualità</string>
@@ -142,6 +146,10 @@
     <string name="home_quick_tools">Strumenti rapidi</string>
     <string name="home_dock_batch">Multiplo</string>
     <string name="home_dock_blur">Sfoca</string>
+    <string name="home_dock_effects">Effects</string>
+    <string name="home_dock_studio">Studio</string>
+    <string name="home_dock_magic">Erase</string>
+    <string name="home_dock_more">More</string>
     <string name="home_dock_pick_image">Rimuovi sfondo</string>
     <string name="home_dock_photo_editor">Editor foto</string>
     <string name="home_dock_quick_edit">Modifica rapida</string>
@@ -152,7 +160,7 @@
     <string name="draft_deselect_all">Deseleziona tutto</string>
     <string name="draft_delete_selected">Elimina (%1$d)</string>
     <string name="draft_selected_count">%1$d selezionati</string>
-    <string name="draft_confirm_delete_multiple">Sei sicuro di voler eliminare %1$d bozze selezionate?</string>
+    <string name="draft_confirm_delete_multiple">Are you sure you want to delete %1$d selected draft(s)?</string>
     <string name="action_discard">Scarta</string>
     <string name="home_preview_placeholder">L\'anteprima apparirà qui dopo aver scelto un\'immagine.</string>
     <string name="compare_label_before">Prima</string>
@@ -247,6 +255,10 @@
     <string name="picker_permission_title">Photo Access Required</string>
     <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
     <string name="picker_no_photos">No photos found</string>
+    <string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
     <string name="picker_capture_btn">Capture from Camera</string>
     <string name="cd_capture_photo">Capture Photo</string>
-    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>
+    <string name="permission_required">Permission required</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="select">Select</string>
+</resources>

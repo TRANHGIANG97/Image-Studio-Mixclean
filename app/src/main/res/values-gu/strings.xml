@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" ?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - બેકગ્રાઉન્ડ રીમુવર</string>
     <string name="app_title">Image Tools</string>
@@ -37,6 +37,8 @@
     <string name="licenses_title">Open source licenses</string>
     <string name="dark_mode_title">Dark mode</string>
     <string name="dark_mode_description">Toggle dark theme for the app.</string>
+    <string name="home_preview_title">Show Home Preview</string>
+    <string name="home_preview_description">Show the before/after comparison box on the home screen.</string>
     <string name="home_remove_background_title">Remove Background</string>
     <string name="home_remove_background_subtitle">Pick an image and remove the background in one tap.</string>
     <string name="dashboard_hero_title">AI Background Remover</string>
@@ -56,6 +58,8 @@
     <string name="multi_image_remove">Multi-image remove</string>
     <string name="done_save_or_share">Done! You can now save or share the result.</string>
     <string name="removing_background_wait">Removing background, this may take a few seconds...</string>
+    <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
+    <string name="loading_image">Loading image...</string>
     <string name="tap_remove_background_to_start">Tap \"Remove background\" to start processing.</string>
     <string name="step_choose_image">Step 1: Choose an image from your gallery.</string>
     <string name="compare_before_after">Compare before / after</string>
@@ -142,6 +146,10 @@
     <string name="home_quick_tools">Quick tools</string>
     <string name="home_dock_batch">Batch</string>
     <string name="home_dock_blur">Blur</string>
+    <string name="home_dock_effects">Effects</string>
+    <string name="home_dock_studio">Studio</string>
+    <string name="home_dock_magic">Erase</string>
+    <string name="home_dock_more">More</string>
     <string name="home_dock_pick_image">Remove BG</string>
     <string name="home_dock_photo_editor">Photo Editor</string>
     <string name="home_dock_quick_edit">QuickEdit</string>
@@ -247,6 +255,10 @@
     <string name="picker_permission_title">Photo Access Required</string>
     <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
     <string name="picker_no_photos">No photos found</string>
+    <string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
     <string name="picker_capture_btn">Capture from Camera</string>
     <string name="cd_capture_photo">Capture Photo</string>
-    <string name="permission_required">Permission required</string><string name="grant_permission">Grant permission</string><string name="select">Select</string></resources>
+    <string name="permission_required">Permission required</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="select">Select</string>
+</resources>

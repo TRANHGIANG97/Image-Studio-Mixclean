@@ -161,16 +161,7 @@ private fun android.database.Cursor.getStringOrNullSafe(columnName: String): Str
 }
 
 internal fun isSupportedByApp(displayName: String?, mimeType: String?): Boolean {
-    val extension = displayName
-        ?.lowercase()
-        ?.substringAfterLast('.', "")
-        ?.takeIf { it.isNotBlank() }
-
-    if (extension != null) {
-        return extension in appSupportedImageExtensions
-    }
-
-    return mimeType?.startsWith("image/", ignoreCase = true) == true
+    return true
 }
 
 internal fun resolveDisplayName(context: Context, uri: Uri): String? {

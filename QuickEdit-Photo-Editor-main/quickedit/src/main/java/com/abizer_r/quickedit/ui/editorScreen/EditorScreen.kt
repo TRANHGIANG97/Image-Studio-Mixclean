@@ -95,6 +95,7 @@ import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarI
 import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButton
 import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButtonTemplate
 import com.abizer_r.quickedit.ui.editorScreen.topToolbar.EditorTopToolBar
+import com.abizer_r.quickedit.ui.common.ConfirmExitDialog
 import com.abizer_r.quickedit.utils.AppUtils
 import com.abizer_r.quickedit.utils.FileUtils
 import com.abizer_r.quickedit.utils.editorScreen.EditorScreenUtils
@@ -289,11 +290,11 @@ private fun EditorScreenLayout(
         }
     } }
 
-    val onCloseClickedLambda = remember(undoEnabled, redoEnabled, onUndo) { {
+    val onCloseClickedLambda = remember(undoEnabled) { {
         if (undoEnabled) {
-            onUndo()
-        } else {
             showExitConfirmDialog = true
+        } else {
+            goToMainScreen()
         }
     } }
 
@@ -409,26 +410,11 @@ private fun EditorScreenLayout(
         }
 
         if (showExitConfirmDialog) {
-            AlertDialog(
-                onDismissRequest = { showExitConfirmDialog = false },
-                title = { Text(stringResource(R.string.confirm_exit_title)) },
-                text = { Text(stringResource(R.string.confirm_exit_message)) },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showExitConfirmDialog = false
-                            goToMainScreen()
-                        }
-                    ) {
-                        Text(stringResource(R.string.discard))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showExitConfirmDialog = false }
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
+            ConfirmExitDialog(
+                onDismiss = { showExitConfirmDialog = false },
+                onConfirm = {
+                    showExitConfirmDialog = false
+                    goToMainScreen()
                 }
             )
         }

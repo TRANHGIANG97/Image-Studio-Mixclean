@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextStyle
@@ -34,16 +36,19 @@ fun TransformableTextBox(
     onEvent: (TransformableBoxEvents) -> Unit
 ) {
 
-    val onEventLambda = remember<(TransformableBoxEvents) -> Unit> {{
+    val currentOnEvent by rememberUpdatedState(onEvent)
+    val currentViewState by rememberUpdatedState(viewState)
+    val onEventLambda: (TransformableBoxEvents) -> Unit = { event ->
         // Intercepting events to modify required ones
-        when (it) {
-            is TransformableBoxEvents.OnTapped -> onEvent(
-                TransformableBoxEvents.OnTapped(it.id, viewState)
+        when (event) {
+            is TransformableBoxEvents.OnTapped -> currentOnEvent(
+                TransformableBoxEvents.OnTapped(event.id, currentViewState)
             )
 
-            else -> onEvent(it)
+            else -> currentOnEvent(event)
         }
-    }}
+    }
+
     TransformableBox(
         modifier = modifier,
         viewState = viewState,

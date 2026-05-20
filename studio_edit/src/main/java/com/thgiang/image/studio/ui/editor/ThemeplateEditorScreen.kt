@@ -1,4 +1,4 @@
-package com.thgiang.image.studio.ui.editor
+﻿package com.thgiang.image.studio.ui.editor
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,11 +15,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,18 +36,17 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
+
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.model.StudioThemeplate
 import kotlinx.coroutines.delay
@@ -66,7 +68,7 @@ fun ThemeplateEditorScreen(
     // Snackbar effects
     LaunchedEffect(state.exportResult) {
         state.exportResult?.let { uri ->
-            snackbarHostState.showSnackbar("Đã lưu ảnh")
+            snackbarHostState.showSnackbar("ÄÃ£ lÆ°u áº£nh")
             onDone(uri)
         }
     }
@@ -85,6 +87,12 @@ fun ThemeplateEditorScreen(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let { viewModel.onEvent(EditorEvent.SetProductImage(it)) }
+    }
+
+    val onToolSelected = remember(state.selectedTool) {
+        { tool: EditorTool ->
+            viewModel.onEvent(EditorEvent.SelectTool(tool))
+        }
     }
 
     Scaffold(
@@ -151,19 +159,32 @@ fun ThemeplateEditorScreen(
         bottomBar = {
             EditorBottomToolbar(
                 selectedTool = state.selectedTool,
-                onToolSelected = { viewModel.onEvent(EditorEvent.SelectTool(it)) },
+                onToolSelected = onToolSelected,
                 onReplaceImage = { pickImageLauncher.launch("image/*") },
                 modifier = Modifier.fillMaxWidth().navigationBarsPadding()
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Box(
+        val controlPanelHeight = remember(state.selectedTool) {
+            when (state.selectedTool) {
+                EditorTool.Rotate -> 128.dp
+                EditorTool.Shadow -> 236.dp
+                EditorTool.Transparency -> 156.dp
+                EditorTool.Crop -> 156.dp
+                EditorTool.Replace,
+                EditorTool.Layout -> 110.dp
+            }
+        }
+
+        ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .background(if (isSystemInDarkTheme()) Color(0xFF1A1A1A) else Color(0xFFF0EDE8))
         ) {
+            val (canvasRef, controlsRef) = createRefs()
+
             if (state.template.loaded && state.template.originalSize.width > 0) {
                 EditorCanvasV2(
                     templateAssetPath = themeplate.assetPath,
@@ -172,61 +193,82 @@ fun ThemeplateEditorScreen(
                     viewport = state.viewport,
                     appearance = state.appearance,
                     onGesture = { delta ->
-                        if (delta.pan != Offset.Zero) {
-                            viewModel.onEvent(EditorEvent.UpdateOffset(delta.pan))
-                        }
-                        if (delta.scale != 1f) {
-                            viewModel.onEvent(EditorEvent.UpdateScale(delta.scale))
-                        }
-                        if (delta.rotation != 0f) {
-                            viewModel.onEvent(EditorEvent.UpdateRotation(delta.rotation))
-                        }
+                        viewModel.onEvent(EditorEvent.UpdateGesture(delta))
                     },
                     onGestureEnd = { viewModel.onEvent(EditorEvent.CommitTransform) },
                     onPickImage = { pickImageLauncher.launch("image/*") },
+                    onBoundingBoxVisible = { visible ->
+                        viewModel.onEvent(EditorEvent.SetBoundingBoxVisible(visible))
+                    },
                     showOverlay = state.showOverlay,
-                    modifier = Modifier.align(Alignment.Center)
+                    showBoundingBox = state.showBoundingBox,
+                    modifier = Modifier.constrainAs(canvasRef) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(if (state.product.isBackgroundRemoved) controlsRef.top else parent.bottom)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.fillToConstraints
+                    }
                 )
             }
 
-            // Controls panel with improved animation
             AnimatedVisibility(
                 visible = state.product.isBackgroundRemoved,
                 enter = slideInVertically { it } + fadeIn(tween(250)),
                 exit = slideOutVertically { it } + fadeOut(tween(200)),
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.constrainAs(controlsRef) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.fillToConstraints
+                }
             ) {
                 EditorControlsV2(
                     tool = state.selectedTool,
                     shadowIntensity = state.appearance.shadowIntensity,
+                    shadowAngle = state.appearance.shadowAngle,
+                    shadowDistance = state.appearance.shadowDistance,
+                    shadowColorArgb = state.appearance.shadowColorArgb,
                     alpha = state.appearance.alpha,
                     cropRatio = state.cropRatio,
-                    onShadowIntensityChange = { 
-                        viewModel.onEvent(EditorEvent.UpdateShadow(it)) 
+                    onShadowIntensityChange = {
+                        viewModel.onEvent(EditorEvent.UpdateShadow(it))
                     },
-                    onAlphaChange = { 
-                        viewModel.onEvent(EditorEvent.UpdateAlpha(it)) 
+                    onShadowAngleChange = {
+                        viewModel.onEvent(EditorEvent.UpdateShadowAngle(it))
                     },
-                    onCropRatioChange = { 
-                        viewModel.onEvent(EditorEvent.SelectCropRatio(it)) 
+                    onShadowDistanceChange = {
+                        viewModel.onEvent(EditorEvent.UpdateShadowDistance(it))
                     },
-                    onRotateLeft = { 
+                    onShadowColorChange = {
+                        viewModel.onEvent(EditorEvent.UpdateShadowColor(it))
+                    },
+                    onAlphaChange = {
+                        viewModel.onEvent(EditorEvent.UpdateAlpha(it))
+                    },
+                    onCropRatioChange = {
+                        viewModel.onEvent(EditorEvent.SelectCropRatio(it))
+                    },
+                    onRotateLeft = {
                         viewModel.onEvent(EditorEvent.UpdateRotation(-90f))
                         viewModel.onEvent(EditorEvent.CommitTransform)
                     },
-                    onRotateRight = { 
+                    onRotateRight = {
                         viewModel.onEvent(EditorEvent.UpdateRotation(90f))
                         viewModel.onEvent(EditorEvent.CommitTransform)
                     },
-                    onFlipHorizontal = { 
+                    onFlipHorizontal = {
                         viewModel.onEvent(EditorEvent.FlipHorizontal)
                         viewModel.onEvent(EditorEvent.CommitTransform)
                     },
-                    onFlipVertical = { 
+                    onFlipVertical = {
                         viewModel.onEvent(EditorEvent.FlipVertical)
                         viewModel.onEvent(EditorEvent.CommitTransform)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(controlPanelHeight)
                 )
             }
         }
@@ -246,86 +288,112 @@ private fun EditorCanvasV2(
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     onPickImage: () -> Unit,
+    onBoundingBoxVisible: (Boolean) -> Unit,
     showOverlay: Boolean = false,
+    showBoundingBox: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
-    
-//    BoxWithConstraints(modifier = modifier) {
-//        val templateWidth = with(density) { templateSize.width.toDp() }
-//        val templateHeight = with(density) { templateSize.height.toDp() }
-//        val calculatedScale = with(density) {
-//            kotlin.math.min(
-//                maxWidth / templateWidth,
-//                maxHeight / templateHeight
-//            ).coerceAtMost(1.2f)
-//        }
-//
-//        val displayWidth = templateWidth * calculatedScale
-//        val displayHeight = templateHeight * calculatedScale
-//
-//        Box(
-//            modifier = Modifier.size(displayWidth, displayHeight),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            AsyncImage(
-//                model = "file:///android_asset/$templateAssetPath",
-//                contentDescription = null,
-//                modifier = Modifier.fillMaxSize(),
-//                contentScale = ContentScale.Fit
-//            )
-//
-//            if (product.isBackgroundRemoved && product.foregroundUri != null) {
-//                ProductLayerV2(
-//                    product = product,
-//                    viewport = viewport,
-//                    appearance = appearance,
-//                    displayScale = calculatedScale,
-//                    templateSize = templateSize,
-//                    onGesture = onGesture,
-//                    onGestureEnd = onGestureEnd,
-//                    showOverlay = showOverlay
-//                )
-//            } else {
-//                PickImagePlaceholder(
-//                    onClick = onPickImage,
-//                    modifier = Modifier.align(Alignment.Center)
-//                )
-//            }
-//
-//            if (product.processing) {
-//                Box(
-//                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//                        StudioLottieLoader(
-//                            modifier = Modifier.fillMaxWidth(0.72f)
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
+    BoxWithConstraints(modifier = modifier) {
+        val templateWidth = with(density) { templateSize.width.toDp() }
+        val templateHeight = with(density) { templateSize.height.toDp() }
+        val calculatedScale = with(density) {
+            kotlin.math.min(
+                maxWidth / templateWidth,
+                maxHeight / templateHeight
+            ).coerceAtMost(1.2f)
+        }
+
+        val displayWidth = templateWidth * calculatedScale
+        val displayHeight = templateHeight * calculatedScale
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .pointerInput(product, viewport, templateSize, showBoundingBox) {
+                    detectTapGestures(onTap = { tap ->
+                        if (!product.isBackgroundRemoved || product.foregroundUri == null) {
+                            onBoundingBoxVisible(false)
+                            return@detectTapGestures
+                        }
+
+                        val templateLeftPx = (size.width - with(density) { displayWidth.toPx() }) / 2f
+                        val templateTopPx = (size.height - with(density) { displayHeight.toPx() }) / 2f
+                        val boxWidthPx = product.baseSize.width * viewport.scale
+                        val boxHeightPx = product.baseSize.height * viewport.scale
+                        val objectLeftPx = templateLeftPx + (viewport.offset.x * calculatedScale)
+                        val objectTopPx = templateTopPx + (viewport.offset.y * calculatedScale)
+                        val withinObject = tap.x in objectLeftPx..(objectLeftPx + boxWidthPx) &&
+                            tap.y in objectTopPx..(objectTopPx + boxHeightPx)
+
+                        if (withinObject) {
+                            onBoundingBoxVisible(true)
+                        }
+                    })
+                }
+        )
+
+        Box(
+            modifier = Modifier.size(displayWidth, displayHeight),
+            contentAlignment = Alignment.Center
+        ) {
+            AsyncImage(
+                model = "file:///android_asset/$templateAssetPath",
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+
+            if (product.isBackgroundRemoved && product.foregroundUri != null) {
+                ProductLayerV2(
+                    product = product,
+                    viewport = viewport,
+                    appearance = appearance,
+                    displayScale = calculatedScale,
+                    templateSize = templateSize,
+                    onGesture = onGesture,
+                    onGestureEnd = onGestureEnd,
+                    showOverlay = showOverlay,
+                    showBoundingBox = showBoundingBox
+                )
+            } else {
+                PickImagePlaceholder(
+                    onClick = onPickImage,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+            if (product.processing) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        StudioLottieLoader(
+                            modifier = Modifier.fillMaxWidth(0.72f)
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
 private fun StudioLottieLoader(
     modifier: Modifier = Modifier
 ) {
-    val composition by rememberLottieComposition(
-        LottieCompositionSpec.Asset("animation/animation.lottie")
-    )
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever,
-        isPlaying = true
-    )
-    LottieAnimation(
-        composition = composition,
-        progress = { progress },
-        modifier = modifier
-    )
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(28.dp),
+            strokeWidth = 2.5.dp
+        )
+    }
 }
 
 @Composable
@@ -337,7 +405,8 @@ private fun ProductLayerV2(
     templateSize: androidx.compose.ui.unit.IntSize,
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
-    showOverlay: Boolean = false
+    showOverlay: Boolean = false,
+    showBoundingBox: Boolean = false
 ) {
     val density = LocalDensity.current
     
@@ -363,11 +432,15 @@ private fun ProductLayerV2(
         derivedStateOf {
             object {
                 val alpha = appearance.alpha
-                val shadowAlpha = appearance.shadowIntensity * 0.3f
+                val shadowAlpha = alpha * shadowOpacityFromIntensity(appearance.shadowIntensity)
                 val shadowElevation = appearance.shadowIntensity * 20f
+                val shadowAngleRad = Math.toRadians(appearance.shadowAngle.toDouble())
+                val shadowDx = (appearance.shadowDistance * kotlin.math.cos(shadowAngleRad)).toFloat()
+                val shadowDy = (appearance.shadowDistance * kotlin.math.sin(shadowAngleRad)).toFloat()
                 val scaleX = if (viewport.flippedH) -1f else 1f
                 val scaleY = if (viewport.flippedV) -1f else 1f
                 val rotation = viewport.rotation
+                val shadowColor = Color(appearance.shadowColorArgb)
             }
         }
     }
@@ -386,7 +459,12 @@ private fun ProductLayerV2(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset(8.dp * displayScale, 8.dp * displayScale)
+                    .offset {
+                        IntOffset(
+                            (graphicsSpec.shadowDx * displayScale).roundToInt(),
+                            (graphicsSpec.shadowDy * displayScale).roundToInt()
+                        )
+                    }
                     .graphicsLayer {
                         alpha = graphicsSpec.shadowAlpha
                         scaleX = graphicsSpec.scaleX
@@ -397,6 +475,7 @@ private fun ProductLayerV2(
                         spotShadowColor = Color.Black
                     },
                 contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(graphicsSpec.shadowColor),
                 loading = { Box(Modifier.fillMaxSize().background(Color.Transparent)) }
             )
         }
@@ -459,7 +538,8 @@ private fun ProductLayerV2(
             displayScale = displayScale,
             templateSize = templateSize,
             onGesture = onGesture,
-            onGestureEnd = onGestureEnd
+            onGestureEnd = onGestureEnd,
+            showBoundingBox = showBoundingBox
         )
     }
 }
@@ -518,7 +598,9 @@ private fun EditorBottomToolbar(
     }
 
     Surface(
-        tonalElevation = 3.dp,
+        tonalElevation = 4.dp,
+        shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         modifier = modifier
     ) {
         val scrollState = androidx.compose.foundation.rememberScrollState()
@@ -526,8 +608,8 @@ private fun EditorBottomToolbar(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(scrollState)
-                .padding(horizontal = 16.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 14.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             tools.forEach { (tool, icon) ->
@@ -571,18 +653,18 @@ private fun ToolButton(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(containerColor)
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 8.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(22.dp),
             tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(4.dp))
         Text(
             text = stringResource(labelRes),
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
@@ -595,9 +677,15 @@ private fun ToolButton(
 private fun EditorControlsV2(
     tool: EditorTool,
     shadowIntensity: Float,
+    shadowAngle: Float,
+    shadowDistance: Float,
+    shadowColorArgb: Int,
     alpha: Float,
     cropRatio: CropRatio,
     onShadowIntensityChange: (Float) -> Unit,
+    onShadowAngleChange: (Float) -> Unit,
+    onShadowDistanceChange: (Float) -> Unit,
+    onShadowColorChange: (Int) -> Unit,
     onAlphaChange: (Float) -> Unit,
     onCropRatioChange: (CropRatio) -> Unit,
     onRotateLeft: () -> Unit,
@@ -607,10 +695,16 @@ private fun EditorControlsV2(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        tonalElevation = 2.dp,
+        tonalElevation = 4.dp,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.97f),
         modifier = modifier
     ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            PanelHandle()
             when (tool) {
                 EditorTool.Replace -> {
                     Text(
@@ -635,20 +729,177 @@ private fun EditorControlsV2(
                     )
                 }
                 EditorTool.Shadow -> {
-                    DebouncedSlider(
-                        label = stringResource(R.string.studio_shadow_label, (shadowIntensity * 100).toInt()),
-                        value = shadowIntensity,
-                        onValueChange = onShadowIntensityChange,
-                        valueRange = 0f..1f
-                    )
+                    var shadowTabIndex by rememberSaveable { mutableIntStateOf(0) }
+                    val shadowColorOptions = remember {
+                        listOf(
+                            ShadowColorOption("Đen", 0xFF000000.toInt()),
+                            ShadowColorOption("Xám", 0xFF5D5D5D.toInt()),
+                            ShadowColorOption("Nâu", 0xFF5D4631.toInt()),
+                            ShadowColorOption("Xanh", 0xFF314E5D.toInt()),
+                            ShadowColorOption("Tím", 0xFF5C3A66.toInt())
+                        )
+                    }
+                    val selectedShadowColor = shadowColorOptions.firstOrNull { it.argb == shadowColorArgb }
+                        ?: shadowColorOptions.first()
+                    val onShadowIntensityChangeImmediate = remember(onShadowIntensityChange) {
+                        { value: Float ->
+                            onShadowIntensityChange(value)
+                        }
+                    }
+                    val onShadowAngleChangeImmediate = remember(onShadowAngleChange) {
+                        { value: Float ->
+                            onShadowAngleChange(value)
+                        }
+                    }
+                    val onShadowDistanceChangeImmediate = remember(onShadowDistanceChange) {
+                        { value: Float ->
+                            onShadowDistanceChange(value)
+                        }
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            shadowColorOptions.forEach { option ->
+                                ShadowColorSwatch(
+                                    colorArgb = option.argb,
+                                    selected = shadowColorArgb == option.argb,
+                                    onClick = { onShadowColorChange(option.argb) }
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Màu bóng",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = selectedShadowColor.label,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            ShadowPresetChip(
+                                label = "Độ bóng",
+                                selected = shadowTabIndex == 0,
+                                onClick = { shadowTabIndex = 0 }
+                            )
+                            ShadowPresetChip(
+                                label = "Góc ánh sáng",
+                                selected = shadowTabIndex == 1,
+                                onClick = { shadowTabIndex = 1 }
+                            )
+                            ShadowPresetChip(
+                                label = "Khoảng cách bóng",
+                                selected = shadowTabIndex == 2,
+                                onClick = { shadowTabIndex = 2 }
+                            )
+                        }
+
+                        CompactMetricSlider(
+                            label = when (shadowTabIndex) {
+                                0 -> stringResource(R.string.studio_shadow_label, (shadowIntensity * 100).toInt())
+                                1 -> stringResource(R.string.studio_shadow_angle_label, shadowAngle.toInt())
+                                else -> stringResource(R.string.studio_shadow_distance_label, shadowDistance.toInt())
+                            },
+                            value = when (shadowTabIndex) {
+                                0 -> shadowIntensity
+                                1 -> shadowAngle
+                                else -> shadowDistance
+                            },
+                            onValueChange = { newValue ->
+                                when (shadowTabIndex) {
+                                    0 -> onShadowIntensityChangeImmediate(newValue)
+                                    1 -> onShadowAngleChangeImmediate(newValue)
+                                    else -> onShadowDistanceChangeImmediate(newValue)
+                                }
+                            },
+                            valueRange = when (shadowTabIndex) {
+                                0 -> 0f..1f
+                                1 -> 0f..360f
+                                else -> 0f..50f
+                            }
+                        )
+
+                        Text(
+                            text = when (shadowTabIndex) {
+                                0 -> "Điều chỉnh độ đậm của bóng."
+                                1 -> "Xác định hướng chiếu sáng."
+                                else -> "Tăng hoặc giảm độ lệch của bóng."
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1
+                        )
+                    }
                 }
                 EditorTool.Transparency -> {
-                    DebouncedSlider(
-                        label = stringResource(R.string.studio_transparency_label, (alpha * 100).toInt()),
-                        value = alpha,
-                        onValueChange = onAlphaChange,
-                        valueRange = 0.1f..1f
-                    )
+                    var selectedOpacityPreset by rememberSaveable { mutableIntStateOf(-1) }
+                    val opacityPresets = remember {
+                        listOf(
+                            "Mờ" to 0.35f,
+                            "Vừa" to 0.65f,
+                            "Đậm" to 0.90f
+                        )
+                    }
+
+                    fun applyOpacityPreset(value: Float) {
+                        onAlphaChange(value)
+                    }
+
+                    val onAlphaChangeWithPreset = remember(onAlphaChange) {
+                        { value: Float ->
+                            selectedOpacityPreset = -1
+                            onAlphaChange(value)
+                        }
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            opacityPresets.forEachIndexed { index, (label, presetValue) ->
+                                ShadowColorChip(
+                                    label = label,
+                                    colorArgb = when (index) {
+                                        0 -> 0xFFBDBDBD.toInt()
+                                        1 -> 0xFF7E7E7E.toInt()
+                                        else -> 0xFF3E3E3E.toInt()
+                                    },
+                                    selected = selectedOpacityPreset == index,
+                                    onClick = {
+                                        selectedOpacityPreset = index
+                                        applyOpacityPreset(presetValue)
+                                    }
+                                )
+                            }
+                        }
+
+                        CompactMetricSlider(
+                            label = stringResource(R.string.studio_transparency_label, (alpha * 100).toInt()),
+                            value = alpha,
+                            onValueChange = onAlphaChangeWithPreset,
+                            valueRange = 0.1f..1f
+                        )
+                    }
                 }
                 EditorTool.Crop -> {
                     Text(
@@ -672,33 +923,198 @@ private fun EditorControlsV2(
     }
 }
 
+private data class ShadowQuickPreset(
+    val label: String,
+    val intensity: Float,
+    val angle: Float,
+    val distance: Float
+)
+
+private data class ShadowColorOption(
+    val label: String,
+    val argb: Int
+)
+
 @Composable
-private fun DebouncedSlider(
+private fun ShadowPresetChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+        animationSpec = tween(180),
+        label = "shadowPresetBg"
+    )
+
+    val contentColor = if (selected) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    Surface(
+        modifier = Modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(999.dp),
+        color = backgroundColor,
+        tonalElevation = if (selected) 2.dp else 0.dp,
+        border = if (selected) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.18f))
+        } else {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        }
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            color = contentColor,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp)
+        )
+    }
+}
+
+@Composable
+private fun ShadowColorChip(
+    label: String,
+    colorArgb: Int,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+        },
+        animationSpec = tween(180),
+        label = "shadowColorBg"
+    )
+
+    val contentColor = if (selected) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    Surface(
+        modifier = Modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(999.dp),
+        color = backgroundColor,
+        tonalElevation = if (selected) 2.dp else 0.dp,
+        border = if (selected) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.20f))
+        } else {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+        }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(CircleShape)
+                    .background(Color(colorArgb))
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                color = contentColor
+            )
+        }
+    }
+}
+
+@Composable
+private fun ShadowColorSwatch(
+    colorArgb: Int,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .size(34.dp)
+            .clickable(onClick = onClick),
+        shape = CircleShape,
+        color = Color(colorArgb),
+        tonalElevation = if (selected) 2.dp else 0.dp,
+        border = if (selected) {
+            BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        } else {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f))
+        }
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            if (selected) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PanelHandle() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = 42.dp, height = 4.dp)
+                .clip(RoundedCornerShape(999.dp))
+                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.22f))
+        )
+    }
+}
+
+@Composable
+private fun CompactMetricSlider(
     label: String,
     value: Float,
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>
 ) {
     var localValue by remember(value) { mutableFloatStateOf(value) }
-    
+
     LaunchedEffect(localValue) {
         delay(50)
         if (localValue != value) {
             onValueChange(localValue)
         }
     }
-    
-    Column {
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f))
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Slider(
             value = localValue,
             onValueChange = { localValue = it },
             onValueChangeFinished = { onValueChange(localValue) },
-            valueRange = valueRange
+            valueRange = valueRange,
+            modifier = Modifier.padding(top = 2.dp)
         )
     }
 }
@@ -797,3 +1213,4 @@ private fun LayoutActionButton(
         )
     }
 }
+

@@ -5,7 +5,8 @@ data class UserPreferences(
     val isDarkMode: Boolean = false,
     val selectedLanguage: String = "system",
     /** "standard" | "pro" (Premium) */
-    val preferredRemovalQuality: String = "standard"
+    val preferredRemovalQuality: String = "standard",
+    val isHomePreviewEnabled: Boolean = false
 )
 
 interface UserPreferencesRepository {
@@ -13,6 +14,7 @@ interface UserPreferencesRepository {
     suspend fun setDarkMode(enabled: Boolean)
     suspend fun setLanguage(languageCode: String)
     suspend fun setPreferredRemovalQuality(quality: String)
+    suspend fun setHomePreviewEnabled(enabled: Boolean)
 }
 
 

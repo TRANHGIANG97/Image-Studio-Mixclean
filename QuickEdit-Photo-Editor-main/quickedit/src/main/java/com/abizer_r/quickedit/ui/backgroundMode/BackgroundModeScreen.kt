@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.ColorLens
 import androidx.compose.material.icons.outlined.Gradient
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Check
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import com.thgiang.image.core.model.PresetStyle
 import androidx.compose.runtime.*
@@ -83,13 +85,17 @@ fun BackgroundModeScreen(
     onDoneClicked: (bitmap: Bitmap) -> Unit,
     onBackPressed: () -> Unit,
     onPickImageRequest: () -> Unit,
-    pickedImage: Bitmap? = null
+    pickedImage: Bitmap? = null,
+    initialGradientPresetId: String? = null
 ) {
     val viewModel: BackgroundModeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(immutableBitmap) {
-        viewModel.setInitialBitmap(immutableBitmap.bitmap)
+    LaunchedEffect(immutableBitmap, initialGradientPresetId) {
+        viewModel.setInitialBitmap(
+            bitmap = immutableBitmap.bitmap,
+            initialGradientPresetId = initialGradientPresetId
+        )
     }
 
     LaunchedEffect(pickedImage) {
@@ -118,7 +124,7 @@ fun BackgroundModeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        val (topToolBar, mainImage, bottomToolbar, overlay, ratioOverlay) = createRefs()
+        val (topToolBar, mainImage, bottomToolbar, overlay, ratioOverlay, zoomSlider) = createRefs()
 
         // Main Image Preview
         var previewPxSize by remember { mutableStateOf(IntSize.Zero) }
@@ -228,8 +234,8 @@ fun BackgroundModeScreen(
                     )
                     val drawW = fgBitmap.width * compScale
                     val drawH = fgBitmap.height * compScale
-                    val previewDrawW = drawW * state.foregroundScale * pxPerUnit
-                    val previewDrawH = drawH * state.foregroundScale * pxPerUnit
+                    val previewDrawW = drawW * pxPerUnit
+                    val previewDrawH = drawH * pxPerUnit
 
                     Box(
                         modifier = Modifier
@@ -240,9 +246,9 @@ fun BackgroundModeScreen(
                                 )
                             }
                             .graphicsLayer(
-                                rotationZ = state.foregroundRotation,
-                                scaleX = if (state.foregroundFlippedH) -1f else 1f,
-                                scaleY = if (state.foregroundFlippedV) -1f else 1f
+                                scaleX = state.foregroundScale * (if (state.foregroundFlippedH) -1f else 1f),
+                                scaleY = state.foregroundScale * (if (state.foregroundFlippedV) -1f else 1f),
+                                rotationZ = state.foregroundRotation
                             )
                             .size(
                                 width = with(density) { previewDrawW.toDp() },
@@ -403,8 +409,8 @@ fun BackgroundModeScreen(
                                 }
                                 BackgroundModeViewModel.BackgroundTab.GRADIENT -> {
                                     GradientSelector(
-                                        selectedGradient = state.selectedGradient,
-                                        onGradientSelected = { viewModel.applyGradientBackground(it) }
+                                        selectedPreset = state.selectedGradientPreset,
+                                        onGradientSelected = viewModel::applyGradientBackground
                                     )
                                 }
                                 BackgroundModeViewModel.BackgroundTab.PRESET -> {
@@ -537,33 +543,83 @@ fun BackgroundModeScreen(
                 }
             }
         }
-    }
-}
 
-@Composable
-fun BackgroundTabItem(
-    icon: ImageVector,
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .width(80.dp)
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-        )
+        // Floating Zoom Slider (Scale from 0.1x to 8.0x)
+        if (state.hasAlpha && state.foregroundBitmap != null) {
+            Card(
+                modifier = Modifier
+                    .constrainAs(zoomSlider) {
+                        bottom.linkTo(if (showRatioSelector) ratioOverlay.top else bottomToolbar.top, margin = 16.dp)
+                        start.linkTo(parent.start, margin = 24.dp)
+                        end.linkTo(parent.end, margin = 24.dp)
+                        width = Dimension.fillToConstraints
+                    }
+                    .shadow(12.dp, RoundedCornerShape(20.dp)),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+                ),
+                shape = RoundedCornerShape(20.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = { viewModel.setForegroundScale(state.foregroundScale - 0.1f) },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Remove,
+                            contentDescription = "Zoom Out",
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Slider(
+                        value = state.foregroundScale,
+                        valueRange = 0.1f..8.0f,
+                        onValueChange = viewModel::setForegroundScale,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp),
+                        colors = SliderDefaults.colors(
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                            inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            thumbColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
+
+                    IconButton(
+                        onClick = { viewModel.setForegroundScale(state.foregroundScale + 0.1f) },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Zoom In",
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = "${(state.foregroundScale * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.width(52.dp),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -627,75 +683,110 @@ fun ColorSelector(
 
 @Composable
 fun GradientSelector(
-    selectedGradient: IntArray?,
-    onGradientSelected: (IntArray) -> Unit
+    selectedPreset: BackgroundGradientPreset?,
+    onGradientSelected: (BackgroundGradientPreset) -> Unit
 ) {
-    val gradients = listOf(
-        // Peach Sky — blue → purple → pink
-        intArrayOf(0xFF667EEA.toInt(), 0xFF764BA2.toInt(), 0xFFF093FB.toInt()),
-        // Rose Garden — deep purple → pink → orange
-        intArrayOf(0xFF5B2C8F.toInt(), 0xFFC0486C.toInt(), 0xFFF4A261.toInt()),
-        // Golden Sunset — coral → yellow → teal
-        intArrayOf(0xFFFF6B6B.toInt(), 0xFFFFE66D.toInt(), 0xFF4ECDC4.toInt()),
-        // Lavender Dawn — lavender → pink → peach
-        intArrayOf(0xFFA18CD1.toInt(), 0xFFFBC2EB.toInt(), 0xFFF6D365.toInt()),
-        // Aqua Breeze — bright blue → cyan → mint
-        intArrayOf(0xFF4FACFE.toInt(), 0xFF00F2FE.toInt(), 0xFF43E97B.toInt()),
-        // Sunset Blaze — orange → pink → magenta
-        intArrayOf(0xFFFC4A1A.toInt(), 0xFFF7B733.toInt(), 0xFFF093FB.toInt()),
-        // Twilight — indigo → purple → warm yellow
-        intArrayOf(0xFF4158D0.toInt(), 0xFFC850C0.toInt(), 0xFFFFCC70.toInt()),
-        // Strawberry — red → pink → sky blue
-        intArrayOf(0xFFFF0844.toInt(), 0xFFFFB199.toInt(), 0xFF00B4DB.toInt()),
-        // Emerald — forest green → lime → yellow
-        intArrayOf(0xFF11998E.toInt(), 0xFF38EF7D.toInt(), 0xFFF6D365.toInt()),
-        // Tropical — bright cyan → blue → deep navy
-        intArrayOf(0xFF00D2FF.toInt(), 0xFF3A7BD5.toInt(), 0xFF003973.toInt()),
-        // Sakura — pink → lavender → sky blue
-        intArrayOf(0xFFFF9A9E.toInt(), 0xFFFECFEF.toInt(), 0xFFA8EDEA.toInt()),
-        // Amber Glow — golden amber → orange → coral
-        intArrayOf(0xFFFFD93D.toInt(), 0xFFFF6B35.toInt(), 0xFFFF3B3B.toInt()),
-        // Oceanic — deep blue → teal → cyan
-        intArrayOf(0xFF0F2027.toInt(), 0xFF203A43.toInt(), 0xFF2C5364.toInt()),
-        // Minty — soft teal → mint → pale green
-        intArrayOf(0xFF11998E.toInt(), 0xFFA8E6CF.toInt(), 0xFFDCEDC1.toInt())
-    )
+    val gradients = BackgroundGradientPresets.modernPresets
 
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        items(gradients) { grad ->
-            val isSelected = selectedGradient?.contentEquals(grad) == true
-            val size by animateDpAsState(if (isSelected) 64.dp else 52.dp)
+        items(gradients, key = { it.id }) { preset ->
+            val isSelected = selectedPreset?.id == preset.id
 
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(64.dp),
-                contentAlignment = Alignment.Center
+                    .width(152.dp)
+                    .clickable { onGradientSelected(preset) },
+                horizontalAlignment = Alignment.Start
             ) {
                 Box(
                     modifier = Modifier
-                        .size(size)
-                        .shadow(if (isSelected) 8.dp else 2.dp, CircleShape)
-                        .clip(CircleShape)
-                        .background(
-                            Brush.linearGradient(
-                                colors = grad.map { Color(it) },
-                                start = Offset.Zero,
-                                end = Offset.Infinite
-                            )
-                        )
+                        .fillMaxWidth()
+                        .height(92.dp)
+                        .shadow(if (isSelected) 14.dp else 6.dp, RoundedCornerShape(24.dp))
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(buildDiagonalGradientBrush(preset))
                         .border(
-                            width = 3.dp,
-                            color = if (isSelected) Color.White else Color.Transparent,
-                            shape = CircleShape
+                            width = if (isSelected) 2.dp else 1.dp,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                            shape = RoundedCornerShape(24.dp)
                         )
-                        .clickable { onGradientSelected(grad) }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(10.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(Color.Black.copy(alpha = 0.18f))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = if (preset.direction == GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT) "Diag ↘" else "Diag ↗",
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    if (isSelected) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(12.dp)
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = preset.title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    maxLines = 1
+                )
+                Text(
+                    text = if (preset.direction == GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT) "Top-left to bottom-right" else "Bottom-left to top-right",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+                    maxLines = 1
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun buildDiagonalGradientBrush(preset: BackgroundGradientPreset): Brush {
+    val colors = remember(preset.id) { preset.colors.map { Color(it) } }
+    return remember(preset.id, preset.direction) {
+        when (preset.direction) {
+            GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT -> Brush.linearGradient(
+                colors = colors,
+                start = Offset.Zero,
+                end = Offset(700f, 700f)
+            )
+            GradientDirection.BOTTOM_LEFT_TO_TOP_RIGHT -> Brush.linearGradient(
+                colors = colors,
+                start = Offset(0f, 700f),
+                end = Offset(700f, 0f)
+            )
         }
     }
 }

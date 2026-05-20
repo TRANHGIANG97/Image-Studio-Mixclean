@@ -35,8 +35,7 @@ class MlKitBackgroundRemoverRepository(
     private val context: Context,
     private val maxDecodeSize: Int = 2048,
     private val createDisplayCopy: Boolean = true,
-    @Suppress("unused") private val alphaSmoothingRadius: Float = 1.5f,
-    private val allowSelfieFallback: Boolean = false
+    @Suppress("unused") private val alphaSmoothingRadius: Float = 1.5f
 ) : BackgroundRemoverRepository {
 
     private companion object {
@@ -98,15 +97,9 @@ class MlKitBackgroundRemoverRepository(
             val input = InputImage.fromBitmap(bitmap, 0)
 
             val buffer = withContext(Dispatchers.Default) {
-                try {
-                    ensureSubjectSegmenterModuleAvailable()
-                    val result = segmenter.process(input).await()
-                    result.foregroundConfidenceMask
-                } catch (e: Exception) {
-                    if (!allowSelfieFallback) throw e
-                    Log.e(TAG, "Subject confidence mask failed, falling back to selfie", e)
-                    getSelfieSegmentationMask(input).asFloatBuffer()
-                }
+                ensureSubjectSegmenterModuleAvailable()
+                val result = segmenter.process(input).await()
+                result.foregroundConfidenceMask
             } ?: error("Foreground confidence mask not available")
 
             buffer.rewind()
@@ -156,17 +149,12 @@ class MlKitBackgroundRemoverRepository(
 
         val input = InputImage.fromBitmap(processedBitmap, 0)
 
-        val foreground = try {
+        val foreground = run {
             Log.d(TAG, "getForegroundBitmapInternal: using SubjectSegmenter")
             ensureSubjectSegmenterModuleAvailable()
             val result = segmenter.process(input).await()
             result.foregroundBitmap?.copy(Bitmap.Config.ARGB_8888, true)
                 ?: error("Foreground extraction failed")
-        } catch (e: Exception) {
-            if (!allowSelfieFallback) throw e
-            Log.e(TAG, "Subject segmenter failed, falling back to selfie segmenter", e)
-            selfieFallbackUsedInLastOperation = true
-            processWithSelfieSegmenter(processedBitmap, input)
         }
 
         try {
@@ -249,44 +237,7 @@ class MlKitBackgroundRemoverRepository(
         } ?: false
     }
 
-    private suspend fun getSelfieSegmentationMask(input: InputImage): ByteBuffer {
-        val options = com.google.mlkit.vision.segmentation.selfie.SelfieSegmenterOptions.Builder()
-            .setDetectorMode(com.google.mlkit.vision.segmentation.selfie.SelfieSegmenterOptions.SINGLE_IMAGE_MODE)
-            .build()
-        val selfieSegmenter = com.google.mlkit.vision.segmentation.Segmentation.getClient(options)
-        return selfieSegmenter.process(input).await().buffer
-    }
 
-    private suspend fun processWithSelfieSegmenter(bitmap: Bitmap, input: InputImage): Bitmap {
-        val mask = getSelfieSegmentationMask(input)
-        val maskWidth = input.width
-        val maskHeight = input.height
-
-        mask.rewind()
-        val bgRemovedBitmap = Bitmap.createBitmap(maskWidth, maskHeight, Bitmap.Config.ARGB_8888)
-        val pixels = IntArray(maskWidth * maskHeight)
-        val originalPixels = IntArray(maskWidth * maskHeight)
-
-        val scaledOriginal = if (bitmap.width != maskWidth || bitmap.height != maskHeight) {
-            Bitmap.createScaledBitmap(bitmap, maskWidth, maskHeight, true)
-        } else {
-            bitmap
-        }
-
-        scaledOriginal.getPixels(originalPixels, 0, maskWidth, 0, 0, maskWidth, maskHeight)
-
-        for (i in 0 until maskWidth * maskHeight) {
-            val confidence = mask.getFloat()
-            val alpha = (confidence * 255).toInt().coerceIn(0, 255)
-            val pixel = originalPixels[i]
-            pixels[i] = (alpha shl 24) or (pixel and 0x00FFFFFF)
-        }
-
-        bgRemovedBitmap.setPixels(pixels, 0, maskWidth, 0, 0, maskWidth, maskHeight)
-        if (scaledOriginal !== bitmap) scaledOriginal.recycle()
-
-        return bgRemovedBitmap
-    }
 
     private fun validateBitmap(bitmap: Bitmap) {
         require(!bitmap.isRecycled) { "Bitmap is already recycled" }

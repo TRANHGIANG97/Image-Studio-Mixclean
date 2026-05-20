@@ -1,4 +1,8 @@
 package com.thgiang.image.feature.home.ui
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -9,71 +13,57 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.thgiang.image.R
 import com.thgiang.image.core.design.theme.HomeDarkStyle
-import com.thgiang.image.core.design.theme.ImageDesign
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import com.thgiang.image.feature.home.model.PresetItem
-import com.thgiang.image.core.model.PresetStyle
-import com.thgiang.image.feature.home.ui.preset.PresetCardArtwork
+import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPreset
+import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPresets
+import com.abizer_r.quickedit.ui.backgroundMode.GradientDirection
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun PresetDock(
     isPremium: Boolean,
     onLockedClick: () -> Unit,
-    onPresetClick: (PresetItem) -> Unit,
+    onPresetClick: (BackgroundGradientPreset) -> Unit,
     useHomeDarkStyle: Boolean = false,
     isProcessing: Boolean = false,
-    selectedPreset: PresetStyle? = null,
+    selectedPresetId: String? = null,
 ) {
-    val ai = if (useHomeDarkStyle) HomeDarkStyle.accent else ImageDesign.semantic.aiAccent
-
-    val presetItems = listOf(
-        PresetItem("Noir", PresetStyle.NOIR, locked = false, lightLabel = true),
-        PresetItem("Clean", PresetStyle.CLEAN, locked = false, lightLabel = false),
-        PresetItem("Aurora", PresetStyle.AURORA, locked = false, lightLabel = true),
-        PresetItem("Duotone", PresetStyle.DUOTONE, locked = false, lightLabel = true),
-        PresetItem("Neon Grid", PresetStyle.NEON_GRID, locked = false, lightLabel = true),
-        PresetItem("Liquid", PresetStyle.LIQUID_GLASS, locked = false, lightLabel = false),
-        PresetItem("Sunset", PresetStyle.SUNSET_FILM, locked = false, lightLabel = true),
-        PresetItem("Carbon X", PresetStyle.CARBON_X, locked = false, lightLabel = true),
-        PresetItem("Rose Garden", PresetStyle.ROSE_GARDEN, locked = false, lightLabel = true),
-        PresetItem("Peach Sky", PresetStyle.PEACH_SKY, locked = false, lightLabel = true),
-        PresetItem("Golden Sunset", PresetStyle.GOLDEN_SUNSET, locked = false, lightLabel = true),
-        PresetItem("Lavender Dawn", PresetStyle.LAVENDER_DAWN, locked = false, lightLabel = false),
-        PresetItem("Aqua Breeze", PresetStyle.AQUA_BREEZE, locked = false, lightLabel = true),
-    )
-
     val isDark = useHomeDarkStyle || isSystemInDarkTheme()
+    val previewAssets = remember { buildPresetPreviewAssets() }
     Column(Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.home_background_presets),
@@ -85,10 +75,8 @@ fun PresetDock(
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(horizontal = 12.dp)
         ) {
-            items(presetItems) { preset ->
-
-                val locked = preset.locked
-                val selected = selectedPreset == preset.style
+            itemsIndexed(BackgroundGradientPresets.modernPresets) { index, preset ->
+                val selected = selectedPresetId == preset.id
                 val interaction = remember { MutableInteractionSource() }
                 val pressed by interaction.collectIsPressedAsState()
                 val scale by animateFloatAsState(
@@ -96,62 +84,58 @@ fun PresetDock(
                     animationSpec = tween(120),
                     label = "presetScale"
                 )
+                val context = LocalContext.current
+                val previewAsset = previewAssets.getOrNull(index)
+                val previewBitmapState = produceState<Bitmap?>(initialValue = null, key1 = previewAsset) {
+                    value = previewAsset?.let { assetPath ->
+                        withContext(Dispatchers.IO) {
+                            loadAssetBitmap(context, assetPath)
+                        }
+                    }
+                }
 
                 Box(
                     modifier = Modifier
-                        .width(92.dp)
-                        .height(68.dp)
+                        .width(72.dp)
+                        .height(90.dp)
                         .scale(scale)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(12.dp))
                         .background(if (isDark) Color(0xFF101214) else Color(0xFFF6F3EE))
                         .then(
                             if (selected) Modifier.border(
                                 2.dp,
                                 if (useHomeDarkStyle) HomeDarkStyle.accent else Color(0xFFB78B50),
-                                RoundedCornerShape(16.dp)
-                            ) else Modifier
+                                RoundedCornerShape(12.dp)
+                            ) else Modifier.border(
+                                1.dp,
+                                if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f),
+                                RoundedCornerShape(12.dp)
+                            )
                         )
                         .clickable(
                             interactionSource = interaction,
                             indication = null,
                             enabled = !isProcessing
                         ) {
-                            if (locked) onLockedClick()
-                            else onPresetClick(preset)
+                            onPresetClick(preset)
                         }
                 ) {
-                    PresetCardArtwork(
-                        style = preset.style,
-                        ai = ai,
-                        modifier = Modifier.fillMaxSize()
-                    )
-
-                    Text(
-                        text = preset.title,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (preset.lightLabel) Color.White else Color(0xFF171717),
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(8.dp)
-                    )
-
-                    if (locked) {
+                    if (previewBitmapState.value != null) {
+                        Image(
+                            bitmap = previewBitmapState.value!!.asImageBitmap(),
+                            contentDescription = preset.title,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.TopCenter
+                        )
+                    } else {
                         Box(
                             modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(6.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(Color.Black.copy(alpha = 0.45f))
-                                .padding(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = null,
-                                modifier = Modifier.size(12.dp),
-                                tint = Color.White
-                            )
-                        }
+                                .fillMaxSize()
+                                .background(buildHomeGradientBrush(preset))
+                        )
                     }
+
                     if (selected) {
                         Icon(
                             imageVector = Icons.Default.Check,
@@ -160,7 +144,7 @@ fun PresetDock(
                                 .align(Alignment.BottomEnd)
                                 .padding(6.dp)
                                 .size(16.dp),
-                            tint = if (preset.lightLabel) Color.White else Color(0xFF161616)
+                            tint = Color.White
                         )
                     }
                 }
@@ -176,6 +160,34 @@ fun PresetDock(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
         )
     }
+}
+
+private fun buildHomeGradientBrush(preset: BackgroundGradientPreset): Brush {
+    val colors = preset.colors.map { Color(it) }
+    return when (preset.direction) {
+        GradientDirection.BOTTOM_LEFT_TO_TOP_RIGHT -> Brush.linearGradient(
+            colors = colors,
+            start = Offset(0f, 700f),
+            end = Offset(700f, 0f)
+        )
+        GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT -> Brush.linearGradient(
+            colors = colors,
+            start = Offset.Zero,
+            end = Offset(700f, 700f)
+        )
+    }
+}
+
+private fun buildPresetPreviewAssets(): List<String> {
+    return (1..12).map { index -> "background_editor/$index.jpg" }
+}
+
+private fun loadAssetBitmap(context: Context, assetPath: String): Bitmap? {
+    return runCatching {
+        context.assets.open(assetPath).use { input ->
+            BitmapFactory.decodeStream(input)
+        }
+    }.getOrNull()
 }
 
 

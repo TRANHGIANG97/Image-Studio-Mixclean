@@ -10,6 +10,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Render Engine v2 - Reusable shadow cache, downsampled template, inBitmap reuse
@@ -88,6 +90,9 @@ class EditorRenderer @Inject constructor(
                     drawX = drawX,
                     drawY = drawY,
                     intensity = request.appearance.shadowIntensity,
+                    shadowAngle = request.appearance.shadowAngle,
+                    shadowDistance = request.appearance.shadowDistance,
+                    shadowColorArgb = request.appearance.shadowColorArgb,
                     sourceUri = request.foregroundUri
                 )
             }
@@ -127,6 +132,9 @@ class EditorRenderer @Inject constructor(
         drawX: Float,
         drawY: Float,
         intensity: Float,
+        shadowAngle: Float,
+        shadowDistance: Float,
+        shadowColorArgb: Int,
         sourceUri: Uri
     ) {
         // Check cache validity
@@ -144,7 +152,10 @@ class EditorRenderer @Inject constructor(
         
         val shadow = cached ?: run {
             // Generate new shadow
-            val newShadow = PortraitProcessor.applyBlurOnly(foreground, intensity * 15f)
+            val newShadow = PortraitProcessor.applyBlurOnly(
+                foreground,
+                shadowBlurRadiusFromIntensity(intensity)
+            )
                 ?: return
             
             synchronized(shadowCacheLock) {
@@ -160,14 +171,20 @@ class EditorRenderer @Inject constructor(
         if (shadow.isRecycled) return
         
         val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
-            alpha = (intensity * 140).toInt().coerceIn(0, 255)
+            alpha = (shadowOpacityFromIntensity(intensity) * 255f).toInt().coerceIn(0, 255)
+            colorFilter = PorterDuffColorFilter(shadowColorArgb, PorterDuff.Mode.SRC_ATOP)
         }
         
         val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
         val scaleY = (baseH / foreground.height) * state.scale * (if (state.flippedV) -1f else 1f)
         
+        // Calculate dynamic shadow offsets using trigonometry
+        val angleRad = Math.toRadians(shadowAngle.toDouble())
+        val dx = (shadowDistance * cos(angleRad)).toFloat()
+        val dy = (shadowDistance * sin(angleRad)).toFloat()
+        
         canvas.withSave {
-            translate(drawX + 12f, drawY + 12f)
+            translate(drawX + dx, drawY + dy)
             scale(scaleX, scaleY)
             rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
             
@@ -185,13 +202,35 @@ class EditorRenderer @Inject constructor(
                 BitmapFactory.decodeStream(stream, null, opts)
                 
                 val sampleSize = calculateInSampleSize(opts.outWidth, opts.outHeight, targetWidth, targetHeight)
+                val decodeWidth = opts.outWidth / sampleSize
+                val decodeHeight = opts.outHeight / sampleSize
                 
                 context.assets.open(assetPath).use { stream2 ->
                     val decodeOpts = BitmapFactory.Options().apply {
                         inSampleSize = sampleSize
                         inPreferredConfig = Bitmap.Config.ARGB_8888
+                        inMutable = true
+                        
+                        // Try to obtain an exact matching size bitmap from pool to prevent gc/allocations
+                        val reuseBitmap = if (decodeWidth > 0 && decodeHeight > 0) {
+                            bitmapPool.obtain(decodeWidth, decodeHeight)
+                        } else {
+                            null
+                        }
+                        inBitmap = reuseBitmap
                     }
-                    BitmapFactory.decodeStream(stream2, null, decodeOpts)
+                    try {
+                        BitmapFactory.decodeStream(stream2, null, decodeOpts)
+                    } catch (e: IllegalArgumentException) {
+                        // Catch inBitmap dimension/format mismatches safely and fall back to fresh decode
+                        val fallbackOpts = BitmapFactory.Options().apply {
+                            inSampleSize = sampleSize
+                            inPreferredConfig = Bitmap.Config.ARGB_8888
+                        }
+                        context.assets.open(assetPath).use { stream3 ->
+                            BitmapFactory.decodeStream(stream3, null, fallbackOpts)
+                        }
+                    }
                 }
             }
         } catch (e: Exception) {

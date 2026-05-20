@@ -9,11 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -43,10 +45,8 @@ import coil.compose.AsyncImage
 import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.core.design.components.GradientPrimaryButton
 import com.thgiang.image.core.design.theme.ImageDesign
-import com.thgiang.image.feature.common.media.isSupportedByApp
+import com.thgiang.image.feature.common.media.loadPickerDemoSampleUris
 import com.thgiang.image.feature.common.media.loadPickerImageUris
-import com.thgiang.image.feature.common.media.resolveDisplayName
-import com.thgiang.image.feature.common.media.resolveMimeType
 import com.thgiang.image.R
 import androidx.compose.ui.res.stringResource
 import android.widget.Toast
@@ -93,6 +93,7 @@ fun MultiImagePickerScreen(
     // "clear selection on re‑open" requirement.
     var selectedUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var demoSampleUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
 
     suspend fun refreshImages(showLoader: Boolean) {
@@ -106,6 +107,10 @@ fun MultiImagePickerScreen(
     // Load images whenever permission is granted
     LaunchedEffect(hasPermission) {
         refreshImages(showLoader = true)
+    }
+
+    LaunchedEffect(Unit) {
+        demoSampleUris = loadPickerDemoSampleUris(context)
     }
 
     DisposableEffect(lifecycleOwner, hasPermission) {
@@ -224,78 +229,108 @@ fun MultiImagePickerScreen(
                     }
                 }
             ) { innerPadding ->
-                when {
-                    !hasPermission -> PermissionDeniedView(
-                        onRequestAgain = { permissionLauncher.launch(permission) },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    val displayUris = demoSampleUris + images
 
-                    isLoading -> BackgroundRemovalLoadingOverlay(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        message = stringResource(R.string.loading_image)
-                    )
+                    when {
+                        !hasPermission -> PermissionDeniedView(
+                            onRequestAgain = { permissionLauncher.launch(permission) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                        )
 
-                    images.isEmpty() -> Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        isLoading -> BackgroundRemovalLoadingOverlay(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            message = stringResource(R.string.loading_image)
+                        )
+
+                        displayUris.isEmpty() -> Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                Icons.Default.PhotoLibrary,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                stringResource(R.string.picker_no_photos),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.PhotoLibrary,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(64.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    stringResource(R.string.picker_no_photos),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
-                    }
 
-                    else -> LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentPadding = PaddingValues(
-                            start = 2.dp, end = 2.dp, top = 2.dp,
-                            // Extra bottom padding when confirm bar is visible
-                            bottom = if (selectedUris.isNotEmpty()) 80.dp else 2.dp
-                        ),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        items(images, key = { it.toString() }) { uri ->
-                            val isSelected = selectedUris.contains(uri)
-                            val order = if (isSelected) selectedUris.indexOf(uri) + 1 else 0
+                        else -> LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentPadding = PaddingValues(
+                                start = 2.dp, end = 2.dp, top = 2.dp,
+                                bottom = if (selectedUris.isNotEmpty()) 80.dp else 2.dp
+                            ),
+                            horizontalArrangement = Arrangement.spacedBy(2.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            items(demoSampleUris, key = { "demo_" + it.toString() }) { uri ->
+                                val isSelected = selectedUris.contains(uri)
+                                val order = if (isSelected) selectedUris.indexOf(uri) + 1 else 0
 
-                            PickerImageItem(
-                                uri = uri,
-                                isSelected = isSelected,
-                                selectionOrder = order,
-                                canSelectMore = selectedUris.size < MAX_SELECTION,
-                                onToggle = {
-                                    handleImageToggle(
-                                        context = context,
-                                        uri = uri,
-                                        isSelected = isSelected,
-                                        selectedUris = selectedUris,
-                                        canSelectMore = selectedUris.size < MAX_SELECTION,
-                                        onSelectionChanged = { next -> selectedUris = next }
-                                    )
-                                }
-                            )
+                                PickerImageItem(
+                                    uri = uri,
+                                    isSelected = isSelected,
+                                    selectionOrder = order,
+                                    canSelectMore = selectedUris.size < MAX_SELECTION,
+                                    badgeText = "\u004d\u1ea9u",
+                                    onToggle = {
+                                        handleImageToggle(
+                                            context = context,
+                                            uri = uri,
+                                            isSelected = isSelected,
+                                            selectedUris = selectedUris,
+                                            canSelectMore = selectedUris.size < MAX_SELECTION,
+                                            onSelectionChanged = { next -> selectedUris = next }
+                                        )
+                                    }
+                                )
+                            }
+
+                            items(images, key = { it.toString() }) { uri ->
+                                val isSelected = selectedUris.contains(uri)
+                                val order = if (isSelected) selectedUris.indexOf(uri) + 1 else 0
+
+                                PickerImageItem(
+                                    uri = uri,
+                                    isSelected = isSelected,
+                                    selectionOrder = order,
+                                    canSelectMore = selectedUris.size < MAX_SELECTION,
+                                    onToggle = {
+                                        handleImageToggle(
+                                            context = context,
+                                            uri = uri,
+                                            isSelected = isSelected,
+                                            selectedUris = selectedUris,
+                                            canSelectMore = selectedUris.size < MAX_SELECTION,
+                                            onSelectionChanged = { next -> selectedUris = next }
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -314,6 +349,7 @@ private fun PickerImageItem(
     isSelected: Boolean,
     selectionOrder: Int,
     canSelectMore: Boolean,
+    badgeText: String? = null,
     onToggle: () -> Unit
 ) {
     val accentColor = ImageDesign.semantic.aiAccent
@@ -359,6 +395,23 @@ private fun PickerImageItem(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+
+        if (badgeText != null) {
+            Text(
+                text = badgeText,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(4.dp)
+                    .background(Color(0xFFFF9800).copy(alpha = 0.92f))
+                    .padding(horizontal = 5.dp, vertical = 2.dp),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = Color.White,
+                    fontSize = 8.sp
+                ),
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+        }
 
         // Dimming overlay when selected
         if (isSelected) {
@@ -424,29 +477,10 @@ private fun handleImageToggle(
         return
     }
 
-    val displayName = resolveDisplayName(context, uri)
-    val mimeType = resolveMimeType(context, uri)
-    if (!isSupportedByApp(displayName, mimeType)) {
-        val extension = displayName?.substringAfterLast('.', "")?.lowercase().orEmpty()
-        Toast.makeText(
-            context,
-            context.getString(
-                R.string.picker_unsupported_image_format,
-                extension.ifBlank { "unknown" }
-            ),
-            Toast.LENGTH_SHORT
-        ).show()
-        return
-    }
-
     if (canSelectMore) {
         onSelectionChanged(selectedUris + uri)
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Permission denied state
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun PermissionDeniedView(
@@ -492,4 +526,8 @@ private fun PermissionDeniedView(
 // ─────────────────────────────────────────────────────────────────────────────
 // MediaStore query (runs on IO dispatcher)
 // ─────────────────────────────────────────────────────────────────────────────
+
+
+
+
 

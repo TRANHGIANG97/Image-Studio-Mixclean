@@ -51,7 +51,10 @@ import com.thgiang.image.feature.editor.ui.QuickEditActivity
 import com.thgiang.image.core.design.theme.HomeDarkStyle
 import com.thgiang.image.core.design.theme.ImageDesign
 import com.thgiang.image.feature.home.viewmodel.HomeViewModel
-import com.thgiang.image.studio.ui.home.StudioSection
+import com.abizer_r.quickedit.ui.mainScreen.CosmeticsThemeplateSection
+import com.thgiang.image.studio.model.StudioThemeplate
+import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPreset
+import com.abizer_r.quickedit.utils.BorderGradientPreset
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -71,8 +74,13 @@ fun HomeDashboardScreen(
     onPreferredRemovalQualityChange: (String) -> Unit = {},
     onOpenDrafts: () -> Unit = {},
     onNavigateToPicker: () -> Unit = {},
+    onNavigateToBackgroundPresetPicker: (BackgroundGradientPreset) -> Unit = {},
+    onNavigateToBorderPresetPicker: (BorderGradientPreset) -> Unit = {},
     onSimplePick: () -> Unit = {},
-    onOpenStudio: () -> Unit = {},
+    onOpenEffectsTool: () -> Unit = {},
+    onOpenStudioTool: () -> Unit = {},
+    onOpenMagicTool: () -> Unit = {},
+    onThemeplateSelected: (StudioThemeplate) -> Unit = {},
     pickedUriFromPicker: Uri? = null,
     onConsumePickedUri: () -> Unit = {},
     isDarkMode: Boolean = false,
@@ -96,6 +104,8 @@ fun HomeDashboardScreen(
     val hasDrafts = draftCount > 0
     val lifecycleOwner = LocalLifecycleOwner.current
     var isAutoRemoveMode by remember { mutableStateOf(false) }
+    var selectedBackgroundGradientPresetId by remember { mutableStateOf<String?>(null) }
+    var selectedBorderGradientPresetId by remember { mutableStateOf<String?>(null) }
 
     // Check for saved drafts
     LaunchedEffect(lifecycleOwner) {
@@ -208,6 +218,9 @@ fun HomeDashboardScreen(
 
                     AiToolDock(
                         isPremium = isPremium,
+                        onOpenEffects = onOpenEffectsTool,
+                        onOpenStudioTool = onOpenStudioTool,
+                        onOpenMagicTool = onOpenMagicTool,
                         onOpenRemoveBgEditor = {
                             if (!homeViewModel.isAdDismissedRecently()) {
                                 isAutoRemoveMode = true
@@ -229,22 +242,31 @@ fun HomeDashboardScreen(
                         onLockedClick = { showUpgradeSheet = true },
                         useHomeDarkStyle = isHomeDarkStyle,
                         isProcessing = isBusy,
-                        selectedPreset = uiState.selectedPresetStyle,
+                        selectedPresetId = selectedBackgroundGradientPresetId,
                         onPresetClick = { preset ->
                             if (isBusy || homeViewModel.isAdDismissedRecently()) return@PresetDock
-                            homeViewModel.onPresetSelected(preset.style)
-                            onNavigateToPicker()
+                            selectedBackgroundGradientPresetId = preset.id
+                            onNavigateToBackgroundPresetPicker(preset)
                         }
                     )
 
                     Spacer(modifier = Modifier.height(HomeSpacing.section))
 
-                    StudioSection(
-                        forceDarkStyle = isHomeDarkStyle,
-                        onCategoryClick = { category ->
-                            if (category.id == "cosmetics") {
-                                onOpenStudio()
-                            }
+                    CosmeticsThemeplateSection(
+                        modifier = Modifier.fillMaxWidth(),
+                        onThemeplateSelected = onThemeplateSelected
+                    )
+
+                    Spacer(modifier = Modifier.height(HomeSpacing.section))
+
+                    BorderPresetDock(
+                        selectedPresetId = selectedBorderGradientPresetId,
+                        isProcessing = isBusy,
+                        useHomeDarkStyle = isHomeDarkStyle,
+                        onPresetClick = { preset ->
+                            if (isBusy || homeViewModel.isAdDismissedRecently()) return@BorderPresetDock
+                            selectedBorderGradientPresetId = preset.id
+                            onNavigateToBorderPresetPicker(preset)
                         }
                     )
 
@@ -256,19 +278,6 @@ fun HomeDashboardScreen(
                                 .padding(horizontal = 12.dp)
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(HomeSpacing.section))
-
-                    BorderPresetDock(
-                        selectedPreset = uiState.selectedBorderPresetStyle,
-                        isProcessing = isBusy,
-                        useHomeDarkStyle = isHomeDarkStyle,
-                        onPresetClick = { style ->
-                            if (isBusy || homeViewModel.isAdDismissedRecently()) return@BorderPresetDock
-                            homeViewModel.onBorderPresetSelected(style)
-                            onNavigateToPicker()
-                        }
-                    )
 
                     Spacer(modifier = Modifier.height(HomeSpacing.section))
                 }

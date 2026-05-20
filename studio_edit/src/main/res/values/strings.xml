@@ -28,6 +28,8 @@
     <string name="studio_replace_hint">Tap Replace to choose a product photo from your gallery</string>
     <string name="studio_layout_hint">Drag to move · Pinch to zoom · Two-finger rotate</string>
     <string name="studio_shadow_label">Shadow: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Light Angle: %1$d°</string>
+    <string name="studio_shadow_distance_label">Shadow Distance: %1$d dp</string>
     <string name="studio_transparency_label">Opacity: %1$d%%</string>
     <string name="studio_crop_label">Aspect ratio</string>
     <string name="studio_processing">Removing background…</string>

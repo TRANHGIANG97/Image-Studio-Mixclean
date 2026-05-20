@@ -79,9 +79,11 @@ import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.thgiang.image.feature.remove.ui.BatchRemoveScreen
 import com.thgiang.image.feature.remove.ui.MultiImagePickerScreen
 import com.thgiang.image.feature.settings.ui.SettingsScreen
-import com.thgiang.image.studio.ui.list.ThemeplateListScreen
 import com.thgiang.image.studio.ui.editor.ThemeplateEditorScreen
 import com.thgiang.image.studio.model.StudioThemeplates
+import com.thgiang.image.studio.model.StudioThemeplate
+import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPreset
+import com.abizer_r.quickedit.utils.BorderGradientPreset
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -211,7 +213,8 @@ fun AppRoot(
     ) {
         Scaffold(
             topBar = {
-                TopAppBar(
+                if (currentRoute == Screen.Home.route) {
+                    TopAppBar(
                     title = {
                         Text(
                             text = "MixClean",
@@ -424,6 +427,7 @@ fun AppRoot(
                         }
                     }
                 )
+                }
             },
         ) { innerPadding: PaddingValues ->
             NavHost(
@@ -436,7 +440,10 @@ fun AppRoot(
                     HomeDashboardScreen(
                         onOpenRemoveBgEditor = {
                             if (!appViewModel.isAdDismissedRecently()) {
-                                navController.navigate(Screen.SingleImagePicker.route + "?autoRemove=true")
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=true&backgroundGradientPresetId=&borderGradientPresetId=&targetTool="
+                                )
                             }
                         },
                         onBatchRemove = {
@@ -453,16 +460,66 @@ fun AppRoot(
                             if (!appViewModel.isAdDismissedRecently()) {
                                 isAutoRemoveForPicker = false
                                 isPresetModeForPicker = true
-                                navController.navigate(Screen.SingleImagePicker.route)
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=false&backgroundGradientPresetId=&borderGradientPresetId=&targetTool="
+                                )
+                            }
+                        },
+                        onNavigateToBackgroundPresetPicker = { preset: BackgroundGradientPreset ->
+                            if (!appViewModel.isAdDismissedRecently()) {
+                                isAutoRemoveForPicker = false
+                                isPresetModeForPicker = false
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=true&backgroundGradientPresetId=${preset.id}&borderGradientPresetId=&targetTool="
+                                )
+                            }
+                        },
+                        onNavigateToBorderPresetPicker = { preset: BorderGradientPreset ->
+                            if (!appViewModel.isAdDismissedRecently()) {
+                                isAutoRemoveForPicker = false
+                                isPresetModeForPicker = false
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=true&backgroundGradientPresetId=&borderGradientPresetId=${preset.id}&targetTool="
+                                )
                             }
                         },
                         onSimplePick = {
                             if (!appViewModel.isAdDismissedRecently()) {
-                                navController.navigate(Screen.SingleImagePicker.route + "?autoRemove=false")
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=false&backgroundGradientPresetId=&borderGradientPresetId=&targetTool="
+                                )
                             }
                         },
-                        onOpenStudio = {
-                            navController.navigate(Screen.StudioThemeplateList.route)
+                        onOpenEffectsTool = {
+                            if (!appViewModel.isAdDismissedRecently()) {
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=true&backgroundGradientPresetId=&borderGradientPresetId=&targetTool=effects"
+                                )
+                            }
+                        },
+                        onOpenStudioTool = {
+                            if (!appViewModel.isAdDismissedRecently()) {
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=true&backgroundGradientPresetId=&borderGradientPresetId=&targetTool=studio"
+                                )
+                            }
+                        },
+                        onOpenMagicTool = {
+                            if (!appViewModel.isAdDismissedRecently()) {
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=true&backgroundGradientPresetId=&borderGradientPresetId=&targetTool=magic"
+                                )
+                            }
+                        },
+                        onThemeplateSelected = { themeplate: StudioThemeplate ->
+                            navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
                         },
                         pickedUriFromPicker = pickedUri,
                         onConsumePickedUri = { 
@@ -479,15 +536,36 @@ fun AppRoot(
                     )
                 }
                 composable(
-                    route = Screen.SingleImagePicker.route + "?autoRemove={autoRemove}",
+                    route = Screen.SingleImagePicker.route + "?autoRemove={autoRemove}&backgroundGradientPresetId={backgroundGradientPresetId}&borderGradientPresetId={borderGradientPresetId}&targetTool={targetTool}",
                     arguments = listOf(
                         navArgument("autoRemove") {
                             type = NavType.BoolType
                             defaultValue = false
+                        },
+                        navArgument("backgroundGradientPresetId") {
+                            type = NavType.StringType
+                            defaultValue = ""
+                        },
+                        navArgument("borderGradientPresetId") {
+                            type = NavType.StringType
+                            defaultValue = ""
+                        },
+                        navArgument("targetTool") {
+                            type = NavType.StringType
+                            defaultValue = ""
                         }
                     )
                 ) { backStackEntry ->
                     val autoRemove = backStackEntry.arguments?.getBoolean("autoRemove") ?: false
+                    val backgroundGradientPresetId = backStackEntry.arguments
+                        ?.getString("backgroundGradientPresetId")
+                        ?.takeIf { it.isNotBlank() }
+                    val borderGradientPresetId = backStackEntry.arguments
+                        ?.getString("borderGradientPresetId")
+                        ?.takeIf { it.isNotBlank() }
+                    val targetTool = backStackEntry.arguments
+                        ?.getString("targetTool")
+                        ?.takeIf { it.isNotBlank() }
                     
                     SingleImagePickerScreen(
                         onImageSelected = { uri ->
@@ -500,7 +578,10 @@ fun AppRoot(
                                 activity?.startActivity(
                                     QuickEditActivity.createIntent(
                                         context, uri,
-                                        autoRemoveBackground = autoRemove
+                                        autoRemoveBackground = autoRemove,
+                                        backgroundGradientPresetId = backgroundGradientPresetId,
+                                        borderGradientPresetId = borderGradientPresetId,
+                                        targetTool = targetTool
                                     )
                                 )
                                 isPresetModeForPicker = false
@@ -581,14 +662,6 @@ fun AppRoot(
                         }
                     )
                 }
-                composable(Screen.StudioThemeplateList.route) {
-                    ThemeplateListScreen(
-                        onBack = { navController.popBackStack() },
-                        onThemeplateSelected = { themeplate ->
-                            navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
-                        }
-                    )
-                }
                 composable(
                     route = Screen.StudioEditor.route,
                     arguments = listOf(
@@ -603,7 +676,9 @@ fun AppRoot(
                         ThemeplateEditorScreen(
                             themeplate = themeplate,
                             onBack = { navController.popBackStack() },
-                            onDone = { /* Handle export / save */ }
+                            onDone = { _ ->
+                                navController.popBackStack(Screen.Home.route, inclusive = false)
+                            }
                         )
                     }
                 }

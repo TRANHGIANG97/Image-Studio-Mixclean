@@ -2,6 +2,7 @@ package com.abizer_r.quickedit.utils.effectsMode
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.abizer_r.quickedit.ui.effectsMode.effectsPreview.EffectItem
 import com.abizer_r.quickedit.R
 import com.abizer_r.quickedit.utils.AppUtils
@@ -16,17 +17,20 @@ object EffectsModeUtils {
 
     private const val MAX_CONCURRENT_FILTERS = 4
     private val concurrencyLimit = Semaphore(MAX_CONCURRENT_FILTERS)
+    private const val EFFECT_PREVIEW_SAMPLE_ASSET = "image_sample/img_0001.png"
 
     fun getEffectsPreviewList(
         context: Context,
         bitmap: Bitmap,
     ) = flow<ArrayList<EffectItem>> {
         val effectList = arrayListOf<EffectItem>()
+        val previewSourceBitmap = loadEffectPreviewSample(context) ?: bitmap
+        val previewSourceScaledBitmap = getScaledPreviewBitmap(context, previewSourceBitmap)
 
         effectList.add(
             EffectItem(
                 ogBitmap = bitmap,
-                previewBitmap = getScaledPreviewBitmap(context, bitmap),
+                previewBitmap = previewSourceScaledBitmap,
                 label = context.getString(com.abizer_r.quickedit.R.string.effect_original)
             )
         )
@@ -37,9 +41,10 @@ object EffectsModeUtils {
         filterDefs.add {
             try {
                 val grayBitmap = BitmapGrayscaleFilter.apply(bitmap)
+                val grayPreviewBitmap = BitmapGrayscaleFilter.apply(previewSourceScaledBitmap)
                 EffectItem(
                     ogBitmap = grayBitmap,
-                    previewBitmap = getScaledPreviewBitmap(context, grayBitmap),
+                    previewBitmap = grayPreviewBitmap,
                     label = context.getString(com.abizer_r.quickedit.R.string.effect_grayscale)
                 )
             } catch (e: Exception) {
@@ -52,9 +57,10 @@ object EffectsModeUtils {
         filterDefs.add {
             try {
                 val blurBitmap = BitmapBlurFilter.apply(context, bitmap)
+                val blurPreviewBitmap = BitmapBlurFilter.apply(context, previewSourceScaledBitmap)
                 EffectItem(
                     ogBitmap = blurBitmap,
-                    previewBitmap = getScaledPreviewBitmap(context, blurBitmap),
+                    previewBitmap = blurPreviewBitmap,
                     label = context.getString(com.abizer_r.quickedit.R.string.effect_blur)
                 )
             } catch (e: Exception) {
@@ -98,9 +104,10 @@ object EffectsModeUtils {
                         context.assets.open(fileName).use { stream ->
                             val curve = AcvToneCurveParser.parse(stream)
                             val filtered = BitmapToneCurveFilter.apply(bitmap, curve)
+                            val previewFiltered = BitmapToneCurveFilter.apply(previewSourceScaledBitmap, curve)
                             EffectItem(
                                 ogBitmap = filtered,
-                                previewBitmap = getScaledPreviewBitmap(context, filtered),
+                                previewBitmap = previewFiltered,
                                 label = fileName.drop(4).dropLast(4).replace("_", " ")
                             )
                         }
@@ -133,6 +140,17 @@ object EffectsModeUtils {
             if (effectList.isNotEmpty()) {
                 emit(effectList)
             }
+        }
+    }
+
+    private fun loadEffectPreviewSample(context: Context): Bitmap? {
+        return try {
+            context.assets.open(EFFECT_PREVIEW_SAMPLE_ASSET).use { input ->
+                BitmapFactory.decodeStream(input)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

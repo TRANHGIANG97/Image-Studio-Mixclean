@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" ?>
 <resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
     <string name="app_name">MixClean - 배경 제거</string>
     <string name="app_title">이미지 도구</string>
@@ -37,6 +37,8 @@
     <string name="licenses_title">오픈소스 라이선스</string>
     <string name="dark_mode_title">다크 모드</string>
     <string name="dark_mode_description">어두운 테마를 켜거나 끕니다.</string>
+    <string name="home_preview_title">Show Home Preview</string>
+    <string name="home_preview_description">Show the before/after comparison box on the home screen.</string>
     <string name="home_remove_background_title">배경 제거</string>
     <string name="home_remove_background_subtitle">이미지를 선택하고 한 번에 배경을 제거하세요.</string>
     <string name="dashboard_hero_title">AI 배경 제거</string>
@@ -56,6 +58,8 @@
     <string name="multi_image_remove">여러 이미지 배경 제거</string>
     <string name="done_save_or_share">완료! 결과를 저장하거나 공유할 수 있습니다.</string>
     <string name="removing_background_wait">배경을 제거하는 중입니다. 잠시만 기다려 주세요…</string>
+    <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
+    <string name="loading_image">Loading image...</string>
     <string name="tap_remove_background_to_start">「배경 제거」를 눌러 시작하세요.</string>
     <string name="step_choose_image">1단계: 갤러리에서 이미지를 선택하세요.</string>
     <string name="compare_before_after">처리 전 / 후 비교</string>
@@ -110,7 +114,7 @@
     <string name="multi_saved_successfully">이미지가 저장되었습니다</string>
     <string name="multi_save_failed">저장 실패</string>
     <string name="exit_dialog_title">앱 종료</string>
-    <string name="exit_dialog_message">앱을 종료하시겠습니까?</string>
+    <string name="exit_dialog_message">Do you want to exit the app?</string>
     <string name="exit_dialog_cancel">취소</string>
     <string name="exit_dialog_exit">종료</string>
     <string name="quality_label">품질</string>
@@ -142,6 +146,10 @@
     <string name="home_quick_tools">빠른 도구</string>
     <string name="home_dock_batch">일괄</string>
     <string name="home_dock_blur">블러</string>
+    <string name="home_dock_effects">Effects</string>
+    <string name="home_dock_studio">Studio</string>
+    <string name="home_dock_magic">Erase</string>
+    <string name="home_dock_more">More</string>
     <string name="home_dock_pick_image">배경 제거</string>
     <string name="home_dock_photo_editor">사진 편집</string>
     <string name="home_dock_quick_edit">퀵 편집</string>
@@ -152,7 +160,7 @@
     <string name="draft_deselect_all">선택 해제</string>
     <string name="draft_delete_selected">삭제 (%1$d)</string>
     <string name="draft_selected_count">%1$d개 선택됨</string>
-    <string name="draft_confirm_delete_multiple">선택한 %1$d개의 초안을 삭제하시겠습니까?</string>
+    <string name="draft_confirm_delete_multiple">Are you sure you want to delete %1$d selected draft(s)?</string>
     <string name="action_discard">버리기</string>
     <string name="home_preview_placeholder">이미지를 선택하면 여기에 미리보기가 표시됩니다.</string>
     <string name="compare_label_before">이전</string>
@@ -247,6 +255,10 @@
     <string name="picker_permission_title">Photo Access Required</string>
     <string name="picker_permission_desc">The app needs storage permission to show your photo gallery.</string>
     <string name="picker_no_photos">No photos found</string>
+    <string name="picker_unsupported_image_format">This image format (.%1$s) is not supported yet.</string>
     <string name="picker_capture_btn">Capture from Camera</string>
     <string name="cd_capture_photo">Capture Photo</string>
-    <string name="permission_required">권한 필요</string><string name="grant_permission">권한 허용</string><string name="select">선택</string></resources>
+    <string name="permission_required">권한 필요</string>
+    <string name="grant_permission">권한 허용</string>
+    <string name="select">선택</string>
+</resources>
