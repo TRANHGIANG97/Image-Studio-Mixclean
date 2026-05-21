@@ -27,7 +27,8 @@ class EditorRenderer @Inject constructor(
         val templateSize: androidx.compose.ui.unit.IntSize,
         val viewport: EditorViewport,
         val appearance: EditorAppearance,
-        val baseSize: androidx.compose.ui.unit.IntSize
+        val baseSize: androidx.compose.ui.unit.IntSize,
+        val cropRatio: CropRatio
     )
     
     // Cache shadow bitmap để tránh re-blur mỗi frame
@@ -85,6 +86,7 @@ class EditorRenderer @Inject constructor(
                     canvas = canvas,
                     foreground = foreground,
                     state = state,
+                    cropRatio = request.cropRatio,
                     baseW = baseW,
                     baseH = baseH,
                     drawX = drawX,
@@ -108,6 +110,12 @@ class EditorRenderer @Inject constructor(
                 scale(scaleX, scaleY)
                 rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
                 
+                // Crop clipping (local coordinates)
+                val croppedSize = request.cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
+                val left = (foreground.width - croppedSize.width) / 2f
+                val top = (foreground.height - croppedSize.height) / 2f
+                clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
+                
                 val fgX = if (state.flippedH) -foreground.width.toFloat() else 0f
                 val fgY = if (state.flippedV) -foreground.height.toFloat() else 0f
                 drawBitmap(foreground, fgX, fgY, paint)
@@ -127,6 +135,7 @@ class EditorRenderer @Inject constructor(
         canvas: Canvas,
         foreground: Bitmap,
         state: EditorViewport,
+        cropRatio: CropRatio,
         baseW: Float,
         baseH: Float,
         drawX: Float,
@@ -187,6 +196,12 @@ class EditorRenderer @Inject constructor(
             translate(drawX + dx, drawY + dy)
             scale(scaleX, scaleY)
             rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
+            
+            // Crop clipping (local coordinates)
+            val croppedSize = cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
+            val left = (foreground.width - croppedSize.width) / 2f
+            val top = (foreground.height - croppedSize.height) / 2f
+            clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
             
             val sdX = if (state.flippedH) -foreground.width.toFloat() else 0f
             val sdY = if (state.flippedV) -foreground.height.toFloat() else 0f

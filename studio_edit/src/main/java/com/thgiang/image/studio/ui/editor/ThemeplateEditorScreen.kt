@@ -1,4 +1,4 @@
-﻿package com.thgiang.image.studio.ui.editor
+package com.thgiang.image.studio.ui.editor
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -196,6 +197,7 @@ fun ThemeplateEditorScreen(
                     product = state.product,
                     viewport = state.viewport,
                     appearance = state.appearance,
+                    cropRatio = state.cropRatio,
                     onGesture = { delta ->
                         viewModel.onEvent(EditorEvent.UpdateGesture(delta))
                     },
@@ -289,6 +291,7 @@ private fun EditorCanvasV2(
     product: EditorProduct,
     viewport: EditorViewport,
     appearance: EditorAppearance,
+    cropRatio: CropRatio,
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     onPickImage: () -> Unit,
@@ -314,7 +317,7 @@ private fun EditorCanvasV2(
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .pointerInput(product, viewport, templateSize, showBoundingBox) {
+                .pointerInput(product, viewport, templateSize, showBoundingBox, cropRatio) {
                     detectTapGestures(onTap = { tap ->
                         if (!product.isBackgroundRemoved || product.foregroundUri == null) {
                             onBoundingBoxVisible(false)
@@ -323,8 +326,9 @@ private fun EditorCanvasV2(
 
                         val templateLeftPx = (size.width - with(density) { displayWidth.toPx() }) / 2f
                         val templateTopPx = (size.height - with(density) { displayHeight.toPx() }) / 2f
-                        val boxWidthPx = product.baseSize.width * viewport.scale
-                        val boxHeightPx = product.baseSize.height * viewport.scale
+                        val croppedSize = cropRatio.calculateSize(product.baseSize.width.toFloat(), product.baseSize.height.toFloat())
+                        val boxWidthPx = croppedSize.width * viewport.scale
+                        val boxHeightPx = croppedSize.height * viewport.scale
                         val objectLeftPx = templateLeftPx + (viewport.offset.x * calculatedScale)
                         val objectTopPx = templateTopPx + (viewport.offset.y * calculatedScale)
                         val withinObject = tap.x in objectLeftPx..(objectLeftPx + boxWidthPx) &&
@@ -353,6 +357,7 @@ private fun EditorCanvasV2(
                     product = product,
                     viewport = viewport,
                     appearance = appearance,
+                    cropRatio = cropRatio,
                     displayScale = calculatedScale,
                     templateSize = templateSize,
                     onGesture = onGesture,
@@ -405,6 +410,7 @@ private fun ProductLayerV2(
     product: EditorProduct,
     viewport: EditorViewport,
     appearance: EditorAppearance,
+    cropRatio: CropRatio,
     displayScale: Float,
     templateSize: androidx.compose.ui.unit.IntSize,
     onGesture: (GestureDelta) -> Unit,
@@ -414,11 +420,11 @@ private fun ProductLayerV2(
 ) {
     val density = LocalDensity.current
     
-    val actualSize by remember(product.baseSize) {
+    val actualSize by remember(product.baseSize, cropRatio) {
         derivedStateOf {
-            androidx.compose.ui.unit.IntSize(
-                product.baseSize.width,
-                product.baseSize.height
+            cropRatio.calculateSize(
+                product.baseSize.width.toFloat(),
+                product.baseSize.height.toFloat()
             )
         }
     }
@@ -449,12 +455,37 @@ private fun ProductLayerV2(
         }
     }
 
-    val boxWidth = with(density) { (actualSize.width * viewport.scale).toInt().toDp() }
-    val boxHeight = with(density) { (actualSize.height * viewport.scale).toInt().toDp() }
+    val originalWidth = with(density) { (product.baseSize.width * viewport.scale).toInt().toDp() }
+    val originalHeight = with(density) { (product.baseSize.height * viewport.scale).toInt().toDp() }
+
+    val cropShape = remember(actualSize, product.baseSize) {
+        object : androidx.compose.ui.graphics.Shape {
+            override fun createOutline(
+                size: androidx.compose.ui.geometry.Size,
+                layoutDirection: androidx.compose.ui.unit.LayoutDirection,
+                density: androidx.compose.ui.unit.Density
+            ): androidx.compose.ui.graphics.Outline {
+                if (product.baseSize.width <= 0 || product.baseSize.height <= 0) {
+                    return androidx.compose.ui.graphics.Outline.Rectangle(
+                        androidx.compose.ui.geometry.Rect(0f, 0f, size.width, size.height)
+                    )
+                }
+                val scaleW = size.width / product.baseSize.width
+                val scaleH = size.height / product.baseSize.height
+                val cw = actualSize.width.toFloat() * scaleW
+                val ch = actualSize.height.toFloat() * scaleH
+                val left = (size.width - cw) / 2f
+                val top = (size.height - ch) / 2f
+                return androidx.compose.ui.graphics.Outline.Rectangle(
+                    androidx.compose.ui.geometry.Rect(left, top, left + cw, top + ch)
+                )
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
-            .size(boxWidth, boxHeight)
+            .size(originalWidth, originalHeight)
             .offset { displayOffset }
     ) {
         if (appearance.shadowIntensity > 0.05f) {
@@ -463,6 +494,7 @@ private fun ProductLayerV2(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
+                    .clip(cropShape)
                     .offset {
                         IntOffset(
                             (graphicsSpec.shadowDx * displayScale).roundToInt(),
@@ -489,6 +521,7 @@ private fun ProductLayerV2(
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
+                .clip(cropShape)
                 .graphicsLayer {
                     alpha = graphicsSpec.alpha
                     scaleX = graphicsSpec.scaleX
@@ -523,7 +556,14 @@ private fun ProductLayerV2(
             AsyncImage(
                 model = product.foregroundUri,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(cropShape)
+                    .graphicsLayer {
+                        scaleX = graphicsSpec.scaleX
+                        scaleY = graphicsSpec.scaleY
+                        rotationZ = graphicsSpec.rotation
+                    },
                 contentScale = ContentScale.Fit,
                 colorFilter = ColorFilter.tint(Color(0xFFFF2D55).copy(alpha = 0.6f))
             )
@@ -533,11 +573,11 @@ private fun ProductLayerV2(
             modifier = Modifier
                 .align(Alignment.Center)
                 .requiredSize(
-                    width = boxWidth + 240.dp,
-                    height = boxHeight + 240.dp
+                    width = originalWidth + 240.dp,
+                    height = originalHeight + 240.dp
                 ),
-            contentWidth = product.baseSize.width.toFloat(),
-            contentHeight = product.baseSize.height.toFloat(),
+            contentWidth = actualSize.width.toFloat(),
+            contentHeight = actualSize.height.toFloat(),
             viewport = viewport,
             displayScale = displayScale,
             templateSize = templateSize,

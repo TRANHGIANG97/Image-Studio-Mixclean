@@ -432,7 +432,8 @@ class ThemeplateEditorViewModel @Inject constructor(
                         templateSize = templateSize,
                         viewport = currentState.viewport,
                         appearance = currentState.appearance,
-                        baseSize = currentState.product.baseSize
+                        baseSize = currentState.product.baseSize,
+                        cropRatio = currentState.cropRatio
                     )
                 )
 
