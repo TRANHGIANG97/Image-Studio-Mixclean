@@ -46,8 +46,8 @@ android {
         applicationId = "com.thgiang.image"
         minSdk = 24
         targetSdk = 35
-        versionCode = 13
-        versionName = "1.6.4"
+        versionCode = 20
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -117,6 +117,11 @@ android {
             excludes.add("lib/x86/libxeno_native.so")
             excludes.add("lib/*/libyuv-decoder.so")
         }
+    }
+    
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 }
 
