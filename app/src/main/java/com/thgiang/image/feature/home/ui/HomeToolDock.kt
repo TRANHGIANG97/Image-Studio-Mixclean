@@ -77,6 +77,8 @@ fun AiToolDock(
     useHomeDarkStyle: Boolean = false
 ) {
     val tools = listOf(
+        QuickTool(stringResource(R.string.home_dock_pick_image), iconAsset = "pick_image.png", locked = false, onClick = onOpenRemoveBgEditor),
+        QuickTool(stringResource(R.string.home_dock_batch), iconAsset = "batch.png", locked = false, onClick = onBatchRemove),
         QuickTool(
             title = stringResource(R.string.home_draft),
             iconAsset = "draft.png",
@@ -86,9 +88,7 @@ fun AiToolDock(
         ),
         QuickTool(stringResource(R.string.home_dock_effects), iconAsset = "effects.png", locked = false, onClick = onOpenEffects),
         QuickTool(stringResource(R.string.home_dock_studio), iconAsset = "studio.png", locked = false, onClick = onOpenStudioTool),
-        QuickTool(stringResource(R.string.home_dock_magic), iconAsset = "magic.png", locked = false, onClick = onOpenMagicTool),
-        QuickTool(stringResource(R.string.home_dock_pick_image), iconAsset = "pick_image.png", locked = false, onClick = onOpenRemoveBgEditor),
-        QuickTool(stringResource(R.string.home_dock_batch), iconAsset = "batch.png", locked = false, onClick = onBatchRemove)
+        QuickTool(stringResource(R.string.home_dock_magic), iconAsset = "magic.png", locked = false, onClick = onOpenMagicTool)
     )
 
     val isDark = useHomeDarkStyle || isSystemInDarkTheme()
@@ -98,7 +98,7 @@ fun AiToolDock(
 
     val columns = 5
     val primaryTools = tools.take(columns - 1)
-    val expandedTools = remember {
+    val expandedTools = remember(tools) {
         listOf(
             tools[4],
             tools[5]
