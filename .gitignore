@@ -28,3 +28,4 @@ code-merge*.txt
 *.aab
 *.apks
 build-tools/exports/
+play-service-account.json

@@ -34,6 +34,15 @@ class ModNetBackgroundRemoverRepository(
     private companion object {
         private const val DEFAULT_MODEL_SIZE = 512
         private const val DEFAULT_MODEL_ASSET = "modnet_matte_512_fp16.onnx"
+
+        init {
+            try {
+                System.loadLibrary("onnxruntime")
+                System.loadLibrary("onnxruntime4j_jni")
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private val environment: OrtEnvironment = OrtEnvironment.getEnvironment()

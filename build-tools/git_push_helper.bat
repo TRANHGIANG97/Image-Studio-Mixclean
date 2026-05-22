@@ -2,20 +2,31 @@
 setlocal enabledelayedexpansion
 set REPO_ROOT=%~dp0..
 
+:CHECK_ENVIRONMENT
+cls
 echo ========================================================
 echo   MIXCLEAN - CONG CU DONG BO GITHUB CHUYEN NGHIEP [PRO]
 echo ========================================================
 echo.
 
 :: 1. Kiem tra Git da duoc cai dat chua
-where git >nul 2>nul
+git --version >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Khong tim thay cong cu Git tren he thong!
     echo Vui long:
     echo   1. Tai Git tai: https://git-scm.com/downloads
     echo   2. Cai dat va dam bao tick chon "Add to PATH".
     echo.
-    if not defined ORCHESTRATOR pause
+    if defined ORCHESTRATOR exit /b 1
+    
+    echo ========================================================
+    echo   [LUA CHON KHI LOI]
+    echo --------------------------------------------------------
+    echo   [1] Kiem tra lai - Thu lai
+    echo   [2] Thoat
+    echo ========================================================
+    set /p ENV_CHOICE="Vui long chon [1-2]: "
+    if "!ENV_CHOICE!"=="1" goto CHECK_ENVIRONMENT
     exit /b 1
 )
 
@@ -28,18 +39,22 @@ if not exist ".git" (
         git init
         echo [INFO] Tu dong khoi tao repository Git.
     ) else (
-        set /p INIT_CHOICE="Ban co muon khoi tao Git repository moi cho du an khong? [Y/N]: "
-        if /i "!INIT_CHOICE!"=="Y" (
+        echo ========================================================
+        echo   [CHU Y] THU MUC CHUA KHOI TAO GIT
+        echo --------------------------------------------------------
+        echo   [1] Khoi tao Repository Git moi cho du an
+        echo   [2] Thoat
+        echo ========================================================
+        set /p INIT_CHOICE="Vui long chon [1-2]: "
+        if "!INIT_CHOICE!"=="1" (
             git init
             if !ERRORLEVEL! neq 0 (
-                echo [ERROR] Khoi tao Git repository that bai! Kiem tra quyen ghi file trong o dia.
+                echo [ERROR] Khoi tao Git repository that bai!
                 pause
-                exit /b 1
+                goto CHECK_ENVIRONMENT
             )
             echo [INFO] Khoi tao repository thanh cong.
         ) else (
-            echo [INFO] Da huy thao tac khoi tao.
-            pause
             exit /b 0
         )
     )
@@ -52,19 +67,30 @@ if %ERRORLEVEL% neq 0 (
         echo [ERROR] Project chua duoc cau hinh remote link Github! Khong the tu dong day code.
         exit /b 1
     )
-    echo [CANH BAO] Project chua ket noi voi Github Repository nao [Chua co remote origin].
-    set /p REMOTE_URL="Vui long dan link Repository Github cua ban [e.g., https://github.com/user/repo.git]: "
-    if not "!REMOTE_URL!"=="" (
-        git remote add origin !REMOTE_URL!
-        if !ERRORLEVEL! neq 0 (
-            echo [ERROR] Khong the lien ket voi URL duoc cung cap! Vui long kiem tra lai cu phap link.
+    echo [CANH BAO] Project chua ket noi voi Github Repository [Chua co remote origin].
+    echo ========================================================
+    echo   [CAU HINH REMOTE ORIGIN]
+    echo --------------------------------------------------------
+    echo   [1] Nhap link Repository Github de lien ket
+    echo   [2] Thoat
+    echo ========================================================
+    set /p REMOTE_CHOICE="Vui long chon [1-2]: "
+    if "!REMOTE_CHOICE!"=="1" (
+        set /p REMOTE_URL="Dan link Repository Github cua ban [e.g., https://github.com/user/repo.git]: "
+        if not "!REMOTE_URL!"=="" (
+            git remote add origin !REMOTE_URL!
+            if !ERRORLEVEL! neq 0 (
+                echo [ERROR] Khong the lien ket voi URL duoc cung cap!
+                pause
+                goto CHECK_ENVIRONMENT
+            )
+            echo [INFO] Da lien ket thanh cong Remote origin.
+        ) else (
+            echo [ERROR] URL khong duoc de trong.
             pause
-            exit /b 1
+            goto CHECK_ENVIRONMENT
         )
-        echo [INFO] Da lien ket thanh cong voi Remote origin.
     ) else (
-        echo [INFO] Huy bo dong bo do thieu thong tin Remote URL.
-        pause
         exit /b 0
     )
 )
@@ -141,8 +167,8 @@ if !ERRORLEVEL! neq 0 (
     echo   - Chon nhanh dung ban dang code [vi du: chon [2] neu ban dang o nhanh 'main'].
     echo   - Hoac tao nhanh '!BRANCH!' tren may cua ban truoc.
     echo.
-    if not defined ORCHESTRATOR pause
     if defined ORCHESTRATOR exit /b 1
+    pause
     goto MENU
 )
 
@@ -186,8 +212,14 @@ if %ERRORLEVEL% neq 0 (
     if defined ORCHESTRATOR (
         goto PUSH_ONLY
     )
-    set /p FORCE_PUSH="Ban co muon thuc hien day [PUSH] phien ban local hien tai len luon khong? [Y/N]: "
-    if /i "!FORCE_PUSH!"=="Y" (
+    echo ========================================================
+    echo   [KONG CO THAY DOI]
+    echo --------------------------------------------------------
+    echo   [1] Tiep tuc thuc hien day [PUSH] local len remote
+    echo   [2] Quay lai Menu
+    echo ========================================================
+    set /p FORCE_PUSH="Vui long chon [1-2]: "
+    if "!FORCE_PUSH!"=="1" (
         goto PUSH_ONLY
     ) else (
         goto MENU
@@ -209,17 +241,18 @@ echo [1/3] Dang them cac tap tin thay doi [git add .]...
 git add .
 if !ERRORLEVEL! neq 0 (
     echo [ERROR] Qua trinh 'git add .' gap loi!
-    echo Goi y: Kiem tra quyen ghi file hoac co tap tin nao dang bi khoa boi tien trinh khac.
-    if not defined ORCHESTRATOR pause
-    exit /b 1
+    if defined ORCHESTRATOR exit /b 1
+    pause
+    goto MENU
 )
 
 echo [2/3] Dang thiet lap commit...
 git commit -m "!COMMIT_MSG!"
 if !ERRORLEVEL! neq 0 (
     echo [ERROR] Khoi tao commit that bai!
-    if not defined ORCHESTRATOR pause
-    exit /b 1
+    if defined ORCHESTRATOR exit /b 1
+    pause
+    goto MENU
 )
 
 :PUSH_ONLY
@@ -232,10 +265,13 @@ if !ERRORLEVEL! equ 0 (
     echo ========================================================
     echo   === DONG BO GITHUB THANH CONG! ===
     echo ========================================================
-    if not defined ORCHESTRATOR (
-        pause
-        goto MENU
-    )
+    if defined ORCHESTRATOR exit /b 0
+    echo.
+    echo   [1] Quay lai Menu chinh
+    echo   [2] Thoat
+    echo ========================================================
+    set /p SUCCESS_CHOICE="Vui long chon [1-2]: "
+    if "!SUCCESS_CHOICE!"=="1" goto MENU
     exit /b 0
 ) else (
     echo.
@@ -249,18 +285,14 @@ if !ERRORLEVEL! equ 0 (
     echo       =^> Huong dan: Ban can dong bo du lieu tren remote ve truoc [chay pull].
     echo.
     echo   [2] LOI QUYEN TRUY CAP [Authentication/Permission Error]:
-    echo       =^> Huong dan: Kiem tra xem tai khoan Github da dang nhap dung chua, 
-    echo           co quyen Write vao repository nay khong, hoac SSH Key/Personal Access Token co con han.
+    echo       =^> Huong dan: Kiem tra tai khoan Github, SSH Key/Personal Access Token.
     echo.
     echo   [3] LOI KET NOI [Network Error]:
-    echo       =^> Huong dan: Kiem tra lai ket noi Internet, Wifi hoac VPN.
+    echo       =^> Huong dan: Kiem tra ket noi Internet/Wifi.
     echo.
     echo --------------------------------------------------------
     
-    if defined ORCHESTRATOR (
-        echo [ERROR] Do loi ket noi hoac conflict, huy dong bo.
-        exit /b 1
-    )
+    if defined ORCHESTRATOR exit /b 1
     
     :: Tich hop engine tu dong sua loi Conflict / Rebase tren nhanh hien tai
     set /p PULL_CHOICE="Ban co muon tu dong dong bo code moi tu Github ve [git pull --rebase] va push lai luon? [Y/N]: "
@@ -281,14 +313,17 @@ if !ERRORLEVEL! equ 0 (
                 goto MENU
             ) else (
                 echo [ERROR] Van gap loi khi day code len. Vui long kiem tra thong so dang nhap thu cong.
+                pause
+                goto MENU
             )
         ) else (
             echo.
             echo [ERROR] Qua trinh Pull code gap xung dot nang [Conflict file].
             echo Vui long mo IDE de giai quyet cac phan xung dot code thu cong truoc khi push.
+            pause
+            goto MENU
         )
     )
-    pause
     goto MENU
 )
 
@@ -300,8 +335,13 @@ echo ========================================================
 echo.
 git status
 echo.
-pause
-goto MENU
+echo ========================================================
+echo   [1] Quay lai Menu chinh
+echo   [2] Thoat
+echo ========================================================
+set /p STATUS_CHOICE="Vui long chon [1-2]: "
+if "!STATUS_CHOICE!"=="1" goto MENU
+exit /b 0
 
 :SHOW_LOG
 cls
@@ -314,8 +354,13 @@ if !ERRORLEVEL! neq 0 (
     echo [INFO] Kho luu tru chua co ban commit nao de hien thi lich su.
 )
 echo.
-pause
-goto MENU
+echo ========================================================
+echo   [1] Quay lai Menu chinh
+echo   [2] Thoat
+echo ========================================================
+set /p LOG_CHOICE="Vui long chon [1-2]: "
+if "!LOG_CHOICE!"=="1" goto MENU
+exit /b 0
 
 :SHOW_BRANCHES
 cls
@@ -325,5 +370,10 @@ echo ========================================================
 echo.
 git branch -a
 echo.
-pause
-goto MENU
+echo ========================================================
+echo   [1] Quay lai Menu chinh
+echo   [2] Thoat
+echo ========================================================
+set /p BRANCH_CHOICE="Vui long chon [1-2]: "
+if "!BRANCH_CHOICE!"=="1" goto MENU
+exit /b 0

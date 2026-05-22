@@ -161,9 +161,7 @@ fun AppRoot(
     }
 
     fun requestSaveVideoAd(action: () -> Unit) {
-        pendingSaveAction = action
-        appViewModel.requestBatchAccess()
-        showSaveRewardedAdDialog = true
+        action()
     }
 
     ModalNavigationDrawer(

@@ -3,12 +3,32 @@ setlocal enabledelayedexpansion
 set REPO_ROOT=%~dp0..
 set GRADLEW_PATH=%REPO_ROOT%\gradlew.bat
 
+:MENU
+if defined ORCHESTRATOR goto RUN_CLEAN
+cls
 echo ========================================================
-echo   MIXCLEAN - DON GEP BO NHO DEM ^& SUA LOI GRADLE
+echo   MIXCLEAN - DON DEP BO NHO DEM ^& SUA LOI GRADLE
 echo ========================================================
 echo.
+echo  [1] Bat dau don dep cache (Gradle clean + xoa folder build)
+echo  [2] Thoat
+echo ========================================================
+echo.
+set /p CHOICE="Vui long chon [1-2]: "
+if "%CHOICE%"=="2" exit /b 0
+if "%CHOICE%" neq "1" (
+    echo [ERROR] Lua chon khong hop le!
+    pause
+    goto MENU
+)
 
+:RUN_CLEAN
+cls
 cd /d "%REPO_ROOT%"
+echo ========================================================
+echo   MIXCLEAN - DANG TIEN HANH DON DEP...
+echo ========================================================
+echo.
 
 :: 1. Chay Gradle Clean
 echo [1/4] Dang thuc hien Gradle Clean...
@@ -39,7 +59,7 @@ echo.
 
 :: 3. Reset ket noi thiet bi ADB
 echo [3/4] Dang khoi dong lai dich vu ket noi thiet bi [ADB]...
-where adb >nul 2>nul
+adb version >nul 2>nul
 if %ERRORLEVEL% equ 0 (
     adb kill-server
     adb start-server
@@ -55,4 +75,11 @@ echo   === HOAN TAT DON DEP BO NHO DEM! ===
 echo   Hay thu mo lai Android Studio va bien dich lai du an.
 echo ========================================================
 echo.
-pause
+
+if not defined ORCHESTRATOR (
+    echo [1] Quay lai Menu
+    echo [2] Thoat
+    set /p SUCCESS_CHOICE="Vui long chon [1-2]: "
+    if "!SUCCESS_CHOICE!"=="1" goto MENU
+)
+exit /b 0

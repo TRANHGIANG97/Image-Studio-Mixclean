@@ -358,21 +358,9 @@ fun QuickEditEditorNavigation(
     var saveAdWatchCount by remember { mutableStateOf(0) }
     var pendingSaveAction by remember { mutableStateOf<(() -> Unit)?>(null) }
 
-    val requestSaveAd: ((() -> Unit) -> Unit) = remember(rewardedAdManager) {
+    val requestSaveAd: ((() -> Unit) -> Unit) = remember {
         { action ->
-            val manager = rewardedAdManager
-            if (manager == null) {
-                action()
-            } else {
-                pendingSaveAction = action
-                saveAdWatchCount = 0
-                isSaveAdLoading = true
-                manager.loadAd(
-                    onLoaded = { isSaveAdLoading = false },
-                    onFailed = { isSaveAdLoading = false }
-                )
-                showSaveAdDialog = true
-            }
+            action()
         }
     }
 
