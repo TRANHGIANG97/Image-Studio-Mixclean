@@ -16,8 +16,8 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-:: 2. Kiem tra thiet bi ket noi
-adb devices | findstr /r /c:"[a-zA-Z0-9].*device$" >nul
+:: 2. Kiem tra thiet bi ket noi bang adb get-state
+adb get-state >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Khong phat hien dien thoai Android nao dang ket noi qua ADB!
     echo Vui long kiem tra:
@@ -112,7 +112,7 @@ goto MENU
 :VIEW_TAGS
 cls
 echo ========================================================
-echo   LOGCAT: LOC LOG THEO CÁC TAG EDITING / AI / REMOVER...
+echo   LOGCAT: LOC LOG THEO CAC TAG EDITING / AI / REMOVER...
 echo   [Nhan Ctrl+C de dung theo doi va ve Menu]
 echo ========================================================
 echo.
