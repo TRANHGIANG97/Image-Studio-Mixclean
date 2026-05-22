@@ -58,7 +58,7 @@ goto MENU
 :GET_PID
 :: Lay Process ID (PID) hien tai cua app MixClean tren thiet bi
 set PID=
-for /f "tokens=*" %%p in ('adb shell pidof -s com.thgiang.image 2^>nul') do set PID=%%p
+for /f "tokens=*" %%p in ('adb shell pidof -s com.thgiang.image') do set PID=%%p
 
 if "%PID%"=="" (
     echo.
@@ -66,9 +66,9 @@ if "%PID%"=="" (
     set /p LAUNCH_CHOICE="Ban co muon tu dong mo app de tiep tuc theo doi? [Y/N]: "
     if /i "!LAUNCH_CHOICE!"=="Y" (
         echo Dang gui tin hieu khoi dong app MixClean...
-        adb shell monkey -p com.thgiang.image -c android.intent.category.LAUNCHER 1 >nul 2^>&1
+        adb shell monkey -p com.thgiang.image -c android.intent.category.LAUNCHER 1 >nul 2>nul
         timeout /t 2 >nul
-        for /f "tokens=*" %%p in ('adb shell pidof -s com.thgiang.image 2^>nul') do set PID=%%p
+        for /f "tokens=*" %%p in ('adb shell pidof -s com.thgiang.image') do set PID=%%p
     )
 )
 goto :EOF
