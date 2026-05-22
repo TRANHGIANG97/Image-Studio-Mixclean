@@ -95,11 +95,11 @@ goto MENU
 
 :PUSH_MASTER
 set BRANCH=master
-goto CHECK_IDENTITY
+goto CHECK_LOCAL_BRANCH
 
 :PUSH_MAIN
 set BRANCH=main
-goto CHECK_IDENTITY
+goto CHECK_LOCAL_BRANCH
 
 :PUSH_CUSTOM
 set /p BRANCH="Nhap ten nhanh ban muon day code len: "
@@ -108,10 +108,29 @@ if "!BRANCH!"=="" (
     pause
     goto MENU
 )
-goto CHECK_IDENTITY
+goto CHECK_LOCAL_BRANCH
+
+:CHECK_LOCAL_BRANCH
+:: Kiem tra nhanh cuc bo co ton tai hay khong de tranh crash/loi push nhanh khong ton tai
+git rev-parse --verify !BRANCH! >nul 2>nul
+if !ERRORLEVEL! neq 0 (
+    echo.
+    echo ========================================================
+    echo   [ERROR] NHANH CUC BO [!BRANCH!] KHONG TON TAI!
+    echo ========================================================
+    echo Nhanh hien tai cua ban la:
+    git branch --show-current
+    echo.
+    echo Goi y khac phuc:
+    echo   - Chon nhanh dung ban dang code [vi du: chon [2] neu ban dang o nhanh 'main'].
+    echo   - Hoac tao nhanh '!BRANCH!' tren may cua ban truoc.
+    echo.
+    pause
+    goto MENU
+)
 
 :CHECK_IDENTITY
-:: 4. Kiem tra Thong tin nguoi dung (De tranh loi Commit nac danh tren may moi)
+:: 4. Kiem tra Thong tin nguoi dung [De tranh loi Commit nac danh tren may moi]
 git config user.name >nul 2>nul
 set HAS_NAME=%ERRORLEVEL%
 git config user.email >nul 2>nul
@@ -157,7 +176,7 @@ echo.
 echo [1/3] Dang them cac tap tin thay doi [git add .]...
 git add .
 if !ERRORLEVEL! neq 0 (
-    echo [ERROR] Quá trinh 'git add .' gap loi!
+    echo [ERROR] Qua trinh 'git add .' gap loi!
     echo Goi y: Kiem tra quyen ghi file hoac co tap tin nao dang bi khoa boi tien trinh khac.
     pause
     goto MENU
@@ -191,14 +210,14 @@ if !ERRORLEVEL! equ 0 (
     echo.
     echo CAC NGUYEN NHAN PHO BIEN VA PHUONG AN KHAC PHUC:
     echo.
-    echo   [1] LOI CONFLICT (Code tren Github hien dang moi hon code local cua ban):
-    echo       =^> Huong dan: Ban can dong bo du lieu tren remote ve truoc (chay pull).
+    echo   [1] LOI CONFLICT [Code tren Github hien dang moi hon code local cua ban]:
+    echo       =^> Huong dan: Ban can dong bo du lieu tren remote ve truoc [chay pull].
     echo.
-    echo   [2] LOI QUYEN TRUY CAP (Authentication/Permission Error):
+    echo   [2] LOI QUYEN TRUY CAP [Authentication/Permission Error]:
     echo       =^> Huong dan: Kiem tra xem tai khoan Github da dang nhap dung chua, 
     echo           co quyen Write vao repository nay khong, hoac SSH Key/Personal Access Token co con han.
     echo.
-    echo   [3] LOI KET NOI (Network Error):
+    echo   [3] LOI KET NOI [Network Error]:
     echo       =^> Huong dan: Kiem tra lai ket noi Internet, Wifi hoac VPN.
     echo.
     echo --------------------------------------------------------
@@ -225,7 +244,7 @@ if !ERRORLEVEL! equ 0 (
             )
         ) else (
             echo.
-            echo [ERROR] Quá trinh Pull code gap xung dot nang (Conflict file).
+            echo [ERROR] Qua trinh Pull code gap xung dot nang [Conflict file].
             echo Vui long mo IDE de giai quyet cac phan xung dot code thu cong truoc khi push.
         )
     )
