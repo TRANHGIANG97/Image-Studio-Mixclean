@@ -15,7 +15,7 @@ if %ERRORLEVEL% neq 0 (
     echo   1. Tai Git tai: https://git-scm.com/downloads
     echo   2. Cai dat va dam bao tick chon "Add to PATH".
     echo.
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -24,25 +24,34 @@ cd /d "%REPO_ROOT%"
 :: 2. Kiem tra va khoi tao Git Repo
 if not exist ".git" (
     echo [CANH BAO] Thu muc nay chua duoc khoi tao Git.
-    set /p INIT_CHOICE="Ban co muon khoi tao Git repository moi cho du an khong? [Y/N]: "
-    if /i "!INIT_CHOICE!"=="Y" (
+    if defined ORCHESTRATOR (
         git init
-        if !ERRORLEVEL! neq 0 (
-            echo [ERROR] Khoi tao Git repository that bai! Kiem tra quyen ghi file trong o dia.
-            pause
-            exit /b 1
-        )
-        echo [INFO] Khoi tao repository thanh cong.
+        echo [INFO] Tu dong khoi tao repository Git.
     ) else (
-        echo [INFO] Da huy thao tac khoi tao.
-        pause
-        exit /b 0
+        set /p INIT_CHOICE="Ban co muon khoi tao Git repository moi cho du an khong? [Y/N]: "
+        if /i "!INIT_CHOICE!"=="Y" (
+            git init
+            if !ERRORLEVEL! neq 0 (
+                echo [ERROR] Khoi tao Git repository that bai! Kiem tra quyen ghi file trong o dia.
+                pause
+                exit /b 1
+            )
+            echo [INFO] Khoi tao repository thanh cong.
+        ) else (
+            echo [INFO] Da huy thao tac khoi tao.
+            pause
+            exit /b 0
+        )
     )
 )
 
 :: 3. Kiem tra cau hinh remote origin
 git remote get-url origin >nul 2>nul
 if %ERRORLEVEL% neq 0 (
+    if defined ORCHESTRATOR (
+        echo [ERROR] Project chua duoc cau hinh remote link Github! Khong the tu dong day code.
+        exit /b 1
+    )
     echo [CANH BAO] Project chua ket noi voi Github Repository nao [Chua co remote origin].
     set /p REMOTE_URL="Vui long dan link Repository Github cua ban [e.g., https://github.com/user/repo.git]: "
     if not "!REMOTE_URL!"=="" (
@@ -58,6 +67,13 @@ if %ERRORLEVEL% neq 0 (
         pause
         exit /b 0
     )
+)
+
+:: Neu chay tu Orchestrator, tu dong lay nhanh dang active va chay luon
+if defined ORCHESTRATOR (
+    for /f "tokens=*" %%a in ('git branch --show-current') do set BRANCH=%%a
+    if "!BRANCH!"=="" set BRANCH=main
+    goto CHECK_LOCAL_BRANCH
 )
 
 :MENU
@@ -125,7 +141,8 @@ if !ERRORLEVEL! neq 0 (
     echo   - Chon nhanh dung ban dang code [vi du: chon [2] neu ban dang o nhanh 'main'].
     echo   - Hoac tao nhanh '!BRANCH!' tren may cua ban truoc.
     echo.
-    pause
+    if not defined ORCHESTRATOR pause
+    if defined ORCHESTRATOR exit /b 1
     goto MENU
 )
 
@@ -139,14 +156,22 @@ set HAS_EMAIL=%ERRORLEVEL%
 if %HAS_NAME% neq 0 (
     echo.
     echo [CANH BAO] Git chua duoc thiet lap Ho ten nguoi dung [user.name].
-    set /p GIT_NAME="Vui long nhap Ho ten de ky ten vao Commit [e.g. Nguyen Van A]: "
-    git config --global user.name "!GIT_NAME!"
+    if defined ORCHESTRATOR (
+        git config --global user.name "MixClean Developer"
+    ) else (
+        set /p GIT_NAME="Vui long nhap Ho ten de ky ten vao Commit [e.g. Nguyen Van A]: "
+        git config --global user.name "!GIT_NAME!"
+    )
 )
 
 if %HAS_EMAIL% neq 0 (
     echo [CANH BAO] Git chua duoc thiet lap Email nguoi dung [user.email].
-    set /p GIT_EMAIL="Vui long nhap Email cua ban: "
-    git config --global user.email "!GIT_EMAIL!"
+    if defined ORCHESTRATOR (
+        git config --global user.email "developer@mixclean.com"
+    ) else (
+        set /p GIT_EMAIL="Vui long nhap Email cua ban: "
+        git config --global user.email "!GIT_EMAIL!"
+    )
 )
 goto RUN_PUSH
 
@@ -158,6 +183,9 @@ echo === KIEM TRA TRANG THAI DU AN... ===
 git status --porcelain | findstr /r "." >nul
 if %ERRORLEVEL% neq 0 (
     echo [INFO] Khong co tap tin nao thay doi de commit.
+    if defined ORCHESTRATOR (
+        goto PUSH_ONLY
+    )
     set /p FORCE_PUSH="Ban co muon thuc hien day [PUSH] phien ban local hien tai len luon khong? [Y/N]: "
     if /i "!FORCE_PUSH!"=="Y" (
         goto PUSH_ONLY
@@ -167,9 +195,13 @@ if %ERRORLEVEL% neq 0 (
 )
 
 :: Nhap thong diep commit
-set /p COMMIT_MSG="Nhap thong diep commit [Commit Message]: "
-if "!COMMIT_MSG!"=="" (
-    set COMMIT_MSG=Update: Auto-commit on %date% %time%
+if defined ORCHESTRATOR (
+    set COMMIT_MSG=Release: Auto-deploy release on %date% %time%
+) else (
+    set /p COMMIT_MSG="Nhap thong diep commit [Commit Message]: "
+    if "!COMMIT_MSG!"=="" (
+        set COMMIT_MSG=Update: Auto-commit on %date% %time%
+    )
 )
 
 echo.
@@ -178,16 +210,16 @@ git add .
 if !ERRORLEVEL! neq 0 (
     echo [ERROR] Qua trinh 'git add .' gap loi!
     echo Goi y: Kiem tra quyen ghi file hoac co tap tin nao dang bi khoa boi tien trinh khac.
-    pause
-    goto MENU
+    if not defined ORCHESTRATOR pause
+    exit /b 1
 )
 
 echo [2/3] Dang thiet lap commit...
 git commit -m "!COMMIT_MSG!"
 if !ERRORLEVEL! neq 0 (
     echo [ERROR] Khoi tao commit that bai!
-    pause
-    goto MENU
+    if not defined ORCHESTRATOR pause
+    exit /b 1
 )
 
 :PUSH_ONLY
@@ -200,8 +232,11 @@ if !ERRORLEVEL! equ 0 (
     echo ========================================================
     echo   === DONG BO GITHUB THANH CONG! ===
     echo ========================================================
-    pause
-    goto MENU
+    if not defined ORCHESTRATOR (
+        pause
+        goto MENU
+    )
+    exit /b 0
 ) else (
     echo.
     echo ========================================================
@@ -221,6 +256,11 @@ if !ERRORLEVEL! equ 0 (
     echo       =^> Huong dan: Kiem tra lai ket noi Internet, Wifi hoac VPN.
     echo.
     echo --------------------------------------------------------
+    
+    if defined ORCHESTRATOR (
+        echo [ERROR] Do loi ket noi hoac conflict, huy dong bo.
+        exit /b 1
+    )
     
     :: Tich hop engine tu dong sua loi Conflict / Rebase tren nhanh hien tai
     set /p PULL_CHOICE="Ban co muon tu dong dong bo code moi tu Github ve [git pull --rebase] va push lai luon? [Y/N]: "

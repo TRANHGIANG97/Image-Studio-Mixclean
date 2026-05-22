@@ -24,7 +24,7 @@ call "%GRADLEW_PATH%" :app:bundleRelease
 if %ERRORLEVEL% neq 0 (
     echo.
     echo [ERROR] Build AAB that bai. Vui long kiem tra code hoac log build.
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -34,7 +34,7 @@ copy /y "%SRC_AAB_PATH%" "%DEST_AAB_PATH%" >nul
 
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Khong the sao chep file AAB vao: %DEST_AAB_PATH%
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -45,4 +45,5 @@ echo   File AAB moi da duoc dua vao:
 echo   %DEST_AAB_PATH%
 echo ========================================================
 echo.
-pause
+if not defined ORCHESTRATOR pause
+

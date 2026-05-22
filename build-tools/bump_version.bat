@@ -13,4 +13,9 @@ if %ERRORLEVEL% neq 0 (
 
 :: Chay script python de xu ly phien ban
 python "%~dp0bump_version.py"
-pause
+if %ERRORLEVEL% neq 0 (
+    if not defined ORCHESTRATOR pause
+    exit /b 1
+)
+if not defined ORCHESTRATOR pause
+

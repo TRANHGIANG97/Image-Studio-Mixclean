@@ -18,7 +18,7 @@ if %ERRORLEVEL% neq 0 (
     echo [ERROR] Khong tim thay moi truong Java [JRE/JDK] tren may tinh!
     echo Vui long cai dat Java va them vao bien moi truong PATH de chay duoc bundletool.
     echo.
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -28,7 +28,7 @@ if not exist "%AAB_PATH%" (
     echo [ERROR] Khong tim thay file AAB tai: %AAB_PATH%
     echo [HUONG DAN] Vui long nhap dup file 'build_aab_release.bat' truoc de tao file AAB.
     echo.
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -36,7 +36,7 @@ if not exist "%AAB_PATH%" (
 if not exist "%KEYSTORE_PATH%" (
     echo [ERROR] Khong tim thay file Keystore tai: %KEYSTORE_PATH%
     echo.
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -61,7 +61,7 @@ if %ERRORLEVEL% neq 0 (
     echo   - Phien ban Java khong tuong thich.
     echo   - File AAB bi loi.
     echo.
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -76,7 +76,7 @@ if %ERRORLEVEL% neq 0 (
     echo [ERROR] Khong the ket noi voi thiet bi qua ADB de lay thong tin cau hinh.
     echo Vui long kiem tra lai cap ket noi hoac Wifi Debugging.
     echo.
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -93,7 +93,7 @@ if %ERRORLEVEL% neq 0 (
     echo [ERROR] Khong the trich xuat split APKs phu hop cho thiet bi.
     if exist "%~dp0device.json" del "%~dp0device.json"
     if exist "%~dp0extracted_apks" rd /s /q "%~dp0extracted_apks"
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -134,7 +134,7 @@ if %ERRORLEVEL% neq 0 (
             echo ========================================================
             echo.
             if exist "%~dp0extracted_apks" rd /s /q "%~dp0extracted_apks"
-            pause
+            if not defined ORCHESTRATOR pause
             exit /b 0
         ) else (
             echo [ERROR] Van khong the cai dat ung dung sau khi go.
@@ -143,7 +143,7 @@ if %ERRORLEVEL% neq 0 (
     
     if exist "%~dp0extracted_apks" rd /s /q "%~dp0extracted_apks"
     echo.
-    pause
+    if not defined ORCHESTRATOR pause
     exit /b 1
 )
 
@@ -156,4 +156,4 @@ echo   === CAI DAT THANH CONG! ===
 echo   Da cai dat ban gia lap tuong thich CH Play len may.
 echo ========================================================
 echo.
-pause
+if not defined ORCHESTRATOR pause
