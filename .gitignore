@@ -27,4 +27,4 @@ code-merge*.txt
 .DS_Store
 *.aab
 *.apks
-
+build-tools/exports/
