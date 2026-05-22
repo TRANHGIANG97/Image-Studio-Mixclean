@@ -1,4 +1,4 @@
-
+<!-- 
 -yêu cầu tiên quyết: kiểm tra cẩn thận mã nguồn" lập kế hoạch cẩn thật từng bước, build và sửa lỗi đẩm bảo phải build pass sau mỗi lần thực hiện các bước rồi mới bắt đầu bước tiếp theo:
 
 Dưới đây là kế hoạch triển khai chi tiết cho từng bước, kèm theo chỉ dẫn cụ thể về những file cần sửa, logic cần thay đổi và mã nguồn tham khảo. Tôi sẽ trình bày tuần tự 7 bước để bạn (hoặc một AI code) có thể thực hiện mà không bỏ sót.
@@ -287,4 +287,4 @@ object MemoryMonitor {
 }
 Trước khi thực hiện các tác vụ nặng (load ảnh lớn, apply filter), kiểm tra và giảm chất lượng (giảm sample size, giảm kích thước preview) nếu RAM thấp.
 
-Sau khi hoàn thành 7 bước, ứng dụng sẽ vững chắc hơn về mặt bộ nhớ, mượt mà hơn về trải nghiệm, và sẵn sàng cho các bài kiểm thử tự động. Bạn có thể giao từng bước cho AI code thực hiện tuần tự, kiểm tra kỹ sau mỗi bước để đảm bảo không phát sinh lỗi.
+Sau khi hoàn thành 7 bước, ứng dụng sẽ vững chắc hơn về mặt bộ nhớ, mượt mà hơn về trải nghiệm, và sẵn sàng cho các bài kiểm thử tự động. Bạn có thể giao từng bước cho AI code thực hiện tuần tự, kiểm tra kỹ sau mỗi bước để đảm bảo không phát sinh lỗi. -->

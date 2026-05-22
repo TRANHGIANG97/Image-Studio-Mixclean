@@ -1,13 +1,21 @@
 package com.thgiang.image.feature.remove.viewmodel
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
+import com.abizer_r.quickedit.backgroundremove.loadBitmapFromUri
+import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 import com.thgiang.image.core.data.save.CachedImage
 import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.core.domain.AppError
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
+import com.thgiang.image.core.util.processors.ProcessorUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +26,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BatchRemoveViewModel @Inject constructor(
-    private val backgroundRemoverRepository: BackgroundRemoverRepository,
-    private val imageSave: ImageSaveRepository
+    private val mlKitRemover: BackgroundRemoverRepository,
+    private val modNetRemover: ModNetBackgroundRemoverRepository,
+    private val imageSave: ImageSaveRepository,
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BatchRemoveUiState())
@@ -54,8 +64,8 @@ class BatchRemoveViewModel @Inject constructor(
             snackbarEvent = null
         )
 
-        processJob = viewModelScope.launch {
-            val remover = backgroundRemoverRepository
+        processJob = viewModelScope.launch(Dispatchers.Default) {
+            val portraitClassifier = QuickToolsPortraitClassifier()
             val mutableResults = _uiState.value.results.toMutableList()
             val total = pendingUris.size
             var processed = 0
@@ -64,37 +74,82 @@ class BatchRemoveViewModel @Inject constructor(
             for (uri in pendingUris) {
                 if (!isActive) break
 
-                val result = remover.removeBackground(uri)
-                result.fold(
-                    onSuccess = { output ->
-                        val cacheResult = imageSave.cacheBitmap(output.foregroundToSave)
-                        cacheResult.fold(
-                            onSuccess = { displayUri ->
-                                mutableResults.add(
-                                    ProcessedResult(
-                                        displayUri = displayUri,
-                                        hasAlpha = output.foregroundToSave.hasAlpha()
-                                    )
-                                )
-                                processed++
-                                processedUriCount++
-                                _uiState.value = _uiState.value.copy(
-                                    results = mutableResults.toList(),
-                                    processedUriCount = processedUriCount,
-                                    batchCompleted = processed,
-                                    progressPercent = (processed * 100) / total
-                                )
-                            },
-                            onFailure = { e ->
-                                _uiState.value = _uiState.value.copy(
-                                    isProcessing = false,
-                                    snackbarEvent = BatchRemoveSnackbarEvent.Text(AppError.from(e).userMessage),
-                                    results = mutableResults.toList(),
-                                    processedUriCount = processedUriCount,
-                                    batchCompleted = processed
-                                )
-                                return@launch
-                            }
+                val originalBitmap = runCatching {
+                    context.loadBitmapFromUri(uri)
+                }.getOrNull()
+
+                if (originalBitmap == null) {
+                    _uiState.value = _uiState.value.copy(
+                        isProcessing = false,
+                        snackbarEvent = BatchRemoveSnackbarEvent.Text("Không thể tải ảnh này."),
+                        results = mutableResults.toList(),
+                        processedUriCount = processedUriCount,
+                        batchCompleted = processed
+                    )
+                    return@launch
+                }
+
+                // 2. Perform face detection routing
+                val hasFace = portraitClassifier.hasDetectableFace(originalBitmap).getOrDefault(false)
+
+                // 3. Remove background with fallback
+                val foregroundBitmap = if (hasFace) {
+                    modNetRemover.getForegroundBitmap(originalBitmap).getOrNull()
+                        ?: mlKitRemover.getForegroundBitmap(originalBitmap).getOrNull()
+                } else {
+                    mlKitRemover.getForegroundBitmap(originalBitmap).getOrNull()
+                        ?: modNetRemover.getForegroundBitmap(originalBitmap).getOrNull()
+                }
+
+                // Clean original bitmap as soon as possible
+                if (!originalBitmap.isRecycled) {
+                    originalBitmap.recycle()
+                }
+
+                if (foregroundBitmap == null) {
+                    _uiState.value = _uiState.value.copy(
+                        isProcessing = false,
+                        snackbarEvent = BatchRemoveSnackbarEvent.Text("Xử lý xoá nền thất bại."),
+                        results = mutableResults.toList(),
+                        processedUriCount = processedUriCount,
+                        batchCompleted = processed
+                    )
+                    return@launch
+                }
+
+                // 4. Post-process (Trim transparency)
+                val foregroundCopy = foregroundBitmap.copy(Bitmap.Config.ARGB_8888, true)
+                if (foregroundBitmap !== originalBitmap && !foregroundBitmap.isRecycled) {
+                    foregroundBitmap.recycle()
+                }
+
+                val trimmedResult = ProcessorUtils.trimTransparentBounds(foregroundCopy)
+                trimmedResult.setHasAlpha(true)
+                if (trimmedResult !== foregroundCopy && !foregroundCopy.isRecycled) {
+                    foregroundCopy.recycle()
+                }
+
+                // 5. Cache result and update state
+                val cacheResult = imageSave.cacheBitmap(trimmedResult)
+                if (!trimmedResult.isRecycled) {
+                    trimmedResult.recycle()
+                }
+
+                cacheResult.fold(
+                    onSuccess = { displayUri ->
+                        mutableResults.add(
+                            ProcessedResult(
+                                displayUri = displayUri,
+                                hasAlpha = true
+                            )
+                        )
+                        processed++
+                        processedUriCount++
+                        _uiState.value = _uiState.value.copy(
+                            results = mutableResults.toList(),
+                            processedUriCount = processedUriCount,
+                            batchCompleted = processed,
+                            progressPercent = (processed * 100) / total
                         )
                     },
                     onFailure = { e ->

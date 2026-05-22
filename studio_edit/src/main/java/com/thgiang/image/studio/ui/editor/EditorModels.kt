@@ -105,15 +105,19 @@ enum class CropRatio(
     val widthRatio: Float, 
     val heightRatio: Float
 ) : java.io.Serializable {
+    ORIGINAL("Gốc", 0f, 0f),
     RATIO_1_1("1:1", 1f, 1f),
     RATIO_3_4("3:4", 3f, 4f),
     RATIO_4_3("4:3", 4f, 3f),
     RATIO_9_16("9:16", 9f, 16f),
     RATIO_16_9("16:9", 16f, 9f);
     
-    val aspectRatio: Float get() = widthRatio / heightRatio
+    val aspectRatio: Float get() = if (this == ORIGINAL) 1f else widthRatio / heightRatio
     
     fun calculateSize(maxWidth: Float, maxHeight: Float): IntSize {
+        if (this == ORIGINAL) {
+            return IntSize(maxWidth.toInt(), maxHeight.toInt())
+        }
         val targetAspect = aspectRatio
         val containerAspect = maxWidth / maxHeight
         
@@ -130,7 +134,7 @@ enum class CropRatio(
     
     companion object {
         fun fromAspectRatio(ratio: Float): CropRatio {
-            return entries.minByOrNull { kotlin.math.abs(it.aspectRatio - ratio) } ?: RATIO_1_1
+            return entries.filter { it != ORIGINAL }.minByOrNull { kotlin.math.abs(it.aspectRatio - ratio) } ?: RATIO_1_1
         }
     }
 }

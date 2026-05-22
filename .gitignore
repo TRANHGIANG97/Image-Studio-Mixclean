@@ -25,3 +25,6 @@ code-merge*.txt
 *.bak
 *.log
 .DS_Store
+*.aab
+*.apks
+

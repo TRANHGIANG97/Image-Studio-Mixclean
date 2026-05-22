@@ -316,7 +316,7 @@ private fun EditorCanvasV2(
 
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
                 .pointerInput(product, viewport, templateSize, showBoundingBox, cropRatio) {
                     detectTapGestures(onTap = { tap ->
                         if (!product.isBackgroundRemoved || product.foregroundUri == null) {
@@ -324,25 +324,33 @@ private fun EditorCanvasV2(
                             return@detectTapGestures
                         }
 
-                        val templateLeftPx = (size.width - with(density) { displayWidth.toPx() }) / 2f
-                        val templateTopPx = (size.height - with(density) { displayHeight.toPx() }) / 2f
+                        val displayWidthPx = with(density) { displayWidth.toPx() }
+                        val displayHeightPx = with(density) { displayHeight.toPx() }
+                        val templateLeftPx = (size.width - displayWidthPx) / 2f
+                        val templateTopPx = (size.height - displayHeightPx) / 2f
                         val croppedSize = cropRatio.calculateSize(product.baseSize.width.toFloat(), product.baseSize.height.toFloat())
-                        val boxWidthPx = croppedSize.width * viewport.scale
-                        val boxHeightPx = croppedSize.height * viewport.scale
-                        val objectLeftPx = templateLeftPx + (viewport.offset.x * calculatedScale)
-                        val objectTopPx = templateTopPx + (viewport.offset.y * calculatedScale)
-                        val withinObject = tap.x in objectLeftPx..(objectLeftPx + boxWidthPx) &&
-                            tap.y in objectTopPx..(objectTopPx + boxHeightPx)
+                        val objectWidthPx = croppedSize.width * viewport.scale * calculatedScale
+                        val objectHeightPx = croppedSize.height * viewport.scale * calculatedScale
+                        val objectCenterX = templateLeftPx + displayWidthPx / 2f + (viewport.offset.x * calculatedScale)
+                        val objectCenterY = templateTopPx + displayHeightPx / 2f + (viewport.offset.y * calculatedScale)
+                        val dx = tap.x - objectCenterX
+                        val dy = tap.y - objectCenterY
+                        val angleRad = Math.toRadians(-viewport.rotation.toDouble())
+                        val rotatedDx = dx * kotlin.math.cos(angleRad) - dy * kotlin.math.sin(angleRad)
+                        val rotatedDy = dx * kotlin.math.sin(angleRad) + dy * kotlin.math.cos(angleRad)
+                        val withinObject = kotlin.math.abs(rotatedDx) <= (objectWidthPx / 2f) &&
+                            kotlin.math.abs(rotatedDy) <= (objectHeightPx / 2f)
 
                         if (withinObject) {
                             onBoundingBoxVisible(true)
+                        } else {
+                            onBoundingBoxVisible(false)
                         }
                     })
                 }
-        )
-
-        Box(
-            modifier = Modifier.size(displayWidth, displayHeight),
+        ) {
+            Box(
+                modifier = Modifier.size(displayWidth, displayHeight).align(Alignment.Center),
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
@@ -363,7 +371,8 @@ private fun EditorCanvasV2(
                     onGesture = onGesture,
                     onGestureEnd = onGestureEnd,
                     showOverlay = showOverlay,
-                    showBoundingBox = showBoundingBox
+                    showBoundingBox = showBoundingBox,
+                    onBoundingBoxVisible = onBoundingBoxVisible
                 )
             } else {
                 PickImagePlaceholder(
@@ -386,6 +395,7 @@ private fun EditorCanvasV2(
                     }
                 }
             }
+        }
         }
     }
 }
@@ -416,7 +426,8 @@ private fun ProductLayerV2(
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     showOverlay: Boolean = false,
-    showBoundingBox: Boolean = false
+    showBoundingBox: Boolean = false,
+    onBoundingBoxVisible: (Boolean) -> Unit = {}
 ) {
     val density = LocalDensity.current
     
@@ -455,8 +466,8 @@ private fun ProductLayerV2(
         }
     }
 
-    val originalWidth = with(density) { (product.baseSize.width * viewport.scale).toInt().toDp() }
-    val originalHeight = with(density) { (product.baseSize.height * viewport.scale).toInt().toDp() }
+    val originalWidth = with(density) { (product.baseSize.width * viewport.scale * displayScale).toInt().toDp() }
+    val originalHeight = with(density) { (product.baseSize.height * viewport.scale * displayScale).toInt().toDp() }
 
     val cropShape = remember(actualSize, product.baseSize) {
         object : androidx.compose.ui.graphics.Shape {
@@ -583,7 +594,8 @@ private fun ProductLayerV2(
             templateSize = templateSize,
             onGesture = onGesture,
             onGestureEnd = onGestureEnd,
-            showBoundingBox = showBoundingBox
+            showBoundingBox = showBoundingBox,
+            onBoundingBoxVisible = onBoundingBoxVisible
         )
     }
 }

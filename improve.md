@@ -1,4 +1,4 @@
-# Lo trinh nang app len muc 8.5/10
+<!-- # Lo trinh nang app len muc 8.5/10
 
 ## 1. Danh gia hien trang
 
@@ -331,4 +331,4 @@ Ket qua mong doi: san sang dua len CH Play voi rui ro thap hon.
 
 App hien co nen tang chuc nang tot, nhung diem yeu nam o do ben ky thuat khi xu ly anh va AI. De len 8.5/10, khong nen them nhieu feature moi ngay lap tuc. Nen uu tien on dinh, memory, crash/ANR, release hygiene va test thiet bi that.
 
-Huong di dung la: giu feature hien co, lam chung chac hon, do duoc loi, toi uu bitmap, va kiem thu cac luong nang den khi app khong con mong manh tren may yeu.
+Huong di dung la: giu feature hien co, lam chung chac hon, do duoc loi, toi uu bitmap, va kiem thu cac luong nang den khi app khong con mong manh tren may yeu. -->

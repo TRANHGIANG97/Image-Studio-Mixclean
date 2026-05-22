@@ -27,7 +27,7 @@ data class EditorState(
     val viewport: EditorViewport = EditorViewport(),
     val appearance: EditorAppearance = EditorAppearance(),
     val selectedTool: EditorTool = EditorTool.Layout,
-    val cropRatio: CropRatio = CropRatio.RATIO_1_1,
+    val cropRatio: CropRatio = CropRatio.ORIGINAL,
     val isExporting: Boolean = false,
     val exportResult: Uri? = null,
     val errorMessage: String? = null,
@@ -226,6 +226,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 it.copy(
                     product = EditorProduct(originalUriString = uri.toString(), processing = true),
                     viewport = EditorViewport(),
+                    cropRatio = CropRatio.ORIGINAL,
                     exportResult = null,
                     errorMessage = null,
                     showBoundingBox = false

@@ -87,7 +87,7 @@ fun PremiumScreen(
                         .height(heroHeight)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        painter = painterResource(id = R.mipmap.ic_launcher_foreground),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

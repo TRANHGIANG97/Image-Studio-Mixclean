@@ -16,3 +16,7 @@
 # TensorFlow Lite
 -keep class org.tensorflow.lite.** { *; }
 -dontwarn org.tensorflow.lite.**
+
+# ONNX Runtime
+-keep class ai.onnxruntime.** { *; }
+-dontwarn ai.onnxruntime.**

@@ -186,7 +186,8 @@ fun BoundingBoxOverlayV6(
     lockAspectRatio: Boolean = true,
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
-    showBoundingBox: Boolean = true
+    showBoundingBox: Boolean = true,
+    onBoundingBoxVisible: (Boolean) -> Unit = {}
 ) {
     require(contentWidth > 0f) { "contentWidth must be > 0" }
     require(contentHeight > 0f) { "contentHeight must be > 0" }
@@ -238,7 +239,7 @@ fun BoundingBoxOverlayV6(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(contentWidth, contentHeight, displayScale, lockAspectRatio) {
+            .pointerInput(contentWidth, contentHeight, displayScale, lockAspectRatio, showBoundingBox) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     val center = Offset(size.width / 2f, size.height / 2f)
@@ -263,6 +264,10 @@ fun BoundingBoxOverlayV6(
                         HandleZone.Rotate -> GestureMode.ROTATE
                         is HandleZone.Corner -> GestureMode.SCALE_CORNER
                         HandleZone.None -> GestureMode.IDLE
+                    }
+
+                    if (gestureMode != GestureMode.IDLE && !showBoundingBox) {
+                        onBoundingBoxVisible(true)
                     }
 
                     if (gestureMode == GestureMode.IDLE) return@awaitEachGesture

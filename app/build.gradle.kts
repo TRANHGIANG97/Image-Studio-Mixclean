@@ -46,8 +46,8 @@ android {
         applicationId = "com.thgiang.image"
         minSdk = 24
         targetSdk = 35
-        versionCode = 20
-        versionName = "2.0"
+        versionCode = 22
+        versionName = "2.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -64,12 +64,10 @@ android {
     }
     signingConfigs {
         create("release") {
-            if (hasReleaseSigningConfig) {
-                storeFile = file(releaseStoreFilePath!!)
-                storePassword = releaseStorePassword
-                keyAlias = releaseKeyAlias
-                keyPassword = releaseKeyPassword
-            }
+            storeFile = file("my-release-key.jks")
+            storePassword = "135798"
+            keyAlias = "my-key-alias"
+            keyPassword = "135798"
         }
     }
     buildTypes {
@@ -78,9 +76,7 @@ android {
             isMinifyEnabled = true
 
             // Gán cấu hình ký vừa tạo ở trên vào đây
-            if (hasReleaseSigningConfig) {
-                signingConfig = signingConfigs.getByName("release")
-            }
+            signingConfig = signingConfigs.getByName("release")
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -116,6 +112,15 @@ android {
             excludes.add("lib/x86_64/libxeno_native.so")
             excludes.add("lib/x86/libxeno_native.so")
             excludes.add("lib/*/libyuv-decoder.so")
+        }
+    }
+    
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = false
         }
     }
     
