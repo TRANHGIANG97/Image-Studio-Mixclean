@@ -2,8 +2,7 @@
     android:width="28dp"
     android:height="28dp"
     android:viewportWidth="28"
-    android:viewportHeight="28"
-    android:tint="@color/tool_icon_tint">
+    android:viewportHeight="28">
 
     <path
         android:pathData="M5.5,8H22.5V24H5.5V8Z"
