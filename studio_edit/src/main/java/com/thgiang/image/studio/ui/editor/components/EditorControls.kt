@@ -238,17 +238,26 @@ private fun ShadowPresetChip(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label, style = MaterialTheme.typography.bodySmall) },
-        colors = FilterChipDefaults.filterChipColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
-        border = null
-    )
+    val containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer 
+                         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer 
+                       else MaterialTheme.colorScheme.onSurfaceVariant
+
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(containerColor)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            color = contentColor,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+        )
+    }
 }
 
 @Composable
