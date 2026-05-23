@@ -25,6 +25,8 @@
         <item name="colorOnSurface">@color/editor_on_surface</item>
         <item name="colorOnSurfaceVariant">@color/editor_on_surface_muted</item>
         <item name="colorOutline">@color/editor_outline</item>
+        <item name="colorControlNormal">#AEB6C2</item>
+        <item name="colorControlActivated">#3794FF</item>
     </style>
 
     <style name="Widget.Image.Editor.ToolButton" parent="Widget.Material3.Button.OutlinedButton">

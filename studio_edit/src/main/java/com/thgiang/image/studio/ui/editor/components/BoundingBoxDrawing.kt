@@ -130,37 +130,41 @@ fun DrawScope.drawRotatedOverlay(
         }
 
         // Rotation handle
-        val rotBase = Offset(cx, cy + hh)
         val rotPos = Offset(cx, cy + hh + dimensions.rotateLinePx + dimensions.rotateHandleOffsetPx)
 
-        drawLine(
-            color = Color.White.copy(alpha = 0.6f),
-            start = rotBase,
-            end = rotPos,
-            strokeWidth = 1.5f.dp.toPx(),
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 4f), 0f)
-        )
-
         val isRotating = gestureMode == GestureMode.ROTATE
-        val rotColor = if (isRotating) EditorColors.RotateHandleActive else EditorColors.RotateHandle
+        val rotColor = if (isRotating) EditorColors.RotateHandleActive else Color(0xFF387BFF)
         val rotR = if (isRotating) dimensions.rotateRadiusActivePx else dimensions.rotateRadiusPx
 
+        if (isRotating) {
+            drawCircle(
+                color = rotColor.copy(alpha = 0.25f),
+                radius = rotR + EditorDims.ROTATE_GLOW_RADIUS,
+                center = rotPos
+            )
+        }
+
+        // Draw floating dark background circle
         drawCircle(
-            color = rotColor.copy(alpha = if (isRotating) 0.28f else 0.16f),
-            radius = rotR + EditorDims.ROTATE_GLOW_RADIUS,
+            color = Color(0xE61E1F24),
+            radius = rotR,
             center = rotPos
         )
-        drawCircle(Color.White, rotR, rotPos)
-        drawCircle(rotColor, rotR, rotPos, style = Stroke(if (isRotating) 4.dp.toPx() else 3.dp.toPx()))
 
-        // V6.1: Rotate handle icon — arc arrow LUÔN hướng lên trong screen space
-        // Vì đang trong withTransform { rotate(...) }, ta vẽ ngược lại bằng -rotation
-        // để icon luôn "đứng yên" trong screen space
+        // Draw accent border
+        drawCircle(
+            color = rotColor,
+            radius = rotR,
+            center = rotPos,
+            style = Stroke(width = 2.dp.toPx())
+        )
+
+        // Rotate handle icon — arc arrow in white
         drawRotatingHandleIcon(
             center = rotPos,
             radius = rotR,
             rotation = rotation,
-            color = rotColor
+            color = Color.White
         )
 
         // Center crosshair

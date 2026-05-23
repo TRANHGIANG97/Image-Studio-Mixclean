@@ -8,18 +8,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Undo
-import androidx.compose.material.icons.filled.Redo
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -89,12 +87,23 @@ fun ThemeplateEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(themeplate.titleResId)) },
+                modifier = Modifier.height(118.dp),
+                title = {
+                    Text(
+                        text = stringResource(themeplate.titleResId).replace(" ", "\n"),
+                        color = Color.White,
+                        fontSize = 31.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 31.sp
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.studio_back)
+                        EditorBackIcon(
+                            modifier = Modifier.size(26.dp),
+                            tint = Color.White
                         )
                     }
                 },
@@ -103,22 +112,18 @@ fun ThemeplateEditorScreen(
                         onClick = { viewModel.onEvent(EditorEvent.Undo) },
                         enabled = canUndo
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Undo,
-                            contentDescription = "Undo",
-                            tint = if (canUndo) LocalContentColor.current
-                                   else LocalContentColor.current.copy(alpha = 0.38f)
+                        EditorUndoIcon(
+                            modifier = Modifier.size(24.dp),
+                            tint = if (canUndo) Color.White.copy(alpha = 0.52f) else Color.White.copy(alpha = 0.28f)
                         )
                     }
                     IconButton(
                         onClick = { viewModel.onEvent(EditorEvent.Redo) },
                         enabled = canRedo
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Redo,
-                            contentDescription = "Redo",
-                            tint = if (canRedo) LocalContentColor.current
-                                   else LocalContentColor.current.copy(alpha = 0.38f)
+                        EditorRedoIcon(
+                            modifier = Modifier.size(24.dp),
+                            tint = if (canRedo) Color.White.copy(alpha = 0.52f) else Color.White.copy(alpha = 0.28f)
                         )
                     }
                     
@@ -138,18 +143,15 @@ fun ThemeplateEditorScreen(
                             },
                             enabled = state.canExport
                         ) {
-                            Icon(
-                                Icons.Default.Done,
-                                contentDescription = "Done",
-                                tint = if (state.canExport) 
-                                    MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            EditorCheckIcon(
+                                modifier = Modifier.size(26.dp),
+                                tint = if (state.canExport) Color.White else Color.White.copy(alpha = 0.28f)
                             )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color(0xF20A0D0E)
                 )
             )
         },
@@ -163,14 +165,15 @@ fun ThemeplateEditorScreen(
                 modifier = Modifier.fillMaxWidth().navigationBarsPadding()
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color(0xFF060A0B)
     ) { paddingValues ->
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(if (isSystemInDarkTheme()) Color(0xFF1A1A1A) else Color(0xFFF0EDE8))
-        ) {
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Color(0xFF060A0B))
+            ) {
             val (canvasRef, controlsRef) = createRefs()
 
             if (state.template.loaded && state.template.originalSize.width > 0) {

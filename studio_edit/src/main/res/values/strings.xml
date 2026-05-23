@@ -43,4 +43,10 @@
     <string name="studio_shadow_tab_angle">Angle</string>
     <string name="studio_shadow_tab_distance">Distance</string>
     <string name="studio_shadow_tab_color">Color</string>
+    <string name="studio_shadow_preset_none">None</string>
+    <string name="studio_shadow_preset_light">Light</string>
+    <string name="studio_shadow_preset_medium">Medium</string>
+    <string name="studio_shadow_preset_strong">Strong</string>
+    <string name="studio_shadow_preset_natural">Natural</string>
+    <string name="studio_shadow_preset_dramatic">Dramatic</string>
 </resources>

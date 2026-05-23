@@ -43,4 +43,10 @@
     <string name="studio_shadow_tab_angle">Góc sáng</string>
     <string name="studio_shadow_tab_distance">Khoảng cách</string>
     <string name="studio_shadow_tab_color">Màu bóng</string>
+    <string name="studio_shadow_preset_none">Không bóng</string>
+    <string name="studio_shadow_preset_light">Nhẹ</string>
+    <string name="studio_shadow_preset_medium">Trung bình</string>
+    <string name="studio_shadow_preset_strong">Mạnh</string>
+    <string name="studio_shadow_preset_natural">Tự nhiên</string>
+    <string name="studio_shadow_preset_dramatic">Kịch tính</string>
 </resources>

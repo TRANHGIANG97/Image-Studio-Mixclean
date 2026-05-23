@@ -1,8 +1,11 @@
 package com.thgiang.image.studio.ui.editor.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,11 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import coil.compose.AsyncImage
+import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.*
 
 @Composable
@@ -34,7 +43,16 @@ fun EditorCanvasV2(
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
-    BoxWithConstraints(modifier = modifier, contentAlignment = Alignment.Center) {
+    BoxWithConstraints(
+        modifier = modifier.background(
+            Brush.radialGradient(
+                colors = listOf(Color(0xFF0E4D50), Color(0xFF071011), Color.Black),
+                center = Offset.Zero,
+                radius = 1300f
+            )
+        ),
+        contentAlignment = Alignment.Center
+    ) {
         val templateWidth = with(density) { templateSize.width.toDp() }
         val templateHeight = with(density) { templateSize.height.toDp() }
         val calculatedScale = with(density) {
@@ -82,6 +100,72 @@ fun EditorCanvasV2(
                     })
                 }
         ) {
+            Canvas(modifier = Modifier.matchParentSize()) {
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFF1D6A67).copy(alpha = 0.62f),
+                            Color.Transparent
+                        ),
+                        center = Offset(size.width * 0.30f, size.height * 0.44f),
+                        radius = size.width * 0.46f
+                    )
+                )
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xB06E451D),
+                            Color.Transparent
+                        ),
+                        center = Offset(size.width * 0.18f, size.height * 0.50f),
+                        radius = size.width * 0.33f
+                    )
+                )
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.28f)
+                        ),
+                        startY = size.height * 0.56f,
+                        endY = size.height
+                    )
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 16.dp, top = 16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0x7F1E1F24))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = "${(viewport.scale * 100).toInt()}%",
+                    color = Color.White.copy(alpha = 0.85f),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp)
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = 16.dp, top = 16.dp)
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0x7F1E1F24))
+                    .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.Icon(
+                    painter = painterResource(R.drawable.ic_tool_crop),
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.85f),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
             Box(
                 modifier = Modifier
                     .size(displayWidth, displayHeight)

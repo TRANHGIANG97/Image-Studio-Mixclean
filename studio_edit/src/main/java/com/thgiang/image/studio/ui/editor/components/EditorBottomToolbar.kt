@@ -8,15 +8,13 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,20 +29,14 @@ fun EditorBottomToolbar(
     modifier: Modifier = Modifier
 ) {
     val tools = remember {
-        listOf(
-            EditorTool.Replace to Icons.Default.Photo,
-            EditorTool.Layout to Icons.Default.DragIndicator,
-            EditorTool.Rotate to Icons.Default.Refresh,
-            EditorTool.Shadow to Icons.Default.WbSunny,
-            EditorTool.Transparency to Icons.Default.Opacity,
-            EditorTool.Crop to Icons.Default.CropSquare
-        )
+        EditorTool.ALL
     }
 
     Surface(
-        tonalElevation = 4.dp,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
         shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+        color = Color(0xF012171A),
         modifier = modifier
     ) {
         val scrollState = rememberScrollState()
@@ -52,15 +44,14 @@ fun EditorBottomToolbar(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(scrollState)
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            tools.forEach { (tool, icon) ->
+            tools.forEach { tool ->
                 val isSelected = selectedTool == tool
                 ToolButton(
                     tool = tool,
-                    icon = icon,
                     isSelected = isSelected,
                     onClick = {
                         if (tool == EditorTool.Replace) onReplaceImage()
@@ -75,7 +66,6 @@ fun EditorBottomToolbar(
 @Composable
 private fun ToolButton(
     tool: EditorTool,
-    icon: ImageVector,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -86,10 +76,14 @@ private fun ToolButton(
         EditorTool.Shadow -> R.string.studio_tool_shadow
         EditorTool.Transparency -> R.string.studio_tool_transparency
         EditorTool.Crop -> R.string.studio_tool_crop
+        else -> R.string.studio_tool_layout
     }
 
+    val accent = Color(0xFF3794FF)
+    val iconColor = if (isSelected) accent else Color.White
+    val labelColor = if (isSelected) accent else Color(0xFFD7DCE3)
     val containerColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+        targetValue = if (isSelected) Color(25, 29, 32) else Color.Transparent,
         animationSpec = tween(200),
         label = "toolContainer"
     )
@@ -97,22 +91,34 @@ private fun ToolButton(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
+            .width(76.dp)
+            .clip(RoundedCornerShape(14.dp))
             .background(containerColor)
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(horizontal = 4.dp, vertical = 6.dp)
     ) {
+        val iconRes = when (tool) {
+            EditorTool.Replace -> R.drawable.ic_tool_replace_image
+            EditorTool.Layout -> R.drawable.ic_tool_layout
+            EditorTool.Rotate -> R.drawable.ic_tool_rotate_flip
+            EditorTool.Shadow -> R.drawable.ic_tool_shadow
+            EditorTool.Transparency -> R.drawable.ic_tool_opacity
+            EditorTool.Crop -> R.drawable.ic_tool_crop
+            else -> R.drawable.ic_tool_layout
+        }
+
         Icon(
-            imageVector = icon,
+            painter = painterResource(iconRes),
             contentDescription = null,
-            modifier = Modifier.size(22.dp),
-            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            tint = iconColor,
+            modifier = Modifier.size(24.dp)
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             text = stringResource(labelRes),
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
+            color = labelColor,
+            maxLines = 1
         )
     }
 }
