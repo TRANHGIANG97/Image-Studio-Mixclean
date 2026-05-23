@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -35,8 +36,7 @@ fun EditorBottomToolbar(
     Surface(
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
-        shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
-        color = Color(0xF012171A),
+        color = Color(0xFF131418),
         modifier = modifier
     ) {
         val scrollState = rememberScrollState()
@@ -76,25 +76,21 @@ private fun ToolButton(
         EditorTool.Shadow -> R.string.studio_tool_shadow
         EditorTool.Transparency -> R.string.studio_tool_transparency
         EditorTool.Crop -> R.string.studio_tool_crop
-        else -> R.string.studio_tool_layout
     }
 
-    val accent = Color(0xFF3794FF)
-    val iconColor = if (isSelected) accent else Color.White
-    val labelColor = if (isSelected) accent else Color(0xFFD7DCE3)
-    val containerColor by animateColorAsState(
-        targetValue = if (isSelected) Color(25, 29, 32) else Color.Transparent,
-        animationSpec = tween(200),
-        label = "toolContainer"
-    )
+    val accent = Color(0xFF387BFF)
+    val iconColor = if (isSelected) accent else Color(0xFF7B8187)
+    val labelColor = if (isSelected) accent else Color(0xFF7B8187)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .width(76.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(containerColor)
-            .clickable(onClick = onClick)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
             .padding(horizontal = 4.dp, vertical = 6.dp)
     ) {
         val iconRes = when (tool) {
@@ -104,7 +100,6 @@ private fun ToolButton(
             EditorTool.Shadow -> R.drawable.ic_tool_shadow
             EditorTool.Transparency -> R.drawable.ic_tool_opacity
             EditorTool.Crop -> R.drawable.ic_tool_crop
-            else -> R.drawable.ic_tool_layout
         }
 
         Icon(
@@ -113,10 +108,10 @@ private fun ToolButton(
             tint = iconColor,
             modifier = Modifier.size(24.dp)
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
             text = stringResource(labelRes),
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
             color = labelColor,
             maxLines = 1
         )

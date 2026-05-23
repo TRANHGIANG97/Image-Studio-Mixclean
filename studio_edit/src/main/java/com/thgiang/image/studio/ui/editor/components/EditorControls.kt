@@ -66,17 +66,12 @@ fun EditorControlsV2(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = Color.White.copy(alpha = 0.16f),
-                    shape = RoundedCornerShape(topStart = 34.dp, topEnd = 34.dp)
+                    color = Color.White.copy(alpha = 0.08f),
+                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                 )
                 .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xF0272D31),
-                            Color(0xF112171B)
-                        )
-                    ),
-                    shape = RoundedCornerShape(topStart = 34.dp, topEnd = 34.dp)
+                    color = Color(0xFF131418),
+                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                 )
                 .padding(bottom = 14.dp)
         ) {
@@ -117,127 +112,132 @@ fun EditorControlsV2(
                                         onTabSelected = { selectedSubTab = it }
                                     )
 
-                                    AnimatedContent(
-                                        targetState = selectedSubTab,
-                                        transitionSpec = {
-                                            fadeIn(animationSpec = tween(150)) togetherWith fadeOut(animationSpec = tween(150))
-                                        },
-                                        label = "ShadowSubTabAnimation"
-                                    ) { currentTab ->
-                                        Box(modifier = Modifier.fillMaxWidth()) {
-                                            when (currentTab) {
-                                                ShadowSubTab.Intensity -> {
-                                                    Column(
-                                                        modifier = Modifier
-                                                            .clip(RoundedCornerShape(24.dp))
-                                                            .background(Color(0xD423282D))
-                                                            .padding(horizontal = 14.dp, vertical = 18.dp),
-                                                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                                                    ) {
-                                                        CompactMetricSlider(
-                                                            label = stringResource(
-                                                                R.string.studio_shadow_label,
-                                                                (appearance.shadowIntensity * 100).roundToInt()
-                                                            ),
-                                                            value = appearance.shadowIntensity,
-                                                            valueRange = 0f..1f,
-                                                            onValueChange = onUpdateShadow
-                                                        )
-                                                        
-                                                        // 3D Sphere preset list
-                                                        val presets = ShadowPreset.values()
-                                                        Row(
-                                                            modifier = Modifier
-                                                                .fillMaxWidth()
-                                                                .horizontalScroll(rememberScrollState())
-                                                                .padding(vertical = 4.dp),
-                                                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(Color(0xFF1C1D24))
+                                            .padding(horizontal = 16.dp, vertical = 16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                                    ) {
+                                        AnimatedContent(
+                                            targetState = selectedSubTab,
+                                            transitionSpec = {
+                                                fadeIn(animationSpec = tween(150)) togetherWith fadeOut(animationSpec = tween(150))
+                                            },
+                                            label = "ShadowSubTabAnimation"
+                                        ) { currentTab ->
+                                            Box(modifier = Modifier.fillMaxWidth()) {
+                                                when (currentTab) {
+                                                    ShadowSubTab.Intensity -> {
+                                                        Column(
+                                                            verticalArrangement = Arrangement.spacedBy(16.dp)
                                                         ) {
-                                                            presets.forEach { p ->
-                                                                val isPresetSelected = when (p) {
-                                                                    ShadowPreset.None -> appearance.shadowIntensity == 0f
-                                                                    ShadowPreset.Light -> appearance.shadowIntensity == 0.25f && appearance.shadowAngle == 120f && appearance.shadowDistance == 8f
-                                                                    ShadowPreset.Medium -> appearance.shadowIntensity == 0.45f && appearance.shadowAngle == 135f && appearance.shadowDistance == 15f
-                                                                    ShadowPreset.Strong -> appearance.shadowIntensity == 0.7f && appearance.shadowAngle == 135f && appearance.shadowDistance == 22f
-                                                                    ShadowPreset.Natural -> appearance.shadowIntensity == 0.4f && appearance.shadowAngle == 90f && appearance.shadowDistance == 12f
-                                                                    ShadowPreset.Dramatic -> appearance.shadowIntensity == 0.8f && appearance.shadowAngle == 210f && appearance.shadowDistance == 30f
-                                                                }
-                                                                
-                                                                SpherePresetItem(
-                                                                    preset = p,
-                                                                    selected = isPresetSelected,
-                                                                    onClick = {
-                                                                        when (p) {
-                                                                            ShadowPreset.None -> {
-                                                                                onUpdateShadow(0f)
-                                                                                onUpdateShadowDistance(0f)
-                                                                            }
-                                                                            ShadowPreset.Light -> {
-                                                                                onUpdateShadow(0.25f)
-                                                                                onUpdateShadowAngle(120f)
-                                                                                onUpdateShadowDistance(8f)
-                                                                            }
-                                                                            ShadowPreset.Medium -> {
-                                                                                onUpdateShadow(0.45f)
-                                                                                onUpdateShadowAngle(135f)
-                                                                                onUpdateShadowDistance(15f)
-                                                                            }
-                                                                            ShadowPreset.Strong -> {
-                                                                                onUpdateShadow(0.7f)
-                                                                                onUpdateShadowAngle(135f)
-                                                                                onUpdateShadowDistance(22f)
-                                                                            }
-                                                                            ShadowPreset.Natural -> {
-                                                                                onUpdateShadow(0.4f)
-                                                                                onUpdateShadowAngle(90f)
-                                                                                onUpdateShadowDistance(12f)
-                                                                            }
-                                                                            ShadowPreset.Dramatic -> {
-                                                                                onUpdateShadow(0.8f)
-                                                                                onUpdateShadowAngle(210f)
-                                                                                onUpdateShadowDistance(30f)
+                                                            CompactMetricSlider(
+                                                                label = stringResource(
+                                                                    R.string.studio_shadow_label,
+                                                                    (appearance.shadowIntensity * 100).roundToInt()
+                                                                ),
+                                                                value = appearance.shadowIntensity,
+                                                                valueRange = 0f..1f,
+                                                                onValueChange = onUpdateShadow
+                                                            )
+                                                            
+                                                            // 3D Sphere preset list
+                                                            val presets = ShadowPreset.values()
+                                                            Row(
+                                                                modifier = Modifier
+                                                                    .fillMaxWidth()
+                                                                    .horizontalScroll(rememberScrollState())
+                                                                    .padding(vertical = 4.dp),
+                                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                                            ) {
+                                                                presets.forEach { p ->
+                                                                    val isPresetSelected = when (p) {
+                                                                        ShadowPreset.None -> appearance.shadowIntensity == 0f
+                                                                        ShadowPreset.Light -> appearance.shadowIntensity == 0.25f && appearance.shadowAngle == 120f && appearance.shadowDistance == 8f
+                                                                        ShadowPreset.Medium -> appearance.shadowIntensity == 0.45f && appearance.shadowAngle == 135f && appearance.shadowDistance == 15f
+                                                                        ShadowPreset.Strong -> appearance.shadowIntensity == 0.7f && appearance.shadowAngle == 135f && appearance.shadowDistance == 22f
+                                                                        ShadowPreset.Natural -> appearance.shadowIntensity == 0.4f && appearance.shadowAngle == 90f && appearance.shadowDistance == 12f
+                                                                        ShadowPreset.Dramatic -> appearance.shadowIntensity == 0.8f && appearance.shadowAngle == 210f && appearance.shadowDistance == 30f
+                                                                    }
+                                                                    
+                                                                    SpherePresetItem(
+                                                                        preset = p,
+                                                                        selected = isPresetSelected,
+                                                                        onClick = {
+                                                                            when (p) {
+                                                                                ShadowPreset.None -> {
+                                                                                    onUpdateShadow(0f)
+                                                                                    onUpdateShadowDistance(0f)
+                                                                                }
+                                                                                ShadowPreset.Light -> {
+                                                                                    onUpdateShadow(0.25f)
+                                                                                    onUpdateShadowAngle(120f)
+                                                                                    onUpdateShadowDistance(8f)
+                                                                                }
+                                                                                ShadowPreset.Medium -> {
+                                                                                    onUpdateShadow(0.45f)
+                                                                                    onUpdateShadowAngle(135f)
+                                                                                    onUpdateShadowDistance(15f)
+                                                                                }
+                                                                                ShadowPreset.Strong -> {
+                                                                                    onUpdateShadow(0.7f)
+                                                                                    onUpdateShadowAngle(135f)
+                                                                                    onUpdateShadowDistance(22f)
+                                                                                }
+                                                                                ShadowPreset.Natural -> {
+                                                                                    onUpdateShadow(0.4f)
+                                                                                    onUpdateShadowAngle(90f)
+                                                                                    onUpdateShadowDistance(12f)
+                                                                                }
+                                                                                ShadowPreset.Dramatic -> {
+                                                                                    onUpdateShadow(0.8f)
+                                                                                    onUpdateShadowAngle(210f)
+                                                                                    onUpdateShadowDistance(30f)
+                                                                                }
                                                                             }
                                                                         }
-                                                                    }
-                                                                )
+                                                                    )
+                                                                }
                                                             }
                                                         }
                                                     }
-                                                }
-                                                ShadowSubTab.Angle -> {
-                                                    CompactMetricSlider(
-                                                        label = stringResource(
-                                                            R.string.studio_shadow_angle_label,
-                                                            appearance.shadowAngle.roundToInt()
-                                                        ),
-                                                        value = appearance.shadowAngle,
-                                                        valueRange = 0f..360f,
-                                                        onValueChange = onUpdateShadowAngle
-                                                    )
-                                                }
-                                                ShadowSubTab.Distance -> {
-                                                    CompactMetricSlider(
-                                                        label = stringResource(
-                                                            R.string.studio_shadow_distance_label,
-                                                            appearance.shadowDistance.roundToInt()
-                                                        ),
-                                                        value = appearance.shadowDistance,
-                                                        valueRange = 0f..40f,
-                                                        onValueChange = onUpdateShadowDistance
-                                                    )
-                                                }
-                                                ShadowSubTab.Color -> {
-                                                    Column {
-                                                        Text(
-                                                            text = stringResource(R.string.studio_shadow_tab_color),
-                                                            style = MaterialTheme.typography.bodySmall,
-                                                            color = if (isSystemInDarkTheme()) Color(0xFF8E909A) else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                            modifier = Modifier.padding(bottom = 6.dp)
+                                                    ShadowSubTab.Angle -> {
+                                                        CompactMetricSlider(
+                                                            label = stringResource(
+                                                                R.string.studio_shadow_angle_label,
+                                                                appearance.shadowAngle.roundToInt()
+                                                            ),
+                                                            value = appearance.shadowAngle,
+                                                            valueRange = 0f..360f,
+                                                            onValueChange = onUpdateShadowAngle
                                                         )
-                                                        ShadowColorSwatch(
-                                                            currentColorArgb = appearance.shadowColorArgb,
-                                                            onSelectColor = onUpdateShadowColor
+                                                    }
+                                                    ShadowSubTab.Distance -> {
+                                                        CompactMetricSlider(
+                                                            label = stringResource(
+                                                                R.string.studio_shadow_distance_label,
+                                                                appearance.shadowDistance.roundToInt()
+                                                            ),
+                                                            value = appearance.shadowDistance,
+                                                            valueRange = 0f..40f,
+                                                            onValueChange = onUpdateShadowDistance
                                                         )
+                                                    }
+                                                    ShadowSubTab.Color -> {
+                                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                            Text(
+                                                                text = stringResource(R.string.studio_shadow_tab_color),
+                                                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
+                                                                color = Color.White,
+                                                                fontWeight = FontWeight.SemiBold
+                                                            )
+                                                            ShadowColorSwatch(
+                                                                currentColorArgb = appearance.shadowColorArgb,
+                                                                onSelectColor = onUpdateShadowColor
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
@@ -390,11 +390,11 @@ private fun ShadowColorChip(
 private fun PanelHandle() {
     Box(
         modifier = Modifier
-            .padding(top = 12.dp, bottom = 8.dp)
-            .size(48.dp, 5.dp)
+            .padding(top = 8.dp, bottom = 8.dp)
+            .size(36.dp, 4.dp)
             .background(
-                color = Color.White.copy(alpha = 0.32f),
-                shape = RoundedCornerShape(3.dp)
+                color = Color.White.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(2.dp)
             )
     )
 }
@@ -419,20 +419,20 @@ private fun CompactMetricSlider(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
                 color = Color.White,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.SemiBold
             )
             if (valueStr != null) {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(Color(0xCC171C20))
-                        .padding(horizontal = 24.dp, vertical = 10.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF20242D))
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Text(
                         text = valueStr,
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 13.sp),
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -440,7 +440,7 @@ private fun CompactMetricSlider(
             }
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Slider(
             value = value,
@@ -448,13 +448,13 @@ private fun CompactMetricSlider(
             onValueChange = onValueChange,
             colors = SliderDefaults.colors(
                 thumbColor = Color.White,
-                activeTrackColor = Color(0xFF8E7BF2),
-                inactiveTrackColor = Color.Black.copy(alpha = 0.82f)
+                activeTrackColor = Color(0xFF22242C),
+                inactiveTrackColor = Color(0xFF797EF6)
             ),
-            modifier = Modifier.height(28.dp)
+            modifier = Modifier.height(18.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -462,13 +462,13 @@ private fun CompactMetricSlider(
         ) {
             Text(
                 text = valueRange.start.roundToInt().toString(),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-                color = Color(0xFFB9BEC4)
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                color = Color(0xFF7B8187)
             )
             Text(
                 text = valueRange.endInclusive.roundToInt().toString(),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-                color = Color(0xFFB9BEC4)
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                color = Color(0xFF7B8187)
             )
         }
     }
@@ -591,63 +591,70 @@ fun ShadowTabRow(
     onTabSelected: (ShadowSubTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(scrollState)
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        ShadowSubTab.values().forEach { tab ->  
-            val isSelected = selectedTab == tab
-            val contentColor = if (isSelected) Color.White else Color(0xFF9EA4AA)
-            val iconColor = if (isSelected) Color.White else Color(0xFF9EA4AA)
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ShadowSubTab.values().forEach { tab ->  
+                val isSelected = selectedTab == tab
+                val contentColor = if (isSelected) Color.White else Color(0xFF7B8187)
+                val iconColor = if (isSelected) Color.White else Color(0xFF7B8187)
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { onTabSelected(tab) }
-                    )
-                    .padding(vertical = 8.dp, horizontal = 4.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = { onTabSelected(tab) }
+                        )
+                        .padding(top = 10.dp)
                 ) {
-                    val iconRes = when (tab) {
-                        ShadowSubTab.Intensity -> if (isSelected) R.drawable.ic_tool_shadow_selected else R.drawable.ic_tool_shadow
-                        ShadowSubTab.Angle -> R.drawable.ic_tool_shadow_angle
-                        ShadowSubTab.Distance -> R.drawable.ic_tool_shadow_distance
-                        ShadowSubTab.Color -> R.drawable.ic_tool_shadow_color
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    ) {
+                        val iconRes = when (tab) {
+                            ShadowSubTab.Intensity -> if (isSelected) R.drawable.ic_tool_shadow_selected else R.drawable.ic_tool_shadow
+                            ShadowSubTab.Angle -> R.drawable.ic_tool_shadow_angle
+                            ShadowSubTab.Distance -> R.drawable.ic_tool_shadow_distance
+                            ShadowSubTab.Color -> R.drawable.ic_tool_shadow_color
+                        }
+                        Icon(
+                            painter = painterResource(iconRes),
+                            contentDescription = null,
+                            tint = if (tab == ShadowSubTab.Intensity) Color.Unspecified else iconColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = stringResource(tab.labelResId),
+                            color = contentColor,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                        )
                     }
-                    Icon(
-                        painter = painterResource(iconRes),
-                        contentDescription = null,
-                        tint = if (tab == ShadowSubTab.Intensity) Color.Unspecified else iconColor,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Text(
-                        text = stringResource(tab.labelResId),
-                        color = contentColor,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .height(2.dp)
+                            .width(80.dp)
+                            .clip(RoundedCornerShape(1.dp))
+                            .background(if (isSelected) Color(0xFF387BFF) else Color.Transparent)
                     )
                 }
-                Spacer(modifier = Modifier.height(9.dp))
-                Box(
-                    modifier = Modifier
-                        .height(3.dp)
-                        .width(58.dp)
-                        .clip(RoundedCornerShape(1.5.dp))
-                        .background(if (isSelected) Color(0xFF4B91FF) else Color.Transparent)
-                )
             }
         }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(Color.White.copy(alpha = 0.08f))
+        )
     }
 }
 
@@ -658,28 +665,32 @@ fun SpherePresetItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val borderColor = if (selected) Color(0xFF4B91FF) else Color.Transparent
-    val cardBackground = if (preset == ShadowPreset.None) Color(0xFF20272C) else Color(0xFFF6F7F8)
-    val textColor = if (selected) Color(0xFF4B91FF) else Color.White.copy(alpha = 0.86f)
-    val textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp)
+    val borderColor = if (selected) Color(0xFF387BFF) else Color.Transparent
+    val cardBackground = if (preset == ShadowPreset.None) Color(0xFF1C1D24) else Color(0xFFF6F7F8)
+    val textColor = if (selected) Color.White else Color(0xFF7B8187)
+    val textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .width(86.dp)
+            .width(72.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onClick
             )
     ) {
-                Box(
+        Box(
             modifier = Modifier
-                .size(82.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .size(64.dp)
+                .clip(RoundedCornerShape(12.dp))
                 .background(cardBackground)
-                .border(2.dp, borderColor, RoundedCornerShape(16.dp))
-                .padding(6.dp),
+                .border(
+                    width = if (selected) 2.dp else if (preset == ShadowPreset.None) 1.dp else 0.dp,
+                    color = if (selected) borderColor else if (preset == ShadowPreset.None) Color.White.copy(alpha = 0.08f) else Color.Transparent,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(4.dp),
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -755,7 +766,7 @@ fun SpherePresetItem(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(7.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = stringResource(preset.labelResId),
             color = textColor,
