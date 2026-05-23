@@ -49,12 +49,12 @@ fun EditorBottomToolbar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             tools.forEach { tool ->
-                val isSelected = selectedTool == tool
+                val isSelected = selectedTool.javaClass == tool.javaClass
                 ToolButton(
                     tool = tool,
                     isSelected = isSelected,
                     onClick = {
-                        if (tool == EditorTool.Replace) onReplaceImage()
+                        if (tool is EditorTool.Replace) onReplaceImage()
                         else onToolSelected(tool)
                     }
                 )
@@ -69,13 +69,15 @@ private fun ToolButton(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    @Suppress("REDUNDANT_ELSE_IN_WHEN")
     val labelRes = when (tool) {
-        EditorTool.Replace -> R.string.studio_tool_replace
-        EditorTool.Layout -> R.string.studio_tool_layout
-        EditorTool.Rotate -> R.string.studio_tool_rotateflip
-        EditorTool.Shadow -> R.string.studio_tool_shadow
-        EditorTool.Transparency -> R.string.studio_tool_transparency
-        EditorTool.Crop -> R.string.studio_tool_crop
+        is EditorTool.Replace -> R.string.studio_tool_replace
+        is EditorTool.Layout -> R.string.studio_tool_layout
+        is EditorTool.Rotate -> R.string.studio_tool_rotateflip
+        is EditorTool.Shadow -> R.string.studio_tool_shadow
+        is EditorTool.Transparency -> R.string.studio_tool_transparency
+        is EditorTool.Crop -> R.string.studio_tool_crop
+        else -> R.string.studio_tool_layout
     }
 
     val accent = Color(0xFF387BFF)
@@ -93,13 +95,15 @@ private fun ToolButton(
             )
             .padding(horizontal = 4.dp, vertical = 6.dp)
     ) {
+        @Suppress("REDUNDANT_ELSE_IN_WHEN")
         val iconRes = when (tool) {
-            EditorTool.Replace -> R.drawable.ic_tool_replace_image
-            EditorTool.Layout -> R.drawable.ic_tool_layout
-            EditorTool.Rotate -> R.drawable.ic_tool_rotate_flip
-            EditorTool.Shadow -> R.drawable.ic_tool_shadow
-            EditorTool.Transparency -> R.drawable.ic_tool_opacity
-            EditorTool.Crop -> R.drawable.ic_tool_crop
+            is EditorTool.Replace -> R.drawable.ic_tool_replace_image
+            is EditorTool.Layout -> R.drawable.ic_tool_layout
+            is EditorTool.Rotate -> R.drawable.ic_tool_rotate_flip
+            is EditorTool.Shadow -> R.drawable.ic_tool_shadow
+            is EditorTool.Transparency -> R.drawable.ic_tool_opacity
+            is EditorTool.Crop -> R.drawable.ic_tool_crop
+            else -> R.drawable.ic_tool_layout
         }
 
         Icon(

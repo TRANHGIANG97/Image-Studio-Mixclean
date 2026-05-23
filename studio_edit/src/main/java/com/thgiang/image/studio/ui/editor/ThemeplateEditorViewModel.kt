@@ -161,7 +161,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 _state.update { it.copy(showBoundingBox = event.visible) }
             }
             is EditorEvent.SelectTool -> _state.update {
-                val nextTool = if (event.tool == EditorTool.Shadow && it.selectedTool == EditorTool.Shadow) {
+                val nextTool = if (event.tool is EditorTool.Shadow && it.selectedTool is EditorTool.Shadow) {
                     EditorTool.Layout
                 } else {
                     event.tool

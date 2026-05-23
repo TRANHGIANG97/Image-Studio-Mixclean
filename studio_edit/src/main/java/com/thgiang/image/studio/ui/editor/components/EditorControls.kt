@@ -95,7 +95,7 @@ fun EditorControlsV2(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         when (targetTool) {
-                            EditorTool.Layout -> {
+                            is EditorTool.Layout -> {
                                 Text(
                                     text = stringResource(R.string.studio_layout_hint),
                                     style = MaterialTheme.typography.bodySmall,
@@ -104,7 +104,7 @@ fun EditorControlsV2(
                                 )
                             }
 
-                            EditorTool.Shadow -> {
+                            is EditorTool.Shadow -> {
                                 var selectedSubTab by rememberSaveable { mutableStateOf(ShadowSubTab.Intensity) }
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                     ShadowTabRow(
@@ -246,7 +246,7 @@ fun EditorControlsV2(
                                 }
                             }
 
-                            EditorTool.Transparency -> {
+                            is EditorTool.Transparency -> {
                                 CompactMetricSlider(
                                     label = stringResource(
                                         R.string.studio_transparency_label,
@@ -258,7 +258,7 @@ fun EditorControlsV2(
                                 )
                             }
 
-                            EditorTool.Crop -> {
+                            is EditorTool.Crop -> {
                                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                     Text(
                                         text = stringResource(R.string.studio_crop_label),
@@ -282,7 +282,7 @@ fun EditorControlsV2(
                                 }
                             }
 
-                            EditorTool.Rotate -> {
+                            is EditorTool.Rotate -> {
                                 EditorLayoutControls(
                                     onEvent = onLayoutEvent
                                 )
