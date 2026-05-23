@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Студія товарів</string>
+    <string name="studio_category_electronics">Електроніка</string>
+    <string name="studio_category_fashion">Мода</string>
+    <string name="studio_category_cosmetics">Косметика</string>
+    <string name="studio_category_home">Дім і побут</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Косметична студія 1</string>
+    <string name="themeplate_cosmetics_02">Косметична студія 2</string>
+    <string name="themeplate_cosmetics_03">Косметична студія 3</string>
+    <string name="themeplate_cosmetics_04">Косметична студія 4</string>
+    <string name="themeplate_cosmetics_05">Косметична студія 5</string>
+    <string name="themeplate_cosmetics_06">Косметична студія 6</string>
+    <string name="themeplate_cosmetics_07">Косметична студія 7</string>
+    <string name="themeplate_cosmetics_08">Косметична студія 8</string>
+    <string name="themeplate_cosmetics_09">Косметична студія 9</string>
+    <string name="studio_back">Назад</string>
+    <string name="studio_done">Готово</string>
+    <string name="studio_tap_to_pick_product">Торкніться, щоб вибрати зображення товару</string>
+    <string name="studio_tool_replace">Замінити</string>
+    <string name="studio_tool_layout">Макет</string>
+    <string name="studio_tool_shadow">Тінь</string>
+    <string name="studio_tool_transparency">Прозорість</string>
+    <string name="studio_tool_crop">Обрізати</string>
+    <string name="studio_tool_rotateflip">Повернути/Віддзеркалити</string>
+    <string name="studio_replace_hint">Торкніться «Замінити», щоб вибрати фото товару з галереї</string>
+    <string name="studio_layout_hint">Перетягуйте для переміщення · Зводьте пальці для масштабування · Повертайте двома пальцями</string>
+    <string name="studio_shadow_label">Тінь: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Кут світла: %1$d°</string>
+    <string name="studio_shadow_distance_label">Відстань тіні: %1$d dp</string>
+    <string name="studio_transparency_label">Прозорість: %1$d%%</string>
+    <string name="studio_crop_label">Співвідношення сторін</string>
+    <string name="studio_processing">Видалення фону…</string>
+    <string name="studio_export_success">Збережено в галерею</string>
+    <string name="studio_export_error">Помилка експорту</string>
+    <string name="studio_layout_rotate_left">Повернути ліворуч</string>
+    <string name="studio_layout_rotate_right">Повернути праворуч</string>
+    <string name="studio_layout_flip_horizontal">Віддзеркалити Г</string>
+    <string name="studio_layout_flip_vertical">Віддзеркалити В</string>
+</resources>

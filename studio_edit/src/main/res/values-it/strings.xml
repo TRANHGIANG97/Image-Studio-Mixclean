@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Studio prodotto IA</string>
+    <string name="studio_category_electronics">Elettronica</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Cosmetici</string>
+    <string name="studio_category_home">Casa &amp; Arredamento</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Studio cosmetici 1</string>
+    <string name="themeplate_cosmetics_02">Studio cosmetici 2</string>
+    <string name="themeplate_cosmetics_03">Studio cosmetici 3</string>
+    <string name="themeplate_cosmetics_04">Studio cosmetici 4</string>
+    <string name="themeplate_cosmetics_05">Studio cosmetici 5</string>
+    <string name="themeplate_cosmetics_06">Studio cosmetici 6</string>
+    <string name="themeplate_cosmetics_07">Studio cosmetici 7</string>
+    <string name="themeplate_cosmetics_08">Studio cosmetici 8</string>
+    <string name="themeplate_cosmetics_09">Studio cosmetici 9</string>
+    <string name="studio_back">Indietro</string>
+    <string name="studio_done">Fatto</string>
+    <string name="studio_tap_to_pick_product">Tocca per scegliere un\'immagine del prodotto</string>
+    <string name="studio_tool_replace">Sostituisci</string>
+    <string name="studio_tool_layout">Layout</string>
+    <string name="studio_tool_shadow">Ombra</string>
+    <string name="studio_tool_transparency">Opacità</string>
+    <string name="studio_tool_crop">Ritaglia</string>
+    <string name="studio_tool_rotateflip">Ruota/Rifletti</string>
+    <string name="studio_replace_hint">Tocca Sostituisci per scegliere una foto del prodotto dalla tua galleria</string>
+    <string name="studio_layout_hint">Trascina per spostare · Pizzica per zoomare · Ruota con due dita</string>
+    <string name="studio_shadow_label">Ombra: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Angolo luce: %1$d°</string>
+    <string name="studio_shadow_distance_label">Distanza ombra: %1$d dp</string>
+    <string name="studio_transparency_label">Opacità: %1$d%%</string>
+    <string name="studio_crop_label">Proporzioni</string>
+    <string name="studio_processing">Rimozione dello sfondo…</string>
+    <string name="studio_export_success">Salvato nella galleria</string>
+    <string name="studio_export_error">Esportazione non riuscita</string>
+    <string name="studio_layout_rotate_left">Ruota a sinistra</string>
+    <string name="studio_layout_rotate_right">Ruota a destra</string>
+    <string name="studio_layout_flip_horizontal">Rifletti H</string>
+    <string name="studio_layout_flip_vertical">Rifletti V</string>
+</resources>

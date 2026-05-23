@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">I-Studio yoMkhiqizo ye-AI</string>
+    <string name="studio_category_electronics">Ezogesi</string>
+    <string name="studio_category_fashion">Imfashini</string>
+    <string name="studio_category_cosmetics">Izimonyo</string>
+    <string name="studio_category_home">Ikhaya nokuPhila</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">I-Studio sezimonyo 1</string>
+    <string name="themeplate_cosmetics_02">I-Studio sezimonyo 2</string>
+    <string name="themeplate_cosmetics_03">I-Studio sezimonyo 3</string>
+    <string name="themeplate_cosmetics_04">I-Studio sezimonyo 4</string>
+    <string name="themeplate_cosmetics_05">I-Studio sezimonyo 5</string>
+    <string name="themeplate_cosmetics_06">I-Studio sezimonyo 6</string>
+    <string name="themeplate_cosmetics_07">I-Studio sezimonyo 7</string>
+    <string name="themeplate_cosmetics_08">I-Studio sezimonyo 8</string>
+    <string name="themeplate_cosmetics_09">I-Studio sezimonyo 9</string>
+    <string name="studio_back">Emuva</string>
+    <string name="studio_done">Kuphelile</string>
+    <string name="studio_tap_to_pick_product">Thinta ukuze ukhethe isithombe somkhiqizo</string>
+    <string name="studio_tool_replace">Buyisela</string>
+    <string name="studio_tool_layout">Isakhiwo</string>
+    <string name="studio_tool_shadow">Isithunzi</string>
+    <string name="studio_tool_transparency">Ukucaca</string>
+    <string name="studio_tool_crop">Nquma</string>
+    <string name="studio_tool_rotateflip">Phendula/Yisa phezulu naphansi</string>
+    <string name="studio_replace_hint">Thinta okuthi Buyisela ukuze ukhethe isithombe somkhiqizo kugalari yakho</string>
+    <string name="studio_layout_hint">Donsa ukuze unyakaze · Nciza ukuze usondeze · Phendula ngeminwe emibili</string>
+    <string name="studio_shadow_label">Isithunzi: %1$d%%</string>
+    <string name="studio_shadow_angle_label">I-engle yokukhanya: %1$d°</string>
+    <string name="studio_shadow_distance_label">Ibanga lesithunzi: %1$d dp</string>
+    <string name="studio_transparency_label">Ukucaca: %1$d%%</string>
+    <string name="studio_crop_label">I-Aspect ratio</string>
+    <string name="studio_processing">Isusa ingemuva…</string>
+    <string name="studio_export_success">Ilondolozwe kugalari</string>
+    <string name="studio_export_error">Ukuthumela kuhlulekile</string>
+    <string name="studio_layout_rotate_left">Phendulela Kwesokunxele</string>
+    <string name="studio_layout_rotate_right">Phendulela Kwesokudla</string>
+    <string name="studio_layout_flip_horizontal">Yisa phezulu naphansi H</string>
+    <string name="studio_layout_flip_vertical">Yisa phezulu naphansi V</string>
+</resources>

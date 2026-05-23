@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Tootestuudio</string>
+    <string name="studio_category_electronics">Elektroonika</string>
+    <string name="studio_category_fashion">Mood</string>
+    <string name="studio_category_cosmetics">Kosmeetika</string>
+    <string name="studio_category_home">Kodu ja sisustus</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmeetikastuudio 1</string>
+    <string name="themeplate_cosmetics_02">Kosmeetikastuudio 2</string>
+    <string name="themeplate_cosmetics_03">Kosmeetikastuudio 3</string>
+    <string name="themeplate_cosmetics_04">Kosmeetikastuudio 4</string>
+    <string name="themeplate_cosmetics_05">Kosmeetikastuudio 5</string>
+    <string name="themeplate_cosmetics_06">Kosmeetikastuudio 6</string>
+    <string name="themeplate_cosmetics_07">Kosmeetikastuudio 7</string>
+    <string name="themeplate_cosmetics_08">Kosmeetikastuudio 8</string>
+    <string name="themeplate_cosmetics_09">Kosmeetikastuudio 9</string>
+    <string name="studio_back">Tagasi</string>
+    <string name="studio_done">Valmis</string>
+    <string name="studio_tap_to_pick_product">Puuduta toote pildi valimiseks</string>
+    <string name="studio_tool_replace">Asenda</string>
+    <string name="studio_tool_layout">Paigutus</string>
+    <string name="studio_tool_shadow">Vari</string>
+    <string name="studio_tool_transparency">Opatsiteet</string>
+    <string name="studio_tool_crop">Kärbi</string>
+    <string name="studio_tool_rotateflip">Pööra/Peegelda</string>
+    <string name="studio_replace_hint">Puuduta Asenda, et valida toote foto oma galeriist</string>
+    <string name="studio_layout_hint">Lohista liigutamiseks · Suumi kokku-lahku tõmmates · Pööra kahe sõrmega</string>
+    <string name="studio_shadow_label">Vari: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Valguse nurk: %1$d°</string>
+    <string name="studio_shadow_distance_label">Varju kaugus: %1$d dp</string>
+    <string name="studio_transparency_label">Opatsiteet: %1$d%%</string>
+    <string name="studio_crop_label">Kuvasuhe</string>
+    <string name="studio_processing">Tausta eemaldamine…</string>
+    <string name="studio_export_success">Salvestatud galeriisse</string>
+    <string name="studio_export_error">Eksportimine ebaõnnestus</string>
+    <string name="studio_layout_rotate_left">Pööra vasakule</string>
+    <string name="studio_layout_rotate_right">Pööra paremale</string>
+    <string name="studio_layout_flip_horizontal">Peegelda H</string>
+    <string name="studio_layout_flip_vertical">Peegelda V</string>
+</resources>

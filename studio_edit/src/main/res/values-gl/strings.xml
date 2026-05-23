@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Estudio de produtos IA</string>
+    <string name="studio_category_electronics">Electrónica</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Cosméticos</string>
+    <string name="studio_category_home">Fogar e vida</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Estudio de cosméticos 1</string>
+    <string name="themeplate_cosmetics_02">Estudio de cosméticos 2</string>
+    <string name="themeplate_cosmetics_03">Estudio de cosméticos 3</string>
+    <string name="themeplate_cosmetics_04">Estudio de cosméticos 4</string>
+    <string name="themeplate_cosmetics_05">Estudio de cosméticos 5</string>
+    <string name="themeplate_cosmetics_06">Estudio de cosméticos 6</string>
+    <string name="themeplate_cosmetics_07">Estudio de cosméticos 7</string>
+    <string name="themeplate_cosmetics_08">Estudio de cosméticos 8</string>
+    <string name="themeplate_cosmetics_09">Estudio de cosméticos 9</string>
+    <string name="studio_back">Atrás</string>
+    <string name="studio_done">Feito</string>
+    <string name="studio_tap_to_pick_product">Toca para seleccionar unha imaxe de produto</string>
+    <string name="studio_tool_replace">Substituír</string>
+    <string name="studio_tool_layout">Deseño</string>
+    <string name="studio_tool_shadow">Sombra</string>
+    <string name="studio_tool_transparency">Opacidade</string>
+    <string name="studio_tool_crop">Recortar</string>
+    <string name="studio_tool_rotateflip">Xirar/Voltear</string>
+    <string name="studio_replace_hint">Toca en Substituír para escoller unha foto de produto da túa galería</string>
+    <string name="studio_layout_hint">Arrastra para mover · Belisca para facer zoom · Xira con dous dedos</string>
+    <string name="studio_shadow_label">Sombra: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Ángulo da luz: %1$d°</string>
+    <string name="studio_shadow_distance_label">Distancia da sombra: %1$d dp</string>
+    <string name="studio_transparency_label">Opacidade: %1$d%%</string>
+    <string name="studio_crop_label">Relación de aspecto</string>
+    <string name="studio_processing">Eliminando o fondo…</string>
+    <string name="studio_export_success">Gardado na galería</string>
+    <string name="studio_export_error">Erro ao exportar</string>
+    <string name="studio_layout_rotate_left">Xirar á esquerda</string>
+    <string name="studio_layout_rotate_right">Xirar á dereita</string>
+    <string name="studio_layout_flip_horizontal">Voltear H</string>
+    <string name="studio_layout_flip_vertical">Voltear V</string>
+</resources>

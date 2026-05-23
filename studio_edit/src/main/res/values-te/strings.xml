@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI ప్రొడక్ట్ స్టూడియో</string>
+    <string name="studio_category_electronics">ఎలక్ట్రానిక్స్</string>
+    <string name="studio_category_fashion">ఫ్యాషన్</string>
+    <string name="studio_category_cosmetics">కాస్మెటిక్స్</string>
+    <string name="studio_category_home">హోమ్ అండ్ లివింగ్</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">కాస్మెటిక్స్ స్టూడియో 1</string>
+    <string name="themeplate_cosmetics_02">కాస్మెటిక్స్ స్టూడియో 2</string>
+    <string name="themeplate_cosmetics_03">కాస్మెటిక్స్ స్టూడియో 3</string>
+    <string name="themeplate_cosmetics_04">కాస్మెటిక్స్ స్టూడియో 4</string>
+    <string name="themeplate_cosmetics_05">కాస్మెటిక్స్ స్టూడియో 5</string>
+    <string name="themeplate_cosmetics_06">కాస్మెటిక్స్ స్టూడియో 6</string>
+    <string name="themeplate_cosmetics_07">కాస్మెటిక్స్ స్టూడియో 7</string>
+    <string name="themeplate_cosmetics_08">కాస్మెటిక్స్ స్టూడియో 8</string>
+    <string name="themeplate_cosmetics_09">కాస్మెటిక్స్ స్టూడియో 9</string>
+    <string name="studio_back">వెనుకకు</string>
+    <string name="studio_done">పూర్తయింది</string>
+    <string name="studio_tap_to_pick_product">ప్రొడక్ట్ చిత్రాన్ని ఎంచుకోవడానికి ట్యాప్ చేయండి</string>
+    <string name="studio_tool_replace">మార్చు</string>
+    <string name="studio_tool_layout">లేఅవుట్</string>
+    <string name="studio_tool_shadow">నీడ</string>
+    <string name="studio_tool_transparency">అపారదర్శకత</string>
+    <string name="studio_tool_crop">క్రాప్</string>
+    <string name="studio_tool_rotateflip">తిప్పండి/ఫ్లిప్ చేయండి</string>
+    <string name="studio_replace_hint">మీ గ్యాలరీ నుండి ప్రొడక్ట్ ఫోటోను ఎంచుకోవడానికి \'మార్చు\' పై ట్యాప్ చేయండి</string>
+    <string name="studio_layout_hint">తరలించడానికి లాగండి · జూమ్ చేయడానికి రెండు వేళ్లతో నొక్కండి · రెండు వేళ్లతో తిప్పండి</string>
+    <string name="studio_shadow_label">నీడ: %1$d%%</string>
+    <string name="studio_shadow_angle_label">కాంతి కోణం: %1$d°</string>
+    <string name="studio_shadow_distance_label">నీడ దూరం: %1$d dp</string>
+    <string name="studio_transparency_label">అపారదర్శకత: %1$d%%</string>
+    <string name="studio_crop_label">రూప నిష్పత్తి</string>
+    <string name="studio_processing">బ్యాక్‌గ్రౌండ్‌ను తొలగిస్తోంది…</string>
+    <string name="studio_export_success">గ్యాలరీలో సేవ్ చేయబడింది</string>
+    <string name="studio_export_error">ఎగుమతి విఫలమైంది</string>
+    <string name="studio_layout_rotate_left">ఎడమకు తిప్పండి</string>
+    <string name="studio_layout_rotate_right">కుడికి తిప్పండి</string>
+    <string name="studio_layout_flip_horizontal">అడ్డంగా ఫ్లిప్ చేయండి</string>
+    <string name="studio_layout_flip_vertical">నిలువుగా ఫ్లిప్ చేయండి</string>
+</resources>

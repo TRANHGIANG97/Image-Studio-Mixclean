@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Studio Produk AI</string>
+    <string name="studio_category_electronics">Elektronik</string>
+    <string name="studio_category_fashion">Fesyen</string>
+    <string name="studio_category_cosmetics">Kosmetik</string>
+    <string name="studio_category_home">Rumah &amp; Gaya Hidup</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Studio Kosmetik 1</string>
+    <string name="themeplate_cosmetics_02">Studio Kosmetik 2</string>
+    <string name="themeplate_cosmetics_03">Studio Kosmetik 3</string>
+    <string name="themeplate_cosmetics_04">Studio Kosmetik 4</string>
+    <string name="themeplate_cosmetics_05">Studio Kosmetik 5</string>
+    <string name="themeplate_cosmetics_06">Studio Kosmetik 6</string>
+    <string name="themeplate_cosmetics_07">Studio Kosmetik 7</string>
+    <string name="themeplate_cosmetics_08">Studio Kosmetik 8</string>
+    <string name="themeplate_cosmetics_09">Studio Kosmetik 9</string>
+    <string name="studio_back">Kembali</string>
+    <string name="studio_done">Selesai</string>
+    <string name="studio_tap_to_pick_product">Ketik untuk memilih imej produk</string>
+    <string name="studio_tool_replace">Ganti</string>
+    <string name="studio_tool_layout">Susun Atur</string>
+    <string name="studio_tool_shadow">Bayंग</string>
+    <string name="studio_tool_transparency">Kelegapan</string>
+    <string name="studio_tool_crop">Potong</string>
+    <string name="studio_tool_rotateflip">Putar/Balik</string>
+    <string name="studio_replace_hint">Ketik Ganti untuk memilih foto produk dari galeri anda</string>
+    <string name="studio_layout_hint">Seret untuk alih · Cubit untuk zum · Putar dua jari</string>
+    <string name="studio_shadow_label">Bayang: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Sudut Cahaya: %1$d°</string>
+    <string name="studio_shadow_distance_label">Jarak Bayang: %1$d dp</string>
+    <string name="studio_transparency_label">Kelegapan: %1$d%%</string>
+    <string name="studio_crop_label">Nisbah aspek</string>
+    <string name="studio_processing">Mengalih keluar latar belakang…</string>
+    <string name="studio_export_success">Disimpan ke galeri</string>
+    <string name="studio_export_error">Eksport gagal</string>
+    <string name="studio_layout_rotate_left">Putar Kiri</string>
+    <string name="studio_layout_rotate_right">Putar Kanan</string>
+    <string name="studio_layout_flip_horizontal">Balikkan H</string>
+    <string name="studio_layout_flip_vertical">Balikkan V</string>
+</resources>

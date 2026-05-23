@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI-Produktstudio</string>
+    <string name="studio_category_electronics">Elektronik</string>
+    <string name="studio_category_fashion">Mode</string>
+    <string name="studio_category_cosmetics">Kosmetik</string>
+    <string name="studio_category_home">Wohnen &amp; Leben</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetikstudio 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetikstudio 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetikstudio 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetikstudio 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetikstudio 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetikstudio 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetikstudio 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetikstudio 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetikstudio 9</string>
+    <string name="studio_back">Zurück</string>
+    <string name="studio_done">Fertig</string>
+    <string name="studio_tap_to_pick_product">Tippen, um ein Produktbild auszuwählen</string>
+    <string name="studio_tool_replace">Ersetzen</string>
+    <string name="studio_tool_layout">Layout</string>
+    <string name="studio_tool_shadow">Schatten</string>
+    <string name="studio_tool_transparency">Deckkraft</string>
+    <string name="studio_tool_crop">Zuschneiden</string>
+    <string name="studio_tool_rotateflip">Drehen/Spiegeln</string>
+    <string name="studio_replace_hint">Tippen Sie auf Ersetzen, um ein Produktfoto aus Ihrer Galerie auszuwählen</string>
+    <string name="studio_layout_hint">Zum Bewegen ziehen · Zum Zoomen zusammenziehen · Mit zwei Fingern drehen</string>
+    <string name="studio_shadow_label">Schatten: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Lichtwinkel: %1$d°</string>
+    <string name="studio_shadow_distance_label">Schattenabstand: %1$d dp</string>
+    <string name="studio_transparency_label">Deckkraft: %1$d%%</string>
+    <string name="studio_crop_label">Seitenverhältnis</string>
+    <string name="studio_processing">Hintergrund wird entfernt…</string>
+    <string name="studio_export_success">In Galerie gespeichert</string>
+    <string name="studio_export_error">Export fehlgeschlagen</string>
+    <string name="studio_layout_rotate_left">Nach links drehen</string>
+    <string name="studio_layout_rotate_right">Nach rechts drehen</string>
+    <string name="studio_layout_flip_horizontal">Horizontal spiegeln</string>
+    <string name="studio_layout_flip_vertical">Vertikal spiegeln</string>
+</resources>

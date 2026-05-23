@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">สตูดิโอสินค้า AI</string>
+    <string name="studio_category_electronics">เครื่องใช้ไฟฟ้า</string>
+    <string name="studio_category_fashion">แฟชั่น</string>
+    <string name="studio_category_cosmetics">เครื่องสำอาง</string>
+    <string name="studio_category_home">บ้านและไลฟ์สไตล์</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">สตูดิโอเครื่องสำอาง 1</string>
+    <string name="themeplate_cosmetics_02">สตูดิโอเครื่องสำอาง 2</string>
+    <string name="themeplate_cosmetics_03">สตูดิโอเครื่องสำอาง 3</string>
+    <string name="themeplate_cosmetics_04">สตูดิโอเครื่องสำอาง 4</string>
+    <string name="themeplate_cosmetics_05">สตูดิโอเครื่องสำอาง 5</string>
+    <string name="themeplate_cosmetics_06">สตูดิโอเครื่องสำอาง 6</string>
+    <string name="themeplate_cosmetics_07">สตูดิโอเครื่องสำอาง 7</string>
+    <string name="themeplate_cosmetics_08">สตูดิโอเครื่องสำอาง 8</string>
+    <string name="themeplate_cosmetics_09">สตูดิโอเครื่องสำอาง 9</string>
+    <string name="studio_back">กลับ</string>
+    <string name="studio_done">เสร็จสิ้น</string>
+    <string name="studio_tap_to_pick_product">แตะเพื่อเลือกรูปภาพสินค้า</string>
+    <string name="studio_tool_replace">เปลี่ยนรูป</string>
+    <string name="studio_tool_layout">จัดวาง</string>
+    <string name="studio_tool_shadow">เงา</string>
+    <string name="studio_tool_transparency">ความโปร่งแสง</string>
+    <string name="studio_tool_crop">ครอบตัด</string>
+    <string name="studio_tool_rotateflip">หมุน/พลิก</string>
+    <string name="studio_replace_hint">แตะเปลี่ยนรูปเพื่อเลือกภาพสินค้าจากแกลเลอรีของคุณ</string>
+    <string name="studio_layout_hint">ลากเพื่อย้าย · หนีบนิ้วเพื่อซูม · หมุนด้วยสองนิ้ว</string>
+    <string name="studio_shadow_label">เงา: %1$d%%</string>
+    <string name="studio_shadow_angle_label">มุมแสง: %1$d°</string>
+    <string name="studio_shadow_distance_label">ระยะเงา: %1$d dp</string>
+    <string name="studio_transparency_label">ความโปร่งแสง: %1$d%%</string>
+    <string name="studio_crop_label">อัตราส่วนภาพ</string>
+    <string name="studio_processing">กำลังลบพื้นหลัง…</string>
+    <string name="studio_export_success">บันทึกลงแกลเลอรีแล้ว</string>
+    <string name="studio_export_error">การส่งออกล้มเหลว</string>
+    <string name="studio_layout_rotate_left">หมุนซ้าย</string>
+    <string name="studio_layout_rotate_right">หมุนขวา</string>
+    <string name="studio_layout_flip_horizontal">พลิกแนวนอน</string>
+    <string name="studio_layout_flip_vertical">พลิกแนวตั้ง</string>
+</resources>

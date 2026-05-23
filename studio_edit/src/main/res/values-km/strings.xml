@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">ស្ទូឌីយោផលិតផល AI</string>
+    <string name="studio_category_electronics">គ្រឿងអេឡិចត្រូនិច</string>
+    <string name="studio_category_fashion">ម៉ូដសម្លៀកបំពាក់</string>
+    <string name="studio_category_cosmetics">គ្រឿងសម្អាង</string>
+    <string name="studio_category_home">ផ្ទះ និងការរស់នៅ</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">ស្ទូឌីយោគ្រឿងសម្អាង ១</string>
+    <string name="themeplate_cosmetics_02">ស្ទូឌីយោគ្រឿងសម្អាង ២</string>
+    <string name="themeplate_cosmetics_03">ស្ទូឌីយោគ្រឿងសម្អាង ៣</string>
+    <string name="themeplate_cosmetics_04">ស្ទូឌីយោគ្រឿងសម្អាង ៤</string>
+    <string name="themeplate_cosmetics_05">ស្ទូឌីយោគ្រឿងសម្អាង ៥</string>
+    <string name="themeplate_cosmetics_06">ស្ទូឌីយោគ្រឿងសម្អាង ៦</string>
+    <string name="themeplate_cosmetics_07">ស្ទូឌីយោគ្រឿងសម្អាង ៧</string>
+    <string name="themeplate_cosmetics_08">ស្ទូឌីយោគ្រឿងសម្អាង ៨</string>
+    <string name="themeplate_cosmetics_09">ស្ទូឌីយោគ្រឿងសម្អាង ៩</string>
+    <string name="studio_back">ត្រឡប់ក្រោយ</string>
+    <string name="studio_done">រួចរាល់</string>
+    <string name="studio_tap_to_pick_product">ប៉ះដើម្បីជ្រើសរើសរូបភាពផលិតផល</string>
+    <string name="studio_tool_replace">ផ្លាស់ប្ដូរ</string>
+    <string name="studio_tool_layout">ប្លង់</string>
+    <string name="studio_tool_shadow">ស្រមោល</string>
+    <string name="studio_tool_transparency">ភាពស្រអាប់</string>
+    <string name="studio_tool_crop">កាត់តម្រឹម</string>
+    <string name="studio_tool_rotateflip">បង្វិល/ផ្ដាប់</string>
+    <string name="studio_replace_hint">ប៉ះ ផ្លាស់ប្ដូរ ដើម្បីជ្រើសរើសរូបថតផលិតផលពីវិចិត្រសាលរបស់អ្នក</string>
+    <string name="studio_layout_hint">អូសដើម្បីផ្លាស់ទី · ពង្រីកដោយប្រើម្រាមដៃពីរ · បង្វិលដោយប្រើម្រាមដៃពីរ</string>
+    <string name="studio_shadow_label">ស្រមោល៖ %1$d%%</string>
+    <string name="studio_shadow_angle_label">មុំពន្លឺ៖ %1$d°</string>
+    <string name="studio_shadow_distance_label">ចម្ងាយស្រមោល៖ %1$d dp</string>
+    <string name="studio_transparency_label">ភាពស្រអាប់៖ %1$d%%</string>
+    <string name="studio_crop_label">សមាមាត្ររូបភាព</string>
+    <string name="studio_processing">កំពុងលុបផ្ទៃខាងក្រោយ…</string>
+    <string name="studio_export_success">បានរក្សាទុកក្នុងវិចិត្រសាល</string>
+    <string name="studio_export_error">ការនាំចេញបានបរាជ័យ</string>
+    <string name="studio_layout_rotate_left">បង្វិលឆ្វេង</string>
+    <string name="studio_layout_rotate_right">បង្វិលស្ដាំ</string>
+    <string name="studio_layout_flip_horizontal">ផ្ដាប់ផ្ដេក</string>
+    <string name="studio_layout_flip_vertical">ផ្ដាប់បញ្ឈរ</string>
+</resources>

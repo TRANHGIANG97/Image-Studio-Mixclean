@@ -83,7 +83,7 @@
     <string name="border_preset_solid">Solid</string>
     <string name="border_preset_soft">Fin</string>
     <string name="border_preset_double">Dublu</string>
-    <string name="border_preset_contur">Contur</string>
+    <string name="border_preset_outline">Contur</string>
     <string name="remove_bg_warning">Vă rugăm să eliminați fundalul înainte de a adăuga unul nou</string>
     <string name="loading">Se încarcă...</string>
     <string name="remove_bg_tooltip_title">Ghid de eliminare a fundalului:</string>

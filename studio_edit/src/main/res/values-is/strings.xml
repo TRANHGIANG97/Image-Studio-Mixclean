@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Vinnustofa</string>
+    <string name="studio_category_electronics">Rafeindatæki</string>
+    <string name="studio_category_fashion">Tíska</string>
+    <string name="studio_category_cosmetics">Snyrtivörur</string>
+    <string name="studio_category_home">Heili &amp; hönnun</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Snyrtivörustofa 1</string>
+    <string name="themeplate_cosmetics_02">Snyrtivörustofa 2</string>
+    <string name="themeplate_cosmetics_03">Snyrtivörustofa 3</string>
+    <string name="themeplate_cosmetics_04">Snyrtivörustofa 4</string>
+    <string name="themeplate_cosmetics_05">Snyrtivörustofa 5</string>
+    <string name="themeplate_cosmetics_06">Snyrtivörustofa 6</string>
+    <string name="themeplate_cosmetics_07">Snyrtivörustofa 7</string>
+    <string name="themeplate_cosmetics_08">Snyrtivörustofa 8</string>
+    <string name="themeplate_cosmetics_09">Snyrtivörustofa 9</string>
+    <string name="studio_back">Til baka</string>
+    <string name="studio_done">Búið</string>
+    <string name="studio_tap_to_pick_product">Snertu til að velja vörumynd</string>
+    <string name="studio_tool_replace">Skipta út</string>
+    <string name="studio_tool_layout">Útlit</string>
+    <string name="studio_tool_shadow">Skuggi</string>
+    <string name="studio_tool_transparency">Ógegnsæi</string>
+    <string name="studio_tool_crop">Sníða</string>
+    <string name="studio_tool_rotateflip">Snúa/Spegla</string>
+    <string name="studio_replace_hint">Snertu Skipta út til að velja vörumynd úr galleríinu þínu</string>
+    <string name="studio_layout_hint">Draga til að færa · Klípa til að aðdrátta · Snúa með tveimur fingrum</string>
+    <string name="studio_shadow_label">Skuggi: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Ljóshorn: %1$d°</string>
+    <string name="studio_shadow_distance_label">Fjarlægð skugga: %1$d dp</string>
+    <string name="studio_transparency_label">Ógegnsæi: %1$d%%</string>
+    <string name="studio_crop_label">Stærðarhlutföll</string>
+    <string name="studio_processing">Fjarlægir bakgrunn…</string>
+    <string name="studio_export_success">Vistað í gallerí</string>
+    <string name="studio_export_error">Útflutningur mistókst</string>
+    <string name="studio_layout_rotate_left">Snúa til vinstri</string>
+    <string name="studio_layout_rotate_right">Snúa til hægri</string>
+    <string name="studio_layout_flip_horizontal">Spegla lárétt</string>
+    <string name="studio_layout_flip_vertical">Spegla lóðrétt</string>
+</resources>

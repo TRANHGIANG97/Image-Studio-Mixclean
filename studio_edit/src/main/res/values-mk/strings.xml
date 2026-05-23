@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Студио за производи</string>
+    <string name="studio_category_electronics">Електроника</string>
+    <string name="studio_category_fashion">Мода</string>
+    <string name="studio_category_cosmetics">Козметика</string>
+    <string name="studio_category_home">Дом и живеење</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Козметичко студио 1</string>
+    <string name="themeplate_cosmetics_02">Козметичко студио 2</string>
+    <string name="themeplate_cosmetics_03">Козметичко студио 3</string>
+    <string name="themeplate_cosmetics_04">Козметичко студио 4</string>
+    <string name="themeplate_cosmetics_05">Козметичко студио 5</string>
+    <string name="themeplate_cosmetics_06">Козметичко студио 6</string>
+    <string name="themeplate_cosmetics_07">Козметичко студио 7</string>
+    <string name="themeplate_cosmetics_08">Козметичко студио 8</string>
+    <string name="themeplate_cosmetics_09">Козметичко студио 9</string>
+    <string name="studio_back">Назад</string>
+    <string name="studio_done">Готово</string>
+    <string name="studio_tap_to_pick_product">Допрете за да изберете слика на производ</string>
+    <string name="studio_tool_replace">Замени</string>
+    <string name="studio_tool_layout">Распоред</string>
+    <string name="studio_tool_shadow">Сенка</string>
+    <string name="studio_tool_transparency">Проѕирност</string>
+    <string name="studio_tool_crop">Исечи</string>
+    <string name="studio_tool_rotateflip">Ротирај/Сврти</string>
+    <string name="studio_replace_hint">Допрете Замени за да изберете фотографија на производ од галеријата</string>
+    <string name="studio_layout_hint">Влечете за поместување · Спојте прсти за зумирање · Ротирајте со два прста</string>
+    <string name="studio_shadow_label">Сенка: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Агол на светлина: %1$d°</string>
+    <string name="studio_shadow_distance_label">Растојание на сенка: %1$d dp</string>
+    <string name="studio_transparency_label">Проѕирност: %1$d%%</string>
+    <string name="studio_crop_label">Сооднос на страни</string>
+    <string name="studio_processing">Се отстранува позадината…</string>
+    <string name="studio_export_success">Зачувано во галерија</string>
+    <string name="studio_export_error">Неуспешно извезување</string>
+    <string name="studio_layout_rotate_left">Ротирај лево</string>
+    <string name="studio_layout_rotate_right">Ротирај десно</string>
+    <string name="studio_layout_flip_horizontal">Сврти хоризонтално</string>
+    <string name="studio_layout_flip_vertical">Сврти вертикално</string>
+</resources>

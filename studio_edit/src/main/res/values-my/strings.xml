@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI ထုတ်ကုန် စတူဒီယို</string>
+    <string name="studio_category_electronics">လျှပ်စစ်ပစ္စည်းများ</string>
+    <string name="studio_category_fashion">ဖက်ရှင်</string>
+    <string name="studio_category_cosmetics">အလှကုန်</string>
+    <string name="studio_category_home">အိမ်သုံးနှင့် လူနေမှုပုံစံ</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">အလှကုန် စတူဒီယို ၁</string>
+    <string name="themeplate_cosmetics_02">အလှကုန် စတူဒီယို ၂</string>
+    <string name="themeplate_cosmetics_03">အလှကုန် စတူဒီယို ၃</string>
+    <string name="themeplate_cosmetics_04">အလှကုန် စတူဒီယို ၄</string>
+    <string name="themeplate_cosmetics_05">အလှကုန် စတူဒီယို ၅</string>
+    <string name="themeplate_cosmetics_06">အလှကုန် စတူဒီယို ၆</string>
+    <string name="themeplate_cosmetics_07">အလှကုန် စတူဒီယို ၇</string>
+    <string name="themeplate_cosmetics_08">အလှကုန် စတူဒီယို ၈</string>
+    <string name="themeplate_cosmetics_09">အလှကုန် စတူဒီယို ၉</string>
+    <string name="studio_back">နောက်သို့</string>
+    <string name="studio_done">ပြီးပြီ</string>
+    <string name="studio_tap_to_pick_product">ထုတ်ကုန်ပုံရွေးချယ်ရန် နှိပ်ပါ</string>
+    <string name="studio_tool_replace">အစားထိုးရန်</string>
+    <string name="studio_tool_layout">အဆင်အပြင်</string>
+    <string name="studio_tool_shadow">အရိပ်</string>
+    <string name="studio_tool_transparency">အလင်းပိတ်အား</string>
+    <string name="studio_tool_crop">ဖြတ်ညှပ်ရန်</string>
+    <string name="studio_tool_rotateflip">လှည့်ရန်/လှန်ရန်</string>
+    <string name="studio_replace_hint">ပြခန်းမှ ထုတ်ကုန်ဓာတ်ပုံကို ရွေးချယ်ရန် \'အစားထိုးရန်\' ကို နှိပ်ပါ</string>
+    <string name="studio_layout_hint">ရွှေ့ရန် ဆွဲပါ · ချဲ့ရန်/ချုံ့ရန် လက်ချောင်းများစုပါ · လက်ချောင်းနှစ်ချောင်းဖြင့် လှည့်ပါ</string>
+    <string name="studio_shadow_label">အရိပ်: %1$d%%</string>
+    <string name="studio_shadow_angle_label">အလင်းထောင့်: %1$d°</string>
+    <string name="studio_shadow_distance_label">အရိပ်အကွာအဝေး: %1$d dp</string>
+    <string name="studio_transparency_label">အလင်းပိတ်အား: %1$d%%</string>
+    <string name="studio_crop_label">အချိုးအစား</string>
+    <string name="studio_processing">နောက်ခံကို ဖယ်ရှားနေသည်…</string>
+    <string name="studio_export_success">ပြခန်းထဲသို့ သိမ်းဆည်းပြီးပါပြီ</string>
+    <string name="studio_export_error">သိမ်းဆည်းမှု မအောင်မြင်ပါ</string>
+    <string name="studio_layout_rotate_left">ဘယ်လှည့်ရန်</string>
+    <string name="studio_layout_rotate_right">ညာလှည့်ရန်</string>
+    <string name="studio_layout_flip_horizontal">အလျားလိုက်လှန်ရန်</string>
+    <string name="studio_layout_flip_vertical">ဒေါင်လိုက်လှန်ရန်</string>
+</resources>

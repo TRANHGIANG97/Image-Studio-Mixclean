@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Studio produktów AI</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Kosmetyki</string>
+    <string name="studio_category_home">Dom i wnętrze</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Studio kosmetyczne 1</string>
+    <string name="themeplate_cosmetics_02">Studio kosmetyczne 2</string>
+    <string name="themeplate_cosmetics_03">Studio kosmetyczne 3</string>
+    <string name="themeplate_cosmetics_04">Studio kosmetyczne 4</string>
+    <string name="themeplate_cosmetics_05">Studio kosmetyczne 5</string>
+    <string name="themeplate_cosmetics_06">Studio kosmetyczne 6</string>
+    <string name="themeplate_cosmetics_07">Studio kosmetyczne 7</string>
+    <string name="themeplate_cosmetics_08">Studio kosmetyczne 8</string>
+    <string name="themeplate_cosmetics_09">Studio kosmetyczne 9</string>
+    <string name="studio_back">Wstecz</string>
+    <string name="studio_done">Gotowe</string>
+    <string name="studio_tap_to_pick_product">Dotknij, aby wybrać zdjęcie produktu</string>
+    <string name="studio_tool_replace">Zmień</string>
+    <string name="studio_tool_layout">Układ</string>
+    <string name="studio_tool_shadow">Cień</string>
+    <string name="studio_tool_transparency">Nieprzezroczystość</string>
+    <string name="studio_tool_crop">Przytnij</string>
+    <string name="studio_tool_rotateflip">Obróć/Odbij</string>
+    <string name="studio_replace_hint">Dotknij Zmień, aby wybrać zdjęcie produktu z galerii</string>
+    <string name="studio_layout_hint">Przeciągnij, aby przesunąć · Uszczypnij, aby przybliżyć · Obróć dwoma palcami</string>
+    <string name="studio_shadow_label">Cień: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Kąt światła: %1$d°</string>
+    <string name="studio_shadow_distance_label">Odległość cienia: %1$d dp</string>
+    <string name="studio_transparency_label">Nieprzezroczystość: %1$d%%</string>
+    <string name="studio_crop_label">Proporcje obrazu</string>
+    <string name="studio_processing">Usuwanie tła…</string>
+    <string name="studio_export_success">Zapisano w galerii</string>
+    <string name="studio_export_error">Eksport nie powiódł się</string>
+    <string name="studio_layout_rotate_left">Obróć w lewo</string>
+    <string name="studio_layout_rotate_right">Obróć w prawo</string>
+    <string name="studio_layout_flip_horizontal">Odbij poziomo</string>
+    <string name="studio_layout_flip_vertical">Odbij pionowo</string>
+</resources>

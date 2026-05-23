@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Məhsul Studiyası</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Dəb</string>
+    <string name="studio_category_cosmetics">Kosmetika</string>
+    <string name="studio_category_home">Ev və Yaşam</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetika Studiyası 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetika Studiyası 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetika Studiyası 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetika Studiyası 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetika Studiyası 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetika Studiyası 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetika Studiyası 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetika Studiyası 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetika Studiyası 9</string>
+    <string name="studio_back">Geri</string>
+    <string name="studio_done">Hazırdır</string>
+    <string name="studio_tap_to_pick_product">Məhsul şəkli seçmək üçün toxunun</string>
+    <string name="studio_tool_replace">Dəyişdir</string>
+    <string name="studio_tool_layout">Düzən</string>
+    <string name="studio_tool_shadow">Kölgə</string>
+    <string name="studio_tool_transparency">Şəffaflıq</string>
+    <string name="studio_tool_crop">Kəs</string>
+    <string name="studio_tool_rotateflip">Döndər/Çevir</string>
+    <string name="studio_replace_hint">Qalereyadan məhsul şəkli seçmək üçün Dəyişdir düyməsinə toxunun</string>
+    <string name="studio_layout_hint">Köçürmək üçün sürükləyin · Yaxınlaşdırmaq üçün sıxın · İki barmaqla döndərin</string>
+    <string name="studio_shadow_label">Kölgə: %1$d%%</string>
+    <string name="studio_shadow_angle_label">İşıq Bucağı: %1$d°</string>
+    <string name="studio_shadow_distance_label">Kölgə Məsafəsi: %1$d dp</string>
+    <string name="studio_transparency_label">Şəffaflıq: %1$d%%</string>
+    <string name="studio_crop_label">Aspekt nisbəti</string>
+    <string name="studio_processing">Arxa fon silinir…</string>
+    <string name="studio_export_success">Qalereyaya saxlanıldı</string>
+    <string name="studio_export_error">Eksport alınmadı</string>
+    <string name="studio_layout_rotate_left">Sola Döndər</string>
+    <string name="studio_layout_rotate_right">Sağa Döndər</string>
+    <string name="studio_layout_flip_horizontal">Üfüqi Çevir</string>
+    <string name="studio_layout_flip_vertical">Şaquli Çevir</string>
+</resources>

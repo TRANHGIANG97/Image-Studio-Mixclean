@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Студио за продукти</string>
+    <string name="studio_category_electronics">Електроника</string>
+    <string name="studio_category_fashion">Мода</string>
+    <string name="studio_category_cosmetics">Козметика</string>
+    <string name="studio_category_home">Дом и интериор</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Козметично студио 1</string>
+    <string name="themeplate_cosmetics_02">Козметично студио 2</string>
+    <string name="themeplate_cosmetics_03">Козметично студио 3</string>
+    <string name="themeplate_cosmetics_04">Козметично студио 4</string>
+    <string name="themeplate_cosmetics_05">Козметично студио 5</string>
+    <string name="themeplate_cosmetics_06">Козметично студио 6</string>
+    <string name="themeplate_cosmetics_07">Козметично студио 7</string>
+    <string name="themeplate_cosmetics_08">Козметично студио 8</string>
+    <string name="themeplate_cosmetics_09">Козметично студио 9</string>
+    <string name="studio_back">Назад</string>
+    <string name="studio_done">Готово</string>
+    <string name="studio_tap_to_pick_product">Докоснете, за да изберете снимка на продукт</string>
+    <string name="studio_tool_replace">Замяна</string>
+    <string name="studio_tool_layout">Оформление</string>
+    <string name="studio_tool_shadow">Сянка</string>
+    <string name="studio_tool_transparency">Непрозрачност</string>
+    <string name="studio_tool_crop">Изрязване</string>
+    <string name="studio_tool_rotateflip">Завъртане/Обръщане</string>
+    <string name="studio_replace_hint">Докоснете „Замяна“, за да изберете снимка на продукт от галерията</string>
+    <string name="studio_layout_hint">Плъзнете за преместване · Щипнете за мащабиране · Завъртете с два пръста</string>
+    <string name="studio_shadow_label">Сянка: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Ъгъл на светлината: %1$d°</string>
+    <string name="studio_shadow_distance_label">Разстояние на сянката: %1$d dp</string>
+    <string name="studio_transparency_label">Непрозрачност: %1$d%%</string>
+    <string name="studio_crop_label">Съотношение на страните</string>
+    <string name="studio_processing">Премахване на фона…</string>
+    <string name="studio_export_success">Запазено в галерията</string>
+    <string name="studio_export_error">Експортирането неуспешно</string>
+    <string name="studio_layout_rotate_left">Завъртане наляво</string>
+    <string name="studio_layout_rotate_right">Завъртане надясно</string>
+    <string name="studio_layout_flip_horizontal">Обръщане Х</string>
+    <string name="studio_layout_flip_vertical">Обръщане V</string>
+</resources>

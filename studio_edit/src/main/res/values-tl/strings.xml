@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Studio ng Produkto</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Kosmetiko</string>
+    <string name="studio_category_home">Bahay at Pamumuhay</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Cosmetics Studio 1</string>
+    <string name="themeplate_cosmetics_02">Cosmetics Studio 2</string>
+    <string name="themeplate_cosmetics_03">Cosmetics Studio 3</string>
+    <string name="themeplate_cosmetics_04">Cosmetics Studio 4</string>
+    <string name="themeplate_cosmetics_05">Cosmetics Studio 5</string>
+    <string name="themeplate_cosmetics_06">Cosmetics Studio 6</string>
+    <string name="themeplate_cosmetics_07">Cosmetics Studio 7</string>
+    <string name="themeplate_cosmetics_08">Cosmetics Studio 8</string>
+    <string name="themeplate_cosmetics_09">Cosmetics Studio 9</string>
+    <string name="studio_back">Bumalik</string>
+    <string name="studio_done">Tapos na</string>
+    <string name="studio_tap_to_pick_product">I-tap para pumili ng larawan ng produkto</string>
+    <string name="studio_tool_replace">Palitan</string>
+    <string name="studio_tool_layout">Layout</string>
+    <string name="studio_tool_shadow">Anino</string>
+    <string name="studio_tool_transparency">Opacity</string>
+    <string name="studio_tool_crop">I-crop</string>
+    <string name="studio_tool_rotateflip">I-rotate/I-flip</string>
+    <string name="studio_replace_hint">I-tap ang Palitan para pumili ng larawan ng produkto mula sa iyong gallery</string>
+    <string name="studio_layout_hint">I-drag para igalaw · I-pinch para mag-zoom · I-rotate gamit ang dalawang daliri</string>
+    <string name="studio_shadow_label">Anino: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Anggulo ng Liwanag: %1$d°</string>
+    <string name="studio_shadow_distance_label">Layo ng Anino: %1$d dp</string>
+    <string name="studio_transparency_label">Opacity: %1$d%%</string>
+    <string name="studio_crop_label">Aspect ratio</string>
+    <string name="studio_processing">Inaalis ang background…</string>
+    <string name="studio_export_success">Na-save sa gallery</string>
+    <string name="studio_export_error">Nabigo ang pag-export</string>
+    <string name="studio_layout_rotate_left">I-rotate Pakaliwa</string>
+    <string name="studio_layout_rotate_right">I-rotate Pakanan</string>
+    <string name="studio_layout_flip_horizontal">I-flip H</string>
+    <string name="studio_layout_flip_vertical">I-flip V</string>
+</resources>

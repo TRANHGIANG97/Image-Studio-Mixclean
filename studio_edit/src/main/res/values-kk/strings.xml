@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI өнім студиясы</string>
+    <string name="studio_category_electronics">Электроника</string>
+    <string name="studio_category_fashion">Сән</string>
+    <string name="studio_category_cosmetics">Косметика</string>
+    <string name="studio_category_home">Үй және Тұрмыс</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Косметика студиясы 1</string>
+    <string name="themeplate_cosmetics_02">Косметика студиясы 2</string>
+    <string name="themeplate_cosmetics_03">Косметика студиясы 3</string>
+    <string name="themeplate_cosmetics_04">Косметика студиясы 4</string>
+    <string name="themeplate_cosmetics_05">Косметика студиясы 5</string>
+    <string name="themeplate_cosmetics_06">Косметика студиясы 6</string>
+    <string name="themeplate_cosmetics_07">Косметика студиясы 7</string>
+    <string name="themeplate_cosmetics_08">Косметика студиясы 8</string>
+    <string name="themeplate_cosmetics_09">Косметика студиясы 9</string>
+    <string name="studio_back">Артқа</string>
+    <string name="studio_done">Дайын</string>
+    <string name="studio_tap_to_pick_product">Өнім суретін таңдау үшін түртіңіз</string>
+    <string name="studio_tool_replace">Ауыстыру</string>
+    <string name="studio_tool_layout">Макет</string>
+    <string name="studio_tool_shadow">Көлеңке</string>
+    <string name="studio_tool_transparency">Мөлдірсіздік</string>
+    <string name="studio_tool_crop">Қию</string>
+    <string name="studio_tool_rotateflip">Бұру/Шағылыстыру</string>
+    <string name="studio_replace_hint">Галереяңыздан өнім фотосын таңдау үшін Ауыстыру түймесін түртіңіз</string>
+    <string name="studio_layout_hint">Жылжыту үшін сүйреңіз · Масштабтау үшін екі саусақпен қысыңыз · Екі саусақпен бұрыңыз</string>
+    <string name="studio_shadow_label">Көлеңке: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Жарық бұрышы: %1$d°</string>
+    <string name="studio_shadow_distance_label">Көлеңке қашықтығы: %1$d dp</string>
+    <string name="studio_transparency_label">Мөлдірсіздік: %1$d%%</string>
+    <string name="studio_crop_label">Тараптардың арақатынасы</string>
+    <string name="studio_processing">Фонды өшіру…</string>
+    <string name="studio_export_success">Галереяға сақталды</string>
+    <string name="studio_export_error">Экспортталмады</string>
+    <string name="studio_layout_rotate_left">Солға бұру</string>
+    <string name="studio_layout_rotate_right">Оңға бұру</string>
+    <string name="studio_layout_flip_horizontal">Г-нен шағылыстыру</string>
+    <string name="studio_layout_flip_vertical">В-нан шағылыстыру</string>
+</resources>

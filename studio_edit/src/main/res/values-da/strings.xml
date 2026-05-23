@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Produktstudie</string>
+    <string name="studio_category_electronics">Elektronik</string>
+    <string name="studio_category_fashion">Mode</string>
+    <string name="studio_category_cosmetics">Kosmetik</string>
+    <string name="studio_category_home">Bolig &amp; livsstil</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetikstudie 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetikstudie 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetikstudie 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetikstudie 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetikstudie 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetikstudie 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetikstudie 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetikstudie 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetikstudie 9</string>
+    <string name="studio_back">Tilbage</string>
+    <string name="studio_done">Færdig</string>
+    <string name="studio_tap_to_pick_product">Tryk for at vælge et produktbillede</string>
+    <string name="studio_tool_replace">Erstat</string>
+    <string name="studio_tool_layout">Layout</string>
+    <string name="studio_tool_shadow">Skygge</string>
+    <string name="studio_tool_transparency">Opacitet</string>
+    <string name="studio_tool_crop">Beskær</string>
+    <string name="studio_tool_rotateflip">Roter/Vend</string>
+    <string name="studio_replace_hint">Tryk på Erstat for at vælge et produktbillede fra dit galleri</string>
+    <string name="studio_layout_hint">Træk for at flytte · Knib for at zoome · Roter med to fingre</string>
+    <string name="studio_shadow_label">Skygge: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Lysvinkel: %1$d°</string>
+    <string name="studio_shadow_distance_label">Skyggeafstand: %1$d dp</string>
+    <string name="studio_transparency_label">Opacitet: %1$d%%</string>
+    <string name="studio_crop_label">Billedformat</string>
+    <string name="studio_processing">Fjerner baggrund…</string>
+    <string name="studio_export_success">Gemt i galleri</string>
+    <string name="studio_export_error">Eksport mislykkedes</string>
+    <string name="studio_layout_rotate_left">Roter til venstre</string>
+    <string name="studio_layout_rotate_right">Roter til højre</string>
+    <string name="studio_layout_flip_horizontal">Vend vandret</string>
+    <string name="studio_layout_flip_vertical">Vend lodret</string>
+</resources>

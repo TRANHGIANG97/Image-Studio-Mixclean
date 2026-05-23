@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">IA Produktu Studioa</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Kosmetikoak</string>
+    <string name="studio_category_home">Etxea eta Bizimodua</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetiko Studioa 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetiko Studioa 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetiko Studioa 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetiko Studioa 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetiko Studioa 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetiko Studioa 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetiko Studioa 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetiko Studioa 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetiko Studioa 9</string>
+    <string name="studio_back">Atzera</string>
+    <string name="studio_done">Egina</string>
+    <string name="studio_tap_to_pick_product">Sakatu produktuaren irudi bat aukeratzeko</string>
+    <string name="studio_tool_replace">Ordezkatu</string>
+    <string name="studio_tool_layout">Diseinua</string>
+    <string name="studio_tool_shadow">Itzala</string>
+    <string name="studio_tool_transparency">Opakutasuna</string>
+    <string name="studio_tool_crop">Moztu</string>
+    <string name="studio_tool_rotateflip">Biratu/Irauli</string>
+    <string name="studio_replace_hint">Sakatu Ordezkatu zure galeriako produktu baten argazkia aukeratzeko</string>
+    <string name="studio_layout_hint">Arrastatu mugitzeko · Atximurkatu zooma egiteko · Biratu bi sormerekin</string>
+    <string name="studio_shadow_label">Itzala: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Argiaren angelua: %1$d°</string>
+    <string name="studio_shadow_distance_label">Itzalaren distantzia: %1$d dp</string>
+    <string name="studio_transparency_label">Opakutasuna: %1$d%%</string>
+    <string name="studio_crop_label">Aspektu-erlazioa</string>
+    <string name="studio_processing">Atzealdea kentzen…</string>
+    <string name="studio_export_success">Galerian gorde da</string>
+    <string name="studio_export_error">Ezin izan da esportatu</string>
+    <string name="studio_layout_rotate_left">Biratu ezkerretara</string>
+    <string name="studio_layout_rotate_right">Biratu eskuinetara</string>
+    <string name="studio_layout_flip_horizontal">Irauli H</string>
+    <string name="studio_layout_flip_vertical">Irauli V</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Termékstúdió</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Divat</string>
+    <string name="studio_category_cosmetics">Kozmetikumok</string>
+    <string name="studio_category_home">Otthon &amp; Dekoráció</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kozmetikai stúdió 1</string>
+    <string name="themeplate_cosmetics_02">Kozmetikai stúdió 2</string>
+    <string name="themeplate_cosmetics_03">Kozmetikai stúdió 3</string>
+    <string name="themeplate_cosmetics_04">Kozmetikai stúdió 4</string>
+    <string name="themeplate_cosmetics_05">Kozmetikai stúdió 5</string>
+    <string name="themeplate_cosmetics_06">Kozmetikai stúdió 6</string>
+    <string name="themeplate_cosmetics_07">Kozmetikai stúdió 7</string>
+    <string name="themeplate_cosmetics_08">Kozmetikai stúdió 8</string>
+    <string name="themeplate_cosmetics_09">Kozmetikai stúdió 9</string>
+    <string name="studio_back">Vissza</string>
+    <string name="studio_done">Kész</string>
+    <string name="studio_tap_to_pick_product">Koppintson a termékkép kiválasztásához</string>
+    <string name="studio_tool_replace">Csere</string>
+    <string name="studio_tool_layout">Elrendezés</string>
+    <string name="studio_tool_shadow">Árnyék</string>
+    <string name="studio_tool_transparency">Átlátszatlanság</string>
+    <string name="studio_tool_crop">Kivágás</string>
+    <string name="studio_tool_rotateflip">Forgatás/Tükrözés</string>
+    <string name="studio_replace_hint">Koppintson a Csere gombra egy termékfotó kiválasztásához a galériából</string>
+    <string name="studio_layout_hint">Húzza a mozgatáshoz · Csippentse a nagyításhoz · Forgassa két ujjal</string>
+    <string name="studio_shadow_label">Árnyék: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Fény szöge: %1$d°</string>
+    <string name="studio_shadow_distance_label">Árnyék távolsága: %1$d dp</string>
+    <string name="studio_transparency_label">Átlátszatlanság: %1$d%%</string>
+    <string name="studio_crop_label">Képarány</string>
+    <string name="studio_processing">Háttér eltávolítása…</string>
+    <string name="studio_export_success">Mentve a galériába</string>
+    <string name="studio_export_error">Sikertelen exportálás</string>
+    <string name="studio_layout_rotate_left">Forgatás balra</string>
+    <string name="studio_layout_rotate_right">Forgatás jobbra</string>
+    <string name="studio_layout_flip_horizontal">Vízszintes tükrözés</string>
+    <string name="studio_layout_flip_vertical">Függőleges tükrözés</string>
+</resources>

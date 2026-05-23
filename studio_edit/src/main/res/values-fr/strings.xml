@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Studio produit IA</string>
+    <string name="studio_category_electronics">Électronique</string>
+    <string name="studio_category_fashion">Mode</string>
+    <string name="studio_category_cosmetics">Cosmétiques</string>
+    <string name="studio_category_home">Maison &amp; Déco</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Studio cosmétiques 1</string>
+    <string name="themeplate_cosmetics_02">Studio cosmétiques 2</string>
+    <string name="themeplate_cosmetics_03">Studio cosmétiques 3</string>
+    <string name="themeplate_cosmetics_04">Studio cosmétiques 4</string>
+    <string name="themeplate_cosmetics_05">Studio cosmétiques 5</string>
+    <string name="themeplate_cosmetics_06">Studio cosmétiques 6</string>
+    <string name="themeplate_cosmetics_07">Studio cosmétiques 7</string>
+    <string name="themeplate_cosmetics_08">Studio cosmétiques 8</string>
+    <string name="themeplate_cosmetics_09">Studio cosmétiques 9</string>
+    <string name="studio_back">Retour</string>
+    <string name="studio_done">Terminé</string>
+    <string name="studio_tap_to_pick_product">Appuyez pour choisir une image de produit</string>
+    <string name="studio_tool_replace">Remplacer</string>
+    <string name="studio_tool_layout">Disposition</string>
+    <string name="studio_tool_shadow">Ombre</string>
+    <string name="studio_tool_transparency">Opacité</string>
+    <string name="studio_tool_crop">Recadrer</string>
+    <string name="studio_tool_rotateflip">Pivoter/Retourner</string>
+    <string name="studio_replace_hint">Appuyez sur Remplacer pour choisir une photo de produit dans votre galerie</string>
+    <string name="studio_layout_hint">Faites glisser pour déplacer · Pincez pour zoomer · Pivotez à deux doigts</string>
+    <string name="studio_shadow_label">Ombre : %1$d%%</string>
+    <string name="studio_shadow_angle_label">Angle de la lumière : %1$d°</string>
+    <string name="studio_shadow_distance_label">Distance de l\'ombre : %1$d dp</string>
+    <string name="studio_transparency_label">Opacité : %1$d%%</string>
+    <string name="studio_crop_label">Format de l\'image</string>
+    <string name="studio_processing">Suppression du fond…</string>
+    <string name="studio_export_success">Enregistré dans la galerie</string>
+    <string name="studio_export_error">Échec de l\'exportation</string>
+    <string name="studio_layout_rotate_left">Pivoter à gauche</string>
+    <string name="studio_layout_rotate_right">Pivoter à droite</string>
+    <string name="studio_layout_flip_horizontal">Retourner H</string>
+    <string name="studio_layout_flip_vertical">Retourner V</string>
+</resources>

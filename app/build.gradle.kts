@@ -105,8 +105,9 @@ android {
 
     packaging {
         jniLibs {
-            // Disable legacy packaging to enforce uncompressed native libraries as required by Android 15+ for 16KB page size.
-            useLegacyPackaging = false
+            // Enable legacy packaging to force extraction of native libraries upon installation,
+            // resolving the UnsatisfiedLinkError crash on split APK installations for older Android versions (e.g. Android 11).
+            useLegacyPackaging = true
             // Exclude the non-16KB-aligned libraries only for x86 architectures to prevent Play Store rejection
             // while preserving them for ARM architectures to prevent runtime crashes.
             excludes.add("lib/x86_64/libxeno_native.so")
@@ -120,6 +121,9 @@ android {
             enableSplit = false
         }
         density {
+            enableSplit = false
+        }
+        abi {
             enableSplit = false
         }
     }

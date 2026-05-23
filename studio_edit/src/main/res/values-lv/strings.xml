@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Produktu studija</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Mode</string>
+    <string name="studio_category_cosmetics">Kosmētika</string>
+    <string name="studio_category_home">Māja un vide</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmētikas studija 1</string>
+    <string name="themeplate_cosmetics_02">Kosmētikas studija 2</string>
+    <string name="themeplate_cosmetics_03">Kosmētikas studija 3</string>
+    <string name="themeplate_cosmetics_04">Kosmētikas studija 4</string>
+    <string name="themeplate_cosmetics_05">Kosmētikas studija 5</string>
+    <string name="themeplate_cosmetics_06">Kosmētikas studija 6</string>
+    <string name="themeplate_cosmetics_07">Kosmētikas studija 7</string>
+    <string name="themeplate_cosmetics_08">Kosmētikas studija 8</string>
+    <string name="themeplate_cosmetics_09">Kosmētikas studija 9</string>
+    <string name="studio_back">Atpakaļ</string>
+    <string name="studio_done">Gatavs</string>
+    <string name="studio_tap_to_pick_product">Pieskarieties, lai izvēlētos produkta attēlu</string>
+    <string name="studio_tool_replace">Aizstāt</string>
+    <string name="studio_tool_layout">Izkārtojums</string>
+    <string name="studio_tool_shadow">Ēna</string>
+    <string name="studio_tool_transparency">Necaurspīdība</string>
+    <string name="studio_tool_crop">Apgriezt</string>
+    <string name="studio_tool_rotateflip">Pagriezt/Apvērst</string>
+    <string name="studio_replace_hint">Pieskarieties Aizstāt, lai izvēlētos produkta fotoattēlu no galerijas</string>
+    <string name="studio_layout_hint">Velciet, lai pārvietotu · Savelciet, lai tuvinātu · Pagrieziet ar diviem pirkstiem</string>
+    <string name="studio_shadow_label">Ēna: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Gaismas leņķis: %1$d°</string>
+    <string name="studio_shadow_distance_label">Ēnas attālums: %1$d dp</string>
+    <string name="studio_transparency_label">Necaurspīdība: %1$d%%</string>
+    <string name="studio_crop_label">Malu attiecība</string>
+    <string name="studio_processing">Noņem fonu…</string>
+    <string name="studio_export_success">Saglabāts galerijā</string>
+    <string name="studio_export_error">Eksportēšana neizdevās</string>
+    <string name="studio_layout_rotate_left">Pagriezt pa kreisi</string>
+    <string name="studio_layout_rotate_right">Pagriezt pa labi</string>
+    <string name="studio_layout_flip_horizontal">Apvērst horizontāli</string>
+    <string name="studio_layout_flip_vertical">Apvērst vertikāli</string>
+</resources>

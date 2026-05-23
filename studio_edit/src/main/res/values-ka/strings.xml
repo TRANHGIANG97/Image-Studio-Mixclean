@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI პროდუქტის სტუდია</string>
+    <string name="studio_category_electronics">ელექტრონიკა</string>
+    <string name="studio_category_fashion">მოდა</string>
+    <string name="studio_category_cosmetics">კოსმეტიკა</string>
+    <string name="studio_category_home">სახლი და ცხოვრება</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">კოსმეტიკის სტუდია 1</string>
+    <string name="themeplate_cosmetics_02">კოსმეტიკის სტუდია 2</string>
+    <string name="themeplate_cosmetics_03">კოსმეტიკის სტუდია 3</string>
+    <string name="themeplate_cosmetics_04">კოსმეტიკის სტუდია 4</string>
+    <string name="themeplate_cosmetics_05">კოსმეტიკის სტუდია 5</string>
+    <string name="themeplate_cosmetics_06">კოსმეტიკის სტუდია 6</string>
+    <string name="themeplate_cosmetics_07">კოსმეტიკის სტუდია 7</string>
+    <string name="themeplate_cosmetics_08">კოსმეტიკის სტუდია 8</string>
+    <string name="themeplate_cosmetics_09">კოსმეტიკის სტუდია 9</string>
+    <string name="studio_back">უკან</string>
+    <string name="studio_done">დასრულდა</string>
+    <string name="studio_tap_to_pick_product">შეეხეთ პროდუქტის სურათის ასარჩევად</string>
+    <string name="studio_tool_replace">შეცვლა</string>
+    <string name="studio_tool_layout">განლაგება</string>
+    <string name="studio_tool_shadow">ჩრდილი</string>
+    <string name="studio_tool_transparency">გაუმჭვირვალობა</string>
+    <string name="studio_tool_crop">მოჭრა</string>
+    <string name="studio_tool_rotateflip">დატრიალება/ასახვა</string>
+    <string name="studio_replace_hint">შეეხეთ \"შეცვლას\" გალერეიდან პროდუქტის ფოტოს ასარჩევად</string>
+    <string name="studio_layout_hint">გადაათრიეთ გადასაადგილებლად · ჩამოწელეთ მასშტაბირებისთვის · დაატრიალეთ ორი თითით</string>
+    <string name="studio_shadow_label">ჩრდილი: %1$d%%</string>
+    <string name="studio_shadow_angle_label">სინათლის კუთხე: %1$d°</string>
+    <string name="studio_shadow_distance_label">ჩრდილის მანძილი: %1$d dp</string>
+    <string name="studio_transparency_label">გაუმჭვირვალობა: %1$d%%</string>
+    <string name="studio_crop_label">გვერდების შეფარდება</string>
+    <string name="studio_processing">ფონის წაშლა…</string>
+    <string name="studio_export_success">შენახულია გალერეაში</string>
+    <string name="studio_export_error">ექსპორტი ჩაიშალა</string>
+    <string name="studio_layout_rotate_left">მარცხნივ დატრიალება</string>
+    <string name="studio_layout_rotate_right">მარჯვნივ დატრიალება</string>
+    <string name="studio_layout_flip_horizontal">ჰორიზონტალურად ასახვა</string>
+    <string name="studio_layout_flip_vertical">ვერტიკალურად ასახვა</string>
+</resources>

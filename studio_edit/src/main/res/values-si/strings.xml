@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI නිෂ්පාදන චිත්‍රාගාරය</string>
+    <string name="studio_category_electronics">විද්‍යුත් උපකරණ</string>
+    <string name="studio_category_fashion">විලාසිතා</string>
+    <string name="studio_category_cosmetics">ප්‍රසාධන ද්‍රව්‍ය</string>
+    <string name="studio_category_home">නිවස සහ ජීවන රටාව</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">ප්‍රසාධන චිත්‍රාගාරය 1</string>
+    <string name="themeplate_cosmetics_02">ප්‍රසාධන චිත්‍රාගාරය 2</string>
+    <string name="themeplate_cosmetics_03">ප්‍රසාධන චිත්‍රාගාරය 3</string>
+    <string name="themeplate_cosmetics_04">ප්‍රසාධන චිත්‍රාගාරය 4</string>
+    <string name="themeplate_cosmetics_05">ප්‍රසාධන චිත්‍රාගාරය 5</string>
+    <string name="themeplate_cosmetics_06">ප්‍රසාධන චිත්‍රාගාරය 6</string>
+    <string name="themeplate_cosmetics_07">ප්‍රසාධන චිත්‍රාගාරය 7</string>
+    <string name="themeplate_cosmetics_08">ප්‍රසාධන චිත්‍රාගාරය 8</string>
+    <string name="themeplate_cosmetics_09">ප්‍රසාධන චිත්‍රාගාරය 9</string>
+    <string name="studio_back">ආපසු</string>
+    <string name="studio_done">නිමයි</string>
+    <string name="studio_tap_to_pick_product">නිෂ්පාදන රූපයක් තෝරා ගැනීමට තට්ටු කරන්න</string>
+    <string name="studio_tool_replace">මාරු කරන්න</string>
+    <string name="studio_tool_layout">පිරිසැලසුම</string>
+    <string name="studio_tool_shadow">සෙවනැල්ල</string>
+    <string name="studio_tool_transparency">පාරාන්ධතාව</string>
+    <string name="studio_tool_crop">කපන්න</string>
+    <string name="studio_tool_rotateflip">කරකවන්න/පෙරළන්න</string>
+    <string name="studio_replace_hint">ඔබේ ගැලරියෙන් නිෂ්පාදන ඡායාරූපයක් තෝරා ගැනීමට \'මාරු කරන්න\' තට්ටු කරන්න</string>
+    <string name="studio_layout_hint">ගෙන යාමට අදින්න · විශාලනය කිරීමට ඇඟිලි දෙකකින් ලං කරන්න · ඇඟිලි දෙකකින් කරකවන්න</string>
+    <string name="studio_shadow_label">සෙවනැල්ල: %1$d%%</string>
+    <string name="studio_shadow_angle_label">ආලෝක කෝණය: %1$d°</string>
+    <string name="studio_shadow_distance_label">සෙවනැලි දුර: %1$d dp</string>
+    <string name="studio_transparency_label">පාරාන්ධතාව: %1$d%%</string>
+    <string name="studio_crop_label">දර්ශන අනුපාතය</string>
+    <string name="studio_processing">පසුබිම ඉවත් කරමින්…</string>
+    <string name="studio_export_success">ගැලරියට සුරකින ලදී</string>
+    <string name="studio_export_error">අපනයනය අසාර්ථක විය</string>
+    <string name="studio_layout_rotate_left">වමට කරකවන්න</string>
+    <string name="studio_layout_rotate_right">දකුණට කරකවන්න</string>
+    <string name="studio_layout_flip_horizontal">තිරස් අතට පෙරළන්න</string>
+    <string name="studio_layout_flip_vertical">සිරස් අතට පෙරළන්න</string>
+</resources>

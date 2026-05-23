@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI 상품 스튜디오</string>
+    <string name="studio_category_electronics">전자기기</string>
+    <string name="studio_category_fashion">패션</string>
+    <string name="studio_category_cosmetics">화장품</string>
+    <string name="studio_category_home">홈 &amp; 리빙</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">화장품 스튜디오 1</string>
+    <string name="themeplate_cosmetics_02">화장품 스튜디오 2</string>
+    <string name="themeplate_cosmetics_03">화장품 스튜디오 3</string>
+    <string name="themeplate_cosmetics_04">화장품 스튜디오 4</string>
+    <string name="themeplate_cosmetics_05">화장품 스튜디오 5</string>
+    <string name="themeplate_cosmetics_06">화장품 스튜디오 6</string>
+    <string name="themeplate_cosmetics_07">화장품 스튜디오 7</string>
+    <string name="themeplate_cosmetics_08">화장품 스튜디오 8</string>
+    <string name="themeplate_cosmetics_09">화장품 스튜디오 9</string>
+    <string name="studio_back">이전</string>
+    <string name="studio_done">완료</string>
+    <string name="studio_tap_to_pick_product">탭하여 상품 이미지 선택</string>
+    <string name="studio_tool_replace">교체</string>
+    <string name="studio_tool_layout">레이아웃</string>
+    <string name="studio_tool_shadow">그림자</string>
+    <string name="studio_tool_transparency">불투명도</string>
+    <string name="studio_tool_crop">자르기</string>
+    <string name="studio_tool_rotateflip">회전/대칭</string>
+    <string name="studio_replace_hint">갤러리에서 상품 사진을 선택하려면 [교체]를 탭하세요</string>
+    <string name="studio_layout_hint">드래그하여 이동 · 핀치하여 확대/축소 · 두 손가락으로 회전</string>
+    <string name="studio_shadow_label">그림자: %1$d%%</string>
+    <string name="studio_shadow_angle_label">광원 각도: %1$d°</string>
+    <string name="studio_shadow_distance_label">그림자 거리: %1$d dp</string>
+    <string name="studio_transparency_label">불투명도: %1$d%%</string>
+    <string name="studio_crop_label">화면 비율</string>
+    <string name="studio_processing">배경 제거 중…</string>
+    <string name="studio_export_success">갤러리에 저장되었습니다</string>
+    <string name="studio_export_error">내보내기 실패</string>
+    <string name="studio_layout_rotate_left">왼쪽으로 회전</string>
+    <string name="studio_layout_rotate_right">오른쪽으로 회전</string>
+    <string name="studio_layout_flip_horizontal">좌우 대칭</string>
+    <string name="studio_layout_flip_vertical">상하 대칭</string>
+</resources>

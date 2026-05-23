@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Produktové štúdio</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Móda</string>
+    <string name="studio_category_cosmetics">Kozmetika</string>
+    <string name="studio_category_home">Bývanie a dizajn</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kozmetické štúdio 1</string>
+    <string name="themeplate_cosmetics_02">Kozmetické štúdio 2</string>
+    <string name="themeplate_cosmetics_03">Kozmetické štúdio 3</string>
+    <string name="themeplate_cosmetics_04">Kozmetické štúdio 4</string>
+    <string name="themeplate_cosmetics_05">Kozmetické štúdio 5</string>
+    <string name="themeplate_cosmetics_06">Kozmetické štúdio 6</string>
+    <string name="themeplate_cosmetics_07">Kozmetické štúdio 7</string>
+    <string name="themeplate_cosmetics_08">Kozmetické štúdio 8</string>
+    <string name="themeplate_cosmetics_09">Kozmetické štúdio 9</string>
+    <string name="studio_back">Späť</string>
+    <string name="studio_done">Hotovo</string>
+    <string name="studio_tap_to_pick_product">Klepnutím vyberte obrázok produktu</string>
+    <string name="studio_tool_replace">Nahradiť</string>
+    <string name="studio_tool_layout">Rozvrhnutie</string>
+    <string name="studio_tool_shadow">Tieň</string>
+    <string name="studio_tool_transparency">Nepriehľadnosť</string>
+    <string name="studio_tool_crop">Orezať</string>
+    <string name="studio_tool_rotateflip">Otočiť/Preklopiť</string>
+    <string name="studio_replace_hint">Klepnutím na Nahradiť vyberte fotografiu produktu z galérie</string>
+    <string name="studio_layout_hint">Potiahnutím posuniete · Zoovretím prstov priblížite · Otočenie dvoma prstami</string>
+    <string name="studio_shadow_label">Tieň: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Uhol svetla: %1$d°</string>
+    <string name="studio_shadow_distance_label">Vzdialenosť tieňa: %1$d dp</string>
+    <string name="studio_transparency_label">Nepriehľadnosť: %1$d%%</string>
+    <string name="studio_crop_label">Pomer strán</string>
+    <string name="studio_processing">Odstraňuje se pozadie…</string>
+    <string name="studio_export_success">Uložené do galérie</string>
+    <string name="studio_export_error">Export zlyhal</string>
+    <string name="studio_layout_rotate_left">Otočiť doľava</string>
+    <string name="studio_layout_rotate_right">Otočiť doprava</string>
+    <string name="studio_layout_flip_horizontal">Preklopiť vodorovne</string>
+    <string name="studio_layout_flip_vertical">Preklopiť zvisle</string>
+</resources>

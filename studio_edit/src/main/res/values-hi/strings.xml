@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI प्रोडक्ट स्टूडियो</string>
+    <string name="studio_category_electronics">इलेक्ट्रॉनिक्स</string>
+    <string name="studio_category_fashion">फैशन</string>
+    <string name="studio_category_cosmetics">कॉस्मेटिक्स</string>
+    <string name="studio_category_home">होम एंड लिविंग</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">कॉस्मेटिक्स स्टूडियो 1</string>
+    <string name="themeplate_cosmetics_02">कॉस्मेटिक्स Studio 2</string>
+    <string name="themeplate_cosmetics_03">कॉस्मेटिक्स स्टूडियो 3</string>
+    <string name="themeplate_cosmetics_04">कॉस्मेटिक्स स्टूडियो 4</string>
+    <string name="themeplate_cosmetics_05">कॉस्मेटिक्स स्टूडियो 5</string>
+    <string name="themeplate_cosmetics_06">कॉस्मेटिक्स स्टूडियो 6</string>
+    <string name="themeplate_cosmetics_07">कॉस्मेटिक्स स्टूडियो 7</string>
+    <string name="themeplate_cosmetics_08">कॉस्मेटिक्स स्टूडियो 8</string>
+    <string name="themeplate_cosmetics_09">कॉस्मेटिक्स स्टूडियो 9</string>
+    <string name="studio_back">पीछे</string>
+    <string name="studio_done">पूर्ण</string>
+    <string name="studio_tap_to_pick_product">उत्पाद की छवि चुनने के लिए टैप करें</string>
+    <string name="studio_tool_replace">बदलें</string>
+    <string name="studio_tool_layout">लेआउट</string>
+    <string name="studio_tool_shadow">परछाई</string>
+    <string name="studio_tool_transparency">अपारदर्शिता</string>
+    <string name="studio_tool_crop">क्रॉप करें</string>
+    <string name="studio_tool_rotateflip">घुमाएं/पलटें</string>
+    <string name="studio_replace_hint">अपनी गैलरी से उत्पाद की फ़ोटो चुनने के लिए \'बदलें\' पर टैप करें</string>
+    <string name="studio_layout_hint">स्थानांतरित करने के लिए ड्रैग करें · ज़ूम करने के लिए पिंच करें · दो उंगलियों से घुमाएं</string>
+    <string name="studio_shadow_label">परछाई: %1$d%%</string>
+    <string name="studio_shadow_angle_label">प्रकाश का कोण: %1$d°</string>
+    <string name="studio_shadow_distance_label">परछाई की दूरी: %1$d dp</string>
+    <string name="studio_transparency_label">अपारदर्शिता: %1$d%%</string>
+    <string name="studio_crop_label">आस्पेक्ट रेशियो</string>
+    <string name="studio_processing">पृष्ठभूमि हटाई जा रही है…</string>
+    <string name="studio_export_success">गैलरी में सहेजा गया</string>
+    <string name="studio_export_error">निर्यात विफल रहा</string>
+    <string name="studio_layout_rotate_left">बाएं घुमाएं</string>
+    <string name="studio_layout_rotate_right">दाएं घुमाएं</string>
+    <string name="studio_layout_flip_horizontal">क्षैतिज पलटें</string>
+    <string name="studio_layout_flip_vertical">लंबवत पलटें</string>
+</resources>

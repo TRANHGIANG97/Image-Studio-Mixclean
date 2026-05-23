@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Productstudio</string>
+    <string name="studio_category_electronics">Elektronica</string>
+    <string name="studio_category_fashion">Mode</string>
+    <string name="studio_category_cosmetics">Cosmetica</string>
+    <string name="studio_category_home">Wonen &amp; Design</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Cosmeticastudio 1</string>
+    <string name="themeplate_cosmetics_02">Cosmeticastudio 2</string>
+    <string name="themeplate_cosmetics_03">Cosmeticastudio 3</string>
+    <string name="themeplate_cosmetics_04">Cosmeticastudio 4</string>
+    <string name="themeplate_cosmetics_05">Cosmeticastudio 5</string>
+    <string name="themeplate_cosmetics_06">Cosmeticastudio 6</string>
+    <string name="themeplate_cosmetics_07">Cosmeticastudio 7</string>
+    <string name="themeplate_cosmetics_08">Cosmeticastudio 8</string>
+    <string name="themeplate_cosmetics_09">Cosmeticastudio 9</string>
+    <string name="studio_back">Terug</string>
+    <string name="studio_done">Gereed</string>
+    <string name="studio_tap_to_pick_product">Tik om een productafbeelding te kiezen</string>
+    <string name="studio_tool_replace">Vervangen</string>
+    <string name="studio_tool_layout">Lay-out</string>
+    <string name="studio_tool_shadow">Schaduw</string>
+    <string name="studio_tool_transparency">Opaciteit</string>
+    <string name="studio_tool_crop">Bijsnijden</string>
+    <string name="studio_tool_rotateflip">Draaien/Spiegelen</string>
+    <string name="studio_replace_hint">Tik op Vervangen om een productfoto uit je galerij te kiezen</string>
+    <string name="studio_layout_hint">Sleep om te verplaatsen · Knijp om te zoomen · Draai met twee vingers</string>
+    <string name="studio_shadow_label">Schaduw: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Lichthoek: %1$d°</string>
+    <string name="studio_shadow_distance_label">Schaduwofstand: %1$d dp</string>
+    <string name="studio_transparency_label">Opaciteit: %1$d%%</string>
+    <string name="studio_crop_label">Beeldverhouding</string>
+    <string name="studio_processing">Achtergrond verwijderen…</string>
+    <string name="studio_export_success">Opgeslagen in galerij</string>
+    <string name="studio_export_error">Exporteren mislukt</string>
+    <string name="studio_layout_rotate_left">Links om draaien</string>
+    <string name="studio_layout_rotate_right">Rechts om draaien</string>
+    <string name="studio_layout_flip_horizontal">Horizontaal spiegeln</string>
+    <string name="studio_layout_flip_vertical">Verticaal spiegeln</string>
+</resources>

@@ -1,5 +1,6 @@
 package com.thgiang.image.studio.ui.editor
 
+import com.thgiang.image.studio.ui.editor.components.*
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateFloatAsState
@@ -89,7 +90,7 @@ data class SnapLine(
 
 // ============ Constants ============
 
-private object EditorColors {
+object EditorColors {
     val BorderIdle = Color(0xFF9E9E9E)
     val BorderDrag = Color(0xFF4A90D9)
     val BorderScale = Color(0xFF7C4DFF)
@@ -111,7 +112,7 @@ private object EditorColors {
     val Crosshair = Color.White.copy(alpha = 0.45f)
 }
 
-private object EditorDims {
+object EditorDims {
     val HandleRadiusDp = 8.dp
     val TouchRadiusDp = 24.dp
     val RotateLineDp = 20.dp
@@ -129,7 +130,7 @@ private object EditorDims {
     const val HAPTIC_DEBOUNCE_MS = 80L
 }
 
-private object EditorConfig {
+object EditorConfig {
     const val MIN_SCALE = 0.1f
     const val MAX_SCALE = 5f
     const val SNAP_ANGLE_THRESHOLD = 6f
@@ -147,7 +148,7 @@ private val SNAP_ANGLES = listOf(0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f)
 
 // ============ Internal Types ============
 
-private sealed class HandleZone {
+sealed class HandleZone {
     data object None : HandleZone()
     data object Body : HandleZone()
     data object Rotate : HandleZone()
@@ -159,9 +160,9 @@ private sealed class HandleZone {
     }
 }
 
-private enum class GestureMode { IDLE, DRAG, SCALE_CORNER, ROTATE, PINCH }
+enum class GestureMode { IDLE, DRAG, SCALE_CORNER, ROTATE, PINCH }
 
-private data class CachedDimensions(
+data class CachedDimensions(
     val handleRadiusPx: Float,
     val touchRadiusPx: Float,
     val rotateLinePx: Float,
@@ -456,7 +457,7 @@ fun BoundingBoxOverlayV6(
                                 if (!change.positionChanged()) continue
 
                                 val screenDelta = change.position - change.previousPosition
-                                val localDragDelta = inverseRotateVector(screenDelta, currentViewport.rotation)
+                                val localDragDelta = screenDelta
                                 val templateDelta = Offset(
                                     localDragDelta.x / displayScale,
                                     localDragDelta.y / displayScale
@@ -596,429 +597,3 @@ fun BoundingBoxOverlayV6(
 
 // ============ Debounced Haptic ============
 
-private fun performDebouncedHaptic(
-    haptic: HapticFeedback,
-    lastTime: Long,
-    type: HapticFeedbackType = HapticFeedbackType.TextHandleMove,
-    onUpdate: (Long) -> Unit
-) {
-    val currentTime = System.currentTimeMillis()
-    if (currentTime - lastTime >= EditorDims.HAPTIC_DEBOUNCE_MS) {
-        haptic.performHapticFeedback(type)
-        onUpdate(currentTime)
-    }
-}
-
-// ============ Handle Detection ============
-
-private fun detectHandleRotated(
-    touch: Offset,
-    center: Offset,
-    screenW: Float,
-    screenH: Float,
-    rotation: Float,
-    handleRadius: Float,
-    rotateOffset: Float,
-    rotateTouchRadius: Float,
-    rotateHandleOffset: Float
-): HandleZone {
-    val local = inverseRotatePoint(touch, center, rotation)
-
-    val hw = screenW / 2f
-    val hh = screenH / 2f
-
-    val corners = listOf(
-        Offset(center.x - hw, center.y - hh) to HandleZone.Corner.TL,
-        Offset(center.x + hw, center.y - hh) to HandleZone.Corner.TR,
-        Offset(center.x - hw, center.y + hh) to HandleZone.Corner.BL,
-        Offset(center.x + hw, center.y + hh) to HandleZone.Corner.BR
-    )
-
-    corners.forEach { (pos, zone) ->
-        if (distance(local, pos) < handleRadius + EditorDims.CORNER_EXTRA_TOUCH) return zone
-    }
-
-    val rotBase = Offset(center.x, center.y + hh)
-    val rotPos = Offset(center.x, center.y + hh + rotateOffset + rotateHandleOffset)
-    val nearRotateButton = distance(local, rotPos) <= rotateTouchRadius
-    val nearRotateStem = local.x in (center.x - rotateTouchRadius * 0.35f)..(center.x + rotateTouchRadius * 0.35f) &&
-        local.y in (rotBase.y - rotateTouchRadius * 0.05f)..(rotPos.y + rotateTouchRadius * 0.55f)
-
-    if (nearRotateButton || nearRotateStem) {
-        return HandleZone.Rotate
-    }
-
-    val padding = handleRadius * 0.5f
-    return if (local.x in (center.x - hw + padding)..(center.x + hw - padding) &&
-        local.y in (center.y - hh + padding)..(center.y + hh - padding)
-    ) {
-        HandleZone.Body
-    } else {
-        HandleZone.None
-    }
-}
-
-// ============ Scale Calculation ============
-
-private fun calculateRotatedScale(
-    handle: HandleZone.Corner,
-    center: Offset,
-    startTouch: Offset,
-    currentTouch: Offset,
-    startScale: Float,
-    rotation: Float,
-    screenW: Float,
-    screenH: Float
-): Float {
-    val localStart = inverseRotatePoint(startTouch, center, rotation)
-    val localCurrent = inverseRotatePoint(currentTouch, center, rotation)
-    val opposite = oppositeCorner(handle, center, screenW, screenH)
-
-    val startDist = distance(localStart, opposite).coerceAtLeast(1f)
-    val currentDist = distance(localCurrent, opposite).coerceAtLeast(1f)
-
-    val scaleFactor = currentDist / startDist
-    return (startScale * scaleFactor).coerceIn(EditorConfig.MIN_SCALE, EditorConfig.MAX_SCALE)
-}
-
-private fun oppositeCorner(
-    handle: HandleZone.Corner,
-    center: Offset,
-    screenW: Float,
-    screenH: Float
-): Offset {
-    val hw = screenW / 2f
-    val hh = screenH / 2f
-    return when (handle) {
-        is HandleZone.Corner.TL -> Offset(center.x + hw, center.y + hh)
-        is HandleZone.Corner.TR -> Offset(center.x - hw, center.y + hh)
-        is HandleZone.Corner.BL -> Offset(center.x + hw, center.y - hh)
-        is HandleZone.Corner.BR -> Offset(center.x - hw, center.y - hh)
-    }
-}
-
-// ============ Snap Calculation ============
-
-private fun calculateSnap(
-    offset: Offset,
-    contentSize: IntSize,
-    templateSize: IntSize
-): Pair<Offset, List<SnapLine>> {
-    val lines = mutableListOf<SnapLine>()
-    var snapped = offset
-
-    val cw = contentSize.width.toFloat()
-    val ch = contentSize.height.toFloat()
-    val tw = templateSize.width.toFloat()
-    val th = templateSize.height.toFloat()
-    val threshold = EditorConfig.SNAP_DISTANCE_PX
-
-    val centerX = offset.x + cw / 2f
-    val centerY = offset.y + ch / 2f
-
-    val targetCenterX = tw / 2f
-    if (abs(centerX - targetCenterX) < threshold) {
-        snapped = snapped.copy(x = targetCenterX - cw / 2f)
-        lines.add(SnapLine(Offset(targetCenterX, 0f), Offset(targetCenterX, th), SnapType.CENTER_X))
-    }
-
-    val targetCenterY = th / 2f
-    if (abs(centerY - targetCenterY) < threshold) {
-        snapped = snapped.copy(y = targetCenterY - ch / 2f)
-        lines.add(SnapLine(Offset(0f, targetCenterY), Offset(tw, targetCenterY), SnapType.CENTER_Y))
-    }
-
-    if (abs(offset.x) < threshold * EditorConfig.SNAP_EDGE_FACTOR) {
-        snapped = snapped.copy(x = 0f)
-        lines.add(SnapLine(Offset(0f, 0f), Offset(0f, th), SnapType.VERTICAL))
-    }
-    if (abs(offset.y) < threshold * EditorConfig.SNAP_EDGE_FACTOR) {
-        snapped = snapped.copy(y = 0f)
-        lines.add(SnapLine(Offset(0f, 0f), Offset(tw, 0f), SnapType.HORIZONTAL))
-    }
-    if (abs(offset.x + cw - tw) < threshold) {
-        snapped = snapped.copy(x = tw - cw)
-        lines.add(SnapLine(Offset(tw, 0f), Offset(tw, th), SnapType.VERTICAL))
-    }
-    if (abs(offset.y + ch - th) < threshold) {
-        snapped = snapped.copy(y = th - ch)
-        lines.add(SnapLine(Offset(0f, th), Offset(tw, th), SnapType.HORIZONTAL))
-    }
-
-    val t1x = tw / 3f
-    val t2x = 2f * tw / 3f
-    val t1y = th / 3f
-    val t2y = 2f * th / 3f
-
-    when {
-        abs(centerX - t1x) < threshold -> {
-            snapped = snapped.copy(x = t1x - cw / 2f)
-            lines.add(SnapLine(Offset(t1x, 0f), Offset(t1x, th), SnapType.RULE_OF_THIRD))
-        }
-        abs(centerX - t2x) < threshold -> {
-            snapped = snapped.copy(x = t2x - cw / 2f)
-            lines.add(SnapLine(Offset(t2x, 0f), Offset(t2x, th), SnapType.RULE_OF_THIRD))
-        }
-    }
-
-    when {
-        abs(centerY - t1y) < threshold -> {
-            snapped = snapped.copy(y = t1y - ch / 2f)
-            lines.add(SnapLine(Offset(0f, t1y), Offset(tw, t1y), SnapType.RULE_OF_THIRD))
-        }
-        abs(centerY - t2y) < threshold -> {
-            snapped = snapped.copy(y = t2y - ch / 2f)
-            lines.add(SnapLine(Offset(0f, t2y), Offset(tw, t2y), SnapType.RULE_OF_THIRD))
-        }
-    }
-
-    return snapped to lines
-}
-
-// ============ Drawing Helpers ============
-
-private fun DrawScope.drawSnapLines(
-    lines: List<SnapLine>,
-    alpha: Float,
-    displayScale: Float,
-    screenOriginX: Float,
-    screenOriginY: Float,
-    templateSize: IntSize
-) {
-    lines.forEach { line ->
-        val color = when (line.type) {
-            SnapType.CENTER_X, SnapType.CENTER_Y -> EditorColors.SnapCenter
-            SnapType.RULE_OF_THIRD -> EditorColors.SnapThird
-            else -> EditorColors.SnapEdge
-        }.copy(alpha = alpha)
-
-        val strokeWidth = when (line.type) {
-            SnapType.CENTER_X, SnapType.CENTER_Y -> 2.dp.toPx()
-            else -> 1.5f.dp.toPx()
-        }
-
-        val startScreen = Offset(
-            screenOriginX + line.start.x * displayScale,
-            screenOriginY + line.start.y * displayScale
-        )
-        val endScreen = Offset(
-            screenOriginX + line.end.x * displayScale,
-            screenOriginY + line.end.y * displayScale
-        )
-
-        drawLine(
-            color = color,
-            start = startScreen,
-            end = endScreen,
-            strokeWidth = strokeWidth,
-            pathEffect = if (line.type == SnapType.RULE_OF_THIRD) {
-                PathEffect.dashPathEffect(floatArrayOf(8f, 4f), 0f)
-            } else null
-        )
-    }
-}
-
-private fun DrawScope.drawRotatedOverlay(
-    cx: Float,
-    cy: Float,
-    hw: Float,
-    hh: Float,
-    screenW: Float,
-    screenH: Float,
-    rotation: Float,
-    borderColor: Color,
-    dimensions: CachedDimensions,
-    gestureMode: GestureMode,
-    activeHandle: HandleZone,
-    isGestureActive: Boolean
-) {
-    withTransform({
-        rotate(degrees = rotation, pivot = Offset(cx, cy))
-    }) {
-        val pathEffect = when (gestureMode) {
-            GestureMode.DRAG -> PathEffect.dashPathEffect(floatArrayOf(12f, 6f), 0f)
-            GestureMode.SCALE_CORNER, GestureMode.PINCH -> PathEffect.dashPathEffect(floatArrayOf(8f, 4f, 2f, 4f), 0f)
-            else -> null
-        }
-
-        drawRect(
-            color = borderColor,
-            topLeft = Offset(cx - hw, cy - hh),
-            size = Size(screenW, screenH),
-            style = Stroke(width = dimensions.borderStrokePx, pathEffect = pathEffect)
-        )
-
-        // Corner handles
-        val corners = listOf(
-            Offset(cx - hw, cy - hh) to HandleZone.Corner.TL,
-            Offset(cx + hw, cy - hh) to HandleZone.Corner.TR,
-            Offset(cx - hw, cy + hh) to HandleZone.Corner.BL,
-            Offset(cx + hw, cy + hh) to HandleZone.Corner.BR
-        )
-
-        corners.forEach { (pos, zone) ->
-            val isActive = gestureMode == GestureMode.SCALE_CORNER && activeHandle == zone
-            val radius = if (isActive) dimensions.handleRadiusPx * EditorDims.CornerActiveScale else dimensions.handleRadiusPx
-            val color = if (isActive) EditorColors.HandleActive else EditorColors.HandleInactive
-
-            if (isActive) {
-                drawCircle(
-                    color = EditorColors.HandleActive.copy(alpha = 0.28f),
-                    radius = radius + EditorDims.CORNER_GLOW_RADIUS,
-                    center = pos
-                )
-            }
-            drawCircle(color, radius, pos)
-            drawCircle(EditorColors.HandleStroke, radius, pos, style = Stroke(dimensions.borderStrokePx))
-        }
-
-        // Rotation handle
-        val rotBase = Offset(cx, cy + hh)
-        val rotPos = Offset(cx, cy + hh + dimensions.rotateLinePx + dimensions.rotateHandleOffsetPx)
-
-        drawLine(
-            color = Color.White.copy(alpha = 0.6f),
-            start = rotBase,
-            end = rotPos,
-            strokeWidth = 1.5f.dp.toPx(),
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 4f), 0f)
-        )
-
-        val isRotating = gestureMode == GestureMode.ROTATE
-        val rotColor = if (isRotating) EditorColors.RotateHandleActive else EditorColors.RotateHandle
-        val rotR = if (isRotating) dimensions.rotateRadiusActivePx else dimensions.rotateRadiusPx
-
-        drawCircle(
-            color = rotColor.copy(alpha = if (isRotating) 0.28f else 0.16f),
-            radius = rotR + EditorDims.ROTATE_GLOW_RADIUS,
-            center = rotPos
-        )
-        drawCircle(Color.White, rotR, rotPos)
-        drawCircle(rotColor, rotR, rotPos, style = Stroke(if (isRotating) 4.dp.toPx() else 3.dp.toPx()))
-
-        // V6.1: Rotate handle icon — arc arrow LUÔN hướng lên trong screen space
-        // Vì đang trong withTransform { rotate(...) }, ta vẽ ngược lại bằng -rotation
-        // để icon luôn "đứng yên" trong screen space
-        drawRotatingHandleIcon(
-            center = rotPos,
-            radius = rotR,
-            rotation = rotation,
-            color = rotColor
-        )
-
-        // Center crosshair
-        val cc = EditorColors.Crosshair
-        drawLine(cc, Offset(cx - dimensions.crosshairSizePx, cy), Offset(cx + dimensions.crosshairSizePx, cy), 1.5f.dp.toPx())
-        drawLine(cc, Offset(cx, cy - dimensions.crosshairSizePx), Offset(cx, cy + dimensions.crosshairSizePx), 1.5f.dp.toPx())
-
-        // Rule of thirds grid
-        if (isGestureActive) {
-            drawRuleOfThirdsGrid(cx, cy, hw, hh)
-        }
-    }
-}
-
-/**
- * V6.1: Vẽ icon xoay (arc + arrow) LUÔN hướng lên trong screen space.
- * Dùng withTransform inverse rotation để icon không bị xoay theo box.
- */
-private fun DrawScope.drawRotatingHandleIcon(
-    center: Offset,
-    radius: Float,
-    rotation: Float,
-    color: Color
-) {
-    withTransform({
-        // Inverse rotation để icon luôn "đứng yên" trong screen space
-        rotate(degrees = -rotation, pivot = center)
-    }) {
-        val iconRadius = radius * 0.7f
-        val strokeWidth = 2.dp.toPx()
-
-        // Vẽ arc 270° (3/4 vòng tròn)
-        drawArc(
-            color = color,
-            startAngle = 135f,
-            sweepAngle = 270f,
-            useCenter = false,
-            topLeft = Offset(center.x - iconRadius, center.y - iconRadius),
-            size = Size(iconRadius * 2, iconRadius * 2),
-            style = Stroke(strokeWidth)
-        )
-
-        // Vẽ mũi tên hướng lên trên (screen space)
-        val arrowSize = iconRadius * 0.5f
-        val arrowTop = Offset(center.x, center.y - iconRadius - arrowSize * 0.3f)
-        val arrowLeft = Offset(center.x - arrowSize * 0.4f, center.y - iconRadius + arrowSize * 0.3f)
-        val arrowRight = Offset(center.x + arrowSize * 0.4f, center.y - iconRadius + arrowSize * 0.3f)
-
-        drawLine(color, arrowLeft, arrowTop, strokeWidth)
-        drawLine(color, arrowRight, arrowTop, strokeWidth)
-    }
-}
-
-private fun DrawScope.drawRuleOfThirdsGrid(cx: Float, cy: Float, hw: Float, hh: Float) {
-    val color = EditorColors.Grid
-    val strokeWidth = 0.5f.dp.toPx()
-
-    for (i in 1..2) {
-        val x = cx - hw + (hw * 2f / 3f) * i
-        drawLine(color, Offset(x, cy - hh), Offset(x, cy + hh), strokeWidth)
-    }
-    for (i in 1..2) {
-        val y = cy - hh + (hh * 2f / 3f) * i
-        drawLine(color, Offset(cx - hw, y), Offset(cx + hw, y), strokeWidth)
-    }
-}
-
-// ============ Math Helpers ============
-
-private fun inverseRotatePoint(point: Offset, center: Offset, angle: Float): Offset {
-    val rad = Math.toRadians((-angle).toDouble())
-    val cos = cos(rad).toFloat()
-    val sin = sin(rad).toFloat()
-
-    val translated = point - center
-    return Offset(
-        translated.x * cos - translated.y * sin,
-        translated.x * sin + translated.y * cos
-    ) + center
-}
-
-private fun inverseRotateVector(vector: Offset, angle: Float): Offset {
-    val rad = Math.toRadians((-angle).toDouble())
-    val cos = cos(rad).toFloat()
-    val sin = sin(rad).toFloat()
-
-    return Offset(
-        vector.x * cos - vector.y * sin,
-        vector.x * sin + vector.y * cos
-    )
-}
-
-private fun normalizeAngleDelta(delta: Float): Float {
-    var d = delta % 360f
-    if (d > 180f) d -= 360f
-    if (d < -180f) d += 360f
-    return d
-}
-
-private fun normalizeAngleDeltaRad(delta: Float): Float {
-    return atan2(sin(delta), cos(delta))
-}
-
-private fun snapAngle(angle: Float, snapPoints: List<Float>, threshold: Float): Float {
-    val normalized = ((angle % 360f) + 360f) % 360f
-    for (snap in snapPoints) {
-        val diff = abs(normalized - snap)
-        val wrapDiff = abs(diff - 360f)
-        if (diff <= threshold || wrapDiff <= threshold) return snap
-    }
-    return normalized
-}
-
-private fun distance(a: Offset, b: Offset): Float = hypot(a.x - b.x, a.y - b.y)
-
-private fun angleBetween(p1: Offset, p2: Offset): Float {
-    return atan2(p2.y - p1.y, p2.x - p1.x)
-}

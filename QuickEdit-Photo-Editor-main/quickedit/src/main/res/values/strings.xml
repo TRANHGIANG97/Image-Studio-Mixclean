@@ -52,15 +52,15 @@
     <string name="portrait">Portrait</string>
     <string name="clean">Clean</string>
     <string name="darken">Darken</string>
-    <string name="remove_bg">Xoá Nền</string>
-    <string name="remove_bg_auto">Tự động</string>
-    <string name="remove_bg_portrait">Chân dung</string>
-    <string name="remove_bg_object">Vật thể</string>
-    <string name="remove_bg_processing_auto">Đang phân tích tự động...</string>
-    <string name="remove_bg_processing_portrait">Đang tách chi tiết chân dung...</string>
-    <string name="remove_bg_processing_object">Đang tách vật thể...</string>
-    <string name="remove_bg_portrait_no_face_warning">Không phát hiện khuôn mặt, hãy chọn chế độ tự động hoặc chế độ vật thể để có kết quả tốt nhất</string>
-    <string name="remove_bg_object_has_face_warning">Phát hiện khuôn mặt, hãy chọn chế độ tự động hoặc chế độ chân dung để có kết quả tốt nhất</string>
+    <string name="remove_bg">Remove BG</string>
+    <string name="remove_bg_auto">Auto</string>
+    <string name="remove_bg_portrait">Portrait</string>
+    <string name="remove_bg_object">Object</string>
+    <string name="remove_bg_processing_auto">Analyzing automatically...</string>
+    <string name="remove_bg_processing_portrait">Extracting portrait with high precision...</string>
+    <string name="remove_bg_processing_object">Extracting object...</string>
+    <string name="remove_bg_portrait_no_face_warning">No face detected. Select Auto or Object mode for best results.</string>
+    <string name="remove_bg_object_has_face_warning">Face detected. Select Auto or Portrait mode for best results.</string>
     <string name="hair_detail">Hair Detail</string>
     <string name="hair_detail_processing">Refining hair detail...</string>
     <string name="remove_bg_processing">Removing background...</string>
@@ -85,10 +85,10 @@
     <string name="border_preset_double">Double</string>
     <string name="border_preset_outline">Outline</string>
     <string name="remove_bg_warning">Please remove background before adding background</string>
-    <string name="loading">Đang tải...</string>
-    <string name="remove_bg_tooltip_title">Hướng dẫn Xoá Nền:</string>
-    <string name="remove_bg_tooltip_desc">- Chân dung: Tách nền độ nét cao cho người, mượt tóc.\n- Vật thể: Tách chủ thể chung.\n- Tự động: Hệ thống tự quyết định.</string>
-    <string name="remove_bg_tooltip_dismiss">Không hiển thị lại</string>
+    <string name="loading">Loading...</string>
+    <string name="remove_bg_tooltip_title">Background Removal Guide:</string>
+    <string name="remove_bg_tooltip_desc">- Portrait: High-precision cutout for people, smooth hair detail.\n- Object: General subject cutout.\n- Auto: Selected automatically by the system.</string>
+    <string name="remove_bg_tooltip_dismiss">Don\'t show again</string>
     <string name="back">Back</string>
     <string name="original">Original</string>
     <string name="save_draft">Save Draft</string>
@@ -121,11 +121,11 @@
     <string name="label_erase_brush">Erase brush</string>
 
     <!-- Magic Wand Tooltip -->
-    <string name="magic_wand_tooltip_title">Đũa thần (Magic Wand)</string>
-    <string name="magic_wand_tooltip_desc">Tự động xoá các vùng có màu sắc tương đồng nhau. Chạm vào màn hình để xoá.</string>
-    <string name="magic_wand_tooltip_warning">⚠️ Lưu ý: Không phù hợp với ảnh có nền nhiều chi tiết phức tạp hoặc màu sắc của vật thể bị hòa lẫn với nền.</string>
-    <string name="dont_show_again">Không hiện lại</string>
-    <string name="got_it">Đã hiểu</string>
+    <string name="magic_wand_tooltip_title">Magic Wand</string>
+    <string name="magic_wand_tooltip_desc">Automatically erase areas with similar colors. Tap on the screen to erase.</string>
+    <string name="magic_wand_tooltip_warning">⚠️ Note: Not suitable for complex backgrounds or when the object\'s color blends into the background.</string>
+    <string name="dont_show_again">Don\'t show again</string>
+    <string name="got_it">Got it</string>
     <string name="effect_original">Original</string>
     <string name="effect_grayscale">Grayscale</string>
     <string name="effect_blur">Blur</string>

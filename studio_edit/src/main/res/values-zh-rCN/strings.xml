@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI 商品工作室</string>
+    <string name="studio_category_electronics">数码電子</string>
+    <string name="studio_category_fashion">潮流服饰</string>
+    <string name="studio_category_cosmetics">美妆个护</string>
+    <string name="studio_category_home">家居生活</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">美妆工作室 1</string>
+    <string name="themeplate_cosmetics_02">美妆工作室 2</string>
+    <string name="themeplate_cosmetics_03">美妆工作室 3</string>
+    <string name="themeplate_cosmetics_04">美妆工作室 4</string>
+    <string name="themeplate_cosmetics_05">美妆工作室 5</string>
+    <string name="themeplate_cosmetics_06">美妆工作室 6</string>
+    <string name="themeplate_cosmetics_07">美妆工作室 7</string>
+    <string name="themeplate_cosmetics_08">美妆工作室 8</string>
+    <string name="themeplate_cosmetics_09">美妆工作室 9</string>
+    <string name="studio_back">返回</string>
+    <string name="studio_done">完成</string>
+    <string name="studio_tap_to_pick_product">轻点以选择商品图片</string>
+    <string name="studio_tool_replace">替换</string>
+    <string name="studio_tool_layout">布局</string>
+    <string name="studio_tool_shadow">阴影</string>
+    <string name="studio_tool_transparency">不透明度</string>
+    <string name="studio_tool_crop">裁剪</string>
+    <string name="studio_tool_rotateflip">旋转/翻转</string>
+    <string name="studio_replace_hint">轻点“替换”从相册中选择一张商品照片</string>
+    <string name="studio_layout_hint">拖动以移动 · 双指捏合以缩放 · 双指旋转</string>
+    <string name="studio_shadow_label">阴影：%1$d%%</string>
+    <string name="studio_shadow_angle_label">光源角度：%1$d°</string>
+    <string name="studio_shadow_distance_label">阴影距离：%1$d dp</string>
+    <string name="studio_transparency_label">不透明度：%1$d%%</string>
+    <string name="studio_crop_label">宽高比</string>
+    <string name="studio_processing">正在抠图背景…</string>
+    <string name="studio_export_success">已保存至相册</string>
+    <string name="studio_export_error">导出失败</string>
+    <string name="studio_layout_rotate_left">向左旋转</string>
+    <string name="studio_layout_rotate_right">向右旋转</string>
+    <string name="studio_layout_flip_horizontal">水平翻转</string>
+    <string name="studio_layout_flip_vertical">垂直翻转</string>
+</resources>

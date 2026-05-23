@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">استودیوی محصول هوش مصنوعی</string>
+    <string name="studio_category_electronics">الکترونیک</string>
+    <string name="studio_category_fashion">مد و پوشاک</string>
+    <string name="studio_category_cosmetics">لوازم آرایشی</string>
+    <string name="studio_category_home">خانه و سبک زندگی</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">استودیو لوازم آرایشی ۱</string>
+    <string name="themeplate_cosmetics_02">استودیو لوازم آرایشی ۲</string>
+    <string name="themeplate_cosmetics_03">استودیو لوازم آرایشی ۳</string>
+    <string name="themeplate_cosmetics_04">استودیو لوازم آرایشی ۴</string>
+    <string name="themeplate_cosmetics_05">استودیو لوازم آرایشی ۵</string>
+    <string name="themeplate_cosmetics_06">استودیو لوازم آرایشی ۶</string>
+    <string name="themeplate_cosmetics_07">استودیو لوازم آرایشی ۷</string>
+    <string name="themeplate_cosmetics_08">استودیو لوازم آرایشی ۸</string>
+    <string name="themeplate_cosmetics_09">استودیو لوازم آرایشی ۹</string>
+    <string name="studio_back">بازگشت</string>
+    <string name="studio_done">انجام شد</string>
+    <string name="studio_tap_to_pick_product">برای انتخاب تصویر محصول ضربه بزنید</string>
+    <string name="studio_tool_replace">جایگزینی</string>
+    <string name="studio_tool_layout">چیدمان</string>
+    <string name="studio_tool_shadow">سایه</string>
+    <string name="studio_tool_transparency">شفافیت</string>
+    <string name="studio_tool_crop">برش تصویر</string>
+    <string name="studio_tool_rotateflip">چرخش/قرینه</string>
+    <string name="studio_replace_hint">برای انتخاب عکس محصول از گالری، روی جایگزینی ضربه بزنید</string>
+    <string name="studio_layout_hint">بکشید برای جابجایی · نیشگون بگیرید برای زوم · با دو انگشت بچرخانید</string>
+    <string name="studio_shadow_label">سایه: %1$d%%</string>
+    <string name="studio_shadow_angle_label">زاویه نور: %1$d°</string>
+    <string name="studio_shadow_distance_label">فاصله سایه: %1$d dp</string>
+    <string name="studio_transparency_label">شفافیت: %1$d%%</string>
+    <string name="studio_crop_label">نسبت ابعاد</string>
+    <string name="studio_processing">در حال حذف پس‌زمینه…</string>
+    <string name="studio_export_success">در گالری ذخیره شد</string>
+    <string name="studio_export_error">خطا در خروجی گرفتن</string>
+    <string name="studio_layout_rotate_left">چرخش به چپ</string>
+    <string name="studio_layout_rotate_right">چرخش به راست</string>
+    <string name="studio_layout_flip_horizontal">قرینه افقی</string>
+    <string name="studio_layout_flip_vertical">قرینه عمودی</string>
+</resources>

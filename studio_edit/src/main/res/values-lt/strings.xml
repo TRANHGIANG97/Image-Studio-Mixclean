@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Produktų studija</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Mada</string>
+    <string name="studio_category_cosmetics">Kosmetika</string>
+    <string name="studio_category_home">Namai ir buitis</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetikos studija 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetikos studija 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetikos studija 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetikos studija 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetikos studija 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetikos studija 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetikos studija 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetikos studija 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetikos studija 9</string>
+    <string name="studio_back">Atgal</string>
+    <string name="studio_done">Atlikta</string>
+    <string name="studio_tap_to_pick_product">Bakstelėkite, kad pasirinktumėte produkto vaizdą</string>
+    <string name="studio_tool_replace">Pakeisti</string>
+    <string name="studio_tool_layout">Išdėstymas</string>
+    <string name="studio_tool_shadow">Šešėlis</string>
+    <string name="studio_tool_transparency">Neskaidrumas</string>
+    <string name="studio_tool_crop">Apkarpyti</string>
+    <string name="studio_tool_rotateflip">Pasukti/Apversti</string>
+    <string name="studio_replace_hint">Bakstelėkite Pakeisti, kad pasirinktumėte produkto nuotrauką iš galerijos</string>
+    <string name="studio_layout_hint">Vilkite, kad perkeltumėte · Suglauskite, kad priartintumėte · Sukite dviem pirštais</string>
+    <string name="studio_shadow_label">Šešėlis: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Šviesos kampas: %1$d°</string>
+    <string name="studio_shadow_distance_label">Šešėlio atstumas: %1$d dp</string>
+    <string name="studio_transparency_label">Neskaidrumas: %1$d%%</string>
+    <string name="studio_crop_label">Proporcija</string>
+    <string name="studio_processing">Šalinamas fonas…</string>
+    <string name="studio_export_success">Išsaugota galerijoje</string>
+    <string name="studio_export_error">Eksportuoti nepavyko</string>
+    <string name="studio_layout_rotate_left">Pasukti į kairę</string>
+    <string name="studio_layout_rotate_right">Pasukti į dešinę</string>
+    <string name="studio_layout_flip_horizontal">Apversti horizontaliai</string>
+    <string name="studio_layout_flip_vertical">Apversti vertikaliai</string>
+</resources>

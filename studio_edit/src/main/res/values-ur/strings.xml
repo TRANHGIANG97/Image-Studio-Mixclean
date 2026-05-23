@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI پروڈکٹ اسٹوڈیو</string>
+    <string name="studio_category_electronics">الیکٹرانکس</string>
+    <string name="studio_category_fashion">فیشن</string>
+    <string name="studio_category_cosmetics">کاسمیٹکس</string>
+    <string name="studio_category_home">گھر اور طرز زندگی</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">کاسمیٹکس اسٹوڈیو 1</string>
+    <string name="themeplate_cosmetics_02">کاسمیٹکس اسٹوڈیو 2</string>
+    <string name="themeplate_cosmetics_03">کاسمیٹکس اسٹوڈیو 3</string>
+    <string name="themeplate_cosmetics_04">کاسمیٹکس اسٹوڈیو 4</string>
+    <string name="themeplate_cosmetics_05">کاسمیٹکس اسٹوڈیو 5</string>
+    <string name="themeplate_cosmetics_06">کاسمیٹکس اسٹوڈیو 6</string>
+    <string name="themeplate_cosmetics_07">کاسمیٹکس اسٹوڈیو 7</string>
+    <string name="themeplate_cosmetics_08">کاسمیٹکس اسٹوڈیو 8</string>
+    <string name="themeplate_cosmetics_09">کاسمیٹکس اسٹوڈیو 9</string>
+    <string name="studio_back">واپس</string>
+    <string name="studio_done">ہو گیا</string>
+    <string name="studio_tap_to_pick_product">پروڈکٹ کی تصویر منتخب کرنے کے لیے ٹیپ کریں</string>
+    <string name="studio_tool_replace">تبدیل کریں</string>
+    <string name="studio_tool_layout">لے آؤٹ</string>
+    <string name="studio_tool_shadow">سایہ</string>
+    <string name="studio_tool_transparency">دھندلاپن</string>
+    <string name="studio_tool_crop">کراپ کریں</string>
+    <string name="studio_tool_rotateflip">گھمائیں/پلٹیں</string>
+    <string name="studio_replace_hint">اپنی گیلरी سے پروڈکٹ کی تصویر منتخب کرنے کے لیے \'تبدیل کریں\' پر ٹیپ کریں</string>
+    <string name="studio_layout_hint">منتقل کرنے کے لیے گھسیٹیں · زوم کرنے کے لیے چٹکی لیں · دو انگلیوں سے گھمائیں</string>
+    <string name="studio_shadow_label">سایہ: %1$d%%</string>
+    <string name="studio_shadow_angle_label">روشنی کا زاویہ: %1$d°</string>
+    <string name="studio_shadow_distance_label">سائے کا فاصلہ: %1$d dp</string>
+    <string name="studio_transparency_label">دھندلاپن: %1$d%%</string>
+    <string name="studio_crop_label">تناسب ابعاد</string>
+    <string name="studio_processing">پس منظر ہٹایا جا رہا ہے…</string>
+    <string name="studio_export_success">گیلری میں محفوظ کر لیا گیا</string>
+    <string name="studio_export_error">ایکسپورٹ ناکام ہو گیا</string>
+    <string name="studio_layout_rotate_left">بائیں گھمائیں</string>
+    <string name="studio_layout_rotate_right">دائیں گھمائیں</string>
+    <string name="studio_layout_flip_horizontal">افقی پلٹیں</string>
+    <string name="studio_layout_flip_vertical">عمودی پلٹیں</string>
+</resources>

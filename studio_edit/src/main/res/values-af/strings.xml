@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI-produkstudio</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Modus</string>
+    <string name="studio_category_cosmetics">Kosmetieks</string>
+    <string name="studio_category_home">Huis &amp; leefstyl</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetiekstudio 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetiekstudio 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetiekstudio 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetiekstudio 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetiekstudio 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetiekstudio 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetiekstudio 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetiekstudio 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetiekstudio 9</string>
+    <string name="studio_back">Terug</string>
+    <string name="studio_done">Klaar</string>
+    <string name="studio_tap_to_pick_product">Tik om \'n produkbeeld te kies</string>
+    <string name="studio_tool_replace">Vervang</string>
+    <string name="studio_tool_layout">Uitleg</string>
+    <string name="studio_tool_shadow">Skaduwee</string>
+    <string name="studio_tool_transparency">Deursigtigheid</string>
+    <string name="studio_tool_crop">Knip</string>
+    <string name="studio_tool_rotateflip">Draai/Spieël</string>
+    <string name="studio_replace_hint">Tik op Vervang om \'n produkfoto uit jou galery te kies</string>
+    <string name="studio_layout_hint">Sleep om te skuif · Knyp om te zoem · Draai met twee vingers</string>
+    <string name="studio_shadow_label">Skaduwee: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Lighoek: %1$d°</string>
+    <string name="studio_shadow_distance_label">Skaduwee-afstand: %1$d dp</string>
+    <string name="studio_transparency_label">Deursigtigheid: %1$d%%</string>
+    <string name="studio_crop_label">Aspekverhouding</string>
+    <string name="studio_processing">Verwyder tans agtergrond…</string>
+    <string name="studio_export_success">In galery gestoor</string>
+    <string name="studio_export_error">Uitvoer het misluk</string>
+    <string name="studio_layout_rotate_left">Draai links</string>
+    <string name="studio_layout_rotate_right">Draai regs</string>
+    <string name="studio_layout_flip_horizontal">Spieël H</string>
+    <string name="studio_layout_flip_vertical">Spieël V</string>
+</resources>

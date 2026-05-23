@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">এআই প্রোডাক্ট স্টুডিও</string>
+    <string name="studio_category_electronics">ইলেকট্রনিক্স</string>
+    <string name="studio_category_fashion">ফ্যাশন</string>
+    <string name="studio_category_cosmetics">কসমেটিকস</string>
+    <string name="studio_category_home">হোম অ্যান্ড লিভিং</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">কসমেটিকস স্টুডিও ১</string>
+    <string name="themeplate_cosmetics_02">কসমেটিকস স্টুডিও ২</string>
+    <string name="themeplate_cosmetics_03">কসমেটিকস স্টুডিও ৩</string>
+    <string name="themeplate_cosmetics_04">কসমেটিকস স্টুডিও ৪</string>
+    <string name="themeplate_cosmetics_05">কসমেটিকস স্টুডিও ৫</string>
+    <string name="themeplate_cosmetics_06">কসমেটিকস স্টুডিও ৬</string>
+    <string name="themeplate_cosmetics_07">কসমেটিকস স্টুডিও ৭</string>
+    <string name="themeplate_cosmetics_08">কসমেটিকস স্টুডিও ৮</string>
+    <string name="themeplate_cosmetics_09">কসমেটিকস স্টুডিও ৯</string>
+    <string name="studio_back">পেছনে</string>
+    <string name="studio_done">সম্পন্ন</string>
+    <string name="studio_tap_to_pick_product">পণ্যের ছবি নির্বাচন করতে ট্যাপ করুন</string>
+    <string name="studio_tool_replace">পরিবর্তন</string>
+    <string name="studio_tool_layout">লেআউট</string>
+    <string name="studio_tool_shadow">ছায়া</string>
+    <string name="studio_tool_transparency">অস্বচ্ছতা</string>
+    <string name="studio_tool_crop">ক্রপ</string>
+    <string name="studio_tool_rotateflip">ঘোরান/উল্টান</string>
+    <string name="studio_replace_hint">গ্যালারি থেকে পণ্যের ছবি বেছে নিতে \'পরিবর্তন\' এ ট্যাপ করুন</string>
+    <string name="studio_layout_hint">সরানোর জন্য ড্র্যাগ করুন · জুম করতে পিঞ্চ করুন · দুই আঙুলে ঘোরান</string>
+    <string name="studio_shadow_label">ছায়া: %1$d%%</string>
+    <string name="studio_shadow_angle_label">আলোর কোণ: %1$d°</string>
+    <string name="studio_shadow_distance_label">ছায়ার দূরত্ব: %1$d dp</string>
+    <string name="studio_transparency_label">অস্বচ্ছতা: %1$d%%</string>
+    <string name="studio_crop_label">অ্যাসপেক্ট রেশিও</string>
+    <string name="studio_processing">ব্যাকগ্রাউন্ড সরানো হচ্ছে…</string>
+    <string name="studio_export_success">গ্যালারিতে সংরক্ষিত হয়েছে</string>
+    <string name="studio_export_error">এক্সপোর্ট করা ব্যর্থ হয়েছে</string>
+    <string name="studio_layout_rotate_left">বামে ঘোরান</string>
+    <string name="studio_layout_rotate_right">ডানে ঘোরান</string>
+    <string name="studio_layout_flip_horizontal">অনুভূমিক উল্টান</string>
+    <string name="studio_layout_flip_vertical">উল্লম্ব উল্টান</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI प्रॉडक्ट स्टुडिओ</string>
+    <string name="studio_category_electronics">इलेक्ट्रॉनिक्स</string>
+    <string name="studio_category_fashion">फॅशन</string>
+    <string name="studio_category_cosmetics">कॉस्मेटिक्स</string>
+    <string name="studio_category_home">होम अँड लिविंग</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">कॉस्मेटिक्स स्टुडिओ 1</string>
+    <string name="themeplate_cosmetics_02">कॉस्मेटिक्स स्टुडिओ 2</string>
+    <string name="themeplate_cosmetics_03">कॉस्मेटिक्स स्टुडिओ 3</string>
+    <string name="themeplate_cosmetics_04">कॉस्मेटिक्स स्टुडिओ 4</string>
+    <string name="themeplate_cosmetics_05">कॉस्मेटिक्स स्टुडिओ 5</string>
+    <string name="themeplate_cosmetics_06">कॉस्मेटिक्स स्टुडिओ 6</string>
+    <string name="themeplate_cosmetics_07">कॉस्मेटिक्स स्टुडिओ 7</string>
+    <string name="themeplate_cosmetics_08">कॉस्मेटिक्स स्टुडिओ 8</string>
+    <string name="themeplate_cosmetics_09">कॉस्मेटिक्स स्टुडिओ 9</string>
+    <string name="studio_back">मागे</string>
+    <string name="studio_done">पूर्ण</string>
+    <string name="studio_tap_to_pick_product">प्रॉडक्टचे चित्र निवडण्यासाठी टॅप करा</string>
+    <string name="studio_tool_replace">बदला</string>
+    <string name="studio_tool_layout">लेआउट</string>
+    <string name="studio_tool_shadow">सावली</string>
+    <string name="studio_tool_transparency">अपारदर्शकता</string>
+    <string name="studio_tool_crop">क्रॉप करा</string>
+    <string name="studio_tool_rotateflip">फिरवा/उलट करा</string>
+    <string name="studio_replace_hint">तुमच्या गॅलरीमधून प्रॉडक्टचा फोटो निवडण्यासाठी \'बदला\' वर टॅप करा</string>
+    <string name="studio_layout_hint">हलवण्यासाठी ड्रॅग करा · झूम करण्यासाठी पिंच करा · दोन बोटांनी फिरवा</string>
+    <string name="studio_shadow_label">सावली: %1$d%%</string>
+    <string name="studio_shadow_angle_label">प्रकाशाचा कोन: %1$d°</string>
+    <string name="studio_shadow_distance_label">सावलीचे अंतर: %1$d dp</string>
+    <string name="studio_transparency_label">अपारदर्शकता: %1$d%%</string>
+    <string name="studio_crop_label">अस्पेक्ट रेशो</string>
+    <string name="studio_processing">बॅकग्राउंड काढत आहे…</string>
+    <string name="studio_export_success">गॅलरीमध्ये सेव्ह केले</string>
+    <string name="studio_export_error">एक्सपोर्ट अयशस्वी झाले</string>
+    <string name="studio_layout_rotate_left">डावीकडे फिरवा</string>
+    <string name="studio_layout_rotate_right">उजवीकडे फिरवा</string>
+    <string name="studio_layout_flip_horizontal">आडवे उलट करा</string>
+    <string name="studio_layout_flip_vertical">उभे उलट करा</string>
+</resources>

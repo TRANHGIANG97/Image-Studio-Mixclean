@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI പ്രൊഡക്റ്റ് സ്റ്റുഡിയോ</string>
+    <string name="studio_category_electronics">ഇലക്ട്രോണിക്സ്</string>
+    <string name="studio_category_fashion">ഫാഷൻ</string>
+    <string name="studio_category_cosmetics">കോസ്മെറ്റിക്സ്</string>
+    <string name="studio_category_home">ഹോം &amp; ലിവിംഗ്</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">കോസ്മെറ്റിക്സ് സ്റ്റുഡിയോ 1</string>
+    <string name="themeplate_cosmetics_02">കോസ്മെറ്റിക്സ് സ്റ്റുഡിയോ 2</string>
+    <string name="themeplate_cosmetics_03">കോസ്മെറ്റിക്സ് സ്റ്റുഡിയോ 3</string>
+    <string name="themeplate_cosmetics_04">കോസ്മെറ്റിക്സ് സ്റ്റുഡിയോ 4</string>
+    <string name="themeplate_cosmetics_05">കോസ്മെറ്റിക്സ് സ്റ്റുഡിയോ 5</string>
+    <string name="themeplate_cosmetics_06">കോസ്മെറ്റിക്സ് സ്റ്റുഡിയോ 6</string>
+    <string name="themeplate_cosmetics_07">കോസ്മെറ്റിക്സ് സ്റ്റുഡിയോ 7</string>
+    <string name="themeplate_cosmetics_08">കോസ്മെറ്റിക്സ് Studio 8</string>
+    <string name="themeplate_cosmetics_09">കോസ്മെറ്റിക്സ് സ്റ്റുഡിയോ 9</string>
+    <string name="studio_back">ബാക്ക്</string>
+    <string name="studio_done">പൂർത്തിയായി</string>
+    <string name="studio_tap_to_pick_product">ഉൽപ്പന്നത്തിന്റെ ചിത്രം തിരഞ്ഞെടുക്കാൻ ടാപ്പ് ചെയ്യുക</string>
+    <string name="studio_tool_replace">മാറ്റുക</string>
+    <string name="studio_tool_layout">ലേഔട്ട്</string>
+    <string name="studio_tool_shadow">ഷാഡോ</string>
+    <string name="studio_tool_transparency">ഒപാസിറ്റി</string>
+    <string name="studio_tool_crop">ക്രോപ്പ് ചെയ്യുക</string>
+    <string name="studio_tool_rotateflip">തിരിക്കുക/മറിക്കുക</string>
+    <string name="studio_replace_hint">ഗാലറിയിൽ നിന്ന് ഉൽപ്പന്ന ഫോട്ടോ തിരഞ്ഞെടുക്കാൻ മാറ്റുക എന്നത് ടാപ്പ് ചെയ്യുക</string>
+    <string name="studio_layout_hint">നീക്കാൻ വലിച്ചിടുക · സൂം ചെയ്യാൻ വിരലുകൾ അടുപ്പിക്കുക · രണ്ട് വിരലുകളാൽ തിരിക്കുക</string>
+    <string name="studio_shadow_label">ഷാഡോ: %1$d%%</string>
+    <string name="studio_shadow_angle_label">പ്രകാശത്തിന്റെ കോൺ: %1$d°</string>
+    <string name="studio_shadow_distance_label">ഷാഡോ ദൂരം: %1$d dp</string>
+    <string name="studio_transparency_label">ഒപാസിറ്റി: %1$d%%</string>
+    <string name="studio_crop_label">ആസ്പെക്റ്റ് റേഷ്യോ</string>
+    <string name="studio_processing">പശ്ചാത്തലം നീക്കംചെയ്യുന്നു…</string>
+    <string name="studio_export_success">ഗാലറിയിൽ സംരക്ഷിച്ചു</string>
+    <string name="studio_export_error">എക്സ്പോർട്ട് പരാജയപ്പെട്ടു</string>
+    <string name="studio_layout_rotate_left">ഇടത്തോട്ട് തിരിക്കുക</string>
+    <string name="studio_layout_rotate_right">വലത്തോട്ട് തിരിക്കുക</string>
+    <string name="studio_layout_flip_horizontal">തിരശ്ചീനമായി മറിക്കുക</string>
+    <string name="studio_layout_flip_vertical">ലംബമായി മറിക്കുക</string>
+</resources>

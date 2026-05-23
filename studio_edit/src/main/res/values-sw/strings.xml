@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Studio ya Bidhaa ya AI</string>
+    <string name="studio_category_electronics">Elektroniki</string>
+    <string name="studio_category_fashion">Mitindo</string>
+    <string name="studio_category_cosmetics">Vipodozi</string>
+    <string name="studio_category_home">Nyumbani &amp; Maisha</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Studio ya Vipodozi 1</string>
+    <string name="themeplate_cosmetics_02">Studio ya Vipodozi 2</string>
+    <string name="themeplate_cosmetics_03">Studio ya Vipodozi 3</string>
+    <string name="themeplate_cosmetics_04">Studio ya Vipodozi 4</string>
+    <string name="themeplate_cosmetics_05">Studio ya Vipodozi 5</string>
+    <string name="themeplate_cosmetics_06">Studio ya Vipodozi 6</string>
+    <string name="themeplate_cosmetics_07">Studio ya Vipodozi 7</string>
+    <string name="themeplate_cosmetics_08">Studio ya Vipodozi 8</string>
+    <string name="themeplate_cosmetics_09">Studio ya Vipodozi 9</string>
+    <string name="studio_back">Nyuma</string>
+    <string name="studio_done">Tayari</string>
+    <string name="studio_tap_to_pick_product">Gusa ili kuchagua picha ya bidhaa</string>
+    <string name="studio_tool_replace">Badilisha</string>
+    <string name="studio_tool_layout">Mpangilio</string>
+    <string name="studio_tool_shadow">Kivuli</string>
+    <string name="studio_tool_transparency">Uhafifu</string>
+    <string name="studio_tool_crop">Kata</string>
+    <string name="studio_tool_rotateflip">Zungusha/Pindua</string>
+    <string name="studio_replace_hint">Gusa Badilisha ili kuchagua picha ya bidhaa kutoka kwenye ghala yako</string>
+    <string name="studio_layout_hint">Buruta ili kusogeza · Finya ili kukuza · Zungusha kwa vidole viwili</string>
+    <string name="studio_shadow_label">Kivuli: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Pembe ya Mwanga: %1$d°</string>
+    <string name="studio_shadow_distance_label">Umbali wa Kivuli: %1$d dp</string>
+    <string name="studio_transparency_label">Uhafifu: %1$d%%</string>
+    <string name="studio_crop_label">Uwiano wa upana na urefu</string>
+    <string name="studio_processing">Inaondoa mandharinyuma…</string>
+    <string name="studio_export_success">Imehifadhiwa kwenye ghala</string>
+    <string name="studio_export_error">Uhamishaji umefeli</string>
+    <string name="studio_layout_rotate_left">Zungusha Kushoto</string>
+    <string name="studio_layout_rotate_right">Zungusha Kulia</string>
+    <string name="studio_layout_flip_horizontal">Pindua H</string>
+    <string name="studio_layout_flip_vertical">Pindua V</string>
+</resources>

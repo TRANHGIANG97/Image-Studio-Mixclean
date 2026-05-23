@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">ສະຕູດິໂອຜະລິດຕະພັນ AI</string>
+    <string name="studio_category_electronics">ເຄື່ອງເອເລັກໂຕຣນິກ</string>
+    <string name="studio_category_fashion">ແຟຊັ່ນ</string>
+    <string name="studio_category_cosmetics">ເຄື່ອງສຳອາງ</string>
+    <string name="studio_category_home">ເຮືອນ &amp; ການຕົບແຕ່ງ</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">ສະຕູດິໂອເຄື່ອງສຳອາງ 1</string>
+    <string name="themeplate_cosmetics_02">ສະຕູດິໂອເຄື່ອງສຳອາງ 2</string>
+    <string name="themeplate_cosmetics_03">ສະຕູດິໂອເຄື່ອງສຳອາງ 3</string>
+    <string name="themeplate_cosmetics_04">ສະຕູດިໂອເຄື່ອງສຳອາງ 4</string>
+    <string name="themeplate_cosmetics_05">ສະຕູດິໂອເຄື່ອງສຳອາງ 5</string>
+    <string name="themeplate_cosmetics_06">ສະຕູດިໂອເຄື່ອງສຳອາງ 6</string>
+    <string name="themeplate_cosmetics_07">ສະຕູດິໂອເຄື່ອງສຳອາງ 7</string>
+    <string name="themeplate_cosmetics_08">ສະຕູດިໂອເຄື່ອງສຳອາງ 8</string>
+    <string name="themeplate_cosmetics_09">ສະຕູດިໂອເຄື່ອງສຳອາງ 9</string>
+    <string name="studio_back">ກັບຄືນ</string>
+    <string name="studio_done">ສຳເລັດ</string>
+    <string name="studio_tap_to_pick_product">ແຕະເພື່ອເລືອກຮູບຜະລິດຕະພັນ</string>
+    <string name="studio_tool_replace">ປ່ຽນແທນ</string>
+    <string name="studio_tool_layout">ການຈັດວາງ</string>
+    <string name="studio_tool_shadow">ເງົາ</string>
+    <string name="studio_tool_transparency">ຄວາມໂປ່ງແສງ</string>
+    <string name="studio_tool_crop">ຕັດຂະໜາດ</string>
+    <string name="studio_tool_rotateflip">ໝູນ/ພິກ</string>
+    <string name="studio_replace_hint">ແຕະ ປ່ຽນແທນ ເພື່ອເລືອກຮູບຜະລິດຕະພັນຈາກຄັງຮູບຂອງທ່ານ</string>
+    <string name="studio_layout_hint">ລາກເພື່ອຍ້າຍ · ຈີບນິ້ວເພື່ອຊູມ · ໝູນດ້ວຍສອງນິ້ວ</string>
+    <string name="studio_shadow_label">ເງົາ: %1$d%%</string>
+    <string name="studio_shadow_angle_label">ມຸມແສງ: %1$d°</string>
+    <string name="studio_shadow_distance_label">ໄລຍະເງົາ: %1$d dp</string>
+    <string name="studio_transparency_label">ຄວາມໂປ່ງແສງ: %1$d%%</string>
+    <string name="studio_crop_label">ອັດຕາສ່ວນພາບ</string>
+    <string name="studio_processing">ກຳລັງລຶບພື້ນຫຼັງ…</string>
+    <string name="studio_export_success">ບັນທຶກລົງຄັງຮູບແລ້ວ</string>
+    <string name="studio_export_error">ການສົ່ງອອກລົ້ມເຫຼວ</string>
+    <string name="studio_layout_rotate_left">ໝູນຊ້າຍ</string>
+    <string name="studio_layout_rotate_right">ໝູນຂວາ</string>
+    <string name="studio_layout_flip_horizontal">ພິກແນວນອນ</string>
+    <string name="studio_layout_flip_vertical">ພິກແນວຕັ້ງ</string>
+</resources>

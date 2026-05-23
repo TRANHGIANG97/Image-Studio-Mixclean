@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI தயாரிப்பு ஸ்டுடியோ</string>
+    <string name="studio_category_electronics">மின்னணுவியல்</string>
+    <string name="studio_category_fashion">ஃபேஷன்</string>
+    <string name="studio_category_cosmetics">அழகுசாதனப் பொருட்கள்</string>
+    <string name="studio_category_home">வீடு மற்றும் வாழ்வியல்</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">அழகுசாதன ஸ்டுடியோ 1</string>
+    <string name="themeplate_cosmetics_02">அழகுசாதன ஸ்டுடியோ 2</string>
+    <string name="themeplate_cosmetics_03">அழகுசாதன ஸ்டுடியோ 3</string>
+    <string name="themeplate_cosmetics_04">அழகுசாதன ஸ்டுடியோ 4</string>
+    <string name="themeplate_cosmetics_05">அழகுசாதன ஸ்டுடியோ 5</string>
+    <string name="themeplate_cosmetics_06">அழகுசாதன ஸ்டுடியோ 6</string>
+    <string name="themeplate_cosmetics_07">அழகுசாதன ஸ்டுடியோ 7</string>
+    <string name="themeplate_cosmetics_08">அழகுசாதன ஸ்டுடியோ 8</string>
+    <string name="themeplate_cosmetics_09">அழகுசாதன ஸ்டுடியோ 9</string>
+    <string name="studio_back">பின்னால்</string>
+    <string name="studio_done">முடிந்தது</string>
+    <string name="studio_tap_to_pick_product">தயாரிப்புப் படத்தை தேர்ந்தெடுக்க தட்டவும்</string>
+    <string name="studio_tool_replace">மாற்று</string>
+    <string name="studio_tool_layout">அமைப்பு</string>
+    <string name="studio_tool_shadow">நிழல்</string>
+    <string name="studio_tool_transparency">ஒளிபுகாத்தன்மை</string>
+    <string name="studio_tool_crop">கிராப்</string>
+    <string name="studio_tool_rotateflip">சுழற்று/தலைகீழாக்கு</string>
+    <string name="studio_replace_hint">உங்கள் கேலரியில் இருந்து தயாரிப்புப் புகைப்படத்தைத் தேர்ந்தெடுக்க \'மாற்று\' என்பதைத் தட்டவும்</string>
+    <string name="studio_layout_hint">நகர்த்த இழுக்கவும் · பெரிதாக்க விரல்களைக் குவிக்வவும் · இரு விரல்களால் சுழற்றவும்</string>
+    <string name="studio_shadow_label">நிழல்: %1$d%%</string>
+    <string name="studio_shadow_angle_label">ஒளி கோணம்: %1$d°</string>
+    <string name="studio_shadow_distance_label">நிழல் தூரம்: %1$d dp</string>
+    <string name="studio_transparency_label">ஒளிபுகாத்தன்மை: %1$d%%</string>
+    <string name="studio_crop_label">விகிதாச்சாரம்</string>
+    <string name="studio_processing">பின்னணியை அகற்றுகிறது…</string>
+    <string name="studio_export_success">கேலரியில் சேமிக்கப்பட்டது</string>
+    <string name="studio_export_error">ஏற்றுமதி தோல்வியுற்றது</string>
+    <string name="studio_layout_rotate_left">இடப்புறம் சுழற்று</string>
+    <string name="studio_layout_rotate_right">வலப்புறம் சுழற்று</string>
+    <string name="studio_layout_flip_horizontal">கிடைமட்டமாகத் திருப்பு</string>
+    <string name="studio_layout_flip_vertical">செங்குத்தாகத் திருப்பு</string>
+</resources>

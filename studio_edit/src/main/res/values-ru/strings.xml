@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Студия товаров</string>
+    <string name="studio_category_electronics">Электроника</string>
+    <string name="studio_category_fashion">Мода</string>
+    <string name="studio_category_cosmetics">Косметика</string>
+    <string name="studio_category_home">Дом и уют</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Косметическая студия 1</string>
+    <string name="themeplate_cosmetics_02">Косметическая студия 2</string>
+    <string name="themeplate_cosmetics_03">Косметическая студия 3</string>
+    <string name="themeplate_cosmetics_04">Косметическая студия 4</string>
+    <string name="themeplate_cosmetics_05">Косметическая студия 5</string>
+    <string name="themeplate_cosmetics_06">Косметическая студия 6</string>
+    <string name="themeplate_cosmetics_07">Косметическая студия 7</string>
+    <string name="themeplate_cosmetics_08">Косметическая студия 8</string>
+    <string name="themeplate_cosmetics_09">Косметическая студия 9</string>
+    <string name="studio_back">Назад</string>
+    <string name="studio_done">Готово</string>
+    <string name="studio_tap_to_pick_product">Нажмите, чтобы выбрать изображение товара</string>
+    <string name="studio_tool_replace">Заменить</string>
+    <string name="studio_tool_layout">Макет</string>
+    <string name="studio_tool_shadow">Тень</string>
+    <string name="studio_tool_transparency">Непрозрачность</string>
+    <string name="studio_tool_crop">Обрезка</string>
+    <string name="studio_tool_rotateflip">Поворот/Отражение</string>
+    <string name="studio_replace_hint">Нажмите «Заменить», чтобы выбрать фото товара из галереи</string>
+    <string name="studio_layout_hint">Перетаскивайте для перемещения · Сводите пальцы для масштабирования · Поворачивайте двумя пальцами</string>
+    <string name="studio_shadow_label">Тень: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Угол света: %1$d°</string>
+    <string name="studio_shadow_distance_label">Расстояние тени: %1$d dp</string>
+    <string name="studio_transparency_label">Непрозрачность: %1$d%%</string>
+    <string name="studio_crop_label">Соотношение сторон</string>
+    <string name="studio_processing">Удаление фона…</string>
+    <string name="studio_export_success">Сохранено в галерею</string>
+    <string name="studio_export_error">Ошибка экспорта</string>
+    <string name="studio_layout_rotate_left">Повернуть налево</string>
+    <string name="studio_layout_rotate_right">Повернуть направо</string>
+    <string name="studio_layout_flip_horizontal">Отразить по горизонтали</string>
+    <string name="studio_layout_flip_vertical">Отразить по вертикали</string>
+</resources>

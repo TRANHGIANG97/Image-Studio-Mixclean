@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Trình chỉnh sửa ảnh</string>
@@ -30,10 +30,8 @@
     <string name="okay">Đồng ý</string>
     <string name="storage_permission_rationale">Cần quyền truy cập bộ nhớ để lưu ảnh.</string>
     <string name="storage_permission_permanently_declined">Bạn đã từ chối quyền vĩnh viễn, vui lòng mở cài đặt.</string>
-    <string name="following_permissions_are_required">Các quyền sau đây là bắt buộc:
-</string>
-    <string name="perm_item_storage">- Bộ nhớ
-</string>
+    <string name="following_permissions_are_required">Các quyền sau đây là bắt buộc:\n</string>
+    <string name="perm_item_storage">- Bộ nhớ\n</string>
     <string name="app_not_found">Không tìm thấy ứng dụng</string>
     <string name="fail_to_insert_uri_in_content_resolver">Lỗi chèn URI</string>
     <string name="enter_aspect_ratio">Nhập tỷ lệ khung hình</string>
@@ -113,4 +111,50 @@
     <string name="magic_brush_guide_tip">Mẹo: dùng Undo/Redo nếu xoá nhầm.</string>
     <string name="magic_brush_got_it">Đã hiểu!</string>
     <string name="studio_effect_requires_background">Tính năng này chỉ khả dụng khi đối tượng có nền</string>
+
+    <!-- Background removal addition -->
+    <string name="remove_bg_auto">Tự động</string>
+    <string name="remove_bg_portrait">Chân dung</string>
+    <string name="remove_bg_object">Vật thể</string>
+    <string name="remove_bg_processing_auto">Đang phân tích tự động...</string>
+    <string name="remove_bg_processing_portrait">Đang tách chi tiết chân dung...</string>
+    <string name="remove_bg_processing_object">Đang tách vật thể...</string>
+    <string name="remove_bg_portrait_no_face_warning">Không phát hiện khuôn mặt, hãy chọn chế độ tự động hoặc chế độ vật thể để có kết quả tốt nhất</string>
+    <string name="remove_bg_object_has_face_warning">Phát hiện khuôn mặt, hãy chọn chế độ tự động hoặc chế độ chân dung để có kết quả tốt nhất</string>
+    <string name="loading">Đang tải...</string>
+    <string name="remove_bg_tooltip_title">Hướng dẫn Xoá Nền:</string>
+    <string name="remove_bg_tooltip_desc">- Chân dung: Tách nền độ nét cao cho người, mượt tóc.\n- Vật thể: Tách chủ thể chung.\n- Tự động: Hệ thống tự quyết định.</string>
+    <string name="remove_bg_tooltip_dismiss">Không hiển thị lại</string>
+
+    <!-- Magic Brush Tooltips & Wand -->
+    <string name="magic_wand_tooltip_title">Đũa thần (Magic Wand)</string>
+    <string name="magic_wand_tooltip_desc">Tự động xoá các vùng có màu sắc tương đồng nhau. Chạm vào màn hình để xoá.</string>
+    <string name="magic_wand_tooltip_warning">⚠️ Lưu ý: Không phù hợp với ảnh có nền nhiều chi tiết phức tạp hoặc màu sắc của vật thể bị hòa lẫn với nền.</string>
+    <string name="dont_show_again">Không hiện lại</string>
+    <string name="got_it">Đã hiểu</string>
+
+    <!-- Rotate / Flip -->
+    <string name="rotate">Xoay</string>
+    <string name="rotate_left">Xoay trái</string>
+    <string name="rotate_right">Xoay phải</string>
+    <string name="flip_horizontal">Lật ngang</string>
+    <string name="flip_vertical">Lật dọc</string>
+
+    <!-- Border -->
+    <string name="border_style">Kiểu viền ảnh</string>
+    <string name="solid_color">Màu đơn sắc (Solid Color)</string>
+    <string name="border_mode_solid">Màu đơn sắc</string>
+    <string name="border_gradient_aurora_mist">Aurora Mist</string>
+    <string name="border_gradient_neon_bloom">Neon Bloom</string>
+    <string name="border_gradient_sunset_pulse">Sunset Pulse</string>
+    <string name="border_gradient_velvet_sky">Velvet Sky</string>
+    <string name="border_gradient_ocean_drive">Ocean Drive</string>
+    <string name="border_gradient_peach_cloud">Peach Cloud</string>
+    <string name="border_gradient_midnight_fade">Midnight Fade</string>
+    <string name="border_gradient_ember_glass">Ember Glass</string>
+    <string name="reset_border">Đặt lại viền</string>
+    <string name="border_preset_solid">Màu đơn</string>
+    <string name="border_preset_soft">Mờ nhẹ</string>
+    <string name="border_preset_double">Viền kép</string>
+    <string name="border_preset_outline">Đường viền</string>
 </resources>

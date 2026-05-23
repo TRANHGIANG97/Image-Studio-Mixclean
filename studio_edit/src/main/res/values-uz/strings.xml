@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Mahsulot Studiyasi</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Kosmetika</string>
+    <string name="studio_category_home">Uy va Hayot</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetika Studiyasi 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetika Studiyasi 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetika Studiyasi 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetika Studiyasi 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetika Studiyasi 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetika Studiyasi 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetika Studiyasi 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetika Studiyasi 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetika Studiyasi 9</string>
+    <string name="studio_back">Orqaga</string>
+    <string name="studio_done">Tayyor</string>
+    <string name="studio_tap_to_pick_product">Mahsulot tasvirini tanlash uchun bosing</string>
+    <string name="studio_tool_replace">Almashtirish</string>
+    <string name="studio_tool_layout">Joylashuv</string>
+    <string name="studio_tool_shadow">Soya</string>
+    <string name="studio_tool_transparency">Shaffoflik</string>
+    <string name="studio_tool_crop">Kesish</string>
+    <string name="studio_tool_rotateflip">Burish/Aylantirish</string>
+    <string name="studio_replace_hint">Galereyangizdan mahsulot rasmini tanlash uchun Almashtirish tugmasini bosing</string>
+    <string name="studio_layout_hint">Ko\'chirish uchun sudrang · Kattalashtirish uchun chimding · Ikki barmoq bilan buring</string>
+    <string name="studio_shadow_label">Soya: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Yorug\'lik Burchagi: %1$d°</string>
+    <string name="studio_shadow_distance_label">Soya Masofasi: %1$d dp</string>
+    <string name="studio_transparency_label">Shaffoflik: %1$d%%</string>
+    <string name="studio_crop_label">Aspekt nisbati</string>
+    <string name="studio_processing">Orqa fon o\'chirilmoqda…</string>
+    <string name="studio_export_success">Galereyaga saqlandi</string>
+    <string name="studio_export_error">Eksport muvaffaqiyatsiz tugadi</string>
+    <string name="studio_layout_rotate_left">Chapga Burish</string>
+    <string name="studio_layout_rotate_right">O\'ngga Burish</string>
+    <string name="studio_layout_flip_horizontal">Gorizontal Aylantirish</string>
+    <string name="studio_layout_flip_vertical">Vertikal Aylantirish</string>
+</resources>

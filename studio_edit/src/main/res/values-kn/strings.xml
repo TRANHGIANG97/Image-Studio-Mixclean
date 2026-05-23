@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI ಪ್ರಾಡಕ್ಟ್ ಸ್ಟುಡಿಯೋ</string>
+    <string name="studio_category_electronics">ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್</string>
+    <string name="studio_category_fashion">ಫ್ಯಾಷನ್</string>
+    <string name="studio_category_cosmetics">ಕಾಸ್ಮೆಟಿಕ್ಸ್</string>
+    <string name="studio_category_home">ಮನೆ ಮತ್ತು ಜೀವನಶೈಲಿ</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 1</string>
+    <string name="themeplate_cosmetics_02">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 2</string>
+    <string name="themeplate_cosmetics_03">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 3</string>
+    <string name="themeplate_cosmetics_04">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 4</string>
+    <string name="themeplate_cosmetics_05">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 5</string>
+    <string name="themeplate_cosmetics_06">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 6</string>
+    <string name="themeplate_cosmetics_07">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 7</string>
+    <string name="themeplate_cosmetics_08">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 8</string>
+    <string name="themeplate_cosmetics_09">ಕಾಸ್ಮೆಟಿಕ್ಸ್ ಸ್ಟುಡಿಯೋ 9</string>
+    <string name="studio_back">ಹಿಂದಕ್ಕೆ</string>
+    <string name="studio_done">ಮುಗಿದಿದೆ</string>
+    <string name="studio_tap_to_pick_product">ಉತ್ಪನ್ನದ ಚಿತ್ರವನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
+    <string name="studio_tool_replace">ಬದಲಾಯಿಸಿ</string>
+    <string name="studio_tool_layout">ವಿನ್ಯಾಸ</string>
+    <string name="studio_tool_shadow">ನೆರಳು</string>
+    <string name="studio_tool_transparency">ಅಪಾರದರ್ಶಕತೆ</string>
+    <string name="studio_tool_crop">ಕ್ರಾಪ್</string>
+    <string name="studio_tool_rotateflip">ತಿರುಗಿಸಿ/ಫ್ಲಿಪ್ ಮಾಡಿ</string>
+    <string name="studio_replace_hint">ನಿಮ್ಮ ಗ್ಯಾಲರಿಯಿಂದ ಉತ್ಪನ್ನದ ಫೋಟೋವನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಬದಲಾಯಿಸಿ ಎಂಬುದನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
+    <string name="studio_layout_hint">ಸರಿಸಲು ಎಳೆಯಿರಿ · ಜೂಮ್ ಮಾಡಲು ಪಿಂಚ್ ಮಾಡಿ · ಎರಡು ಬೆರಳುಗಳಿಂದ ತಿರುಗಿಸಿ</string>
+    <string name="studio_shadow_label">ನೆರಳು: %1$d%%</string>
+    <string name="studio_shadow_angle_label">ಬೆಳಕಿನ ಕೋನ: %1$d°</string>
+    <string name="studio_shadow_distance_label">ನೆರಳಿನ ಅಂತರ: %1$d dp</string>
+    <string name="studio_transparency_label">ಅಪಾರದರ್ಶಕತೆ: %1$d%%</string>
+    <string name="studio_crop_label">ಆಕಾರ ಅನುಪಾತ</string>
+    <string name="studio_processing">ಹಿನ್ನೆಲೆಯನ್ನು ತೆಗೆದುಹಾಕಲಾಗುತ್ತಿದೆ…</string>
+    <string name="studio_export_success">ಗ್ಯಾಲರಿಗೆ ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="studio_export_error">ರಫ್ತು ಮಾಡಲು ವಿಫಲವಾಗಿದೆ</string>
+    <string name="studio_layout_rotate_left">ಎಡಕ್ಕೆ ತಿರುಗಿಸಿ</string>
+    <string name="studio_layout_rotate_right">ಬಲಕ್ಕೆ tirugisi</string>
+    <string name="studio_layout_flip_horizontal">ಸಮತಲವಾಗಿ ಫ್ಲಿಪ್ ಮಾಡಿ</string>
+    <string name="studio_layout_flip_vertical">ಲಂಬವಾಗಿ ಫ್ಲಿಪ್ ಮಾಡಿ</string>
+</resources>

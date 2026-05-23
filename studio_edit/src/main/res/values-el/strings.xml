@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Στούντιο προϊόντων</string>
+    <string name="studio_category_electronics">Ηλεκτρονικά</string>
+    <string name="studio_category_fashion">Μόδα</string>
+    <string name="studio_category_cosmetics">Καλλυντικά</string>
+    <string name="studio_category_home">Σπίτι &amp; Διακόσμηση</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Στούντιο καλλυντικών 1</string>
+    <string name="themeplate_cosmetics_02">Στούντιο καλλυντικών 2</string>
+    <string name="themeplate_cosmetics_03">Στούντιο καλλυντικών 3</string>
+    <string name="themeplate_cosmetics_04">Στούντιο καλλυντικών 4</string>
+    <string name="themeplate_cosmetics_05">Στούντιο καλλυντικών 5</string>
+    <string name="themeplate_cosmetics_06">Στούντιο καλλυντικών 6</string>
+    <string name="themeplate_cosmetics_07">Στούντιο καλλυντικών 7</string>
+    <string name="themeplate_cosmetics_08">Στούντιο καλλυντικών 8</string>
+    <string name="themeplate_cosmetics_09">Στούντιο καλλυντικών 9</string>
+    <string name="studio_back">Πίσω</string>
+    <string name="studio_done">Τέλος</string>
+    <string name="studio_tap_to_pick_product">Πατήστε για να επιλέξετε μια εικόνα προϊόντος</string>
+    <string name="studio_tool_replace">Αντικατάσταση</string>
+    <string name="studio_tool_layout">Διάταξη</string>
+    <string name="studio_tool_shadow">Σκιά</string>
+    <string name="studio_tool_transparency">Αδιαφάνεια</string>
+    <string name="studio_tool_crop">Περικοπή</string>
+    <string name="studio_tool_rotateflip">Περιστροφή/Αναστροφή</string>
+    <string name="studio_replace_hint">Πατήστε Αντικατάσταση για να επιλέξετε μια φωτογραφία προϊόντος από τη συλλογή σας</string>
+    <string name="studio_layout_hint">Σύρετε για μετακίνηση · Τσιμπήστε για ζουμ · Περιστροφή με δύο δάχτυλα</string>
+    <string name="studio_shadow_label">Σκιά: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Γωνία φωτός: %1$d°</string>
+    <string name="studio_shadow_distance_label">Απόσταση σκιάς: %1$d dp</string>
+    <string name="studio_transparency_label">Αδιαφάνεια: %1$d%%</string>
+    <string name="studio_crop_label">Αναλογία διαστάσεων</string>
+    <string name="studio_processing">Αφαίρεση φόντου…</string>
+    <string name="studio_export_success">Αποθηκεύτηκε στη συλλογή</string>
+    <string name="studio_export_error">Η εξαγωγή απέτυχε</string>
+    <string name="studio_layout_rotate_left">Περιστροφή αριστερά</string>
+    <string name="studio_layout_rotate_right">Περιστροφή δεξιά</string>
+    <string name="studio_layout_flip_horizontal">Οριζόντια αναστροφή</string>
+    <string name="studio_layout_flip_vertical">Κατακόρυφη αναστροφή</string>
+</resources>

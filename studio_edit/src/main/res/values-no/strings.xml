@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Produktstudio</string>
+    <string name="studio_category_electronics">Elektronikk</string>
+    <string name="studio_category_fashion">Mote</string>
+    <string name="studio_category_cosmetics">Kosmetikk</string>
+    <string name="studio_category_home">Hjem &amp; interiør</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetikkstudio 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetikkstudio 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetikkstudio 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetikkstudio 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetikkstudio 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetikkstudio 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetikkstudio 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetikkstudio 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetikkstudio 9</string>
+    <string name="studio_back">Tilbake</string>
+    <string name="studio_done">Ferdig</string>
+    <string name="studio_tap_to_pick_product">Trykk for å velge et produktbilde</string>
+    <string name="studio_tool_replace">Erstatt</string>
+    <string name="studio_tool_layout">Layout</string>
+    <string name="studio_tool_shadow">Skygge</string>
+    <string name="studio_tool_transparency">Opasitet</string>
+    <string name="studio_tool_crop">Beskjær</string>
+    <string name="studio_tool_rotateflip">Roter/Vend</string>
+    <string name="studio_replace_hint">Trykk på Erstatt for å velge et produktbilde fra galleriet ditt</string>
+    <string name="studio_layout_hint">Dra for å flytte · Knip for å zoome · Roter med to fingre</string>
+    <string name="studio_shadow_label">Skygge: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Lysvinkel: %1$d°</string>
+    <string name="studio_shadow_distance_label">Skyggeavstand: %1$d dp</string>
+    <string name="studio_transparency_label">Opasitet: %1$d%%</string>
+    <string name="studio_crop_label">Bildeformat</string>
+    <string name="studio_processing">Fjerner bakgrunn…</string>
+    <string name="studio_export_success">Lagret i galleriet</string>
+    <string name="studio_export_error">Eksport mislyktes</string>
+    <string name="studio_layout_rotate_left">Roter mot venstre</string>
+    <string name="studio_layout_rotate_right">Roter mot høyre</string>
+    <string name="studio_layout_flip_horizontal">Vend horisontalt</string>
+    <string name="studio_layout_flip_vertical">Vend vertikalt</string>
+</resources>

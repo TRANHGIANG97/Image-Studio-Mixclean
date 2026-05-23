@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Tuotestudio</string>
+    <string name="studio_category_electronics">Elektroniikka</string>
+    <string name="studio_category_fashion">Muoti</string>
+    <string name="studio_category_cosmetics">Kosmetiikka</string>
+    <string name="studio_category_home">Koti &amp; sisustus</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kosmetiikkastudio 1</string>
+    <string name="themeplate_cosmetics_02">Kosmetiikkastudio 2</string>
+    <string name="themeplate_cosmetics_03">Kosmetiikkastudio 3</string>
+    <string name="themeplate_cosmetics_04">Kosmetiikkastudio 4</string>
+    <string name="themeplate_cosmetics_05">Kosmetiikkastudio 5</string>
+    <string name="themeplate_cosmetics_06">Kosmetiikkastudio 6</string>
+    <string name="themeplate_cosmetics_07">Kosmetiikkastudio 7</string>
+    <string name="themeplate_cosmetics_08">Kosmetiikkastudio 8</string>
+    <string name="themeplate_cosmetics_09">Kosmetiikkastudio 9</string>
+    <string name="studio_back">Takaisin</string>
+    <string name="studio_done">Valmis</string>
+    <string name="studio_tap_to_pick_product">Valitse tuotteen kuva napauttamalla</string>
+    <string name="studio_tool_replace">Korvaa</string>
+    <string name="studio_tool_layout">Asettelu</string>
+    <string name="studio_tool_shadow">Varjo</string>
+    <string name="studio_tool_transparency">Peittävyys</string>
+    <string name="studio_tool_crop">Rajaa</string>
+    <string name="studio_tool_rotateflip">Kierrä/Käännä</string>
+    <string name="studio_replace_hint">Valitse tuotekuva galleriastasi napauttamalla Korvaa</string>
+    <string name="studio_layout_hint">Siirrä vetämällä · Zoomaa nipistämällä · Kierrä kahdella sormella</string>
+    <string name="studio_shadow_label">Varjo: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Valon kulma: %1$d°</string>
+    <string name="studio_shadow_distance_label">Varjon etäisyys: %1$d dp</string>
+    <string name="studio_transparency_label">Peittävyys: %1$d%%</string>
+    <string name="studio_crop_label">Kuvasuhde</string>
+    <string name="studio_processing">Poistetaan taustaa…</string>
+    <string name="studio_export_success">Tallennettu galleriaan</string>
+    <string name="studio_export_error">Vienti epäonnistui</string>
+    <string name="studio_layout_rotate_left">Kierrä vasemmalle</string>
+    <string name="studio_layout_rotate_right">Kierrä oikealle</string>
+    <string name="studio_layout_flip_horizontal">Käännä vaakasuunnassa</string>
+    <string name="studio_layout_flip_vertical">Käännä pystysuunnassa</string>
+</resources>

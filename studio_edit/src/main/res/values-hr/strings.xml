@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Studio za proizvode</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Kozmetika</string>
+    <string name="studio_category_home">Kućanstvo i uređenje</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kozmetički studio 1</string>
+    <string name="themeplate_cosmetics_02">Kozmetički studio 2</string>
+    <string name="themeplate_cosmetics_03">Kozmetički studio 3</string>
+    <string name="themeplate_cosmetics_04">Kozmetički studio 4</string>
+    <string name="themeplate_cosmetics_05">Kozmetički studio 5</string>
+    <string name="themeplate_cosmetics_06">Kozmetički studio 6</string>
+    <string name="themeplate_cosmetics_07">Kozmetički studio 7</string>
+    <string name="themeplate_cosmetics_08">Kozmetički studio 8</string>
+    <string name="themeplate_cosmetics_09">Kozmetički studio 9</string>
+    <string name="studio_back">Natrag</string>
+    <string name="studio_done">Gotovo</string>
+    <string name="studio_tap_to_pick_product">Dodirnite za odabir slike proizvoda</string>
+    <string name="studio_tool_replace">Zamijeni</string>
+    <string name="studio_tool_layout">Izgled</string>
+    <string name="studio_tool_shadow">Sjena</string>
+    <string name="studio_tool_transparency">Neprozirnost</string>
+    <string name="studio_tool_crop">Izreži</string>
+    <string name="studio_tool_rotateflip">Zakreni/Preokreni</string>
+    <string name="studio_replace_hint">Dodirnite Zamijeni kako biste odabrali fotografiju proizvoda iz galerije</string>
+    <string name="studio_layout_hint">Povucite za pomicanje · Uštipnite za zumiranje · Zakrenite s dva prsta</string>
+    <string name="studio_shadow_label">Sjena: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Kut svjetla: %1$d°</string>
+    <string name="studio_shadow_distance_label">Udaljenost sjene: %1$d dp</string>
+    <string name="studio_transparency_label">Neprozirnost: %1$d%%</string>
+    <string name="studio_crop_label">Omjer stranica</string>
+    <string name="studio_processing">Uklanjanje pozadine…</string>
+    <string name="studio_export_success">Spremljeno u galeriju</string>
+    <string name="studio_export_error">Izvoz nije uspio</string>
+    <string name="studio_layout_rotate_left">Zakreni ulijevo</string>
+    <string name="studio_layout_rotate_right">Zakreni udesno</string>
+    <string name="studio_layout_flip_horizontal">Preokreni vodoravno</string>
+    <string name="studio_layout_flip_vertical">Preokreni okomito</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Studio de produse IA</string>
+    <string name="studio_category_electronics">Electronice</string>
+    <string name="studio_category_fashion">Modă</string>
+    <string name="studio_category_cosmetics">Cosmetice</string>
+    <string name="studio_category_home">Casă &amp; Deco</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Studio cosmetice 1</string>
+    <string name="themeplate_cosmetics_02">Studio cosmetice 2</string>
+    <string name="themeplate_cosmetics_03">Studio cosmetice 3</string>
+    <string name="themeplate_cosmetics_04">Studio cosmetice 4</string>
+    <string name="themeplate_cosmetics_05">Studio cosmetice 5</string>
+    <string name="themeplate_cosmetics_06">Studio cosmetice 6</string>
+    <string name="themeplate_cosmetics_07">Studio cosmetice 7</string>
+    <string name="themeplate_cosmetics_08">Studio cosmetice 8</string>
+    <string name="themeplate_cosmetics_09">Studio cosmetice 9</string>
+    <string name="studio_back">Înapoi</string>
+    <string name="studio_done">Gata</string>
+    <string name="studio_tap_to_pick_product">Atingeți pentru a selecta o imagine de produs</string>
+    <string name="studio_tool_replace">Înlocuire</string>
+    <string name="studio_tool_layout">Aspect</string>
+    <string name="studio_tool_shadow">Umbră</string>
+    <string name="studio_tool_transparency">Opacitate</string>
+    <string name="studio_tool_crop">Decupare</string>
+    <string name="studio_tool_rotateflip">Rotire/Răsturnare</string>
+    <string name="studio_replace_hint">Atingeți Înlocuire pentru a alege o fotografie de produs din galeria dvs.</string>
+    <string name="studio_layout_hint">Glisați pentru a muta · Apropiați degetele pentru zoom · Rotiți cu două degete</string>
+    <string name="studio_shadow_label">Umbră: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Unghiul luminii: %1$d°</string>
+    <string name="studio_shadow_distance_label">Distanța umbrei: %1$d dp</string>
+    <string name="studio_transparency_label">Opacitate: %1$d%%</string>
+    <string name="studio_crop_label">Raport de aspect</string>
+    <string name="studio_processing">Se elimină fundalul…</string>
+    <string name="studio_export_success">Salvat în galerie</string>
+    <string name="studio_export_error">Exportul a eșuat</string>
+    <string name="studio_layout_rotate_left">Rotire la stânga</string>
+    <string name="studio_layout_rotate_right">Rotire la dreapta</string>
+    <string name="studio_layout_flip_horizontal">Răsturnare H</string>
+    <string name="studio_layout_flip_vertical">Răsturnare V</string>
+</resources>

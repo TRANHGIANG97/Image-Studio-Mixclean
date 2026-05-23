@@ -37,10 +37,13 @@ class ModNetBackgroundRemoverRepository(
 
         init {
             try {
+                android.util.Log.d("ModNetONNX", "[JNI] Bắt đầu nạp thư viện native ONNX...")
                 System.loadLibrary("onnxruntime")
+                android.util.Log.d("ModNetONNX", "[JNI] Nạp libonnxruntime.so THÀNH CÔNG!")
                 System.loadLibrary("onnxruntime4j_jni")
+                android.util.Log.d("ModNetONNX", "[JNI] Nạp libonnxruntime4j_jni.so THÀNH CÔNG!")
             } catch (e: Throwable) {
-                e.printStackTrace()
+                android.util.Log.e("ModNetONNX", "[JNI] LỖI NẠP THƯ VIỆN NATIVE ONNX!", e)
             }
         }
     }
@@ -67,12 +70,17 @@ class ModNetBackgroundRemoverRepository(
         }
 
         try {
+            android.util.Log.d("ModNetONNX", "[Session] Đang khởi tạo OrtSession với tệp: ${modelFile.absolutePath}")
             val createdSession = environment.createSession(modelFile.absolutePath, options)
             session = createdSession
             inputName = createdSession.inputInfo.keys.firstOrNull()
                 ?: error("ONNX model has no input")
             outputName = createdSession.outputInfo.keys.firstOrNull()
                 ?: error("ONNX model has no output")
+            android.util.Log.d("ModNetONNX", "[Session] Khởi tạo OrtSession THÀNH CÔNG! Input: $inputName, Output: $outputName")
+        } catch (e: Throwable) {
+            android.util.Log.e("ModNetONNX", "[Session] LỖI KHỞI TẠO ORTSESSION!", e)
+            throw e
         } finally {
             options.close()
         }

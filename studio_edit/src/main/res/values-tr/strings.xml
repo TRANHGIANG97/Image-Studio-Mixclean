@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Ürün Stüdyosu</string>
+    <string name="studio_category_electronics">Elektronik</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Kozmetik</string>
+    <string name="studio_category_home">Ev ve Yaşam</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kozmetik Stüdyosu 1</string>
+    <string name="themeplate_cosmetics_02">Kozmetik Stüdyosu 2</string>
+    <string name="themeplate_cosmetics_03">Kozmetik Stüdyosu 3</string>
+    <string name="themeplate_cosmetics_04">Kozmetık Stüdyosu 4</string>
+    <string name="themeplate_cosmetics_05">Kozmetik Stüdyosu 5</string>
+    <string name="themeplate_cosmetics_06">Kozmetik Stüdyosu 6</string>
+    <string name="themeplate_cosmetics_07">Kozmetik Stüdyosu 7</string>
+    <string name="themeplate_cosmetics_08">Kozmetik Stüdyosu 8</string>
+    <string name="themeplate_cosmetics_09">Kozmetik Stüdyosu 9</string>
+    <string name="studio_back">Geri</string>
+    <string name="studio_done">Bitti</string>
+    <string name="studio_tap_to_pick_product">Bir ürün resmi seçmek için dokunun</string>
+    <string name="studio_tool_replace">Değiştir</string>
+    <string name="studio_tool_layout">Düzen</string>
+    <string name="studio_tool_shadow">Gölge</string>
+    <string name="studio_tool_transparency">Opaklık</string>
+    <string name="studio_tool_crop">Kırp</string>
+    <string name="studio_tool_rotateflip">Döndür/Çevir</string>
+    <string name="studio_replace_hint">Galerinizden bir ürün fotoğrafı seçmek için Değiştir\'e dokunun</string>
+    <string name="studio_layout_hint">Taşımak için sürükleyin · Yakınlaştırmak için sıkıştırın · İki parmakla döndürün</string>
+    <string name="studio_shadow_label">Gölge: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Işık Açısı: %1$d°</string>
+    <string name="studio_shadow_distance_label">Gölge Mesafesi: %1$d dp</string>
+    <string name="studio_transparency_label">Opaklık: %1$d%%</string>
+    <string name="studio_crop_label">En boy oranı</string>
+    <string name="studio_processing">Arka plan kaldırılıyor…</string>
+    <string name="studio_export_success">Galeriye kaydedildi</string>
+    <string name="studio_export_error">Dışa aktarma başarısız oldu</string>
+    <string name="studio_layout_rotate_left">Sola Döndür</string>
+    <string name="studio_layout_rotate_right">Sağa Döndür</string>
+    <string name="studio_layout_flip_horizontal">Yatay Çevir</string>
+    <string name="studio_layout_flip_vertical">Dikey Çevir</string>
+</resources>

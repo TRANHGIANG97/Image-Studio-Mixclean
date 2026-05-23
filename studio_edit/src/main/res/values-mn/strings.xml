@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Бүтээгдэхүүний студи</string>
+    <string name="studio_category_electronics">Цахилгаан хэрэгсэл</string>
+    <string name="studio_category_fashion">Загвар</string>
+    <string name="studio_category_cosmetics">Гоо сайхан</string>
+    <string name="studio_category_home">Гэр ахуй</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Гоо сайхны студи 1</string>
+    <string name="themeplate_cosmetics_02">Гоо сайхны студи 2</string>
+    <string name="themeplate_cosmetics_03">Гоо сайхны студи 3</string>
+    <string name="themeplate_cosmetics_04">Гоо сайхны студи 4</string>
+    <string name="themeplate_cosmetics_05">Гоо сайхны студи 5</string>
+    <string name="themeplate_cosmetics_06">Гоо сайхны студи 6</string>
+    <string name="themeplate_cosmetics_07">Гоо сайхны студи 7</string>
+    <string name="themeplate_cosmetics_08">Гоо сайхны студи 8</string>
+    <string name="themeplate_cosmetics_09">Гоо сайхны студи 9</string>
+    <string name="studio_back">Буцах</string>
+    <string name="studio_done">Бэлэн</string>
+    <string name="studio_tap_to_pick_product">Бүтээгдэхүүний зураг сонгохын тулд товшино уу</string>
+    <string name="studio_tool_replace">Солих</string>
+    <string name="studio_tool_layout">Байршил</string>
+    <string name="studio_tool_shadow">Сүүдэр</string>
+    <string name="studio_tool_transparency">Үл нэвтрэх байдал</string>
+    <string name="studio_tool_crop">Танах</string>
+    <string name="studio_tool_rotateflip">Эргүүлэх/Төлөх</string>
+    <string name="studio_replace_hint">Цомогхоосоо бүтээгдэхүүний зураг сонгохын тулд Солих дээр товшино уу</string>
+    <string name="studio_layout_hint">Хөдөлгөхийн тулд чирнэ үү · Томруулахын тулд чимхэнэ үү · Хоёр хуруугаар эргүүлнэ үү</string>
+    <string name="studio_shadow_label">Сүүдэр: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Гэрлийн өнцөг: %1$d°</string>
+    <string name="studio_shadow_distance_label">Сүүдрийн зай: %1$d dp</string>
+    <string name="studio_transparency_label">Үл нэвтрэх байдал: %1$d%%</string>
+    <string name="studio_crop_label">Харьцаа</string>
+    <string name="studio_processing">Арын дэвсгэрийг устгаж байна…</string>
+    <string name="studio_export_success">Цомогт хадгалагдлаа</string>
+    <string name="studio_export_error">Экспорт хийж чадсангүй</string>
+    <string name="studio_layout_rotate_left">Зүүн тийш эргүүлэх</string>
+    <string name="studio_layout_rotate_right">Баруун тийш эргүүлэх</string>
+    <string name="studio_layout_flip_horizontal">Хөндлөнгөөр эргүүлэх</string>
+    <string name="studio_layout_flip_vertical">Босоогоор эргүүлэх</string>
+</resources>

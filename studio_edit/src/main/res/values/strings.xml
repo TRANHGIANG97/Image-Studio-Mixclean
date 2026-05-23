@@ -39,4 +39,8 @@
     <string name="studio_layout_rotate_right">Rotate Right</string>
     <string name="studio_layout_flip_horizontal">Flip H</string>
     <string name="studio_layout_flip_vertical">Flip V</string>
+    <string name="studio_shadow_tab_intensity">Shadow</string>
+    <string name="studio_shadow_tab_angle">Angle</string>
+    <string name="studio_shadow_tab_distance">Distance</string>
+    <string name="studio_shadow_tab_color">Color</string>
 </resources>

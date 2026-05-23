@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">የAI ምርት ስቱዲዮ</string>
+    <string name="studio_category_electronics">ኤሌክትሮኒክስ</string>
+    <string name="studio_category_fashion">ፋሽን</string>
+    <string name="studio_category_cosmetics">ኮስሜቲክስ</string>
+    <string name="studio_category_home">ቤት &amp; አኗኗር</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">ኮስሜቲክስ ስቱዲዮ 1</string>
+    <string name="themeplate_cosmetics_02">ኮስሜቲክስ ስቱዲዮ 2</string>
+    <string name="themeplate_cosmetics_03">ኮስሜቲክስ ስቱዲዮ 3</string>
+    <string name="themeplate_cosmetics_04">ኮስሜቲክስ ስቱዲዮ 4</string>
+    <string name="themeplate_cosmetics_05">ኮስሜቲክስ ስቱዲዮ 5</string>
+    <string name="themeplate_cosmetics_06">ኮስሜቲክስ ስቱዲዮ 6</string>
+    <string name="themeplate_cosmetics_07">ኮስሜቲክስ ስቱዲዮ 7</string>
+    <string name="themeplate_cosmetics_08">ኮስሜቲክስ ስቱዲዮ 8</string>
+    <string name="themeplate_cosmetics_09">ኮስሜቲክስ ስቱዲዮ 9</string>
+    <string name="studio_back">ተመለስ</string>
+    <string name="studio_done">አድርግ</string>
+    <string name="studio_tap_to_pick_product">የምርት ምስል ለመምረጥ ይንኩ</string>
+    <string name="studio_tool_replace">ቀይር</string>
+    <string name="studio_tool_layout">አቀማመጥ</string>
+    <string name="studio_tool_shadow">ጥላ</string>
+    <string name="studio_tool_transparency">ግልጽነት</string>
+    <string name="studio_tool_crop">ከርክም</string>
+    <string name="studio_tool_rotateflip">አሽከርክር/ግልብጥ</string>
+    <string name="studio_replace_hint">ከማዕከለ-ስዕላትዎ የምርት ፎቶ ለመምረጥ \'ቀይር\' የሚለውን ይንኩ</string>
+    <string name="studio_layout_hint">ለማንቀሳቀስ ይጎትቱ · ለማጉላት በሁለት ጣት ያጥቡ · በሁለት ጣት ያሽከረክሩ</string>
+    <string name="studio_shadow_label">ጥላ: %1$d%%</string>
+    <string name="studio_shadow_angle_label">የብርሃን አንግል: %1$d°</string>
+    <string name="studio_shadow_distance_label">የጥላ ርቀት: %1$d dp</string>
+    <string name="studio_transparency_label">ግልጽነት: %1$d%%</string>
+    <string name="studio_crop_label">የምስል ጥምርታ</string>
+    <string name="studio_processing">ዳራውን በማስወገድ ላይ…</string>
+    <string name="studio_export_success">በማዕከለ-ስዕላት ውስጥ ተቀምጧል</string>
+    <string name="studio_export_error">ማስቀመጥ አልተሳካም</string>
+    <string name="studio_layout_rotate_left">ወደ ግራ አሽከርክር</string>
+    <string name="studio_layout_rotate_right">ወደ ቀኝ አሽከርክር</string>
+    <string name="studio_layout_flip_horizontal">በአግድም ገልብጥ</string>
+    <string name="studio_layout_flip_vertical">በቁመት ገልብጥ</string>
+</resources>

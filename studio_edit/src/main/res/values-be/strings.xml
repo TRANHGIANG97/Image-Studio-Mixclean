@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Студыя тавараў</string>
+    <string name="studio_category_electronics">Электроніка</string>
+    <string name="studio_category_fashion">Мода</string>
+    <string name="studio_category_cosmetics">Касметыка</string>
+    <string name="studio_category_home">Дом і побыт</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Касметычная студыя 1</string>
+    <string name="themeplate_cosmetics_02">Касметычная студыя 2</string>
+    <string name="themeplate_cosmetics_03">Касметычная студыя 3</string>
+    <string name="themeplate_cosmetics_04">Касметычная студыя 4</string>
+    <string name="themeplate_cosmetics_05">Касметычная студыя 5</string>
+    <string name="themeplate_cosmetics_06">Касметычная студыя 6</string>
+    <string name="themeplate_cosmetics_07">Касметычная студыя 7</string>
+    <string name="themeplate_cosmetics_08">Касметычная студыя 8</string>
+    <string name="themeplate_cosmetics_09">Касметычная студыя 9</string>
+    <string name="studio_back">Назад</string>
+    <string name="studio_done">Гатова</string>
+    <string name="studio_tap_to_pick_product">Націсніце, каб выбраць выяву тавару</string>
+    <string name="studio_tool_replace">Замяніць</string>
+    <string name="studio_tool_layout">Макет</string>
+    <string name="studio_tool_shadow">Цень</string>
+    <string name="studio_tool_transparency">Непразрыстасць</string>
+    <string name="studio_tool_crop">Абрэзаць</string>
+    <string name="studio_tool_rotateflip">Павярнуць/Адлюстраваць</string>
+    <string name="studio_replace_hint">Націсніце \"Замяніць\", каб выбраць фота тавару з галерэі</string>
+    <string name="studio_layout_hint">Перацягвайце для перамяшчэння · Зводзьце пальцы для маштабавання · Паварочвайце двума пальцамі</string>
+    <string name="studio_shadow_label">Цень: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Кут святла: %1$d°</string>
+    <string name="studio_shadow_distance_label">Адлегласць ценю: %1$d dp</string>
+    <string name="studio_transparency_label">Непразрыстасць: %1$d%%</string>
+    <string name="studio_crop_label">Суадносіны бакоў</string>
+    <string name="studio_processing">Выдаленне фону…</string>
+    <string name="studio_export_success">Захавана ў галерэю</string>
+    <string name="studio_export_error">Памылка экспарту</string>
+    <string name="studio_layout_rotate_left">Павярнуць налева</string>
+    <string name="studio_layout_rotate_right">Павярнуць направа</string>
+    <string name="studio_layout_flip_horizontal">Адлюстраваць Г</string>
+    <string name="studio_layout_flip_vertical">Адлюстраваць В</string>
+</resources>

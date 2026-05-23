@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">Estudi de productes IA</string>
+    <string name="studio_category_electronics">Electrònica</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Cosmètica</string>
+    <string name="studio_category_home">Llar i decoració</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Estudi de cosmètica 1</string>
+    <string name="themeplate_cosmetics_02">Estudi de cosmètica 2</string>
+    <string name="themeplate_cosmetics_03">Estudi de cosmètica 3</string>
+    <string name="themeplate_cosmetics_04">Estudi de cosmètica 4</string>
+    <string name="themeplate_cosmetics_05">Estudi de cosmètica 5</string>
+    <string name="themeplate_cosmetics_06">Estudi de cosmètica 6</string>
+    <string name="themeplate_cosmetics_07">Estudi de cosmètica 7</string>
+    <string name="themeplate_cosmetics_08">Estudi de cosmètica 8</string>
+    <string name="themeplate_cosmetics_09">Estudi de cosmètica 9</string>
+    <string name="studio_back">Enrere</string>
+    <string name="studio_done">Fet</string>
+    <string name="studio_tap_to_pick_product">Toca per seleccionar una imatge de producte</string>
+    <string name="studio_tool_replace">Substitueix</string>
+    <string name="studio_tool_layout">Disposició</string>
+    <string name="studio_tool_shadow">Ombra</string>
+    <string name="studio_tool_transparency">Opacitat</string>
+    <string name="studio_tool_crop">Retalla</string>
+    <string name="studio_tool_rotateflip">Gira/Vola</string>
+    <string name="studio_replace_hint">Toca Substitueix per triar una foto de producte de la teva galeria</string>
+    <string name="studio_layout_hint">Arrossega per moure · Plica els dits per fer zoom · Gira amb dos dits</string>
+    <string name="studio_shadow_label">Ombra: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Angle de la llum: %1$d°</string>
+    <string name="studio_shadow_distance_label">Distància de l\'ombra: %1$d dp</string>
+    <string name="studio_transparency_label">Opacitat: %1$d%%</string>
+    <string name="studio_crop_label">Relació d\'aspecte</string>
+    <string name="studio_processing">S\'està eliminant el fons…</string>
+    <string name="studio_export_success">S\'ha desat a la galeria</string>
+    <string name="studio_export_error">Error en exportar</string>
+    <string name="studio_layout_rotate_left">Gira a l\'esquerra</string>
+    <string name="studio_layout_rotate_right">Gira a la dreta</string>
+    <string name="studio_layout_flip_horizontal">Capgira H</string>
+    <string name="studio_layout_flip_vertical">Capgira V</string>
+</resources>

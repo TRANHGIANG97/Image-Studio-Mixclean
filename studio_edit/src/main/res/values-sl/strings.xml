@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">AI Studio za izdelke</string>
+    <string name="studio_category_electronics">Elektronika</string>
+    <string name="studio_category_fashion">Moda</string>
+    <string name="studio_category_cosmetics">Kozmetika</string>
+    <string name="studio_category_home">Dom in bivanje</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">Kozmetični studio 1</string>
+    <string name="themeplate_cosmetics_02">Kozmetični studio 2</string>
+    <string name="themeplate_cosmetics_03">Kozmetični studio 3</string>
+    <string name="themeplate_cosmetics_04">Kozmetični studio 4</string>
+    <string name="themeplate_cosmetics_05">Kozmetični studio 5</string>
+    <string name="themeplate_cosmetics_06">Kozmetični studio 6</string>
+    <string name="themeplate_cosmetics_07">Kozmetični studio 7</string>
+    <string name="themeplate_cosmetics_08">Kozmetični studio 8</string>
+    <string name="themeplate_cosmetics_09">Kozmetični studio 9</string>
+    <string name="studio_back">Nazaj</string>
+    <string name="studio_done">Končano</string>
+    <string name="studio_tap_to_pick_product">Dotaknite se, da izberete sliko izdelka</string>
+    <string name="studio_tool_replace">Zamenjaj</string>
+    <string name="studio_tool_layout">Postavitev</string>
+    <string name="studio_tool_shadow">Senca</string>
+    <string name="studio_tool_transparency">Prosojnost</string>
+    <string name="studio_tool_crop">Obreži</string>
+    <string name="studio_tool_rotateflip">Zasukaj/Zrcali</string>
+    <string name="studio_replace_hint">Dotaknite se Zamenjaj, da izberete fotografijo izdelka iz galerije</string>
+    <string name="studio_layout_hint">Povlecite za premikanje · Stisnite prste za povečavo · Zasukajte z dvema prstoma</string>
+    <string name="studio_shadow_label">Senca: %1$d%%</string>
+    <string name="studio_shadow_angle_label">Kot svetlobe: %1$d°</string>
+    <string name="studio_shadow_distance_label">Razdalja sence: %1$d dp</string>
+    <string name="studio_transparency_label">Prosojnost: %1$d%%</string>
+    <string name="studio_crop_label">Razmerje stranic</string>
+    <string name="studio_processing">Odstranjevanje ozadja…</string>
+    <string name="studio_export_success">Shranjeno v galerijo</string>
+    <string name="studio_export_error">Izvoz ni uspel</string>
+    <string name="studio_layout_rotate_left">Zasukaj levo</string>
+    <string name="studio_layout_rotate_right">Zasukaj desno</string>
+    <string name="studio_layout_flip_horizontal">Zrcali vodoravno</string>
+    <string name="studio_layout_flip_vertical">Zrcali navpično</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_studio_title">סטודיו מוצרים AI</string>
+    <string name="studio_category_electronics">אלקטרוניקה</string>
+    <string name="studio_category_fashion">אופנה</string>
+    <string name="studio_category_cosmetics">קוסמטיקה</string>
+    <string name="studio_category_home">בית ועיצוב</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">סטודיו קוסמטיקה 1</string>
+    <string name="themeplate_cosmetics_02">סטודיו קוסמטיקה 2</string>
+    <string name="themeplate_cosmetics_03">סטודיו קוסמטיקה 3</string>
+    <string name="themeplate_cosmetics_04">סטודיו קוסמטיקה 4</string>
+    <string name="themeplate_cosmetics_05">סטודיו קוסמטיקה 5</string>
+    <string name="themeplate_cosmetics_06">סטודיו קוסמטיקה 6</string>
+    <string name="themeplate_cosmetics_07">סטודיו קוסמטיקה 7</string>
+    <string name="themeplate_cosmetics_08">סטודיו קוסמטיקה 8</string>
+    <string name="themeplate_cosmetics_09">סטודיו קוסמטיקה 9</string>
+    <string name="studio_back">חזור</string>
+    <string name="studio_done">בוצע</string>
+    <string name="studio_tap_to_pick_product">הקש כדי לבחור תמונת מוצר</string>
+    <string name="studio_tool_replace">החלף</string>
+    <string name="studio_tool_layout">פריסה</string>
+    <string name="studio_tool_shadow">צל</string>
+    <string name="studio_tool_transparency">אטימות</string>
+    <string name="studio_tool_crop">חיתוך</string>
+    <string name="studio_tool_rotateflip">סובב/הפוך תמונה</string>
+    <string name="studio_replace_hint">הקש על החלף כדי לבחור תמונת מוצר מהגלריה שלך</string>
+    <string name="studio_layout_hint">גרור כדי להזיז · צבוט כדי להגדיל · סובב עם שתי אצבעות</string>
+    <string name="studio_shadow_label">צל: %1$d%%</string>
+    <string name="studio_shadow_angle_label">זווית אור: %1$d°</string>
+    <string name="studio_shadow_distance_label">מרחק צל: %1$d dp</string>
+    <string name="studio_transparency_label">אטימות: %1$d%%</string>
+    <string name="studio_crop_label">יחס גובה-רוחב</string>
+    <string name="studio_processing">מסיר רקע…</string>
+    <string name="studio_export_success">נשמר בגלריה</string>
+    <string name="studio_export_error">הייצוא נכשל</string>
+    <string name="studio_layout_rotate_left">סובב שמאלה</string>
+    <string name="studio_layout_rotate_right">סובב ימינה</string>
+    <string name="studio_layout_flip_horizontal">הפוך אופקית</string>
+    <string name="studio_layout_flip_vertical">הפוך אנכית</string>
+</resources>
