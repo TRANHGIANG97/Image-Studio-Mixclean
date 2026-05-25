@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">வலப்புறம் சுழற்று</string>
     <string name="studio_layout_flip_horizontal">கிடைமட்டமாகத் திருப்பு</string>
     <string name="studio_layout_flip_vertical">செங்குத்தாகத் திருப்பு</string>
+    <string name="studio_shadow_tab_intensity">நிழல்</string>
+    <string name="studio_shadow_tab_angle">கோணம்</string>
+    <string name="studio_shadow_tab_distance">தூரம்</string>
+    <string name="studio_shadow_tab_color">நிறம்</string>
+    <string name="studio_shadow_preset_none">எதுவுமில்லை</string>
+    <string name="studio_shadow_preset_light">லேசான</string>
+    <string name="studio_shadow_preset_medium">நடுத்தர</string>
+    <string name="studio_shadow_preset_strong">அடர்ந்த</string>
+    <string name="studio_shadow_preset_natural">இயற்கையான</string>
+    <string name="studio_shadow_preset_dramatic">நாடகীয়</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">தயாரிப்புப் படத்தை இணைக்கவும்</string>
+    <string name="studio_pick_product_subtitle">பின்னணி தானாகவே நீக்கப்படும்</string>
+    <string name="studio_export">ஏற்றுமதி செய்</string>
+    <string name="studio_crop_ratio_original">அசல்</string>
 </resources>

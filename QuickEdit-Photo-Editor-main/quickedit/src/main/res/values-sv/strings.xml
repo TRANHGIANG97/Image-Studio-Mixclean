@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Tips: Om du gör ett misstag kan du använda Ångra/Gör om (Undo/Redo).</string>
     <string name="magic_brush_got_it">Jag förstår</string>
     <string name="studio_effect_requires_background">Denna funktion är endast tillgänglig när motivet har en bakgrund</string>
+    <string name="border_tab_size">Storlek</string>
+    <string name="border_blur">Kantskärpa (Oskärpa)</string>
+    <string name="border_blur_amount">Mängd oskärpa</string>
+    <string name="border_blur_none">Ingen oskärpa</string>
+    <string name="border_blur_soft">Mjuk oskärpa</string>
+    <string name="rotate_screen_title">Rotera bild</string>
+    <string name="rotate_hint_title">Rotationsverktyg</string>
+    <string name="rotate_hint_desc">Rotera 90 grader eller vänd horisontellt och vertikalt för att korrigera bildens orientering.</string>
+    <string name="draft_label">Utkast</string>
+    <string name="draft_saved_successfully">Utkast sparades framgångsrikt</string>
 </resources>

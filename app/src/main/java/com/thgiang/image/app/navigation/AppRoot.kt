@@ -1,6 +1,10 @@
 package com.thgiang.image.app.navigation
 
 import android.app.Activity
+import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Resources
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -82,6 +86,7 @@ import com.thgiang.image.feature.settings.ui.SettingsScreen
 import com.thgiang.image.studio.ui.editor.ThemeplateEditorScreen
 import com.thgiang.image.studio.model.StudioThemeplates
 import com.thgiang.image.studio.model.StudioThemeplate
+import java.util.Locale
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPreset
 import com.abizer_r.quickedit.utils.BorderGradientPreset
 import kotlinx.coroutines.flow.StateFlow
@@ -114,11 +119,11 @@ fun AppRoot(
     var isPresetModeForPicker by remember { mutableStateOf(false) }
     val qualitySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val languageOptions = homeLanguageOptions()
+    val languageOptions = homeLanguageOptions(context)
     val selectedLanguageLabel = languageOptions
         .firstOrNull { it.code == appState.selectedLanguage }
         ?.label
-        ?: stringResource(R.string.language_system)
+        ?: systemLanguageLabel(context)
 
     BackHandler {
         when {
@@ -487,6 +492,7 @@ fun AppRoot(
                         isHomePreviewEnabled = appState.isHomePreviewEnabled,
                         onHomePreviewEnabledChange = appViewModel::setHomePreviewEnabled,
                         isPremium = appState.isPremium,
+                        onOpenPro = { showPremiumScreen = true },
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
@@ -520,7 +526,13 @@ fun AppRoot(
                             onDone = { _ ->
                                 navController.popBackStack(Screen.Home.route, inclusive = false)
                             },
-                            onRequireExportAd = { action -> requestSaveVideoAd(action) }
+                            onRequireExportAd = { action -> requestSaveVideoAd(action) },
+                            onPickImage = { onSelected, onCancel ->
+                                SingleImagePickerScreen(
+                                    onImageSelected = onSelected,
+                                    onCancel = onCancel
+                                )
+                            }
                         )
                     }
                 }
@@ -679,8 +691,8 @@ private data class HomeLanguageOption(
 )
 
 @Composable
-private fun homeLanguageOptions(): List<HomeLanguageOption> = listOf(
-    HomeLanguageOption("system", stringResource(R.string.language_system)),
+private fun homeLanguageOptions(context: Context): List<HomeLanguageOption> = listOf(
+    HomeLanguageOption("system", systemLanguageLabel(context)),
     HomeLanguageOption("en", stringResource(R.string.language_english)),
     HomeLanguageOption("af", "Afrikaans"),
     HomeLanguageOption("am", "አማርኛ"),
@@ -750,6 +762,24 @@ private fun homeLanguageOptions(): List<HomeLanguageOption> = listOf(
     HomeLanguageOption("zh-TW", stringResource(R.string.language_chinese_traditional)),
     HomeLanguageOption("zu", "IsiZulu")
 )
+
+private fun systemLanguageLabel(context: Context): String {
+    val locale = systemLocale()
+    val config = Configuration()
+    config.setLocale(locale)
+    val localizedContext = context.createConfigurationContext(config)
+    return localizedContext.getString(R.string.language_system)
+}
+
+private fun systemLocale(): Locale {
+    val systemConfig = Resources.getSystem().configuration
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        systemConfig.locales[0]
+    } else {
+        @Suppress("DEPRECATION")
+        systemConfig.locale
+    }
+}
 
 @Composable
 private fun ProBadgeButton(onClick: () -> Unit) {

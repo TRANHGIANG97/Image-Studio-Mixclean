@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">सुझाव: गल्ती भएमा तपाईं अनडू/रीडू (Undo/Redo) प्रयोग गर्न सक्नुहुन्छ।</string>
     <string name="magic_brush_got_it">बुझें</string>
     <string name="studio_effect_requires_background">यो सुविधा सब्जेक्टमा ब्याकग्राउन्ड भएको बेला मात्र उपलब्ध हुन्छ</string>
+    <string name="border_tab_size">आकार</string>
+    <string name="border_blur">किनाइ धमिलो</string>
+    <string name="border_blur_amount">धमिलोपनको मात्रा</string>
+    <string name="border_blur_none">धमिलो नगर्ने</string>
+    <string name="border_blur_soft">हल्का धमिलो</string>
+    <string name="rotate_screen_title">तस्बिर घुमाउनुहोस्</string>
+    <string name="rotate_hint_title">घुमाउने उपकरणहरू</string>
+    <string name="rotate_hint_desc">तस्बिरको अभिमुखीकरण मिलाउन ९० डिग्री घुमाउनुहोस् वा तेर्सो र ठाडो रूपमा फ्लिप गर्नुहोस्।</string>
+    <string name="draft_label">मस्यौदा</string>
+    <string name="draft_saved_successfully">मस्यौदा सफलतापूर्वक सुरक्षित गरियो</string>
 </resources>

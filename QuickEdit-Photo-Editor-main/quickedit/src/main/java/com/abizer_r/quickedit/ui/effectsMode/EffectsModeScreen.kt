@@ -44,7 +44,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed from imports
 import com.abizer_r.quickedit.utils.defaultErrorToast
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
@@ -226,7 +226,7 @@ fun EffectsModeScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_EffectsModeScreen() {
-    QuickEditTheme {
+    EditorTheme {
         EffectsModeScreen(
             immutableBitmap = ImmutableBitmap(
                 ImageBitmap.imageResource(id = R.drawable.placeholder_image_3).asAndroidBitmap()

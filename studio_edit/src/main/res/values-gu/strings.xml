@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">જમણે ફેરવો</string>
     <string name="studio_layout_flip_horizontal">આડું પલટો</string>
     <string name="studio_layout_flip_vertical">ઊભું પલટો</string>
+    <string name="studio_shadow_tab_intensity">પડછાયો</string>
+    <string name="studio_shadow_tab_angle">ખૂણો</string>
+    <string name="studio_shadow_tab_distance">અંતર</string>
+    <string name="studio_shadow_tab_color">રંગ</string>
+    <string name="studio_shadow_preset_none">કોઈ નહીં</string>
+    <string name="studio_shadow_preset_light">હલકો</string>
+    <string name="studio_shadow_preset_medium">મધ્યમ</string>
+    <string name="studio_shadow_preset_strong">ઘાટો</string>
+    <string name="studio_shadow_preset_natural">કુદરતી</string>
+    <string name="studio_shadow_preset_dramatic">નાટકીય</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">ઉત્પાદનની છબી ઉમેરો</string>
+    <string name="studio_pick_product_subtitle">બેકગ્રાઉન્ડ આપમેળે દૂર થઈ જાય છે</string>
+    <string name="studio_export">નિકાસ કરો</string>
+    <string name="studio_crop_ratio_original">મૂળ</string>
 </resources>

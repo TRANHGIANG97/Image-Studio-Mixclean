@@ -49,4 +49,9 @@
     <string name="studio_shadow_preset_strong">Mạnh</string>
     <string name="studio_shadow_preset_natural">Tự nhiên</string>
     <string name="studio_shadow_preset_dramatic">Kịch tính</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Thêm ảnh sản phẩm</string>
+    <string name="studio_pick_product_subtitle">Tự động xóa ảnh nền</string>
+    <string name="studio_export">Xuất file</string>
+    <string name="studio_crop_ratio_original">Gốc</string>
 </resources>

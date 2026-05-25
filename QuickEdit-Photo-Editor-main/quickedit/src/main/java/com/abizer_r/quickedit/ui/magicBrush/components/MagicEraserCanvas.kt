@@ -231,7 +231,6 @@ fun MagicEraserCanvas(
             modifier = Modifier
                 .fillMaxSize()
                 .onSizeChanged { canvasSize = it }
-                .background(checkerboardBrush)
                 .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                 .pointerInput(enabled) {
                     if (!enabled) return@pointerInput

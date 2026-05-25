@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">草稿</string>
     <string name="draft_select_all">全选</string>
+    <string name="draft_confirm_delete_single">确定要删除草稿“%1$s”吗？</string>
+    <string name="draft_delete_title">删除草稿</string>
+    <string name="draft_rename_title">重命名草稿</string>
+    <string name="draft_duplicate">复制</string>
+    <string name="draft_card_copy">复制</string>
+    <string name="draft_card_delete">删除</string>
+    <string name="draft_rename">重命名</string>
+    <string name="draft_empty">暂无草稿</string>
     <string name="draft_deselect_all">取消全选</string>
     <string name="draft_delete_selected">删除 (%1$d)</string>
     <string name="draft_selected_count">已选择 %1$d 项</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">开始3天免费试用</string>
     <string name="pro_feature_expand">Smooth AI 智能扩图</string>
     <string name="pro_see_details">详情 ></string>
+    <string name="picker_sample_badge">示例</string>
 </resources>

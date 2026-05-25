@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Порада: Якщо ви зробили помилку, скористайтеся функціями Скасувати/Повторити (Undo/Redo).</string>
     <string name="magic_brush_got_it">Зрозуміло</string>
     <string name="studio_effect_requires_background">Ця функція доступна лише тоді, коли об\'єкт має заданий фон</string>
+    <string name="border_tab_size">Розмір</string>
+    <string name="border_blur">Розмиття рамки</string>
+    <string name="border_blur_amount">Ступінь розмиття</string>
+    <string name="border_blur_none">Без розмиття</string>
+    <string name="border_blur_soft">М\'яке розмиття</string>
+    <string name="rotate_screen_title">Повернути зображення</string>
+    <string name="rotate_hint_title">Інструменти повороту</string>
+    <string name="rotate_hint_desc">Поверніть на 90 градусів або відобразіть по горизонталі й вертикалі, щоб виправити орієнтацію зображення.</string>
+    <string name="draft_label">Чернетка</string>
+    <string name="draft_saved_successfully">Чернетку успішно збережено</string>
 </resources>

@@ -21,8 +21,21 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
+import com.thgiang.image.core.design.theme.AuroraCoral
 import com.thgiang.image.studio.ui.editor.*
 import kotlin.math.roundToInt
+
+data class EditorGraphicsSpec(
+    val alpha: Float,
+    val shadowAlpha: Float,
+    val shadowElevation: Float,
+    val shadowDx: Float,
+    val shadowDy: Float,
+    val scaleX: Float,
+    val scaleY: Float,
+    val rotation: Float,
+    val shadowColor: Color
+)
 
 @Composable
 fun ProductLayerV2(
@@ -58,21 +71,28 @@ fun ProductLayerV2(
         }
     }
     
-    val graphicsSpec by remember(viewport, appearance) {
-        derivedStateOf {
-            object {
-                val alpha = appearance.alpha
-                val shadowAlpha = alpha * shadowOpacityFromIntensity(appearance.shadowIntensity)
-                val shadowElevation = appearance.shadowIntensity * 20f
-                val shadowAngleRad = Math.toRadians(appearance.shadowAngle.toDouble())
-                val shadowDx = (appearance.shadowDistance * kotlin.math.cos(shadowAngleRad)).toFloat()
-                val shadowDy = (appearance.shadowDistance * kotlin.math.sin(shadowAngleRad)).toFloat()
-                val scaleX = if (viewport.flippedH) -1f else 1f
-                val scaleY = if (viewport.flippedV) -1f else 1f
-                val rotation = viewport.rotation
-                val shadowColor = Color(appearance.shadowColorArgb)
-            }
-        }
+    val graphicsSpec = remember(viewport, appearance) {
+        val alpha = appearance.alpha
+        val shadowAlpha = alpha * shadowOpacityFromIntensity(appearance.shadowIntensity)
+        val shadowElevation = appearance.shadowIntensity * 20f
+        val shadowAngleRad = Math.toRadians(appearance.shadowAngle.toDouble())
+        val shadowDx = (appearance.shadowDistance * kotlin.math.cos(shadowAngleRad)).toFloat()
+        val shadowDy = (appearance.shadowDistance * kotlin.math.sin(shadowAngleRad)).toFloat()
+        val scaleX = if (viewport.flippedH) -1f else 1f
+        val scaleY = if (viewport.flippedV) -1f else 1f
+        val rotation = viewport.rotation
+        val shadowColor = Color(appearance.shadowColorArgb)
+        EditorGraphicsSpec(
+            alpha = alpha,
+            shadowAlpha = shadowAlpha,
+            shadowElevation = shadowElevation,
+            shadowDx = shadowDx,
+            shadowDy = shadowDy,
+            scaleX = scaleX,
+            scaleY = scaleY,
+            rotation = rotation,
+            shadowColor = shadowColor
+        )
     }
 
     val originalWidth = with(density) { (product.baseSize.width * viewport.scale * displayScale).toInt().toDp() }
@@ -187,7 +207,7 @@ fun ProductLayerV2(
                     }
                     .clip(cropShape),
                 contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(Color(0xFFFF2D55).copy(alpha = 0.6f))
+                colorFilter = ColorFilter.tint(AuroraCoral.copy(alpha = 0.55f))
             )
         }
 
@@ -196,8 +216,8 @@ fun ProductLayerV2(
             modifier = Modifier
                 .align(Alignment.Center)
                 .requiredSize(
-                    width = originalWidth + 240.dp,
-                    height = originalHeight + 240.dp
+                    width = originalWidth + 80.dp,
+                    height = originalHeight + 80.dp
                 ),
             contentWidth = actualSize.width.toFloat(),
             contentHeight = actualSize.height.toFloat(),

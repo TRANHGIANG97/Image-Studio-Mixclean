@@ -118,35 +118,77 @@ fun DrawScope.drawRotatedOverlay(
             val radius = if (isActive) dimensions.handleRadiusPx * EditorDims.CornerActiveScale else dimensions.handleRadiusPx
             val color = if (isActive) EditorColors.HandleActive else EditorColors.HandleInactive
 
+            // Ambient shadow behind the handle
+            drawCircle(
+                color = Color.Black.copy(alpha = 0.25f),
+                radius = radius + 2.dp.toPx(),
+                center = pos
+            )
+
+            // Accent border glow when active
             if (isActive) {
                 drawCircle(
-                    color = EditorColors.HandleActive.copy(alpha = 0.28f),
-                    radius = radius + EditorDims.CORNER_GLOW_RADIUS,
+                    color = EditorColors.HandleActive.copy(alpha = 0.4f),
+                    radius = radius + 4.dp.toPx(),
                     center = pos
                 )
             }
-            drawCircle(color, radius, pos)
-            drawCircle(EditorColors.HandleStroke, radius, pos, style = Stroke(dimensions.borderStrokePx))
+
+            // Inner filled circle
+            drawCircle(color = color, radius = radius, center = pos)
+
+            // Sleek dark stroke
+            drawCircle(
+                color = EditorColors.HandleStroke,
+                radius = radius,
+                center = pos,
+                style = Stroke(dimensions.borderStrokePx)
+            )
+
+            // White highlight inside when active
+            if (isActive) {
+                drawCircle(
+                    color = Color.White,
+                    radius = radius * 0.4f,
+                    center = pos
+                )
+            }
         }
 
         // Rotation handle
         val rotPos = Offset(cx, cy + hh + dimensions.rotateLinePx + dimensions.rotateHandleOffsetPx)
 
         val isRotating = gestureMode == GestureMode.ROTATE
-        val rotColor = if (isRotating) EditorColors.RotateHandleActive else Color(0xFF387BFF)
+        val rotColor = if (isRotating) EditorColors.RotateHandleActive else EditorColors.RotateHandle
         val rotR = if (isRotating) dimensions.rotateRadiusActivePx else dimensions.rotateRadiusPx
 
-        if (isRotating) {
-            drawCircle(
-                color = rotColor.copy(alpha = 0.25f),
-                radius = rotR + EditorDims.ROTATE_GLOW_RADIUS,
-                center = rotPos
-            )
-        }
-
-        // Draw floating dark background circle
+        // Ambient soft shadow behind the entire rotation handle
         drawCircle(
-            color = Color(0xE61E1F24),
+            color = Color.Black.copy(alpha = 0.35f),
+            radius = rotR + 3.dp.toPx(),
+            center = rotPos
+        )
+
+        // Accent outer glow
+        val glowColor = if (isRotating) rotColor.copy(alpha = 0.45f) else rotColor.copy(alpha = 0.2f)
+        drawCircle(
+            color = glowColor,
+            radius = rotR + 4.dp.toPx(),
+            center = rotPos
+        )
+
+        // Glossy lens/glass gradient background
+        val rotBgBrush = androidx.compose.ui.graphics.Brush.radialGradient(
+            colors = if (isRotating) {
+                listOf(rotColor.copy(alpha = 0.95f), EditorColors.HandleStroke.copy(alpha = 0.9f))
+            } else {
+                listOf(EditorColors.HandleStroke.copy(alpha = 0.95f), EditorColors.HandleStroke)
+            },
+            center = rotPos,
+            radius = rotR
+        )
+        drawCircle(
+            brush = rotBgBrush,
             radius = rotR,
             center = rotPos
         )

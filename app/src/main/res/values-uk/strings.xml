@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Чернетки</string>
     <string name="draft_select_all">Вибрати все</string>
+    <string name="draft_confirm_delete_single">Видалити чернетку \'%1$s\'?</string>
+    <string name="draft_delete_title">Видалити чернетку</string>
+    <string name="draft_rename_title">Перейменувати чернетку</string>
+    <string name="draft_duplicate">Дублювати</string>
+    <string name="draft_card_copy">Дублювати</string>
+    <string name="draft_card_delete">Видалити</string>
+    <string name="draft_rename">Перейменувати</string>
+    <string name="draft_empty">Чернеток ще немає</string>
     <string name="draft_deselect_all">Скасувати виділення</string>
     <string name="draft_delete_selected">Видалити (%1$d)</string>
     <string name="draft_selected_count">Вибрано: %1$d</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Розпочати 3 дні безкоштовного періоду</string>
     <string name="pro_feature_expand">Плавне AI-розширення</string>
     <string name="pro_see_details">Детальніше ></string>
+    <string name="picker_sample_badge">Зразок</string>
 </resources>

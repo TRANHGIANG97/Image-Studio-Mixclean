@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">دائیں گھمائیں</string>
     <string name="studio_layout_flip_horizontal">افقی پلٹیں</string>
     <string name="studio_layout_flip_vertical">عمودی پلٹیں</string>
+    <string name="studio_shadow_tab_intensity">سایہ</string>
+    <string name="studio_shadow_tab_angle">زاویہ</string>
+    <string name="studio_shadow_tab_distance">فاصلہ</string>
+    <string name="studio_shadow_tab_color">رنگ</string>
+    <string name="studio_shadow_preset_none">کوئی نہیں</string>
+    <string name="studio_shadow_preset_light">ہلکا</string>
+    <string name="studio_shadow_preset_medium">درمیانہ</string>
+    <string name="studio_shadow_preset_strong">گہرا</string>
+    <string name="studio_shadow_preset_natural">قدرتی</string>
+    <string name="studio_shadow_preset_dramatic">ڈرامائی</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">پروڈکٹ کی تصویر شامل کریں</string>
+    <string name="studio_pick_product_subtitle">بیک گراؤنڈ خود بخود ہٹا دیا جاتا ہے</string>
+    <string name="studio_export">ایکسپورٹ کریں</string>
+    <string name="studio_crop_ratio_original">اصل</string>
 </resources>

@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Consello: Se cometes un erro, sempre podes usar as funcións Desfacer/Refacer (Undo/Redo).</string>
     <string name="magic_brush_got_it">Entendido</string>
     <string name="studio_effect_requires_background">Esta función só está dispoñible se o obxecto ten un fondo</string>
+    <string name="border_tab_size">Tamaño</string>
+    <string name="border_blur">Desenfoque de bordo</string>
+    <string name="border_blur_amount">Cantidade de desenfoque</string>
+    <string name="border_blur_none">Sen desenfoque</string>
+    <string name="border_blur_soft">Desenfoque suave</string>
+    <string name="rotate_screen_title">Rotar imaxe</string>
+    <string name="rotate_hint_title">Ferramentas de rotación</string>
+    <string name="rotate_hint_desc">Xira 90 graos ou voltea horizontal e verticalmente para corrixir a orientación da imaxe.</string>
+    <string name="draft_label">Borrador</string>
+    <string name="draft_saved_successfully">Borrador gardado correctamente</string>
 </resources>

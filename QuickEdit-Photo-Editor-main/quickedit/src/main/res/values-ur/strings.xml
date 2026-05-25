@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">ٹپ: اگر کوئی غلطی ہو جائے تو آپ انڈو/ریڈو (Undo/Redo) کا استعمال کر سکتے ہیں۔</string>
     <string name="magic_brush_got_it">سمجھ گیا</string>
     <string name="studio_effect_requires_background">یہ خصوصیت صرف تب دستیاب ہوتی ہے جب سبجیکٹ کا بیک گراؤنڈ ہو</string>
+    <string name="border_tab_size">سائز</string>
+    <string name="border_blur">بارڈر دھندلاپن</string>
+    <string name="border_blur_amount">دھندلاپن کی مقدار</string>
+    <string name="border_blur_none">بغیر دھندلاپن</string>
+    <string name="border_blur_soft">ہल्का دھندلاپن</string>
+    <string name="rotate_screen_title">تصویر گھمائیں</string>
+    <string name="rotate_hint_title">گھمانے کے ٹولز</string>
+    <string name="rotate_hint_desc">تصویر کی سمت درست کرنے کے لیے 90 ڈگری گھمائیں یا افقی اور عمودی طور پر الٹیں۔</string>
+    <string name="draft_label">ڈرافٹ</string>
+    <string name="draft_saved_successfully">مسودہ کامیابی سے محفوظ ہو گیا</string>
 </resources>

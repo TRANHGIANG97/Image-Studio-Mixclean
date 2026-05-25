@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Sağa Döndür</string>
     <string name="studio_layout_flip_horizontal">Yatay Çevir</string>
     <string name="studio_layout_flip_vertical">Dikey Çevir</string>
+    <string name="studio_shadow_tab_intensity">Gölge</string>
+    <string name="studio_shadow_tab_angle">Açı</string>
+    <string name="studio_shadow_tab_distance">Mesafe</string>
+    <string name="studio_shadow_tab_color">Renk</string>
+    <string name="studio_shadow_preset_none">Hiçbiri</string>
+    <string name="studio_shadow_preset_light">Hafif</string>
+    <string name="studio_shadow_preset_medium">Orta</string>
+    <string name="studio_shadow_preset_strong">Güçlü</string>
+    <string name="studio_shadow_preset_natural">Doğal</string>
+    <string name="studio_shadow_preset_dramatic">Dramatik</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Ürün resmi ekle</string>
+    <string name="studio_pick_product_subtitle">Arka plan otomatik olarak kaldırılır</string>
+    <string name="studio_export">Dışa aktar</string>
+    <string name="studio_crop_ratio_original">Orijinal</string>
 </resources>

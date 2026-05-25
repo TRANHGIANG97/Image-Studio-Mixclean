@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Suggerimento: Se commetti un errore, puoi usare Annulla/Ripristina.</string>
     <string name="magic_brush_got_it">Ho capito</string>
     <string name="studio_effect_requires_background">Questa funzione è disponibile solo quando il soggetto ha uno sfondo</string>
+    <string name="border_tab_size">Dydis</string>
+    <string name="border_blur">Rėmelio suliejimas</string>
+    <string name="border_blur_amount">Suliejimo intensyvumas</string>
+    <string name="border_blur_none">Be suliejimo</string>
+    <string name="border_blur_soft">Švelnus suliejimas</string>
+    <string name="rotate_screen_title">Pasukti vaizdą</string>
+    <string name="rotate_hint_title">Pasukimo įrankiai</string>
+    <string name="rotate_hint_desc">Pasukite 90 laipsnių kampu arba apverskite horizontaliai ir vertikaliai, kad ištaisytumėte vaizdo orientaciją.</string>
+    <string name="draft_label">Juodraštis</string>
+    <string name="draft_saved_successfully">Juodraštis sėkmingai išsaugotas</string>
 </resources>

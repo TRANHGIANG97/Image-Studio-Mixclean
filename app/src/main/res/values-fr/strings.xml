@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Brouillons</string>
     <string name="draft_select_all">Tout sélectionner</string>
+    <string name="draft_confirm_delete_single">Voulez-vous supprimer le brouillon \'%1$s\' ?</string>
+    <string name="draft_delete_title">Supprimer le brouillon</string>
+    <string name="draft_rename_title">Renommer le brouillon</string>
+    <string name="draft_duplicate">Dupliquer</string>
+    <string name="draft_card_copy">Dupliquer</string>
+    <string name="draft_card_delete">Supprimer</string>
+    <string name="draft_rename">Renommer</string>
+    <string name="draft_empty">Aucun brouillon pour le moment</string>
     <string name="draft_deselect_all">Tout désélectionner</string>
     <string name="draft_delete_selected">Supprimer (%1$d)</string>
     <string name="draft_selected_count">%1$d sélectionné(s)</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Commencer l\'essai gratuit de 3 jours</string>
     <string name="pro_feature_expand">Extension IA fluide</string>
     <string name="pro_see_details">Détails ></string>
+    <string name="picker_sample_badge">Exemple</string>
 </resources>

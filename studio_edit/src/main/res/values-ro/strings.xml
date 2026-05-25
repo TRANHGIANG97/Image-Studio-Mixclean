@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Rotire la dreapta</string>
     <string name="studio_layout_flip_horizontal">Răsturnare H</string>
     <string name="studio_layout_flip_vertical">Răsturnare V</string>
+    <string name="studio_shadow_tab_intensity">Umbră</string>
+    <string name="studio_shadow_tab_angle">Unghi</string>
+    <string name="studio_shadow_tab_distance">Distanță</string>
+    <string name="studio_shadow_tab_color">Culoare</string>
+    <string name="studio_shadow_preset_none">Niciuna</string>
+    <string name="studio_shadow_preset_light">Discretă</string>
+    <string name="studio_shadow_preset_medium">Medie</string>
+    <string name="studio_shadow_preset_strong">Pronunțată</string>
+    <string name="studio_shadow_preset_natural">Naturală</string>
+    <string name="studio_shadow_preset_dramatic">Dramatică</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Adaugă imaginea produsului</string>
+    <string name="studio_pick_product_subtitle">Fundalul este eliminat automat</string>
+    <string name="studio_export">Exportă</string>
+    <string name="studio_crop_ratio_original">Original</string>
 </resources>

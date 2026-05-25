@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_EXTRA_LARGE
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -157,7 +157,7 @@ fun EffectPreview(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Selected_EffectPreviewItem() {
-    QuickEditTheme {
+    EditorTheme {
         val bitmap = BitmapFactory.decodeResource(
             androidx.compose.ui.platform.LocalContext.current.resources,
             R.drawable.placeholder_image_3
@@ -178,7 +178,7 @@ fun Selected_EffectPreviewItem() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Unselected_EffectPreviewItem() {
-    QuickEditTheme {
+    EditorTheme {
         val bitmap = BitmapFactory.decodeResource(
             androidx.compose.ui.platform.LocalContext.current.resources,
             R.drawable.placeholder_image_3
@@ -220,7 +220,7 @@ fun Preview_EffectsPreviewList() {
             label = "poppy dogs"
         )
     )
-    QuickEditTheme {
+    EditorTheme {
         EffectsPreviewListFullWidth(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surface)

@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">ඉඟිය: වැරදීමක් සිදු වුවහොත් ඔබට Undo/Redo භාවිතා කළ හැක.</string>
     <string name="magic_brush_got_it">වැටහුණා</string>
     <string name="studio_effect_requires_background">මෙම අංගය භාවිතා කළ හැක්කේ විෂයයට පසුබිමක් ඇති විට පමණි</string>
+    <string name="border_tab_size">ප්රමාණය</string>
+    <string name="border_blur">සීමා බොඳ කිරීම</string>
+    <string name="border_blur_amount">බොඳ කිරීමේ ප්රමාණය</string>
+    <string name="border_blur_none">බොඳ කිරීමක් නැත</string>
+    <string name="border_blur_soft">මෘදු බොඳ කිරීම</string>
+    <string name="rotate_screen_title">ඡායාරූපය කරකවන්න</string>
+    <string name="rotate_hint_title">කරකවන මෙවලම්</string>
+    <string name="rotate_hint_desc">ඡායාරූපයේ දිශානතිය නිවැရදි කිරීමට අංශක 90ක් කරකවන්න හෝ තිරස්ව සහ සිරස්ව පෙරළන්න.</string>
+    <string name="draft_label">කෙටුම්පත</string>
+    <string name="draft_saved_successfully">Osnutek je bil uspešno shranjen</string>
 </resources>

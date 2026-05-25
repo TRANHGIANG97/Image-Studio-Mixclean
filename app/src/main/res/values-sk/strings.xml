@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Koncepty</string>
     <string name="draft_select_all">Vybrať všetko</string>
+    <string name="draft_confirm_delete_single">Chcete odstrániť koncept \'%1$s\'?</string>
+    <string name="draft_delete_title">Odstrániť koncept</string>
+    <string name="draft_rename_title">Premenovať koncept</string>
+    <string name="draft_duplicate">Duplikovať</string>
+    <string name="draft_card_copy">Duplikovať</string>
+    <string name="draft_card_delete">Vymazať</string>
+    <string name="draft_rename">Premenovať</string>
+    <string name="draft_empty">Zatiaľ žiadne koncepty</string>
     <string name="draft_deselect_all">Zrušiť výber</string>
     <string name="draft_delete_selected">Vymazať (%1$d)</string>
     <string name="draft_selected_count">%1$d vybraných</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Spustiť 3-dňovú bezplatnú skúšobnú verziu</string>
     <string name="pro_feature_expand">Prirodzené rozšírenie obrázka pomocou AI</string>
     <string name="pro_see_details">Zobraziť podrobnosti ></string>
+    <string name="picker_sample_badge">Ukážka</string>
 </resources>

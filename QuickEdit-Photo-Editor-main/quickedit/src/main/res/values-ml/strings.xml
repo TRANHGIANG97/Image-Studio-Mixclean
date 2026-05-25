@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">സൂചന: തെറ്റ് സംഭവിച്ചാൽ നിങ്ങൾക്ക് അൺഡു/റീഡു (Undo/Redo) ഉപയോഗിക്കാം.</string>
     <string name="magic_brush_got_it">ശരി</string>
     <string name="studio_effect_requires_background">സബ്ജക്റ്റിന് ബാക്ക്ഗ്രൗണ്ട് ഉള്ളപ്പോൾ മാത്രമേ ഈ ഫീച്ചർ ലഭ്യമാകൂ</string>
+    <string name="border_tab_size">അളവ്</string>
+    <string name="border_blur">ബോർഡർ ബ്ലർ</string>
+    <string name="border_blur_amount">ബ്ലർ തീവ്രത</string>
+    <string name="border_blur_none">ബ്ലർ ഇല്ലാതെ</string>
+    <string name="border_blur_soft">മൃദുവായ ബ്ലർ</string>
+    <string name="rotate_screen_title">ചിത്രം തിരിക്കുക</string>
+    <string name="rotate_hint_title">റൊട്ടേറ്റ് ടൂളുകൾ</string>
+    <string name="rotate_hint_desc">ചിത്രത്തിന്റെ ദിശ ശരിയാക്കാൻ 90 ഡിഗ്രി തിരിക്കുക അല്ലെങ്കിൽ തിരശ്ചീനമായും ലംബമായും ഫ്ലിപ്പ് ചെയ്യുക.</string>
+    <string name="draft_label">ഡ്രാഫ്റ്റ്</string>
+    <string name="draft_saved_successfully">ഡ്രാഫ്റ്റ് വിജയകരമായി സേവ് ചെയ്തു</string>
 </resources>

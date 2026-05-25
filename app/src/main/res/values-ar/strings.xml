@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">المسودات</string>
     <string name="draft_select_all">تحديد الكل</string>
+    <string name="draft_confirm_delete_single">هل تريد حذف المسودة \'%1$s\'؟</string>
+    <string name="draft_delete_title">حذف المسودة</string>
+    <string name="draft_rename_title">إعادة تسمية المسودة</string>
+    <string name="draft_duplicate">تكرار</string>
+    <string name="draft_card_copy">تكرار</string>
+    <string name="draft_card_delete">حذف</string>
+    <string name="draft_rename">إعادة تسمية</string>
+    <string name="draft_empty">لا توجد مسودات بعد</string>
     <string name="draft_deselect_all">إلغاء تحديد الكل</string>
     <string name="draft_delete_selected">حذف (%1$d)</string>
     <string name="draft_selected_count">تم تحديد %1$d</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">ابدأ الفترة التجريبية المجانية لمدة 3 أيام</string>
     <string name="pro_feature_expand">توسيع ذكي سلس</string>
     <string name="pro_see_details">التفاصيل ></string>
+    <string name="picker_sample_badge">عينة</string>
 </resources>

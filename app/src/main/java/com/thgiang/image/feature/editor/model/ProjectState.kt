@@ -1,8 +1,11 @@
 package com.thgiang.image.feature.editor.model
 
+import androidx.annotation.Keep
+
 /**
  * Metadata cho một bản nháp, dùng để hiển thị trong danh sách.
  */
+@Keep
 data class DraftMetadata(
     val id: String,
     val name: String,
@@ -14,6 +17,7 @@ data class DraftMetadata(
 /**
  * Snapshot toàn bộ trạng thái dự án, dùng để serialize xuống JSON.
  */
+@Keep
 data class ProjectSnapshot(
     val version: Int = 1,
     val name: String? = null,
@@ -26,6 +30,7 @@ data class ProjectSnapshot(
 /**
  * Snapshot của một layer — chỉ chứa metadata, không chứa Bitmap.
  */
+@Keep
 data class LayerSnapshot(
     val id: String,
     val type: String,               // "IMAGE", "BACKGROUND", hoặc "TEXT"

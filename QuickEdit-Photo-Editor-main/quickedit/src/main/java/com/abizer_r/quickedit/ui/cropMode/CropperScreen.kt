@@ -36,7 +36,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.utils.defaultErrorToast
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
 import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
@@ -73,8 +73,8 @@ fun CropperScreen(
     val colorOnBackground = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.background
 
-    val topToolbarHeight =  TOOLBAR_HEIGHT_SMALL
-    val bottomToolbarHeight = TOOLBAR_HEIGHT_LARGE
+    val topToolbarHeight = 56.dp
+    val bottomToolbarHeight = 84.dp
 
     var toolbarVisible by remember { mutableStateOf(false) }
 
@@ -268,7 +268,7 @@ fun CropperScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewEditorScreen() {
-    QuickEditTheme {
+    EditorTheme {
         CropperScreen(
             immutableBitmap = ImmutableBitmap(
                 ImageBitmap.imageResource(id = R.drawable.placeholder_image_3).asAndroidBitmap()

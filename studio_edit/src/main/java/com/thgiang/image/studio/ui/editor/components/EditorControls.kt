@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -18,25 +17,30 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Canvas
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.toArgb
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.*
+import com.thgiang.image.studio.ui.editor.theme.EditorTokens
+import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.core.design.components.PrecisionSlider
+import com.thgiang.image.core.design.components.PrecisionSliderColors
+import kotlin.math.abs
 import kotlin.math.roundToInt
+
+// ── Shadow Sub-Tabs ──────────────────────────────────────────
 
 enum class ShadowSubTab(val labelResId: Int) {
     Intensity(R.string.studio_shadow_tab_intensity),
@@ -45,10 +49,36 @@ enum class ShadowSubTab(val labelResId: Int) {
     Color(R.string.studio_shadow_tab_color)
 }
 
+// ── Shadow Preset Data (Single Source of Truth) ──────────────
+
+data class ShadowPresetData(
+    val key: String,
+    val labelResId: Int,
+    val intensity: Float,
+    val angle: Float,
+    val distance: Float
+)
+
+private val ShadowPresets = listOf(
+    ShadowPresetData("none",   R.string.studio_shadow_preset_none,     0f,   0f,   0f),
+    ShadowPresetData("light",  R.string.studio_shadow_preset_light,    0.25f, 120f, 8f),
+    ShadowPresetData("medium", R.string.studio_shadow_preset_medium,   0.45f, 135f, 15f),
+    ShadowPresetData("strong", R.string.studio_shadow_preset_strong,   0.7f,  135f, 22f),
+    ShadowPresetData("natural",R.string.studio_shadow_preset_natural,  0.4f,  90f,  12f),
+    ShadowPresetData("dramatic", R.string.studio_shadow_preset_dramatic, 0.8f, 210f, 30f)
+)
+
+private fun presetMatches(preset: ShadowPresetData, appearance: EditorAppearance): Boolean =
+    abs(appearance.shadowIntensity - preset.intensity) < 0.01f &&
+    abs(appearance.shadowAngle - preset.angle) < 1f &&
+    abs(appearance.shadowDistance - preset.distance) < 0.5f
+
+// ── Main Controls Panel ──────────────────────────────────────
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun EditorControlsV2(
-    tool: EditorTool,
+    tool: EditorTool?,
     appearance: EditorAppearance,
     cropRatio: CropRatio,
     onUpdateShadow: (Float) -> Unit,
@@ -60,20 +90,27 @@ fun EditorControlsV2(
     onLayoutEvent: (EditorEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val tokens = LocalEditorTokens.current
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
+                .shadow(
+                    elevation = 12.dp,
+                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                    ambientColor = Color.Black.copy(alpha = 0.07f),
+                    spotColor   = Color.Black.copy(alpha = 0.05f)
+                )
                 .border(
                     width = 1.dp,
-                    color = Color.White.copy(alpha = 0.08f),
+                    color = Color(0xFFE0E0E0),
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                 )
                 .background(
-                    color = Color(0xFF131418),
-                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                    color  = Color.White,
+                    shape  = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                 )
-                .padding(bottom = 14.dp)
+                .padding(bottom = 8.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -91,154 +128,123 @@ fun EditorControlsV2(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                    .padding(horizontal = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .padding(horizontal = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        when (targetTool) {
-                            is EditorTool.Layout -> {
-                                Text(
-                                    text = stringResource(R.string.studio_layout_hint),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                )
+                    when (targetTool) {
+                            is EditorTool.Rotate -> {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    EditorLayoutControls(
+                                        onEvent = onLayoutEvent
+                                    )
+                                }
                             }
 
                             is EditorTool.Shadow -> {
                                 var selectedSubTab by rememberSaveable { mutableStateOf(ShadowSubTab.Intensity) }
-                                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                     ShadowTabRow(
                                         selectedTab = selectedSubTab,
                                         onTabSelected = { selectedSubTab = it }
                                     )
 
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(16.dp))
-                                            .background(Color(0xFF1C1D24))
-                                            .padding(horizontal = 16.dp, vertical = 16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                                    ) {
-                                        AnimatedContent(
-                                            targetState = selectedSubTab,
-                                            transitionSpec = {
-                                                fadeIn(animationSpec = tween(150)) togetherWith fadeOut(animationSpec = tween(150))
-                                            },
-                                            label = "ShadowSubTabAnimation"
-                                        ) { currentTab ->
-                                            Box(modifier = Modifier.fillMaxWidth()) {
-                                                when (currentTab) {
-                                                    ShadowSubTab.Intensity -> {
-                                                        Column(
-                                                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                                                        ) {
-                                                            CompactMetricSlider(
-                                                                label = stringResource(
-                                                                    R.string.studio_shadow_label,
-                                                                    (appearance.shadowIntensity * 100).roundToInt()
-                                                                ),
-                                                                value = appearance.shadowIntensity,
-                                                                valueRange = 0f..1f,
-                                                                onValueChange = onUpdateShadow
-                                                            )
-                                                            
-                                                            // 3D Sphere preset list
-                                                            val presets = ShadowPreset.values()
-                                                            Row(
-                                                                modifier = Modifier
-                                                                    .fillMaxWidth()
-                                                                    .horizontalScroll(rememberScrollState())
-                                                                    .padding(vertical = 4.dp),
-                                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                                            ) {
-                                                                presets.forEach { p ->
-                                                                    val isPresetSelected = when (p) {
-                                                                        ShadowPreset.None -> appearance.shadowIntensity == 0f
-                                                                        ShadowPreset.Light -> appearance.shadowIntensity == 0.25f && appearance.shadowAngle == 120f && appearance.shadowDistance == 8f
-                                                                        ShadowPreset.Medium -> appearance.shadowIntensity == 0.45f && appearance.shadowAngle == 135f && appearance.shadowDistance == 15f
-                                                                        ShadowPreset.Strong -> appearance.shadowIntensity == 0.7f && appearance.shadowAngle == 135f && appearance.shadowDistance == 22f
-                                                                        ShadowPreset.Natural -> appearance.shadowIntensity == 0.4f && appearance.shadowAngle == 90f && appearance.shadowDistance == 12f
-                                                                        ShadowPreset.Dramatic -> appearance.shadowIntensity == 0.8f && appearance.shadowAngle == 210f && appearance.shadowDistance == 30f
-                                                                    }
-                                                                    
-                                                                    SpherePresetItem(
-                                                                        preset = p,
-                                                                        selected = isPresetSelected,
-                                                                        onClick = {
-                                                                            when (p) {
-                                                                                ShadowPreset.None -> {
-                                                                                    onUpdateShadow(0f)
-                                                                                    onUpdateShadowDistance(0f)
-                                                                                }
-                                                                                ShadowPreset.Light -> {
-                                                                                    onUpdateShadow(0.25f)
-                                                                                    onUpdateShadowAngle(120f)
-                                                                                    onUpdateShadowDistance(8f)
-                                                                                }
-                                                                                ShadowPreset.Medium -> {
-                                                                                    onUpdateShadow(0.45f)
-                                                                                    onUpdateShadowAngle(135f)
-                                                                                    onUpdateShadowDistance(15f)
-                                                                                }
-                                                                                ShadowPreset.Strong -> {
-                                                                                    onUpdateShadow(0.7f)
-                                                                                    onUpdateShadowAngle(135f)
-                                                                                    onUpdateShadowDistance(22f)
-                                                                                }
-                                                                                ShadowPreset.Natural -> {
-                                                                                    onUpdateShadow(0.4f)
-                                                                                    onUpdateShadowAngle(90f)
-                                                                                    onUpdateShadowDistance(12f)
-                                                                                }
-                                                                                ShadowPreset.Dramatic -> {
-                                                                                    onUpdateShadow(0.8f)
-                                                                                    onUpdateShadowAngle(210f)
-                                                                                    onUpdateShadowDistance(30f)
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    )
+                                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                                        val isTablet = maxWidth >= 400.dp
+                                        val cardHPadding = if (isTablet) 14.dp else 8.dp
+
+                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(Color(0xFFF8F8F8))
+                                                .border(0.5.dp, Color(0xFFE5E7EB), RoundedCornerShape(12.dp))
+                                                .padding(horizontal = cardHPadding, vertical = 8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            val sliderColors = remember(tokens) { tokens.toSliderColors() }
+
+                                            // ── Intensity ──
+                                            AnimatedVisibility(
+                                                visible = selectedSubTab == ShadowSubTab.Intensity,
+                                                enter = fadeIn(animationSpec = tween(150)),
+                                                exit = fadeOut(animationSpec = tween(150))
+                                            ) {
+                                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                                    PrecisionSlider(
+                                                        label = stringResource(R.string.studio_shadow_tab_intensity),
+                                                        value = appearance.shadowIntensity,
+                                                        valueRange = 0f..1f,
+                                                        onValueChange = onUpdateShadow,
+                                                        valueFormatter = { "${(it * 100).roundToInt()}%" },
+                                                        colors = sliderColors
+                                                    )
+
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .horizontalScroll(rememberScrollState())
+                                                            .padding(vertical = 2.dp),
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        ShadowPresets.forEach { preset ->
+                                                            val isSelected = presetMatches(preset, appearance)
+                                                            ShadowPresetCard(
+                                                                preset = preset,
+                                                                selected = isSelected,
+                                                                onClick = {
+                                                                    onUpdateShadow(preset.intensity)
+                                                                    onUpdateShadowAngle(preset.angle)
+                                                                    onUpdateShadowDistance(preset.distance)
                                                                 }
-                                                            }
-                                                        }
-                                                    }
-                                                    ShadowSubTab.Angle -> {
-                                                        CompactMetricSlider(
-                                                            label = stringResource(
-                                                                R.string.studio_shadow_angle_label,
-                                                                appearance.shadowAngle.roundToInt()
-                                                            ),
-                                                            value = appearance.shadowAngle,
-                                                            valueRange = 0f..360f,
-                                                            onValueChange = onUpdateShadowAngle
-                                                        )
-                                                    }
-                                                    ShadowSubTab.Distance -> {
-                                                        CompactMetricSlider(
-                                                            label = stringResource(
-                                                                R.string.studio_shadow_distance_label,
-                                                                appearance.shadowDistance.roundToInt()
-                                                            ),
-                                                            value = appearance.shadowDistance,
-                                                            valueRange = 0f..40f,
-                                                            onValueChange = onUpdateShadowDistance
-                                                        )
-                                                    }
-                                                    ShadowSubTab.Color -> {
-                                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                            Text(
-                                                                text = stringResource(R.string.studio_shadow_tab_color),
-                                                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
-                                                                color = Color.White,
-                                                                fontWeight = FontWeight.SemiBold
-                                                            )
-                                                            ShadowColorSwatch(
-                                                                currentColorArgb = appearance.shadowColorArgb,
-                                                                onSelectColor = onUpdateShadowColor
                                                             )
                                                         }
                                                     }
+                                                }
+                                            }
+
+                                            // ── Angle ──
+                                            AnimatedVisibility(
+                                                visible = selectedSubTab == ShadowSubTab.Angle,
+                                                enter = fadeIn(animationSpec = tween(150)),
+                                                exit = fadeOut(animationSpec = tween(150))
+                                            ) {
+                                                PrecisionSlider(
+                                                    label = stringResource(R.string.studio_shadow_tab_angle),
+                                                    value = appearance.shadowAngle,
+                                                    valueRange = 0f..360f,
+                                                    onValueChange = onUpdateShadowAngle,
+                                                    valueFormatter = { "${it.roundToInt()}°" },
+                                                    colors = sliderColors
+                                                )
+                                            }
+
+                                            // ── Distance ──
+                                            AnimatedVisibility(
+                                                visible = selectedSubTab == ShadowSubTab.Distance,
+                                                enter = fadeIn(animationSpec = tween(150)),
+                                                exit = fadeOut(animationSpec = tween(150))
+                                            ) {
+                                                PrecisionSlider(
+                                                    label = stringResource(R.string.studio_shadow_tab_distance),
+                                                    value = appearance.shadowDistance,
+                                                    valueRange = 0f..40f,
+                                                    onValueChange = onUpdateShadowDistance,
+                                                    valueFormatter = { it.roundToInt().toString() },
+                                                    colors = sliderColors
+                                                )
+                                            }
+
+                                            // ── Color ──
+                                            AnimatedVisibility(
+                                                visible = selectedSubTab == ShadowSubTab.Color,
+                                                enter = fadeIn(animationSpec = tween(150)),
+                                                exit = fadeOut(animationSpec = tween(150))
+                                            ) {
+                                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                    ShadowColorSwatch(
+                                                        currentColorArgb = appearance.shadowColorArgb,
+                                                        onSelectColor = onUpdateShadowColor
+                                                    )
                                                 }
                                             }
                                         }
@@ -247,14 +253,14 @@ fun EditorControlsV2(
                             }
 
                             is EditorTool.Transparency -> {
-                                CompactMetricSlider(
-                                    label = stringResource(
-                                        R.string.studio_transparency_label,
-                                        (appearance.alpha * 100).roundToInt()
-                                    ),
+                                val sliderColors = remember(tokens) { tokens.toSliderColors() }
+                                PrecisionSlider(
+                                    label = stringResource(R.string.studio_tool_transparency),
                                     value = appearance.alpha,
                                     valueRange = 0.1f..1f,
-                                    onValueChange = onUpdateAlpha
+                                    onValueChange = onUpdateAlpha,
+                                    valueFormatter = { "${(it * 100).roundToInt()}%" },
+                                    colors = sliderColors
                                 )
                             }
 
@@ -263,7 +269,7 @@ fun EditorControlsV2(
                                     Text(
                                         text = stringResource(R.string.studio_crop_label),
                                         style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        color = tokens.textPrimary
                                     )
                                     Row(
                                         modifier = Modifier
@@ -282,12 +288,6 @@ fun EditorControlsV2(
                                 }
                             }
 
-                            is EditorTool.Rotate -> {
-                                EditorLayoutControls(
-                                    onEvent = onLayoutEvent
-                                )
-                            }
-
                             else -> {}
                         }
                     }
@@ -297,58 +297,118 @@ fun EditorControlsV2(
     }
 }
 
-@Composable
-private fun ShadowPresetChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    val containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer 
-                         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer 
-                       else MaterialTheme.colorScheme.onSurfaceVariant
+// ── Preset Card ──────────────────────────────────────────────
 
-    Box(
+@Composable
+private fun ShadowPresetCard(
+    preset: ShadowPresetData,
+    selected: Boolean,
+    onClick: () -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
+) {
+    val borderColor = if (selected) tokens.accent else tokens.borderSubtle
+    val borderWidth = if (selected) 1.5.dp else 0.5.dp
+    val cardBg = if (preset.key == "none") {
+        Color(0xFFF0F0F0)
+    } else {
+        if (selected) tokens.accentSoft else Color(0xFFF8F8F8)
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(containerColor)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center
+            .width(72.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
     ) {
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(cardBg)
+                .border(borderWidth, borderColor, RoundedCornerShape(10.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+                val cx = size.width / 2f
+                val cy = size.height / 2f
+                val r = size.width * 0.22f
+
+                if (preset.key == "none") {
+                    // Light card: use dark dashed circle
+                    drawCircle(
+                        Color(0xFF9CA3AF), r + 1.dp.toPx(), Offset(cx, cy),
+                        style = Stroke(1.5.dp.toPx())
+                    )
+                    // X mark
+                    val d = r * 0.55f
+                    drawLine(Color(0xFF9CA3AF), Offset(cx - d, cy - d), Offset(cx + d, cy + d), 1.5.dp.toPx())
+                    drawLine(Color(0xFF9CA3AF), Offset(cx + d, cy - d), Offset(cx - d, cy + d), 1.5.dp.toPx())
+                } else {
+                    val angleRad = Math.toRadians(preset.angle.toDouble())
+                    val dist = preset.distance * 0.015f
+                    val sx = (kotlin.math.cos(angleRad) * dist).toFloat()
+                    val sy = (kotlin.math.sin(angleRad) * dist).toFloat()
+
+                    // Soft drop shadow with radial gradient
+                    val shadowBrush = androidx.compose.ui.graphics.Brush.radialGradient(
+                        colors = listOf(Color.Black.copy(alpha = preset.intensity * 0.7f), Color.Transparent),
+                        center = Offset(cx + r * sx, cy + r * sy),
+                        radius = r * 1.5f
+                    )
+                    drawCircle(
+                        brush = shadowBrush,
+                        radius = r * 1.5f,
+                        center = Offset(cx + r * sx, cy + r * sy)
+                    )
+
+                    // 3D Metallic/Glossy Sphere
+                    val sphereBrush = androidx.compose.ui.graphics.Brush.radialGradient(
+                        colors = listOf(Color.White, Color(0xFF8A939E), Color(0xFF3A424A)),
+                        center = Offset(cx - r * 0.25f, cy - r * 0.25f),
+                        radius = r
+                    )
+                    drawCircle(
+                        brush = sphereBrush,
+                        radius = r,
+                        center = Offset(cx, cy)
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(2.dp))
         Text(
-            text = label,
-            color = contentColor,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            text = stringResource(preset.labelResId),
+            color = if (selected) tokens.textPrimary else tokens.textSecondary,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = 11.sp,
+                fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal
+            ),
+            maxLines = 1,
+            softWrap = false
         )
     }
 }
 
+// ── Color Swatch ─────────────────────────────────────────────
+
 @Composable
 private fun ShadowColorSwatch(
     currentColorArgb: Int,
-    onSelectColor: (Int) -> Unit
+    onSelectColor: (Int) -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
 ) {
-    val isDark = isSystemInDarkTheme()
-    val shadowColors = remember(isDark) {
-        if (isDark) {
-            listOf(
-                Color.Black,
-                Color(0xFF2C2C2C),
-                Color(0xFF1E3A8A).copy(alpha = 0.8f),
-                Color(0xFF14532D).copy(alpha = 0.8f),
-                Color(0xFF581C87).copy(alpha = 0.8f)
-            )
-        } else {
-            listOf(
-                Color.Black,
-                Color(0xFF4A4A4A),
-                Color(0xFF1E3A8A).copy(alpha = 0.5f),
-                Color(0xFF14532D).copy(alpha = 0.5f),
-                Color(0xFF581C87).copy(alpha = 0.5f)
-            )
-        }
+    val shadowColors = remember {
+        listOf(
+            Color.Black,
+            Color(0xFF2C2C2C),
+            Color(0xFF1E3A8A).copy(alpha = 0.8f),
+            Color(0xFF14532D).copy(alpha = 0.8f),
+            Color(0xFF581C87).copy(alpha = 0.8f)
+        )
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -361,6 +421,7 @@ private fun ShadowColorSwatch(
                 onClick = { onSelectColor(argb) }
             )
         }
+        ShadowCustomColorChip(onClick = { /* TODO: open color picker */ })
     }
 }
 
@@ -368,17 +429,18 @@ private fun ShadowColorSwatch(
 private fun ShadowColorChip(
     color: Color,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
 ) {
     Box(
         modifier = Modifier
-            .size(36.dp)
+            .size(32.dp)
             .clip(CircleShape)
             .background(color)
             .border(
                 border = BorderStroke(
-                    width = if (selected) 3.dp else 1.dp,
-                    color = if (selected) MaterialTheme.colorScheme.primary else Color.LightGray.copy(alpha = 0.5f)
+                    width = if (selected) 2.dp else 0.5.dp,
+                    color = if (selected) tokens.accent else tokens.borderSubtle
                 ),
                 shape = CircleShape
             )
@@ -387,120 +449,158 @@ private fun ShadowColorChip(
 }
 
 @Composable
-private fun PanelHandle() {
+private fun ShadowCustomColorChip(
+    onClick: () -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
+) {
     Box(
         modifier = Modifier
-            .padding(top = 8.dp, bottom = 8.dp)
-            .size(36.dp, 4.dp)
+            .size(32.dp)
+            .clip(CircleShape)
+            .background(tokens.surfaceFloating)
+            .border(BorderStroke(0.5.dp, tokens.borderDefault), CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "+",
+            color = tokens.textSecondary,
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
+            fontWeight = FontWeight.Light
+        )
+    }
+}
+
+// ── Panel Handle ─────────────────────────────────────────────
+
+@Composable
+private fun PanelHandle(tokens: EditorTokens = LocalEditorTokens.current) {
+    Box(
+        modifier = Modifier
+            .padding(top = 8.dp, bottom = 4.dp)
+            .size(32.dp, 4.dp)
             .background(
-                color = Color.White.copy(alpha = 0.2f),
+                color = Color(0xFFD1D5DB),
                 shape = RoundedCornerShape(2.dp)
             )
     )
 }
 
-@Composable
-private fun CompactMetricSlider(
-    label: String,
-    value: Float,
-    valueRange: ClosedFloatingPointRange<Float>,
-    onValueChange: (Float) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val parts = remember(label) { label.split(": ") }
-    val title = parts.getOrNull(0) ?: label
-    val valueStr = parts.getOrNull(1)
+// ── Tokens → PrecisionSliderColors mapping ─────────────────────
 
-    Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
-                color = Color.White,
-                fontWeight = FontWeight.SemiBold
-            )
-            if (valueStr != null) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF20242D))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = valueStr,
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 13.sp),
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
+private fun EditorTokens.toSliderColors() = PrecisionSliderColors(
+    labelColor = textPrimary,
+    labelActiveColor = accent,
+    valuePillBackground = surfaceFloating,
+    valuePillTextColor = textPrimary,
+    trackColor = surfaceFloating,
+    trackActiveColor = accent,
+    thumbColor = Color.White,
+    thumbGlowColor = accent,
+    rangeLabelColor = textSecondary,
+    borderColor = borderSubtle,
+)
 
-        Slider(
-            value = value,
-            valueRange = valueRange,
-            onValueChange = onValueChange,
-            colors = SliderDefaults.colors(
-                thumbColor = Color.White,
-                activeTrackColor = Color(0xFF22242C),
-                inactiveTrackColor = Color(0xFF797EF6)
-            ),
-            modifier = Modifier.height(18.dp)
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = valueRange.start.roundToInt().toString(),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                color = Color(0xFF7B8187)
-            )
-            Text(
-                text = valueRange.endInclusive.roundToInt().toString(),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                color = Color(0xFF7B8187)
-            )
-        }
-    }
-}
+// ── Crop Ratio Button ────────────────────────────────────────
 
 @Composable
 private fun CropRatioButton(
     ratio: CropRatio,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
 ) {
-    val containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer 
-                         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer 
-                       else MaterialTheme.colorScheme.onSurfaceVariant
+    val borderColor = if (selected) tokens.accent else Color(0xFFE5E7EB)
+    val borderWidth = if (selected) 2.dp else 1.dp
+    val containerBg = if (selected) tokens.accentSoft else Color(0xFFF8F8F8)
+    val contentColor = if (selected) tokens.accent else tokens.textSecondary
 
-    Box(
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(containerColor)
+            .then(
+                if (ratio == CropRatio.ORIGINAL) {
+                    Modifier.widthIn(min = 76.dp)
+                } else {
+                    Modifier.width(76.dp)
+                }
+            )
+            .height(84.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(containerBg)
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center
+            .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
+        // Miniature ratio representation frame
+        Box(
+            modifier = Modifier
+                .height(32.dp)
+                .width(60.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            val boxModifier = Modifier
+                .border(
+                    width = 1.5.dp,
+                    color = contentColor.copy(alpha = if (selected) 0.85f else 0.5f),
+                    shape = RoundedCornerShape(3.dp)
+                )
+                .background(contentColor.copy(alpha = 0.05f))
+
+            when (ratio) {
+                CropRatio.ORIGINAL -> {
+                    // Nested double rectangles representing original layout fit
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .border(1.dp, contentColor.copy(alpha = 0.3f), RoundedCornerShape(2.dp))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .align(Alignment.Center)
+                                .border(1.5.dp, contentColor, RoundedCornerShape(2.dp))
+                        )
+                    }
+                }
+                CropRatio.RATIO_1_1 -> {
+                    Box(modifier = boxModifier.size(22.dp))
+                }
+                CropRatio.RATIO_3_4 -> {
+                    Box(modifier = boxModifier.size(18.dp, 24.dp))
+                }
+                CropRatio.RATIO_4_3 -> {
+                    Box(modifier = boxModifier.size(24.dp, 18.dp))
+                }
+                CropRatio.RATIO_9_16 -> {
+                    Box(modifier = boxModifier.size(14.dp, 26.dp))
+                }
+                CropRatio.RATIO_16_9 -> {
+                    Box(modifier = boxModifier.size(26.dp, 14.dp))
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
         Text(
-            text = ratio.label,
+            text = if (ratio == CropRatio.ORIGINAL) {
+                stringResource(R.string.studio_crop_ratio_original)
+            } else {
+                ratio.label
+            },
             color = contentColor,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = 11.sp,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+            ),
+            maxLines = 1
         )
     }
 }
+
+// ── Layout Controls ──────────────────────────────────────────
 
 @Composable
 fun EditorLayoutControls(
@@ -544,7 +644,8 @@ private fun LayoutActionButton(
     iconRes: Int,
     label: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tokens: EditorTokens = LocalEditorTokens.current
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -557,7 +658,7 @@ private fun LayoutActionButton(
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = label,
-                tint = Color.Unspecified,
+                tint = tokens.textPrimary,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -565,7 +666,7 @@ private fun LayoutActionButton(
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = tokens.textPrimary,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             minLines = 2,
             maxLines = 2
@@ -576,33 +677,29 @@ private fun LayoutActionButton(
 // Utility to convert color to Int ARGB for storage
 private fun Color.toArgbInt(): Int = this.toArgb()
 
-enum class ShadowPreset(val labelResId: Int) {
-    None(R.string.studio_shadow_preset_none),
-    Light(R.string.studio_shadow_preset_light),
-    Medium(R.string.studio_shadow_preset_medium),
-    Strong(R.string.studio_shadow_preset_strong),
-    Natural(R.string.studio_shadow_preset_natural),
-    Dramatic(R.string.studio_shadow_preset_dramatic)
-}
+// ── Shadow Tab Row ───────────────────────────────────────────
 
 @Composable
 fun ShadowTabRow(
     selectedTab: ShadowSubTab,
     onTabSelected: (ShadowSubTab) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tokens: EditorTokens = LocalEditorTokens.current
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
+        val scrollState = rememberScrollState()
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+                .horizontalScroll(scrollState)
+                .padding(horizontal = 4.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ShadowSubTab.values().forEach { tab ->  
+            ShadowSubTab.values().forEach { tab ->
                 val isSelected = selectedTab == tab
-                val contentColor = if (isSelected) Color.White else Color(0xFF7B8187)
-                val iconColor = if (isSelected) Color.White else Color(0xFF7B8187)
+                val contentColor = if (isSelected) tokens.textPrimary else tokens.textSecondary
+                val iconColor = if (isSelected) tokens.textPrimary else tokens.textSecondary
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -612,11 +709,11 @@ fun ShadowTabRow(
                             indication = null,
                             onClick = { onTabSelected(tab) }
                         )
-                        .padding(top = 10.dp)
+                        .padding(top = 6.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
                         modifier = Modifier.padding(horizontal = 4.dp)
                     ) {
                         val iconRes = when (tab) {
@@ -629,22 +726,25 @@ fun ShadowTabRow(
                             painter = painterResource(iconRes),
                             contentDescription = null,
                             tint = if (tab == ShadowSubTab.Intensity) Color.Unspecified else iconColor,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                         Text(
                             text = stringResource(tab.labelResId),
                             color = contentColor,
-                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 11.sp),
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Box(
                         modifier = Modifier
-                            .height(2.dp)
-                            .width(80.dp)
+                            .height(1.5.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
                             .clip(RoundedCornerShape(1.dp))
-                            .background(if (isSelected) Color(0xFF387BFF) else Color.Transparent)
+                            .background(if (isSelected) tokens.accent else Color.Transparent)
                     )
                 }
             }
@@ -652,126 +752,8 @@ fun ShadowTabRow(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1.dp)
-                .background(Color.White.copy(alpha = 0.08f))
-        )
-    }
-}
-
-@Composable
-fun SpherePresetItem(
-    preset: ShadowPreset,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val borderColor = if (selected) Color(0xFF387BFF) else Color.Transparent
-    val cardBackground = if (preset == ShadowPreset.None) Color(0xFF1C1D24) else Color(0xFFF6F7F8)
-    val textColor = if (selected) Color.White else Color(0xFF7B8187)
-    val textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .width(72.dp)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(cardBackground)
-                .border(
-                    width = if (selected) 2.dp else if (preset == ShadowPreset.None) 1.dp else 0.dp,
-                    color = if (selected) borderColor else if (preset == ShadowPreset.None) Color.White.copy(alpha = 0.08f) else Color.Transparent,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(4.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val w = size.width
-                val h = size.height
-                val radius = w * 0.28f
-
-                if (preset == ShadowPreset.None) {
-                    val center = Offset(w / 2f, h / 2f)
-                    drawCircle(
-                        color = Color(0xFFDDE2E6),
-                        radius = radius,
-                        style = Stroke(width = 2.dp.toPx())
-                    )
-                    drawLine(
-                        color = Color(0xFFDDE2E6),
-                        start = Offset(center.x - radius * 0.72f, center.y + radius * 0.72f),
-                        end = Offset(center.x + radius * 0.72f, center.y - radius * 0.72f),
-                        strokeWidth = 2.dp.toPx(),
-                        cap = androidx.compose.ui.graphics.StrokeCap.Round
-                    )
-                } else {
-                    val shadowCenter = Offset(w / 2f, h / 2f)
-                    val shadowOffset = when (preset) {
-                        ShadowPreset.Light -> Offset(w * 0.08f, h * 0.08f)
-                        ShadowPreset.Medium -> Offset(w * 0.12f, h * 0.12f)
-                        ShadowPreset.Strong -> Offset(w * 0.16f, h * 0.16f)
-                        ShadowPreset.Natural -> Offset(0f, h * 0.15f)
-                        ShadowPreset.Dramatic -> Offset(w * 0.22f, h * 0.22f)
-                        else -> Offset.Zero
-                    }
-                    val shadowAlpha = when (preset) {
-                        ShadowPreset.Light -> 0.35f
-                        ShadowPreset.Medium -> 0.45f
-                        ShadowPreset.Strong -> 0.65f
-                        ShadowPreset.Natural -> 0.4f
-                        ShadowPreset.Dramatic -> 0.75f
-                        else -> 0f
-                    }
-                    val shadowRadius = radius * when (preset) {
-                        ShadowPreset.Light -> 1.0f
-                        ShadowPreset.Medium -> 1.1f
-                        ShadowPreset.Strong -> 1.2f
-                        ShadowPreset.Natural -> 1.1f
-                        ShadowPreset.Dramatic -> 1.4f
-                        else -> 1.0f
-                    }
-
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(Color.Black.copy(alpha = shadowAlpha), Color.Transparent),
-                            center = shadowCenter + shadowOffset,
-                            radius = shadowRadius
-                        ),
-                        center = shadowCenter + shadowOffset,
-                        radius = shadowRadius
-                    )
-
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFFFFFFFF),
-                                Color(0xFFE5E6EB),
-                                Color(0xFFB0B3BC),
-                                Color(0xFF5A5D64)
-                            ),
-                            center = Offset(w * 0.42f, h * 0.42f),
-                            radius = radius * 1.3f
-                        ),
-                        center = Offset(w / 2f, h / 2f),
-                        radius = radius
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = stringResource(preset.labelResId),
-            color = textColor,
-            style = textStyle,
-            maxLines = 1
+                .height(0.5.dp)
+                .background(tokens.borderDefault)
         )
     }
 }

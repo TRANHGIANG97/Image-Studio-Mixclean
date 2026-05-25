@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Putar Kanan</string>
     <string name="studio_layout_flip_horizontal">Balik H</string>
     <string name="studio_layout_flip_vertical">Balik V</string>
+    <string name="studio_shadow_tab_intensity">Bayangan</string>
+    <string name="studio_shadow_tab_angle">Sudut</string>
+    <string name="studio_shadow_tab_distance">Jarak</string>
+    <string name="studio_shadow_tab_color">Warna</string>
+    <string name="studio_shadow_preset_none">Tidak ada</string>
+    <string name="studio_shadow_preset_light">Tipis</string>
+    <string name="studio_shadow_preset_medium">Sedang</string>
+    <string name="studio_shadow_preset_strong">Tebal</string>
+    <string name="studio_shadow_preset_natural">Alami</string>
+    <string name="studio_shadow_preset_dramatic">Dramatis</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Tambah gambar produk</string>
+    <string name="studio_pick_product_subtitle">Latar belakang dihapus secara otomatis</string>
+    <string name="studio_export">Ekspor</string>
+    <string name="studio_crop_ratio_original">Asli</string>
 </resources>

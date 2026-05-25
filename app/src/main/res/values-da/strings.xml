@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Kladder</string>
     <string name="draft_select_all">Vælg alle</string>
+    <string name="draft_confirm_delete_single">Vil du slette kladden \'%1$s\'?</string>
+    <string name="draft_delete_title">Slet kladde</string>
+    <string name="draft_rename_title">Omdøb kladde</string>
+    <string name="draft_duplicate">Dupliker</string>
+    <string name="draft_card_copy">Dupliker</string>
+    <string name="draft_card_delete">Slet</string>
+    <string name="draft_rename">Omdøb</string>
+    <string name="draft_empty">Ingen kladder endnu</string>
     <string name="draft_deselect_all">Fravælg alle</string>
     <string name="draft_delete_selected">Slet (%1$d)</string>
     <string name="draft_selected_count">%1$d valgt</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Start 3 dages gratis prøveperiode</string>
     <string name="pro_feature_expand">Glat AI-udvidelse</string>
     <string name="pro_see_details">Detaljer ></string>
+    <string name="picker_sample_badge">Prøve</string>
 </resources>

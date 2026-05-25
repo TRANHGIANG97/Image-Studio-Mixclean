@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Foto Redaktoru</string>
-
+    <string name="border_tab_size">Ölçü</string>
+    <string name="border_blur">Sərhəd bulanıqlığı</string>
+    <string name="border_blur_amount">Bulanıqlıq dərəcəsi</string>
+    <string name="border_blur_none">Bulanıqlıq yoxdur</string>
+    <string name="border_blur_soft">Yumşaq bulanıqlıq</string>
+    <string name="rotate_screen_title">Şəkli fırlat</string>
+    <string name="rotate_hint_title">Fırlatma alətləri</string>
+    <string name="rotate_hint_desc">Şəklin istiqamətini düzəltmək üçün 90 dərəcə fırladın və ya üfüqi və şaquli olaraq çevirin.</string>
     <string name="color">Rəng</string>
     <string name="format">Format</string>
     <string name="font">Şrift</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">İpucu: Səhv etsəniz, Geri al/Yenidən et (Undo/Redo) funksiyalarından istifadə edə bilərsiniz.</string>
     <string name="magic_brush_got_it">Anladım</string>
     <string name="studio_effect_requires_background">Bu funksiya yalnız obyektin arxa fonu olduqda mümkündür</string>
+    <string name="draft_label">Qaralama</string>
+    <string name="draft_saved_successfully">Qaralama uğurla yadda saxlanıldı</string>
 </resources>

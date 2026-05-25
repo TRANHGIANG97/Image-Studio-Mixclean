@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">दायाँ घुमाउनुहोस्</string>
     <string name="studio_layout_flip_horizontal">तेर्सो उल्टाउनुहोस्</string>
     <string name="studio_layout_flip_vertical">ठाडो उल्टाउनुहोस्</string>
+    <string name="studio_shadow_tab_intensity">छायाँ</string>
+    <string name="studio_shadow_tab_angle">कोण</string>
+    <string name="studio_shadow_tab_distance">दूरी</string>
+    <string name="studio_shadow_tab_color">रङ</string>
+    <string name="studio_shadow_preset_none">कुनै पनि होइन</string>
+    <string name="studio_shadow_preset_light">हल्का</string>
+    <string name="studio_shadow_preset_medium">मध्यम</string>
+    <string name="studio_shadow_preset_strong">गाढा</string>
+    <string name="studio_shadow_preset_natural">प्राकृतिक</string>
+    <string name="studio_shadow_preset_dramatic">नाटकीय</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">उत्पादनको छवि थप्नुहोस्</string>
+    <string name="studio_pick_product_subtitle">पृष्ठभूमि स्वतः हटाइन्छ</string>
+    <string name="studio_export">निर्यात गर्नुहोस्</string>
+    <string name="studio_crop_ratio_original">मूल</string>
 </resources>

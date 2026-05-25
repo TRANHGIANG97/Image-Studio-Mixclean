@@ -20,3 +20,7 @@
 # ONNX Runtime
 -keep class ai.onnxruntime.** { *; }
 -dontwarn ai.onnxruntime.**
+
+# Gson / R8 generics preservation
+-keepattributes Signature, *Annotation*, InnerClasses, EnclosingMethod
+-keep class com.thgiang.image.feature.editor.model.** { *; }

@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">คำแนะนำ: หากทำผิดพลาด คุณสามารถใช้ฟังก์ชัน เลิกทำ/ทำซ้ำ (Undo/Redo) ได้</string>
     <string name="magic_brush_got_it">เข้าใจแล้ว</string>
     <string name="studio_effect_requires_background">ฟังก์ชันนี้สามารถใช้งานได้เมื่อวัตถุหลักมีพื้นหลังอยู่เท่านั้น</string>
+    <string name="border_tab_size">ขนาด</string>
+    <string name="border_blur">เบลอขอบ</string>
+    <string name="border_blur_amount">ระดับความเบลอ</string>
+    <string name="border_blur_none">ไม่เบลอ</string>
+    <string name="border_blur_soft">เบลอนุ่มนวล</string>
+    <string name="rotate_screen_title">หมุนรูปภาพ</string>
+    <string name="rotate_hint_title">เครื่องมือหมุน</string>
+    <string name="rotate_hint_desc">หมุน 90 องศา หรือพลิกแนวนอนและแนวตั้งเพื่อแก้ไขทิศทางของรูปภาพให้ถูกต้อง</string>
+    <string name="draft_label">แบบร่าง</string>
+    <string name="draft_saved_successfully">บันทึกแบบร่างสำเร็จแล้ว</string>
 </resources>

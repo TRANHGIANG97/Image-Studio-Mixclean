@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Foto editor</string>
-
+    <string name="border_tab_size">Velikost</string>
+    <string name="border_blur">Rozmazání okraje</string>
+    <string name="border_blur_amount">Intenzita rozmazání</string>
+    <string name="border_blur_none">Bez rozmazání</string>
+    <string name="border_blur_soft">Jemné rozmazání</string>
+    <string name="rotate_screen_title">Otočit obrázek</string>
+    <string name="rotate_hint_title">Nástroje otočení</string>
+    <string name="rotate_hint_desc">Otočte o 90 stupňů nebo překlopte vodorovně a svisle pro opravu orientace obrázku.</string>
     <string name="color">Barva</string>
     <string name="format">Formát</string>
     <string name="font">Písmo</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">Tip: Pokud uděláte chybu, můžete kdykoli použít funkce Zpět/Vpřed (Undo/Redo).</string>
     <string name="magic_brush_got_it">Rozumím</string>
     <string name="studio_effect_requires_background">Tato funkce je dostupná pouze v případě, že má objekt pozadí</string>
+    <string name="draft_label">Koncept</string>
+    <string name="draft_saved_successfully">Koncept byl úspěšně uložen</string>
 </resources>

@@ -178,6 +178,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Qoralama loyihalar</string>
     <string name="draft_select_all">Hammasini tanlash</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">Oʻchirish</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">Tanlovni bekor qilish</string>
     <string name="draft_delete_selected">Oʻchirish (%1$d)</string>
     <string name="draft_selected_count">%1$d ta loyiha tanlandi</string>
@@ -312,4 +320,5 @@
     <string name="premium_cta_trial">3 kunlik bepul sinovni boshlash</string>
     <string name="pro_feature_expand">Rasmni AI yordamida tabiiy ravishda kengaytirish</string>
     <string name="pro_see_details">Tafsilotlarni koʻrish ></string>
+    <string name="picker_sample_badge">Isampula</string>
 </resources>

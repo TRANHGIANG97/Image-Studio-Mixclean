@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Кеңеს: Қателесіп кетсеңіз, кез келген уақытта Болдырмау/Қайталау (Undo/Redo) функцияларын пайдалана аласыз.</string>
     <string name="magic_brush_got_it">Түсіндім</string>
     <string name="studio_effect_requires_background">Бұл мүмкіндік тек нысанның фоны болған жағдайда ғана қолжетімді</string>
+    <string name="border_tab_size">Өлшемі</string>
+    <string name="border_blur">Жиекті бұлыңғырлау</string>
+    <string name="border_blur_amount">Бұлыңғырлық деңгейі</string>
+    <string name="border_blur_none">Бұлыңғырлықсыз</string>
+    <string name="border_blur_soft">Жұмсақ бұлыңғырлау</string>
+    <string name="rotate_screen_title">Кескінді бұру</string>
+    <string name="rotate_hint_title">Бұру құралдары</string>
+    <string name="rotate_hint_desc">Кескін бағытын түзету үшін 90 градусқа бұрыңыз немесе көлденең және тігінен аударыңыз.</string>
+    <string name="draft_label">Жоба</string>
+    <string name="draft_saved_successfully">Жоба сәтті сақталды</string>
 </resources>

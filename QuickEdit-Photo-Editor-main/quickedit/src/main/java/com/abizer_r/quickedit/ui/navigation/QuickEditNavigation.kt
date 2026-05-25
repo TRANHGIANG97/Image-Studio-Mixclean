@@ -323,7 +323,8 @@ fun QuickEditNavigation(
                 ThemeplateEditorScreen(
                     themeplate = themeplate,
                     onBack = { navController.popBackStack() },
-                    onDone = { navController.popBackStack() }
+                    onDone = { navController.popBackStack() },
+                    onPickImage = imagePickerScreen
                 )
             }
         }

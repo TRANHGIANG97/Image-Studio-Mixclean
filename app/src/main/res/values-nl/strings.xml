@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Concepten</string>
     <string name="draft_select_all">Alles selecteren</string>
+    <string name="draft_confirm_delete_single">Concept \'%1$s\' verwijderen?</string>
+    <string name="draft_delete_title">Concept verwijderen</string>
+    <string name="draft_rename_title">Concept hernoemen</string>
+    <string name="draft_duplicate">Dupliceren</string>
+    <string name="draft_card_copy">Dupliceren</string>
+    <string name="draft_card_delete">Verwijderen</string>
+    <string name="draft_rename">Naam wijzigen</string>
+    <string name="draft_empty">Nog geen concepten</string>
     <string name="draft_deselect_all">Selectie ongedaan maken</string>
     <string name="draft_delete_selected">Verwijderen (%1$d)</string>
     <string name="draft_selected_count">%1$d geselecteerd</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Start 3 dagen gratis proefperiode</string>
     <string name="pro_feature_expand">Breid afbeelding natuurlijk uit via AI</string>
     <string name="pro_see_details">Bekijk details ></string>
+    <string name="picker_sample_badge">Voorbeeld</string>
 </resources>

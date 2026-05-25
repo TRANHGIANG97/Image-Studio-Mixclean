@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">რჩევა: თუ შეცდომა დაუშვით, ყოველთვის შეგიძლიათ გამოიყენოთ გაუქმება/დაბრუნების (Undo/Redo) ფუნქციები.</string>
     <string name="magic_brush_got_it">გავიგე</string>
     <string name="studio_effect_requires_background">ეს ფუნქცია ხელმისაწვდომია მხოლოდ მაშინ, როდესაც ობიექტს აქვს ფონი</string>
+    <string name="border_tab_size">ზომა</string>
+    <string name="border_blur">ჩარჩოს ბუნდოვანება</string>
+    <string name="border_blur_amount">ბუნდოვანების ხარისხი</string>
+    <string name="border_blur_none">ბუნდოვანების გარეშე</string>
+    <string name="border_blur_soft">რბილი ბუნდოვანება</string>
+    <string name="rotate_screen_title">სურათის შემოტრიალება</string>
+    <string name="rotate_hint_title">შემოტრიალების ხელსაწყოები</string>
+    <string name="rotate_hint_desc">შემოატრიალეთ 90 გრადუსით ან აირეკლეთ ჰორიზონტალურად და ვერტიკალურად სურათის ორიენტაციის გასასწორებლად.</string>
+    <string name="draft_label">დრაფტი</string>
+    <string name="draft_saved_successfully">დრაფტი წარმატებით შეინახა</string>
 </resources>

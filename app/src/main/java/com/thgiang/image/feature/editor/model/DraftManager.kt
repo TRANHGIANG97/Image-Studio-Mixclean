@@ -1,6 +1,7 @@
 package com.thgiang.image.feature.editor.model
 
 import android.content.Context
+import com.thgiang.image.R
 import java.io.File
 import java.util.UUID
 
@@ -101,7 +102,7 @@ class DraftManager(private val context: Context) {
             if (oldMeta != null) {
                 val newMeta = oldMeta.copy(
                     id = newId,
-                    name = "${oldMeta.name} (Copy)",
+                    name = "${oldMeta.name} (${context.getString(R.string.draft_copy_suffix)})",
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -121,7 +122,7 @@ class DraftManager(private val context: Context) {
             try {
                 val snapshot = serializer.load(context.cacheDir)
                 if (snapshot != null) {
-                    createDraft("Dự án cũ", snapshot)
+                    createDraft(context.getString(R.string.old_project_name), snapshot)
                 }
                 // Dọn dẹp các file cũ
                 oldStateFile.delete()

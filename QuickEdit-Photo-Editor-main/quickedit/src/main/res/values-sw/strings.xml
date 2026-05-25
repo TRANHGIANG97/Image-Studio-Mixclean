@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Kidokezo: Ukifanya makosa, unaweza kutumia kitendo cha Rejesha/Tengua (Undo/Redo).</string>
     <string name="magic_brush_got_it">Nimeelewa</string>
     <string name="studio_effect_requires_background">Kipengele hiki kinapatikana tu wakati lengo lina mandharinyuma</string>
+    <string name="border_tab_size">Ukubwa</string>
+    <string name="border_blur">Ukungu wa mpaka</string>
+    <string name="border_blur_amount">Kiasi nke cha ukungu</string>
+    <string name="border_blur_none">Bila ukungu</string>
+    <string name="border_blur_soft">Ukungu laini</string>
+    <string name="rotate_screen_title">Zungusha Picha</string>
+    <string name="rotate_hint_title">Zana za kuzungusha</string>
+    <string name="rotate_hint_desc">Zungusha digrii 90 au pindua kwa usawa na wima ili kurekebisha mwelekeo wa picha.</string>
+    <string name="draft_label">Rasimu</string>
+    <string name="draft_saved_successfully">Rasimu imehifadhiwa kwa mafanikio</string>
 </resources>

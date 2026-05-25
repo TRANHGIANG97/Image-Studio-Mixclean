@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.ui.textMode.bottomToolbarExtension.textFormatOptions.caseOptions.TextCaseType
 import com.abizer_r.quickedit.ui.textMode.bottomToolbarExtension.textFormatOptions.styleOptions.TextDecoration.*
 import com.abizer_r.quickedit.ui.transformableViews.base.TransformableTextBoxState
@@ -86,7 +86,7 @@ fun TransformableTextBox(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewItem() {
-    QuickEditTheme {
+    EditorTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()

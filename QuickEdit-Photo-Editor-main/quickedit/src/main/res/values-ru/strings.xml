@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Совет: Если вы ошиблись, вы всегда можете использовать функции «Отменить/Повторить» (Undo/Redo).</string>
     <string name="magic_brush_got_it">Я понял</string>
     <string name="studio_effect_requires_background">Эта функция доступна только в том случае, если у объекта есть фон</string>
+    <string name="border_tab_size">Размер</string>
+    <string name="border_blur">Размытие рамки</string>
+    <string name="border_blur_amount">Степень размытия</string>
+    <string name="border_blur_none">Без размытия</string>
+    <string name="border_blur_soft">Мягкое размытие</string>
+    <string name="rotate_screen_title">Повернуть изображение</string>
+    <string name="rotate_hint_title">Инструменты поворота</string>
+    <string name="rotate_hint_desc">Поверните на 90 градусов или отразите по горизонтали и вертикали, чтобы исправить ориентацию изображения.</string>
+    <string name="draft_label">Черновик</string>
+    <string name="draft_saved_successfully">Черновик успешно сохранен</string>
 </resources>

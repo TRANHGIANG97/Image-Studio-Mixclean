@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Tip: Ak urobíte chybu, môžete použiť funkcie Späť/Znova (Undo/Redo).</string>
     <string name="magic_brush_got_it">Rozumiem</string>
     <string name="studio_effect_requires_background">Táto funkcia je dostupná len vtedy, ak má objekt zadané pozadie</string>
+    <string name="border_tab_size">Veľkosť</string>
+    <string name="border_blur">Rozmazanie okraja</string>
+    <string name="border_blur_amount">Intenzita rozmazania</string>
+    <string name="border_blur_none">Bez rozmazania</string>
+    <string name="border_blur_soft">Jemné rozmazanie</string>
+    <string name="rotate_screen_title">Otočiť obrázok</string>
+    <string name="rotate_hint_title">Nástroje otočenia</string>
+    <string name="rotate_hint_desc">Otočte o 90 stupňov alebo preklopte vodorovne a zvisle na opravu orientácie obrázka.</string>
+    <string name="draft_label">Koncept</string>
+    <string name="draft_saved_successfully">Koncept bol úspešne uložený</string>
 </resources>

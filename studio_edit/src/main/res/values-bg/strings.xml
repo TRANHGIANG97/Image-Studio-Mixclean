@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Завъртане надясно</string>
     <string name="studio_layout_flip_horizontal">Обръщане Х</string>
     <string name="studio_layout_flip_vertical">Обръщане V</string>
+    <string name="studio_shadow_tab_intensity">Сянка</string>
+    <string name="studio_shadow_tab_angle">Ъгъл</string>
+    <string name="studio_shadow_tab_distance">Разстояние</string>
+    <string name="studio_shadow_tab_color">Цвят</string>
+    <string name="studio_shadow_preset_none">Няма</string>
+    <string name="studio_shadow_preset_light">Лека</string>
+    <string name="studio_shadow_preset_medium">Средна</string>
+    <string name="studio_shadow_preset_strong">Силна</string>
+    <string name="studio_shadow_preset_natural">Естествена</string>
+    <string name="studio_shadow_preset_dramatic">Драматична</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Добавяне на изображение на продукт</string>
+    <string name="studio_pick_product_subtitle">Фонът се премахва автоматично</string>
+    <string name="studio_export">Експортиране</string>
+    <string name="studio_crop_ratio_original">Оригинал</string>
 </resources>

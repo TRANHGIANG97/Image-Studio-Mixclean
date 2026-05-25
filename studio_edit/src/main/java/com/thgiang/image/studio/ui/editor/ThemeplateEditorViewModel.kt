@@ -26,7 +26,7 @@ data class EditorState(
     val product: EditorProduct = EditorProduct(),
     val viewport: EditorViewport = EditorViewport(),
     val appearance: EditorAppearance = EditorAppearance(),
-    val selectedTool: EditorTool = EditorTool.Layout,
+    val selectedTool: EditorTool? = null,
     val cropRatio: CropRatio = CropRatio.ORIGINAL,
     val isExporting: Boolean = false,
     val exportResult: Uri? = null,
@@ -59,7 +59,16 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private val _state = MutableStateFlow(
-        savedStateHandle.get<EditorState>("editor_state") ?: EditorState()
+        (savedStateHandle.get<EditorState>("editor_state") ?: EditorState()).let { restored ->
+            restored.copy(
+                template = restored.template ?: EditorTemplate(),
+                product = restored.product ?: EditorProduct(),
+                viewport = restored.viewport ?: EditorViewport(),
+                appearance = restored.appearance ?: EditorAppearance(),
+                selectedTool = restored.selectedTool,
+                cropRatio = restored.cropRatio ?: CropRatio.ORIGINAL
+            )
+        }
     )
     val state: StateFlow<EditorState> = _state.asStateFlow()
 
@@ -127,18 +136,24 @@ class ThemeplateEditorViewModel @Inject constructor(
                 _state.update { it.copy(viewport = it.viewport.withScale(event.scale)) }
                 pushHistory()
             }
-            is EditorEvent.UpdateRotation -> updateRotation(event.delta)
+            is EditorEvent.UpdateRotation -> {
+                android.util.Log.d("LayoutBug", "UpdateRotation event: delta = ${event.delta}")
+                updateRotation(event.delta)
+            }
             is EditorEvent.SetRotation -> {
+                android.util.Log.d("LayoutBug", "SetRotation event: degrees = ${event.degrees}")
                 var normalized = event.degrees % 360f
                 if (normalized < 0) normalized += 360f
                 _state.update { it.copy(viewport = it.viewport.withRotation(normalized)) }
                 pushHistory()
             }
             EditorEvent.FlipHorizontal -> {
+                android.util.Log.d("LayoutBug", "FlipHorizontal event triggered")
                 _state.update { it.copy(viewport = it.viewport.copy(flippedH = !it.viewport.flippedH)) }
                 pushHistory()
             }
             EditorEvent.FlipVertical -> {
+                android.util.Log.d("LayoutBug", "FlipVertical event triggered")
                 _state.update { it.copy(viewport = it.viewport.copy(flippedV = !it.viewport.flippedV)) }
                 pushHistory()
             }
@@ -160,13 +175,17 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.SetBoundingBoxVisible -> {
                 _state.update { it.copy(showBoundingBox = event.visible) }
             }
-            is EditorEvent.SelectTool -> _state.update {
-                val nextTool = if (event.tool is EditorTool.Shadow && it.selectedTool is EditorTool.Shadow) {
-                    EditorTool.Layout
-                } else {
-                    event.tool
+            is EditorEvent.SelectTool -> {
+                android.util.Log.d("LayoutBug", "SelectTool event received: ${event.tool} (Current selectedTool: ${_state.value.selectedTool})")
+                _state.update {
+                    val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) {
+                        null
+                    } else {
+                        event.tool
+                    }
+                    android.util.Log.d("LayoutBug", "SelectTool event processed. Next tool: $nextTool")
+                    it.copy(selectedTool = nextTool)
                 }
-                it.copy(selectedTool = nextTool)
             }
             is EditorEvent.SelectCropRatio -> {
                 _state.update { it.copy(cropRatio = event.ratio) }

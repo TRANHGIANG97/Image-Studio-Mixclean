@@ -199,7 +199,7 @@ fun RemoveBgModeScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = state.processingMessage ?: stringResource(id = R.string.loading),
+                            text = state.processingMessageRes?.let { stringResource(id = it) } ?: stringResource(id = R.string.loading),
                             color = Color.White,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -213,9 +213,10 @@ fun RemoveBgModeScreen(
                 modifier = Modifier
                     .constrainAs(tooltipRef) {
                         top.linkTo(topToolBar.bottom, margin = 16.dp)
-                        end.linkTo(parent.end, margin = 16.dp)
+                        start.linkTo(parent.start, margin = 24.dp)
+                        end.linkTo(parent.end, margin = 24.dp)
+                        width = Dimension.fillToConstraints
                     }
-                    .width(220.dp)
                     .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(12.dp))
                     .padding(12.dp)
             ) {
@@ -236,7 +237,7 @@ fun RemoveBgModeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(id = R.string.remove_bg_tooltip_dismiss),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
@@ -253,7 +254,7 @@ fun RemoveBgModeScreen(
 
         val warningRef = createRef()
     AnimatedVisibility(
-        visible = state.warningMessage != null && !state.isProcessing,
+        visible = state.warningMessageRes != null && !state.isProcessing,
         enter = fadeIn(),
         exit = fadeOut(),
         modifier = Modifier.constrainAs(warningRef) {
@@ -263,7 +264,7 @@ fun RemoveBgModeScreen(
             width = Dimension.fillToConstraints
         }
     ) {
-        state.warningMessage?.let { warning ->
+        state.warningMessageRes?.let { warningRes ->
             Surface(
                 color = Color.Black.copy(alpha = 0.7f),
                 shape = RoundedCornerShape(12.dp),
@@ -282,7 +283,7 @@ fun RemoveBgModeScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = warning,
+                        text = stringResource(id = warningRes),
                         color = Color.White,
                         style = MaterialTheme.typography.labelSmall,
                         textAlign = TextAlign.Center,
@@ -304,7 +305,7 @@ fun RemoveBgModeScreen(
             RemoveBgOptionsList(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(TOOLBAR_HEIGHT_EXTRA_LARGE)
+                    .height(108.dp)
                     .background(MaterialTheme.colorScheme.surface),
                 selectedOption = state.currentOption,
                 onOptionSelected = { viewModel.applyOption(it) }

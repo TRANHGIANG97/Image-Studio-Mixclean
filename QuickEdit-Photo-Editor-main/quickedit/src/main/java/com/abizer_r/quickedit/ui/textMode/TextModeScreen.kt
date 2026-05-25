@@ -65,6 +65,7 @@ import com.abizer_r.quickedit.utils.other.anim.AnimUtils
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import com.abizer_r.quickedit.utils.textMode.TextModeUtils
 import com.abizer_r.quickedit.utils.textMode.TextModeUtils.DrawAllTransformableViews
+import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
 import com.smarttoolfactory.screenshot.ImageResult
 import com.smarttoolfactory.screenshot.ScreenshotBox
 import com.smarttoolfactory.screenshot.rememberScreenshotState
@@ -117,7 +118,7 @@ fun TextModeScreen(
         }
     }
 
-    val topToolbarHeight =  TOOLBAR_HEIGHT_SMALL
+    val topToolbarHeight = 56.dp
     val bottomToolbarHeight = TOOLBAR_HEIGHT_MEDIUM
 
     val activity = LocalContext.current.getActivity()
@@ -225,7 +226,7 @@ fun TextModeScreen(
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(EditorColorPalette.CanvasArea)
             .statusBarsPadding()
     ) {
         val (topToolBar, bottomToolbar, bottomToolbarExtension, editorBox, textInputView, navBarZone) = createRefs()

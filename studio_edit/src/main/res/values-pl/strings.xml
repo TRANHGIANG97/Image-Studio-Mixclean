@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Obróć w prawo</string>
     <string name="studio_layout_flip_horizontal">Odbij poziomo</string>
     <string name="studio_layout_flip_vertical">Odbij pionowo</string>
+    <string name="studio_shadow_tab_intensity">Cień</string>
+    <string name="studio_shadow_tab_angle">Kąt</string>
+    <string name="studio_shadow_tab_distance">Odległość</string>
+    <string name="studio_shadow_tab_color">Kolor</string>
+    <string name="studio_shadow_preset_none">Brak</string>
+    <string name="studio_shadow_preset_light">Delikatny</string>
+    <string name="studio_shadow_preset_medium">Średni</string>
+    <string name="studio_shadow_preset_strong">Mocny</string>
+    <string name="studio_shadow_preset_natural">Naturalny</string>
+    <string name="studio_shadow_preset_dramatic">Dramatyczny</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Dodaj zdjęcie produktu</string>
+    <string name="studio_pick_product_subtitle">Tło jest usuwane automatycznie</string>
+    <string name="studio_export">Eksportuj</string>
+    <string name="studio_crop_ratio_original">Oryginał</string>
 </resources>

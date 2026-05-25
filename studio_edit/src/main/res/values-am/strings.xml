@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">ወደ ቀኝ አሽከርክር</string>
     <string name="studio_layout_flip_horizontal">በአግድም ገልብጥ</string>
     <string name="studio_layout_flip_vertical">በቁመት ገልብጥ</string>
+    <string name="studio_shadow_tab_intensity">ጥላ</string>
+    <string name="studio_shadow_tab_angle">አንግል</string>
+    <string name="studio_shadow_tab_distance">ርቀት</string>
+    <string name="studio_shadow_tab_color">ቀለም</string>
+    <string name="studio_shadow_preset_none">የለም</string>
+    <string name="studio_shadow_preset_light">ቀላል</string>
+    <string name="studio_shadow_preset_medium">መካከለኛ</string>
+    <string name="studio_shadow_preset_strong">ጠንካራ</string>
+    <string name="studio_shadow_preset_natural">ተፈጥሯዊ</string>
+    <string name="studio_shadow_preset_dramatic">ድራማዊ</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">የምርት ምስል ያክሉ</string>
+    <string name="studio_pick_product_subtitle">ዳራ በራስ-ሰር ይወገዳል</string>
+    <string name="studio_export">ላክ</string>
+    <string name="studio_crop_ratio_original">የመጀመሪያው</string>
 </resources>

@@ -96,7 +96,7 @@ sealed class EditorTool(val iconName: String) : java.io.Serializable {
     data object Crop : EditorTool("crop_square")
     
     companion object {
-        val ALL = listOf(Replace, Layout, Rotate, Shadow, Transparency, Crop)
+        val ALL = listOf(Replace, Rotate, Shadow, Transparency, Crop)
     }
 }
 

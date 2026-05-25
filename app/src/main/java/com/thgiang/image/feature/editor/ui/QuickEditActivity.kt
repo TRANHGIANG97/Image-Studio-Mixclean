@@ -36,8 +36,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.ui.SharedEditorViewModel
+import com.thgiang.image.core.design.adaptive.AdaptiveEditorScaffold
 import com.abizer_r.quickedit.ui.cropMode.CropperScreen
 import com.abizer_r.quickedit.ui.drawMode.DrawModeScreen
 import com.abizer_r.quickedit.ui.editorScreen.EditorScreen
@@ -106,6 +110,7 @@ class QuickEditActivity : AppCompatActivity() {
     @Inject
     lateinit var premiumRepository: PremiumRepository
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         StrictMode.setVmPolicy(
             StrictMode.VmPolicy.Builder()
@@ -125,8 +130,10 @@ class QuickEditActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate autoRemoveBackground=$autoRemoveBg draftId=$draftId uri=$uri")
 
         setContent {
-            QuickEditTheme {
-                QuickEditEditorNavigation(
+            val windowSizeClass = calculateWindowSizeClass(this)
+            EditorTheme {
+                AdaptiveEditorScaffold(windowSizeClass = windowSizeClass) {
+                    QuickEditEditorNavigation(
                     initialImageUri = uri,
                     draftId = draftId,
                     draftManager = draftManager,
@@ -139,6 +146,7 @@ class QuickEditActivity : AppCompatActivity() {
                     rewardedAdManager = rewardedAdManager,
                     premiumRepository = premiumRepository
                 )
+                    }
             }
         }
     }
@@ -357,6 +365,7 @@ fun QuickEditEditorNavigation(
     var isSaveAdLoading by remember { mutableStateOf(false) }
     var saveAdWatchCount by remember { mutableStateOf(0) }
     var pendingSaveAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val draftNamePrefix = stringResource(id = com.thgiang.image.R.string.draft_name_prefix)
 
     val requestSaveAd: ((() -> Unit) -> Unit) = remember {
         { action ->
@@ -364,9 +373,9 @@ fun QuickEditEditorNavigation(
         }
     }
 
-    val onSaveDraftClicked: (Bitmap) -> Unit = remember { { bitmap: Bitmap ->
+    val onSaveDraftClicked: (Bitmap) -> Unit = remember(draftNamePrefix) { { bitmap: Bitmap ->
         scope.launch {
-            val draftName = "Draft_${System.currentTimeMillis()}"
+            val draftName = "${draftNamePrefix}_${System.currentTimeMillis()}"
             val layerId = UUID.randomUUID().toString()
             val cacheFileName = "layer_$layerId.bin"
             

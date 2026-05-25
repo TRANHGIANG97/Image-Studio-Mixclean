@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">ໝູນຂວາ</string>
     <string name="studio_layout_flip_horizontal">ພິກແນວນອນ</string>
     <string name="studio_layout_flip_vertical">ພິກແນວຕັ້ງ</string>
+    <string name="studio_shadow_tab_intensity">ເງົາ</string>
+    <string name="studio_shadow_tab_angle">ມຸມ</string>
+    <string name="studio_shadow_tab_distance">ໄລຍະຫ່າງ</string>
+    <string name="studio_shadow_tab_color">ສີ</string>
+    <string name="studio_shadow_preset_none">ບໍ່ມີ</string>
+    <string name="studio_shadow_preset_light">ອ່ອນ</string>
+    <string name="studio_shadow_preset_medium">ປານກາງ</string>
+    <string name="studio_shadow_preset_strong">ເຂັ້ມ</string>
+    <string name="studio_shadow_preset_natural">ທຳມະຊາດ</string>
+    <string name="studio_shadow_preset_dramatic">ດຣາມາຕິກ</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">ເພີ່ມຮູບສິນຄ້າ</string>
+    <string name="studio_pick_product_subtitle">ພື້ນຫຼັງຈະຖືກລຶບອອກໂດຍອັດຕະໂນມັດ</string>
+    <string name="studio_export">ສົ່ງອອກ</string>
+    <string name="studio_crop_ratio_original">ຕົ້ນສະບັບ</string>
 </resources>

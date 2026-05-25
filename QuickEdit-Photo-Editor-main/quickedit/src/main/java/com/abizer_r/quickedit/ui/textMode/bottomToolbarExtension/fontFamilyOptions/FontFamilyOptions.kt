@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed from imports
 import com.abizer_r.quickedit.ui.common.toolbar.SelectableToolbarItem
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarItem
@@ -127,7 +127,7 @@ fun SelectableFontItem(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_SelectableFontItem() {
-    QuickEditTheme {
+    EditorTheme {
         SelectableFontItem(
             fontItem = FontUtils.getFontItems()[0],
             isSelected = true,
@@ -139,7 +139,7 @@ fun Preview_SelectableFontItem() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_AlignmentOptions_FullWidth() {
-    QuickEditTheme {
+    EditorTheme {
         FontFamilyOptions(
             modifier = Modifier.fillMaxWidth(),
             selectedFontFamily = FontUtils.DefaultFontFamily,

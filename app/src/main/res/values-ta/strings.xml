@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">வரைவுகள்</string>
     <string name="draft_select_all">அனைத்தையும் தேர்ந்தெடு</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">நீக்கு</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">அனைத்தையும் தேர்வுநீக்கு</string>
     <string name="draft_delete_selected">நீக்கு (%1$d)</string>
     <string name="draft_selected_count">%1$d தேர்ந்தெடுக்கப்பட்டது</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">3 நாள் இலவச சோதனையைத் தொடங்கு</string>
     <string name="pro_feature_expand">AI மூலம் படத்தை இயற்கையாக விரிவுபடுத்துங்கள்</string>
     <string name="pro_see_details">விவரங்களைக் காண்க ></string>
+    <string name="picker_sample_badge">மாதிரி</string>
 </resources>

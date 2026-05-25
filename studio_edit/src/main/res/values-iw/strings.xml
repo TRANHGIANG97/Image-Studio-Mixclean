@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">סובב ימינה</string>
     <string name="studio_layout_flip_horizontal">הפוך אופקית</string>
     <string name="studio_layout_flip_vertical">הפוך אנכית</string>
+    <string name="studio_crop_ratio_original">מקורי</string>
+    <string name="studio_shadow_tab_intensity">צל</string>
+    <string name="studio_shadow_tab_angle">זווית</string>
+    <string name="studio_shadow_tab_distance">מרחק</string>
+    <string name="studio_shadow_tab_color">צבע</string>
+    <string name="studio_shadow_preset_none">ללא</string>
+    <string name="studio_shadow_preset_light">קל</string>
+    <string name="studio_shadow_preset_medium">בינוני</string>
+    <string name="studio_shadow_preset_strong">חזק</string>
+    <string name="studio_shadow_preset_natural">טבעי</string>
+    <string name="studio_shadow_preset_dramatic">דרמטי</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">הוסף תמונת מוצר</string>
+    <string name="studio_pick_product_subtitle">הרקע מוסר באופן אוטומטי</string>
+    <string name="studio_export">ייצוא</string>
 </resources>

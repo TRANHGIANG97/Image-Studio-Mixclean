@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Tip: Als u een fout maakt, kunt u Ongedaan maken/Opnieuw gebruiken.</string>
     <string name="magic_brush_got_it">Begrepen</string>
     <string name="studio_effect_requires_background">Deze functie is alleen beschikbaar als het onderwerp een achtergrond heeft</string>
+    <string name="border_tab_size">Grootte</string>
+    <string name="border_blur">Radvaging</string>
+    <string name="border_blur_amount">Vervagingssterkte</string>
+    <string name="border_blur_none">Geen vervaging</string>
+    <string name="border_blur_soft">Zachte vervaging</string>
+    <string name="rotate_screen_title">Afbeelding roteren</string>
+    <string name="rotate_hint_title">Rotatiehulpmiddelen</string>
+    <string name="rotate_hint_desc">Draai 90 graden of spiegel horizontaal en verticaal om de stand van de afbeelding te corrigeren.</string>
+    <string name="draft_label">Concept</string>
+    <string name="draft_saved_successfully">Concept succesvol opgeslagen</string>
 </resources>

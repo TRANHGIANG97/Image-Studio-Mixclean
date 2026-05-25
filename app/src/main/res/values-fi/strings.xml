@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Luonnokset</string>
     <string name="draft_select_all">Valitse kaikki</string>
+    <string name="draft_confirm_delete_single">Poistetaanko luonnos \'%1$s\'?</string>
+    <string name="draft_delete_title">Poista luonnos</string>
+    <string name="draft_rename_title">Nimeä luonnos uudelleen</string>
+    <string name="draft_duplicate">Monista</string>
+    <string name="draft_card_copy">Monista</string>
+    <string name="draft_card_delete">Poista</string>
+    <string name="draft_rename">Nimeä uudelleen</string>
+    <string name="draft_empty">Ei luonnoksia vielä</string>
     <string name="draft_deselect_all">Peruuta valinnat</string>
     <string name="draft_delete_selected">Poista (%1$d)</string>
     <string name="draft_selected_count">%1$d valittu</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Aloita 3 päivän ilmainen kokeilu</string>
     <string name="pro_feature_expand">Pehmeä AI-laajennus</string>
     <string name="pro_see_details">Katso tiedot ></string>
+    <string name="picker_sample_badge">Näyte</string>
 </resources>

@@ -39,6 +39,7 @@ private const val ERROR_DISPLAY_MS = 3000L
 
 @Composable
 fun MosaicDrawingCanvas(
+    modifier: Modifier = Modifier,
     originalBitmap: Bitmap,
     pixelBlockSize: Int = 30,
     brushSizeDp: Dp = 24.dp,
@@ -134,7 +135,7 @@ fun MosaicDrawingCanvas(
         Stroke(width = brushSizePx, cap = StrokeCap.Round, join = StrokeJoin.Round)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         Canvas(
             modifier = Modifier
                 .fillMaxSize()

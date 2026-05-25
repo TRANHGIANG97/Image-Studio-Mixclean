@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Савет: Ако направите грешку, можете користити функцију Опозови/Понови (Undo/Redo).</string>
     <string name="magic_brush_got_it">Разумем</string>
     <string name="studio_effect_requires_background">Ова функција је доступна само када мотив има постављену позадину</string>
+    <string name="border_tab_size">Величина</string>
+    <string name="border_blur">Замућење ивице</string>
+    <string name="border_blur_amount">Ниво замућења</string>
+    <string name="border_blur_none">Без замућења</string>
+    <string name="border_blur_soft">Благо замућење</string>
+    <string name="rotate_screen_title">Ротирај слику</string>
+    <string name="rotate_hint_title">Алати за ротирање</string>
+    <string name="rotate_hint_desc">Ротирајте за 90 степени или преокрените хоризонтално и вертикално да бисте исправили оријентацију слике.</string>
+    <string name="draft_label">Нацрт</string>
+    <string name="draft_saved_successfully">Скица је успешно сачувана</string>
 </resources>

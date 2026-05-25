@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">គន្លឹះ៖ ប្រសិនបើអ្នកធ្វើខុស អ្នកតែងតែអាចប្រើមុខងារ មិនធ្វើវិញ/ធ្វើវិញ (Undo/Redo) បានគ្រប់ពេល។</string>
     <string name="magic_brush_got_it">ខ្ញុំយល់ហើយ</string>
     <string name="studio_effect_requires_background">មុខងារនេះអាចប្រើបាន លុះត្រាតែវត្ថុមានផ្ទៃខាងក្រោយប៉ុណ្ណោះ</string>
+    <string name="border_tab_size">ទំហំ</string>
+    <string name="border_blur">ធ្វើឲ្យគែមព្រិល</string>
+    <string name="border_blur_amount">កម្រិតព្រិល</string>
+    <string name="border_blur_none">មិនព្រិល</string>
+    <string name="border_blur_soft">ព្រិលស្រាលៗ</string>
+    <string name="rotate_screen_title">បង្វិលរូបភាព</string>
+    <string name="rotate_hint_title">ឧបករណ៍បង្វិល</string>
+    <string name="rotate_hint_desc">បង្វិល 90 ដឺក្រេ ឬបង្វិលផ្ដេកនិងបញ្ឈរ ដើម្បីកែតម្រូវទិសដៅរូបភាព。</string>
+    <string name="draft_label">សេចក្តីព្រាង</string>
+    <string name="draft_saved_successfully">បានរក្សាទុកសេចក្តីព្រាងដោយជោគជ័យ</string>
 </resources>

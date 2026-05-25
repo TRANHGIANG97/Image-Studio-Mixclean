@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Чернови</string>
     <string name="draft_select_all">Избор на всички</string>
+    <string name="draft_confirm_delete_single">Да се изтрие ли черновата \'%1$s\'?</string>
+    <string name="draft_delete_title">Изтриване на чернова</string>
+    <string name="draft_rename_title">Преименуване на чернова</string>
+    <string name="draft_duplicate">Дублиране</string>
+    <string name="draft_card_copy">Дублиране</string>
+    <string name="draft_card_delete">Изтриване</string>
+    <string name="draft_rename">Преименуване</string>
+    <string name="draft_empty">Все още няма чернови</string>
     <string name="draft_deselect_all">Отмяна на избора</string>
     <string name="draft_delete_selected">Изтриване (%1$d)</string>
     <string name="draft_selected_count">%1$d избрани</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Стартирайте 3-дневен безплатен пробен период</string>
     <string name="pro_feature_expand">Плавно AI разширяване</string>
     <string name="pro_see_details">Детайли ></string>
+    <string name="picker_sample_badge">Мостра</string>
 </resources>

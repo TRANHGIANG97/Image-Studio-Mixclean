@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">چرخش به راست</string>
     <string name="studio_layout_flip_horizontal">قرینه افقی</string>
     <string name="studio_layout_flip_vertical">قرینه عمودی</string>
+    <string name="studio_shadow_tab_intensity">سایه</string>
+    <string name="studio_shadow_tab_angle">زاویه</string>
+    <string name="studio_shadow_tab_distance">فاصله</string>
+    <string name="studio_shadow_tab_color">رنگ</string>
+    <string name="studio_shadow_preset_none">هیچ‌کدام</string>
+    <string name="studio_shadow_preset_light">ملایم</string>
+    <string name="studio_shadow_preset_medium">متوسط</string>
+    <string name="studio_shadow_preset_strong">شدید</string>
+    <string name="studio_shadow_preset_natural">طبیعی</string>
+    <string name="studio_shadow_preset_dramatic">نمایشی</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">افزودن تصویر محصول</string>
+    <string name="studio_pick_product_subtitle">پس‌زمینه به طور خودکار حذف می‌شود</string>
+    <string name="studio_export">صادر کردن</string>
+    <string name="studio_crop_ratio_original">اصلی</string>
 </resources>

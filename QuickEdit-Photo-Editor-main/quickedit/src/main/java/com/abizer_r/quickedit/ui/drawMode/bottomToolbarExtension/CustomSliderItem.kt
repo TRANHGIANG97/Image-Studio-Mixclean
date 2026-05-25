@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.utils.defaultTextColor
 import kotlin.math.max
 import kotlin.math.min
@@ -166,7 +166,7 @@ fun CustomSliderItem(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewCustomSlider() {
-    QuickEditTheme {
+    EditorTheme {
         CustomSliderItem(
             modifier = Modifier.padding(12.dp),
             sliderLabel = "label",

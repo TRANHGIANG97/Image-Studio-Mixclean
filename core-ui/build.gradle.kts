@@ -31,5 +31,6 @@ dependencies {
     implementation(libs.androidx.compose.animation.core)
     implementation(libs.androidx.activity.compose)
     implementation("androidx.compose.material:material-icons-extended")
+    api("androidx.compose.material3:material3-window-size-class")
     implementation("com.airbnb.android:lottie-compose:6.4.0")
 }

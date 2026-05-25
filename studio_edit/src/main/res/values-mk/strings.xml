@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Ротирај десно</string>
     <string name="studio_layout_flip_horizontal">Сврти хоризонтално</string>
     <string name="studio_layout_flip_vertical">Сврти вертикално</string>
+    <string name="studio_shadow_tab_intensity">Сенка</string>
+    <string name="studio_shadow_tab_angle">Агол</string>
+    <string name="studio_shadow_tab_distance">Растојание</string>
+    <string name="studio_shadow_tab_color">Боја</string>
+    <string name="studio_shadow_preset_none">Ништо</string>
+    <string name="studio_shadow_preset_light">Блага</string>
+    <string name="studio_shadow_preset_medium">Средна</string>
+    <string name="studio_shadow_preset_strong">Силна</string>
+    <string name="studio_shadow_preset_natural">Природна</string>
+    <string name="studio_shadow_preset_dramatic">Драматична</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Додај слика од производ</string>
+    <string name="studio_pick_product_subtitle">Позадината се отстранува автоматски</string>
+    <string name="studio_export">Експортирај</string>
+    <string name="studio_crop_ratio_original">Оригинал</string>
 </resources>

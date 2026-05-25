@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">အကြံပြုချက် - မှားယွင်းသွားပါက ရှေ့တိုး/နောက်ဆုတ် (Undo/Redo) ကို အသုံးပြုနိုင်သည်။</string>
     <string name="magic_brush_got_it">နားလည်ပါပြီ</string>
     <string name="studio_effect_requires_background">ဤလုပ်ဆောင်ချက်သည် အရာဝတ္ထုတွင် နောက်ခံရှိမှသာ အသုံးပြုနိုင်ပါသည်</string>
+    <string name="border_tab_size">အရွယ်အစား</string>
+    <string name="border_blur">ဘောင်ဝါးခြင်း</string>
+    <string name="border_blur_amount">ဝါးမှုပမာဏ</string>
+    <string name="border_blur_none">ဝါးခြင်းမရှိ</string>
+    <string name="border_blur_soft">အပျော့စားဝါးခြင်း</string>
+    <string name="rotate_screen_title">ပုံလှည့်ရန်</string>
+    <string name="rotate_hint_title">လှည့်သည့်ကိရိယာများ</string>
+    <string name="rotate_hint_desc">ပုံ၏တည်နေရာအထားအမှန်ဖြစ်စေရန် ၉၀ ဒီဂရီလှည့်ပါ သို့မဟုတ် အလျားလိုက်နှင့် ဒေါင်လိုက်လှန်ပါ။</string>
+    <string name="draft_label">မူကြမ်း</string>
+    <string name="draft_saved_successfully">မူကြမ်းကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ</string>
 </resources>

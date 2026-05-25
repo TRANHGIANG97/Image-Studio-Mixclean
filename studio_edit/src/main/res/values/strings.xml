@@ -49,4 +49,9 @@
     <string name="studio_shadow_preset_strong">Strong</string>
     <string name="studio_shadow_preset_natural">Natural</string>
     <string name="studio_shadow_preset_dramatic">Dramatic</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Add product image</string>
+    <string name="studio_pick_product_subtitle">Background is removed automatically</string>
+    <string name="studio_export">Export</string>
+    <string name="studio_crop_ratio_original">Original</string>
 </resources>

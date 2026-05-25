@@ -68,8 +68,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import com.abizer_r.quickedit.theme.EditorAccent
-import com.abizer_r.quickedit.theme.EditorAccentVariant
+import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -82,7 +81,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.utils.ImmutableList
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
 import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
@@ -369,7 +368,7 @@ private fun EditorScreenLayout(
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
-            .background(EditorToolButtonTemplate.ToolbarBackgroundColor)
+            .background(EditorColorPalette.CanvasArea)
     ) {
         val (topToolbar, bottomToolbar, bgImage) = createRefs()
 
@@ -401,6 +400,7 @@ private fun EditorScreenLayout(
                     TextButton(
                         onClick = {
                             onSaveDraftClicked(currentBitmap)
+                            context.toast(R.string.draft_saved_successfully)
                             showSaveDraftDialog = false
                         }
                     ) {
@@ -527,7 +527,7 @@ private fun EditorScreenLayout(
         ) {
             Column(
                 modifier = Modifier
-                    .background(EditorToolButtonTemplate.ToolbarBackgroundColor)
+                    .background(EditorColorPalette.CanvasArea)
                     .navigationBarsPadding()
             ) {
                 BottomToolBarStatic(
@@ -564,10 +564,10 @@ fun rememberCheckerboardBrush(): ShaderBrush {
         val canvas = android.graphics.Canvas(bitmap)
         val paint = android.graphics.Paint().apply { isAntiAlias = false }
         
-        paint.color = android.graphics.Color.WHITE
+        paint.color = android.graphics.Color.parseColor("#F2F2F2")
         canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paint)
-        
-        paint.color = android.graphics.Color.parseColor("#EEEEEE")
+
+        paint.color = android.graphics.Color.parseColor("#E1E1E1")
         canvas.drawRect(0f, 0f, tilePx.toFloat(), tilePx.toFloat(), paint)
         canvas.drawRect(tilePx.toFloat(), tilePx.toFloat(), size.toFloat(), size.toFloat(), paint)
         bitmap
@@ -581,7 +581,7 @@ fun rememberCheckerboardBrush(): ShaderBrush {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewEditorScreen() {
-    QuickEditTheme {
+    EditorTheme {
         EditorScreenLayout(
             modifier = Modifier,
             currentBitmap = ImageBitmap.imageResource(id = R.drawable.placeholder_image_3).asAndroidBitmap(),

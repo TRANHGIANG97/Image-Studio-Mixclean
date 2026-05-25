@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">ヒント: 間違えた場合は元に戻す/やり直しを使えます。</string>
     <string name="magic_brush_got_it">わかりました</string>
     <string name="studio_effect_requires_background">この機能は被写体に背景がある場合のみ使用できます</string>
+    <string name="border_tab_size">サイズ</string>
+    <string name="border_blur">境界線のぼかし</string>
+    <string name="border_blur_amount">ぼかしの量</string>
+    <string name="border_blur_none">ぼかしなし</string>
+    <string name="border_blur_soft">ソフトぼかし</string>
+    <string name="rotate_screen_title">画像を回転</string>
+    <string name="rotate_hint_title">回転ツール</string>
+    <string name="rotate_hint_desc">画像を90度回転、または水平・垂直方向に反転して、画像の向きを修正します。</string>
+    <string name="draft_label">下書き</string>
+    <string name="draft_saved_successfully">下書きを正常に保存しました</string>
 </resources>

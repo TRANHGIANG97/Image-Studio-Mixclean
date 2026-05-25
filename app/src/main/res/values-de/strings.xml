@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Entwürfe</string>
     <string name="draft_select_all">Alle auswählen</string>
+    <string name="draft_confirm_delete_single">Möchten Sie den Entwurf \'%1$s\' löschen?</string>
+    <string name="draft_delete_title">Entwurf löschen</string>
+    <string name="draft_rename_title">Entwurf umbenennen</string>
+    <string name="draft_duplicate">Duplizieren</string>
+    <string name="draft_card_copy">Duplizieren</string>
+    <string name="draft_card_delete">Löschen</string>
+    <string name="draft_rename">Umbenennen</string>
+    <string name="draft_empty">Noch keine Entwürfe</string>
     <string name="draft_deselect_all">Auswahl aufheben</string>
     <string name="draft_delete_selected">Löschen (%1$d)</string>
     <string name="draft_selected_count">%1$d ausgewählt</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">3 Tage kostenlose Testphase starten</string>
     <string name="pro_feature_expand">Nahtlose KI-Erweiterung</string>
     <string name="pro_see_details">Details ></string>
+    <string name="picker_sample_badge">Muster</string>
 </resources>

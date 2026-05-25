@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Επεξεργασία φωτογραφίας</string>
-
+    <string name="border_tab_size">Μέγεθος</string>
+    <string name="border_blur">Θόλωση περιγράμματος</string>
+    <string name="border_blur_amount">Ποσότητα θόλωσης</string>
+    <string name="border_blur_none">Χωρίς θόλωση</string>
+    <string name="border_blur_soft">Απαλή θόλωση</string>
+    <string name="rotate_screen_title">Περιστροφή εικόνας</string>
+    <string name="rotate_hint_title">Εργαλεία περιστροφής</string>
+    <string name="rotate_hint_desc">Περιστρέψτε κατά 90 μοίρες ή αναστρέψτε οριζόντια και κατακόρυφα για να διορθώσετε τον προσανατολισμό της εικόνας.</string>
     <string name="color">Χρώμα</string>
     <string name="format">Μορφή</string>
     <string name="font">Γραμματοσειρά</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">Συμβουλή: Εάν κάνετε λάθος, μπορείτε πάντα να χρησιμοποιήσετε τις λειτουργίες Αναίρεση/Ακύρωση αναίρεσης (Undo/Redo).</string>
     <string name="magic_brush_got_it">Το κατάλαβα</string>
     <string name="studio_effect_requires_background">Αυτή η λειτουργία είναι διαθέσιμη μόνο όταν το θέμα έχει φόντο</string>
+    <string name="draft_label">Προσχέδιο</string>
+    <string name="draft_saved_successfully">Το προσχέδιο αποθηκεύτηκε επιτυχώς</string>
 </resources>

@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Tip: Jika melakukan kesalahan, Anda dapat menggunakan fungsi Urungkan/Ulangi (Undo/Redo).</string>
     <string name="magic_brush_got_it">Saya mengerti</string>
     <string name="studio_effect_requires_background">Fitur ini hanya tersedia jika subjek memiliki latar belakang</string>
+    <string name="border_tab_size">Ukuran</string>
+    <string name="border_blur">Buram tepi</string>
+    <string name="border_blur_amount">Intensitas buram</string>
+    <string name="border_blur_none">Tanpa buram</string>
+    <string name="border_blur_soft">Buram halus</string>
+    <string name="rotate_screen_title">Rotasi Gambar</string>
+    <string name="rotate_hint_title">Alat rotasi</string>
+    <string name="rotate_hint_desc">Rotasi 90 derajat lub balikkan secara horizontal dan vertikal untuk memperbaiki orientasi gambar.</string>
+    <string name="draft_label">Draf</string>
+    <string name="draft_saved_successfully">Draf berhasil disimpan</string>
 </resources>

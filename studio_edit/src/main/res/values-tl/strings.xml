@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">I-rotate Pakanan</string>
     <string name="studio_layout_flip_horizontal">I-flip H</string>
     <string name="studio_layout_flip_vertical">I-flip V</string>
+    <string name="studio_shadow_tab_intensity">Anino</string>
+    <string name="studio_shadow_tab_angle">Anggulo</string>
+    <string name="studio_shadow_tab_distance">Distansya</string>
+    <string name="studio_shadow_tab_color">Kulay</string>
+    <string name="studio_shadow_preset_none">Wala</string>
+    <string name="studio_shadow_preset_light">Banayad</string>
+    <string name="studio_shadow_preset_medium">Katamtaman</string>
+    <string name="studio_shadow_preset_strong">Matindi</string>
+    <string name="studio_shadow_preset_natural">Likas</string>
+    <string name="studio_shadow_preset_dramatic">Madula</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Magdagdag ng larawan ng produkto</string>
+    <string name="studio_pick_product_subtitle">Awtomatikong tinatanggal ang background</string>
+    <string name="studio_export">I-export</string>
+    <string name="studio_crop_ratio_original">Orihinal</string>
 </resources>

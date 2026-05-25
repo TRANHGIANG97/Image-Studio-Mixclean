@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">下書き</string>
     <string name="draft_select_all">すべて選択</string>
+    <string name="draft_confirm_delete_single">下書き「%1$s」を削除しますか？</string>
+    <string name="draft_delete_title">下書きを削除</string>
+    <string name="draft_rename_title">下書きの名前を変更</string>
+    <string name="draft_duplicate">複製</string>
+    <string name="draft_card_copy">複製</string>
+    <string name="draft_card_delete">削除</string>
+    <string name="draft_rename">名前を変更</string>
+    <string name="draft_empty">下書きはまだありません</string>
     <string name="draft_deselect_all">選択を解除</string>
     <string name="draft_delete_selected">削除 (%1$d)</string>
     <string name="draft_selected_count">%1$d 件選択済み</string>
@@ -292,4 +300,5 @@
     <string name="premium_cta_trial">3日間の無料トライアルを始める</string>
     <string name="pro_feature_expand">スムーズAI拡張</string>
     <string name="pro_see_details">詳細 ></string>
+    <string name="picker_sample_badge">サンプル</string>
 </resources>

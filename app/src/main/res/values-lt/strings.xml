@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Juodraščiai</string>
     <string name="draft_select_all">Pasirinkti viską</string>
+    <string name="draft_confirm_delete_single">Ar ištrinti juodraštį \'%1$s\'?</string>
+    <string name="draft_delete_title">Ištrinti juodraštį</string>
+    <string name="draft_rename_title">Pervardyti juodraštį</string>
+    <string name="draft_duplicate">Dubliuoti</string>
+    <string name="draft_card_copy">Dubliuoti</string>
+    <string name="draft_card_delete">Ištrinti</string>
+    <string name="draft_rename">Pervardyti</string>
+    <string name="draft_empty">Juodraščių dar nėra</string>
     <string name="draft_deselect_all">Atšaukti visų parinkimą</string>
     <string name="draft_delete_selected">Ištrinti (%1$d)</string>
     <string name="draft_selected_count">Pasirinkta: %1$d</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Pradėti 3 dienų nemokamą bandomąjį laikotarpį</string>
     <string name="pro_feature_expand">Sklandus AI išplėtimas</string>
     <string name="pro_see_details">Detalės ></string>
+    <string name="picker_sample_badge">Pavyzdys</string>
 </resources>

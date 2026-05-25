@@ -156,4 +156,14 @@
     <string name="magic_brush_guide_tip">ಸಲಹೆ: ನೀವು ತಪ್ಪು ಮಾಡಿದರೆ ಅನ್ಡು/ರಿಡು ಬಳಸಿ.</string>
     <string name="magic_brush_got_it">ಅರ್ಥವಾಯಿತು!</string>
     <string name="studio_effect_requires_background">ವಿಷಯವು ಹಿನ್ನೆಲೆಯನ್ನು ಹೊಂದಿದ್ದಾಗ ಮಾತ್ರ ಈ ವೈಶಿಷ್ಟ್ಯವು ಲಭ್ಯವಿರುತ್ತದೆ</string>
+    <string name="border_tab_size">ಗಾತ್ರ</string>
+    <string name="border_blur">ಬಾರ್ಡರ್ ಬ್ಲರ್</string>
+    <string name="border_blur_amount">ಬ್ಲರ್ ಪ್ರಮಾಣ</string>
+    <string name="border_blur_none">ಬ್ಲರ್ ಇಲ್ಲದೆ</string>
+    <string name="border_blur_soft">ಮೃದು ಬ್ಲರ್</string>
+    <string name="rotate_screen_title">ಚಿತ್ರವನ್ನು ತಿರುಗಿಸಿ</string>
+    <string name="rotate_hint_title">ತಿರುಗಿಸುವ ಪರಿಕರಗಳು</string>
+    <string name="rotate_hint_desc">ಚಿತ್ರದ ದೃಷ್ಟಿಕೋನವನ್ನು ಸರಿಪಡಿಸಲು 90 ಡಿಗ್ರಿ ತಿರುಗಿಸಿ ಅಥವಾ ಅಡ್ಡಲಾಗಿ ಮತ್ತು ಲಂಬವಾಗಿ ಫ್ಲಿಪ್ ಮಾಡಿ.</string>
+    <string name="draft_label">ಕರಡು</string>
+    <string name="draft_saved_successfully">ಕರಡನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ</string>
 </resources>

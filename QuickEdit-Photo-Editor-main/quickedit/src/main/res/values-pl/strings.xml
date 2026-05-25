@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Wskazówka: Jeśli popełnisz błąd, możesz użyć funkcji Cofnij/Ponów.</string>
     <string name="magic_brush_got_it">Rozumiem</string>
     <string name="studio_effect_requires_background">Ta funkcja jest dostępna tylko wtedy, gdy obiekt posiada tło</string>
+    <string name="border_tab_size">Rozmiar</string>
+    <string name="border_blur">Rozmycie krawędzi</string>
+    <string name="border_blur_amount">Intensywność rozmycia</string>
+    <string name="border_blur_none">Bez rozmycia</string>
+    <string name="border_blur_soft">Lekkie rozmycie</string>
+    <string name="rotate_screen_title">Obróć obraz</string>
+    <string name="rotate_hint_title">Narzędzia obracania</string>
+    <string name="rotate_hint_desc">Obróć o 90 stopni lub odwróć w poziomie i pionie, aby poprawić orientację obrazu.</string>
+    <string name="draft_label">Szkic</string>
+    <string name="draft_saved_successfully">Projekt został pomyślnie zapisany</string>
 </resources>

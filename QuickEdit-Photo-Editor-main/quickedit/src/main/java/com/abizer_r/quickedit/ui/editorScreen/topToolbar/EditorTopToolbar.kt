@@ -22,15 +22,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
 import com.abizer_r.quickedit.R
 import androidx.compose.ui.res.stringResource
 import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButton
-import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButtonTemplate
+import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
 
 @Composable
 fun EditorTopToolBar(
@@ -50,7 +53,14 @@ fun EditorTopToolBar(
     Row(
         modifier = modifier
             .height(toolbarHeight)
-            .background(EditorToolButtonTemplate.ToolbarBackgroundColor),
+            .background(EditorColorPalette.GlassOverlay)
+            .drawBehind {
+                drawRect(
+                    color = EditorColorPalette.BorderSubtle,
+                    topLeft = Offset(0f, size.height - 0.5.dp.toPx()),
+                    size = Size(size.width, 0.5.dp.toPx())
+                )
+            },
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -88,6 +98,7 @@ fun EditorTopToolBar(
         EditorToolButton(
             icon = Icons.Default.Download,
             contentDescription = stringResource(R.string.save_draft),
+            label = stringResource(R.string.draft_label),
             onClick = onSaveDraftClicked,
             modifier = Modifier.padding(horizontal = 6.dp),
             compact = true
@@ -115,7 +126,7 @@ fun EditorTopToolBar(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewTopToolbar() {
-    QuickEditTheme {
+    EditorTheme {
         EditorTopToolBar(
             modifier = Modifier.fillMaxWidth(),
             undoEnabled = true,

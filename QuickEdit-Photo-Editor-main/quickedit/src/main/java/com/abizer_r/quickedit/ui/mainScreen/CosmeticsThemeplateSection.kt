@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.abizer_r.quickedit.R
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.model.StudioThemeplates
+import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -107,7 +108,7 @@ private fun CosmeticsThemeplateCard(
             } ?: Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFFE8E3DD)),
+                    .background(EditorColorPalette.PanelElevated),
                 contentAlignment = Alignment.Center
             ) {
             }

@@ -8,22 +8,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,17 +43,19 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
 import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
 import com.abizer_r.quickedit.ui.common.topToolbarModifier
-import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_MEDIUM
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
 import com.abizer_r.quickedit.ui.editorScreen.rememberCheckerboardBrush
 import com.abizer_r.quickedit.utils.other.anim.AnimUtils
@@ -80,7 +84,7 @@ fun RotateModeScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val topToolbarHeight = TOOLBAR_HEIGHT_SMALL
-    val bottomToolbarHeight = TOOLBAR_HEIGHT_MEDIUM
+    val bottomToolbarHeight = 112.dp
 
     val onCloseClicked = {
         android.util.Log.d("RotateDebug", "onCloseClicked")
@@ -178,7 +182,7 @@ private fun RotateModeLayout(
                 )
 
                 Text(
-                    text = stringResource(R.string.rotate),
+                    text = stringResource(R.string.rotate_screen_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -205,32 +209,55 @@ private fun RotateModeLayout(
         Box(
             modifier = Modifier
                 .constrainAs(bgImage) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
+                    top.linkTo(topToolbar.bottom, margin = 10.dp)
+                    bottom.linkTo(bottomToolbar.top, margin = 10.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    width = Dimension.wrapContent
-                    height = Dimension.wrapContent
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
                 }
-                .padding(top = topToolbarHeight, bottom = bottomToolbarHeight)
-                .aspectRatio(aspectRatio)
-                .then(
-                    if (bitmap.hasAlpha()) Modifier.background(checkerboardBrush)
-                    else Modifier
-                )
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Image(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer(
-                        rotationZ = rotationDegrees,
-                        scaleX = if (flippedH) -1f else 1f,
-                        scaleY = if (flippedV) -1f else 1f
-                    ),
-                bitmap = displayBitmap,
-                contentScale = ContentScale.Fit,
-                contentDescription = null
-            )
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                val stageRatio = if (maxHeight > 0.dp) maxWidth / maxHeight else aspectRatio
+                val previewSize = if (aspectRatio > stageRatio) {
+                    val width = maxWidth
+                    width to (width / aspectRatio)
+                } else {
+                    val height = maxHeight
+                    (height * aspectRatio) to height
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(previewSize.first, previewSize.second)
+                        .clip(RoundedCornerShape(2.dp))
+                        .then(
+                            if (bitmap.hasAlpha()) Modifier.background(checkerboardBrush)
+                            else Modifier
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer(
+                                rotationZ = rotationDegrees,
+                                scaleX = if (flippedH) -1f else 1f,
+                                scaleY = if (flippedV) -1f else 1f
+                            ),
+                        bitmap = displayBitmap,
+                        contentScale = ContentScale.Fit,
+                        contentDescription = null
+                    )
+                }
+            }
         }
 
         // Bottom toolbar
@@ -238,36 +265,48 @@ private fun RotateModeLayout(
             toolbarVisible = toolbarVisible,
             modifier = bottomToolbarModifier(bottomToolbar)
         ) {
-            Row(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(bottomToolbarHeight)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .navigationBarsPadding()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                    .navigationBarsPadding(),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+                tonalElevation = 8.dp,
+                shadowElevation = 12.dp,
+                shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp)
             ) {
-                RotateActionButton(
-                    icon = ImageVector.vectorResource(id = R.drawable.ic_rotate_left),
-                    label = stringResource(R.string.rotate_left),
-                    onClick = onRotateLeft
-                )
-                RotateActionButton(
-                    icon = ImageVector.vectorResource(id = R.drawable.ic_rotate_right),
-                    label = stringResource(R.string.rotate_right),
-                    onClick = onRotateRight
-                )
-                RotateActionButton(
-                    icon = ImageVector.vectorResource(id = R.drawable.ic_flip_horizontal),
-                    label = stringResource(R.string.flip_horizontal),
-                    onClick = onFlipH
-                )
-                RotateActionButton(
-                    icon = ImageVector.vectorResource(id = R.drawable.ic_flip_vertical),
-                    label = stringResource(R.string.flip_vertical),
-                    onClick = onFlipV
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(bottomToolbarHeight)
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RotateActionButton(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_rotate_left),
+                        label = stringResource(R.string.rotate_left),
+                        modifier = Modifier.weight(1f),
+                        onClick = onRotateLeft
+                    )
+                    RotateActionButton(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_rotate_right),
+                        label = stringResource(R.string.rotate_right),
+                        modifier = Modifier.weight(1f),
+                        onClick = onRotateRight
+                    )
+                    RotateActionButton(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_flip_horizontal),
+                        label = stringResource(R.string.flip_horizontal),
+                        modifier = Modifier.weight(1f),
+                        onClick = onFlipH
+                    )
+                    RotateActionButton(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_flip_vertical),
+                        label = stringResource(R.string.flip_vertical),
+                        modifier = Modifier.weight(1f),
+                        onClick = onFlipV
+                    )
+                }
             }
         }
     }
@@ -277,29 +316,43 @@ private fun RotateModeLayout(
 private fun RotateActionButton(
     icon: ImageVector,
     label: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Column(
+        modifier = modifier
+            .widthIn(min = 66.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
+        Box(
             modifier = Modifier
-                .size(57.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .clickable(onClick = onClick),
-            imageVector = icon,
-            contentDescription = label,
-            tint = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.size(6.dp))
+                .size(42.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier.size(25.dp),
+                imageVector = icon,
+                contentDescription = label,
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+        }
+        Spacer(modifier = Modifier.size(4.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             ),
-            maxLines = 1
+            fontWeight = FontWeight.Medium,
+            maxLines = 3,
+            lineHeight = 12.sp
         )
     }
 }
@@ -332,7 +385,7 @@ private suspend fun applyRotateFlip(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewRotateModeScreen() {
-    QuickEditTheme {
+    EditorTheme {
         RotateModeLayout(
             modifier = Modifier,
             bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
@@ -344,7 +397,7 @@ fun PreviewRotateModeScreen() {
             flippedV = false,
             toolbarVisible = true,
             topToolbarHeight = TOOLBAR_HEIGHT_SMALL,
-            bottomToolbarHeight = TOOLBAR_HEIGHT_MEDIUM,
+            bottomToolbarHeight = 78.dp,
             onRotateLeft = {},
             onRotateRight = {},
             onFlipH = {},

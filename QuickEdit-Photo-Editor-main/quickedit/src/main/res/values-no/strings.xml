@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Tips: Hvis du gjør en feil, kan du bruke Angre/Gjør om (Undo/Redo).</string>
     <string name="magic_brush_got_it">Skjønner</string>
     <string name="studio_effect_requires_background">Denne funksjonen er bare tilgjengelig når motivet har en bakgrunn</string>
+    <string name="border_tab_size">Størrelse</string>
+    <string name="border_blur">Kantsløring</string>
+    <string name="border_blur_amount">Sløringsgrad</string>
+    <string name="border_blur_none">Ingen sløring</string>
+    <string name="border_blur_soft">Myk sløring</string>
+    <string name="rotate_screen_title">Roter bilde</string>
+    <string name="rotate_hint_title">Rotasjonsverktøy</string>
+    <string name="rotate_hint_desc">Roter 90 grader eller vend horisontalt og vertikalt for å korrigere bilderetningen.</string>
+    <string name="draft_label">Kladd</string>
+    <string name="draft_saved_successfully">Kladden ble lagret sėk herlig</string>
 </resources>

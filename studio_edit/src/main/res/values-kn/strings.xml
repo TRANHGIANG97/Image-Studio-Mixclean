@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">ಬಲಕ್ಕೆ tirugisi</string>
     <string name="studio_layout_flip_horizontal">ಸಮತಲವಾಗಿ ಫ್ಲಿಪ್ ಮಾಡಿ</string>
     <string name="studio_layout_flip_vertical">ಲಂಬವಾಗಿ ಫ್ಲಿಪ್ ಮಾಡಿ</string>
+    <string name="studio_shadow_tab_intensity">ನೆರಳು</string>
+    <string name="studio_shadow_tab_angle">ಕೋನ</string>
+    <string name="studio_shadow_tab_distance">ದೂರ</string>
+    <string name="studio_shadow_tab_color">ಬಣ್ಣ</string>
+    <string name="studio_shadow_preset_none">ಯಾವುದೂ ಇಲ್ಲ</string>
+    <string name="studio_shadow_preset_light">ತಿಳಿ</string>
+    <string name="studio_shadow_preset_medium">ಮಧ್ಯಮ</string>
+    <string name="studio_shadow_preset_strong">ದಟ್ಟ</string>
+    <string name="studio_shadow_preset_natural">ನೈಸರ್ಗಿಕ</string>
+    <string name="studio_shadow_preset_dramatic">ನಾಟಕೀಯ</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">ಉತ್ಪನ್ನದ ಚಿತ್ರವನ್ನು ಸೇರಿಸಿ</string>
+    <string name="studio_pick_product_subtitle">ಹಿನ್ನೆಲೆಯನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ತೆಗೆದುಹಾಕಲಾಗುತ್ತದೆ</string>
+    <string name="studio_export">ರಫ್ತು ಮಾಡಿ</string>
+    <string name="studio_crop_ratio_original">ಮೂಲ</string>
 </resources>

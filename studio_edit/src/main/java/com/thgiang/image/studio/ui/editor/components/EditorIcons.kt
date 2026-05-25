@@ -32,32 +32,25 @@ fun EditorBackIcon(
     EditorGlyphCanvas(modifier = modifier, tint = tint) {
         val w = size.width
         val h = size.height
-        val stroke = min(w, h) * 0.13f
+        val stroke = min(w, h) * 0.10f
         drawLine(
             color = tint,
-            start = Offset(w * 0.72f, h * 0.28f),
-            end = Offset(w * 0.30f, h * 0.50f),
+            start = Offset(w * 0.30f, h * 0.50f),
+            end = Offset(w * 0.74f, h * 0.50f),
             strokeWidth = stroke,
             cap = StrokeCap.Round
         )
         drawLine(
             color = tint,
             start = Offset(w * 0.30f, h * 0.50f),
-            end = Offset(w * 0.72f, h * 0.72f),
+            end = Offset(w * 0.52f, h * 0.28f),
             strokeWidth = stroke,
             cap = StrokeCap.Round
         )
         drawLine(
             color = tint,
-            start = Offset(w * 0.44f, h * 0.32f),
-            end = Offset(w * 0.30f, h * 0.50f),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            color = tint,
-            start = Offset(w * 0.44f, h * 0.68f),
-            end = Offset(w * 0.30f, h * 0.50f),
+            start = Offset(w * 0.30f, h * 0.50f),
+            end = Offset(w * 0.52f, h * 0.72f),
             strokeWidth = stroke,
             cap = StrokeCap.Round
         )

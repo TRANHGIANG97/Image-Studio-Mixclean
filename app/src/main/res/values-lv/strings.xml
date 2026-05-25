@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Melnraksti</string>
     <string name="draft_select_all">Izvēlēties visu</string>
+    <string name="draft_confirm_delete_single">Vai dzēst melnrakstu \'%1$s\'?</string>
+    <string name="draft_delete_title">Dzēst melnrakstu</string>
+    <string name="draft_rename_title">Pārdēvēt melnrakstu</string>
+    <string name="draft_duplicate">Dublēt</string>
+    <string name="draft_card_copy">Dublēt</string>
+    <string name="draft_card_delete">Dzēst</string>
+    <string name="draft_rename">Pārdēvēt</string>
+    <string name="draft_empty">Vēl nav melnrakstu</string>
     <string name="draft_deselect_all">Noņemt izvēli visam</string>
     <string name="draft_delete_selected">Dzēst (%1$d)</string>
     <string name="draft_selected_count">Izvēlēti: %1$d</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Sākt 3 dienu bezmaksas izmēģinājumu</string>
     <string name="pro_feature_expand">Vienmērīga AI paplašināšana</string>
     <string name="pro_see_details">Detaļas ></string>
+    <string name="picker_sample_badge">Paraugs</string>
 </resources>

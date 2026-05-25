@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">ટિપ: જો તમારાથી ભૂલ થઈ જાય, તો તમે કોઈપણ સમયે અંડૂ/રીડૂ (Undo/Redo) ફીચર્સનો ઉપયોગ કરી શકો છો.</string>
     <string name="magic_brush_got_it">સમજાઈ ગયું</string>
     <string name="studio_effect_requires_background">આ ફીચર માત્ર ત્યારે જ ઉપલબ્ધ છે જ્યારે ઓબ્જેક્ટમાં બેકગ્રાઉન્ડ હોય</string>
+    <string name="border_tab_size">કદ</string>
+    <string name="border_blur">બોર્ડર બ્લર</string>
+    <string name="border_blur_amount">બ્લરનું પ્રમાણ</string>
+    <string name="border_blur_none">બ્લર વિના</string>
+    <string name="border_blur_soft">હળવું બ્લર</string>
+    <string name="rotate_screen_title">ચિત્ર ફેરવો</string>
+    <string name="rotate_hint_title">ફેરવવાના સાધનો</string>
+    <string name="rotate_hint_desc">ચિત્રની દિશા સુધારવા માટે તેને 90 ડિગ્રી ફેરવો અથવા આડા અને ઊભા અરીસાની જેમ ઉલટાવો.</string>
+    <string name="draft_label">ડ્રાફ્ટ</string>
+    <string name="draft_saved_successfully">ડ્રાફ્ટ સફળતાપૂર્વક સેવ થયો</string>
 </resources>

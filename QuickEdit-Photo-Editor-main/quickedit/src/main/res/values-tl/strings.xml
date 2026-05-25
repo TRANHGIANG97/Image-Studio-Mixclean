@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Tip: Kung magkamali ka, maaari mong gamitin ang Undo/Redo na pagkilos.</string>
     <string name="magic_brush_got_it">Naintindihan ko</string>
     <string name="studio_effect_requires_background">Gagana lamang ang feature na ito kapag may background ang paksa</string>
+    <string name="border_tab_size">Laki</string>
+    <string name="border_blur">I-blur ang border</string>
+    <string name="border_blur_amount">Tindi ng blur</string>
+    <string name="border_blur_none">Walang blur</string>
+    <string name="border_blur_soft">Soft blur</string>
+    <string name="rotate_screen_title">I-rotate ang Imahe</string>
+    <string name="rotate_hint_title">Mga tool sa pag-rotate</string>
+    <string name="rotate_hint_desc">I-rotate nang 90 digri o i-flip nang pahalang at patayo upang ayusin ang oryentasyon ng imahe.</string>
+    <string name="draft_label">Draft</string>
+    <string name="draft_saved_successfully">Matagumpay na na-save ang draft</string>
 </resources>

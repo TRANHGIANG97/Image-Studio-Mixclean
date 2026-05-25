@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Suggerimento: Se commetti un errore, puoi utilizzare le funzioni Annulla/Ripristina (Undo/Redo).</string>
     <string name="magic_brush_got_it">Ho capito</string>
     <string name="studio_effect_requires_background">Questa funzione è disponibile solo se il soggetto ha uno sfondo</string>
+    <string name="border_tab_size">Dimensione</string>
+    <string name="border_blur">Sfocatura bordo</string>
+    <string name="border_blur_amount">Intensità sfocatura</string>
+    <string name="border_blur_none">Nessuna sfocatura</string>
+    <string name="border_blur_soft">Sfocatura leggera</string>
+    <string name="rotate_screen_title">Ruota immagine</string>
+    <string name="rotate_hint_title">Strumenti di rotazione</string>
+    <string name="rotate_hint_desc">Ruota di 90 gradi o capovolgi orizzontalmente e verticalmente per correggere l\'orientamento dell\'immagine.</string>
+    <string name="draft_label">Bozza</string>
+    <string name="draft_saved_successfully">Bozza salvata con successo</string>
 </resources>

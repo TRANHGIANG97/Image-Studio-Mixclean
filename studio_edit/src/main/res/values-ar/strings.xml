@@ -1,3 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="home_studio_title">استوديو المنتجات بالذكاء الاصطناعي</string>
+    <string name="studio_category_electronics">إلكترونيات</string>
+    <string name="studio_category_fashion">أزياء</string>
+    <string name="studio_category_cosmetics">مستحضرات تجميل</string>
+    <string name="studio_category_home">المنزل والمعيشة</string>
+
+    <!-- Themeplate -->
+    <string name="themeplate_cosmetics_01">استوديو تجميل 1</string>
+    <string name="themeplate_cosmetics_02">استوديو تجميل 2</string>
+    <string name="themeplate_cosmetics_03">استوديو تجميل 3</string>
+    <string name="themeplate_cosmetics_04">استوديو تجميل 4</string>
+    <string name="themeplate_cosmetics_05">استوديو تجميل 5</string>
+    <string name="themeplate_cosmetics_06">استوديو تجميل 6</string>
+    <string name="themeplate_cosmetics_07">استوديو تجميل 7</string>
+    <string name="themeplate_cosmetics_08">استوديو تجميل 8</string>
+    <string name="themeplate_cosmetics_09">استوديو تجميل 9</string>
+    <string name="studio_back">رجوع</string>
+    <string name="studio_done">تم</string>
+    <string name="studio_tap_to_pick_product">اضغط لاختيار صورة منتج</string>
+    <string name="studio_tool_replace">استبدال</string>
+    <string name="studio_tool_layout">تخطيط</string>
+    <string name="studio_tool_shadow">ظل</string>
+    <string name="studio_tool_transparency">شفافية</string>
+    <string name="studio_tool_crop">قص</string>
+    <string name="studio_tool_rotateflip">تدوير/عكس</string>
+    <string name="studio_replace_hint">اضغط على استبدال لاختيار صورة منتج من معرض الصور</string>
+    <string name="studio_layout_hint">اسحب للتحريك · اضغط بإصبعين للتكبير · تدوير بإصبعين</string>
+    <string name="studio_shadow_label">الظل: %1$d%%</string>
+    <string name="studio_shadow_angle_label">زاوية الضوء: %1$d°</string>
+    <string name="studio_shadow_distance_label">مسافة الظل: %1$d dp</string>
+    <string name="studio_transparency_label">الشفافية: %1$d%%</string>
+    <string name="studio_crop_label">نسبة العرض إلى الارتفاع</string>
+    <string name="studio_processing">جاري إزالة الخلفية…</string>
+    <string name="studio_export_success">تم الحفظ في المعرض</string>
+    <string name="studio_export_error">فشل التصدير</string>
+    <string name="studio_layout_rotate_left">تدوير لليسار</string>
+    <string name="studio_layout_rotate_right">تدوير لليمين</string>
+    <string name="studio_layout_flip_horizontal">عكس أفقي</string>
+    <string name="studio_layout_flip_vertical">عكس عمودي</string>
+    <string name="studio_shadow_tab_intensity">الظل</string>
+    <string name="studio_shadow_tab_angle">الزاوية</string>
+    <string name="studio_shadow_tab_distance">المسافة</string>
+    <string name="studio_shadow_tab_color">اللون</string>
+    <string name="studio_shadow_preset_none">بدون</string>
+    <string name="studio_shadow_preset_light">خفيف</string>
+    <string name="studio_shadow_preset_medium">متوسط</string>
+    <string name="studio_shadow_preset_strong">قوي</string>
+    <string name="studio_shadow_preset_natural">طبيعي</string>
+    <string name="studio_shadow_preset_dramatic">درامي</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">إضافة صورة المنتج</string>
+    <string name="studio_pick_product_subtitle">يتم إزالة الخلفية تلقائيًا</string>
+    <string name="studio_export">تصدير</string>
+    <string name="studio_crop_ratio_original">الأصلي</string>
 </resources>

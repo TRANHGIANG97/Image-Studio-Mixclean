@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Taslaklar</string>
     <string name="draft_select_all">Tümünü Seç</string>
+    <string name="draft_confirm_delete_single">\'%1$s\' taslağını silmek istiyor musunuz?</string>
+    <string name="draft_delete_title">Taslağı sil</string>
+    <string name="draft_rename_title">Taslağı yeniden adlandır</string>
+    <string name="draft_duplicate">Çoğalt</string>
+    <string name="draft_card_copy">Çoğalt</string>
+    <string name="draft_card_delete">Sil</string>
+    <string name="draft_rename">Yeniden adlandır</string>
+    <string name="draft_empty">Henüz taslak yok</string>
     <string name="draft_deselect_all">Seçimi Kaldır</string>
     <string name="draft_delete_selected">Sil (%1$d)</string>
     <string name="draft_selected_count">%1$d proje seçildi</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">3 günlük ücretsiz denemeyi başlat</string>
     <string name="pro_feature_expand">Fotoğrafı AI ile doğal bir şekilde genişletin</string>
     <string name="pro_see_details">Detayları gör ></string>
+    <string name="picker_sample_badge">Örnek</string>
 </resources>

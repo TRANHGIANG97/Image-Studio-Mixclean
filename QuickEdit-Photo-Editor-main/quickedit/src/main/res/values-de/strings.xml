@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Foto-Editor</string>
-
+    <string name="border_tab_size">Größe</string>
+    <string name="border_blur">Randunschärfe</string>
+    <string name="border_blur_amount">Unschärfestärke</string>
+    <string name="border_blur_none">Keine Unschärfe</string>
+    <string name="border_blur_soft">Weiche Unschärfe</string>
+    <string name="rotate_screen_title">Bild drehen</string>
+    <string name="rotate_hint_title">Drehwerkzeuge</string>
+    <string name="rotate_hint_desc">Um 90 Grad drehen oder horizontal und vertikal spiegeln, um die Bildausrichtung zu korrigieren.</string>
     <string name="color">Farbe</string>
     <string name="format">Format</string>
     <string name="font">Schriftart</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">Tipp: Wenn Sie einen Fehler machen, können Sie Rückgängig/Wiederholen verwenden.</string>
     <string name="magic_brush_got_it">Verstanden</string>
     <string name="studio_effect_requires_background">Diese Funktion ist nur verfügbar, wenn das Motiv einen Hintergrund hat</string>
+    <string name="draft_label">Entwurf</string>
+    <string name="draft_saved_successfully">Entwurf erfolgreich gespeichert</string>
 </resources>

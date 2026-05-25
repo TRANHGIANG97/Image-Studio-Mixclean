@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Dự án nháp</string>
     <string name="draft_select_all">Chọn tất cả</string>
+    <string name="draft_confirm_delete_single">Bạn có chắc chắn muốn xóa bản nháp \'%1$s\' không?</string>
+    <string name="draft_delete_title">Xóa bản nháp</string>
+    <string name="draft_rename_title">Đổi tên bản nháp</string>
+    <string name="draft_duplicate">Sao chép</string>
+    <string name="draft_card_copy">Sao chép</string>
+    <string name="draft_card_delete">Xóa</string>
+    <string name="draft_rename">Đổi tên</string>
+    <string name="draft_empty">Chưa có bản nháp nào</string>
     <string name="draft_deselect_all">Bỏ chọn tất cả</string>
     <string name="draft_delete_selected">Xóa (%1$d)</string>
     <string name="draft_selected_count">Đã chọn %1$d</string>
@@ -176,7 +184,7 @@
     <string name="home_preview_placeholder">Chọn ảnh tại đây để xem trước kết quả.</string>
     <string name="compare_label_before">Trước</string>
     <string name="compare_label_after">Sau</string>
-    <string name="portrait_preview_subtitle">Xem trước làm mờ chân dung</string>
+    <string name="portrait_sheet_subtitle">Xem trước làm mờ chân dung</string>
     <string name="portrait_sheet_pick_hint">Chọn một bức ảnh để xem trước hiệu ứng mờ chân dung</string>
     <string name="portrait_sheet_strength_line">Cường độ: %1$d | Độ mờ: %2$d</string>
     <string name="clean_sheet_subtitle">Xem trước làm mờ nền sạch</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Bắt đầu dùng thử miễn phí 3 ngày</string>
     <string name="pro_feature_expand">Mở rộng hình ảnh tự nhiên bằng AI</string>
     <string name="pro_see_details">Xem chi tiết ></string>
+    <string name="picker_sample_badge">Mẫu</string>
 </resources>

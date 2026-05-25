@@ -15,7 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.skydoves.cloudy.cloudy
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -65,7 +65,7 @@ fun BlurBitmapBackground(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewBitmapBg() {
-    QuickEditTheme {
+    EditorTheme {
 
         BlurBitmapBackground(
             modifier = Modifier.fillMaxSize(),

@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.DarkPanel
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.utils.defaultTextColor
 import com.abizer_r.quickedit.utils.toast
 
@@ -70,7 +70,7 @@ fun AspectRatioDialog(
 
         Box(
             modifier = Modifier.background(
-                color = DarkPanel,
+                color = EditorColorPalette.DarkPanel,
                 shape = RoundedCornerShape(10.dp)
             )
         ) {
@@ -210,7 +210,7 @@ private fun RatioInputField(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewAspectRatioDialog() {
-    QuickEditTheme {
+    EditorTheme {
         AspectRatioDialog(
             onDismiss = {},
             onSetRatio = { _, _ -> }

@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Uppkast</string>
     <string name="draft_select_all">Velja allt</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">Eyða</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">Afvelja allt</string>
     <string name="draft_delete_selected">Eyða (%1$d)</string>
     <string name="draft_selected_count">%1$d Valið</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Hefja 3 daga ókeypis prufutíma</string>
     <string name="pro_feature_expand">AI Óaðfinnanleg myndastækkun</string>
     <string name="pro_see_details">Sjá nánar ></string>
+    <string name="picker_sample_badge">Sýnishorn</string>
 </resources>

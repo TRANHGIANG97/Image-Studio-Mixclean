@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Фоторедактор</string>
-
+    <string name="border_tab_size">Размер</string>
+    <string name="border_blur">Замъгляване на рамката</string>
+    <string name="border_blur_amount">Степен на замъгляване</string>
+    <string name="border_blur_none">Без замъгляване</string>
+    <string name="border_blur_soft">Меко замъгляване</string>
+    <string name="rotate_screen_title">Завъртане на изображението</string>
+    <string name="rotate_hint_title">Инструменти за завъртане</string>
+    <string name="rotate_hint_desc">Завъртете на 90 градуса или обърнете хоризонтално и вертикално, за да коригирате ориентацията на изображението.</string>
     <string name="color">Цвят</string>
     <string name="format">Формат</string>
     <string name="font">Шрифт</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">Съвет: Ако сгрешите, винаги можете да използвате функциите Отмяна/Повторение (Undo/Redo).</string>
     <string name="magic_brush_got_it">Разбрах</string>
     <string name="studio_effect_requires_background">Тази функция е достъпна само ако обектът има фон</string>
+    <string name="draft_label">Чернова</string>
+    <string name="draft_saved_successfully">Черновата е запазена успешно</string>
 </resources>

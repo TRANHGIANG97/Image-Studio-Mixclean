@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Зөвлөгөө: Буруу хийсэн тохиолдолд Буцаах/Давтах үйлдлийг ашиглаж болно.</string>
     <string name="magic_brush_got_it">Ойлголоо</string>
     <string name="studio_effect_requires_background">Энэ функцийг зөвхөн объект арын дэвсгэртэй үед ашиглах боломжтой</string>
+    <string name="border_tab_size">Хэмжээ</string>
+    <string name="border_blur">Хүрээ бүдэгрүүлэх</string>
+    <string name="border_blur_amount">Бүдэгрүүлэх хэмжээ</string>
+    <string name="border_blur_none">Бүдэгрүүлэхгүй</string>
+    <string name="border_blur_soft">Зөөлөн бүдэгрүүлэх</string>
+    <string name="rotate_screen_title">Зургийг эргүүлэх</string>
+    <string name="rotate_hint_title">Эргүүлэх хэрэгслүүд</string>
+    <string name="rotate_hint_desc">Зургийн чиглэлийг засахын тулд 90 градус эргүүлэх эсвэл хэвтээ болон босоо байдлаар хөрвүүлнэ үү.</string>
+    <string name="draft_label">Ноорог</string>
+    <string name="draft_saved_successfully">Ноорог амжилттай хадгалагдлаа</string>
 </resources>

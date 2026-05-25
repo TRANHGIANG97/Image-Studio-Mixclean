@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Astuce : Si vous commettez une erreur, vous pouvez toujours utiliser les fonctions Annuler/Rétablir (Undo/Redo).</string>
     <string name="magic_brush_got_it">C\'est compris</string>
     <string name="studio_effect_requires_background">Cette fonctionnalité n\'est disponible que si le sujet possède un arrière-plan</string>
+    <string name="border_tab_size">Taille</string>
+    <string name="border_blur">Flou de bordure</string>
+    <string name="border_blur_amount">Intensité du flou</string>
+    <string name="border_blur_none">Sans flou</string>
+    <string name="border_blur_soft">Flou léger</string>
+    <string name="rotate_screen_title">Faire pivoter l\'image</string>
+    <string name="rotate_hint_title">Outils de rotation</string>
+    <string name="rotate_hint_desc">Faites pivoter de 90 degrés ou retournez horizontalement et verticalement pour corriger l\'orientation de l\'image.</string>
+    <string name="draft_label">Brouillon</string>
+    <string name="draft_saved_successfully">Brouillon enregistré avec succès</string>
 </resources>

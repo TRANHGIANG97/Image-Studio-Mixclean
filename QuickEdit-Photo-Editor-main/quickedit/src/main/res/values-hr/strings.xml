@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Savjet: Ako pogriješite, uvijek možete koristiti funkcije Poništi/Ponovi (Undo/Redo).</string>
     <string name="magic_brush_got_it">Razumijem</string>
     <string name="studio_effect_requires_background">Ova je značajka dostupna samo ako objekt ima pozadinu</string>
+    <string name="border_tab_size">Veličina</string>
+    <string name="border_blur">Zamućenje ruba</string>
+    <string name="border_blur_amount">Količina zamućenja</string>
+    <string name="border_blur_none">Bez zamućenja</string>
+    <string name="border_blur_soft">Blago zamućenje</string>
+    <string name="rotate_screen_title">Zakreni sliku</string>
+    <string name="rotate_hint_title">Alati za zakretanje</string>
+    <string name="rotate_hint_desc">Zakrenite za 90 stupnjeva tai preokrenite vodoravno i okomito kako biste ispravili orijentaciju slike.</string>
+    <string name="draft_label">Skica</string>
+    <string name="draft_saved_successfully">Skica je uspješno spremljena</string>
 </resources>

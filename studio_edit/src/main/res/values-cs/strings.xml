@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Otočit doprava</string>
     <string name="studio_layout_flip_horizontal">Překlopit vodorovně</string>
     <string name="studio_layout_flip_vertical">Překlopit svisle</string>
+    <string name="studio_shadow_tab_intensity">Stín</string>
+    <string name="studio_shadow_tab_angle">Úhel</string>
+    <string name="studio_shadow_tab_distance">Vzdálenost</string>
+    <string name="studio_shadow_tab_color">Barva</string>
+    <string name="studio_shadow_preset_none">Žádný</string>
+    <string name="studio_shadow_preset_light">Jemný</string>
+    <string name="studio_shadow_preset_medium">Střední</string>
+    <string name="studio_shadow_preset_strong">Výrazný</string>
+    <string name="studio_shadow_preset_natural">Přirozený</string>
+    <string name="studio_shadow_preset_dramatic">Dramatický</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Přidat obrázek produktu</string>
+    <string name="studio_pick_product_subtitle">Pozadí se odstraní automaticky</string>
+    <string name="studio_export">Exportovat</string>
+    <string name="studio_crop_ratio_original">Původní</string>
 </resources>

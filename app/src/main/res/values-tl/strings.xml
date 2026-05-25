@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Mga Draft</string>
     <string name="draft_select_all">Piliin Lahat</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">Burahin</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">I-unselect Lahat</string>
     <string name="draft_delete_selected">Burahin (%1$d)</string>
     <string name="draft_selected_count">%1$d ang napili</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Simulan ang 3-araw na libreng trial</string>
     <string name="pro_feature_expand">Palawakin ang larawan nang natural gamit ang AI</string>
     <string name="pro_see_details">Tingnan ang mga detalye ></string>
+    <string name="picker_sample_badge">Sample</string>
 </resources>

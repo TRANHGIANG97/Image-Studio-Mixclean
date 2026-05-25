@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">右に回転</string>
     <string name="studio_layout_flip_horizontal">水平反転</string>
     <string name="studio_layout_flip_vertical">垂直反転</string>
+    <string name="studio_shadow_tab_intensity">影</string>
+    <string name="studio_shadow_tab_angle">角度</string>
+    <string name="studio_shadow_tab_distance">距離</string>
+    <string name="studio_shadow_tab_color">色</string>
+    <string name="studio_shadow_preset_none">なし</string>
+    <string name="studio_shadow_preset_light">弱め</string>
+    <string name="studio_shadow_preset_medium">中間</string>
+    <string name="studio_shadow_preset_strong">強め</string>
+    <string name="studio_shadow_preset_natural">ナチュラル</string>
+    <string name="studio_shadow_preset_dramatic">ドラマチック</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">商品画像を追加</string>
+    <string name="studio_pick_product_subtitle">背景は自動的に削除されます</string>
+    <string name="studio_export">エクスポート</string>
+    <string name="studio_crop_ratio_original">元の比率</string>
 </resources>

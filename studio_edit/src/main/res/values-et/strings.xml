@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Pööra paremale</string>
     <string name="studio_layout_flip_horizontal">Peegelda H</string>
     <string name="studio_layout_flip_vertical">Peegelda V</string>
+    <string name="studio_shadow_tab_intensity">Vari</string>
+    <string name="studio_shadow_tab_angle">Nurk</string>
+    <string name="studio_shadow_tab_distance">Kaugus</string>
+    <string name="studio_shadow_tab_color">Värv</string>
+    <string name="studio_shadow_preset_none">Puudub</string>
+    <string name="studio_shadow_preset_light">Hele</string>
+    <string name="studio_shadow_preset_medium">Keskmine</string>
+    <string name="studio_shadow_preset_strong">Tugev</string>
+    <string name="studio_shadow_preset_natural">Loomulik</string>
+    <string name="studio_shadow_preset_dramatic">Dramaatiline</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Lisa toote pilt</string>
+    <string name="studio_pick_product_subtitle">Taust eemaldatakse automaatselt</string>
+    <string name="studio_export">Ekspordi</string>
+    <string name="studio_crop_ratio_original">Algne</string>
 </resources>

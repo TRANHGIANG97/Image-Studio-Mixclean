@@ -37,6 +37,11 @@ class BorderModeViewModel @Inject constructor() : ViewModel() {
         _state.update { it.copy(borderThickness = thickness) }
     }
 
+    fun updateBorderBlurRadius(radius: Float) {
+        if (_state.value.borderBlurRadius == radius) return
+        _state.update { it.copy(borderBlurRadius = radius) }
+    }
+
     fun updateBorderPreset(preset: BorderPreset) {
         if (_state.value.borderPreset == preset) return
         _state.update { it.copy(borderPreset = preset) }
@@ -73,6 +78,7 @@ class BorderModeViewModel @Inject constructor() : ViewModel() {
         if (
             current.borderColorArgb == DEFAULT_BORDER_COLOR &&
             current.borderThickness == DEFAULT_BORDER_THICKNESS &&
+            current.borderBlurRadius == DEFAULT_BORDER_BLUR_RADIUS &&
             current.borderPreset == DEFAULT_BORDER_PRESET &&
             current.borderGradientPreset == null
         ) {
@@ -81,6 +87,7 @@ class BorderModeViewModel @Inject constructor() : ViewModel() {
         _state.value = current.copy(
             borderColorArgb = DEFAULT_BORDER_COLOR,
             borderThickness = DEFAULT_BORDER_THICKNESS,
+            borderBlurRadius = DEFAULT_BORDER_BLUR_RADIUS,
             borderPreset = DEFAULT_BORDER_PRESET,
             borderGradientPreset = null
         )
@@ -107,6 +114,7 @@ class BorderModeViewModel @Inject constructor() : ViewModel() {
 
     companion object {
         private const val DEFAULT_BORDER_THICKNESS = 14f
+        private const val DEFAULT_BORDER_BLUR_RADIUS = 4f
         private val DEFAULT_BORDER_COLOR = AndroidColor.BLACK
         private val DEFAULT_BORDER_PRESET = BorderPreset.SOLID
     }

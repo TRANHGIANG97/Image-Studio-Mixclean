@@ -10,44 +10,60 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
+import com.thgiang.image.studio.ui.editor.theme.EditorTokens
+import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
 
 object EditorToolButtonTemplate {
-    val ToolbarBackgroundColor = Color(0xFFEDE8E5)
-    val ButtonSelectedColor = Color(0xFFF3E8D9)
+    // Light, outline-first toolbar parameters inspired by mobile photo editors.
+    val ToolbarBackgroundColor = EditorColorPalette.GlassOverlay
+    val ButtonSelectedColor = EditorColorPalette.AccentCyan.copy(alpha = 0.12f)
 
-    val ButtonShape = RoundedCornerShape(12.dp)
-    val ButtonHorizontalPadding = 10.dp
-    val ButtonVerticalPadding = 8.dp
+    val ButtonShape = RoundedCornerShape(8.dp)
+    val ButtonHorizontalPadding = 6.dp
+    val ButtonVerticalPadding = 2.dp
     val IconSize = 24.dp
-    val LabelSpacing = 2.dp
-    val LabelFontSize = 10.sp
+    val LabelSpacing = 4.dp
+    val LabelFontSize = 11.sp
 
-    val ToolbarHorizontalPadding = 16.dp
-    val ToolbarVerticalPadding = 6.dp
-    val ToolbarItemSpacing = 16.dp
-    val ToolbarTonalElevation = 3.dp
+    val ToolbarHorizontalPadding = 4.dp
+    val ToolbarVerticalPadding = 0.dp
+    val ToolbarItemSpacing = 4.dp
+    val ToolbarTonalElevation = 0.dp
 }
 
 @Composable
 fun EditorBottomToolbarTemplate(
     modifier: Modifier = Modifier,
     toolbarHeight: Dp,
+    tokens: EditorTokens = LocalEditorTokens.current,
     content: @Composable RowScope.() -> Unit
 ) {
     val scrollState = rememberScrollState()
 
-    Surface(
-        tonalElevation = EditorToolButtonTemplate.ToolbarTonalElevation,
-        color = EditorToolButtonTemplate.ToolbarBackgroundColor,
-        modifier = modifier.height(toolbarHeight)
+    Box(
+        modifier = modifier
+            .height(toolbarHeight)
+            .background(tokens.glassBackground)
+            .drawBehind {
+                drawRect(
+                    color = tokens.borderSubtle,
+                    topLeft = Offset(0f, 0f),
+                    size = Size(size.width, 0.5.dp.toPx())
+                )
+            }
     ) {
         Row(
             modifier = Modifier

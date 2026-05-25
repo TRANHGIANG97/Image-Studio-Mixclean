@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Fotoeditor</string>
-
+    <string name="border_tab_size">Størrelse</string>
+    <string name="border_blur">Sløring av kant</string>
+    <string name="border_blur_amount">Sløringsgrad</string>
+    <string name="border_blur_none">Ingen sløring</string>
+    <string name="border_blur_soft">Blød sløring</string>
+    <string name="rotate_screen_title">Roter billede</string>
+    <string name="rotate_hint_title">Rotationsværktøjer</string>
+    <string name="rotate_hint_desc">Roter 90 grader eller vend vandret og lodret for at korrigere billedets retning.</string>
     <string name="color">Farve</string>
     <string name="format">Format</string>
     <string name="font">Skrifttype</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">Tip: Hvis du laver en fejl, kan du altid bruge funktionerne Fortryd/Annuller fortryd (Undo/Redo).</string>
     <string name="magic_brush_got_it">Jeg har forstået det</string>
     <string name="studio_effect_requires_background">Denne funktion er kun tilgængelig, hvis motivet har en baggrund</string>
+    <string name="draft_label">Kladde</string>
+    <string name="draft_saved_successfully">Kladdet blev gemt korrekt</string>
 </resources>

@@ -152,4 +152,16 @@
     <string name="magic_brush_guide_tip">Wenk: As jy \'n fout maak, kan jy die Ontdoen/Herdoen-funksies gebruik.</string>
     <string name="magic_brush_got_it">Ek verstaan</string>
     <string name="studio_effect_requires_background">Hierdie funksie is slegs beskikbaar as die subjek \'n agtergrond het</string>
+
+
+    <string name="border_tab_size">Grootte</string>
+    <string name="border_blur">Rand-vervaag</string>
+    <string name="border_blur_amount">Vervaag-bedrag</string>
+    <string name="border_blur_none">Geen vervaag</string>
+    <string name="border_blur_soft">Sagte vervaag</string>
+    <string name="rotate_screen_title">Roteer prent</string>
+    <string name="rotate_hint_title">Rotasie-gereedskap</string>
+    <string name="rotate_hint_desc">Roteer 90 grade of kantel horisontaal en vertikaal om die prent-oriëntasie reg te stel.</string>
+    <string name="draft_label">Konsep</string>
+    <string name="draft_saved_successfully">Konsep suksesvol gestoor</string>
 </resources>

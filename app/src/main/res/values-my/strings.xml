@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">မူကြမ်းများ</string>
     <string name="draft_select_all">အားလုံးရွေးရန်</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">ဖျက်ရန်</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">ရွေးချယ်မှုအားလုံးပယ်ဖျက်ရန်</string>
     <string name="draft_delete_selected">ဖျက်ရန် (%1$d)</string>
     <string name="draft_selected_count">%1$d ခု ရွေးချယ်ထားသည်</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">၃ ရက် အခမဲ့ စမ်းသုံးရန်</string>
     <string name="pro_feature_expand">ချောမွေ့သော AI အကျယ်ချဲ့စနစ်</string>
     <string name="pro_see_details">အသေးစိတ် ></string>
+    <string name="picker_sample_badge">နမူနာ</string>
 </resources>

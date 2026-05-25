@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Maslahat: Agar xatoga yoʻl qoʻysangiz, Orqaga/Oldinga (Undo/Redo) amallaridan foydalanishingiz mumkin.</string>
     <string name="magic_brush_got_it">Tushundim</string>
     <string name="studio_effect_requires_background">Ushbu funksiya faqat obyektda fon mavjud boʻlgandagina ishlaydi</string>
+    <string name="border_tab_size">O‘lcham</string>
+    <string name="border_blur">Chegara xiraligi</string>
+    <string name="border_blur_amount">Xiralik darajasi</string>
+    <string name="border_blur_none">Xiraliksiz</string>
+    <string name="border_blur_soft">Yumshoq xiralik</string>
+    <string name="rotate_screen_title">Tasvirni burish</string>
+    <string name="rotate_hint_title">Burish vositalari</string>
+    <string name="rotate_hint_desc">Tasvir yo‘nalishini to‘g‘rilash uchun 90 darajaga buring yoki gorizontal va vertikal ravishda ag‘daring.</string>
+    <string name="draft_label">Qoralama</string>
+    <string name="draft_saved_successfully">Qoralama muvaffaqiyatli saqlandi</string>
 </resources>

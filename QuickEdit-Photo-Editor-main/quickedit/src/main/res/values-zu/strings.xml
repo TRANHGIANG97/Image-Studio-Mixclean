@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Ithiphu: Uma wenze iphutha, ungasebenzisa isenzo sokuthi Buyisela/Hlehlisa (Undo/Redo).</string>
     <string name="magic_brush_got_it">Ngiyayizwa</string>
     <string name="studio_effect_requires_background">Lolu hlelo lusebenza kuphela uma isihloko sinengemuva</string>
+    <string name="border_tab_size">Usayizi</string>
+    <string name="border_blur">Ukufiphala komngcele</string>
+    <string name="border_blur_amount">Inani lokufiphala</string>
+    <string name="border_blur_none">Akukho ukufiphala</string>
+    <string name="border_blur_soft">Ukufiphala okuthambile</string>
+    <string name="rotate_screen_title">Zungezisa isithombe</string>
+    <string name="rotate_hint_title">Amathuluzi okuzungezisa</string>
+    <string name="rotate_hint_desc">Zungezisa ngamadigri angama-90 noma uyiphendule ukuze ulungise ukuqondiswa kwesithombe.</string>
+    <string name="draft_label">Okusalungiswa</string>
+    <string name="draft_saved_successfully">Qoralama muvaffaqiyatli saqlandi</string>
 </resources>

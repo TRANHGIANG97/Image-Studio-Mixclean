@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">หมุนขวา</string>
     <string name="studio_layout_flip_horizontal">พลิกแนวนอน</string>
     <string name="studio_layout_flip_vertical">พลิกแนวตั้ง</string>
+    <string name="studio_shadow_tab_intensity">เงา</string>
+    <string name="studio_shadow_tab_angle">มุม</string>
+    <string name="studio_shadow_tab_distance">ระยะห่าง</string>
+    <string name="studio_shadow_tab_color">สี</string>
+    <string name="studio_shadow_preset_none">ไม่มี</string>
+    <string name="studio_shadow_preset_light">บางเบา</string>
+    <string name="studio_shadow_preset_medium">ปานกลาง</string>
+    <string name="studio_shadow_preset_strong">เข้มข้น</string>
+    <string name="studio_shadow_preset_natural">เป็นธรรมชาติ</string>
+    <string name="studio_shadow_preset_dramatic">ดราม่า</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">เพิ่มรูปภาพสินค้า</string>
+    <string name="studio_pick_product_subtitle">ลบพื้นหลังออกโดยอัตโนมัติ</string>
+    <string name="studio_export">ส่งออก</string>
+    <string name="studio_crop_ratio_original">ต้นฉบับ</string>
 </resources>

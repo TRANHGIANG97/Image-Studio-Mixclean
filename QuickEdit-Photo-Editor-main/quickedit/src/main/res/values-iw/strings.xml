@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">עצה: אם טעית, תוכל תמיד להשתמש בפונקציות ביטול/ביצוע מחדש (Undo/Redo).</string>
     <string name="magic_brush_got_it">הבנתי</string>
     <string name="studio_effect_requires_background">תכונה זו זמינה רק אם לאובייקט קיים רקע</string>
+    <string name="border_tab_size">גודל</string>
+    <string name="border_blur">טשטוש מסגרת</string>
+    <string name="border_blur_amount">רמת הטשטוש</string>
+    <string name="border_blur_none">ללא טשטוש</string>
+    <string name="border_blur_soft">טשטוש רך</string>
+    <string name="rotate_screen_title">סובב תמונה</string>
+    <string name="rotate_hint_title">כלי סיבוב</string>
+    <string name="rotate_hint_desc">סובב ב-90 מעלות או הפוך אופקית ואנכית כדי לתקן את כיוון התמונה.</string>
+    <string name="draft_label">טיוטה</string>
+    <string name="draft_saved_successfully">הטיוטה נשמרה בהצלحة</string>
 </resources>

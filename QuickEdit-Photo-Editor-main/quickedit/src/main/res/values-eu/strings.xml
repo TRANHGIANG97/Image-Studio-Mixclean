@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Aholkua: Akatsen bat eginez gero, Desegin/Berregin (Undo/Redo) funtzioak erabil ditzakezu edonoiz.</string>
     <string name="magic_brush_got_it">Ulertu dut</string>
     <string name="studio_effect_requires_background">Funtzio hau erabilgarri dago soilik objektuak hondo bat duenean</string>
+    <string name="border_tab_size">Tamaina</string>
+    <string name="border_blur">Ertz-lausoa</string>
+    <string name="border_blur_amount">Lausotze-maila</string>
+    <string name="border_blur_none">Lausotzerik gabe</string>
+    <string name="border_blur_soft">Lausotze leuna</string>
+    <string name="rotate_screen_title">Biratu irudia</string>
+    <string name="rotate_hint_title">Biratzeko tresnak</string>
+    <string name="rotate_hint_desc">Biratu 90 gradu edo islatu horizontalki zein bertikalki irudiaren orientazioa zuzentzeko.</string>
+    <string name="draft_label">Zirriborroa</string>
+    <string name="draft_saved_successfully">Zirriborroa ondo gorde da</string>
 </resources>

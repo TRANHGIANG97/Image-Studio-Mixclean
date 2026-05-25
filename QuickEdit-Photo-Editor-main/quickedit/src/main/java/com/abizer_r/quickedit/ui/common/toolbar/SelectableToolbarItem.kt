@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 
 @Composable
 fun SelectableToolbarItem(
@@ -56,7 +56,7 @@ fun SelectableToolbarItem(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_SelectableToolbarItem() {
-    QuickEditTheme {
+    EditorTheme {
         Box(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)

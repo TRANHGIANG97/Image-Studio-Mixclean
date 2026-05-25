@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Zasukaj desno</string>
     <string name="studio_layout_flip_horizontal">Zrcali vodoravno</string>
     <string name="studio_layout_flip_vertical">Zrcali navpično</string>
+    <string name="studio_shadow_tab_intensity">Senca</string>
+    <string name="studio_shadow_tab_angle">Kot</string>
+    <string name="studio_shadow_tab_distance">Razdalja</string>
+    <string name="studio_shadow_tab_color">Barva</string>
+    <string name="studio_shadow_preset_none">Brez</string>
+    <string name="studio_shadow_preset_light">Blaga</string>
+    <string name="studio_shadow_preset_medium">Srednja</string>
+    <string name="studio_shadow_preset_strong">Močna</string>
+    <string name="studio_shadow_preset_natural">Naravna</string>
+    <string name="studio_shadow_preset_dramatic">Dramatična</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Dodaj sliko izdelka</string>
+    <string name="studio_pick_product_subtitle">Ozadje se odstrani samodejno</string>
+    <string name="studio_export">Izvozi</string>
+    <string name="studio_crop_ratio_original">Izvirno</string>
 </resources>

@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Pivoter à droite</string>
     <string name="studio_layout_flip_horizontal">Retourner H</string>
     <string name="studio_layout_flip_vertical">Retourner V</string>
+    <string name="studio_shadow_tab_intensity">Ombre</string>
+    <string name="studio_shadow_tab_angle">Angle</string>
+    <string name="studio_shadow_tab_distance">Distance</string>
+    <string name="studio_shadow_tab_color">Couleur</string>
+    <string name="studio_shadow_preset_none">Aucun</string>
+    <string name="studio_shadow_preset_light">Légère</string>
+    <string name="studio_shadow_preset_medium">Moyenne</string>
+    <string name="studio_shadow_preset_strong">Prononcée</string>
+    <string name="studio_shadow_preset_natural">Naturelle</string>
+    <string name="studio_shadow_preset_dramatic">Dramatique</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Ajouter l\'image du produit</string>
+    <string name="studio_pick_product_subtitle">Le fond est supprimé automatiquement</string>
+    <string name="studio_export">Exporter</string>
+    <string name="studio_crop_ratio_original">Original</string>
 </resources>

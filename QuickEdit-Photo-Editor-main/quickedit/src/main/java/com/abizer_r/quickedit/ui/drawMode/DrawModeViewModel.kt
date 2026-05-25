@@ -88,16 +88,15 @@ class DrawModeViewModel @Inject constructor(
 
             is DrawModeEvent.AddNewPath -> {
                 _state.update { current ->
-                    val newHistory = java.util.Stack<EditingAction>().apply {
-                        addAll(current.historyStack)
-                        push(EditingAction.ManualPath(event.pathDetail))
+                    val newHistory = current.historyStack.toMutableList().apply {
+                        add(EditingAction.ManualPath(event.pathDetail))
                     }
                     val newPaths = rebuildPathStack(newHistory)
                     
                     current.copy(
                         historyStack = newHistory,
                         pathDetailStack = newPaths,
-                        redoStack = java.util.Stack(), // Clear redo khi có action mới
+                        redoStack = emptyList(), // Clear redo khi có action mới
                         recompositionTrigger = current.recompositionTrigger + 1
                     )
                 }
@@ -105,7 +104,7 @@ class DrawModeViewModel @Inject constructor(
         }
     }
 
-    private fun rebuildPathStack(history: java.util.Stack<EditingAction>): List<com.abizer_r.quickedit.ui.drawMode.drawingCanvas.models.PathDetails> {
+    private fun rebuildPathStack(history: List<EditingAction>): List<com.abizer_r.quickedit.ui.drawMode.drawingCanvas.models.PathDetails> {
         return history.filterIsInstance<EditingAction.ManualPath>()
             .map { it.path }
     }
@@ -115,16 +114,18 @@ class DrawModeViewModel @Inject constructor(
         _state.update { current ->
             if (current.historyStack.isEmpty()) return@update current
             
-            val action = current.historyStack.pop()
-            val newRedo = java.util.Stack<EditingAction>().apply {
-                addAll(current.redoStack)
-                push(action)
+            val newHistory = current.historyStack.toMutableList()
+            val action = newHistory.removeAt(newHistory.lastIndex)
+            
+            val newRedo = current.redoStack.toMutableList().apply {
+                add(action)
             }
             
             // Rebuild pathDetailStack từ historyStack
-            val newPaths = rebuildPathStack(current.historyStack)
+            val newPaths = rebuildPathStack(newHistory)
             
             current.copy(
+                historyStack = newHistory,
                 redoStack = newRedo,
                 pathDetailStack = newPaths,
                 recompositionTrigger = current.recompositionTrigger + 1
@@ -136,10 +137,11 @@ class DrawModeViewModel @Inject constructor(
         _state.update { current ->
             if (current.redoStack.isEmpty()) return@update current
             
-            val action = current.redoStack.pop()
-            val newHistory = java.util.Stack<EditingAction>().apply {
-                addAll(current.historyStack)
-                push(action)
+            val newRedo = current.redoStack.toMutableList()
+            val action = newRedo.removeAt(newRedo.lastIndex)
+            
+            val newHistory = current.historyStack.toMutableList().apply {
+                add(action)
             }
             
             // Rebuild pathDetailStack từ historyStack
@@ -147,6 +149,7 @@ class DrawModeViewModel @Inject constructor(
             
             current.copy(
                 historyStack = newHistory,
+                redoStack = newRedo,
                 pathDetailStack = newPaths,
                 recompositionTrigger = current.recompositionTrigger + 1
             )

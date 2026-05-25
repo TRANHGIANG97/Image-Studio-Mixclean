@@ -13,7 +13,7 @@ import java.io.FileOutputStream
 
 object BitmapUtils {
 
-    suspend fun getScaledBitmap(
+    fun getScaledBitmap(
         context: Context,
         uri: Uri
     ) = flow<BitmapStatus> {

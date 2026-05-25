@@ -22,6 +22,7 @@ object BorderUtils {
         borderColorArgb: Int,
         borderGradientPreset: BorderGradientPreset? = null,
         borderWidthPx: Int = 24,
+        borderBlurRadiusPx: Int = 4,
         borderPreset: BorderPreset = BorderPreset.SOLID,
         previewMaxDimension: Int? = null
     ): Result<Bitmap> {
@@ -59,6 +60,11 @@ object BorderUtils {
                     borderColorArgb = borderColorArgb,
                     borderGradientPreset = borderGradientPreset,
                     borderWidthPx = workingBorderWidth,
+                    borderBlurRadiusPx = if (scale < 1f) {
+                        (borderBlurRadiusPx * scale).roundToInt().coerceAtLeast(0)
+                    } else {
+                        borderBlurRadiusPx
+                    },
                     borderPreset = borderPreset
                 )
 
@@ -93,6 +99,7 @@ object BorderUtils {
         borderColorArgb: Int,
         borderGradientPreset: BorderGradientPreset?,
         borderWidthPx: Int,
+        borderBlurRadiusPx: Int,
         borderPreset: BorderPreset
     ): Bitmap {
         coroutineContext.ensureActive()
@@ -113,7 +120,7 @@ object BorderUtils {
             sourceAlpha[i] = Color.alpha(sourcePixels[i])
         }
 
-        val profile = resolveProfile(borderPreset, padding)
+        val profile = resolveProfile(borderPreset, padding, borderBlurRadiusPx)
         if (profile.sourceBlurRadius > 0) {
             boxBlur(sourceAlpha, width, height, profile.sourceBlurRadius)
         }
@@ -234,7 +241,8 @@ object BorderUtils {
 
     private fun resolveProfile(
         borderPreset: BorderPreset,
-        borderWidthPx: Int
+        borderWidthPx: Int,
+        borderBlurRadiusPx: Int
     ): BorderRenderProfile {
         return when (borderPreset) {
             BorderPreset.SOLID -> BorderRenderProfile(
@@ -252,7 +260,7 @@ object BorderUtils {
                 layers = listOf(
                     BorderLayerSpec(
                         radius = borderWidthPx,
-                        blurRadius = min(8, max(2, borderWidthPx / 6)),
+                        blurRadius = borderBlurRadiusPx.coerceIn(1, 24),
                         alphaMultiplier = 0.82f
                     )
                 )

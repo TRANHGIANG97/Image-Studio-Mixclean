@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Koncepty</string>
     <string name="draft_select_all">Vybrat vše</string>
+    <string name="draft_confirm_delete_single">Chcete odstranit koncept \'%1$s\'?</string>
+    <string name="draft_delete_title">Odstranit koncept</string>
+    <string name="draft_rename_title">Přejmenovat koncept</string>
+    <string name="draft_duplicate">Duplikovat</string>
+    <string name="draft_card_copy">Duplikovat</string>
+    <string name="draft_card_delete">Smazat</string>
+    <string name="draft_rename">Přejmenovat</string>
+    <string name="draft_empty">Zatím žádné koncepty</string>
     <string name="draft_deselect_all">Zrušit výběr všeho</string>
     <string name="draft_delete_selected">Smazat (%1$d)</string>
     <string name="draft_selected_count">%1$d vybráno</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Zahájit 3denní zkušební verzi zdarma</string>
     <string name="pro_feature_expand">Plynulé rozšíření AI</string>
     <string name="pro_see_details">Podrobnosti ></string>
+    <string name="picker_sample_badge">Ukázka</string>
 </resources>

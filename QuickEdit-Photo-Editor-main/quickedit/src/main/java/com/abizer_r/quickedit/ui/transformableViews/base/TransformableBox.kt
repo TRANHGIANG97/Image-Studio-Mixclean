@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.ui.transformableViews.TransformableTextBox
 import com.abizer_r.quickedit.utils.drawMode.pxToDp
 import com.abizer_r.quickedit.utils.textMode.TextModeUtils.getDefaultEditorTextStyle
@@ -199,7 +199,7 @@ private fun Offset.isNearlyZero(epsilon: Float = 0.35f): Boolean {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewTextItem_WITH_BORDER() {
-    QuickEditTheme {
+    EditorTheme {
         Box(modifier = Modifier.size(300.dp, 100.dp).background(MaterialTheme.colorScheme.background)) {
             TransformableTextBox(
                 viewState = TransformableTextBoxState(

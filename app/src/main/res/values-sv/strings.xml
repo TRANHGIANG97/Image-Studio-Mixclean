@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Utkast</string>
     <string name="draft_select_all">Markera alla</string>
+    <string name="draft_confirm_delete_single">Vill du ta bort utkastet \'%1$s\'?</string>
+    <string name="draft_delete_title">Ta bort utkast</string>
+    <string name="draft_rename_title">Byt namn på utkast</string>
+    <string name="draft_duplicate">Duplicera</string>
+    <string name="draft_card_copy">Duplicera</string>
+    <string name="draft_card_delete">Ta bort</string>
+    <string name="draft_rename">Byt namn</string>
+    <string name="draft_empty">Inga utkast ännu</string>
     <string name="draft_deselect_all">Avmarkera alla</string>
     <string name="draft_delete_selected">Ta bort (%1$d)</string>
     <string name="draft_selected_count">%1$d markerade</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Starta 3 dagars gratis provperiod</string>
     <string name="pro_feature_expand">Smidig AI-utökning</string>
     <string name="pro_see_details">Detaljer ></string>
+    <string name="picker_sample_badge">Prov</string>
 </resources>

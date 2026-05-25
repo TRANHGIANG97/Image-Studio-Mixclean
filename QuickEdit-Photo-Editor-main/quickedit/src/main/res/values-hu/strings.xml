@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Tipp: Ha hibázik, bármikor használhatja a Visszavonás/Mégis (Undo/Redo) funkciókat.</string>
     <string name="magic_brush_got_it">Megértettem</string>
     <string name="studio_effect_requires_background">Ez a funkció csak akkor érhető el, ha a tárgynak van háttere</string>
+    <string name="border_tab_size">Méret</string>
+    <string name="border_blur">Keret elmosása</string>
+    <string name="border_blur_amount">Elmosás mértéke</string>
+    <string name="border_blur_none">Nincs elmosás</string>
+    <string name="border_blur_soft">Lágy elmosás</string>
+    <string name="rotate_screen_title">Kép elforgatása</string>
+    <string name="rotate_hint_title">Forgató eszközök</string>
+    <string name="rotate_hint_desc">Forgassa el 90 fokkal, vagy tükrözze vízszintesen és függőlegesen a kép tájolásának javításához.</string>
+    <string name="draft_label">Piszkozat</string>
+    <string name="draft_saved_successfully">A piszkozat sikeresen elmentve</string>
 </resources>

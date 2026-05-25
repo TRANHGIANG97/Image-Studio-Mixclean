@@ -38,10 +38,10 @@ class RemoveBgModeViewModel @Inject constructor(
         val processedBitmap: Bitmap? = null,
         val currentOption: RemoveBgOption = RemoveBgOption.AUTO,
         val isProcessing: Boolean = false,
-        val processingMessage: String? = null,
+        val processingMessageRes: Int? = null,
         val error: String? = null,
         val hasFace: Boolean? = null,
-        val warningMessage: String? = null,
+        val warningMessageRes: Int? = null,
         val showOverlay: Boolean = false
     )
 
@@ -79,19 +79,19 @@ class RemoveBgModeViewModel @Inject constructor(
             currentOption = option,
             isProcessing = true,
             error = null,
-            processingMessage = getProcessingMessage(option)
+            processingMessageRes = getProcessingMessageRes(option)
         )
 
         processingJob = viewModelScope.launch {
             ensureFaceDetected(original)
             
             val warning = when (option) {
-                RemoveBgOption.PORTRAIT -> if (_state.value.hasFace == false) context.getString(R.string.remove_bg_portrait_no_face_warning) else null
-                RemoveBgOption.OBJECT -> if (_state.value.hasFace == true) context.getString(R.string.remove_bg_object_has_face_warning) else null
+                RemoveBgOption.PORTRAIT -> if (_state.value.hasFace == false) R.string.remove_bg_portrait_no_face_warning else null
+                RemoveBgOption.OBJECT -> if (_state.value.hasFace == true) R.string.remove_bg_object_has_face_warning else null
                 else -> null
             }
             
-            _state.value = _state.value.copy(warningMessage = warning)
+            _state.value = _state.value.copy(warningMessageRes = warning)
 
             val result = withContext(Dispatchers.Default) {
                 runCatching {
@@ -123,7 +123,7 @@ class RemoveBgModeViewModel @Inject constructor(
                         _state.value = _state.value.copy(
                             processedBitmap = finalResult,
                             isProcessing = false,
-                            processingMessage = null,
+                            processingMessageRes = null,
                             showOverlay = true
                         )
 
@@ -136,7 +136,7 @@ class RemoveBgModeViewModel @Inject constructor(
                     } else {
                         _state.value = _state.value.copy(
                             isProcessing = false,
-                            processingMessage = null,
+                            processingMessageRes = null,
                             error = context.getString(R.string.error_apply_effect)
                         )
                     }
@@ -144,7 +144,7 @@ class RemoveBgModeViewModel @Inject constructor(
                 onFailure = {
                     _state.value = _state.value.copy(
                         isProcessing = false,
-                        processingMessage = null,
+                        processingMessageRes = null,
                         error = context.getString(R.string.error_apply_effect)
                     )
                 }
@@ -177,11 +177,11 @@ class RemoveBgModeViewModel @Inject constructor(
         }
     }
 
-    private fun getProcessingMessage(option: RemoveBgOption): String {
+    private fun getProcessingMessageRes(option: RemoveBgOption): Int {
         return when (option) {
-            RemoveBgOption.AUTO -> context.getString(R.string.remove_bg_processing_auto)
-            RemoveBgOption.PORTRAIT -> context.getString(R.string.remove_bg_processing_portrait)
-            RemoveBgOption.OBJECT -> context.getString(R.string.remove_bg_processing_object)
+            RemoveBgOption.AUTO -> R.string.remove_bg_processing_auto
+            RemoveBgOption.PORTRAIT -> R.string.remove_bg_processing_portrait
+            RemoveBgOption.OBJECT -> R.string.remove_bg_processing_object
         }
     }
 

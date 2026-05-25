@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Ábending: Ef þú gerir mistök geturðu alltaf notað Afturkalla/Endurtaka (Undo/Redo).</string>
     <string name="magic_brush_got_it">Ég skil</string>
     <string name="studio_effect_requires_background">Þessi eiginleiki er aðeins í boði ef viðfangsefnið er með bakgrunn</string>
+    <string name="border_tab_size">Stærð</string>
+    <string name="border_blur">Móun á ramma</string>
+    <string name="border_blur_amount">Magn móunar</string>
+    <string name="border_blur_none">Engin móun</string>
+    <string name="border_blur_soft">Mjúk móun</string>
+    <string name="rotate_screen_title">Snúa mynd</string>
+    <string name="rotate_hint_title">Snúningsverkfæri</string>
+    <string name="rotate_hint_desc">Snúðu um 90 gráður eða veltu lárétt og lóðrétt til að lagfæra stefnu myndarinnar.</string>
+    <string name="draft_label">Uppkast</string>
+    <string name="draft_saved_successfully">Uppkast vistaðist farsællega</string>
 </resources>

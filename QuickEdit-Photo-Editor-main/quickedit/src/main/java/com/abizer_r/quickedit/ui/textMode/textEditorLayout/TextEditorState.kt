@@ -13,5 +13,5 @@ data class TextEditorState(
     val text: String = "",
     val textAlign: TextAlign = TextAlign.Center,
     val textColorList: List<Color> = ColorUtils.defaultColorList,
-    val selectedColor: Color = Color.White,
+    val selectedColor: Color = Color.Black,
 )

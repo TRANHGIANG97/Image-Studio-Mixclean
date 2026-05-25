@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed from imports
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarItem
 import com.abizer_r.quickedit.ui.textMode.bottomToolbarExtension.TextModeToolbarExtensionEvent.*
@@ -146,7 +146,7 @@ fun TextModeToolbarExtTextFormat(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewTextModeToolbarExtension() {
-    QuickEditTheme {
+    EditorTheme {
         val bottomTools = DrawModeUtils.getDefaultBottomToolbarItemsList()
         TextModeToolbarExtension(
             modifier = Modifier.fillMaxWidth(),
@@ -163,7 +163,7 @@ fun PreviewTextModeToolbarExtension() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewToolbarExtFontFamily() {
-    QuickEditTheme {
+    EditorTheme {
         val bottomTools = DrawModeUtils.getDefaultBottomToolbarItemsList()
         TextModeToolbarExtension(
             modifier = Modifier.fillMaxWidth(),

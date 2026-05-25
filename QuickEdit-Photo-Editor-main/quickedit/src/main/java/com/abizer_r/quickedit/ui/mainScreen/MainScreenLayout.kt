@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.ui.common.AppIconWithName
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
 import com.thgiang.image.studio.model.StudioThemeplate
@@ -47,7 +47,7 @@ fun MainScreenLayout(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewDefault() {
-    QuickEditTheme {
+    EditorTheme {
         MainScreenLayout(
             modifier = Modifier.background(MaterialTheme.colorScheme.background),
         )
@@ -57,7 +57,7 @@ private fun PreviewDefault() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewProcessing() {
-    QuickEditTheme {
+    EditorTheme {
         MainScreenLayout(
             modifier = Modifier.background(MaterialTheme.colorScheme.background),
         )
@@ -67,7 +67,7 @@ private fun PreviewProcessing() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewFailed() {
-    QuickEditTheme {
+    EditorTheme {
         MainScreenLayout(
             modifier = Modifier.background(MaterialTheme.colorScheme.background),
         )

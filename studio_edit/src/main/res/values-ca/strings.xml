@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Gira a la dreta</string>
     <string name="studio_layout_flip_horizontal">Capgira H</string>
     <string name="studio_layout_flip_vertical">Capgira V</string>
+    <string name="studio_shadow_tab_intensity">Ombra</string>
+    <string name="studio_shadow_tab_angle">Angle</string>
+    <string name="studio_shadow_tab_distance">Distància</string>
+    <string name="studio_shadow_tab_color">Color</string>
+    <string name="studio_shadow_preset_none">Cap</string>
+    <string name="studio_shadow_preset_light">Suau</string>
+    <string name="studio_shadow_preset_medium">Mitjana</string>
+    <string name="studio_shadow_preset_strong">Forta</string>
+    <string name="studio_shadow_preset_natural">Natural</string>
+    <string name="studio_shadow_preset_dramatic">Dramàtica</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Afegeix una imatge del producte</string>
+    <string name="studio_pick_product_subtitle">El fons s\'elimina automàticament</string>
+    <string name="studio_export">Exporta</string>
+    <string name="studio_crop_ratio_original">Original</string>
 </resources>

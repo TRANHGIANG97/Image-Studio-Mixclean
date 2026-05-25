@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed from imports
 import com.abizer_r.quickedit.utils.ColorUtils
 import com.abizer_r.quickedit.utils.ImmutableList
@@ -62,7 +62,7 @@ fun ColorListFullWidth(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_ColorList() {
-    QuickEditTheme {
+    EditorTheme {
         ColorListFullWidth(
             colorList = ImmutableList(ColorUtils.defaultColorList),
             selectedColor = Color.Red,

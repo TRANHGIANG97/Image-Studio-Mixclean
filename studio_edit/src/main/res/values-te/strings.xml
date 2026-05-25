@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">కుడికి తిప్పండి</string>
     <string name="studio_layout_flip_horizontal">అడ్డంగా ఫ్లిప్ చేయండి</string>
     <string name="studio_layout_flip_vertical">నిలువుగా ఫ్లిప్ చేయండి</string>
+    <string name="studio_shadow_tab_intensity">నీడ</string>
+    <string name="studio_shadow_tab_angle">కోణం</string>
+    <string name="studio_shadow_tab_distance">దూరం</string>
+    <string name="studio_shadow_tab_color">రంగు</string>
+    <string name="studio_shadow_preset_none">ఏదీ లేదు</string>
+    <string name="studio_shadow_preset_light">తేలికపాటి</string>
+    <string name="studio_shadow_preset_medium">మధ్యస్థం</string>
+    <string name="studio_shadow_preset_strong">గాఢత</string>
+    <string name="studio_shadow_preset_natural">సహజ సిద్ధం</string>
+    <string name="studio_shadow_preset_dramatic">నాటకీయం</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">ఉత్పత్తి చిత్రాన్ని జోడించండి</string>
+    <string name="studio_pick_product_subtitle">బ్యాక్‌గ్రౌండ్ స్వయంచాలకంగా తీసివేయబడుతుంది</string>
+    <string name="studio_export">ఎగుమతి చేయి</string>
+    <string name="studio_crop_ratio_original">అసలు</string>
 </resources>

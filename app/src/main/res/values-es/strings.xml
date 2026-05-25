@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Borradores</string>
     <string name="draft_select_all">Seleccionar todo</string>
+    <string name="draft_confirm_delete_single">¿Seguro que quieres eliminar el borrador \'%1$s\'?</string>
+    <string name="draft_delete_title">Eliminar borrador</string>
+    <string name="draft_rename_title">Renombrar borrador</string>
+    <string name="draft_duplicate">Duplicar</string>
+    <string name="draft_card_copy">Duplicar</string>
+    <string name="draft_card_delete">Eliminar</string>
+    <string name="draft_rename">Renombrar</string>
+    <string name="draft_empty">Aún no hay borradores</string>
     <string name="draft_deselect_all">Deseleccionar todo</string>
     <string name="draft_delete_selected">Eliminar (%1$d)</string>
     <string name="draft_selected_count">%1$d seleccionados</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Comenzar prueba gratuita de 3 días</string>
     <string name="pro_feature_expand">Expansión suave por IA</string>
     <string name="pro_see_details">Ver detalles ></string>
+    <string name="picker_sample_badge">Muestra</string>
 </resources>

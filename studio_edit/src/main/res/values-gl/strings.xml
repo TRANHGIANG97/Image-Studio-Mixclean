@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Xirar á dereita</string>
     <string name="studio_layout_flip_horizontal">Voltear H</string>
     <string name="studio_layout_flip_vertical">Voltear V</string>
+    <string name="studio_shadow_tab_intensity">Sombra</string>
+    <string name="studio_shadow_tab_angle">Ángulo</string>
+    <string name="studio_shadow_tab_distance">Distancia</string>
+    <string name="studio_shadow_tab_color">Cor</string>
+    <string name="studio_shadow_preset_none">Ningunha</string>
+    <string name="studio_shadow_preset_light">Suave</string>
+    <string name="studio_shadow_preset_medium">Media</string>
+    <string name="studio_shadow_preset_strong">Forte</string>
+    <string name="studio_shadow_preset_natural">Natural</string>
+    <string name="studio_shadow_preset_dramatic">Dramática</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Engadir imaxe do produto</string>
+    <string name="studio_pick_product_subtitle">O fondo elimínase automaticamente</string>
+    <string name="studio_export">Exportar</string>
+    <string name="studio_crop_ratio_original">Orixinal</string>
 </resources>

@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Чарнавікі</string>
     <string name="draft_select_all">Выбраць усё</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">Выдаліць</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">Скасаваць выбар</string>
     <string name="draft_delete_selected">Выдаліць (%1$d)</string>
     <string name="draft_selected_count">Выбрано: %1$d</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Пачаць 3-дзённы бясплатны перыяд</string>
     <string name="pro_feature_expand">Плаўнае пашырэнне AI</string>
     <string name="pro_see_details">Падрабязней ></string>
+    <string name="picker_sample_badge">Узор</string>
 </resources>

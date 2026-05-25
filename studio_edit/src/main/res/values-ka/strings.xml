@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">მარჯვნივ დატრიალება</string>
     <string name="studio_layout_flip_horizontal">ჰორიზონტალურად ასახვა</string>
     <string name="studio_layout_flip_vertical">ვერტიკალურად ასახვა</string>
+    <string name="studio_shadow_tab_intensity">ჩრდილი</string>
+    <string name="studio_shadow_tab_angle">კუთხე</string>
+    <string name="studio_shadow_tab_distance">მანძილი</string>
+    <string name="studio_shadow_tab_color">ფერი</string>
+    <string name="studio_shadow_preset_none">არცერთი</string>
+    <string name="studio_shadow_preset_light">მსუბუქი</string>
+    <string name="studio_shadow_preset_medium">საშუალო</string>
+    <string name="studio_shadow_preset_strong">ძლიერი</string>
+    <string name="studio_shadow_preset_natural">ბუნებრივი</string>
+    <string name="studio_shadow_preset_dramatic">დრამატული</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">პროდუქტის სურათის დამატება</string>
+    <string name="studio_pick_product_subtitle">ფონი ავტომატურად იშლება</string>
+    <string name="studio_export">ექსპორტი</string>
+    <string name="studio_crop_ratio_original">ორიგინალი</string>
 </resources>

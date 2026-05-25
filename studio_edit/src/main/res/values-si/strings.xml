@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">දකුණට කරකවන්න</string>
     <string name="studio_layout_flip_horizontal">තිරස් අතට පෙරළන්න</string>
     <string name="studio_layout_flip_vertical">සිරස් අතට පෙරළන්න</string>
+    <string name="studio_shadow_tab_intensity">සෙවනැල්ල</string>
+    <string name="studio_shadow_tab_angle">කෝණය</string>
+    <string name="studio_shadow_tab_distance">දුර</string>
+    <string name="studio_shadow_tab_color">වර්ණය</string>
+    <string name="studio_shadow_preset_none">කිසිවක් නැත</string>
+    <string name="studio_shadow_preset_light">ලා</string>
+    <string name="studio_shadow_preset_medium">මධ්‍යම</string>
+    <string name="studio_shadow_preset_strong">තද</string>
+    <string name="studio_shadow_preset_natural">ස්වාභාවික</string>
+    <string name="studio_shadow_preset_dramatic">නාට්‍යමය</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">නිෂ්පාදන රූපය එක් කරන්න</string>
+    <string name="studio_pick_product_subtitle">පසුබිම ස්වයංක්‍රීයව ඉවත් කෙරේ</string>
+    <string name="studio_export">අපනයනය</string>
+    <string name="studio_crop_ratio_original">මුල්</string>
 </resources>

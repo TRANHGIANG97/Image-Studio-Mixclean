@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 
 /**
  * The total size of this item is the adding of [itemSize] and [selectedBorderWidth]
@@ -55,7 +55,7 @@ fun SelectableColor(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_SelectableColor() {
-    QuickEditTheme {
+    EditorTheme {
         SelectableColor(
             modifier = Modifier.padding(8.dp),
             itemColor = Color.Yellow,

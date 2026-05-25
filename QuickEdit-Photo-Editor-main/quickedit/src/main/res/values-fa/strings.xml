@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">نکته: در صورت بروز اشتباه، همیشه می‌توانید از عملکردهای واگرد/ازنو (Undo/Redo) استفاده کنید.</string>
     <string name="magic_brush_got_it">متوجه شدم</string>
     <string name="studio_effect_requires_background">این ویژگی تنها زمانی در دسترس است که سوژه دارای پس‌زمینه باشد</string>
+    <string name="border_tab_size">اندازه</string>
+    <string name="border_blur">محو کردن حاشیه</string>
+    <string name="border_blur_amount">میزان محوشدگی</string>
+    <string name="border_blur_none">بدون محوشدگی</string>
+    <string name="border_blur_soft">محوشدگی ملایم</string>
+    <string name="rotate_screen_title">چرخش تصویر</string>
+    <string name="rotate_hint_title">ابزارهای چرخش</string>
+    <string name="rotate_hint_desc">برای اصلاح جهت تصویر، آن را ۹۰ درجه بچرخانید یا به صورت افقی و عمودی قرینهسازی کنید.</string>
+    <string name="draft_label">پیش‌نویس</string>
+    <string name="draft_saved_successfully">پیش‌نویس با موفقیت ذخیره شد</string>
 </resources>

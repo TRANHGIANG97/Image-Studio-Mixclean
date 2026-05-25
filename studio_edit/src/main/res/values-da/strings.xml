@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Roter til højre</string>
     <string name="studio_layout_flip_horizontal">Vend vandret</string>
     <string name="studio_layout_flip_vertical">Vend lodret</string>
+    <string name="studio_shadow_tab_intensity">Skygge</string>
+    <string name="studio_shadow_tab_angle">Vinkel</string>
+    <string name="studio_shadow_tab_distance">Afstand</string>
+    <string name="studio_shadow_tab_color">Farve</string>
+    <string name="studio_shadow_preset_none">Ingen</string>
+    <string name="studio_shadow_preset_light">Let</string>
+    <string name="studio_shadow_preset_medium">Medium</string>
+    <string name="studio_shadow_preset_strong">Kraftig</string>
+    <string name="studio_shadow_preset_natural">Naturlig</string>
+    <string name="studio_shadow_preset_dramatic">Dramatisk</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Tilføj produktbillede</string>
+    <string name="studio_pick_product_subtitle">Baggrunden fjernes automatisk</string>
+    <string name="studio_export">Eksporter</string>
+    <string name="studio_crop_ratio_original">Original</string>
 </resources>

@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.android.image.cropper)
     implementation(project(":core-data"))
     implementation(project(":core-domain"))
+    implementation(project(":core-ui"))
     implementation(project(":core-util"))
     implementation(project(":core-ad"))
     implementation(project(":studio_edit"))

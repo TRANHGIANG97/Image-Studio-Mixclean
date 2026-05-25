@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - محرر الصور</string>
-
+    <string name="border_tab_size">الحجم</string>
+    <string name="border_blur">تغبيش الحواف</string>
+    <string name="border_blur_amount">درجة التغبيش</string>
+    <string name="border_blur_none">بدون تغبيش</string>
+    <string name="border_blur_soft">تغبيش ناعم</string>
+    <string name="rotate_screen_title">تدوير الصورة</string>
+    <string name="rotate_hint_title">أدوات التدوير</string>
+    <string name="rotate_hint_desc">قم بالتدوير 90 درجة أو القلب أفقيًا وعموديًا لضبط اتجاه الصورة.</string>
     <string name="color">اللون</string>
     <string name="format">التنسيق</string>
     <string name="font">الخط</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">تلميح: إذا ارتكبت خطأً، يمكنك استخدام وظائف التراجع/الإعادة (Undo/Redo).</string>
     <string name="magic_brush_got_it">مفهوم</string>
     <string name="studio_effect_requires_background">هذه الوظيفة متاحة فقط عندما يحتوي العنصر الأساسي على خلفية</string>
+    <string name="draft_label">مسودة</string>
+    <string name="draft_saved_successfully">تم حفظ المسودة بنجاح</string>
 </resources>

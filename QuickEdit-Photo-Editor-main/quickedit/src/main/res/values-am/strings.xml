@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - ፎቶ ማስተካከያ</string>
-
+    <string name="border_tab_size">መጠን</string>
+    <string name="border_blur">የድንበር ማደብዘዝ</string>
+    <string name="border_blur_amount">የማደብዘዝ መጠን</string>
+    <string name="border_blur_none">ማደብዘዝ የለም</string>
+    <string name="border_blur_soft">ለስላሳ ማደብዘዝ</string>
+    <string name="rotate_screen_title">ምስል አሽከርክር</string>
+    <string name="rotate_hint_title">ማሽከርከሪያ መሳሪያዎች</string>
+    <string name="rotate_hint_desc">የምስሉን አቅጣጫ ለማስተካከል 90 ዲግሪ ያሽከርክሩ ወይም በአግድም እና በአቀባዊ ያገላብጡ።</string>
     <string name="color">ቀለም</string>
     <string name="format">ቅርጸት</string>
     <string name="font">የፊደል ቅርጽ</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">ጠቃሚ ምክር፦ ከተሳሳቱ ማስተካከያውን «መልስ/ድገም» (Undo/Redo) መጠቀም ይችላሉ።</string>
     <string name="magic_brush_got_it">ገብቶኛል</string>
     <string name="studio_effect_requires_background">ይህ ተግባር የሚሰራው ባለቤቱ የጀርባ ምስል ሲኖረው ብቻ ነው</string>
+    <string name="draft_label">ረቂቅ</string>
+    <string name="draft_saved_successfully">ረቂቁ በተሳካ ሁኔታ ተቀምጧል</string>
 </resources>

@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - ফটো এডিটর</string>
-
+    <string name="border_tab_size">আকার</string>
+    <string name="border_blur">বর্ডার ব্লার</string>
+    <string name="border_blur_amount">ব্লারের পরিমাণ</string>
+    <string name="border_blur_none">ব্লার ছাড়া</string>
+    <string name="border_blur_soft">হালকা ব্লার</string>
+    <string name="rotate_screen_title">ছবি ঘোরান</string>
+    <string name="rotate_hint_title">ঘোরানোর টুলস</string>
+    <string name="rotate_hint_desc">ছবির ওরিয়েন্টেশন ঠিক করতে ৯০ ডিগ্রি ঘোরান অথবা অনুভূমিক এবং উল্লম্বভাবে ফ্লিপ করুন।</string>
     <string name="color">রঙ</string>
     <string name="format">ফরমেট</string>
     <string name="font">ফন্ট</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">টিপ: যদি কোনো ভুল হয়, আপনি যেকোনো সময় আনডু/রিডু (Undo/Redo) ফাংশন ব্যবহার করতে পারেন।</string>
     <string name="magic_brush_got_it">আমি বুঝেছি</string>
     <string name="studio_effect_requires_background">এই ফিচারটি শুধুমাত্র তখনই উপলব্ধ হবে যখন সাবজেক্টের একটি ব্যাকগ্রাউন্ড থাকবে</string>
+    <string name="draft_label">ড্রাফট</string>
+    <string name="draft_saved_successfully">ড্রাফট সফলভাবে সেভ হয়েছে</string>
 </resources>

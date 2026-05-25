@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Padoms: Ja pieļaujat kļūdu, varat izmantot darbības atcelšanu/atgriešanu.</string>
     <string name="magic_brush_got_it">Sapratu</string>
     <string name="studio_effect_requires_background">Šī funkcija ir pieejama tikai tad, ja objektam ir fons</string>
+    <string name="border_tab_size">Izmērs</string>
+    <string name="border_blur">Apmales izpludināšana</string>
+    <string name="border_blur_amount">Izpludināšanas apjoms</string>
+    <string name="border_blur_none">Bez izpludināšanas</string>
+    <string name="border_blur_soft">Maiga izpludināšana</string>
+    <string name="rotate_screen_title">Pagriezt attēlu</string>
+    <string name="rotate_hint_title">Pagriešanas rīki</string>
+    <string name="rotate_hint_desc">Pagrieziet par 90 grādiem vai apgrieziet horizontāli un vertikāli, lai labotu attēla orientāciju.</string>
+    <string name="draft_label">Melnraksts</string>
+    <string name="draft_saved_successfully">Melnraksts sekmīgi saglabāts</string>
 </resources>

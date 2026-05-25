@@ -22,7 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed from imports
 import com.abizer_r.quickedit.ui.drawMode.drawingCanvas.drawingTool.shapes.ShapeType
 import com.abizer_r.quickedit.utils.defaultTextColor
@@ -153,7 +153,7 @@ fun PreviewRadioRow() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewToolbarExtension() {
-    QuickEditTheme {
+    EditorTheme {
         DrawModeToolbarExtension(
             modifier = Modifier.fillMaxWidth(),
             width = 12f,

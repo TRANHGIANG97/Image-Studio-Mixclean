@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">បង្វិលស្ដាំ</string>
     <string name="studio_layout_flip_horizontal">ផ្ដាប់ផ្ដេក</string>
     <string name="studio_layout_flip_vertical">ផ្ដាប់បញ្ឈរ</string>
+    <string name="studio_shadow_tab_intensity">ស្រមោល</string>
+    <string name="studio_shadow_tab_angle">មុំ</string>
+    <string name="studio_shadow_tab_distance">ចម្ងាយ</string>
+    <string name="studio_shadow_tab_color">ពណ៌</string>
+    <string name="studio_shadow_preset_none">គ្មាន</string>
+    <string name="studio_shadow_preset_light">ស្រាល</string>
+    <string name="studio_shadow_preset_medium">មធ្យម</string>
+    <string name="studio_shadow_preset_strong">ខ្លាំង</string>
+    <string name="studio_shadow_preset_natural">ធម្មជាតិ</string>
+    <string name="studio_shadow_preset_dramatic">ដ្រាម៉ាទិក</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">បន្ថែមរូបភាពផលិតផល</string>
+    <string name="studio_pick_product_subtitle">ផ្ទៃខាងក្រោយត្រូវបានលុបដោយស្វ័យប្រវត្តិ</string>
+    <string name="studio_export">នាំចេញ</string>
+    <string name="studio_crop_ratio_original">ដើម</string>
 </resources>

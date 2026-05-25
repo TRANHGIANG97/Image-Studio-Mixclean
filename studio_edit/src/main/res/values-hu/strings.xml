@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Forgatás jobbra</string>
     <string name="studio_layout_flip_horizontal">Vízszintes tükrözés</string>
     <string name="studio_layout_flip_vertical">Függőleges tükrözés</string>
+    <string name="studio_shadow_tab_intensity">Árnyék</string>
+    <string name="studio_shadow_tab_angle">Szög</string>
+    <string name="studio_shadow_tab_distance">Távolság</string>
+    <string name="studio_shadow_tab_color">Szín</string>
+    <string name="studio_shadow_preset_none">Nincs</string>
+    <string name="studio_shadow_preset_light">Lágy</string>
+    <string name="studio_shadow_preset_medium">Közepes</string>
+    <string name="studio_shadow_preset_strong">Erős</string>
+    <string name="studio_shadow_preset_natural">Természetes</string>
+    <string name="studio_shadow_preset_dramatic">Dramatikus</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Termékkép hozzáadása</string>
+    <string name="studio_pick_product_subtitle">A háttér automatikusan eltávolításra kerül</string>
+    <string name="studio_export">Exportálás</string>
+    <string name="studio_crop_ratio_original">Eredeti</string>
 </resources>

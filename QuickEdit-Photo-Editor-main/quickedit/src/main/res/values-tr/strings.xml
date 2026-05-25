@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">İpucu: Bir hata yaparsanız Geri Al/Yinele (Undo/Redo) işlemlerini kullanabilirsiniz.</string>
     <string name="magic_brush_got_it">Anladım</string>
     <string name="studio_effect_requires_background">Bu özellik yalnızca öznenin bir arka planı olduğunda kullanılabilir</string>
+    <string name="border_tab_size">Boyut</string>
+    <string name="border_blur">Kenarlık bulanıklığı</string>
+    <string name="border_blur_amount">Bulanıklık miktarı</string>
+    <string name="border_blur_none">Bulanıklık yok</string>
+    <string name="border_blur_soft">Yumuşak bulanıklık</string>
+    <string name="rotate_screen_title">Resmi Döndür</string>
+    <string name="rotate_hint_title">Döndürme araçları</string>
+    <string name="rotate_hint_desc">Resim yönünü düzeltmek için 90 derece döndürün veya yatay ve dikey olarak çevirin.</string>
+    <string name="draft_label">Taslak</string>
+    <string name="draft_saved_successfully">Taslak başarıyla kaydedildi</string>
 </resources>

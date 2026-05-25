@@ -314,6 +314,7 @@ fun SingleImagePickerScreen(
                             } else {
                                 images
                             }
+                            val sampleBadgeText = stringResource(R.string.picker_sample_badge)
 
                             if (displayUris.isEmpty()) {
                                 Box(
@@ -340,7 +341,7 @@ fun SingleImagePickerScreen(
                                     items(displayUris, key = { it.toString() }) { uri ->
                                         GalleryImageCell(
                                             uri = uri,
-                                            badgeText = if (demoSampleUris.contains(uri)) "\u004d\u1ea9u" else null,
+                                            badgeText = if (demoSampleUris.contains(uri)) sampleBadgeText else null,
                                             onClick = { handleImageSelection(context, uri, onImageSelected) }
                                         )
                                     }

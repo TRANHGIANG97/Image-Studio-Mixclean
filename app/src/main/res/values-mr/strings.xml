@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">ड्राफ्ट</string>
     <string name="draft_select_all">सर्व निवडा</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">डिलीट करा</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">निवड रद्द करा</string>
     <string name="draft_delete_selected">डिलीट करा (%1$d)</string>
     <string name="draft_selected_count">%1$d निवडले</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">३ दिवसांची मोफत चाचणी सुरू करा</string>
     <string name="pro_feature_expand">AI द्वारे फोटो नैसर्गिकरित्या वाढवा</string>
     <string name="pro_see_details">तपशील पहा ></string>
+    <string name="picker_sample_badge">नमुना</string>
 </resources>

@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">टीप: चूक झाल्यास तुम्ही अनडू/रीडू (Undo/Redo) वापरू शकता.</string>
     <string name="magic_brush_got_it">समजले</string>
     <string name="studio_effect_requires_background">हे फिचर केवळ तेव्हाच उपलब्ध होते जेव्हा सब्जेक्टला बॅकग्राउंड असते</string>
+    <string name="border_tab_size">आकार</string>
+    <string name="border_blur">बॉर्डर ब्लर</string>
+    <string name="border_blur_amount">ब्लरचे प्रमाण</string>
+    <string name="border_blur_none">ब्लरशिवाय</string>
+    <string name="border_blur_soft">हल्का ब्लर</string>
+    <string name="rotate_screen_title">इमेज फिरवा</string>
+    <string name="rotate_hint_title">रोटेशन टूल्स</string>
+    <string name="rotate_hint_desc">इमेजची दिशा योग्य करण्यासाठी ९० अंश फिरवा किंवा आडवे आणि उभे फ्लिप करा.</string>
+    <string name="draft_label">ड्राफ्ट</string>
+    <string name="draft_saved_successfully">ड्राफ्ट यशस्वीरित्या सेव्ह झाला</string>
 </resources>

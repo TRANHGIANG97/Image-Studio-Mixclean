@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Tip: Kui teete vea, saate alati kasutada funktsioone Võta tagasi / Tee uuesti (Undo/Redo).</string>
     <string name="magic_brush_got_it">Sain aru</string>
     <string name="studio_effect_requires_background">See funktsioon on saadaval ainult siis, kui objektil on taust</string>
+    <string name="border_tab_size">Suurus</string>
+    <string name="border_blur">Äärise hägustamine</string>
+    <string name="border_blur_amount">Hägustamise tugevus</string>
+    <string name="border_blur_none">Ilma hägustamiseta</string>
+    <string name="border_blur_soft">Õrn hägustamine</string>
+    <string name="rotate_screen_title">Pööra pilti</string>
+    <string name="rotate_hint_title">Pööramistööriistad</string>
+    <string name="rotate_hint_desc">Pöörake 90 kraadi või seadke horisontaalselt ja vertikaalselt peegelpilti, et korrigeerida pildi suunda.</string>
+    <string name="draft_label">Mustand</string>
+    <string name="draft_saved_successfully">Mustand on edukalt salvestatud</string>
 </resources>

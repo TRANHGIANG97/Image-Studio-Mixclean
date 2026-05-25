@@ -35,8 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
-import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
+import androidx.compose.ui.unit.dp
 import com.abizer_r.quickedit.ui.editorScreen.topToolbar.TextModeTopToolbar
 import com.abizer_r.quickedit.utils.textMode.colorList.ColorListFullWidth
 import com.abizer_r.quickedit.utils.ImmutableList
@@ -99,7 +99,7 @@ fun TextEditorLayout(
     )
     val focusRequesterForTextField = remember { FocusRequester() }
 
-    val topToolbarHeight =  TOOLBAR_HEIGHT_SMALL
+    val topToolbarHeight = 56.dp
 
     val onDoneClickedLambda = remember<() -> Unit> {{
         onDoneClicked(editorState)
@@ -141,14 +141,13 @@ fun TextEditorLayout(
         TextField(
             modifier = Modifier
                 .constrainAs(textField) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
+                    top.linkTo(topToolBar.bottom)
+                    bottom.linkTo(textAlignOptions.top, margin = 16.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     width = Dimension.wrapContent
                     height = Dimension.wrapContent
                 }
-                .padding(top = topToolbarHeight)
                 .background(Color.Transparent)
                 .focusRequester(focusRequesterForTextField),
             value = TextFieldValue(
@@ -172,14 +171,13 @@ fun TextEditorLayout(
             visible = showPlaceHolder,
             modifier = Modifier
                 .constrainAs(placeHolderText) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
+                    top.linkTo(topToolBar.bottom)
+                    bottom.linkTo(textAlignOptions.top, margin = 16.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     width = Dimension.matchParent
                     height = Dimension.wrapContent
-                }
-                .padding(top = topToolbarHeight),
+                },
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -228,7 +226,7 @@ fun TextEditorLayout(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_TextEditorLayout() {
-    QuickEditTheme {
+    EditorTheme {
         TextEditorLayout(
             modifier = Modifier.fillMaxSize(),
             initialEditorState = TextEditorState(

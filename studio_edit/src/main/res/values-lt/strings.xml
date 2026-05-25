@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Pasukti į dešinę</string>
     <string name="studio_layout_flip_horizontal">Apversti horizontaliai</string>
     <string name="studio_layout_flip_vertical">Apversti vertikaliai</string>
+    <string name="studio_shadow_tab_intensity">Šešėlis</string>
+    <string name="studio_shadow_tab_angle">Kampas</string>
+    <string name="studio_shadow_tab_distance">Atstumas</string>
+    <string name="studio_shadow_tab_color">Spalva</string>
+    <string name="studio_shadow_preset_none">Nėra</string>
+    <string name="studio_shadow_preset_light">Švelnus</string>
+    <string name="studio_shadow_preset_medium">Vidutinis</string>
+    <string name="studio_shadow_preset_strong">Ryškus</string>
+    <string name="studio_shadow_preset_natural">Natūralus</string>
+    <string name="studio_shadow_preset_dramatic">Dramatiškas</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Pridėti produkto atvaizdą</string>
+    <string name="studio_pick_product_subtitle">Fonas pašalinamas automatiškai</string>
+    <string name="studio_export">Eksportuoti</string>
+    <string name="studio_crop_ratio_original">Originalus</string>
 </resources>

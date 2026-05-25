@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Sağa Döndər</string>
     <string name="studio_layout_flip_horizontal">Üfüqi Çevir</string>
     <string name="studio_layout_flip_vertical">Şaquli Çevir</string>
+    <string name="studio_shadow_tab_intensity">Kölgə</string>
+    <string name="studio_shadow_tab_angle">Bucaq</string>
+    <string name="studio_shadow_tab_distance">Məsafə</string>
+    <string name="studio_shadow_tab_color">Rəng</string>
+    <string name="studio_shadow_preset_none">Heç biri</string>
+    <string name="studio_shadow_preset_light">Yüngül</string>
+    <string name="studio_shadow_preset_medium">Orta</string>
+    <string name="studio_shadow_preset_strong">Güclü</string>
+    <string name="studio_shadow_preset_natural">Təbii</string>
+    <string name="studio_shadow_preset_dramatic">Dramatik</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Məhsul şəkli əlavə et</string>
+    <string name="studio_pick_product_subtitle">Arxa fon avtomatik silinir</string>
+    <string name="studio_export">Eksport et</string>
+    <string name="studio_crop_ratio_original">Orijinal</string>
 </resources>

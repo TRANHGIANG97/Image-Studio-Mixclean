@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Phendulela Kwesokudla</string>
     <string name="studio_layout_flip_horizontal">Yisa phezulu naphansi H</string>
     <string name="studio_layout_flip_vertical">Yisa phezulu naphansi V</string>
+    <string name="studio_shadow_tab_intensity">Isithunzi</string>
+    <string name="studio_shadow_tab_angle">I-engeli</string>
+    <string name="studio_shadow_tab_distance">Ibanga</string>
+    <string name="studio_shadow_tab_color">Umbala</string>
+    <string name="studio_shadow_preset_none">Lutho</string>
+    <string name="studio_shadow_preset_light">Kancane</string>
+    <string name="studio_shadow_preset_medium">Phakathi</string>
+    <string name="studio_shadow_preset_strong">Kakhulu</string>
+    <string name="studio_shadow_preset_natural">Kwemvelo</string>
+    <string name="studio_shadow_preset_dramatic">Okugqamile</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Faka isithombe somkhiqizo</string>
+    <string name="studio_pick_product_subtitle">Ingemuva lisuswa ngokuzenzakalelayo</string>
+    <string name="studio_export">Khipha</string>
+    <string name="studio_crop_ratio_original">Okwangempela</string>
 </resources>

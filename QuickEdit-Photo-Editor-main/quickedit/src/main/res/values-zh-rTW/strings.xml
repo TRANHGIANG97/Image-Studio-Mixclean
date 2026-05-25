@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">提示：若操作失誤，可以使用「復原/重做」功能。</string>
     <string name="magic_brush_got_it">我知道了</string>
     <string name="studio_effect_requires_background">此功能僅在主體擁有背景時可用</string>
+    <string name="border_tab_size">大小</string>
+    <string name="border_blur">邊框模糊</string>
+    <string name="border_blur_amount">模糊度</string>
+    <string name="border_blur_none">無模糊</string>
+    <string name="border_blur_soft">柔和模糊</string>
+    <string name="rotate_screen_title">旋轉圖片</string>
+    <string name="rotate_hint_title">旋轉工具</string>
+    <string name="rotate_hint_desc">旋轉90度或水平、垂直翻轉以修正圖片方向。</string>
+    <string name="draft_label">草稿</string>
+    <string name="draft_saved_successfully">草稿已成功儲存</string>
 </resources>

@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed from imports
 import com.abizer_r.quickedit.ui.common.toolbar.SelectableToolbarItem
 
@@ -116,7 +116,7 @@ fun TextStyleOptions(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_AlignmentOptions() {
-    QuickEditTheme {
+    EditorTheme {
         TextStyleOptions(
             textStyleAttr = TextStyleAttr(
                 isBold = true,
@@ -131,7 +131,7 @@ fun Preview_AlignmentOptions() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_AlignmentOptions_FullWidth() {
-    QuickEditTheme {
+    EditorTheme {
         TextStyleOptions(
             modifier = Modifier.fillMaxWidth(),
             showDividers = true,

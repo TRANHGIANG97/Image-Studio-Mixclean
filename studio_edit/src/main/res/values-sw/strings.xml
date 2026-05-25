@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Zungusha Kulia</string>
     <string name="studio_layout_flip_horizontal">Pindua H</string>
     <string name="studio_layout_flip_vertical">Pindua V</string>
+    <string name="studio_shadow_tab_intensity">Kivuli</string>
+    <string name="studio_shadow_tab_angle">Pembe</string>
+    <string name="studio_shadow_tab_distance">Umbali</string>
+    <string name="studio_shadow_tab_color">Rangi</string>
+    <string name="studio_shadow_preset_none">Hamna</string>
+    <string name="studio_shadow_preset_light">Nyepesi</string>
+    <string name="studio_shadow_preset_medium">Kati</string>
+    <string name="studio_shadow_preset_strong">Kolevu</string>
+    <string name="studio_shadow_preset_natural">Kiasili</string>
+    <string name="studio_shadow_preset_dramatic">Kusisimua</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Weka picha ya bidhaa</string>
+    <string name="studio_pick_product_subtitle">Asili huondolewa kiotomatiki</string>
+    <string name="studio_export">Hamisha</string>
+    <string name="studio_crop_ratio_original">Asili</string>
 </resources>

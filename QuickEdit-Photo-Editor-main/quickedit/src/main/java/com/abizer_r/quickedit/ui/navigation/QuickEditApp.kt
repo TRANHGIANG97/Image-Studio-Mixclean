@@ -11,14 +11,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 
 @Composable
 fun QuickEditApp(
     initialImageUri: Uri? = null,
     imagePickerScreen: @Composable (onImageSelected: (Uri) -> Unit, onCancel: () -> Unit) -> Unit = { _, _ -> }
 ) {
-    QuickEditTheme {
+    EditorTheme {
         Scaffold(
             // Ensure content avoids system bars & cutouts
             contentWindowInsets = WindowInsets.safeDrawing,

@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Скице</string>
     <string name="draft_select_all">Изабери све</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">Избриши</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">Поништи избор свега</string>
     <string name="draft_delete_selected">Избриши (%1$d)</string>
     <string name="draft_selected_count">%1$d селектовано</string>
@@ -291,4 +299,5 @@
     <string name="border_gradient_ember_glass">Ember Glass</string>
     <string name="pro_feature_expand">Глатко ИИ проширење</string>
     <string name="pro_see_details">Детаљи ></string>
+    <string name="picker_sample_badge">Узорак</string>
 </resources>

@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Фотарэдактар</string>
-
+    <string name="border_tab_size">Памер</string>
+    <string name="border_blur">Размыццё рамкі</string>
+    <string name="border_blur_amount">Ступень размыцця</string>
+    <string name="border_blur_none">Без размыцця</string>
+    <string name="border_blur_soft">Мяккае размыццё</string>
+    <string name="rotate_screen_title">Павярнуць выяву</string>
+    <string name="rotate_hint_title">Інструменты павароту</string>
+    <string name="rotate_hint_desc">Павярніце на 90 градусаў або адлюструйце гарызантальна і вертыкальна, каб выправіць арыентацыю выявы.</string>
     <string name="color">Колер</string>
     <string name="format">Фармат</string>
     <string name="font">Шрыфт</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">Парада: Калі вы памыліліся, вы заўсёды можаце выкарыстоўваць функцыі «Адмяніць/Паўтарыць» (Undo/Redo).</string>
     <string name="magic_brush_got_it">Я зразумеў</string>
     <string name="studio_effect_requires_background">Гэта функцыя даступная толькі тады, калі ў аб\'екта ёсць фон</string>
+    <string name="draft_label">Чарнавік</string>
+    <string name="draft_saved_successfully">Чарнавік паспяхова захаваны</string>
 </resources>

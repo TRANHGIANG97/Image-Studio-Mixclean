@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Piszkozatok</string>
     <string name="draft_select_all">Összes kijelölése</string>
+    <string name="draft_confirm_delete_single">Törli a(z) \'%1$s\' piszkozatot?</string>
+    <string name="draft_delete_title">Piszkozat törlése</string>
+    <string name="draft_rename_title">Piszkozat átnevezése</string>
+    <string name="draft_duplicate">Másolat</string>
+    <string name="draft_card_copy">Másolat</string>
+    <string name="draft_card_delete">Törlés</string>
+    <string name="draft_rename">Átnevezés</string>
+    <string name="draft_empty">Még nincsenek piszkozatok</string>
     <string name="draft_deselect_all">Kijelölés megszüntetése</string>
     <string name="draft_delete_selected">Törlés (%1$d)</string>
     <string name="draft_selected_count">%1$d kijelölve</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Indítsa el a 3 napos ingyenes próbaidőszakot</string>
     <string name="pro_feature_expand">Sima AI bővítés</string>
     <string name="pro_see_details">Részletek ></string>
+    <string name="picker_sample_badge">Minta</string>
 </resources>

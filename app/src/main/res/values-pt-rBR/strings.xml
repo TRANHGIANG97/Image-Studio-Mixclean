@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Rascunhos</string>
     <string name="draft_select_all">Selecionar Tudo</string>
+    <string name="draft_confirm_delete_single">Deseja excluir o rascunho \'%1$s\'?</string>
+    <string name="draft_delete_title">Excluir rascunho</string>
+    <string name="draft_rename_title">Renomear rascunho</string>
+    <string name="draft_duplicate">Duplicar</string>
+    <string name="draft_card_copy">Duplicar</string>
+    <string name="draft_card_delete">Excluir</string>
+    <string name="draft_rename">Renomear</string>
+    <string name="draft_empty">Ainda não há rascunhos</string>
     <string name="draft_deselect_all">Desmarcar Tudo</string>
     <string name="draft_delete_selected">Excluir (%1$d)</string>
     <string name="draft_selected_count">%1$d selecionado</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Iniciar teste gratuito de 3 dias</string>
     <string name="pro_feature_expand">Expandir imagem naturalmente via IA</string>
     <string name="pro_see_details">Ver detalhes ></string>
+    <string name="picker_sample_badge">Amostra</string>
 </resources>

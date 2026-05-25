@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Баруун тийш эргүүлэх</string>
     <string name="studio_layout_flip_horizontal">Хөндлөнгөөр эргүүлэх</string>
     <string name="studio_layout_flip_vertical">Босоогоор эргүүлэх</string>
+    <string name="studio_shadow_tab_intensity">Сүүдэр</string>
+    <string name="studio_shadow_tab_angle">Өнцөг</string>
+    <string name="studio_shadow_tab_distance">Зай</string>
+    <string name="studio_shadow_tab_color">Өнгө</string>
+    <string name="studio_shadow_preset_none">Байхгүй</string>
+    <string name="studio_shadow_preset_light">Зөөлөн</string>
+    <string name="studio_shadow_preset_medium">Дундаж</string>
+    <string name="studio_shadow_preset_strong">Тод</string>
+    <string name="studio_shadow_preset_natural">Ердийн</string>
+    <string name="studio_shadow_preset_dramatic">Драматик</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Бүтээгдэхүүний зураг нэмэх</string>
+    <string name="studio_pick_product_subtitle">Арын дэвсгэрийг автоматаар устгана</string>
+    <string name="studio_export">Экспортлох</string>
+    <string name="studio_crop_ratio_original">Эх хувь</string>
 </resources>

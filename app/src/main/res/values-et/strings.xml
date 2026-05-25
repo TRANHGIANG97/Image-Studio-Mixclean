@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Mustandid</string>
     <string name="draft_select_all">Vali kõik</string>
+    <string name="draft_confirm_delete_single">Kas kustutada mustand \'%1$s\'?</string>
+    <string name="draft_delete_title">Kustuta mustand</string>
+    <string name="draft_rename_title">Nimeta mustand ümber</string>
+    <string name="draft_duplicate">Dubleeri</string>
+    <string name="draft_card_copy">Dubleeri</string>
+    <string name="draft_card_delete">Kustuta</string>
+    <string name="draft_rename">Nimeta ümber</string>
+    <string name="draft_empty">Mustandeid veel pole</string>
     <string name="draft_deselect_all">Tühista valik</string>
     <string name="draft_delete_selected">Kustuta (%1$d)</string>
     <string name="draft_selected_count">%1$d valitud</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Alusta 3-päevast tasuta prooviperioodi</string>
     <string name="pro_feature_expand">Sujuv AI laiendamine</string>
     <string name="pro_see_details">Üksikasjad ></string>
+    <string name="picker_sample_badge">Näidis</string>
 </resources>

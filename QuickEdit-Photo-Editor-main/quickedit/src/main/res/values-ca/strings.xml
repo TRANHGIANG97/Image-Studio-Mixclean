@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Editor de fotos</string>
-
+    <string name="border_tab_size">Mida</string>
+    <string name="border_blur">Desenfocament de la vora</string>
+    <string name="border_blur_amount">Quantitat de desenfocament</string>
+    <string name="border_blur_none">Sense desenfocament</string>
+    <string name="border_blur_soft">Desenfocament suau</string>
+    <string name="rotate_screen_title">Girar la imatge</string>
+    <string name="rotate_hint_title">Eines de gir</string>
+    <string name="rotate_hint_desc">Gira 90 graus o gira horitzontalment i verticalment para corregir l\'orientació de la imatge.</string>
     <string name="color">Color</string>
     <string name="format">Format</string>
     <string name="font">Font</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">Consell: Si comets un error, sempre pots utilitzar les funcions de Desfer/Refer (Undo/Redo).</string>
     <string name="magic_brush_got_it">Ho he entès</string>
     <string name="studio_effect_requires_background">Aquesta funció només està disponible si el subjecte té un fons</string>
+    <string name="draft_label">Esborrany</string>
+    <string name="draft_saved_successfully">Esborrany desat correctament</string>
 </resources>

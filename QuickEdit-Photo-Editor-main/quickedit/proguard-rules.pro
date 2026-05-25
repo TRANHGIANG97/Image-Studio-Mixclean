@@ -30,3 +30,8 @@
 
 # GPUImage (avoid stripping)
 -keep class jp.co.cyberagent.android.gpuimage.** { *; }
+
+# Generics and custom UI states preservation
+-keepattributes Signature, *Annotation*, InnerClasses, EnclosingMethod
+-keep class com.abizer_r.quickedit.ui.drawMode.stateHandling.** { *; }
+-keep class com.abizer_r.quickedit.ui.drawMode.drawingCanvas.models.** { *; }

@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Павярнуць направа</string>
     <string name="studio_layout_flip_horizontal">Адлюстраваць Г</string>
     <string name="studio_layout_flip_vertical">Адлюстраваць В</string>
+    <string name="studio_shadow_tab_intensity">Цень</string>
+    <string name="studio_shadow_tab_angle">Кут</string>
+    <string name="studio_shadow_tab_distance">Адлегласць</string>
+    <string name="studio_shadow_tab_color">Колер</string>
+    <string name="studio_shadow_preset_none">Няма</string>
+    <string name="studio_shadow_preset_light">Лёгкі</string>
+    <string name="studio_shadow_preset_medium">Сярэдні</string>
+    <string name="studio_shadow_preset_strong">Моцны</string>
+    <string name="studio_shadow_preset_natural">Натуральны</string>
+    <string name="studio_shadow_preset_dramatic">Драматычны</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Дадаць выяву тавару</string>
+    <string name="studio_pick_product_subtitle">Фон выдаляецца аўтаматычна</string>
+    <string name="studio_export">Экспарт</string>
+    <string name="studio_crop_ratio_original">Арыгінал</string>
 </resources>

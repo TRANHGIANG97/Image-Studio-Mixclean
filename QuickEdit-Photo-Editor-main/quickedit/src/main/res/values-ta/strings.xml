@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">குறிப்பு: ஏதேனும் தவறு நடந்தால், அன்டூ/ரெடூ (Undo/Redo) செயல்பாடுகளைப் பயன்படுத்தலாம்.</string>
     <string name="magic_brush_got_it">புரிந்தது</string>
     <string name="studio_effect_requires_background">பொருளுக்குப் பின்னணி இருக்கும்போது மட்டுமே இந்த அம்சம் கிடைக்கும்</string>
+    <string name="border_tab_size">அளவு</string>
+    <string name="border_blur">பார்டர் பிளர்</string>
+    <string name="border_blur_amount">பிளர் அளவு</string>
+    <string name="border_blur_none">பிளர் இன்றி</string>
+    <string name="border_blur_soft">மென்மையான பிளர்</string>
+    <string name="rotate_screen_title">படத்தைச் சுழற்று</string>
+    <string name="rotate_hint_title">சுழற்றும் கருவிகள்</string>
+    <string name="rotate_hint_desc">படத்தின் நோக்குநிலையைச் சரிசெய்ய 90 டிகிரி சுழற்றவும் அல்லது கிடைమட்டமாகவும் செங்குத்தாகவும் திருப்பவும்.</string>
+    <string name="draft_label">வரைவு</string>
+    <string name="draft_saved_successfully">வரைவு வெற்றிகரமாக சேமிக்கப்பட்டது</string>
 </resources>

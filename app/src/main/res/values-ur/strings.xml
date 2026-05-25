@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">مسودات</string>
     <string name="draft_select_all">سب منتخب کریں</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">حذف کریں</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">سب کا انتخاب منسوخ کریں</string>
     <string name="draft_delete_selected">حذف کریں (%1$d)</string>
     <string name="draft_selected_count">%1$d منتخب کیا گیا</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">3 دن کا مفت ٹرائل शुरू کریں</string>
     <string name="pro_feature_expand">ہموار AI توسیع</string>
     <string name="pro_see_details">تفصیلات ></string>
+    <string name="picker_sample_badge">نمونہ</string>
 </resources>

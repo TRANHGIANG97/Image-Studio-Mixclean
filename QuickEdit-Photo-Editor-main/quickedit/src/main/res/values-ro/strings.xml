@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Sugestie: Dacă greșiți, puteți folosi funcțiile Anulare/Restabilire (Undo/Redo).</string>
     <string name="magic_brush_got_it">Am înțeles</string>
     <string name="studio_effect_requires_background">Această funcție este disponibilă numai când subiectul are un fundal</string>
+    <string name="border_tab_size">Dimensiune</string>
+    <string name="border_blur">Estompare chenar</string>
+    <string name="border_blur_amount">Nivel de estompare</string>
+    <string name="border_blur_none">Fără estompare</string>
+    <string name="border_blur_soft">Estompare ușoară</string>
+    <string name="rotate_screen_title">Rotește imaginea</string>
+    <string name="rotate_hint_title">Instrumente de rotire</string>
+    <string name="rotate_hint_desc">Rotiți la 90 de grade sau întoarceți pe orizontală și verticală pentru a corecta orientarea imaginii.</string>
+    <string name="draft_label">Ciornă</string>
+    <string name="draft_saved_successfully">Ciornă salvată cu succes</string>
 </resources>

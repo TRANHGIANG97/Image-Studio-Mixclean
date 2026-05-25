@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Kladd</string>
     <string name="draft_select_all">Velg alle</string>
+    <string name="draft_confirm_delete_single">Vil du slette utkastet \'%1$s\'?</string>
+    <string name="draft_delete_title">Slett utkast</string>
+    <string name="draft_rename_title">Gi utkast nytt navn</string>
+    <string name="draft_duplicate">Dupliser</string>
+    <string name="draft_card_copy">Dupliser</string>
+    <string name="draft_card_delete">Slett</string>
+    <string name="draft_rename">Gi nytt navn</string>
+    <string name="draft_empty">Ingen utkast ennå</string>
     <string name="draft_deselect_all">Fravælg alle</string>
     <string name="draft_delete_selected">Slett (%1$d)</string>
     <string name="draft_selected_count">%1$d valgt</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Start 3-dagers gratis prøveperiode</string>
     <string name="pro_feature_expand">Glatt AI-utvidelse</string>
     <string name="pro_see_details">Detaljer ></string>
+    <string name="picker_sample_badge">Eksempel</string>
 </resources>

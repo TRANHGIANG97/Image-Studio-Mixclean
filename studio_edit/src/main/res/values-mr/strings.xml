@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">उजवीकडे फिरवा</string>
     <string name="studio_layout_flip_horizontal">आडवे उलट करा</string>
     <string name="studio_layout_flip_vertical">उभे उलट करा</string>
+    <string name="studio_shadow_tab_intensity">सावली</string>
+    <string name="studio_shadow_tab_angle">कोन</string>
+    <string name="studio_shadow_tab_distance">अंतर</string>
+    <string name="studio_shadow_tab_color">रंग</string>
+    <string name="studio_shadow_preset_none">काहीही नाही</string>
+    <string name="studio_shadow_preset_light">हळकी</string>
+    <string name="studio_shadow_preset_medium">मध्यम</string>
+    <string name="studio_shadow_preset_strong">गाढ</string>
+    <string name="studio_shadow_preset_natural">नैसर्गिक</string>
+    <string name="studio_shadow_preset_dramatic">नाटकीय</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">उत्पादनाची प्रतिमा जोडा</string>
+    <string name="studio_pick_product_subtitle">पार्श्वभूमी आपोआप हटवली जाते</string>
+    <string name="studio_export">निर्यात करा</string>
+    <string name="studio_crop_ratio_original">मूळ</string>
 </resources>

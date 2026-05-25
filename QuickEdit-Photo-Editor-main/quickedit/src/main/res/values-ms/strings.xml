@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Petunjuk: Jika anda tersilap, anda boleh menggunakan fungsi Buat Semula/Buat Asal (Undo/Redo).</string>
     <string name="magic_brush_got_it">Faham</string>
     <string name="studio_effect_requires_background">Ciri ini hanya tersedia apabila subjek mempunyai latar belakang</string>
+    <string name="border_tab_size">Saiz</string>
+    <string name="border_blur">Kabur sempadan</string>
+    <string name="border_blur_amount">Tahap kekaburan</string>
+    <string name="border_blur_none">Tanpa kabur</string>
+    <string name="border_blur_soft">Kabur lembut</string>
+    <string name="rotate_screen_title">Putar Imej</string>
+    <string name="rotate_hint_title">Alatan putar</string>
+    <string name="rotate_hint_desc">Putar 90 darjah eller balikkan secara mendatar dan menegak untuk membetulkan orientasi imej.</string>
+    <string name="draft_label">Draf</string>
+    <string name="draft_saved_successfully">Draf berjaya disimpan</string>
 </resources>

@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">ຄຳແນະນຳ: ຖ້າທ່ານເຮັດຜິດພາດ, ທ່ານສາມາດໃຊ້ຟັງຊັນ ຍົກເລີກ/ເຮັດຄືນ (Undo/Redo) ໄດ້ຕະຫຼອດເວລາ.</string>
     <string name="magic_brush_got_it">ຂ້ອຍເຂົ້າໃຈແລ້ວ</string>
     <string name="studio_effect_requires_background">ຄຸນສົມບັດນີ້ສາມາດໃຊ້ໄດ້ ເມື່ອວັດຖຸມີພື້ນຫຼັງເທົ່ານັ້ນ</string>
+    <string name="border_tab_size">ຂະໜາດ</string>
+    <string name="border_blur">ເຮັດໃຫ້ຂອບມົວ</string>
+    <string name="border_blur_amount">ລະດັບຄວາມມົວ</string>
+    <string name="border_blur_none">ບໍ່ມົວ</string>
+    <string name="border_blur_soft">ມົວແບບນຸ່ມນວນ</string>
+    <string name="rotate_screen_title">ໝູນຮູບພາບ</string>
+    <string name="rotate_hint_title">ເຄື່ອງມືໝູນ</string>
+    <string name="rotate_hint_desc">ໝູນ 90 ອົງສາ ຫຼື ພິກແນวนອນແລະແນວຕັ້ງ ເພື່ອແກ້ໄຂທິດທາງຂອງຮູບພາບ。</string>
+    <string name="draft_label">ຮ່າງ</string>
+    <string name="draft_saved_successfully">ບັນທຶກສະໝຸດຮ່າງສຳເລັດແລ້ວ</string>
 </resources>

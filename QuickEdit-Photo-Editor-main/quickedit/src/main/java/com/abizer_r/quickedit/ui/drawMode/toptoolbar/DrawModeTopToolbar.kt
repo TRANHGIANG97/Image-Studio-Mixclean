@@ -1,33 +1,30 @@
 package com.abizer_r.quickedit.ui.drawMode.toptoolbar
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Redo
 import androidx.compose.material.icons.filled.Undo
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.abizer_r.quickedit.theme.QuickEditTheme
-// ToolBarBackgroundColor removed from imports
+import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
+import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButton
 
 @Composable
 fun DrawModeTopToolBar(
@@ -46,94 +43,54 @@ fun DrawModeTopToolBar(
     Row(
         modifier = modifier
             .height(toolbarHeight)
-            .background(MaterialTheme.colorScheme.surface),
+            .background(EditorColorPalette.GlassOverlay)
+            .drawBehind {
+                drawRect(
+                    color = EditorColorPalette.BorderSubtle,
+                    topLeft = Offset(0f, size.height - 0.5.dp.toPx()),
+                    size = Size(size.width, 0.5.dp.toPx())
+                )
+            },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        /**
-         * Tool Item: CLOSE
-         */
         if (showCloseAndDone) {
-            Image(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .size(32.dp)
-                    .clickable {
-                        onCloseClicked()
-                    },
-                contentDescription = null,
-                imageVector = Icons.Default.Close,
-                colorFilter = ColorFilter.tint(
-                    color = if (closeEnabled) {
-                        MaterialTheme.colorScheme.onBackground
-                    } else Color.DarkGray
-                )
+            EditorToolButton(
+                icon = Icons.Default.Close,
+                contentDescription = "Close",
+                onClick = onCloseClicked,
+                compact = true,
+                enabled = closeEnabled
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        /**
-         * Tool Item: UNDO
-         */
-        Image(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(32.dp)
-                .clickable {
-                    onUndo()
-                },
-            contentDescription = null,
-            imageVector = Icons.Default.Undo,
-            colorFilter = ColorFilter.tint(
-                color = if (undoEnabled) {
-                    MaterialTheme.colorScheme.onBackground
-                } else Color.DarkGray
-            )
+        EditorToolButton(
+            icon = Icons.Default.Undo,
+            contentDescription = "Undo",
+            onClick = onUndo,
+            compact = true,
+            enabled = undoEnabled
         )
 
-        /**
-         * Tool Item: REDO
-         */
-        Image(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(32.dp)
-                .clickable {
-                    onRedo()
-                },
-            contentDescription = null,
-            imageVector = Icons.Default.Redo,
-            colorFilter = ColorFilter.tint(
-                color = if (redoEnabled) {
-                    MaterialTheme.colorScheme.onBackground
-                } else Color.DarkGray
-            )
+        EditorToolButton(
+            icon = Icons.Default.Redo,
+            contentDescription = "Redo",
+            onClick = onRedo,
+            compact = true,
+            enabled = redoEnabled
         )
-
 
         Spacer(modifier = Modifier.weight(1f))
 
-
-        /**
-         * Tool Item: DONE
-         */
         if (showCloseAndDone) {
-            Image(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .size(32.dp)
-                    .clickable {
-                        onDoneClicked()
-                    },
-                contentDescription = null,
-                imageVector = Icons.Default.Check,
-                colorFilter = ColorFilter.tint(
-                    color = if (doneEnabled) {
-                        MaterialTheme.colorScheme.onBackground
-                    } else Color.DarkGray
-                )
+            EditorToolButton(
+                icon = Icons.Default.Check,
+                contentDescription = "Done",
+                onClick = onDoneClicked,
+                compact = true,
+                enabled = doneEnabled
             )
         }
     }
@@ -142,7 +99,7 @@ fun DrawModeTopToolBar(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewTopToolbar() {
-    QuickEditTheme {
+    EditorTheme {
         DrawModeTopToolBar(
             modifier = Modifier.fillMaxWidth(),
             undoEnabled = true,
@@ -158,7 +115,7 @@ fun PreviewTopToolbar() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewTopToolbar2() {
-    QuickEditTheme {
+    EditorTheme {
         DrawModeTopToolBar(
             modifier = Modifier.fillMaxWidth(),
             undoEnabled = true,

@@ -16,9 +16,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
-import androidx.compose.material.icons.filled.AutoFixHigh
-import androidx.compose.material.icons.filled.Grain
-import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Grain
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.Category
@@ -47,13 +49,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed
 import com.abizer_r.quickedit.utils.ImmutableList
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarEvent
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.state.BottomToolbarItem
 import com.abizer_r.quickedit.ui.transformableViews.base.TransformableTextBoxState
-import com.abizer_r.quickedit.utils.defaultTextColor
+import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 import com.abizer_r.quickedit.utils.drawMode.DrawModeUtils
 import com.abizer_r.quickedit.utils.editorScreen.EditorScreenUtils
 import com.abizer_r.quickedit.utils.textMode.TextModeUtils
@@ -61,10 +63,10 @@ import com.abizer_r.quickedit.ui.editorScreen.components.EditorBottomToolbarTemp
 import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButton
 import java.util.UUID
 
-val TOOLBAR_HEIGHT_SMALL = 48.dp
-val TOOLBAR_HEIGHT_MEDIUM = 72.dp
-val TOOLBAR_HEIGHT_LARGE = 88.dp
-val TOOLBAR_HEIGHT_EXTRA_LARGE = 104.dp
+val TOOLBAR_HEIGHT_SMALL = 52.dp
+val TOOLBAR_HEIGHT_MEDIUM = 62.dp
+val TOOLBAR_HEIGHT_LARGE = 64.dp
+val TOOLBAR_HEIGHT_EXTRA_LARGE = 72.dp
 
 @Composable
 fun BottomToolBarStatic(
@@ -103,7 +105,11 @@ fun ToolbarItem(
     isSelected: Boolean,
     onEvent: (BottomToolbarEvent) -> Unit
 ) {
-    val labelTextStyle = MaterialTheme.typography.bodySmall.copy(color = defaultTextColor())
+    val tokens = LocalEditorTokens.current
+    val labelTextStyle = MaterialTheme.typography.labelSmall.copy(
+        fontSize = 11.sp,
+        color = tokens.textSecondary
+    )
 
     if (toolbarItem is BottomToolbarItem.ColorItem) {
         ColorToolbarItem(
@@ -128,7 +134,7 @@ fun ToolbarItem(
 
         )
         is BottomToolbarItem.TextMode -> Pair(
-            Icons.Default.TextFields,
+            Icons.Outlined.TextFields,
             stringResource(id = R.string.text)
         )
         is BottomToolbarItem.EffectsMode -> Pair(
@@ -140,15 +146,15 @@ fun ToolbarItem(
             stringResource(id = R.string.border)
         )
         is BottomToolbarItem.StudioMode -> Pair(
-            Icons.Default.AutoFixHigh,
+            Icons.Outlined.AutoAwesome,
             stringResource(id = R.string.studio)
         )
         is BottomToolbarItem.RemoveBg -> Pair(
-            Icons.Outlined.Person,
+            Icons.Outlined.Image,
             stringResource(id = R.string.remove_bg)
         )
         is BottomToolbarItem.MagicBrush -> Pair(
-            Icons.Outlined.Brush,
+            ImageVector.vectorResource(id = R.drawable.ic_magic_brush),
             stringResource(id = R.string.tool_magic_brush)
         )
         is BottomToolbarItem.BackgroundMode -> Pair(
@@ -160,7 +166,7 @@ fun ToolbarItem(
             stringResource(id = R.string.rotate)
         )
         is BottomToolbarItem.AddImage -> Pair(
-            Icons.Default.AddCircleOutline,
+            Icons.Outlined.AddPhotoAlternate,
             stringResource(id = R.string.add_image)
         )
 
@@ -169,7 +175,7 @@ fun ToolbarItem(
             stringResource(id = R.string.eraser)
         )
         is BottomToolbarItem.MosaicTool -> Pair(
-            androidx.compose.material.icons.Icons.Default.Grain,
+            Icons.Outlined.Grain,
             stringResource(id = R.string.mosaic)
         )
 
@@ -239,7 +245,7 @@ fun ColorToolbarItem(
                 bitmap = ImageBitmap.imageResource(id = R.drawable.ic_color_picker),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(26.dp)
+                    .size(24.dp)
                     .clickable {
                         onEvent(BottomToolbarEvent.OnItemClicked(colorItem))
                     }
@@ -253,7 +259,7 @@ fun ColorToolbarItem(
                     .background(color = MaterialTheme.colorScheme.onBackground)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .size(26.dp)
+                    .size(24.dp)
                     .clickable {
                         onEvent(BottomToolbarEvent.OnItemClicked(colorItem))
                     }
@@ -273,7 +279,7 @@ fun ColorToolbarItem(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun EditorScreen_BottomToolbar() {
-    QuickEditTheme {
+    EditorTheme {
         val itemsList = EditorScreenUtils.getDefaultBottomToolbarItemsList()
         BottomToolBarStatic(
             modifier = Modifier.fillMaxWidth(),
@@ -286,7 +292,7 @@ fun EditorScreen_BottomToolbar() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun DrawMode_BottomToolbar() {
-    QuickEditTheme {
+    EditorTheme {
         val itemsList = DrawModeUtils.getDefaultBottomToolbarItemsList()
         BottomToolBarStatic(
             modifier = Modifier.fillMaxWidth(),
@@ -302,7 +308,7 @@ fun DrawMode_BottomToolbar() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun TextMode_BottomToolbar() {
-    QuickEditTheme {
+    EditorTheme {
         val itemsList = TextModeUtils.getBottomToolbarItemsList(
             selectedViewState = TransformableTextBoxState(
                 id = UUID.randomUUID().toString(),

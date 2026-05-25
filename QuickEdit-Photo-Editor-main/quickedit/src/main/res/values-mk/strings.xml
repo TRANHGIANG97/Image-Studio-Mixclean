@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Совет: Ако направите грешка, можете да користите Поништи/Повтори.</string>
     <string name="magic_brush_got_it">Во ред</string>
     <string name="studio_effect_requires_background">Оваа функција е достапна само кога субјектот има позадина</string>
+    <string name="border_tab_size">Големина</string>
+    <string name="border_blur">Заматување на рамката</string>
+    <string name="border_blur_amount">Степен на заматување</string>
+    <string name="border_blur_none">Без заматување</string>
+    <string name="border_blur_soft">Благо заматување</string>
+    <string name="rotate_screen_title">Ротирај ја сликата</string>
+    <string name="rotate_hint_title">Алатки за ротирање</string>
+    <string name="rotate_hint_desc">Ротирајте за 90 степени или превртете хоризонтално и вертикално за да ја поправите ориентацијата на сликата.</string>
+    <string name="draft_label">Нацрт</string>
+    <string name="draft_saved_successfully">Нацртот е успешно зачуван</string>
 </resources>

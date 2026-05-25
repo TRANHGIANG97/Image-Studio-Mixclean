@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">팁: 실수하셨더라도 언제든지 실행 취소/다시 실행(Undo/Redo) 기능을 사용할 수 있습니다.</string>
     <string name="magic_brush_got_it">이해했습니다</string>
     <string name="studio_effect_requires_background">이 기능은 피사체에 배경이 있을 때만 사용할 수 있습니다</string>
+    <string name="border_tab_size">크기</string>
+    <string name="border_blur">테두리 흐림</string>
+    <string name="border_blur_amount">흐림 강도</string>
+    <string name="border_blur_none">흐림 없음</string>
+    <string name="border_blur_soft">부드러운 흐림</string>
+    <string name="rotate_screen_title">이미지 회전</string>
+    <string name="rotate_hint_title">회전 도구</string>
+    <string name="rotate_hint_desc">이미지 방향을 바로잡으려면 90도 회전하거나 가로 및 세로로 뒤집으십시오.</string>
+    <string name="draft_label">초안</string>
+    <string name="draft_saved_successfully">임시 저장이 성공적으로 완료되었습니다</string>
 </resources>

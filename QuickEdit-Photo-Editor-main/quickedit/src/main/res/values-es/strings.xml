@@ -2,7 +2,14 @@
 <resources>
     <string name="app_name">QuickEdit</string>
     <string name="app_name_full">QuickEdit - Editor de fotos</string>
-
+    <string name="border_tab_size">Tamaño</string>
+    <string name="border_blur">Desenfoque de borde</string>
+    <string name="border_blur_amount">Cantidad de desenfoque</string>
+    <string name="border_blur_none">Sin desenfoque</string>
+    <string name="border_blur_soft">Desenfoque suave</string>
+    <string name="rotate_screen_title">Rotar imagen</string>
+    <string name="rotate_hint_title">Herramientas de rotación</string>
+    <string name="rotate_hint_desc">Gira 90 grados o voltea horizontal y verticalmente para corregir la orientación de la imagen.</string>
     <string name="color">Color</string>
     <string name="format">Formato</string>
     <string name="font">Fuente</string>
@@ -152,4 +159,6 @@
     <string name="magic_brush_guide_tip">Consejo: Usa Deshacer/Rehacer si cometes un error.</string>
     <string name="magic_brush_got_it">¡Entendido!</string>
     <string name="studio_effect_requires_background">Esta función solo está disponible cuando el sujeto tiene un fondo</string>
+    <string name="draft_label">Borrador</string>
+    <string name="draft_saved_successfully">Borrador guardado correctamente</string>
 </resources>

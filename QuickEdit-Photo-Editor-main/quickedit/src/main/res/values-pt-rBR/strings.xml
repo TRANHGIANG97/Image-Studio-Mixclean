@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Dica: Se cometer um erro, você pode usar as funções Desfazer/Refazer.</string>
     <string name="magic_brush_got_it">Entendi</string>
     <string name="studio_effect_requires_background">Esta função está disponível apenas quando o sujeito possui um fundo</string>
+    <string name="border_tab_size">Tamanho</string>
+    <string name="border_blur">Desfoque de borda</string>
+    <string name="border_blur_amount">Intensidade do desfoque</string>
+    <string name="border_blur_none">Sem desfoque</string>
+    <string name="border_blur_soft">Desfoque suave</string>
+    <string name="rotate_screen_title">Rotacionar imagem</string>
+    <string name="rotate_hint_title">Ferramentas de rotação</string>
+    <string name="rotate_hint_desc">Gire 90 graus ou inverta horizontal e verticalmente para corrigir a orientação da imagem.</string>
+    <string name="draft_label">Rascunho</string>
+    <string name="draft_saved_successfully">Rascunho salvo com sucesso</string>
 </resources>

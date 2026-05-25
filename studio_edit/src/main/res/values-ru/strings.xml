@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Повернуть направо</string>
     <string name="studio_layout_flip_horizontal">Отразить по горизонтали</string>
     <string name="studio_layout_flip_vertical">Отразить по вертикали</string>
+    <string name="studio_shadow_tab_intensity">Тень</string>
+    <string name="studio_shadow_tab_angle">Угол</string>
+    <string name="studio_shadow_tab_distance">Расстояние</string>
+    <string name="studio_shadow_tab_color">Цвет</string>
+    <string name="studio_shadow_preset_none">Нет</string>
+    <string name="studio_shadow_preset_light">Легкая</string>
+    <string name="studio_shadow_preset_medium">Средняя</string>
+    <string name="studio_shadow_preset_strong">Интенсивная</string>
+    <string name="studio_shadow_preset_natural">Естественная</string>
+    <string name="studio_shadow_preset_dramatic">Драматическая</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Добавить изображение товара</string>
+    <string name="studio_pick_product_subtitle">Фон удаляется автоматически</string>
+    <string name="studio_export">Экспорт</string>
+    <string name="studio_crop_ratio_original">Оригинал</string>
 </resources>

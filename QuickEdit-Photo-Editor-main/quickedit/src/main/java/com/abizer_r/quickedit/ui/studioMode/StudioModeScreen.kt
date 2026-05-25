@@ -42,7 +42,6 @@ import com.abizer_r.quickedit.ui.common.AnimatedToolbarContainer
 import com.abizer_r.quickedit.ui.common.LoadingView
 import com.abizer_r.quickedit.ui.common.bottomToolbarModifier
 import com.abizer_r.quickedit.ui.common.topToolbarModifier
-import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_EXTRA_LARGE
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
 import com.abizer_r.quickedit.ui.editorScreen.components.EditorToolButtonTemplate
 import com.abizer_r.quickedit.utils.toast
@@ -72,7 +71,7 @@ fun StudioModeScreen(
     }
 
     val topToolbarHeight = TOOLBAR_HEIGHT_SMALL
-    val bottomToolbarHeight = TOOLBAR_HEIGHT_EXTRA_LARGE
+    val bottomToolbarHeight = 100.dp
 
     var toolbarVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -342,9 +341,9 @@ fun StudioOptionsList(
     )
 
     LazyRow(
-        modifier = modifier.padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(horizontal = 20.dp),
+        modifier = modifier.padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         items(options) { option ->
@@ -376,13 +375,13 @@ fun StudioOptionItem(
 ) {
     Column(
         modifier = Modifier
-            .widthIn(min = 76.dp)
+            .widthIn(min = 72.dp)
             .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
-                .size(48.dp)
+                .size(44.dp)
                 .clip(CircleShape)
                 .background(
                     if (isSelected) {
@@ -398,14 +397,14 @@ fun StudioOptionItem(
                 imageVector = option.icon,
                 contentDescription = option.title,
                 tint = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(22.dp)
             )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = option.title,
             style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 10.sp,
+                fontSize = 9.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
             ),
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,

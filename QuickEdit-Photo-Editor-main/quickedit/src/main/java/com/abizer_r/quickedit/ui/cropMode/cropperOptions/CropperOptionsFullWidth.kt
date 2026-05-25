@@ -31,7 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.abizer_r.quickedit.theme.QuickEditTheme
+import androidx.compose.ui.text.style.TextAlign
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 // ToolBarBackgroundColor removed from imports
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_LARGE
 import com.abizer_r.quickedit.utils.defaultTextColor
@@ -41,7 +42,7 @@ import com.abizer_r.quickedit.utils.editorScreen.CropModeUtils
 @Composable
 fun CropperOptionsFullWidth(
     modifier: Modifier = Modifier,
-    toolbarHeight: Dp = TOOLBAR_HEIGHT_LARGE,
+    toolbarHeight: Dp = 84.dp,
     cropperOptionList: List<CropperOption>,
     selectedIndex: Int,
     onItemClicked: (position: Int, effectItem: CropperOption) -> Unit
@@ -51,7 +52,7 @@ fun CropperOptionsFullWidth(
         modifier = modifier
             .fillMaxWidth()
             .height(toolbarHeight)
-            .padding(vertical = 8.dp),
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         items(
@@ -62,7 +63,7 @@ fun CropperOptionsFullWidth(
             CropperOptionView(
                 modifier = Modifier
                     .animateItem()
-                    .padding(horizontal = 4.dp),
+                    .padding(horizontal = 6.dp),
                 cropperOption = cropperOption,
                 isSelected = index == selectedIndex,
                 selectedBorderColor = MaterialTheme.colorScheme.onBackground,
@@ -94,7 +95,7 @@ fun CropperOptionView(
             .padding(selectedBorderWidth)
             .clip(clipShape)
             .background(MaterialTheme.colorScheme.background)
-            .padding(4.dp)
+            .padding(horizontal = 6.dp, vertical = 4.dp)
             .clickable {
                 onClick(cropperOption)
             },
@@ -104,8 +105,8 @@ fun CropperOptionView(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .padding(top = 8.dp, bottom = 4.dp)
+                .padding(horizontal = 6.dp)
+                .padding(top = 6.dp, bottom = 3.dp)
                 .size(24.dp)
         ) {
             if (cropperOption.aspectRatioX == -1f) {
@@ -143,12 +144,15 @@ fun CropperOptionView(
         }
 
         Text(
-            modifier = Modifier.padding(top = 4.dp),
+            modifier = Modifier.padding(top = 2.dp),
             text = cropperOption.label,
             style = MaterialTheme.typography.labelSmall.copy(
                 color = defaultTextColor(),
-                fontSize = 9.sp,
+                fontSize = 10.sp,
+                lineHeight = 12.sp,
             ),
+            maxLines = 2,
+            textAlign = TextAlign.Center
         )
     }
 
@@ -158,7 +162,7 @@ fun CropperOptionView(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Selected_EffectPreviewItem() {
-    QuickEditTheme {
+    EditorTheme {
         CropperOptionView(
             modifier = Modifier.padding(8.dp),
             cropperOption = CropperOption(
@@ -175,7 +179,7 @@ fun Selected_EffectPreviewItem() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Unselected_EffectPreviewItem() {
-    QuickEditTheme {
+    EditorTheme {
         CropperOptionView(
             modifier = Modifier.padding(8.dp),
             cropperOption = CropperOption(
@@ -193,7 +197,7 @@ fun Unselected_EffectPreviewItem() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Preview_EffectsPreviewList() {
-    QuickEditTheme {
+    EditorTheme {
         CropperOptionsFullWidth(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surface)

@@ -87,7 +87,7 @@ fun DraftsScreen(
             } else {
                 // Normal top bar
                 TopAppBar(
-                    title = { Text("Bản nháp", fontWeight = FontWeight.Bold) },
+                    title = { Text(stringResource(com.thgiang.image.R.string.home_draft), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
@@ -96,7 +96,7 @@ fun DraftsScreen(
                     actions = {
                         if (uiState.drafts.isNotEmpty()) {
                             TextButton(onClick = { viewModel.enterSelectionMode() }) {
-                                Text("Chọn")
+                                Text(stringResource(com.thgiang.image.R.string.select))
                             }
                         }
                     },
@@ -121,7 +121,7 @@ fun DraftsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Đã chọn ${uiState.selectedDraftIds.size} bản nháp",
+                            text = stringResource(com.thgiang.image.R.string.draft_selected_count, uiState.selectedDraftIds.size),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Button(
@@ -136,7 +136,7 @@ fun DraftsScreen(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(Modifier.width(4.dp))
-                            Text("Xoá")
+                            Text(stringResource(com.thgiang.image.R.string.multi_delete))
                         }
                     }
                 }
@@ -156,7 +156,7 @@ fun DraftsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "Chưa có bản nháp nào",
+                        stringResource(com.thgiang.image.R.string.draft_empty),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
@@ -208,7 +208,7 @@ fun DraftsScreen(
         var newName by remember { mutableStateOf(draft.name) }
         AlertDialog(
             onDismissRequest = { draftToRename = null },
-            title = { Text("Đổi tên bản nháp") },
+            title = { Text(stringResource(com.thgiang.image.R.string.draft_rename_title)) },
             text = {
                 OutlinedTextField(
                     value = newName,
@@ -222,12 +222,12 @@ fun DraftsScreen(
                     viewModel.renameDraft(draft.id, newName)
                     draftToRename = null
                 }) {
-                    Text("Lưu")
+                    Text(stringResource(com.thgiang.image.R.string.multi_save))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { draftToRename = null }) {
-                    Text("Huỷ")
+                    Text(stringResource(com.thgiang.image.R.string.multi_cancel))
                 }
             }
         )
@@ -237,8 +237,8 @@ fun DraftsScreen(
     draftToDelete?.let { draft ->
         AlertDialog(
             onDismissRequest = { draftToDelete = null },
-            title = { Text("Xoá bản nháp") },
-            text = { Text("Bạn có chắc chắn muốn xoá bản nháp '${draft.name}' không?") },
+            title = { Text(stringResource(com.thgiang.image.R.string.draft_delete_title)) },
+            text = { Text(stringResource(com.thgiang.image.R.string.draft_confirm_delete_single, draft.name)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -247,12 +247,12 @@ fun DraftsScreen(
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Xoá")
+                    Text(stringResource(com.thgiang.image.R.string.multi_delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { draftToDelete = null }) {
-                    Text("Huỷ")
+                    Text(stringResource(com.thgiang.image.R.string.multi_cancel))
                 }
             }
         )
@@ -262,10 +262,10 @@ fun DraftsScreen(
     if (showDeleteSelectedDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteSelectedDialog = false },
-            title = { Text("Xoá bản nháp") },
+            title = { Text(stringResource(com.thgiang.image.R.string.draft_delete_title)) },
             text = {
                 Text(
-                    "Bạn có chắc chắn muốn xoá ${uiState.selectedDraftIds.size} bản nháp đã chọn không?"
+                    stringResource(com.thgiang.image.R.string.draft_confirm_delete_multiple, uiState.selectedDraftIds.size)
                 )
             },
             confirmButton = {
@@ -276,12 +276,12 @@ fun DraftsScreen(
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Xoá")
+                    Text(stringResource(com.thgiang.image.R.string.multi_delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteSelectedDialog = false }) {
-                    Text("Huỷ")
+                    Text(stringResource(com.thgiang.image.R.string.multi_cancel))
                 }
             }
         )
@@ -340,15 +340,17 @@ fun DraftItem(
         Column {
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(1.3f)
                     .fillMaxWidth()
                     .background(Color.Black.copy(alpha = 0.05f))
             ) {
                 AsyncImage(
                     model = thumbnailFile,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(2.dp),
+                    contentScale = ContentScale.Fit
                 )
 
                 if (isSelectionMode) {
@@ -356,7 +358,7 @@ fun DraftItem(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .padding(8.dp)
+                            .padding(2.dp)
                     ) {
                         Icon(
                             imageVector = if (isSelected) Icons.Rounded.CheckCircle
@@ -378,11 +380,11 @@ fun DraftItem(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(4.dp)
+                            .padding(2.dp)
                     ) {
                         IconButton(
                             onClick = { menuExpanded = true },
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(28.dp)
                         ) {
                             Icon(
                                 Icons.Rounded.MoreVert,
@@ -394,20 +396,21 @@ fun DraftItem(
 
                         DropdownMenu(
                             expanded = menuExpanded,
-                            onDismissRequest = { menuExpanded = false }
+                            onDismissRequest = { menuExpanded = false },
+                            modifier = Modifier.widthIn(min = 184.dp, max = 320.dp)
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Đổi tên") },
+                                text = { Text(stringResource(com.thgiang.image.R.string.draft_rename), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                 leadingIcon = { Icon(Icons.Rounded.Edit, null) },
                                 onClick = { menuExpanded = false; onRename() }
                             )
                             DropdownMenuItem(
-                                text = { Text("Sao chép") },
+                                text = { Text(stringResource(com.thgiang.image.R.string.draft_duplicate), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                 leadingIcon = { Icon(Icons.Rounded.ContentCopy, null) },
                                 onClick = { menuExpanded = false; onDuplicate() }
                             )
                             DropdownMenuItem(
-                                text = { Text("Xoá") },
+                                text = { Text(stringResource(com.thgiang.image.R.string.multi_delete), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                 leadingIcon = { Icon(Icons.Rounded.Delete, null) },
                                 onClick = { menuExpanded = false; onDelete() },
                                 colors = MenuDefaults.itemColors(
@@ -422,8 +425,9 @@ fun DraftItem(
 
             Column(
                 modifier = Modifier
-                    .padding(12.dp)
+                    .padding(2.dp)
                     .fillMaxWidth()
+                    .heightIn(min = 82.dp)
             ) {
                 Text(
                     text = draft.name,
@@ -438,7 +442,51 @@ fun DraftItem(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     fontSize = 10.sp
                 )
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    TextButton(
+                        onClick = onDuplicate,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 2.dp)
+                    ) {
+                        Icon(
+                            Icons.Rounded.ContentCopy,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(Modifier.width(2.dp))
+                        Text(
+                            text = stringResource(com.thgiang.image.R.string.draft_card_copy),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 10.sp
+                        )
+                    }
+                    TextButton(
+                        onClick = onDelete,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 2.dp),
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Icon(
+                            Icons.Rounded.Delete,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(Modifier.width(2.dp))
+                        Text(
+                            text = stringResource(com.thgiang.image.R.string.draft_card_delete),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
             }
         }
     }
 }
+

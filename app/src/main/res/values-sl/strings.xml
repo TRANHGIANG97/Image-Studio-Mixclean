@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Osnutki</string>
     <string name="draft_select_all">Izberi vse</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">Izbriši</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">Prekliči izbiro</string>
     <string name="draft_delete_selected">Izbriši (%1$d)</string>
     <string name="draft_selected_count">Izbranih %1$d</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Začni 3-dnevno brezplačno preizkušnjo</string>
     <string name="pro_feature_expand">Naravno razširi sliko s pomočjo AI</string>
     <string name="pro_see_details">Prikaži podrobnosti ></string>
+    <string name="picker_sample_badge">Vzorec</string>
 </resources>

@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Draf</string>
     <string name="draft_select_all">Pilih Semua</string>
+    <string name="draft_confirm_delete_single">Hapus draf \'%1$s\'?</string>
+    <string name="draft_delete_title">Hapus draf</string>
+    <string name="draft_rename_title">Ganti nama draf</string>
+    <string name="draft_duplicate">Duplikat</string>
+    <string name="draft_card_copy">Duplikat</string>
+    <string name="draft_card_delete">Hapus</string>
+    <string name="draft_rename">Ganti nama</string>
+    <string name="draft_empty">Belum ada draf</string>
     <string name="draft_deselect_all">Batalkan Semua Pilihan</string>
     <string name="draft_delete_selected">Hapus (%1$d)</string>
     <string name="draft_selected_count">%1$d Dipilih</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Mulai Uji Coba Gratis 3 Hari</string>
     <string name="pro_feature_expand">Perluasan Gambar Mulus AI</string>
     <string name="pro_see_details">Lihat Detail ></string>
+    <string name="picker_sample_badge">Contoh</string>
 </resources>

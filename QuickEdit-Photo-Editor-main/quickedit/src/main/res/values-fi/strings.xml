@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Vinkki: Jos teet virheen, voit aina käyttää Kumoa/Tee uudelleen (Undo/Redo) -toimintoja.</string>
     <string name="magic_brush_got_it">Ymmärretty</string>
     <string name="studio_effect_requires_background">Tämä toiminto on käytettävissä vain silloin, kun kohteella on tausta</string>
+    <string name="border_tab_size">Koko</string>
+    <string name="border_blur">Reunan sumennus</string>
+    <string name="border_blur_amount">Sumennuksen määrä</string>
+    <string name="border_blur_none">Ei sumennusta</string>
+    <string name="border_blur_soft">Pehmeä sumennus</string>
+    <string name="rotate_screen_title">Kierrä kuvaa</string>
+    <string name="rotate_hint_title">Kiertotyökalut</string>
+    <string name="rotate_hint_desc">Kierrä 90 astetta tai käännä vaaka- ja pystysuunnassa korjataksesi kuvan suunnan.</string>
+    <string name="draft_label">Luonnos</string>
+    <string name="draft_saved_successfully">Luonnos tallennettu onnistuneesti</string>
 </resources>

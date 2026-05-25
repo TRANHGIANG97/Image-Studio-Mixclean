@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">Ciorne</string>
     <string name="draft_select_all">Selectează Tot</string>
+    <string name="draft_confirm_delete_single">Doriți să ștergeți ciorna \'%1$s\'?</string>
+    <string name="draft_delete_title">Șterge ciorna</string>
+    <string name="draft_rename_title">Redenumește ciorna</string>
+    <string name="draft_duplicate">Duplică</string>
+    <string name="draft_card_copy">Duplică</string>
+    <string name="draft_card_delete">Șterge</string>
+    <string name="draft_rename">Redenumește</string>
+    <string name="draft_empty">Nu există ciorne încă</string>
     <string name="draft_deselect_all">Deselectează Tot</string>
     <string name="draft_delete_selected">Șterge (%1$d)</string>
     <string name="draft_selected_count">%1$d selectat</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">Începeți perioada de probă de 3 zile</string>
     <string name="pro_feature_expand">Extindeți imaginea în mod natural prin AI</string>
     <string name="pro_see_details">Vezi detalii ></string>
+    <string name="picker_sample_badge">Mostră</string>
 </resources>

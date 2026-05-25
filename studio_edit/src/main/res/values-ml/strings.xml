@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">വലത്തോട്ട് തിരിക്കുക</string>
     <string name="studio_layout_flip_horizontal">തിരശ്ചീനമായി മറിക്കുക</string>
     <string name="studio_layout_flip_vertical">ലംബമായി മറിക്കുക</string>
+    <string name="studio_shadow_tab_intensity">നിഴൽ</string>
+    <string name="studio_shadow_tab_angle">കോൺ</string>
+    <string name="studio_shadow_tab_distance">ദൂരം</string>
+    <string name="studio_shadow_tab_color">നിറം</string>
+    <string name="studio_shadow_preset_none">ഒന്നുമില്ല</string>
+    <string name="studio_shadow_preset_light">മങ്ങിയത്</string>
+    <string name="studio_shadow_preset_medium">ഇടത്തരം</string>
+    <string name="studio_shadow_preset_strong">കടുപ്പമേറിയത്</string>
+    <string name="studio_shadow_preset_natural">സ്വാഭാവികം</string>
+    <string name="studio_shadow_preset_dramatic">ഡ്രാമാറ്റിക്</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">ഉൽപ്പന്ന ചിത്രം ചേർക്കുക</string>
+    <string name="studio_pick_product_subtitle">പശ്ചാത്തലം സ്വയമേവ നീക്കംചെയ്യപ്പെടും</string>
+    <string name="studio_export">എക്സ്പോർട്ട് ചെയ്യുക</string>
+    <string name="studio_crop_ratio_original">ഒറിജിനൽ</string>
 </resources>

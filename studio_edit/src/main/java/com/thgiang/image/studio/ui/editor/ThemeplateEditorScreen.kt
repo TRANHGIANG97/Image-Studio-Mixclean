@@ -6,50 +6,60 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.ui.editor.components.*
+import com.thgiang.image.studio.ui.editor.theme.EditorTheme
+import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeplateEditorScreen(
     themeplate: StudioThemeplate,
     onBack: () -> Unit,
     onDone: (Uri?) -> Unit = {},
     onRequireExportAd: ((() -> Unit) -> Unit)? = null,
+    onPickImage: (@Composable (onImageSelected: (Uri) -> Unit, onCancel: () -> Unit) -> Unit)? = null,
     viewModel: ThemeplateEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showCustomPicker by remember { mutableStateOf(false) }
 
-    // Pick image from gallery contract
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let {
-            viewModel.onEvent(EditorEvent.SetProductImage(it))
+        uri?.let { viewModel.onEvent(EditorEvent.SetProductImage(it)) }
+    }
+
+    val triggerImagePicker = {
+        if (onPickImage != null) {
+            showCustomPicker = true
+        } else {
+            pickImageLauncher.launch("image/*")
         }
     }
 
-    // Export result handling
     LaunchedEffect(state.exportResult) {
         state.exportResult?.let { uri ->
             snackbarHostState.showSnackbar("Đã lưu ảnh")
@@ -63,121 +73,20 @@ fun ThemeplateEditorScreen(
         }
     }
 
-    // Initial template load
     LaunchedEffect(themeplate) {
         viewModel.onEvent(EditorEvent.LoadTemplate(themeplate.assetPath))
     }
 
-    // Auto trigger picker if product empty
-    var pickerTriggered by remember { mutableStateOf(false) }
-    LaunchedEffect(state.template.loaded) {
-        if (state.template.loaded && !state.product.isBackgroundRemoved && !state.product.processing && !pickerTriggered) {
-            pickerTriggered = true
-            delay(300)
-            pickImageLauncher.launch("image/*")
-        }
-    }
 
-    val onToolSelected = remember(state.selectedTool) {
-        { tool: EditorTool ->
-            viewModel.onEvent(EditorEvent.SelectTool(tool))
-        }
-    }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                modifier = Modifier.height(118.dp),
-                title = {
-                    Text(
-                        text = stringResource(themeplate.titleResId).replace(" ", "\n"),
-                        color = Color.White,
-                        fontSize = 31.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        lineHeight = 31.sp
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        EditorBackIcon(
-                            modifier = Modifier.size(26.dp),
-                            tint = Color.White
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { viewModel.onEvent(EditorEvent.Undo) },
-                        enabled = canUndo
-                    ) {
-                        EditorUndoIcon(
-                            modifier = Modifier.size(24.dp),
-                            tint = if (canUndo) Color.White.copy(alpha = 0.52f) else Color.White.copy(alpha = 0.28f)
-                        )
-                    }
-                    IconButton(
-                        onClick = { viewModel.onEvent(EditorEvent.Redo) },
-                        enabled = canRedo
-                    ) {
-                        EditorRedoIcon(
-                            modifier = Modifier.size(24.dp),
-                            tint = if (canRedo) Color.White.copy(alpha = 0.52f) else Color.White.copy(alpha = 0.28f)
-                        )
-                    }
-                    
-                    if (state.isExporting) {
-                        StudioLottieLoader(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .padding(end = 8.dp)
-                        )
-                    } else {
-                        IconButton(
-                            onClick = {
-                                val exportAction = {
-                                    viewModel.onEvent(EditorEvent.Export(themeplate.assetPath))
-                                }
-                                onRequireExportAd?.invoke(exportAction) ?: exportAction()
-                            },
-                            enabled = state.canExport
-                        ) {
-                            EditorCheckIcon(
-                                modifier = Modifier.size(26.dp),
-                                tint = if (state.canExport) Color.White else Color.White.copy(alpha = 0.28f)
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xF20A0D0E)
-                )
-            )
-        },
-        bottomBar = {
-            EditorBottomToolbar(
-                selectedTool = state.selectedTool,
-                onToolSelected = onToolSelected,
-                onReplaceImage = {
-                    pickImageLauncher.launch("image/*")
-                },
-                modifier = Modifier.fillMaxWidth().navigationBarsPadding()
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color(0xFF060A0B)
-    ) { paddingValues ->
-            ConstraintLayout(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(Color(0xFF060A0B))
-            ) {
-            val (canvasRef, controlsRef) = createRefs()
 
+    EditorTheme {
+        val tokens = LocalEditorTokens.current
+
+        Box(modifier = Modifier.fillMaxSize().background(tokens.moduleBackground)) {
+
+            // ── Layer 1: Canvas ───────────────────────────────────────
             if (state.template.loaded && state.template.originalSize.width > 0) {
-                // Workspace Canvas area
                 EditorCanvasV2(
                     templateAssetPath = themeplate.assetPath,
                     templateSize = state.template.originalSize,
@@ -187,54 +96,213 @@ fun ThemeplateEditorScreen(
                     showBoundingBox = state.showBoundingBox,
                     showOverlay = state.showOverlay,
                     cropRatio = state.cropRatio,
-                    onGesture = { delta ->
-                        viewModel.onEvent(EditorEvent.UpdateGesture(delta))
-                    },
-                    onGestureEnd = {
-                        viewModel.onEvent(EditorEvent.CommitTransform)
-                    },
-                    onPickImage = {
-                        pickImageLauncher.launch("image/*")
-                    },
+                    viewportPadding = PaddingValues(
+                        top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp,
+                        bottom = if (state.product.isBackgroundRemoved) 296.dp else 88.dp
+                    ),
+                    onGesture = { delta -> viewModel.onEvent(EditorEvent.UpdateGesture(delta)) },
+                    onGestureEnd = { viewModel.onEvent(EditorEvent.CommitTransform) },
+                    onPickImage = triggerImagePicker,
                     onBoundingBoxVisible = { visible ->
                         viewModel.onEvent(EditorEvent.SetBoundingBoxVisible(visible))
                     },
-                    modifier = Modifier.constrainAs(canvasRef) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(if (state.product.isBackgroundRemoved) controlsRef.top else parent.bottom)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    }
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 
-            // Tool context bottom control panel with slide + fade animation
-            AnimatedVisibility(
-                visible = state.product.isBackgroundRemoved,
-                enter = slideInVertically { it } + fadeIn(tween(250)),
-                exit = slideOutVertically { it } + fadeOut(tween(200)),
-                modifier = Modifier.constrainAs(controlsRef) {
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                }
+            // ── Layer 2: Top bar — Premium Clean White ────────────────
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .height(64.dp)
+                    .background(tokens.glassBackground)
+                    .drawBehind {
+                        drawRect(
+                            color = tokens.borderSubtle,
+                            topLeft = Offset(0f, size.height - 1.dp.toPx()),
+                            size = Size(size.width, 1.dp.toPx())
+                        )
+                    }
+                    .padding(horizontal = 8.dp),
+                contentAlignment = Alignment.Center
             ) {
-                EditorControlsV2(
-                    tool = state.selectedTool,
-                    appearance = state.appearance,
-                    cropRatio = state.cropRatio,
-                    onUpdateShadow = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
-                    onUpdateShadowAngle = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
-                    onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },
-                    onUpdateShadowColor = { viewModel.onEvent(EditorEvent.UpdateShadowColor(it)) },
-                    onUpdateAlpha = { viewModel.onEvent(EditorEvent.UpdateAlpha(it)) },
-                    onSelectCropRatio = { viewModel.onEvent(EditorEvent.SelectCropRatio(it)) },
-                    onLayoutEvent = { viewModel.onEvent(it) }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Back + Title
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        IconButton(onClick = onBack) {
+                            EditorBackIcon(
+                                modifier = Modifier.size(22.dp),
+                                tint = tokens.textPrimary
+                            )
+                        }
+                        Text(
+                            text = stringResource(
+                                R.string.studio_zoom_label,
+                                (state.viewport.scale * 100).toInt()
+                            ),
+                            color = tokens.textPrimary,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            modifier = Modifier.padding(start = 6.dp, end = 4.dp)
+                        )
+                    }
+
+                    // Undo / Redo / Export
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        IconButton(
+                            onClick = { viewModel.onEvent(EditorEvent.Undo) },
+                            enabled = canUndo
+                        ) {
+                            EditorUndoIcon(
+                                modifier = Modifier.size(20.dp),
+                                tint = if (canUndo) tokens.textPrimary.copy(alpha = 0.65f)
+                                       else tokens.textDisabled.copy(alpha = 0.32f)
+                            )
+                        }
+                        IconButton(
+                            onClick = { viewModel.onEvent(EditorEvent.Redo) },
+                            enabled = canRedo
+                        ) {
+                            EditorRedoIcon(
+                                modifier = Modifier.size(20.dp),
+                                tint = if (canRedo) tokens.textPrimary.copy(alpha = 0.65f)
+                                       else tokens.textDisabled.copy(alpha = 0.32f)
+                            )
+                        }
+
+                        Spacer(Modifier.width(4.dp))
+
+                        // Export — accent pill button
+                        if (state.isExporting) {
+                            Box(
+                                modifier = Modifier
+                                    .height(36.dp)
+                                    .padding(end = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                StudioLottieLoader(modifier = Modifier.size(36.dp))
+                            }
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .height(36.dp)
+                                    .clip(RoundedCornerShape(999.dp))
+                                    .background(
+                                        if (state.canExport) tokens.accent
+                                        else tokens.textDisabled.copy(alpha = 0.20f)
+                                    )
+                                    .clickable(enabled = state.canExport) {
+                                        val exportAction = {
+                                            viewModel.onEvent(EditorEvent.Export(themeplate.assetPath))
+                                        }
+                                        onRequireExportAd?.invoke(exportAction) ?: exportAction()
+                                    }
+                                    .padding(horizontal = 18.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.studio_export),
+                                    color = if (state.canExport) Color.White else tokens.textDisabled,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                            Spacer(Modifier.width(8.dp))
+                        }
+                    }
+                }
+            }
+
+            // ── Layer 3: Bottom controls + toolbar ────────────────────
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (state.template.loaded && state.product.isBackgroundRemoved && !state.product.processing) {
+                    Box(
+                        modifier = Modifier
+                            .padding(bottom = 12.dp)
+                            .background(
+                                color = Color.Black.copy(alpha = 0.45f),
+                                shape = RoundedCornerShape(99.dp)
+                            )
+                            .padding(horizontal = 14.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.studio_layout_hint),
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+
+                AnimatedVisibility(
+                    visible = state.template.loaded && state.selectedTool != null,
+                    enter = slideInVertically { it } + fadeIn(tween(200)),
+                    exit  = slideOutVertically { it } + fadeOut(tween(180))
+                ) {
+                    EditorControlsV2(
+                        tool = state.selectedTool,
+                        appearance = state.appearance,
+                        cropRatio = state.cropRatio,
+                        onUpdateShadow         = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
+                        onUpdateShadowAngle    = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
+                        onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },
+                        onUpdateShadowColor    = { viewModel.onEvent(EditorEvent.UpdateShadowColor(it)) },
+                        onUpdateAlpha          = { viewModel.onEvent(EditorEvent.UpdateAlpha(it)) },
+                        onSelectCropRatio      = { viewModel.onEvent(EditorEvent.SelectCropRatio(it)) },
+                        onLayoutEvent          = { viewModel.onEvent(it) }
+                    )
+                }
+
+                EditorBottomToolbar(
+                    selectedTool = state.selectedTool,
+                    onToolSelected = { tool ->
+                        android.util.Log.d("LayoutBug", "BottomToolbar clicked: $tool")
+                        if (tool != null) {
+                            viewModel.onEvent(EditorEvent.SelectTool(tool))
+                        }
+                    },
+                    onReplaceImage = triggerImagePicker,
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding()
                 )
             }
+
+            // ── Layer 4: Snackbar ─────────────────────────────────────
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+            )
+        }
+
+        if (showCustomPicker && onPickImage != null) {
+            onPickImage(
+                { uri ->
+                    viewModel.onEvent(EditorEvent.SetProductImage(uri))
+                    showCustomPicker = false
+                },
+                {
+                    showCustomPicker = false
+                }
+            )
         }
     }
 }

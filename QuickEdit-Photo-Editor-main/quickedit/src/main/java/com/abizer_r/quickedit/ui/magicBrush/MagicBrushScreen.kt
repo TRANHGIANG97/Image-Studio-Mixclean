@@ -13,8 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Grain
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -108,39 +108,47 @@ fun MagicBrushScreen(
                     .statusBarsPadding()
                     .height(56.dp)
                     .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBackPressed) {
                     Icon(Icons.Default.Close, contentDescription = null)
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.Center
+                IconButton(
+                    onClick = { viewModel.dismissGuide(); showGuideDialog = true },
+                    modifier = Modifier.size(32.dp)
                 ) {
-                    Text(
-                        text = stringResource(R.string.magic_brush),
-                        style = MaterialTheme.typography.titleMedium
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = "Help",
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    IconButton(
-                        onClick = { viewModel.dismissGuide(); showGuideDialog = true },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Info,
-                            contentDescription = "Help",
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
                 }
+                
+                Spacer(modifier = Modifier.weight(1f))
+                
+                IconButton(onClick = { viewModel.undo() }, enabled = canUndo, modifier = Modifier.size(40.dp)) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.Undo,
+                        null,
+                        tint = if (canUndo) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    )
+                }
+                IconButton(onClick = { viewModel.redo() }, enabled = canRedo, modifier = Modifier.size(40.dp)) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.Redo,
+                        null,
+                        tint = if (canRedo) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    )
+                }
+                
+                Spacer(modifier = Modifier.width(8.dp))
+                
                 TextButton(
                     onClick = { currentBitmap?.let { onDoneClicked(it) } },
                     enabled = !isProcessing
                 ) {
-                    Text(stringResource(R.string.done))
+                    Text(stringResource(R.string.done), fontWeight = FontWeight.SemiBold)
                 }
             }
             
@@ -160,22 +168,37 @@ fun MagicBrushScreen(
 
                     MagicBrushTool.BLUR -> {
                         currentBitmap?.let { bmp ->
-                            com.abizer_r.quickedit.ui.magicBrush.components.MosaicDrawingCanvas(
-                                originalBitmap = bmp,
-                                pixelBlockSize = 30,
-                                brushSizeDp = brushSize.dp,
-                                offsetDistanceDp = cursorOffset.dp,
-                                onDrawEnd = { path, mosaicBmp ->
-                                    val brushSizePx = with(density) { brushSize.dp.toPx() }
-                                    viewModel.applyBlurResult(
-                                        path = path,
-                                        mosaicBitmap = mosaicBmp,
-                                        brushSizePx = brushSizePx,
-                                        canvasWidth = containerSize.width,
-                                        canvasHeight = containerSize.height
-                                    )
-                                }
-                            )
+                            val containerAspect = containerSize.width.toFloat() / containerSize.height.toFloat()
+                            val bitmapAspect = bmp.width.toFloat() / bmp.height.toFloat()
+                            val (drawW, drawH) = if (containerAspect > bitmapAspect) {
+                                (containerSize.height * bitmapAspect).roundToInt() to containerSize.height
+                            } else {
+                                containerSize.width to (containerSize.width / bitmapAspect).roundToInt()
+                            }
+                            val drawWidthDp = with(density) { (drawW / density.density).dp }
+                            val drawHeightDp = with(density) { (drawH / density.density).dp }
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                com.abizer_r.quickedit.ui.magicBrush.components.MosaicDrawingCanvas(
+                                    modifier = Modifier.size(drawWidthDp, drawHeightDp),
+                                    originalBitmap = bmp,
+                                    pixelBlockSize = 30,
+                                    brushSizeDp = brushSize.dp,
+                                    offsetDistanceDp = cursorOffset.dp,
+                                    onDrawEnd = { path, mosaicBmp ->
+                                        val brushSizePx = with(density) { brushSize.dp.toPx() }
+                                        viewModel.applyBlurResult(
+                                            path = path,
+                                            mosaicBitmap = mosaicBmp,
+                                            brushSizePx = brushSizePx,
+                                            canvasWidth = drawW,
+                                            canvasHeight = drawH
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                     MagicBrushTool.BRUSH_ERASE -> {
@@ -264,27 +287,6 @@ fun MagicBrushScreen(
                     )
                 }
 
-                // Undo/Redo Buttons Overlay
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 16.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                            shape = RoundedCornerShape(24.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { viewModel.undo() }, enabled = canUndo, modifier = Modifier.size(40.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.Undo, null, tint = if (canUndo) MaterialTheme.colorScheme.onSurface else Color.Gray)
-                    }
-                    Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color.Gray.copy(alpha = 0.5f)))
-                    IconButton(onClick = { viewModel.redo() }, enabled = canRedo, modifier = Modifier.size(40.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.Redo, null, tint = if (canRedo) MaterialTheme.colorScheme.onSurface else Color.Gray)
-                    }
-                }
             }
 
             // Bottom Controls
@@ -414,7 +416,7 @@ fun MagicBrushScreen(
                     ToolButton(
                         selected = selectedTool == MagicBrushTool.BRUSH_ERASE,
                         onClick = { viewModel.selectTool(MagicBrushTool.BRUSH_ERASE) },
-                        icon = Icons.Default.Edit,
+                        icon = Icons.Outlined.Edit,
                         label = stringResource(R.string.label_erase_brush)
                     )
 
@@ -422,7 +424,7 @@ fun MagicBrushScreen(
                     ToolButton(
                         selected = selectedTool == MagicBrushTool.BLUR,
                         onClick = { viewModel.selectTool(MagicBrushTool.BLUR) },
-                        icon = Icons.Default.Grain,
+                        icon = Icons.Outlined.Grain,
                         label = stringResource(R.string.effect_blur)
                     )
                 }
@@ -494,14 +496,14 @@ private fun GuideContent(onDismiss: () -> Unit) {
 
         // Erase Brush guide
         GuideRow(
-            icon = { Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            icon = { Icon(Icons.Outlined.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
             title = stringResource(R.string.label_erase_brush),
             description = stringResource(R.string.magic_brush_guide_brush)
         )
 
         // Blur guide
         GuideRow(
-            icon = { Icon(Icons.Default.Grain, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            icon = { Icon(Icons.Outlined.Grain, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
             title = stringResource(R.string.effect_blur),
             description = stringResource(R.string.magic_brush_guide_blur)
         )

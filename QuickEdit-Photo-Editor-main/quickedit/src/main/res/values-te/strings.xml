@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">చిట్కా: ఏదైనా పొరపాటు జరిగితే మీరు అన్‌డూ/రీడూ (Undo/Redo) ఉపయోగించవచ్చు.</string>
     <string name="magic_brush_got_it">అర్థమైంది</string>
     <string name="studio_effect_requires_background">ఈ ఫీచర్ సబ్జెక్ట్‌కు బ్యాక్‌గ్రౌండ్ ఉన్నప్పుడు మాత్రమే అందుబాటులో ఉంటుంది</string>
+    <string name="border_tab_size">పరిమాణం</string>
+    <string name="border_blur">అంచు బ్లర్</string>
+    <string name="border_blur_amount">బ్లర్ శాతం</string>
+    <string name="border_blur_none">బ్లర్ వద్దు</string>
+    <string name="border_blur_soft">సాఫ్ట్ బ్లర్</string>
+    <string name="rotate_screen_title">ಚಿत्राన్ని తిప్పండి</string>
+    <string name="rotate_hint_title">రొటేట్ టూల్స్</string>
+    <string name="rotate_hint_desc">చిత్రం యొక్క దిశను సరిచేయడానికి 90 డిగ్రీలు తిప్పండి లేదా అడ్డంగా మరియు నిలువుగా ఫ్లిప్ చేయండి.</string>
+    <string name="draft_label">డ్రాఫ్ట్</string>
+    <string name="draft_saved_successfully">డ్రాఫ్ట్ విజయవంతంగా సేవ్ చేయబడింది</string>
 </resources>

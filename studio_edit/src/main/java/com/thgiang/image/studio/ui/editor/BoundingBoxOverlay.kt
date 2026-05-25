@@ -91,42 +91,45 @@ data class SnapLine(
 // ============ Constants ============
 
 object EditorColors {
-    val BorderIdle = Color(0xFF9E9E9E)
-    val BorderDrag = Color(0xFF4A90D9)
-    val BorderScale = Color(0xFF7C4DFF)
-    val BorderRotate = Color(0xFFE91E63)
-    val BorderMulti = Color(0xFFFF9800)
+    // Border: blue-based so visible on both light bg and dark template images
+    val BorderIdle   = Color(0xFF2563EB).copy(alpha = 0.75f)
+    val BorderDrag   = Color(0xFF2563EB)
+    val BorderScale  = Color(0xFF7C3AED)
+    val BorderRotate = Color(0xFFEF4444)
+    val BorderMulti  = Color(0xFFF59E0B)
 
-    val HandleActive = Color(0xFF7C4DFF)
-    val HandleInactive = Color.White
-    val HandleStroke = Color(0xFF333333)
+    val HandleActive   = Color(0xFF2563EB)
+    val HandleInactive = Color.White        // stays white: drawn over template image
+    val HandleStroke   = Color(0xFF1F2937)
 
-    val RotateHandle = Color(0xFF4A90D9)
-    val RotateHandleActive = Color(0xFFE91E63)
+    val RotateHandle       = Color(0xFF2563EB)
+    val RotateHandleActive = Color(0xFFEF4444)
 
-    val SnapCenter = Color(0xFF4A90D9)
-    val SnapEdge = Color(0xFF7C4DFF)
-    val SnapThird = Color(0xFFFF9800)
+    // Snap lines
+    val SnapCenter = Color(0xFF2563EB)
+    val SnapEdge   = Color(0xFF7C3AED)
+    val SnapThird  = Color(0xFFF59E0B)
 
-    val Grid = Color.White.copy(alpha = 0.15f)
-    val Crosshair = Color.White.copy(alpha = 0.45f)
+    // Grid / crosshair: dark with low alpha (invisible white → visible dark)
+    val Grid      = Color(0xFF111827).copy(alpha = 0.12f)
+    val Crosshair = Color(0xFF111827).copy(alpha = 0.35f)
 }
 
 object EditorDims {
-    val HandleRadiusDp = 8.dp
-    val TouchRadiusDp = 24.dp
-    val RotateLineDp = 20.dp
-    val RotateHandleOffsetDp = 9.dp
-    val BorderStrokeDp = 2.dp
-    val CornerActiveScale = 1.4f
-    val RotateRadiusDp = 20.dp
-    val RotateRadiusActiveDp = 22.dp
-    val RotateTouchRadiusDp = 42.dp
-    val CrosshairSizeDp = 8.dp
+    val HandleRadiusDp = 4.dp
+    val TouchRadiusDp = 18.dp
+    val RotateLineDp = 12.dp
+    val RotateHandleOffsetDp = 5.dp
+    val BorderStrokeDp = 1.2.dp
+    val CornerActiveScale = 1.2f
+    val RotateRadiusDp = 12.dp
+    val RotateRadiusActiveDp = 14.dp
+    val RotateTouchRadiusDp = 30.dp
+    val CrosshairSizeDp = 5.dp
 
-    const val CORNER_EXTRA_TOUCH = 4f
-    const val CORNER_GLOW_RADIUS = 5f
-    const val ROTATE_GLOW_RADIUS = 6f
+    const val CORNER_EXTRA_TOUCH = 2f
+    const val CORNER_GLOW_RADIUS = 2f
+    const val ROTATE_GLOW_RADIUS = 3f
     const val HAPTIC_DEBOUNCE_MS = 80L
 }
 

@@ -168,6 +168,14 @@
     <string name="pro_badge" translatable="false">PRO</string>
     <string name="home_draft">დრაფტები</string>
     <string name="draft_select_all">ყველას არჩევა</string>
+    <string name="draft_confirm_delete_single">Are you sure you want to delete draft \'%1$s\'?</string>
+    <string name="draft_delete_title">Delete draft</string>
+    <string name="draft_rename_title">Rename draft</string>
+    <string name="draft_duplicate">Duplicate</string>
+    <string name="draft_card_copy">Duplicate</string>
+    <string name="draft_card_delete">წაშლა</string>
+    <string name="draft_rename">Rename</string>
+    <string name="draft_empty">No drafts yet</string>
     <string name="draft_deselect_all">არჩევის გაუქმება</string>
     <string name="draft_delete_selected">წაშლა (%1$d)</string>
     <string name="draft_selected_count">არჩეულია %1$d</string>
@@ -176,7 +184,7 @@
     <string name="home_preview_placeholder">აირჩიეთ ფოტო აქ წინასწარი ნახვისთვის.</string>
     <string name="compare_label_before">მანამდე</string>
     <string name="compare_label_after">შემდეგ</string>
-    <string name="portrait_preview_failed">პორტრეტის ბუნდოვნების წინასწარი ნახვა</string>
+    <string name="portrait_sheet_subtitle">პორტრეტის ბუნდოვნების წინასწარი ნახვა</string>
     <string name="portrait_sheet_pick_hint">აირჩიეთ ფოტო პორტრეტის ბუნდოვნების სანახავად</string>
     <string name="portrait_sheet_strength_line">ინტენსივობა: %1$d | ბუნდოვნება: %2$d</string>
     <string name="clean_sheet_subtitle">სუფთა ფონის ბუნდოვნების წინასწარი ნახვა</string>
@@ -291,4 +299,5 @@
     <string name="premium_cta_trial">3-დღიანი უფასო საცდელი პერიოდის დაწყება</string>
     <string name="pro_feature_expand">სურათის უნაკლო AI გაფართოება</string>
     <string name="pro_see_details">დეტალების ნახვა ></string>
+    <string name="picker_sample_badge">ნიმუში</string>
 </resources>

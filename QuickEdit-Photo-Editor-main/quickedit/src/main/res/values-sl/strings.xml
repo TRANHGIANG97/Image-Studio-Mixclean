@@ -152,4 +152,14 @@
     <string name="magic_brush_guide_tip">Namig: Če naredite napako, lahko uporabite funkcijo Razveljavi/Uveljavi (Undo/Redo).</string>
     <string name="magic_brush_got_it">Razumem</string>
     <string name="studio_effect_requires_background">Ta funkcija je na voljo le, ko ima motiv nastavljeno ozadje</string>
+    <string name="border_tab_size">Velikost</string>
+    <string name="border_blur">Zameglitev roba</string>
+    <string name="border_blur_amount">Stopnja zameglitve</string>
+    <string name="border_blur_none">Brez zameglitve</string>
+    <string name="border_blur_soft">Blaga zameglitev</string>
+    <string name="rotate_screen_title">Zasukaj sliko</string>
+    <string name="rotate_hint_title">Orodja za zasuk</string>
+    <string name="rotate_hint_desc">Zasukajte za 90 stopinj ali obrnite vodoravno in navpično, da popravite usmerjenost slike.</string>
+    <string name="draft_label">Osnutek</string>
+    <string name="draft_saved_successfully">Osnutek uspešno shranjen</string>
 </resources>

@@ -16,7 +16,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import kotlin.math.min
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -60,6 +62,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -275,7 +278,7 @@ fun BackgroundModeScreen(
                                 bitmap = fgBitmap.asImageBitmap(),
                                 contentDescription = null,
                                 contentScale = ContentScale.Fit,
-                                colorFilter = ColorFilter.tint(Color(0xFFFF2D55).copy(alpha = 0.6f))
+                                colorFilter = ColorFilter.tint(Color(0xFFFFC49E).copy(alpha = 0.55f))
                             )
                         }
                     }
@@ -310,50 +313,70 @@ fun BackgroundModeScreen(
                         .height(topToolbarHeight),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = {
-                        toolbarVisible = false
-                        onBackPressed()
-                    }) {
+                    IconButton(
+                        modifier = Modifier.size(40.dp),
+                        onClick = {
+                            toolbarVisible = false
+                            onBackPressed()
+                        }
+                    ) {
                         Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
                     }
                     Text(
                         text = stringResource(R.string.background),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-                    IconButton(onClick = { showRatioSelector = !showRatioSelector }) {
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    IconButton(
+                        modifier = Modifier.size(40.dp),
+                        onClick = { showRatioSelector = !showRatioSelector }
+                    ) {
                         Icon(
                             Icons.Default.AspectRatio,
                             contentDescription = "Chọn Tỉ lệ",
                             tint = if (showRatioSelector) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
                     }
-                    IconButton(onClick = viewModel::resetForegroundPosition) {
+                    IconButton(
+                        modifier = Modifier.size(40.dp),
+                        onClick = viewModel::resetForegroundPosition
+                    ) {
                         Icon(
                             Icons.Default.Refresh,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    IconButton(onClick = viewModel::toggleForegroundFlipHorizontal) {
+                    IconButton(
+                        modifier = Modifier.size(40.dp),
+                        onClick = viewModel::toggleForegroundFlipHorizontal
+                    ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_flip_horizontal),
                             contentDescription = stringResource(R.string.flip_horizontal),
                             tint = if (state.foregroundFlippedH) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
                     }
-                    IconButton(onClick = viewModel::toggleForegroundFlipVertical) {
+                    IconButton(
+                        modifier = Modifier.size(40.dp),
+                        onClick = viewModel::toggleForegroundFlipVertical
+                    ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_flip_vertical),
                             contentDescription = stringResource(R.string.flip_vertical),
                             tint = if (state.foregroundFlippedV) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
                     }
-                    IconButton(onClick = {
-                        viewModel.getFinalBitmap()?.let { onDoneClicked(it) }
-                    }) {
+                    IconButton(
+                        modifier = Modifier.size(40.dp),
+                        onClick = {
+                            viewModel.getFinalBitmap()?.let { onDoneClicked(it) }
+                        }
+                    ) {
                         Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     }
                 }
@@ -424,12 +447,14 @@ fun BackgroundModeScreen(
                     }
 
                     // Tabs
+                    val tabScrollState = rememberScrollState()
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(72.dp)
-                            .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
+                            .horizontalScroll(tabScrollState)
+                            .heightIn(min = 92.dp)
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         BackgroundTabItem(
@@ -882,10 +907,10 @@ fun BackgroundTabItem(
 
     Column(
         modifier = Modifier
-            .width(88.dp)
+            .widthIn(min = 88.dp)
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -898,7 +923,7 @@ fun BackgroundTabItem(
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.copy(lineHeight = 13.sp),
             color = color,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
             textAlign = TextAlign.Center

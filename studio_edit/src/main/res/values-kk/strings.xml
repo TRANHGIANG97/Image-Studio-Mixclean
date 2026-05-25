@@ -39,4 +39,19 @@
     <string name="studio_layout_rotate_right">Оңға бұру</string>
     <string name="studio_layout_flip_horizontal">Г-нен шағылыстыру</string>
     <string name="studio_layout_flip_vertical">В-нан шағылыстыру</string>
+    <string name="studio_shadow_tab_intensity">Көлеңке</string>
+    <string name="studio_shadow_tab_angle">Бұрыш</string>
+    <string name="studio_shadow_tab_distance">Қашықтық</string>
+    <string name="studio_shadow_tab_color">Түс</string>
+    <string name="studio_shadow_preset_none">Жоқ</string>
+    <string name="studio_shadow_preset_light">Жеңіл</string>
+    <string name="studio_shadow_preset_medium">Орташа</string>
+    <string name="studio_shadow_preset_strong">Күшті</string>
+    <string name="studio_shadow_preset_natural">Табиғи</string>
+    <string name="studio_shadow_preset_dramatic">Драмалық</string>
+    <string name="studio_zoom_label">%1$d%%</string>
+    <string name="studio_pick_product_title">Өнім суретін қосу</string>
+    <string name="studio_pick_product_subtitle">Фон автоматты түрде жойылады</string>
+    <string name="studio_export">Экспорттау</string>
+    <string name="studio_crop_ratio_original">Түпнұсқа</string>
 </resources>
