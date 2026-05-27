@@ -17,6 +17,8 @@ import com.google.mlkit.vision.segmentation.subject.SubjectSegmenter
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmenterOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -47,6 +49,8 @@ class MlKitBackgroundRemoverRepository(
     @Volatile
     private var selfieFallbackUsedInLastOperation: Boolean = false
 
+    private val segmenterMutex = Mutex()
+
     private val segmenter: SubjectSegmenter by lazy {
         val options = SubjectSegmenterOptions.Builder()
             .enableForegroundBitmap()
@@ -58,7 +62,7 @@ class MlKitBackgroundRemoverRepository(
     override suspend fun removeBackground(imageUri: Uri): Result<BackgroundRemovalOutput> = runCatching {
         selfieFallbackUsedInLastOperation = false
         Log.d(TAG, "removeBackground: start uri=$imageUri")
-        val original = decodeBitmapWithResize(imageUri)
+        val original = BitmapDecodeUtils.loadBitmapFromUri(context, imageUri, maxDecodeSize)
             ?: error("Cannot decode selected image (OOM or invalid image)")
         Log.d(TAG, "removeBackground: decoded original=${original.width}x${original.height}")
 
@@ -97,8 +101,7 @@ class MlKitBackgroundRemoverRepository(
             val input = InputImage.fromBitmap(bitmap, 0)
 
             val buffer = withContext(Dispatchers.Default) {
-                ensureSubjectSegmenterModuleAvailable()
-                val result = segmenter.process(input).await()
+                val result = processSafely(input)
                 result.foregroundConfidenceMask
             } ?: error("Foreground confidence mask not available")
 
@@ -151,8 +154,7 @@ class MlKitBackgroundRemoverRepository(
 
         val foreground = run {
             Log.d(TAG, "getForegroundBitmapInternal: using SubjectSegmenter")
-            ensureSubjectSegmenterModuleAvailable()
-            val result = segmenter.process(input).await()
+            val result = processSafely(input)
             result.foregroundBitmap?.copy(Bitmap.Config.ARGB_8888, true)
                 ?: error("Foreground extraction failed")
         }
@@ -174,6 +176,11 @@ class MlKitBackgroundRemoverRepository(
             foreground.recycle()
             throw e
         }
+    }
+
+    private suspend fun processSafely(input: InputImage) = segmenterMutex.withLock {
+        ensureSubjectSegmenterModuleAvailable()
+        segmenter.process(input).await()
     }
 
     private suspend fun ensureSubjectSegmenterModuleAvailable() {

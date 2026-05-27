@@ -1,2 +1,0 @@
-khi nhấn nút "Xoá nền" tại trình sửa ảnh thì hiện màn hình "Huỷ", "Áp dụng"-> điều này dư thừa, thay đổi luồng này thế này:
-khi nhấn nút "Xoá nền" tại trình sửa ảnh  ảnh xoá nền xong hiển thị tại trình sửa ảnh luôn loại bỏ màn hình như ảnh

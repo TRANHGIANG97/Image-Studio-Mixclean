@@ -1,0 +1,25 @@
+.gradle/
+.idea/
+.cxx/
+**/.cxx/
+build/
+**/build/
+local.properties
+*.iml
+*.keystore
+*.jks
+*.log
+
+# Android generated output
+captures/
+*.apk
+*.aab
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large Model files
+*.onnx
+*.pt
+*.rar

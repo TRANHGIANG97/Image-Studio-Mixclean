@@ -4,7 +4,9 @@ import android.content.Context
 import android.os.Build
 import com.thgiang.image.core.background.BackgroundGenerator
 import com.thgiang.image.core.background.DefaultBackgroundGenerator
+import com.thgiang.image.core.data.backgroundremove.AdaptiveHybridBackgroundRemoverRepository
 import com.thgiang.image.core.data.backgroundremove.MlKitBackgroundRemoverRepository
+import com.thgiang.image.core.data.backgroundremove.MaskPostProcessor
 import com.thgiang.image.core.data.gallery.GalleryRepository
 import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.core.data.settings.DatastoreUserPreferencesRepository
@@ -26,9 +28,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideBackgroundRemoverRepository(
+    fun provideMlKitBackgroundRemoverRepository(
         @ApplicationContext context: Context
-    ): BackgroundRemoverRepository {
+    ): MlKitBackgroundRemoverRepository {
         return MlKitBackgroundRemoverRepository(
             context = context
         )
@@ -40,6 +42,28 @@ object AppModule {
         @ApplicationContext context: Context
     ): ModNetBackgroundRemoverRepository {
         return ModNetBackgroundRemoverRepository(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBackgroundRemoverRepository(
+        @ApplicationContext context: Context,
+        modNetRepo: ModNetBackgroundRemoverRepository,
+        mlKitRepo: MlKitBackgroundRemoverRepository
+    ): BackgroundRemoverRepository {
+        return AdaptiveHybridBackgroundRemoverRepository(
+            context = context,
+            modNetRepository = modNetRepo,
+            mlKitRepository = mlKitRepo,
+            fusionResolution = 512,
+            erodeRadius = 3,
+            mlkitThreshold = 0.86f,
+            modnetWeakThreshold = 0.48f,
+            enableHybridFusion = true,
+            postProcessMode = MaskPostProcessor.Mode.SAFE,
+            enableAggressivePostProcessForHybrid = true,
+            enablePersonPriorPrune = true
+        )
     }
 
     @Provides

@@ -42,6 +42,8 @@ class ModNetBackgroundRemoverRepository(
                 android.util.Log.d("ModNetONNX", "[JNI] Nạp libonnxruntime.so THÀNH CÔNG!")
                 System.loadLibrary("onnxruntime4j_jni")
                 android.util.Log.d("ModNetONNX", "[JNI] Nạp libonnxruntime4j_jni.so THÀNH CÔNG!")
+                System.loadLibrary("bg_refiner")
+                android.util.Log.d("ModNetONNX", "[JNI] Nạp libbg_refiner.so THÀNH CÔNG!")
             } catch (e: Throwable) {
                 android.util.Log.e("ModNetONNX", "[JNI] LỖI NẠP THƯ VIỆN NATIVE ONNX!", e)
             }
@@ -53,6 +55,9 @@ class ModNetBackgroundRemoverRepository(
     private var inputName: String? = null
     private var outputName: String? = null
     private var modelSize: Int = DEFAULT_MODEL_SIZE
+    private val inferenceLock = Any()
+
+    private external fun decryptModelNative(encryptedData: ByteArray): ByteArray
 
     @Synchronized
     private fun ensureInitialized(
@@ -62,7 +67,6 @@ class ModNetBackgroundRemoverRepository(
         if (session != null) return
 
         modelSize = size
-        val modelFile = context.copyAssetToCache(modelAssetPath)
 
         val options = OrtSession.SessionOptions().apply {
             setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)
@@ -70,9 +74,20 @@ class ModNetBackgroundRemoverRepository(
         }
 
         try {
-            android.util.Log.d("ModNetONNX", "[Session] Đang khởi tạo OrtSession với tệp: ${modelFile.absolutePath}")
-            val createdSession = environment.createSession(modelFile.absolutePath, options)
+            android.util.Log.d("ModNetONNX", "[Session] Đang đọc tệp assets mã hóa: $modelAssetPath")
+            val inputStream = context.assets.open(modelAssetPath)
+            val encryptedBytes = inputStream.use { it.readBytes() }
+
+            android.util.Log.d("ModNetONNX", "[Session] Đang giải mã mô hình qua C++ JNI/NDK an toàn...")
+            val decryptedBytes = decryptModelNative(encryptedBytes)
+
+            android.util.Log.d("ModNetONNX", "[Session] Đang khởi tạo OrtSession trực tiếp từ RAM ByteArray...")
+            val createdSession = environment.createSession(decryptedBytes, options)
             session = createdSession
+
+            // Xóa sạch dấu vết byte nhạy cảm khỏi bộ nhớ RAM ngay lập tức
+            decryptedBytes.fill(0)
+
             inputName = createdSession.inputInfo.keys.firstOrNull()
                 ?: error("ONNX model has no input")
             outputName = createdSession.outputInfo.keys.firstOrNull()
@@ -87,7 +102,7 @@ class ModNetBackgroundRemoverRepository(
     }
 
     override suspend fun removeBackground(imageUri: Uri): Result<BackgroundRemovalOutput> = runCatching {
-        val original = context.loadBitmapFromUri(imageUri)
+        val original = com.thgiang.image.core.data.backgroundremove.BitmapDecodeUtils.loadBitmapFromUri(context, imageUri, DEFAULT_MAX_DIMENSION) ?: error("Cannot decode image: $imageUri")
         val foreground = try {
             getForegroundBitmap(original).getOrThrow()
         } catch (e: Throwable) {
@@ -139,18 +154,20 @@ class ModNetBackgroundRemoverRepository(
         )
 
         try {
-            currentSession.run(mapOf(currentInputName to inputTensor)).use { outputs ->
-                val outputTensor = outputs.get(currentOutputName).orElseThrow() as OnnxTensor
-                outputTensor.use {
-                    val rawMask = readOutputMask(outputTensor)
-                    val contentMask = rawMask.crop(
-                        letterboxed.contentLeft,
-                        letterboxed.contentTop,
-                        letterboxed.contentWidth,
-                        letterboxed.contentHeight,
-                    )
-                    val resized = contentMask.resizeBilinear(source.width, source.height)
-                    PortraitConfidenceMask(source.width, source.height, resized.data)
+            synchronized(inferenceLock) {
+                currentSession.run(mapOf(currentInputName to inputTensor)).use { outputs ->
+                    val outputTensor = outputs.get(currentOutputName).orElseThrow() as OnnxTensor
+                    outputTensor.use {
+                        val rawMask = readOutputMask(outputTensor)
+                        val contentMask = rawMask.crop(
+                            letterboxed.contentLeft,
+                            letterboxed.contentTop,
+                            letterboxed.contentWidth,
+                            letterboxed.contentHeight,
+                        )
+                        val resized = contentMask.resizeBilinear(source.width, source.height)
+                        PortraitConfidenceMask(source.width, source.height, resized.data)
+                    }
                 }
             }
         } finally {
@@ -164,10 +181,12 @@ class ModNetBackgroundRemoverRepository(
     override fun consumeSelfieFallbackWarning(): Boolean = false
 
     override fun close() {
-        session?.close()
-        session = null
-        inputName = null
-        outputName = null
+        synchronized(inferenceLock) {
+            session?.close()
+            session = null
+            inputName = null
+            outputName = null
+        }
     }
 
     private fun removeBgInternal(
@@ -194,33 +213,35 @@ class ModNetBackgroundRemoverRepository(
         )
 
         return try {
-            currentSession.run(mapOf(currentInputName to inputTensor)).use { outputs ->
-                val outputTensor = outputs.get(currentOutputName).orElseThrow() as OnnxTensor
-                outputTensor.use {
-                    val rawMask = readOutputMask(outputTensor)
-                    val contentMask = rawMask.crop(
-                        letterboxed.contentLeft,
-                        letterboxed.contentTop,
-                        letterboxed.contentWidth,
-                        letterboxed.contentHeight,
-                    )
+            synchronized(inferenceLock) {
+                currentSession.run(mapOf(currentInputName to inputTensor)).use { outputs ->
+                    val outputTensor = outputs.get(currentOutputName).orElseThrow() as OnnxTensor
+                    outputTensor.use {
+                        val rawMask = readOutputMask(outputTensor)
+                        val contentMask = rawMask.crop(
+                            letterboxed.contentLeft,
+                            letterboxed.contentTop,
+                            letterboxed.contentWidth,
+                            letterboxed.contentHeight,
+                        )
 
-                    val confidencePercent = contentMask.calculateCertaintyPercent()
+                        val confidencePercent = contentMask.calculateCertaintyPercent()
 
-                    var mask = if (smoothMask) {
-                        contentMask.blurBoxSeparable(1)
-                    } else {
-                        contentMask
+                        var mask = if (smoothMask) {
+                            contentMask.blurBoxSeparable(1)
+                        } else {
+                            contentMask
+                        }
+
+                        mask = mask.resizeBilinear(bitmap.width, bitmap.height)
+
+                        if (enhanceEdges) {
+                            mask = refineMaskByImageEdges(bitmap, mask)
+                        }
+
+                        val cutout = applyMaskToImage(bitmap, mask)
+                        RemoveBgResult(cutout, confidencePercent)
                     }
-
-                    mask = mask.resizeBilinear(bitmap.width, bitmap.height)
-
-                    if (enhanceEdges) {
-                        mask = refineMaskByImageEdges(bitmap, mask)
-                    }
-
-                    val cutout = applyMaskToImage(bitmap, mask)
-                    RemoveBgResult(cutout, confidencePercent)
                 }
             }
         } finally {
@@ -518,89 +539,9 @@ class ModNetBackgroundRemoverRepository(
     }
 }
 
-fun Context.loadBitmapFromUri(
-    uri: Uri,
-    maxDimension: Int = DEFAULT_MAX_DIMENSION,
-): Bitmap {
-    require(maxDimension > 0) { "maxDimension must be > 0" }
 
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-        try {
-            val source = ImageDecoder.createSource(contentResolver, uri)
-            val decoded = ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
-                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                decoder.isMutableRequired = false
 
-                val width = info.size.width
-                val height = info.size.height
-                if (width > 0 && height > 0) {
-                    val sampleSize = calculateInSampleSize(width, height, maxDimension)
-                    if (sampleSize > 1) {
-                        decoder.setTargetSize(max(1, width / sampleSize), max(1, height / sampleSize))
-                    }
-                }
-            }
-            return decoded.ensureArgb8888CopyIfNeeded()
-        } catch (_: Throwable) {
-        }
-    }
 
-    contentResolver.openInputStream(uri)?.use { stream ->
-        val bytes = stream.readBytes()
-        val bounds = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
-
-        require(bounds.outWidth > 0 && bounds.outHeight > 0) {
-            "Invalid image bounds: ${bounds.outWidth}x${bounds.outHeight}"
-        }
-
-        val sampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, maxDimension)
-        val decoded = BitmapFactory.decodeByteArray(
-            bytes,
-            0,
-            bytes.size,
-            BitmapFactory.Options().apply {
-                inPreferredConfig = Bitmap.Config.ARGB_8888
-                inSampleSize = sampleSize
-            },
-        ) ?: throw IllegalArgumentException("Unable to decode image uri: $uri")
-
-        val orientation = runCatching {
-            ExifInterface(ByteArrayInputStream(bytes)).getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_NORMAL,
-            )
-        }.getOrDefault(ExifInterface.ORIENTATION_NORMAL)
-
-        return decoded.applyExifOrientation(orientation).ensureArgb8888CopyIfNeeded()
-    }
-
-    throw IllegalArgumentException("Unable to open image uri: $uri")
-}
-
-private fun Bitmap.applyExifOrientation(orientation: Int): Bitmap {
-    val matrix = Matrix()
-    when (orientation) {
-        ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-        ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-        ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-        ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
-        ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
-        ExifInterface.ORIENTATION_TRANSPOSE -> {
-            matrix.postRotate(90f)
-            matrix.postScale(-1f, 1f)
-        }
-        ExifInterface.ORIENTATION_TRANSVERSE -> {
-            matrix.postRotate(270f)
-            matrix.postScale(-1f, 1f)
-        }
-        else -> return this
-    }
-
-    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-}
 
 private fun Bitmap.ensureArgb8888CopyIfNeeded(): Bitmap {
     if (config == Bitmap.Config.ARGB_8888 && !isRecycled) {
@@ -611,43 +552,4 @@ private fun Bitmap.ensureArgb8888CopyIfNeeded(): Bitmap {
         ?: throw IllegalStateException("Unable to convert bitmap to ARGB_8888")
 }
 
-private fun calculateInSampleSize(
-    width: Int,
-    height: Int,
-    maxDimension: Int,
-): Int {
-    if (width <= 0 || height <= 0 || maxDimension <= 0) return 1
 
-    var sampleSize = 1
-    while (width / sampleSize > maxDimension || height / sampleSize > maxDimension) {
-        sampleSize *= 2
-    }
-    return max(1, sampleSize)
-}
-
-private fun Context.copyAssetToCache(assetName: String): File {
-    val safeName = assetName.substringAfterLast('/')
-    val target = File(cacheDir, "onnx_models/$safeName")
-
-    if (target.exists() && target.length() > 0) {
-        return target
-    }
-
-    target.parentFile?.mkdirs()
-    val tempFile = File(cacheDir, "onnx_models/.tmp.$safeName.${System.currentTimeMillis()}")
-
-    assets.open(assetName).use { input ->
-        tempFile.outputStream().use { output ->
-            input.copyTo(output)
-        }
-    }
-
-    if (!tempFile.renameTo(target)) {
-        tempFile.delete()
-        if (!target.exists() || target.length() == 0L) {
-            throw IllegalStateException("Failed to stage model asset $assetName")
-        }
-    }
-
-    return target
-}

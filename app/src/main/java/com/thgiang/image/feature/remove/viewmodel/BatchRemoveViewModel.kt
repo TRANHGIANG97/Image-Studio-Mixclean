@@ -6,7 +6,6 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
-import com.abizer_r.quickedit.backgroundremove.loadBitmapFromUri
 import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 import com.thgiang.image.core.data.save.CachedImage
 import com.thgiang.image.core.data.save.ImageSaveRepository
@@ -74,9 +73,7 @@ class BatchRemoveViewModel @Inject constructor(
             for (uri in pendingUris) {
                 if (!isActive) break
 
-                val originalBitmap = runCatching {
-                    context.loadBitmapFromUri(uri)
-                }.getOrNull()
+                val originalBitmap = com.thgiang.image.core.data.backgroundremove.BitmapDecodeUtils.loadBitmapFromUri(context, uri, 2048)
 
                 if (originalBitmap == null) {
                     _uiState.value = _uiState.value.copy(

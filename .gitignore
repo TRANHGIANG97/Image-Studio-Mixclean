@@ -29,3 +29,17 @@ code-merge*.txt
 *.apks
 build-tools/exports/
 play-service-account.json
+
+# Large Model files
+*.onnx
+*.pt
+
+# Agent files
+agent_forge/
+scratch/
+translate/
+report.md
+review_module_compose_modnet-yolo_modnet-is_net.md
+
+# IDE / AI settings
+.claude/

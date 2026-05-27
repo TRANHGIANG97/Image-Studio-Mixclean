@@ -27,24 +27,14 @@ if %ERRORLEVEL% neq 0 (
 )
 
 :CHECK_DEVICE
-:: 2. Kiem tra thiet bi ket noi bang adb get-state
+:: 2. Kiem tra thiet bi ket noi
 adb get-state >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo [ERROR] Khong phat hien dien thoai Android nao dang ket noi qua ADB!
-    echo Vui long kiem tra:
-    echo   - Cap ket noi USB hoac Wifi Debugging da bat.
-    echo   - Da cap quyen USB Debugging tren man hinh dien thoai.
-    echo.
-    echo ========================================================
-    echo   [LUA CHON KHI LOI]
-    echo --------------------------------------------------------
-    echo   [1] Thu lai - Quet thiet bi lai
-    echo   [2] Thoat
-    echo ========================================================
-    set /p DEV_ERROR_CHOICE="Vui long chon [1-2, Mac dinh la 1]: "
-    if "!DEV_ERROR_CHOICE!"=="" set DEV_ERROR_CHOICE=1
-    if "!DEV_ERROR_CHOICE!"=="1" goto CHECK_DEVICE
-    exit /b 1
+    echo [THONG BAO] Khong phat hien dien thoai Android nao dang ket noi.
+    echo Dang cho thiet bi Android duoc ket noi va kich hoat USB Debugging...
+    adb wait-for-device
+    echo [OK] Thiet bi da ket noi thanh cong!
+    timeout /t 1 >nul
 )
 
 :MENU
@@ -95,13 +85,15 @@ goto :EOF
 
 :VIEW_ERROR
 cls
-call :GET_PID
 echo ========================================================
 echo   LOGCAT: XEM LOG LOI [CRASH/ERROR] DANG TRUYEN LIVE...
-echo   PID: !PID!
-echo   [Nhan Ctrl+C roi chon N de dung theo doi va lua chon hanh dong]
+echo   [Script se tu dong doi va ket noi lai neu mat ket noi]
+echo   [Nhan Ctrl+C de dung logcat va quay lai Menu bat ky luc nao]
 echo ========================================================
 echo.
+
+:LOOP_ERROR
+call :GET_PID
 if "!PID!"=="" (
     echo [CANH BAO] Khong the lay PID cua app. Chuyen sang loc chuoi com.thgiang.image...
     adb logcat *:E | findstr /i "com.thgiang.image"
@@ -109,30 +101,23 @@ if "!PID!"=="" (
     adb logcat *:E --pid=!PID! -v color
 )
 echo.
-echo ========================================================
-echo   [LOGCAT DA NGUNG HOAC MAT KET NOI]
-echo --------------------------------------------------------
-echo   [1] Tiep tuc theo doi lai (Tim PID moi va bat dau lai)
-echo   [2] Quay lai Menu chinh
-echo   [3] Thoat
-echo ========================================================
+echo [!] Mat ket noi hoac thiet bi ngat. Dang doi thiet bi ket noi lai...
+adb wait-for-device
+echo [!] Thiet bi da online tro lai! Dang lay lai PID va tiep tuc logcat...
 echo.
-set /p LOG_CHOICE="Vui long chon hanh dong [1-3, Mac dinh la 1]: "
-if "!LOG_CHOICE!"=="" set LOG_CHOICE=1
-if "!LOG_CHOICE!"=="1" goto VIEW_ERROR
-if "!LOG_CHOICE!"=="2" goto MENU
-if "!LOG_CHOICE!"=="3" exit /b 0
-goto MENU
+goto LOOP_ERROR
 
 :VIEW_ALL
 cls
-call :GET_PID
 echo ========================================================
 echo   LOGCAT: XEM TOAN BO LOG DANG TRUYEN LIVE...
-echo   PID: !PID!
-echo   [Nhan Ctrl+C roi chon N de dung theo doi va lua chon hanh dong]
+echo   [Script se tu dong doi va ket noi lai neu mat ket noi]
+echo   [Nhan Ctrl+C de dung logcat va quay lai Menu bat ky luc nao]
 echo ========================================================
 echo.
+
+:LOOP_ALL
+call :GET_PID
 if "!PID!"=="" (
     echo [CANH BAO] Khong the lay PID cua app. Chuyen sang loc chuoi com.thgiang.image...
     adb logcat | findstr /i "com.thgiang.image"
@@ -140,44 +125,29 @@ if "!PID!"=="" (
     adb logcat --pid=!PID! -v color
 )
 echo.
-echo ========================================================
-echo   [LOGCAT DA NGUNG HOAC MAT KET NOI]
-echo --------------------------------------------------------
-echo   [1] Tiep tuc theo doi lai (Tim PID moi va bat dau lai)
-echo   [2] Quay lai Menu chinh
-echo   [3] Thoat
-echo ========================================================
+echo [!] Mat ket noi hoac thiet bi ngat. Dang doi thiet bi ket noi lai...
+adb wait-for-device
+echo [!] Thiet bi da online tro lai! Dang lay lai PID va tiep tuc logcat...
 echo.
-set /p LOG_CHOICE="Vui long chon hanh dong [1-3, Mac dinh la 1]: "
-if "!LOG_CHOICE!"=="" set LOG_CHOICE=1
-if "!LOG_CHOICE!"=="1" goto VIEW_ALL
-if "!LOG_CHOICE!"=="2" goto MENU
-if "!LOG_CHOICE!"=="3" exit /b 0
-goto MENU
+goto LOOP_ALL
 
 :VIEW_TAGS
 cls
 echo ========================================================
 echo   LOGCAT: LOC LOG THEO CAC TAG EDITING / AI / REMOVER...
-echo   [Nhan Ctrl+C roi chon N de dung theo doi va lua chon hanh dong]
+echo   [Script se tu dong doi va ket noi lai neu mat ket noi]
+echo   [Nhan Ctrl+C de dung logcat va quay lai Menu bat ky luc nao]
 echo ========================================================
 echo.
+
+:LOOP_TAGS
 adb logcat -v color *:S MlKitBackgroundRemoverRepository:V ModNetBackgroundRemoverRepository:V BoundingBoxOverlay:V ThemeplateEditorViewModel:V BatchRemoveViewModel:V
 echo.
-echo ========================================================
-echo   [LOGCAT DA NGUNG HOAC MAT KET NOI]
-echo --------------------------------------------------------
-echo   [1] Tiep tuc theo doi lai (Bat dau lai)
-echo   [2] Quay lai Menu chinh
-echo   [3] Thoat
-echo ========================================================
+echo [!] Mat ket noi hoac thiet bi ngat. Dang doi thiet bi ket noi lai...
+adb wait-for-device
+echo [!] Thiet bi da online tro lai! Tiep tuc logcat...
 echo.
-set /p LOG_CHOICE="Vui long chon hanh dong [1-3, Mac dinh la 1]: "
-if "!LOG_CHOICE!"=="" set LOG_CHOICE=1
-if "!LOG_CHOICE!"=="1" goto VIEW_TAGS
-if "!LOG_CHOICE!"=="2" goto MENU
-if "!LOG_CHOICE!"=="3" exit /b 0
-goto MENU
+goto LOOP_TAGS
 
 :CLEAR_LOGS
 cls

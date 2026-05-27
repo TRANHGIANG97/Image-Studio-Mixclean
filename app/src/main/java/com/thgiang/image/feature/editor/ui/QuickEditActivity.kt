@@ -56,7 +56,6 @@ import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPresets
 import com.abizer_r.quickedit.utils.BorderGradientPresets
 import com.abizer_r.quickedit.ui.magicBrush.MagicBrushScreen
 import com.abizer_r.quickedit.ui.rotateMode.RotateModeScreen
-import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
 import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
@@ -74,12 +73,15 @@ import com.thgiang.image.core.diagnostics.ImageProcessingCrashReporter
 import com.thgiang.image.feature.editor.model.DraftManager
 import com.thgiang.image.feature.editor.model.LayerSnapshot
 import com.thgiang.image.feature.editor.model.ProjectSnapshot
-import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 import com.abizer_r.quickedit.utils.toast
 import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.core.design.theme.ImageTheme
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import com.thgiang.image.feature.premium.domain.PremiumRepository
@@ -89,7 +91,6 @@ import javax.inject.Inject
 import android.util.Log
 
 private const val TAG = "QuickEditRemoveBg"
-private const val QUICK_TOOLS_FACE_DETECTION_TIMEOUT_MS = 10_000L
 private const val QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS = 45_000L
 
 @AndroidEntryPoint
@@ -100,9 +101,6 @@ class QuickEditActivity : AppCompatActivity() {
 
     @Inject
     lateinit var backgroundRemoverRepository: BackgroundRemoverRepository
-
-    @Inject
-    lateinit var hairDetailBackgroundRemoverRepository: ModNetBackgroundRemoverRepository
 
     @Inject
     lateinit var rewardedAdManager: com.thgiang.image.core.ad.RewardedAdManager
@@ -142,7 +140,6 @@ class QuickEditActivity : AppCompatActivity() {
                     borderGradientPresetId = borderGradientPresetId,
                     targetTool = targetTool,
                     backgroundRemoverRepository = backgroundRemoverRepository,
-                    hairDetailBackgroundRemoverRepository = hairDetailBackgroundRemoverRepository,
                     rewardedAdManager = rewardedAdManager,
                     premiumRepository = premiumRepository
                 )
@@ -186,6 +183,34 @@ class QuickEditActivity : AppCompatActivity() {
     }
 }
 
+private suspend fun detectFaceForAutoRemove(bitmap: Bitmap): Boolean {
+    return runCatching {
+        withTimeout(3_000L) {
+            withContext(Dispatchers.Default) {
+                val options = FaceDetectorOptions.Builder()
+                    .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                    .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+                    .setContourMode(FaceDetectorOptions.CONTOUR_MODE_NONE)
+                    .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+                    .setMinFaceSize(0.045f)
+                    .build()
+                val detector = FaceDetection.getClient(options)
+
+                try {
+                    val image = InputImage.fromBitmap(bitmap, 0)
+                    val faces = detector.process(image).await()
+                    Log.d(TAG, "detectFaceForAutoRemove: faces=${faces.size}")
+                    faces.isNotEmpty()
+                } finally {
+                    detector.close()
+                }
+            }
+        }
+    }.onFailure {
+        Log.w(TAG, "detectFaceForAutoRemove failed", it)
+    }.getOrDefault(false)
+}
+
 @Composable
 fun QuickEditEditorNavigation(
     initialImageUri: Uri?,
@@ -196,7 +221,6 @@ fun QuickEditEditorNavigation(
     borderGradientPresetId: String? = null,
     targetTool: String? = null,
     backgroundRemoverRepository: BackgroundRemoverRepository? = null,
-    hairDetailBackgroundRemoverRepository: ModNetBackgroundRemoverRepository? = null,
     rewardedAdManager: com.thgiang.image.core.ad.RewardedAdManager? = null,
     premiumRepository: PremiumRepository? = null
 ) {
@@ -313,7 +337,6 @@ fun QuickEditEditorNavigation(
     var autoRemoveDone by remember { mutableStateOf(false) }
     var isRemovingBg by remember { mutableStateOf(false) }
     var autoRemoveStatusMessage by remember { mutableStateOf<String?>(null) }
-    val quickToolsPortraitClassifier = remember { QuickToolsPortraitClassifier() }
 
     val goToRemoveBgScreen = remember { { state: EditorScreenState ->
         sharedEditorViewModel.updateStacksFromEditorState(state)
@@ -444,28 +467,12 @@ fun QuickEditEditorNavigation(
                         val bitmap = sharedEditorViewModel.getCurrentBitmap()
                         ImageProcessingCrashReporter.setActiveTool("quick_tools_remove_bg")
                         ImageProcessingCrashReporter.setBitmapInfo("input", bitmap)
-                        ImageProcessingCrashReporter.setRemoveBgRoute(isAutoRemove = true)
+                        ImageProcessingCrashReporter.setRemoveBgRoute(
+                            isAutoRemove = true,
+                            remover = "adaptive_hybrid"
+                        )
                         Log.d(TAG, "autoRemoveBackground flow start bitmap=${bitmap.width}x${bitmap.height} hasAlpha=${bitmap.hasAlpha()}")
-                        ImageProcessingCrashReporter.setStage("quick_tools_face_detection")
-                        val faceStartMs = android.os.SystemClock.elapsedRealtime()
-                        val hasFace = runCatching {
-                            withTimeout(QUICK_TOOLS_FACE_DETECTION_TIMEOUT_MS) {
-                                quickToolsPortraitClassifier.hasDetectableFace(bitmap).getOrThrow()
-                            }
-                        }
-                            .also {
-                                ImageProcessingCrashReporter.setDuration(
-                                    stage = "face_detection",
-                                    durationMs = android.os.SystemClock.elapsedRealtime() - faceStartMs
-                                )
-                            }
-                            .onFailure {
-                                Log.e(TAG, "autoRemoveBackground: face detection failed", it)
-                                ImageProcessingCrashReporter.recordNonFatal(it, "quick_tools_face_detection")
-                            }
-                            .getOrDefault(false)
-                        val modNetRemover = hairDetailBackgroundRemoverRepository
-                        val useModNet = hasFace && modNetRemover != null
+                        val hasFace = detectFaceForAutoRemove(bitmap)
                         autoRemoveStatusMessage = if (hasFace) {
                             quickEditFaceDetectedRemovingBgMessage
                         } else {
@@ -474,29 +481,16 @@ fun QuickEditEditorNavigation(
 
                         Log.d(
                             TAG,
-                            "autoRemoveBackground: hasFace=$hasFace remover=${if (useModNet) "ModNet" else "ML Kit Subject"}"
-                        )
-                        val selectedRemoverName = if (useModNet) "modnet" else "mlkit_subject"
-                        ImageProcessingCrashReporter.setRemoveBgRoute(
-                            isAutoRemove = true,
-                            hasFace = hasFace,
-                            remover = selectedRemoverName
+                            "autoRemoveBackground: calling adaptive hybrid remover"
                         )
 
                         ImageProcessingCrashReporter.setStage("quick_tools_remove_bg")
                         val removeStartMs = android.os.SystemClock.elapsedRealtime()
-                        var result = runCatching {
+                        val result = runCatching {
                             withTimeout(QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS) {
                                 withContext(Dispatchers.Default) {
-                                    if (useModNet) {
-                                        Log.d(TAG, "autoRemoveBackground: calling ModNet remover")
-                                        ImageProcessingCrashReporter.setStage("quick_tools_call_modnet")
-                                        modNetRemover!!.getForegroundBitmap(bitmap).getOrThrow()
-                                    } else {
-                                        Log.d(TAG, "autoRemoveBackground: calling ML Kit Subject remover")
-                                        ImageProcessingCrashReporter.setStage("quick_tools_call_mlkit_subject")
-                                        subjectRemover.getForegroundBitmap(bitmap).getOrThrow()
-                                    }
+                                    ImageProcessingCrashReporter.setStage("quick_tools_call_adaptive_hybrid")
+                                    subjectRemover.getForegroundBitmap(bitmap).getOrThrow()
                                 }
                             }
                         }.also {
@@ -504,32 +498,6 @@ fun QuickEditEditorNavigation(
                                 stage = "remove_bg",
                                 durationMs = android.os.SystemClock.elapsedRealtime() - removeStartMs
                             )
-                        }
-
-                        if (result.isFailure && useModNet) {
-                            result.exceptionOrNull()?.let {
-                                Log.e(TAG, "autoRemoveBackground: ModNet failed, falling back to ML Kit Subject", it)
-                                ImageProcessingCrashReporter.recordNonFatal(it, "quick_tools_modnet_fallback")
-                            }
-                            ImageProcessingCrashReporter.setRemoveBgRoute(
-                                isAutoRemove = true,
-                                hasFace = hasFace,
-                                remover = "mlkit_subject_fallback"
-                            )
-                            ImageProcessingCrashReporter.setStage("quick_tools_remove_bg_fallback")
-                            val fallbackStartMs = android.os.SystemClock.elapsedRealtime()
-                            result = runCatching {
-                                withTimeout(QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS) {
-                                    withContext(Dispatchers.Default) {
-                                        subjectRemover.getForegroundBitmap(bitmap).getOrThrow()
-                                    }
-                                }
-                            }.also {
-                                ImageProcessingCrashReporter.setDuration(
-                                    stage = "fallback_remove_bg",
-                                    durationMs = android.os.SystemClock.elapsedRealtime() - fallbackStartMs
-                                )
-                            }
                         }
 
                         result.fold(

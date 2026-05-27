@@ -73,6 +73,8 @@ add_library(
         SHARED
         bg_refiner/bg_refiner.cpp
         bg_refiner/native_refiner.cpp
+        bg_refiner/onnx_decryptor.cpp
+        bg_refiner/mask_fusion.cpp
 )
 
 target_include_directories(
