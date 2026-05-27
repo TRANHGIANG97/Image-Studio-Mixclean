@@ -152,15 +152,15 @@ class MlKitBackgroundRemoverRepository(
 
         val input = InputImage.fromBitmap(processedBitmap, 0)
 
-        val foreground = run {
-            Log.d(TAG, "getForegroundBitmapInternal: using SubjectSegmenter")
+        val mask = run {
+            Log.d(TAG, "getForegroundBitmapInternal: using SubjectSegmenter for mask")
             val result = processSafely(input)
-            result.foregroundBitmap?.copy(Bitmap.Config.ARGB_8888, true)
-                ?: error("Foreground extraction failed")
+            val buffer = result.foregroundConfidenceMask ?: error("Foreground confidence mask failed")
+            readMask(buffer, processedBitmap.width, processedBitmap.height)
         }
 
         try {
-            BackgroundRefinerNative.nativeRefineForeground(foreground, processedBitmap)
+            val foreground = applyMaskToImage(processedBitmap, mask)
 
             if (needsUpscale) {
                 if (processedBitmap !== bitmap && !processedBitmap.isRecycled) processedBitmap.recycle()
@@ -173,8 +173,21 @@ class MlKitBackgroundRemoverRepository(
                 foreground
             }
         } catch (e: Exception) {
-            foreground.recycle()
             throw e
+        }
+    }
+
+    private fun readMask(buffer: java.nio.FloatBuffer, bitmapWidth: Int, bitmapHeight: Int): Mask {
+        buffer.rewind()
+        val count = buffer.remaining()
+        val values = FloatArray(count)
+        buffer.get(values)
+        return if (count == bitmapWidth * bitmapHeight) {
+            Mask(bitmapWidth, bitmapHeight, values)
+        } else {
+            val side = kotlin.math.sqrt(count.toDouble()).toInt()
+            require(side * side == count) { "Unexpected ML Kit mask size: $count" }
+            Mask(side, side, values).resizeBilinear(bitmapWidth, bitmapHeight)
         }
     }
 

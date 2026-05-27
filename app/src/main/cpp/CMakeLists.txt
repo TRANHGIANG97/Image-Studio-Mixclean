@@ -64,27 +64,3 @@ target_link_libraries(
         ${log-lib}
         $<$<BOOL:${OpenMP_CXX_FOUND}>:OpenMP::OpenMP_CXX>
 )
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Library 3: bg_refiner (Background removal alpha refinement)
-# ══════════════════════════════════════════════════════════════════════════════
-add_library(
-        bg_refiner
-        SHARED
-        bg_refiner/bg_refiner.cpp
-        bg_refiner/native_refiner.cpp
-        bg_refiner/onnx_decryptor.cpp
-        bg_refiner/mask_fusion.cpp
-)
-
-target_include_directories(
-        bg_refiner
-        PRIVATE
-        ${CMAKE_SOURCE_DIR}/bg_refiner
-)
-
-target_link_libraries(
-        bg_refiner
-        ${jnigraphics-lib}
-        ${log-lib}
-)

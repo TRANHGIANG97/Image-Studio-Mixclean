@@ -20,13 +20,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import com.abizer_r.quickedit.utils.background.GradientBackgroundRenderer
 import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
-import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class BackgroundModeViewModel @Inject constructor(
     private val backgroundRemoverRepository: com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository,
-    private val hairDetailBackgroundRemoverRepository: ModNetBackgroundRemoverRepository,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
@@ -209,26 +207,10 @@ class BackgroundModeViewModel @Inject constructor(
                     android.util.Log.e("BackgroundModeVM", "Face detection failed", it)
                 }.getOrDefault(false)
 
-                val useModNet = hasFace
-
                 var result = runCatching {
                     withTimeout(45000L) {
-                        if (useModNet) {
-                            android.util.Log.d("BackgroundModeVM", "Using ModNet for face segmentation")
-                            hairDetailBackgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
-                        } else {
-                            android.util.Log.d("BackgroundModeVM", "Using ML Kit Subject Segmentation")
-                            backgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
-                        }
-                    }
-                }
-
-                if (result.isFailure && useModNet) {
-                    android.util.Log.e("BackgroundModeVM", "ModNet failed, falling back to ML Kit Subject", result.exceptionOrNull())
-                    result = runCatching {
-                        withTimeout(45000L) {
-                            backgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
-                        }
+                        android.util.Log.d("BackgroundModeVM", "Using ML Kit Subject Segmentation")
+                        backgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
                     }
                 }
 

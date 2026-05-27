@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
 import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 import com.thgiang.image.core.data.save.CachedImage
 import com.thgiang.image.core.data.save.ImageSaveRepository
@@ -26,7 +25,6 @@ import javax.inject.Inject
 @HiltViewModel
 class BatchRemoveViewModel @Inject constructor(
     private val mlKitRemover: BackgroundRemoverRepository,
-    private val modNetRemover: ModNetBackgroundRemoverRepository,
     private val imageSave: ImageSaveRepository,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -89,14 +87,8 @@ class BatchRemoveViewModel @Inject constructor(
                 // 2. Perform face detection routing
                 val hasFace = portraitClassifier.hasDetectableFace(originalBitmap).getOrDefault(false)
 
-                // 3. Remove background with fallback
-                val foregroundBitmap = if (hasFace) {
-                    modNetRemover.getForegroundBitmap(originalBitmap).getOrNull()
-                        ?: mlKitRemover.getForegroundBitmap(originalBitmap).getOrNull()
-                } else {
-                    mlKitRemover.getForegroundBitmap(originalBitmap).getOrNull()
-                        ?: modNetRemover.getForegroundBitmap(originalBitmap).getOrNull()
-                }
+                // 3. Remove background with standalone ML Kit
+                val foregroundBitmap = mlKitRemover.getForegroundBitmap(originalBitmap).getOrNull()
 
                 // Clean original bitmap as soon as possible
                 if (!originalBitmap.isRecycled) {

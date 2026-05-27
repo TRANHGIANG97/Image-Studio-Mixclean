@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.abizer_r.quickedit.backgroundremove.ModNetBackgroundRemoverRepository
+
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.core.util.processors.ProcessorUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +23,6 @@ import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 @HiltViewModel
 class RemoveBgModeViewModel @Inject constructor(
     private val mlKitRemover: BackgroundRemoverRepository,
-    private val modNetRemover: ModNetBackgroundRemoverRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -154,7 +153,7 @@ class RemoveBgModeViewModel @Inject constructor(
 
     private suspend fun getPortraitBgRemoved(bitmap: Bitmap): Bitmap? {
         if (cachedPortraitBitmap != null) return cachedPortraitBitmap
-        val result = modNetRemover.getForegroundBitmap(bitmap).getOrNull()
+        val result = mlKitRemover.getForegroundBitmap(bitmap).getOrNull()
         if (result != null) {
             cachedPortraitBitmap = result
         }

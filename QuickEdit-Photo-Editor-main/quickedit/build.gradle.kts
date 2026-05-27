@@ -68,7 +68,7 @@ dependencies {
 
     implementation(libs.cloudy)
     implementation("androidx.exifinterface:exifinterface:1.3.7")
-    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.25.0")
+
     implementation("com.airbnb.android:lottie-compose:6.4.0")
 
     implementation(libs.android.image.cropper)
