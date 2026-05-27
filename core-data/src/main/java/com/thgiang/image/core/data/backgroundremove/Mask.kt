@@ -116,6 +116,129 @@ data class Mask(
         }
         return ((sum / max(1, data.size)) * 100f).roundToInt().coerceIn(0, 100)
     }
+
+    fun fastGuidedFilter(guidanceImage: Mask, radius: Int, eps: Float, downsampleFactor: Int = 4): Mask {
+        val sW = max(1, width / downsampleFactor)
+        val sH = max(1, height / downsampleFactor)
+
+        val pSubData = this.data.resizeBilinearRaw(width, height, sW, sH)
+        val ISubData = guidanceImage.data.resizeBilinearRaw(width, height, sW, sH)
+
+        val mean_I = ISubData.boxBlurRaw(sW, sH, radius)
+        val mean_p = pSubData.boxBlurRaw(sW, sH, radius)
+
+        val II = FloatArray(sW * sH) { i -> ISubData[i] * ISubData[i] }
+        val Ip = FloatArray(sW * sH) { i -> ISubData[i] * pSubData[i] }
+
+        val mean_II = II.boxBlurRaw(sW, sH, radius)
+        val mean_Ip = Ip.boxBlurRaw(sW, sH, radius)
+
+        val aData = FloatArray(sW * sH)
+        val bData = FloatArray(sW * sH)
+        for (i in aData.indices) {
+            val var_I = mean_II[i] - mean_I[i] * mean_I[i]
+            val cov_Ip = mean_Ip[i] - mean_I[i] * mean_p[i]
+            aData[i] = cov_Ip / (var_I + eps)
+            bData[i] = mean_p[i] - aData[i] * mean_I[i]
+        }
+
+        val mean_a = aData.boxBlurRaw(sW, sH, radius)
+        val mean_b = bData.boxBlurRaw(sW, sH, radius)
+
+        val mean_a_full = mean_a.resizeBilinearRaw(sW, sH, width, height)
+        val mean_b_full = mean_b.resizeBilinearRaw(sW, sH, width, height)
+
+        val qData = FloatArray(width * height)
+        for (i in qData.indices) {
+            qData[i] = (mean_a_full[i] * guidanceImage.data[i] + mean_b_full[i]).coerceIn(0f, 1f)
+        }
+        return Mask(width, height, qData)
+    }
+}
+
+private fun FloatArray.boxBlurRaw(width: Int, height: Int, radius: Int): FloatArray {
+    if (radius <= 0) return this.clone()
+
+    val temp = FloatArray(width * height)
+    val out = FloatArray(width * height)
+    val kernel = radius * 2 + 1
+
+    for (y in 0 until height) {
+        val row = y * width
+        var sum = 0f
+        for (kx in -radius..radius) {
+            sum += this[row + kx.coerceIn(0, width - 1)]
+        }
+        for (x in 0 until width) {
+            temp[row + x] = sum / kernel
+            val removeX = (x - radius).coerceIn(0, width - 1)
+            val addX = (x + radius + 1).coerceIn(0, width - 1)
+            sum += this[row + addX] - this[row + removeX]
+        }
+    }
+
+    for (x in 0 until width) {
+        var sum = 0f
+        for (ky in -radius..radius) {
+            sum += temp[ky.coerceIn(0, height - 1) * width + x]
+        }
+        for (y in 0 until height) {
+            out[y * width + x] = sum / kernel
+            val removeY = (y - radius).coerceIn(0, height - 1)
+            val addY = (y + radius + 1).coerceIn(0, height - 1)
+            sum += temp[addY * width + x] - temp[removeY * width + x]
+        }
+    }
+
+    return out
+}
+
+private fun FloatArray.resizeBilinearRaw(width: Int, height: Int, targetWidth: Int, targetHeight: Int): FloatArray {
+    if (targetWidth == width && targetHeight == height) return this.clone()
+
+    val out = FloatArray(targetWidth * targetHeight)
+    if (width <= 1 || height <= 1 || targetWidth <= 1 || targetHeight <= 1) {
+        out.fill(this.firstOrNull() ?: 0f)
+        return out
+    }
+
+    val xRatio = (width - 1).toFloat() / (targetWidth - 1)
+    val yRatio = (height - 1).toFloat() / (targetHeight - 1)
+    for (ty in 0 until targetHeight) {
+        val srcY = ty * yRatio
+        val y0 = floor(srcY).toInt()
+        val y1 = min(y0 + 1, height - 1)
+        val wy = srcY - y0
+        val dstRow = ty * targetWidth
+        for (tx in 0 until targetWidth) {
+            val srcX = tx * xRatio
+            val x0 = floor(srcX).toInt()
+            val x1 = min(x0 + 1, width - 1)
+            val wx = srcX - x0
+            val top = this[y0 * width + x0] * (1f - wx) + this[y0 * width + x1] * wx
+            val bottom = this[y1 * width + x0] * (1f - wx) + this[y1 * width + x1] * wx
+            out[dstRow + tx] = top * (1f - wy) + bottom * wy
+        }
+    }
+    return out
+}
+
+
+fun bitmapToGrayscaleMask(bitmap: Bitmap): Mask {
+    val width = bitmap.width
+    val height = bitmap.height
+    val pixels = IntArray(width * height)
+    bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+    val out = FloatArray(width * height)
+    for (i in pixels.indices) {
+        val p = pixels[i]
+        val r = (p shr 16) and 0xFF
+        val g = (p shr 8) and 0xFF
+        val b = p and 0xFF
+        val lum = (0.299f * r + 0.587f * g + 0.114f * b) / 255f
+        out[i] = lum
+    }
+    return Mask(width, height, out)
 }
 
 fun applyMaskToImage(image: Bitmap, mask: Mask): Bitmap {
@@ -128,6 +251,10 @@ fun applyMaskToImage(image: Bitmap, mask: Mask): Bitmap {
     val srcPixels = IntArray(width * height)
     image.getPixels(srcPixels, 0, width, 0, 0, width, height)
 
+    // Áp dụng Fast Guided Filter để nắn viền mask bám sát theo chi tiết ảnh
+    val guidanceImage = bitmapToGrayscaleMask(image)
+    val refinedMask = mask.fastGuidedFilter(guidanceImage, radius = 4, eps = 0.001f, downsampleFactor = 4)
+
     var greenRgbDecontamPixels = 0
     var transparentGreenPixels = 0
     val pixelCount = srcPixels.size
@@ -136,20 +263,11 @@ fun applyMaskToImage(image: Bitmap, mask: Mask): Bitmap {
     for (i in srcPixels.indices) {
         val src = srcPixels[i]
         val srcAlpha = (src ushr 24) and 0xFF
-        val maskFloat = mask.data[i].coerceIn(0f, 1f)
+        val maskFloat = refinedMask.data[i].coerceIn(0f, 1f)
 
-        // Tầng 5: Smoothstep alpha mapping — loại bỏ banding tuyến tính ở vùng chuyển tiếp
-        // Vùng transition [0.02, 0.98]: áp dụng S-curve t²(3−2t) thay vì linear
-        // Vùng fully opaque/transparent: giữ nguyên để không làm mờ lõi hoặc nền
-        val smoothedMask = when {
-            maskFloat < 0.02f -> 0f
-            maskFloat > 0.98f -> 1f
-            else -> {
-                val t = (maskFloat - 0.02f) / 0.96f  // normalize về [0,1]
-                val s = t * t * (3f - 2f * t)         // smoothstep
-                s * 0.96f + 0.02f                      // map về [0.02, 0.98]
-            }
-        }
+        // Không dùng smoothstep/boost nữa vì Guided Filter đã lo phần sắc độ nét/nhòe
+        val smoothedMask = maskFloat
+
 
         val maskAlpha = (smoothedMask * 255f).roundToInt()
 
