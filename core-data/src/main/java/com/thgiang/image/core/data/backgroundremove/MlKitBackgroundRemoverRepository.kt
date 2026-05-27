@@ -41,7 +41,7 @@ class MlKitBackgroundRemoverRepository(
 ) : BackgroundRemoverRepository {
 
     private companion object {
-        private const val MIN_PRE_UPSCALE_PIXELS = 300_000
+        private const val MIN_PRE_UPSCALE_PIXELS = 500_000
         private const val SUBJECT_MODULE_INSTALL_TIMEOUT_MS = 15_000L
         private const val TAG = "MlKitRemover"
     }
@@ -137,7 +137,7 @@ class MlKitBackgroundRemoverRepository(
     private suspend fun getForegroundBitmapInternal(bitmap: Bitmap): Bitmap = withContext(Dispatchers.Default) {
         val pixels = bitmap.width * bitmap.height
         val needsUpscale = pixels < MIN_PRE_UPSCALE_PIXELS
-        Log.d(TAG, "getForegroundBitmapInternal: pixels=$pixels needsUpscale=$needsUpscale")
+        Log.d(TAG, "getForegroundBitmapInternal: pixels=$pixels needsUpscale=$needsUpscale (threshold=$MIN_PRE_UPSCALE_PIXELS)")
         val processedBitmap = if (needsUpscale) {
             val scale = sqrt(MIN_PRE_UPSCALE_PIXELS.toFloat() / pixels)
             Bitmap.createScaledBitmap(
@@ -150,17 +150,23 @@ class MlKitBackgroundRemoverRepository(
             bitmap
         }
 
+        val startTime = System.currentTimeMillis()
         val input = InputImage.fromBitmap(processedBitmap, 0)
 
         val mask = run {
             Log.d(TAG, "getForegroundBitmapInternal: using SubjectSegmenter for mask")
+            val mlStart = System.currentTimeMillis()
             val result = processSafely(input)
+            Log.d(TAG, "getForegroundBitmapInternal: ML Kit Segmenter took ${System.currentTimeMillis() - mlStart}ms")
             val buffer = result.foregroundConfidenceMask ?: error("Foreground confidence mask failed")
             readMask(buffer, processedBitmap.width, processedBitmap.height)
         }
 
         try {
+            val maskStart = System.currentTimeMillis()
             val foreground = applyMaskToImage(processedBitmap, mask)
+            Log.d(TAG, "getForegroundBitmapInternal: applyMaskToImage (including Fast Guided Filter) took ${System.currentTimeMillis() - maskStart}ms")
+            Log.d(TAG, "getForegroundBitmapInternal: Total background removal took ${System.currentTimeMillis() - startTime}ms")
 
             if (needsUpscale) {
                 if (processedBitmap !== bitmap && !processedBitmap.isRecycled) processedBitmap.recycle()
