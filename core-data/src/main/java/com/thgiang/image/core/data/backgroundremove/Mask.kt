@@ -121,10 +121,7 @@ data class Mask(
         val sW = max(1, width / downsampleFactor)
         val sH = max(1, height / downsampleFactor)
 
-        val pSubRaw = this.data.resizeBilinearRaw(width, height, sW, sH)
-        // Nở rộng (dilate) mặt nạ thô 2 pixel ở không gian thu nhỏ (tương đương 8 pixel ở ảnh gốc)
-        // để mở rộng vùng tìm kiếm cho Guided Filter đối với các sợi tóc tơ bay tự do ngoài biên
-        val pSubData = pSubRaw.dilateRaw(sW, sH, radius = 2)
+        val pSubData = this.data.resizeBilinearRaw(width, height, sW, sH)
         val ISubData = guidanceImage.data.resizeBilinearRaw(width, height, sW, sH)
 
         val mean_I = ISubData.boxBlurRaw(sW, sH, radius)
@@ -157,43 +154,6 @@ data class Mask(
         }
         return Mask(width, height, qData)
     }
-}
-
-private fun FloatArray.dilateRaw(width: Int, height: Int, radius: Int): FloatArray {
-    if (radius <= 0) return this.clone()
-    val out = FloatArray(width * height)
-    val temp = FloatArray(width * height)
-
-    // Co giãn theo chiều ngang (Horizontal pass)
-    for (y in 0 until height) {
-        val row = y * width
-        for (x in 0 until width) {
-            var maxVal = 0f
-            val start = maxOf(0, x - radius)
-            val end = minOf(width - 1, x + radius)
-            for (kx in start..end) {
-                val v = this[row + kx]
-                if (v > maxVal) maxVal = v
-            }
-            temp[row + x] = maxVal
-        }
-    }
-
-    // Co giãn theo chiều dọc (Vertical pass)
-    for (x in 0 until width) {
-        for (y in 0 until height) {
-            var maxVal = 0f
-            val start = maxOf(0, y - radius)
-            val end = minOf(height - 1, y + radius)
-            for (ky in start..end) {
-                val v = temp[ky * width + x]
-                if (v > maxVal) maxVal = v
-            }
-            out[y * width + x] = maxVal
-        }
-    }
-
-    return out
 }
 
 
@@ -292,9 +252,9 @@ fun applyMaskToImage(image: Bitmap, mask: Mask): Bitmap {
     val srcPixels = IntArray(width * height)
     image.getPixels(srcPixels, 0, width, 0, 0, width, height)
 
-    // Áp dụng Fast Guided Filter để nắn viền mask bám sát theo chi tiết ảnh
+    // Áp dụng Guided Filter ở độ phân giải gốc để tránh nhòe viền hệ số hồi quy khi phóng to (halo)
     val guidanceImage = bitmapToGrayscaleMask(image)
-    val refinedMask = mask.fastGuidedFilter(guidanceImage, radius = 4, eps = 0.001f, downsampleFactor = 4)
+    val refinedMask = mask.fastGuidedFilter(guidanceImage, radius = 4, eps = 0.001f, downsampleFactor = 1)
 
     var greenRgbDecontamPixels = 0
     var transparentGreenPixels = 0
