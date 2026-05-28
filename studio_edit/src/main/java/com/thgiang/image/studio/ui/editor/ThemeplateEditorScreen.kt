@@ -40,6 +40,7 @@ fun ThemeplateEditorScreen(
     onPickImage: (@Composable (onImageSelected: (Uri) -> Unit, onCancel: () -> Unit) -> Unit)? = null,
     viewModel: ThemeplateEditorViewModel = hiltViewModel()
 ) {
+    val templateAssetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
     val state by viewModel.state.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()
@@ -74,7 +75,7 @@ fun ThemeplateEditorScreen(
     }
 
     LaunchedEffect(themeplate) {
-        viewModel.onEvent(EditorEvent.LoadTemplate(themeplate.assetPath))
+        viewModel.onEvent(EditorEvent.LoadTemplate(templateAssetPath, themeplate.objectSourceAssetPath))
     }
 
 
@@ -88,7 +89,7 @@ fun ThemeplateEditorScreen(
             // ── Layer 1: Canvas ───────────────────────────────────────
             if (state.template.loaded && state.template.originalSize.width > 0) {
                 EditorCanvasV2(
-                    templateAssetPath = themeplate.assetPath,
+                    templateAssetPath = templateAssetPath,
                     templateSize = state.template.originalSize,
                     product = state.product,
                     viewport = state.viewport,
@@ -208,7 +209,7 @@ fun ThemeplateEditorScreen(
                                     )
                                     .clickable(enabled = state.canExport) {
                                         val exportAction = {
-                                            viewModel.onEvent(EditorEvent.Export(themeplate.assetPath))
+                                            viewModel.onEvent(EditorEvent.Export(templateAssetPath))
                                         }
                                         onRequireExportAd?.invoke(exportAction) ?: exportAction()
                                     }

@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 
 sealed class EditorEvent {
-    data class LoadTemplate(val assetPath: String) : EditorEvent()
+    data class LoadTemplate(val assetPath: String, val objectSourceAssetPath: String? = null) : EditorEvent()
     data class SetProductImage(val uri: Uri) : EditorEvent()
     data class UpdateGesture(val delta: GestureDelta) : EditorEvent()
     data class UpdateOffset(val delta: Offset) : EditorEvent()

@@ -144,7 +144,8 @@ fun EditorCanvasV2(
                         onGestureEnd = onGestureEnd,
                         showOverlay = showOverlay,
                         showBoundingBox = showBoundingBox,
-                        onBoundingBoxVisible = onBoundingBoxVisible
+                        onBoundingBoxVisible = onBoundingBoxVisible,
+                        onPickImage = onPickImage
                     )
                 } else if (product.processing) {
                     Box(

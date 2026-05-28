@@ -52,6 +52,7 @@ import com.thgiang.image.core.design.theme.HomeDarkStyle
 import com.thgiang.image.core.design.theme.ImageDesign
 import com.thgiang.image.feature.home.viewmodel.HomeViewModel
 import com.abizer_r.quickedit.ui.mainScreen.CosmeticsThemeplateSection
+import com.abizer_r.quickedit.ui.mainScreen.ProfessionalThemeplateSection
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPreset
 import com.abizer_r.quickedit.utils.BorderGradientPreset
@@ -253,6 +254,13 @@ fun HomeDashboardScreen(
                     Spacer(modifier = Modifier.height(HomeSpacing.section))
 
                     CosmeticsThemeplateSection(
+                        modifier = Modifier.fillMaxWidth(),
+                        onThemeplateSelected = onThemeplateSelected
+                    )
+
+                    Spacer(modifier = Modifier.height(HomeSpacing.section))
+
+                    ProfessionalThemeplateSection(
                         modifier = Modifier.fillMaxWidth(),
                         onThemeplateSelected = onThemeplateSelected
                     )

@@ -140,12 +140,16 @@ object EditorConfig {
     const val SNAP_DISTANCE_PX = 12f
     const val SNAP_EDGE_FACTOR = 0.8f
 
+    // Padding (px) quanh bounding box hien thi — box khong sat mep anh
+    const val BB_PADDING_PX = 10f
+
     // V6.1: Pinch smoothing config
     const val PINCH_SCALE_THRESHOLD = 0.02f      // 2% scale change mới update
     const val PINCH_ROTATION_THRESHOLD = 1.5f    // 1.5° rotation mới update
     const val PINCH_CENTROID_SMOOTHING = 0.7f    // EMA factor (0-1, cao = mượt hơn)
     const val PINCH_DEADZONE_PX = 3f             // Bỏ qua movement nhỏ hơn 3px
 }
+
 
 private val SNAP_ANGLES = listOf(0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f)
 
@@ -248,8 +252,8 @@ fun BoundingBoxOverlayV6(
                     val down = awaitFirstDown()
                     val center = Offset(size.width / 2f, size.height / 2f)
 
-                    val screenW = contentWidth * currentViewport.scale * displayScale
-                    val screenH = contentHeight * currentViewport.scale * displayScale
+                    val screenW = contentWidth * currentViewport.scale * displayScale + 2 * EditorConfig.BB_PADDING_PX
+                    val screenH = contentHeight * currentViewport.scale * displayScale + 2 * EditorConfig.BB_PADDING_PX
 
                     activeHandle = detectHandleRotated(
                         touch = down.position,
@@ -564,8 +568,9 @@ fun BoundingBoxOverlayV6(
 
             val screenW = contentWidth * viewport.scale * displayScale
             val screenH = contentHeight * viewport.scale * displayScale
-            val hw = screenW / 2f
-            val hh = screenH / 2f
+            // Them 10px padding quanh bounding box de box khong sat mep anh
+            val hw = screenW / 2f + EditorConfig.BB_PADDING_PX
+            val hh = screenH / 2f + EditorConfig.BB_PADDING_PX
 
             if (showBoundingBox && snapAlpha > 0.01f) {
                 drawSnapLines(

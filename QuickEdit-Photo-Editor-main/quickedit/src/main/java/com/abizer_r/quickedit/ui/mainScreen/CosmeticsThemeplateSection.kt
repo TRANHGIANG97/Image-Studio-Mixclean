@@ -48,7 +48,7 @@ fun CosmeticsThemeplateSection(
     modifier: Modifier = Modifier,
     onThemeplateSelected: (StudioThemeplate) -> Unit
 ) {
-    val templates = remember { StudioThemeplates.all }
+    val templates = remember { StudioThemeplates.cosmetics }
 
     Column(modifier = modifier.padding(horizontal = 16.dp)) {
         Text(

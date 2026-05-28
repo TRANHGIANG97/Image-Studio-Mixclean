@@ -2,7 +2,10 @@ package com.thgiang.image.studio.ui.editor.components
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.*
@@ -16,9 +19,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import com.thgiang.image.core.design.theme.AuroraCoral
@@ -49,7 +54,8 @@ fun ProductLayerV2(
     onGestureEnd: () -> Unit,
     showOverlay: Boolean = false,
     showBoundingBox: Boolean = false,
-    onBoundingBoxVisible: (Boolean) -> Unit = {}
+    onBoundingBoxVisible: (Boolean) -> Unit = {},
+    onPickImage: () -> Unit = {}
 ) {
     val density = LocalDensity.current
     
@@ -125,7 +131,7 @@ fun ProductLayerV2(
 
     Box(
         modifier = Modifier
-            .size(originalWidth, originalHeight)
+            .requiredSize(originalWidth, originalHeight)
             .offset { displayOffset }
     ) {
         // Shadow Layer
@@ -229,5 +235,37 @@ fun ProductLayerV2(
             showBoundingBox = showBoundingBox,
             onBoundingBoxVisible = onBoundingBoxVisible
         )
+
+        // Pink "Replace" Button for sample object
+        if (product.isSample && !product.processing) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(72.dp)
+                    .background(Color(0xFFFF2D55), shape = CircleShape)
+                    .border(2.dp, Color.White, shape = CircleShape)
+                    .clickable { onPickImage() },
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = androidx.compose.ui.res.painterResource(id = com.thgiang.image.studio.R.drawable.ic_replace_product),
+                        contentDescription = "Thay thế",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Thay thế",
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
     }
 }

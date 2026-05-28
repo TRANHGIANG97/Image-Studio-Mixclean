@@ -45,6 +45,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private val imageSaveRepository: ImageSaveRepository,
     private val renderer: EditorRenderer,
     private val historyManager: EditorHistoryManager,
+    private val sampleObjectCacheManager: SampleObjectCacheManager,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -117,7 +118,7 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     fun onEvent(event: EditorEvent) {
         when (event) {
-            is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath)
+            is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath, event.objectSourceAssetPath)
             is EditorEvent.SetProductImage -> setProductImage(event.uri)
             is EditorEvent.UpdateGesture -> {
                 gestureThrottleFlow.tryEmit(event.delta)
@@ -198,10 +199,13 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
-    private fun loadTemplate(assetPath: String) {
-        android.util.Log.d(TAG, "loadTemplate called with path: $assetPath")
+    private fun loadTemplate(assetPath: String, objectSourceAssetPath: String? = null) {
+        android.util.Log.d(TAG, "loadTemplate called with path: $assetPath, objectSourceAssetPath: $objectSourceAssetPath")
         if (_state.value.template.loaded && _state.value.template.assetPath == assetPath) {
-            android.util.Log.d(TAG, "Template already loaded, ignoring.")
+            android.util.Log.d(TAG, "Template already loaded, ignoring template load but checking sample object.")
+            if (objectSourceAssetPath != null && _state.value.product.foregroundUriString == null && !_state.value.product.processing) {
+                loadSampleObject(objectSourceAssetPath)
+            }
             return
         }
         
@@ -227,10 +231,89 @@ class ThemeplateEditorViewModel @Inject constructor(
                         )
                     }
                     android.util.Log.d(TAG, "Successfully loaded template state")
+                    
+                    if (objectSourceAssetPath != null) {
+                        loadSampleObject(objectSourceAssetPath)
+                    }
                 }
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "loadTemplate failed to load from assets: $assetPath", e)
                 _state.update { it.copy(errorMessage = "Không thể tải template") }
+            }
+        }
+    }
+
+    private var sampleObjectLoadJob: Job? = null
+
+    private fun loadSampleObject(assetPath: String) {
+        sampleObjectLoadJob?.cancel()
+        _state.update {
+            it.copy(
+                product = EditorProduct(processing = true, isSample = true)
+            )
+        }
+        sampleObjectLoadJob = viewModelScope.launch {
+            try {
+                android.util.Log.d(TAG, "loadSampleObject: extracting $assetPath")
+                val cachedUri = sampleObjectCacheManager.getOrExtract(assetPath)
+                if (cachedUri != null) {
+                    val tw = _state.value.template.originalSize.width
+                    val th = _state.value.template.originalSize.height
+                    
+                    val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    withContext(Dispatchers.IO) {
+                        context.contentResolver.openInputStream(cachedUri).use { input ->
+                            BitmapFactory.decodeStream(input, null, options)
+                        }
+                    }
+                    
+                    val w = options.outWidth
+                    val h = options.outHeight
+                    android.util.Log.d(TAG, "loadSampleObject: cached bounds $w x $h")
+                    
+                    val baseSize = if (tw > 0 && th > 0 && w > 0 && h > 0) {
+                        val baseFitScale = kotlin.math.min(
+                            tw.toFloat() / w,
+                            th.toFloat() / h
+                        )
+                        IntSize(
+                            (w * baseFitScale).toInt(),
+                            (h * baseFitScale).toInt()
+                        )
+                    } else {
+                        IntSize(w.coerceAtLeast(0), h.coerceAtLeast(0))
+                    }
+                    
+                    _state.update {
+                        it.copy(
+                            product = EditorProduct(
+                                originalUriString = cachedUri.toString(),
+                                foregroundUriString = cachedUri.toString(),
+                                isBackgroundRemoved = true,
+                                baseWidth = baseSize.width,
+                                baseHeight = baseSize.height,
+                                processing = false,
+                                isSample = true
+                            ),
+                            viewport = EditorViewport(scale = 1f),
+                            showBoundingBox = true
+                        )
+                    }
+                    triggerOverlay()
+                    pushHistory()
+                } else {
+                    _state.update { it.copy(product = it.product.copy(processing = false, isSample = false)) }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "Failed to load sample object: $assetPath", e)
+                _state.update {
+                    it.copy(
+                        product = it.product.copy(processing = false, isSample = false),
+                        errorMessage = "Không thể tải sản phẩm mẫu"
+                    )
+                }
             }
         }
     }

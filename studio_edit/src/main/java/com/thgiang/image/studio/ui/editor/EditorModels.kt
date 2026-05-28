@@ -76,13 +76,14 @@ data class EditorProduct(
     val isBackgroundRemoved: Boolean = false,
     val baseWidth: Int = 0,
     val baseHeight: Int = 0,
-    val processing: Boolean = false
+    val processing: Boolean = false,
+    val isSample: Boolean = false
 ) : java.io.Serializable {
     val originalUri: Uri? get() = originalUriString?.let { Uri.parse(it) }
     val foregroundUri: Uri? get() = foregroundUriString?.let { Uri.parse(it) }
     val baseSize: IntSize get() = IntSize(baseWidth, baseHeight)
     
-    constructor() : this(null, null, false, 0, 0, false)
+    constructor() : this(null, null, false, 0, 0, false, false)
 }
 
 // ============ Tool & Config ============
