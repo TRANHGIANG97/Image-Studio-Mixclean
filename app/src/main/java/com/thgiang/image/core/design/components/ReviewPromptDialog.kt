@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -80,10 +81,9 @@ fun ReviewPromptDialog(
                             .background(Color(0xFFF3F6FF)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            painter = painterResource(R.mipmap.ic_launcher_round),
+                        Image(
+                            painter = painterResource(R.mipmap.ic_launcher_foreground),
                             contentDescription = null,
-                            tint = Color.Unspecified,
                             modifier = Modifier.size(32.dp)
                         )
                     }
