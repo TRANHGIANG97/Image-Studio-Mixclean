@@ -72,6 +72,7 @@ fun EditorBottomToolbar(
                     is EditorTool.Shadow -> selectedTool is EditorTool.Shadow
                     is EditorTool.Transparency -> selectedTool is EditorTool.Transparency
                     is EditorTool.Crop -> selectedTool is EditorTool.Crop
+                    is EditorTool.Duplicate, is EditorTool.Delete -> false // These are instant actions
                     else -> false
                 }
                 ToolButton(
@@ -112,6 +113,8 @@ private fun ToolButton(
         is EditorTool.Shadow       -> R.string.studio_tool_shadow
         is EditorTool.Transparency -> R.string.studio_tool_transparency
         is EditorTool.Crop         -> R.string.studio_tool_crop
+        is EditorTool.Duplicate    -> R.string.studio_tool_duplicate
+        is EditorTool.Delete       -> R.string.studio_tool_delete
         else                       -> R.string.studio_tool_layout
     }
 
@@ -123,6 +126,8 @@ private fun ToolButton(
         is EditorTool.Shadow       -> R.drawable.ic_tool_shadow
         is EditorTool.Transparency -> R.drawable.ic_tool_opacity
         is EditorTool.Crop         -> R.drawable.ic_tool_crop
+        is EditorTool.Duplicate    -> R.drawable.ic_tool_duplicate
+        is EditorTool.Delete       -> R.drawable.ic_tool_delete
         else                       -> R.drawable.ic_tool_layout
     }
 

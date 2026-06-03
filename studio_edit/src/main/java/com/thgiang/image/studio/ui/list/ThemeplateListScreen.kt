@@ -87,7 +87,7 @@ fun ThemeplateListScreen(
 }
 
 @Composable
-private fun ThemeplateCardV2(
+internal fun ThemeplateCardV2(
     themeplate: StudioThemeplate,
     onClick: () -> Unit
 ) {
@@ -223,7 +223,7 @@ private fun ThemeplateCardV2(
 }
 
 @Composable
-private fun ShimmerBox(modifier: Modifier = Modifier) {
+internal fun ShimmerBox(modifier: Modifier = Modifier) {
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
         initialValue = -200f,

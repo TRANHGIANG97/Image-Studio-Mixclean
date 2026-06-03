@@ -84,6 +84,7 @@ import com.thgiang.image.feature.remove.ui.BatchRemoveScreen
 import com.thgiang.image.feature.remove.ui.MultiImagePickerScreen
 import com.thgiang.image.feature.settings.ui.SettingsScreen
 import com.thgiang.image.studio.ui.editor.ThemeplateEditorScreen
+import com.thgiang.image.studio.ui.gallery.ThemeplateGalleryScreen
 import com.thgiang.image.studio.model.StudioThemeplates
 import com.thgiang.image.studio.model.StudioThemeplate
 import java.util.Locale
@@ -210,6 +211,25 @@ fun AppRoot(
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
+                val isDebug = (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+                if (isDebug) {
+                    NavigationDrawerItem(
+                        label = { Text("Admin Tools") },
+                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            try {
+                                val adminClass = Class.forName("com.thgiang.image.admin.ui.AdminActivity")
+                                val intent = android.content.Intent(context, adminClass)
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // Ignore if not available
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
             }
         }
     ) {
@@ -363,8 +383,21 @@ fun AppRoot(
                                 )
                             }
                         },
+                        onOpenBackgroundPresetsTool = {
+                            if (!appViewModel.isAdDismissedRecently()) {
+                                isAutoRemoveForPicker = false
+                                isPresetModeForPicker = false
+                                navController.navigate(
+                                    Screen.SingleImagePicker.route +
+                                        "?autoRemove=true&backgroundGradientPresetId=&borderGradientPresetId=&targetTool=background"
+                                )
+                            }
+                        },
                         onThemeplateSelected = { themeplate: StudioThemeplate ->
                             navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
+                        },
+                        onOpenThemeplateGallery = { tabIndex ->
+                            navController.navigate(Screen.ThemeplateGallery.createRoute(tabIndex))
                         },
                         pickedUriFromPicker = pickedUri,
                         onConsumePickedUri = { 
@@ -535,6 +568,24 @@ fun AppRoot(
                             }
                         )
                     }
+                }
+                composable(
+                    route = Screen.ThemeplateGallery.route,
+                    arguments = listOf(
+                        navArgument("initialTab") {
+                            type = NavType.IntType
+                            defaultValue = 0
+                        }
+                    )
+                ) { backStackEntry ->
+                    val initialTab = backStackEntry.arguments?.getInt("initialTab") ?: 0
+                    ThemeplateGalleryScreen(
+                        initialTabIndex = initialTab,
+                        onBack = { navController.popBackStack() },
+                        onThemeplateSelected = { themeplate ->
+                            navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
+                        }
+                    )
                 }
             }
         }

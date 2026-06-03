@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Admin Dashboard -->
+    <string name="admin_dashboard_title">Admin Dashboard</string>
+    <string name="admin_import_bundle">Import Bundle</string>
+    <string name="admin_create_new_template">Tạo template mới</string>
+    <string name="admin_no_templates">Chưa có template nào được lưu.</string>
+    <string name="admin_template_untitled">Untitled</string>
+    <string name="admin_template_no_category">No category</string>
+    <string name="admin_template_valid">Valid</string>
+    <string name="admin_template_issues">%d issue(s)</string>
+    <string name="admin_share_template">Chia sẻ template</string>
+    <string name="admin_delete_confirm_title">Xác nhận xóa</string>
+    <string name="admin_delete_confirm_message">Bạn có chắc chắn muốn xóa template \'%1$s\' này không? Hành động này không thể hoàn tác.</string>
+    <string name="admin_delete">Xóa</string>
+    <string name="admin_cancel">Hủy</string>
+    <string name="admin_import_success">Imported %s</string>
+    <string name="admin_import_failed">Import failed: %s</string>
+
+    <!-- Template Builder -->
+    <string name="builder_topbar_title">Chỉnh sửa đối tượng</string>
+    <string name="builder_save_bundle">Lưu</string>
+    <string name="builder_save_dialog_title">Lưu template bundle</string>
+    <string name="builder_save_dialog_title_label">Tên template</string>
+    <string name="builder_save_dialog_category_label">ID danh mục (vd: cosmetics, valentine)</string>
+    <string name="builder_save_confirm">Lưu</string>
+    <string name="builder_saving">Đang lưu...</string>
+    <string name="builder_export_success">Đã lưu ảnh</string>
+    <string name="builder_export_json_success">Đã lưu tại:\n%s</string>
+    <string name="builder_export_bundle_success">Đã lưu bundle:\n%1$s\n%2$s</string>
+
+    <!-- Builder: Admin Tool Bar -->
+    <string name="admin_tool_select_background">Chọn nền</string>
+    <string name="admin_tool_add_sample_object">Vật mẫu</string>
+    <string name="admin_tool_add_decoration">Trang trí</string>
+    <string name="admin_tool_layer_up">Lên</string>
+    <string name="admin_tool_layer_down">Xuống</string>
+
+    <!-- Builder: Layer Labels -->
+    <string name="builder_layer_object">Đối tượng %d</string>
+    <string name="builder_layer_decoration">Trang trí %d</string>
+
+    <!-- Builder: Unsaved Changes Dialog -->
+    <string name="builder_exit_dialog_title">Thoát mà không lưu?</string>
+    <string name="builder_exit_dialog_message">Bạn có thay đổi chưa lưu. Thoát sẽ mất tất cả thay đổi.</string>
+    <string name="builder_exit_confirm">Thoát</string>
+    <string name="builder_stay">Ở lại</string>
+
+    <!-- Validation Messages -->
+    <string name="validation_missing_template_id">Missing templateId</string>
+    <string name="validation_missing_category">Missing category</string>
+    <string name="validation_missing_title">Missing title</string>
+    <string name="validation_invalid_canvas">Invalid canvas size</string>
+    <string name="validation_missing_background">Missing background</string>
+    <string name="validation_background_file_missing">Background file missing</string>
+    <string name="validation_no_layers">No layers</string>
+    <string name="validation_no_placeholder">No placeholder object</string>
+    <string name="validation_layer_missing_image">Layer %d missing image</string>
+    <string name="validation_layer_file_missing">Layer %d file missing</string>
+    <string name="validation_layer_invalid_scale">Layer %d invalid scale</string>
+</resources>

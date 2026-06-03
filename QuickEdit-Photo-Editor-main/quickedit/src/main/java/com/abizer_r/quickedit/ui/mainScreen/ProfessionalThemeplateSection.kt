@@ -59,6 +59,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun ProfessionalThemeplateSection(
     modifier: Modifier = Modifier,
+    onOpenGallery: (tabIndex: Int) -> Unit = {},
     onThemeplateSelected: (StudioThemeplate) -> Unit
 ) {
     val templates = remember { StudioThemeplates.professional }
@@ -68,15 +69,17 @@ fun ProfessionalThemeplateSection(
         ProfessionalThemeplateGroup(
             title = stringResource(R.string.professional_section_title),
             themeplates = templates,
-            onThemeplateSelected = onThemeplateSelected
+            onThemeplateSelected = onThemeplateSelected,
+            onArrowClick = { onOpenGallery(0) }
         )
 
-        sections.forEach { section ->
+        sections.forEachIndexed { index, section ->
             Spacer(modifier = Modifier.height(28.dp))
             ProfessionalThemeplateGroup(
                 title = stringResource(section.titleResId),
                 themeplates = section.themeplates,
-                onThemeplateSelected = onThemeplateSelected
+                onThemeplateSelected = onThemeplateSelected,
+                onArrowClick = { onOpenGallery(index + 2) }
             )
         }
     }
@@ -86,7 +89,8 @@ fun ProfessionalThemeplateSection(
 private fun ProfessionalThemeplateGroup(
     title: String,
     themeplates: List<StudioThemeplate>,
-    onThemeplateSelected: (StudioThemeplate) -> Unit
+    onThemeplateSelected: (StudioThemeplate) -> Unit,
+    onArrowClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -109,7 +113,8 @@ private fun ProfessionalThemeplateGroup(
                 modifier = Modifier
                     .size(32.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFFF2D55).copy(alpha = 0.12f)),
+                    .background(Color(0xFFFF2D55).copy(alpha = 0.12f))
+                    .clickable { onArrowClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(

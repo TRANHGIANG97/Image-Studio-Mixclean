@@ -40,16 +40,13 @@ import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 fun EditorCanvasV2(
     templateAssetPath: String,
     templateSize: IntSize = IntSize(1000, 1000),
-    product: EditorProduct,
-    viewport: EditorViewport,
-    appearance: EditorAppearance,
-    cropRatio: CropRatio,
+    layers: List<EditorLayer>,
+    selectedLayerId: String?,
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     onPickImage: () -> Unit,
-    onBoundingBoxVisible: (Boolean) -> Unit,
+    onSelectLayer: (String?) -> Unit,
     showOverlay: Boolean = false,
-    showBoundingBox: Boolean = false,
     viewportPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
@@ -79,31 +76,36 @@ fun EditorCanvasV2(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(product, viewport, templateSize, showBoundingBox, cropRatio) {
+                .pointerInput(layers, selectedLayerId, templateSize) {
                     detectTapGestures(onTap = { tap ->
-                        if (!product.isBackgroundRemoved || product.foregroundUri == null) {
-                            onBoundingBoxVisible(false)
-                            return@detectTapGestures
-                        }
-
+                        var hitId: String? = null
                         val displayWidthPx  = with(density) { displayWidth.toPx() }
                         val displayHeightPx = with(density) { displayHeight.toPx() }
                         val templateLeftPx  = (size.width  - displayWidthPx)  / 2f
                         val templateTopPx   = (size.height - displayHeightPx) / 2f
-                        val croppedSize     = cropRatio.calculateSize(product.baseSize.width.toFloat(), product.baseSize.height.toFloat())
-                        val objectWidthPx   = croppedSize.width  * viewport.scale * calculatedScale
-                        val objectHeightPx  = croppedSize.height * viewport.scale * calculatedScale
-                        val objectCenterX   = templateLeftPx + displayWidthPx  / 2f + (viewport.offset.x * calculatedScale)
-                        val objectCenterY   = templateTopPx  + displayHeightPx / 2f + (viewport.offset.y * calculatedScale)
-                        val dx = tap.x - objectCenterX
-                        val dy = tap.y - objectCenterY
-                        val angleRad   = Math.toRadians(-viewport.rotation.toDouble())
-                        val rotatedDx  = dx * kotlin.math.cos(angleRad) - dy * kotlin.math.sin(angleRad)
-                        val rotatedDy  = dx * kotlin.math.sin(angleRad) + dy * kotlin.math.cos(angleRad)
-                        val withinObject = kotlin.math.abs(rotatedDx) <= (objectWidthPx  / 2f) &&
-                            kotlin.math.abs(rotatedDy) <= (objectHeightPx / 2f)
 
-                        onBoundingBoxVisible(withinObject)
+                        // Hit-test từ layer trên cùng xuống dưới cùng
+                        for (layer in layers.reversed()) {
+                            if (!layer.product.isBackgroundRemoved || layer.product.foregroundUri == null) continue
+                            val croppedSize     = layer.cropRatio.calculateSize(layer.product.baseSize.width.toFloat(), layer.product.baseSize.height.toFloat())
+                            val objectWidthPx   = (croppedSize.width  * layer.viewport.scale * calculatedScale) + (EditorConfig.BB_PADDING_PX * 2f)
+                            val objectHeightPx  = (croppedSize.height * layer.viewport.scale * calculatedScale) + (EditorConfig.BB_PADDING_PX * 2f)
+                            val objectCenterX   = templateLeftPx + displayWidthPx  / 2f + (layer.viewport.offset.x * calculatedScale)
+                            val objectCenterY   = templateTopPx  + displayHeightPx / 2f + (layer.viewport.offset.y * calculatedScale)
+                            val dx = tap.x - objectCenterX
+                            val dy = tap.y - objectCenterY
+                            val angleRad   = Math.toRadians(-layer.viewport.rotation.toDouble())
+                            val rotatedDx  = dx * kotlin.math.cos(angleRad) - dy * kotlin.math.sin(angleRad)
+                            val rotatedDy  = dx * kotlin.math.sin(angleRad) + dy * kotlin.math.cos(angleRad)
+                            val withinObject = kotlin.math.abs(rotatedDx) <= (objectWidthPx  / 2f) &&
+                                kotlin.math.abs(rotatedDy) <= (objectHeightPx / 2f)
+
+                            if (withinObject) {
+                                hitId = layer.id
+                                break
+                            }
+                        }
+                        onSelectLayer(hitId)
                     })
                 }
         ) {
@@ -125,42 +127,60 @@ fun EditorCanvasV2(
                 contentAlignment = Alignment.Center
             ) {
                 // Template image fills the artboard
+                val backgroundModel = remember(templateAssetPath) {
+                    if (templateAssetPath.startsWith("http://") || 
+                        templateAssetPath.startsWith("https://") || 
+                        templateAssetPath.startsWith("content://") || 
+                        templateAssetPath.startsWith("file://")) {
+                        templateAssetPath
+                    } else {
+                        "file:///android_asset/$templateAssetPath"
+                    }
+                }
                 AsyncImage(
-                    model = "file:///android_asset/$templateAssetPath",
+                    model = backgroundModel,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit
                 )
 
-                if (product.isBackgroundRemoved && product.foregroundUri != null) {
-                    ProductLayerV2(
-                        product = product,
-                        viewport = viewport,
-                        appearance = appearance,
-                        cropRatio = cropRatio,
-                        displayScale = calculatedScale,
-                        templateSize = templateSize,
-                        onGesture = onGesture,
-                        onGestureEnd = onGestureEnd,
-                        showOverlay = showOverlay,
-                        showBoundingBox = showBoundingBox,
-                        onBoundingBoxVisible = onBoundingBoxVisible,
-                        onPickImage = onPickImage
-                    )
-                } else if (product.processing) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.White.copy(alpha = 0.75f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        StudioLottieLoader(modifier = Modifier.size(120.dp))
-                    }
-                } else {
+                if (layers.isEmpty()) {
                     PickImagePlaceholder(
                         onClick = onPickImage,
                         modifier = Modifier.align(Alignment.Center)
                     )
+                } else {
+                    layers.forEach { layer ->
+                        if (layer.product.isBackgroundRemoved && layer.product.foregroundUri != null) {
+                            ProductLayerV2(
+                                product = layer.product,
+                                viewport = layer.viewport,
+                                appearance = layer.appearance,
+                                cropRatio = layer.cropRatio,
+                                displayScale = calculatedScale,
+                                templateSize = templateSize,
+                                onGesture = { delta -> 
+                                    if (layer.id == selectedLayerId) onGesture(delta)
+                                },
+                                onGestureEnd = {
+                                    if (layer.id == selectedLayerId) onGestureEnd()
+                                },
+                                showOverlay = showOverlay,
+                                showBoundingBox = layer.id == selectedLayerId,
+                                onBoundingBoxVisible = { /* Not used */ },
+                                onPickImage = onPickImage
+                            )
+                        } else if (layer.product.processing) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.White.copy(alpha = 0.75f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                StudioLottieLoader(modifier = Modifier.size(120.dp))
+                            }
+                        }
+                    }
                 }
             }
 

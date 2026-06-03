@@ -538,6 +538,7 @@ fun QuickEditEditorNavigation(
                                         "effects" -> navController.navigate(NavDestinations.EFFECTS_MODE_SCREEN)
                                         "studio" -> navController.navigate(NavDestinations.STUDIO_MODE_SCREEN)
                                         "magic" -> navController.navigate(NavDestinations.MAGIC_BRUSH_SCREEN)
+                                        "background" -> navController.navigate(NavDestinations.BACKGROUND_MODE_SCREEN)
                                     }
                                 }
                             },

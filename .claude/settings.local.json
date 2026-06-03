@@ -142,7 +142,11 @@
       "Bash(gradlew.bat :quickedit:compileDebugKotlin)",
       "Bash(Get-Content *)",
       "Bash(./gradlew :studio:assembleDebug)",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "Bash(Select-Object FullName, Length, LastWriteTime)",
+      "Bash(dir *)",
+      "PowerShell(Get-ChildItem -Recurse -File -Path \"C:\\\\Users\\\\Toshiba\\\\Desktop\\\\imageProduction-main\\\\admin_tools\\\\src\" | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Toshiba\\\\Desktop\\\\imageProduction-main\\\\admin_tools\\\\src\\\\main\\\\res\" -Recurse 2>$null; \"---\"; Test-Path \"C:\\\\Users\\\\Toshiba\\\\Desktop\\\\imageProduction-main\\\\admin_tools\\\\src\\\\main\\\\res\")"
     ]
   }
 }

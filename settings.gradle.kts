@@ -17,6 +17,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "image"
 include(":app", ":lib", ":core-domain", ":core-ad", ":core-ui", ":core-data", ":core-util", ":quickedit",
-    ":studio_edit"
+    ":studio_edit", ":admin_tools"
 )
 project(":quickedit").projectDir = file("QuickEdit-Photo-Editor-main/quickedit")

@@ -21,14 +21,10 @@ class EditorRenderer @Inject constructor(
     private val bitmapPool: EditorBitmapPool
 ) {
     
-    data class RenderRequest(
+    data class MultiLayerRenderRequest(
         val templateAssetPath: String,
-        val foregroundUri: Uri,
         val templateSize: androidx.compose.ui.unit.IntSize,
-        val viewport: EditorViewport,
-        val appearance: EditorAppearance,
-        val baseSize: androidx.compose.ui.unit.IntSize,
-        val cropRatio: CropRatio
+        val layers: List<EditorLayer>
     )
     
     // Cache shadow bitmap để tránh re-blur mỗi frame
@@ -44,20 +40,14 @@ class EditorRenderer @Inject constructor(
     private val shadowCacheLock = Any()
     private val maxShadowCacheAgeMs = 5000L
 
-    suspend fun render(request: RenderRequest): Result<Bitmap> = withContext(Dispatchers.Default) {
+    suspend fun renderLayers(request: MultiLayerRenderRequest): Result<Bitmap> = withContext(Dispatchers.Default) {
         runCatching {
-            // 1. Load template with downsampling if needed
             val template = loadTemplateBitmap(
                 request.templateAssetPath,
                 request.templateSize.width,
                 request.templateSize.height
             ) ?: throw IllegalStateException("Cannot load template: ${request.templateAssetPath}")
             
-            // 2. Decode foreground
-            val foreground = ProcessorUtils.decodeBitmapFromUri(context, request.foregroundUri)
-                ?: throw IllegalStateException("Cannot decode foreground: ${request.foregroundUri}")
-            
-            // 3. Obtain result bitmap from pool
             val result = bitmapPool.obtain(
                 request.templateSize.width, 
                 request.templateSize.height
@@ -66,67 +56,66 @@ class EditorRenderer @Inject constructor(
             val canvas = Canvas(result)
             val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
             
-            // 4. Draw template background
             canvas.drawBitmap(template, 0f, 0f, paint)
             
-            // 5. Calculate transform
-            val state = request.viewport
-            val baseW = request.baseSize.width.toFloat()
-            val baseH = request.baseSize.height.toFloat()
-            val drawW = baseW * state.scale
-            val drawH = baseH * state.scale
-            val centerX = (request.templateSize.width - drawW) / 2f
-            val centerY = (request.templateSize.height - drawH) / 2f
-            val drawX = centerX + state.offset.x
-            val drawY = centerY + state.offset.y
-            
-            // 6. Shadow with caching
-            if (request.appearance.shadowIntensity > 0.05f) {
-                renderShadowCached(
-                    canvas = canvas,
-                    foreground = foreground,
-                    state = state,
-                    cropRatio = request.cropRatio,
-                    baseW = baseW,
-                    baseH = baseH,
-                    drawX = drawX,
-                    drawY = drawY,
-                    intensity = request.appearance.shadowIntensity,
-                    shadowAngle = request.appearance.shadowAngle,
-                    shadowDistance = request.appearance.shadowDistance,
-                    shadowColorArgb = request.appearance.shadowColorArgb,
-                    sourceUri = request.foregroundUri
-                )
+            for (layer in request.layers) {
+                val fgUriString = layer.product.foregroundUriString ?: continue
+                val fgUri = Uri.parse(fgUriString)
+                val foreground = ProcessorUtils.decodeBitmapFromUri(context, fgUri)
+                    ?: continue
+                
+                val state = layer.viewport
+                val baseW = layer.product.baseSize.width.toFloat()
+                val baseH = layer.product.baseSize.height.toFloat()
+                val drawW = baseW * state.scale
+                val drawH = baseH * state.scale
+                val centerX = (request.templateSize.width - drawW) / 2f
+                val centerY = (request.templateSize.height - drawH) / 2f
+                val drawX = centerX + state.offset.x
+                val drawY = centerY + state.offset.y
+                
+                if (layer.appearance.shadowIntensity > 0.05f) {
+                    renderShadowCached(
+                        canvas = canvas,
+                        foreground = foreground,
+                        state = state,
+                        cropRatio = layer.cropRatio,
+                        baseW = baseW,
+                        baseH = baseH,
+                        drawX = drawX,
+                        drawY = drawY,
+                        intensity = layer.appearance.shadowIntensity,
+                        shadowAngle = layer.appearance.shadowAngle,
+                        shadowDistance = layer.appearance.shadowDistance,
+                        shadowColorArgb = layer.appearance.shadowColorArgb,
+                        sourceUri = fgUri
+                    )
+                }
+                
+                paint.alpha = (layer.appearance.alpha * 255).toInt().coerceIn(0, 255)
+                
+                val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
+                val scaleY = (baseH / foreground.height) * state.scale * (if (state.flippedV) -1f else 1f)
+                
+                canvas.withSave {
+                    translate(drawX, drawY)
+                    scale(scaleX, scaleY)
+                    rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
+                    
+                    val croppedSize = layer.cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
+                    val left = (foreground.width - croppedSize.width) / 2f
+                    val top = (foreground.height - croppedSize.height) / 2f
+                    clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
+                    
+                    val fgX = if (state.flippedH) -foreground.width.toFloat() else 0f
+                    val fgY = if (state.flippedV) -foreground.height.toFloat() else 0f
+                    drawBitmap(foreground, fgX, fgY, paint)
+                }
+                
+                foreground.recycle()
             }
             
-            // 7. Foreground with transform
-            paint.alpha = (request.appearance.alpha * 255).toInt().coerceIn(0, 255)
-            
-            val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
-            val scaleY = (baseH / foreground.height) * state.scale * (if (state.flippedV) -1f else 1f)
-            
-            canvas.withSave {
-                translate(drawX, drawY)
-                scale(scaleX, scaleY)
-                rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
-                
-                // Crop clipping (local coordinates)
-                val croppedSize = request.cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
-                val left = (foreground.width - croppedSize.width) / 2f
-                val top = (foreground.height - croppedSize.height) / 2f
-                clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
-                
-                val fgX = if (state.flippedH) -foreground.width.toFloat() else 0f
-                val fgY = if (state.flippedV) -foreground.height.toFloat() else 0f
-                drawBitmap(foreground, fgX, fgY, paint)
-            }
-            
-            // Cleanup: recycle foreground but NOT template (may be reused)
-            foreground.recycle()
-            
-            // Return template to pool if possible
             bitmapPool.recycle(template)
-            
             result
         }
     }
@@ -209,9 +198,27 @@ class EditorRenderer @Inject constructor(
         }
     }
     
+    private fun getInputStreamForPath(path: String): java.io.InputStream? {
+        return try {
+            when {
+                path.startsWith("content://") || path.startsWith("file://") -> {
+                    context.contentResolver.openInputStream(Uri.parse(path))
+                }
+                path.startsWith("http://") || path.startsWith("https://") -> {
+                    java.net.URL(path).openStream()
+                }
+                else -> {
+                    context.assets.open(path)
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     private fun loadTemplateBitmap(assetPath: String, targetWidth: Int, targetHeight: Int): Bitmap? {
         return try {
-            context.assets.open(assetPath).use { stream ->
+            getInputStreamForPath(assetPath)?.use { stream ->
                 // Check if downsampling needed
                 val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                 BitmapFactory.decodeStream(stream, null, opts)
@@ -220,7 +227,7 @@ class EditorRenderer @Inject constructor(
                 val decodeWidth = opts.outWidth / sampleSize
                 val decodeHeight = opts.outHeight / sampleSize
                 
-                context.assets.open(assetPath).use { stream2 ->
+                getInputStreamForPath(assetPath)?.use { stream2 ->
                     val decodeOpts = BitmapFactory.Options().apply {
                         inSampleSize = sampleSize
                         inPreferredConfig = Bitmap.Config.ARGB_8888
@@ -242,7 +249,7 @@ class EditorRenderer @Inject constructor(
                             inSampleSize = sampleSize
                             inPreferredConfig = Bitmap.Config.ARGB_8888
                         }
-                        context.assets.open(assetPath).use { stream3 ->
+                        getInputStreamForPath(assetPath)?.use { stream3 ->
                             BitmapFactory.decodeStream(stream3, null, fallbackOpts)
                         }
                     }

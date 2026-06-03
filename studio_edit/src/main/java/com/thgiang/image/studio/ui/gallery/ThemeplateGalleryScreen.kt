@@ -1,0 +1,209 @@
+package com.thgiang.image.studio.ui.gallery
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.thgiang.image.studio.R
+import com.thgiang.image.studio.model.StudioThemeplate
+import com.thgiang.image.studio.model.StudioThemeplates
+import com.thgiang.image.studio.ui.list.ThemeplateCardV2
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.thgiang.image.core.domain.model.template.CloudCategory
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ThemeplateGalleryScreen(
+    initialTabIndex: Int,
+    onBack: () -> Unit,
+    onThemeplateSelected: (StudioThemeplate) -> Unit,
+    viewModel: ThemeplateGalleryViewModel = hiltViewModel()
+) {
+    val categories by viewModel.categories.collectAsState()
+    
+    var selectedTabIndex by remember { mutableStateOf(initialTabIndex) }
+
+    LaunchedEffect(categories) {
+        if (categories.isNotEmpty() && selectedTabIndex >= categories.size) {
+            selectedTabIndex = 0
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Mẫu Thiết Kế AI",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.studio_back)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                )
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            ScrollableTabRow(
+                selectedTabIndex = selectedTabIndex,
+                edgePadding = 16.dp,
+                containerColor = MaterialTheme.colorScheme.surface,
+                divider = {},
+                indicator = {}
+            ) {
+                categories.forEachIndexed { index, category ->
+                    val selected = selectedTabIndex == index
+                    Tab(
+                        selected = selected,
+                        onClick = { selectedTabIndex = index },
+                        modifier = Modifier
+                            .padding(vertical = 8.dp, horizontal = 4.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (selected) Color(0xFFFF2D55) else Color(0xFFFF2D55).copy(alpha = 0.08f)
+                            ),
+                        text = {
+                            Text(
+                                text = category.name,
+                                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) {
+                if (categories.isNotEmpty() && selectedTabIndex < categories.size) {
+                    val currentCategoryId = categories[selectedTabIndex].id
+                    when (currentCategoryId) {
+                        "professional" -> ThemeplateGrid(
+                            themeplates = StudioThemeplates.professional,
+                            onThemeplateSelected = onThemeplateSelected
+                        )
+                        "cosmetics" -> ThemeplateGrid(
+                            themeplates = StudioThemeplates.cosmetics,
+                            onThemeplateSelected = onThemeplateSelected
+                        )
+                        "digital_life" -> ThemeplateGrid(
+                            themeplates = StudioThemeplates.professionalSections.getOrNull(0)?.themeplates ?: emptyList(),
+                            onThemeplateSelected = onThemeplateSelected
+                        )
+                        "phone_mode" -> ComingSoonView()
+                        "selfie_food" -> ThemeplateGrid(
+                            themeplates = StudioThemeplates.professionalSections.getOrNull(2)?.themeplates ?: emptyList(),
+                            onThemeplateSelected = onThemeplateSelected
+                        )
+                        else -> ComingSoonView()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemeplateGrid(
+    themeplates: List<StudioThemeplate>,
+    onThemeplateSelected: (StudioThemeplate) -> Unit
+) {
+    if (themeplates.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Không có mẫu nào",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 160.dp),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(
+                items = themeplates,
+                key = { it.id }
+            ) { themeplate ->
+                ThemeplateCardV2(
+                    themeplate = themeplate,
+                    onClick = { onThemeplateSelected(themeplate) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ComingSoonView() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Sắp ra mắt",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFF2D55)
+                ),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Tính năng này đang được phát triển và sẽ sớm xuất hiện!",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}

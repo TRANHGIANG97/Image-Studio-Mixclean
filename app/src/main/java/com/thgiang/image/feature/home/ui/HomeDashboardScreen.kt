@@ -82,10 +82,12 @@ fun HomeDashboardScreen(
     onOpenStudioTool: () -> Unit = {},
     onOpenMagicTool: () -> Unit = {},
     onThemeplateSelected: (StudioThemeplate) -> Unit = {},
+    onOpenThemeplateGallery: (Int) -> Unit = {},
     pickedUriFromPicker: Uri? = null,
     onConsumePickedUri: () -> Unit = {},
     isDarkMode: Boolean = false,
-    isHomePreviewEnabled: Boolean = false
+    isHomePreviewEnabled: Boolean = false,
+    onOpenBackgroundPresetsTool: () -> Unit = {}
 ) {
     var showUpgradeSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -233,28 +235,15 @@ fun HomeDashboardScreen(
                         hasDraft = hasDrafts,
                         draftCount = draftCount,
                         onRestoreDraft = onOpenDrafts,
-                        useHomeDarkStyle = isHomeDarkStyle
-                    )
-
-                    Spacer(modifier = Modifier.height(HomeSpacing.section))
-
-                    PresetDock(
-                        isPremium = isPremium,
-                        onLockedClick = { showUpgradeSheet = true },
                         useHomeDarkStyle = isHomeDarkStyle,
-                        isProcessing = isBusy,
-                        selectedPresetId = selectedBackgroundGradientPresetId,
-                        onPresetClick = { preset ->
-                            if (isBusy || homeViewModel.isAdDismissedRecently()) return@PresetDock
-                            selectedBackgroundGradientPresetId = preset.id
-                            onNavigateToBackgroundPresetPicker(preset)
-                        }
+                        onOpenBackgroundPresetsTool = onOpenBackgroundPresetsTool
                     )
 
                     Spacer(modifier = Modifier.height(HomeSpacing.section))
 
                     CosmeticsThemeplateSection(
                         modifier = Modifier.fillMaxWidth(),
+                        onOpenGallery = { onOpenThemeplateGallery(1) },
                         onThemeplateSelected = onThemeplateSelected
                     )
 
@@ -262,6 +251,7 @@ fun HomeDashboardScreen(
 
                     ProfessionalThemeplateSection(
                         modifier = Modifier.fillMaxWidth(),
+                        onOpenGallery = onOpenThemeplateGallery,
                         onThemeplateSelected = onThemeplateSelected
                     )
 

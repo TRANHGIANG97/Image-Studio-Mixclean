@@ -60,6 +60,8 @@
     <string name="studio_tool_shadow">Shadow</string>
     <string name="studio_tool_transparency">Opacity</string>
     <string name="studio_tool_crop">Crop</string>
+    <string name="studio_tool_duplicate">Sao chép</string>
+    <string name="studio_tool_delete">Xóa</string>
     <string name="studio_tool_rotateflip">Rotate/Flip</string>
     <string name="studio_replace_hint">Tap Replace to choose a product photo from your gallery</string>
     <string name="studio_layout_hint">Drag to move · Pinch to zoom · Two-finger rotate</string>

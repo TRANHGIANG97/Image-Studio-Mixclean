@@ -47,10 +47,12 @@ fun ThemeplateEditorScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var showCustomPicker by remember { mutableStateOf(false) }
 
+    var targetReplaceLayerId by remember { mutableStateOf<String?>(null) }
+    
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { viewModel.onEvent(EditorEvent.SetProductImage(it)) }
+        uri?.let { viewModel.onEvent(EditorEvent.SetProductImage(it, targetReplaceLayerId)) }
     }
 
     val triggerImagePicker = {
@@ -91,22 +93,20 @@ fun ThemeplateEditorScreen(
                 EditorCanvasV2(
                     templateAssetPath = templateAssetPath,
                     templateSize = state.template.originalSize,
-                    product = state.product,
-                    viewport = state.viewport,
-                    appearance = state.appearance,
-                    showBoundingBox = state.showBoundingBox,
+                    layers = state.layers,
+                    selectedLayerId = state.selectedLayerId,
                     showOverlay = state.showOverlay,
-                    cropRatio = state.cropRatio,
                     viewportPadding = PaddingValues(
                         top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp,
-                        bottom = if (state.product.isBackgroundRemoved) 296.dp else 88.dp
+                        bottom = if (state.layers.any { it.product.isBackgroundRemoved }) 296.dp else 88.dp
                     ),
                     onGesture = { delta -> viewModel.onEvent(EditorEvent.UpdateGesture(delta)) },
                     onGestureEnd = { viewModel.onEvent(EditorEvent.CommitTransform) },
-                    onPickImage = triggerImagePicker,
-                    onBoundingBoxVisible = { visible ->
-                        viewModel.onEvent(EditorEvent.SetBoundingBoxVisible(visible))
+                    onPickImage = {
+                        targetReplaceLayerId = state.selectedLayerId // Set ID of layer when tapping pink Replace button
+                        triggerImagePicker()
                     },
+                    onSelectLayer = { id -> viewModel.onEvent(EditorEvent.SelectLayer(id)) },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -146,10 +146,11 @@ fun ThemeplateEditorScreen(
                                 tint = tokens.textPrimary
                             )
                         }
+                        val scaleToDisplay = state.layers.find { it.id == state.selectedLayerId }?.viewport?.scale ?: 1f
                         Text(
                             text = stringResource(
                                 R.string.studio_zoom_label,
-                                (state.viewport.scale * 100).toInt()
+                                (scaleToDisplay * 100).toInt()
                             ),
                             color = tokens.textPrimary,
                             style = MaterialTheme.typography.bodyMedium.copy(
@@ -234,7 +235,8 @@ fun ThemeplateEditorScreen(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (state.template.loaded && state.product.isBackgroundRemoved && !state.product.processing) {
+                val activeLayer = state.layers.find { it.id == state.selectedLayerId }
+                if (state.template.loaded && state.layers.any { it.product.isBackgroundRemoved } && state.layers.none { it.product.processing }) {
                     Box(
                         modifier = Modifier
                             .padding(bottom = 12.dp)
@@ -254,33 +256,41 @@ fun ThemeplateEditorScreen(
                 }
 
                 AnimatedVisibility(
-                    visible = state.template.loaded && state.selectedTool != null,
+                    visible = state.template.loaded && state.selectedTool != null && activeLayer != null,
                     enter = slideInVertically { it } + fadeIn(tween(200)),
                     exit  = slideOutVertically { it } + fadeOut(tween(180))
                 ) {
-                    EditorControlsV2(
-                        tool = state.selectedTool,
-                        appearance = state.appearance,
-                        cropRatio = state.cropRatio,
-                        onUpdateShadow         = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
-                        onUpdateShadowAngle    = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
-                        onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },
-                        onUpdateShadowColor    = { viewModel.onEvent(EditorEvent.UpdateShadowColor(it)) },
-                        onUpdateAlpha          = { viewModel.onEvent(EditorEvent.UpdateAlpha(it)) },
-                        onSelectCropRatio      = { viewModel.onEvent(EditorEvent.SelectCropRatio(it)) },
-                        onLayoutEvent          = { viewModel.onEvent(it) }
-                    )
+                    if (activeLayer != null) {
+                        EditorControlsV2(
+                            tool = state.selectedTool,
+                            appearance = activeLayer.appearance,
+                            cropRatio = activeLayer.cropRatio,
+                            onUpdateShadow         = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
+                            onUpdateShadowAngle    = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
+                            onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },
+                            onUpdateShadowColor    = { viewModel.onEvent(EditorEvent.UpdateShadowColor(it)) },
+                            onUpdateAlpha          = { viewModel.onEvent(EditorEvent.UpdateAlpha(it)) },
+                            onSelectCropRatio      = { viewModel.onEvent(EditorEvent.SelectCropRatio(it)) },
+                            onLayoutEvent          = { viewModel.onEvent(it) }
+                        )
+                    }
                 }
 
                 EditorBottomToolbar(
                     selectedTool = state.selectedTool,
                     onToolSelected = { tool ->
-                        android.util.Log.d("LayoutBug", "BottomToolbar clicked: $tool")
-                        if (tool != null) {
+                        if (tool is EditorTool.Duplicate) {
+                            viewModel.onEvent(EditorEvent.DuplicateLayer)
+                        } else if (tool is EditorTool.Delete) {
+                            viewModel.onEvent(EditorEvent.DeleteLayer)
+                        } else if (tool != null) {
                             viewModel.onEvent(EditorEvent.SelectTool(tool))
                         }
                     },
-                    onReplaceImage = triggerImagePicker,
+                    onReplaceImage = {
+                        targetReplaceLayerId = state.selectedLayerId
+                        triggerImagePicker()
+                    },
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding()
                 )
             }
@@ -297,7 +307,7 @@ fun ThemeplateEditorScreen(
         if (showCustomPicker && onPickImage != null) {
             onPickImage(
                 { uri ->
-                    viewModel.onEvent(EditorEvent.SetProductImage(uri))
+                    viewModel.onEvent(EditorEvent.SetProductImage(uri, targetReplaceLayerId))
                     showCustomPicker = false
                 },
                 {

@@ -248,6 +248,8 @@ fun BoundingBoxOverlayV6(
         modifier = modifier
             .fillMaxSize()
             .pointerInput(contentWidth, contentHeight, displayScale, lockAspectRatio, showBoundingBox) {
+                if (!showBoundingBox) return@pointerInput
+                
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     val center = Offset(size.width / 2f, size.height / 2f)

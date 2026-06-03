@@ -18,26 +18,6 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import kotlin.math.abs
 
-/**
- * EditorState v2 - Immutable, with copy-optimization
- */
-data class EditorState(
-    val template: EditorTemplate = EditorTemplate(),
-    val product: EditorProduct = EditorProduct(),
-    val viewport: EditorViewport = EditorViewport(),
-    val appearance: EditorAppearance = EditorAppearance(),
-    val selectedTool: EditorTool? = null,
-    val cropRatio: CropRatio = CropRatio.ORIGINAL,
-    val isExporting: Boolean = false,
-    val exportResult: Uri? = null,
-    val errorMessage: String? = null,
-    val showOverlay: Boolean = false,
-    val showBoundingBox: Boolean = false
-) : java.io.Serializable {
-    val canExport: Boolean
-        get() = product.isBackgroundRemoved && !isExporting && template.loaded
-}
-
 @HiltViewModel
 class ThemeplateEditorViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -63,11 +43,9 @@ class ThemeplateEditorViewModel @Inject constructor(
         (savedStateHandle.get<EditorState>("editor_state") ?: EditorState()).let { restored ->
             restored.copy(
                 template = restored.template ?: EditorTemplate(),
-                product = restored.product ?: EditorProduct(),
-                viewport = restored.viewport ?: EditorViewport(),
-                appearance = restored.appearance ?: EditorAppearance(),
                 selectedTool = restored.selectedTool,
-                cropRatio = restored.cropRatio ?: CropRatio.ORIGINAL
+                layers = restored.layers ?: emptyList(),
+                selectedLayerId = restored.selectedLayerId
             )
         }
     )
@@ -116,86 +94,237 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
+    private inline fun updateActiveLayer(crossinline block: (EditorLayer) -> EditorLayer) {
+        _state.update { state ->
+            val layerId = state.selectedLayerId ?: return@update state
+            val newLayers = state.layers.map { 
+                if (it.id == layerId) block(it) else it 
+            }
+            state.copy(layers = newLayers)
+        }
+    }
+
     fun onEvent(event: EditorEvent) {
         when (event) {
             is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath, event.objectSourceAssetPath)
-            is EditorEvent.SetProductImage -> setProductImage(event.uri)
+            is EditorEvent.LoadCloudTemplate -> loadCloudTemplate(event.cloudTemplate)
+            is EditorEvent.SetProductImage -> setProductImage(event.uri, event.replaceLayerId)
             is EditorEvent.UpdateGesture -> {
                 gestureThrottleFlow.tryEmit(event.delta)
                 requestHistoryPush()
             }
             is EditorEvent.UpdateOffset -> {
-                _state.update { it.copy(viewport = it.viewport.withOffset(it.viewport.offset + event.delta)) }
+                updateActiveLayer { it.copy(viewport = it.viewport.withOffset(it.viewport.offset + event.delta)) }
                 requestHistoryPush()
             }
             is EditorEvent.SetOffset -> {
-                _state.update { it.copy(viewport = it.viewport.withOffset(event.offset)) }
+                updateActiveLayer { it.copy(viewport = it.viewport.withOffset(event.offset)) }
                 pushHistory()
             }
             is EditorEvent.UpdateScale -> updateScale(event.factor)
             is EditorEvent.SetScale -> {
-                _state.update { it.copy(viewport = it.viewport.withScale(event.scale)) }
+                updateActiveLayer { it.copy(viewport = it.viewport.withScale(event.scale)) }
                 pushHistory()
             }
             is EditorEvent.UpdateRotation -> {
-                android.util.Log.d("LayoutBug", "UpdateRotation event: delta = ${event.delta}")
                 updateRotation(event.delta)
             }
             is EditorEvent.SetRotation -> {
-                android.util.Log.d("LayoutBug", "SetRotation event: degrees = ${event.degrees}")
                 var normalized = event.degrees % 360f
                 if (normalized < 0) normalized += 360f
-                _state.update { it.copy(viewport = it.viewport.withRotation(normalized)) }
+                updateActiveLayer { it.copy(viewport = it.viewport.withRotation(normalized)) }
                 pushHistory()
             }
             EditorEvent.FlipHorizontal -> {
-                android.util.Log.d("LayoutBug", "FlipHorizontal event triggered")
-                _state.update { it.copy(viewport = it.viewport.copy(flippedH = !it.viewport.flippedH)) }
+                updateActiveLayer { it.copy(viewport = it.viewport.copy(flippedH = !it.viewport.flippedH)) }
                 pushHistory()
             }
             EditorEvent.FlipVertical -> {
-                android.util.Log.d("LayoutBug", "FlipVertical event triggered")
-                _state.update { it.copy(viewport = it.viewport.copy(flippedV = !it.viewport.flippedV)) }
+                updateActiveLayer { it.copy(viewport = it.viewport.copy(flippedV = !it.viewport.flippedV)) }
                 pushHistory()
             }
             is EditorEvent.UpdateShadow -> {
-                _state.update { it.copy(appearance = it.appearance.copy(shadowIntensity = event.intensity.coerceIn(0f, 1f))) }
+                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowIntensity = event.intensity.coerceIn(0f, 1f))) }
             }
             is EditorEvent.UpdateShadowAngle -> {
-                _state.update { it.copy(appearance = it.appearance.copy(shadowAngle = event.angle.coerceIn(0f, 360f))) }
+                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowAngle = event.angle.coerceIn(0f, 360f))) }
             }
             is EditorEvent.UpdateShadowDistance -> {
-                _state.update { it.copy(appearance = it.appearance.copy(shadowDistance = event.distance.coerceIn(0f, 50f))) }
+                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowDistance = event.distance.coerceIn(0f, 50f))) }
             }
             is EditorEvent.UpdateShadowColor -> {
-                _state.update { it.copy(appearance = it.appearance.copy(shadowColorArgb = event.argb)) }
+                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowColorArgb = event.argb)) }
             }
             is EditorEvent.UpdateAlpha -> {
-                _state.update { it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f))) }
+                updateActiveLayer { it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f))) }
             }
             is EditorEvent.SetBoundingBoxVisible -> {
-                _state.update { it.copy(showBoundingBox = event.visible) }
+                // Not used anymore as bounding box depends on selectedLayerId
             }
             is EditorEvent.SelectTool -> {
-                android.util.Log.d("LayoutBug", "SelectTool event received: ${event.tool} (Current selectedTool: ${_state.value.selectedTool})")
                 _state.update {
-                    val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) {
-                        null
-                    } else {
-                        event.tool
-                    }
-                    android.util.Log.d("LayoutBug", "SelectTool event processed. Next tool: $nextTool")
+                    val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) null else event.tool
                     it.copy(selectedTool = nextTool)
                 }
             }
             is EditorEvent.SelectCropRatio -> {
-                _state.update { it.copy(cropRatio = event.ratio) }
+                updateActiveLayer { it.copy(cropRatio = event.ratio) }
                 pushHistory()
+            }
+            is EditorEvent.SelectLayer -> {
+                _state.update { it.copy(selectedLayerId = event.layerId) }
+            }
+            EditorEvent.DuplicateLayer -> {
+                val current = _state.value
+                if (current.selectedLayerId == null) {
+                    _state.update { it.copy(errorMessage = "Vui lòng chọn đối tượng") }
+                    return
+                }
+                val activeLayer = current.layers.find { it.id == current.selectedLayerId }
+                if (activeLayer != null) {
+                    val duplicatedLayer = activeLayer.copy(
+                        id = java.util.UUID.randomUUID().toString(),
+                        viewport = activeLayer.viewport.withOffset(
+                            Offset(activeLayer.viewport.offset.x + 50f, activeLayer.viewport.offset.y + 50f)
+                        )
+                    )
+                    _state.update { it.copy(layers = it.layers + duplicatedLayer, selectedLayerId = duplicatedLayer.id) }
+                    pushHistory()
+                }
+            }
+            EditorEvent.DeleteLayer -> {
+                val currentLayerId = _state.value.selectedLayerId
+                if (currentLayerId != null) {
+                    _state.update { 
+                        it.copy(
+                            layers = it.layers.filterNot { layer -> layer.id == currentLayerId }, 
+                            selectedLayerId = null
+                        ) 
+                    }
+                    pushHistory()
+                }
             }
             EditorEvent.CommitTransform -> pushHistory()
             EditorEvent.Undo -> undo()
             EditorEvent.Redo -> redo()
+            EditorEvent.MoveLayerUp -> moveLayer(up = true)
+            EditorEvent.MoveLayerDown -> moveLayer(up = false)
             is EditorEvent.Export -> export(event.templateAssetPath)
+        }
+    }
+
+    private fun moveLayer(up: Boolean) {
+        val currentLayerId = _state.value.selectedLayerId ?: return
+        _state.update { state ->
+            val mutableLayers = state.layers.toMutableList()
+            val index = mutableLayers.indexOfFirst { it.id == currentLayerId }
+            if (index == -1) return@update state
+
+            val targetIndex = if (up) index + 1 else index - 1
+            if (targetIndex in mutableLayers.indices) {
+                java.util.Collections.swap(mutableLayers, index, targetIndex)
+                state.copy(layers = mutableLayers)
+            } else {
+                state
+            }
+        }
+        pushHistory()
+    }
+
+    private fun getInputStreamForPath(path: String): java.io.InputStream? {
+        return when {
+            path.startsWith("content://") || path.startsWith("file://") -> {
+                context.contentResolver.openInputStream(Uri.parse(path))
+            }
+            path.startsWith("http://") || path.startsWith("https://") -> {
+                java.net.URL(path).openStream()
+            }
+            else -> {
+                context.assets.open(path)
+            }
+        }
+    }
+
+    private fun com.thgiang.image.core.domain.model.template.CloudLayer.resolvedImageUrl(): String? {
+        return payload.imageUrl ?: payload.defaultImageUrl
+    }
+
+    private fun com.thgiang.image.core.domain.model.template.CloudLayer.resolvedCropRatio(): CropRatio {
+        return payload.cropRatio
+            ?.let { value -> runCatching { CropRatio.valueOf(value) }.getOrNull() }
+            ?: CropRatio.ORIGINAL
+    }
+
+    private fun loadCloudTemplate(cloudTemplate: com.thgiang.image.core.domain.model.template.CloudTemplate) {
+        val assetPath = cloudTemplate.canvas.backgroundUrl ?: return
+        
+        savedStateHandle["template_path"] = assetPath
+        
+        templateLoadJob?.cancel()
+        templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
+            try {
+                getInputStreamForPath(assetPath)?.use { input ->
+                    val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    BitmapFactory.decodeStream(input, null, opts)
+                    
+                    val tw = opts.outWidth
+                    val th = opts.outHeight
+                    
+                    val editorLayers = cloudTemplate.layers.sortedBy { it.zIndex }.mapNotNull { cloudLayer ->
+                        val imageUrl = cloudLayer.resolvedImageUrl() ?: return@mapNotNull null
+                        val anchorX = cloudLayer.transform.anchorX
+                        val anchorY = cloudLayer.transform.anchorY
+                        
+                        val offsetX = (anchorX - 0.5f) * tw.toFloat()
+                        val offsetY = (anchorY - 0.5f) * th.toFloat()
+                        
+                        EditorLayer(
+                            id = cloudLayer.layerId.ifEmpty { java.util.UUID.randomUUID().toString() },
+                            product = EditorProduct(
+                                originalUriString = imageUrl,
+                                foregroundUriString = imageUrl,
+                                isBackgroundRemoved = true,
+                                baseWidth = cloudLayer.payload.baseWidth ?: 0,
+                                baseHeight = cloudLayer.payload.baseHeight ?: 0,
+                                isSample = cloudLayer.type == "PLACEHOLDER_OBJECT"
+                            ),
+                            viewport = EditorViewport(
+                                offsetX = offsetX,
+                                offsetY = offsetY,
+                                scale = cloudLayer.transform.scale,
+                                rotation = cloudLayer.transform.rotation,
+                                flippedH = cloudLayer.payload.flippedH ?: false,
+                                flippedV = cloudLayer.payload.flippedV ?: false
+                            ),
+                            appearance = EditorAppearance(
+                                shadowIntensity = cloudLayer.payload.shadowIntensity ?: 0f,
+                                alpha = cloudLayer.payload.alpha ?: 1f,
+                                shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
+                                shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
+                                shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt()
+                            ),
+                            cropRatio = cloudLayer.resolvedCropRatio()
+                        )
+                    }
+                    
+                    _state.update {
+                        it.copy(
+                            template = EditorTemplate(
+                                assetPath = assetPath,
+                                originalWidth = tw,
+                                originalHeight = th,
+                                loaded = true
+                            ),
+                            layers = editorLayers,
+                            selectedLayerId = editorLayers.firstOrNull { layer -> layer.product.isSample }?.id,
+                            errorMessage = null
+                        )
+                    }
+                } ?: throw Exception("Failed to open stream")
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "loadCloudTemplate failed to load template: $assetPath", e)
+                _state.update { it.copy(errorMessage = "Không thể tải cloud template: ${e.message}") }
+            }
         }
     }
 
@@ -203,7 +332,8 @@ class ThemeplateEditorViewModel @Inject constructor(
         android.util.Log.d(TAG, "loadTemplate called with path: $assetPath, objectSourceAssetPath: $objectSourceAssetPath")
         if (_state.value.template.loaded && _state.value.template.assetPath == assetPath) {
             android.util.Log.d(TAG, "Template already loaded, ignoring template load but checking sample object.")
-            if (objectSourceAssetPath != null && _state.value.product.foregroundUriString == null && !_state.value.product.processing) {
+            val hasObject = _state.value.layers.any { it.product.foregroundUriString != null || it.product.processing }
+            if (objectSourceAssetPath != null && !hasObject) {
                 loadSampleObject(objectSourceAssetPath)
             }
             return
@@ -214,8 +344,8 @@ class ThemeplateEditorViewModel @Inject constructor(
         templateLoadJob?.cancel()
         templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                android.util.Log.d(TAG, "Opening asset input stream for: $assetPath")
-                context.assets.open(assetPath).use { input ->
+                android.util.Log.d(TAG, "Opening input stream for: $assetPath")
+                getInputStreamForPath(assetPath)?.use { input ->
                     val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                     BitmapFactory.decodeStream(input, null, opts)
                     android.util.Log.d(TAG, "Decoded template original bounds: ${opts.outWidth} x ${opts.outHeight}")
@@ -227,7 +357,8 @@ class ThemeplateEditorViewModel @Inject constructor(
                                 originalWidth = opts.outWidth,
                                 originalHeight = opts.outHeight,
                                 loaded = true
-                            )
+                            ),
+                            errorMessage = null
                         )
                     }
                     android.util.Log.d(TAG, "Successfully loaded template state")
@@ -235,10 +366,10 @@ class ThemeplateEditorViewModel @Inject constructor(
                     if (objectSourceAssetPath != null) {
                         loadSampleObject(objectSourceAssetPath)
                     }
-                }
+                } ?: throw Exception("Failed to open stream")
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "loadTemplate failed to load from assets: $assetPath", e)
-                _state.update { it.copy(errorMessage = "Không thể tải template") }
+                android.util.Log.e(TAG, "loadTemplate failed to load template: $assetPath", e)
+                _state.update { it.copy(errorMessage = "Không thể tải template: ${e.message}") }
             }
         }
     }
@@ -247,9 +378,11 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     private fun loadSampleObject(assetPath: String) {
         sampleObjectLoadJob?.cancel()
+        val processingId = java.util.UUID.randomUUID().toString()
         _state.update {
             it.copy(
-                product = EditorProduct(processing = true, isSample = true)
+                layers = it.layers + EditorLayer(id = processingId, product = EditorProduct(processing = true, isSample = true)),
+                selectedLayerId = processingId
             )
         }
         sampleObjectLoadJob = viewModelScope.launch {
@@ -284,33 +417,39 @@ class ThemeplateEditorViewModel @Inject constructor(
                         IntSize(w.coerceAtLeast(0), h.coerceAtLeast(0))
                     }
                     
-                    _state.update {
-                        it.copy(
-                            product = EditorProduct(
-                                originalUriString = cachedUri.toString(),
-                                foregroundUriString = cachedUri.toString(),
-                                isBackgroundRemoved = true,
-                                baseWidth = baseSize.width,
-                                baseHeight = baseSize.height,
-                                processing = false,
-                                isSample = true
-                            ),
-                            viewport = EditorViewport(scale = 1f),
+                    _state.update { state ->
+                        val newProduct = EditorProduct(
+                            originalUriString = cachedUri.toString(),
+                            foregroundUriString = cachedUri.toString(),
+                            isBackgroundRemoved = true,
+                            baseWidth = baseSize.width,
+                            baseHeight = baseSize.height,
+                            processing = false,
+                            isSample = true
+                        )
+                        val updatedLayers = state.layers.map {
+                            if (it.id == processingId) it.copy(product = newProduct, viewport = EditorViewport(scale = 1f)) else it
+                        }
+                        state.copy(
+                            layers = updatedLayers,
                             showBoundingBox = true
                         )
                     }
                     triggerOverlay()
                     pushHistory()
                 } else {
-                    _state.update { it.copy(product = it.product.copy(processing = false, isSample = false)) }
+                    _state.update { state -> 
+                        state.copy(layers = state.layers.filterNot { it.id == processingId }, selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId) 
+                    }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "Failed to load sample object: $assetPath", e)
-                _state.update {
-                    it.copy(
-                        product = it.product.copy(processing = false, isSample = false),
+                _state.update { state ->
+                    state.copy(
+                        layers = state.layers.filterNot { it.id == processingId },
+                        selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId,
                         errorMessage = "Không thể tải sản phẩm mẫu"
                     )
                 }
@@ -320,20 +459,25 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     // ============ Product Image with Atomic State Updates ============
 
-    private fun setProductImage(uri: Uri) {
+    private fun setProductImage(uri: Uri, replaceLayerId: String?) {
         bgRemoveJob?.cancel()
         
-        // Atomic reset
-            _state.update {
-                it.copy(
-                    product = EditorProduct(originalUriString = uri.toString(), processing = true),
-                    viewport = EditorViewport(),
-                    cropRatio = CropRatio.ORIGINAL,
-                    exportResult = null,
-                    errorMessage = null,
-                    showBoundingBox = false
-                )
+        val processingId = replaceLayerId ?: java.util.UUID.randomUUID().toString()
+        _state.update { state ->
+            val newLayerTemplate = EditorLayer(id = processingId, product = EditorProduct(originalUriString = uri.toString(), processing = true))
+            val newLayers = if (replaceLayerId != null && state.layers.any { it.id == replaceLayerId }) {
+                state.layers.map { if (it.id == replaceLayerId) newLayerTemplate.copy(viewport = it.viewport) else it }
+            } else {
+                state.layers + newLayerTemplate
             }
+            state.copy(
+                layers = newLayers,
+                selectedLayerId = processingId,
+                exportResult = null,
+                errorMessage = null,
+                showBoundingBox = false
+            )
+        }
         historyManager.clear()
         
         bgRemoveJob = viewModelScope.launch {
@@ -344,7 +488,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 }
                 
                 if (decoded == null) {
-                    _state.update { it.copy(product = it.product.copy(processing = false)) }
+                    _state.update { state -> state.copy(layers = state.layers.filterNot { it.id == processingId }) }
                     return@launch
                 }
 
@@ -355,7 +499,7 @@ class ThemeplateEditorViewModel @Inject constructor(
 
                 if (foreground == null) {
                     decoded.recycle()
-                    _state.update { it.copy(product = it.product.copy(processing = false)) }
+                    _state.update { state -> state.copy(layers = state.layers.filterNot { it.id == processingId }) }
                     return@launch
                 }
 
@@ -381,25 +525,27 @@ class ThemeplateEditorViewModel @Inject constructor(
                         IntSize(foreground.width, foreground.height)
                     }
 
-                    // Atomic state update with all new data
-                    _state.update {
-                        it.copy(
-                            product = EditorProduct(
+                    _state.update { state ->
+                        val newProduct = EditorProduct(
                                 originalUriString = uri.toString(),
                                 foregroundUriString = cachedUri.toString(),
                                 isBackgroundRemoved = true,
                                 baseWidth = baseSize.width,
                                 baseHeight = baseSize.height,
                                 processing = false
-                            ),
-                            viewport = EditorViewport(scale = 1f),
+                            )
+                        val updatedLayers = state.layers.map {
+                            if (it.id == processingId) it.copy(product = newProduct) else it
+                        }
+                        state.copy(
+                            layers = updatedLayers,
                             showBoundingBox = true
                         )
                     }
                     triggerOverlay()
                     pushHistory()
                 } else {
-                    _state.update { it.copy(product = it.product.copy(processing = false)) }
+                    _state.update { state -> state.copy(layers = state.layers.filterNot { it.id == processingId }) }
                 }
                 
                 // Cleanup bitmaps
@@ -410,9 +556,9 @@ class ThemeplateEditorViewModel @Inject constructor(
                 throw e // Don't swallow cancellation
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "removeBackground failed", e)
-                _state.update { 
-                    it.copy(
-                        product = it.product.copy(processing = false),
+                _state.update { state ->
+                    state.copy(
+                        layers = state.layers.filterNot { it.id == processingId },
                         errorMessage = e.message ?: "Lỗi xử lý ảnh"
                     ) 
                 }
@@ -423,15 +569,15 @@ class ThemeplateEditorViewModel @Inject constructor(
     // ============ Transform Operations ============
     
     private fun updateScale(factor: Float) {
-        _state.update {
-            val newScale = (it.viewport.scale * factor).coerceIn(MIN_SCALE, MAX_SCALE)
-            it.copy(viewport = it.viewport.withScale(newScale))
+        updateActiveLayer { layer ->
+            val newScale = (layer.viewport.scale * factor).coerceIn(MIN_SCALE, MAX_SCALE)
+            layer.copy(viewport = layer.viewport.withScale(newScale))
         }
     }
 
     private fun updateRotation(delta: Float) {
-        _state.update {
-            var newRotation = (it.viewport.rotation + delta) % 360f
+        updateActiveLayer { layer ->
+            var newRotation = (layer.viewport.rotation + delta) % 360f
             if (newRotation < 0) newRotation += 360f
             
             val snapped = SNAP_ANGLES.minByOrNull { angle -> abs(angle - newRotation) }
@@ -439,13 +585,13 @@ class ThemeplateEditorViewModel @Inject constructor(
                 newRotation = snapped
             }
             
-            it.copy(viewport = it.viewport.withRotation(newRotation))
+            layer.copy(viewport = layer.viewport.withRotation(newRotation))
         }
     }
 
     private fun applyGestureDelta(delta: GestureDelta) {
-        _state.update { current ->
-            var newViewport = current.viewport
+        updateActiveLayer { layer ->
+            var newViewport = layer.viewport
             
             if (delta.pan != Offset.Zero) {
                 newViewport = newViewport.withOffset(newViewport.offset + delta.pan)
@@ -460,7 +606,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 newViewport = newViewport.withRotation(newRotation)
             }
             
-            current.copy(viewport = newViewport)
+            layer.copy(viewport = newViewport)
         }
     }
 
@@ -481,9 +627,7 @@ class ThemeplateEditorViewModel @Inject constructor(
         val current = _state.value
         historyManager.push(
             TransformSnapshot(
-                viewport = current.viewport,
-                appearance = current.appearance,
-                cropRatio = current.cropRatio
+                layers = current.layers
             )
         )
     }
@@ -491,11 +635,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun undo() {
         historyManager.undo()?.let { snapshot ->
             _state.update {
-                it.copy(
-                    viewport = snapshot.viewport,
-                    appearance = snapshot.appearance,
-                    cropRatio = snapshot.cropRatio
-                )
+                it.copy(layers = snapshot.layers)
             }
         }
     }
@@ -503,11 +643,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun redo() {
         historyManager.redo()?.let { snapshot ->
             _state.update {
-                it.copy(
-                    viewport = snapshot.viewport,
-                    appearance = snapshot.appearance,
-                    cropRatio = snapshot.cropRatio
-                )
+                it.copy(layers = snapshot.layers)
             }
         }
     }
@@ -518,7 +654,6 @@ class ThemeplateEditorViewModel @Inject constructor(
         if (_state.value.isExporting || !_state.value.canExport) return
         
         val currentState = _state.value
-        val foregroundUri = currentState.product.foregroundUri ?: return
         val templateSize = currentState.template.originalSize
         
         if (templateSize.width == 0 || templateSize.height == 0) return
@@ -528,15 +663,12 @@ class ThemeplateEditorViewModel @Inject constructor(
             _state.update { it.copy(isExporting = true, errorMessage = null) }
             
             try {
-                val result = renderer.render(
-                    EditorRenderer.RenderRequest(
+                // Prepare multiple RenderRequest (one per layer) or adapt EditorRenderer to handle list
+                val result = renderer.renderLayers(
+                    EditorRenderer.MultiLayerRenderRequest(
                         templateAssetPath = templateAssetPath,
-                        foregroundUri = foregroundUri,
                         templateSize = templateSize,
-                        viewport = currentState.viewport,
-                        appearance = currentState.appearance,
-                        baseSize = currentState.product.baseSize,
-                        cropRatio = currentState.cropRatio
+                        layers = currentState.layers.filter { it.product.foregroundUri != null }
                     )
                 )
 

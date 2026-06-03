@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.Icon
@@ -74,7 +75,8 @@ fun AiToolDock(
     hasDraft: Boolean = false,
     draftCount: Int = 0,
     onRestoreDraft: () -> Unit = {},
-    useHomeDarkStyle: Boolean = false
+    useHomeDarkStyle: Boolean = false,
+    onOpenBackgroundPresetsTool: () -> Unit = {}
 ) {
     val tools = listOf(
         QuickTool(stringResource(R.string.home_dock_pick_image), iconAsset = "pick_image.png", locked = false, onClick = onOpenRemoveBgEditor),
@@ -87,6 +89,7 @@ fun AiToolDock(
             onClick = onRestoreDraft
         ),
         QuickTool(stringResource(R.string.home_dock_effects), iconAsset = "effects.png", locked = false, onClick = onOpenEffects),
+        QuickTool(stringResource(R.string.home_background_presets), iconVector = Icons.Default.Collections, locked = false, onClick = onOpenBackgroundPresetsTool),
         QuickTool(stringResource(R.string.home_dock_studio), iconAsset = "studio.png", locked = false, onClick = onOpenStudioTool),
         QuickTool(stringResource(R.string.home_dock_magic), iconAsset = "magic.png", locked = false, onClick = onOpenMagicTool)
     )
@@ -99,10 +102,7 @@ fun AiToolDock(
     val columns = 5
     val primaryTools = tools.take(columns - 1)
     val expandedTools = remember(tools) {
-        listOf(
-            tools[4],
-            tools[5]
-        )
+        tools.drop(columns - 1)
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {

@@ -3,9 +3,12 @@ package com.thgiang.image.studio.ui.editor
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 
+import com.thgiang.image.core.domain.model.template.CloudTemplate
+
 sealed class EditorEvent {
     data class LoadTemplate(val assetPath: String, val objectSourceAssetPath: String? = null) : EditorEvent()
-    data class SetProductImage(val uri: Uri) : EditorEvent()
+    data class LoadCloudTemplate(val cloudTemplate: CloudTemplate) : EditorEvent()
+    data class SetProductImage(val uri: Uri, val replaceLayerId: String? = null) : EditorEvent()
     data class UpdateGesture(val delta: GestureDelta) : EditorEvent()
     data class UpdateOffset(val delta: Offset) : EditorEvent()
     data class SetOffset(val offset: Offset) : EditorEvent()
@@ -23,8 +26,13 @@ sealed class EditorEvent {
     data class SetBoundingBoxVisible(val visible: Boolean) : EditorEvent()
     data class SelectTool(val tool: EditorTool) : EditorEvent()
     data class SelectCropRatio(val ratio: CropRatio) : EditorEvent()
+    data class SelectLayer(val layerId: String?) : EditorEvent()
+    data object DuplicateLayer : EditorEvent()
+    data object DeleteLayer : EditorEvent()
     data object CommitTransform : EditorEvent()
     data object Undo : EditorEvent()
     data object Redo : EditorEvent()
+    data object MoveLayerUp : EditorEvent()
+    data object MoveLayerDown : EditorEvent()
     data class Export(val templateAssetPath: String) : EditorEvent()
 }

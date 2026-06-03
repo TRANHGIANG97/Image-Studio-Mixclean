@@ -7,6 +7,24 @@ import androidx.compose.ui.unit.IntSize
 // ============ Core Data Models v2 ============
 
 /**
+ * EditorState v2 - Tổng hợp trạng thái editor, immutable
+ */
+data class EditorState(
+    val template: EditorTemplate = EditorTemplate(),
+    val layers: List<EditorLayer> = emptyList(),
+    val selectedLayerId: String? = null,
+    val selectedTool: EditorTool? = null,
+    val isExporting: Boolean = false,
+    val exportResult: android.net.Uri? = null,
+    val errorMessage: String? = null,
+    val showOverlay: Boolean = false,
+    val showBoundingBox: Boolean = false
+) : java.io.Serializable {
+    val canExport: Boolean
+        get() = layers.any { it.product.isBackgroundRemoved } && !isExporting && template.loaded
+}
+
+/**
  * Immutable viewport với validation và helper methods
  */
 data class EditorViewport(
@@ -86,6 +104,14 @@ data class EditorProduct(
     constructor() : this(null, null, false, 0, 0, false, false)
 }
 
+data class EditorLayer(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val product: EditorProduct = EditorProduct(),
+    val viewport: EditorViewport = EditorViewport(),
+    val appearance: EditorAppearance = EditorAppearance(),
+    val cropRatio: CropRatio = CropRatio.ORIGINAL
+) : java.io.Serializable
+
 // ============ Tool & Config ============
 
 sealed class EditorTool(val iconName: String) : java.io.Serializable {
@@ -95,9 +121,11 @@ sealed class EditorTool(val iconName: String) : java.io.Serializable {
     data object Shadow : EditorTool("wb_sunny")
     data object Transparency : EditorTool("opacity")
     data object Crop : EditorTool("crop_square")
+    data object Duplicate : EditorTool("content_copy")
+    data object Delete : EditorTool("delete")
     
     companion object {
-        val ALL = listOf(Replace, Rotate, Shadow, Transparency, Crop)
+        val ALL = listOf(Replace, Rotate, Shadow, Transparency, Crop, Duplicate, Delete)
     }
 }
 
@@ -143,24 +171,29 @@ enum class CropRatio(
 // ============ History ============
 
 data class TransformSnapshot(
-    val viewport: EditorViewport,
-    val appearance: EditorAppearance,
-    val cropRatio: CropRatio
+    val layers: List<EditorLayer>
 ) : java.io.Serializable {
     /**
      * Check if this snapshot is visually equivalent to another
      * (allows small floating point differences)
      */
     fun isEquivalent(other: TransformSnapshot, epsilon: Float = 0.01f): Boolean {
-        return viewport.scale == other.viewport.scale &&
-               kotlin.math.abs(viewport.offset.x - other.viewport.offset.x) < epsilon &&
-               kotlin.math.abs(viewport.offset.y - other.viewport.offset.y) < epsilon &&
-               kotlin.math.abs(viewport.rotation - other.viewport.rotation) < epsilon &&
-               viewport.flippedH == other.viewport.flippedH &&
-               viewport.flippedV == other.viewport.flippedV &&
-               kotlin.math.abs(appearance.shadowIntensity - other.appearance.shadowIntensity) < epsilon &&
-               kotlin.math.abs(appearance.alpha - other.appearance.alpha) < epsilon &&
-               cropRatio == other.cropRatio
+        if (layers.size != other.layers.size) return false
+        for (i in layers.indices) {
+            val a = layers[i]
+            val b = other.layers[i]
+            if (a.id != b.id) return false
+            if (a.cropRatio != b.cropRatio) return false
+            if (a.viewport.scale != b.viewport.scale) return false
+            if (kotlin.math.abs(a.viewport.offset.x - b.viewport.offset.x) >= epsilon) return false
+            if (kotlin.math.abs(a.viewport.offset.y - b.viewport.offset.y) >= epsilon) return false
+            if (kotlin.math.abs(a.viewport.rotation - b.viewport.rotation) >= epsilon) return false
+            if (a.viewport.flippedH != b.viewport.flippedH) return false
+            if (a.viewport.flippedV != b.viewport.flippedV) return false
+            if (kotlin.math.abs(a.appearance.shadowIntensity - b.appearance.shadowIntensity) >= epsilon) return false
+            if (kotlin.math.abs(a.appearance.alpha - b.appearance.alpha) >= epsilon) return false
+        }
+        return true
     }
 }
 

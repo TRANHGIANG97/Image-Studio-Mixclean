@@ -151,6 +151,7 @@ dependencies {
     implementation(project(":core-util"))
     implementation(project(":quickedit"))
     implementation(project(":studio_edit"))
+    debugImplementation(project(":admin_tools"))
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.ui)
