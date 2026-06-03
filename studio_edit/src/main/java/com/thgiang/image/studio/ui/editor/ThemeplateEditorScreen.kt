@@ -38,6 +38,7 @@ fun ThemeplateEditorScreen(
     onDone: (Uri?) -> Unit = {},
     onRequireExportAd: ((() -> Unit) -> Unit)? = null,
     onPickImage: (@Composable (onImageSelected: (Uri) -> Unit, onCancel: () -> Unit) -> Unit)? = null,
+    onExportSuccess: () -> Unit = {},
     viewModel: ThemeplateEditorViewModel = hiltViewModel()
 ) {
     val templateAssetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
@@ -66,6 +67,7 @@ fun ThemeplateEditorScreen(
     LaunchedEffect(state.exportResult) {
         state.exportResult?.let { uri ->
             snackbarHostState.showSnackbar("Đã lưu ảnh")
+            onExportSuccess()
             onDone(uri)
         }
     }
@@ -85,6 +87,10 @@ fun ThemeplateEditorScreen(
 
     EditorTheme {
         val tokens = LocalEditorTokens.current
+        val editingToolsUnlocked = state.layers.any {
+            it.product.isBackgroundRemoved && !it.product.isSample && !it.product.processing
+        }
+        val selectedToolForUi = state.selectedTool.takeIf { editingToolsUnlocked }
 
         Box(modifier = Modifier.fillMaxSize().background(tokens.moduleBackground)) {
 
@@ -256,13 +262,13 @@ fun ThemeplateEditorScreen(
                 }
 
                 AnimatedVisibility(
-                    visible = state.template.loaded && state.selectedTool != null && activeLayer != null,
+                    visible = state.template.loaded && selectedToolForUi != null && activeLayer != null,
                     enter = slideInVertically { it } + fadeIn(tween(200)),
                     exit  = slideOutVertically { it } + fadeOut(tween(180))
                 ) {
                     if (activeLayer != null) {
                         EditorControlsV2(
-                            tool = state.selectedTool,
+                            tool = selectedToolForUi,
                             appearance = activeLayer.appearance,
                             cropRatio = activeLayer.cropRatio,
                             onUpdateShadow         = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
@@ -277,7 +283,7 @@ fun ThemeplateEditorScreen(
                 }
 
                 EditorBottomToolbar(
-                    selectedTool = state.selectedTool,
+                    selectedTool = selectedToolForUi,
                     onToolSelected = { tool ->
                         if (tool is EditorTool.Duplicate) {
                             viewModel.onEvent(EditorEvent.DuplicateLayer)
@@ -291,6 +297,7 @@ fun ThemeplateEditorScreen(
                         targetReplaceLayerId = state.selectedLayerId
                         triggerImagePicker()
                     },
+                    toolsLocked = !editingToolsUnlocked,
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding()
                 )
             }

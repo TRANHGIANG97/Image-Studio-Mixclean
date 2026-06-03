@@ -20,6 +20,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import kotlin.math.abs
+import com.google.gson.Gson
 import com.thgiang.image.core.domain.model.template.*
 import com.thgiang.image.studio.ui.editor.*
 
@@ -57,6 +58,9 @@ class TemplateBuilderViewModel @Inject constructor(
         }
     )
     val state: StateFlow<EditorState> = _state.asStateFlow()
+
+    private val _availableCategories = MutableStateFlow<List<String>>(emptyList())
+    val availableCategories: StateFlow<List<String>> = _availableCategories.asStateFlow()
 
     val canUndo: StateFlow<Boolean> = historyManager.canUndo
     val canRedo: StateFlow<Boolean> = historyManager.canRedo
@@ -99,6 +103,8 @@ class TemplateBuilderViewModel @Inject constructor(
                 loadTemplate(it)
             }
         }
+        
+        loadAvailableCategories()
     }
 
     private inline fun updateActiveLayer(crossinline block: (EditorLayer) -> EditorLayer) {
@@ -861,5 +867,56 @@ class TemplateBuilderViewModel @Inject constructor(
             delay(2000)
             _state.update { it.copy(showOverlay = false) }
         }
+    }
+
+    private fun loadAvailableCategories() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val dir = context.getExternalFilesDir(null) ?: return@launch
+                val rootJsonFiles = dir.listFiles { file -> file.isFile && file.name.endsWith(".json") }?.toList().orEmpty()
+                val bundleRoot = dir.resolve("template_bundles")
+                val bundleJsonFiles = bundleRoot
+                    .listFiles { file -> file.isDirectory }
+                    ?.mapNotNull { bundleDir -> bundleDir.resolve("template.json").takeIf { it.exists() } }
+                    .orEmpty()
+                val files = rootJsonFiles + bundleJsonFiles
+                val gson = Gson()
+                val categories = files.mapNotNull { file ->
+                    try {
+                        val json = file.readText()
+                        val template = gson.fromJson(json, CloudTemplate::class.java)
+                        template.categoryId
+                    } catch (e: Exception) {
+                        null
+                    }
+                }.filter { it.isNotBlank() }.distinct().sorted()
+                _availableCategories.value = categories
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "Failed to load categories", e)
+            }
+        }
+    }
+
+    fun setLayerLocked(layerId: String, isLocked: Boolean) {
+        _state.update { state ->
+            val newLayers = state.layers.map { 
+                if (it.id == layerId) it.copy(isLocked = isLocked) else it 
+            }
+            state.copy(layers = newLayers)
+        }
+        pushHistory()
+    }
+
+    fun resetTransform(layerId: String) {
+        _state.update { state ->
+            val newLayers = state.layers.map { 
+                if (it.id == layerId) it.copy(
+                    viewport = EditorViewport.IDENTITY,
+                    cropRatio = CropRatio.ORIGINAL
+                ) else it 
+            }
+            state.copy(layers = newLayers)
+        }
+        pushHistory()
     }
 }

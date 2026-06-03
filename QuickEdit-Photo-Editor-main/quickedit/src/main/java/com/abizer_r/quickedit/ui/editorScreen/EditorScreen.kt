@@ -126,7 +126,8 @@ fun EditorScreen(
     goToMainScreen: () -> Unit,
     isPremium: Boolean = false,
     onSaveDraftClicked: (Bitmap) -> Unit = {},
-    onRequireSaveAd: ((() -> Unit) -> Unit)? = null
+    onRequireSaveAd: ((() -> Unit) -> Unit)? = null,
+    onSaveSuccess: () -> Unit = {}
 ) {
     if (initialEditorScreenState.bitmapStack.isEmpty()) {
         throw Exception("EmptyStackException: The bitmapStack of initial state should contain at least one bitmap")
@@ -215,6 +216,7 @@ fun EditorScreen(
             isPremium = isPremium,
             onSaveDraftClicked = onSaveDraftClicked,
             onRequireSaveAd = onRequireSaveAd,
+            onSaveSuccess = onSaveSuccess,
             showOverlay = state.showOverlay
         )
     }
@@ -235,6 +237,7 @@ private fun EditorScreenLayout(
     isPremium: Boolean = false,
     onSaveDraftClicked: (Bitmap) -> Unit = {},
     onRequireSaveAd: ((() -> Unit) -> Unit)? = null,
+    onSaveSuccess: () -> Unit = {},
     showOverlay: Boolean = false
 ) {
 
@@ -314,7 +317,10 @@ private fun EditorScreenLayout(
             FileUtils.saveFileToAppFolder(
                 context = context,
                 file = imgFile,
-                onSuccess = { context.toast(R.string.image_saved_successfully) },
+                onSuccess = {
+                    context.toast(R.string.image_saved_successfully)
+                    onSaveSuccess()
+                },
                 onFailure = { context.toast(R.string.failed_to_save_image) },
             )
         }

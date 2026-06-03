@@ -2,8 +2,10 @@ package com.thgiang.image.app.navigation
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,6 +30,7 @@ import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -44,9 +48,11 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.navigation.compose.NavHost
@@ -56,6 +62,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,12 +80,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.thgiang.image.R
+import com.thgiang.image.core.design.components.ModernRewardedAdDialog
+import com.thgiang.image.core.design.components.ReviewPromptDialog
 import com.thgiang.image.core.design.theme.ImageDesign
 import com.thgiang.image.feature.editor.ui.QuickEditActivity
 import com.thgiang.image.feature.home.ui.HomeDashboardScreen
 import com.thgiang.image.feature.home.ui.RemovalQualitySelector
 import com.thgiang.image.feature.premium.ui.PremiumScreen
-import com.thgiang.image.core.design.components.ModernRewardedAdDialog
 import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.thgiang.image.feature.remove.ui.BatchRemoveScreen
 import com.thgiang.image.feature.remove.ui.MultiImagePickerScreen
@@ -92,6 +100,14 @@ import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPreset
 import com.abizer_r.quickedit.utils.BorderGradientPreset
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+private const val PLAY_STORE_REVIEW_URL =
+    "https://play.google.com/store/apps/details?id=com.thgiang.image"
+
+private enum class ReviewPromptSource {
+    Auto,
+    Manual
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,6 +130,8 @@ fun AppRoot(
     var showQualitySheet by remember { mutableStateOf(false) }
     var showRewardedAdDialog by remember { mutableStateOf(false) }
     var showSaveRewardedAdDialog by remember { mutableStateOf(false) }
+    var showReviewPromptDialog by remember { mutableStateOf(false) }
+    var reviewPromptSource by remember { mutableStateOf(ReviewPromptSource.Auto) }
     var pendingSaveAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var isAutoRemoveForPicker by rememberSaveable { mutableStateOf(false) }
     var isRemoveBgEditorForPicker by remember { mutableStateOf(false) }
@@ -128,6 +146,13 @@ fun AppRoot(
 
     BackHandler {
         when {
+            showReviewPromptDialog -> {
+                showReviewPromptDialog = false
+                if (reviewPromptSource == ReviewPromptSource.Auto) {
+                    appViewModel.markReviewDeclined()
+                }
+                return@BackHandler
+            }
             showRewardedAdDialog -> {
                 showRewardedAdDialog = false
                 appViewModel.resetBatchAdState()
@@ -164,6 +189,22 @@ fun AppRoot(
         navController.navigate(Screen.Home.route) {
             popUpTo(0) { inclusive = true }
         }
+    }
+
+    fun openReviewStore() {
+        runCatching {
+            context.startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(PLAY_STORE_REVIEW_URL)
+                )
+            )
+        }
+    }
+
+    fun showReviewPrompt(source: ReviewPromptSource) {
+        reviewPromptSource = source
+        showReviewPromptDialog = true
     }
 
     fun requestSaveVideoAd(action: () -> Unit) {
@@ -236,40 +277,100 @@ fun AppRoot(
         Scaffold(
             topBar = {
                 if (currentRoute == Screen.Home.route) {
-                    TopAppBar(
-                    title = {
-                        Text(
-                            text = "MixClean",
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                brush = Brush.linearGradient(
-                                    colors = listOf(Color(0xFF00F2FE), Color(0xFF4FACFE), Color(0xFFBD10E0))
-                                )
-                            )
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (androidx.compose.foundation.isSystemInDarkTheme()) {
+                            Color(0xFF1E1E1E).copy(alpha = 0.88f)
+                        } else {
+                            Color.White.copy(alpha = 0.92f)
+                        },
+                        shadowElevation = 4.dp,
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (androidx.compose.foundation.isSystemInDarkTheme()) {
+                                Color.White.copy(alpha = 0.08f)
+                            } else {
+                                Color(0xFFE8E0D6)
+                            }
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    if (drawerState.isOpen) drawerState.close()
-                                    else drawerState.open()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 6.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        if (drawerState.isOpen) drawerState.close()
+                                        else drawerState.open()
+                                    }
+                                },
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = stringResource(R.string.menu_title),
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "MixClean",
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(Color(0xFF00C6FF), Color(0xFF4F8BFE), Color(0xFFB54BFF))
+                                        )
+                                    ),
+                                    maxLines = 1
+                                )
+                                Text(
+                                    text = stringResource(R.string.home_hero_subtitle_short),
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal
+                                    ),
+                                    color = if (androidx.compose.foundation.isSystemInDarkTheme()) {
+                                        Color.White.copy(alpha = 0.5f)
+                                    } else {
+                                        Color(0xFF8A8A8A)
+                                    },
+                                    maxLines = 1
+                                )
+                            }
+
+                            Box {
+                                IconButton(
+                                    onClick = { showReviewPrompt(ReviewPromptSource.Manual) },
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.RateReview,
+                                        contentDescription = stringResource(R.string.review_app_button),
+                                        modifier = Modifier.size(22.dp)
+                                    )
                                 }
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = stringResource(R.string.menu_title)
-                            )
-                        }
-                    },
-                    actions = {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+
                             Box {
-                                IconButton(onClick = { languageMenuExpanded = true }) {
+                                IconButton(
+                                    onClick = { languageMenuExpanded = true },
+                                    modifier = Modifier.size(40.dp)
+                                ) {
                                     Icon(
                                         imageVector = Icons.Default.Language,
-                                        contentDescription = stringResource(R.string.language_title)
+                                        contentDescription = stringResource(R.string.language_title),
+                                        modifier = Modifier.size(22.dp)
                                     )
                                 }
                                 DropdownMenu(
@@ -296,7 +397,6 @@ fun AppRoot(
                             }
                         }
                     }
-                )
                 }
             },
         ) { innerPadding: PaddingValues ->
@@ -511,7 +611,8 @@ fun AppRoot(
                         },
                         onAddMore = { navController.navigate(Screen.BatchPicker.route) },
                         contentPadding = innerPadding,
-                        onRequireSaveAd = { action -> requestSaveVideoAd(action) }
+                        onRequireSaveAd = { action -> requestSaveVideoAd(action) },
+                        onSaveSuccess = { appViewModel.recordSuccessfulSave { showReviewPrompt(ReviewPromptSource.Auto) } }
                     )
                 }
                 composable(Screen.Settings.route) {
@@ -560,6 +661,9 @@ fun AppRoot(
                                 navController.popBackStack(Screen.Home.route, inclusive = false)
                             },
                             onRequireExportAd = { action -> requestSaveVideoAd(action) },
+                            onExportSuccess = {
+                                appViewModel.recordSuccessfulSave { showReviewPrompt(ReviewPromptSource.Auto) }
+                            },
                             onPickImage = { onSelected, onCancel ->
                                 SingleImagePickerScreen(
                                     onImageSelected = onSelected,
@@ -650,6 +754,22 @@ fun AppRoot(
                 showSaveRewardedAdDialog = false
                 pendingSaveAction = null
                 appViewModel.resetBatchAdState()
+            }
+        )
+    }
+
+    if (showReviewPromptDialog) {
+        ReviewPromptDialog(
+            onRateNow = {
+                showReviewPromptDialog = false
+                appViewModel.markReviewAccepted()
+                openReviewStore()
+            },
+            onLater = {
+                showReviewPromptDialog = false
+                if (reviewPromptSource == ReviewPromptSource.Auto) {
+                    appViewModel.markReviewDeclined()
+                }
             }
         )
     }

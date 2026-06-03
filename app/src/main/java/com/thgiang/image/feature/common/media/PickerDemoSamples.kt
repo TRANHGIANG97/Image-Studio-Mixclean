@@ -11,10 +11,10 @@ import java.io.FileOutputStream
 private const val DEMO_SAMPLE_CACHE_DIR = "picker_demo_samples"
 
 private val DEMO_SAMPLE_ASSETS = listOf(
-    "image_sample/img_0001.png",
-    "image_sample/img_0002.png",
-    "image_sample/img_0003.png",
-    "image_sample/img_0004.png",
+    "image_sample/img_0001.jpg",
+    "image_sample/img_0002.jpg",
+    "image_sample/img_0003.jpg",
+    "image_sample/img_0004.jpg",
 )
 
 suspend fun loadPickerDemoSampleUris(context: Context): List<Uri> = withContext(Dispatchers.IO) {

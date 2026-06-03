@@ -22,12 +22,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.AutoAwesomeMotion
+import androidx.compose.material.icons.outlined.AutoFixHigh
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Wallpaper
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -50,9 +57,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.thgiang.image.R
-import com.thgiang.image.core.design.theme.HomeDarkStyle
+import com.thgiang.image.core.design.theme.HomeUiTokens
 import com.thgiang.image.core.design.theme.ImageDesign
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.draw.shadow
 
 private data class QuickTool(
     val title: String,
@@ -79,19 +87,19 @@ fun AiToolDock(
     onOpenBackgroundPresetsTool: () -> Unit = {}
 ) {
     val tools = listOf(
-        QuickTool(stringResource(R.string.home_dock_pick_image), iconAsset = "pick_image.png", locked = false, onClick = onOpenRemoveBgEditor),
-        QuickTool(stringResource(R.string.home_dock_batch), iconAsset = "batch.png", locked = false, onClick = onBatchRemove),
+        QuickTool(stringResource(R.string.home_dock_pick_image), iconVector = Icons.Outlined.Image, locked = false, onClick = onOpenRemoveBgEditor),
+        QuickTool(stringResource(R.string.home_dock_batch), iconVector = Icons.Outlined.AutoAwesomeMotion, locked = false, onClick = onBatchRemove),
         QuickTool(
             title = stringResource(R.string.home_draft),
-            iconAsset = "draft.png",
+            iconVector = Icons.Outlined.Folder,
             locked = false,
-            badgeCount = draftCount,
+            badgeCount = if (hasDraft) draftCount.coerceAtLeast(1) else draftCount,
             onClick = onRestoreDraft
         ),
-        QuickTool(stringResource(R.string.home_dock_effects), iconAsset = "effects.png", locked = false, onClick = onOpenEffects),
-        QuickTool(stringResource(R.string.home_background_presets), iconVector = Icons.Default.Collections, locked = false, onClick = onOpenBackgroundPresetsTool),
-        QuickTool(stringResource(R.string.home_dock_studio), iconAsset = "studio.png", locked = false, onClick = onOpenStudioTool),
-        QuickTool(stringResource(R.string.home_dock_magic), iconAsset = "magic.png", locked = false, onClick = onOpenMagicTool)
+        QuickTool(stringResource(R.string.home_dock_effects), iconVector = Icons.Outlined.AutoFixHigh, locked = false, onClick = onOpenEffects),
+        QuickTool(stringResource(R.string.home_background_presets), iconVector = Icons.Outlined.Wallpaper, locked = false, onClick = onOpenBackgroundPresetsTool),
+        QuickTool(stringResource(R.string.home_dock_studio), iconVector = Icons.Outlined.Palette, locked = false, onClick = onOpenStudioTool),
+        QuickTool(stringResource(R.string.home_dock_magic), iconVector = Icons.Outlined.AutoAwesome, locked = false, onClick = onOpenMagicTool)
     )
 
     val isDark = useHomeDarkStyle || isSystemInDarkTheme()
@@ -108,15 +116,19 @@ fun AiToolDock(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.home_quick_tools),
-            style = MaterialTheme.typography.labelLarge,
-            color = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                letterSpacing = 0.5.sp
+            ),
+            color = if (isDark) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = HomeUiTokens.outerPadding, vertical = 8.dp)
         )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = HomeUiTokens.outerPadding),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -199,7 +211,7 @@ private fun DockToolItem(
     val interaction = remember { MutableInteractionSource() }
     val isPressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
+        targetValue = if (isPressed) 0.92f else 1f,
         animationSpec = tween(ImageDesign.motion.quick),
         label = "dockScale"
     )
@@ -212,49 +224,44 @@ private fun DockToolItem(
         verticalArrangement = Arrangement.Center
     ) {
         Box(contentAlignment = Alignment.TopEnd) {
-            Surface(
-                modifier = Modifier.size(48.dp),
-                shape = CircleShape,
-                color = if (isDark) Color(0xFF2C2C2E) else Color.White,
-                shadowElevation = if (isDark) 0.dp else 4.dp
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(48.dp)
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    if (iconAsset != null) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(context)
-                                .data("file:///android_asset/icon_quicktools/$iconAsset")
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = null,
-                            modifier = Modifier.size(29.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    } else if (iconVector != null) {
-                        Icon(
-                            imageVector = iconVector,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = if (isDark) Color.White else Color.Black
-                        )
-                    }
+                if (iconAsset != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data("file:///android_asset/icon_quicktools/$iconAsset")
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else if (iconVector != null) {
+                    Icon(
+                        imageVector = iconVector,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = if (isDark) Color(0xFF26C6DA) else Color(0xFF4A443D)
+                    )
                 }
             }
 
             if (badgeCount > 0) {
                 Box(
                     modifier = Modifier
-                        .offset(x = 4.dp, y = (-2).dp)
-                        .size(18.dp)
+                        .offset(x = 4.dp, y = (-4).dp)
+                        .size(16.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFFF3B30))
-                        .border(1.5.dp, Color.White, CircleShape),
+                        .background(Color(0xFFEF4444)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = if (badgeCount > 9) "+" else badgeCount.toString(),
                         color = Color.White,
                         style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 9.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             platformStyle = androidx.compose.ui.text.PlatformTextStyle(
                                 includeFontPadding = false
@@ -268,7 +275,7 @@ private fun DockToolItem(
             if (locked) {
                 Box(
                     modifier = Modifier
-                        .offset(x = 4.dp, y = (-2).dp)
+                        .offset(x = 4.dp, y = (-4).dp)
                         .clip(RoundedCornerShape(6.dp))
                         .background(Color(0xFFFF2D55))
                         .padding(horizontal = 4.dp, vertical = 2.dp)
@@ -289,11 +296,14 @@ private fun DockToolItem(
             text = title,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                fontSize = 11.sp,
+                lineHeight = 14.sp
             ),
-            color = if (isDark) Color.White else Color.Black,
+            color = if (isDark) Color.White.copy(alpha = 0.7f) else Color(0xFF5A5A5A),
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 2.dp)
         )
     }
 }

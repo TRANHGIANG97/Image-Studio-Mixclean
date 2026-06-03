@@ -17,7 +17,7 @@ object EffectsModeUtils {
 
     private const val MAX_CONCURRENT_FILTERS = 4
     private val concurrencyLimit = Semaphore(MAX_CONCURRENT_FILTERS)
-    private const val EFFECT_PREVIEW_SAMPLE_ASSET = "image_sample/img_0001.png"
+    private const val EFFECT_PREVIEW_SAMPLE_ASSET = "image_sample/img_0001.jpg"
 
     fun getEffectsPreviewList(
         context: Context,

@@ -3,9 +3,14 @@ package com.abizer_r.quickedit.ui.mainScreen
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,11 +36,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -65,7 +73,7 @@ fun ProfessionalThemeplateSection(
     val templates = remember { StudioThemeplates.professional }
     val sections = remember { StudioThemeplates.professionalSections }
 
-    Column(modifier = modifier.padding(horizontal = 16.dp)) {
+    Column(modifier = modifier.padding(horizontal = 11.dp)) {
         ProfessionalThemeplateGroup(
             title = stringResource(R.string.professional_section_title),
             themeplates = templates,
@@ -104,26 +112,21 @@ private fun ProfessionalThemeplateGroup(
                 text = title,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 26.sp
+                    fontSize = 18.sp,
+                    letterSpacing = 0.15.sp
                 ),
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFFF2D55).copy(alpha = 0.12f))
-                    .clickable { onArrowClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    tint = Color(0xFFFF2D55),
-                    modifier = Modifier.size(18.dp)
-                )
-            }
+            Text(
+                text = stringResource(R.string.home_see_all),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 13.sp
+                ),
+                color = Color(0xFF26C6DA),
+                modifier = Modifier.clickable { onArrowClick() }
+            )
         }
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -185,14 +188,32 @@ private fun ProfessionalThemeplateCard(
         }
     }
 
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = tween(durationMillis = 150),
+        label = "cardScale"
+    )
+
     Card(
         modifier = Modifier
-            .width(120.dp)
-            .aspectRatio(3f / 4f)
-            .clickable(onClick = onClick),
+            .width(90.dp)
+            .aspectRatio(4f / 5f)
+            .scale(scale)
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             bgBitmapState.value?.let { bgBitmap ->

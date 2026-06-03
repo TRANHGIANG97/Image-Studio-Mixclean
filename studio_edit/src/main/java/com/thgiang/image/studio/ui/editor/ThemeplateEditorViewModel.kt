@@ -517,12 +517,23 @@ class ThemeplateEditorViewModel @Inject constructor(
                             tw.toFloat() / foreground.width,
                             th.toFloat() / foreground.height
                         )
-                        IntSize(
-                            (foreground.width * baseFitScale).toInt(),
-                            (foreground.height * baseFitScale).toInt()
-                        )
+                        var finalWidth = (foreground.width * baseFitScale).toInt()
+                        var finalHeight = (foreground.height * baseFitScale).toInt()
+                        if (finalWidth > 500) {
+                            val downScale = 500f / finalWidth
+                            finalWidth = 500
+                            finalHeight = (finalHeight * downScale).toInt()
+                        }
+                        IntSize(finalWidth, finalHeight)
                     } else {
-                        IntSize(foreground.width, foreground.height)
+                        var finalWidth = foreground.width
+                        var finalHeight = foreground.height
+                        if (finalWidth > 500) {
+                            val downScale = 500f / finalWidth
+                            finalWidth = 500
+                            finalHeight = (finalHeight * downScale).toInt()
+                        }
+                        IntSize(finalWidth, finalHeight)
                     }
 
                     _state.update { state ->

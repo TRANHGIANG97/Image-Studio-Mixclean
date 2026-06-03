@@ -57,6 +57,7 @@ import com.abizer_r.quickedit.utils.BorderGradientPresets
 import com.abizer_r.quickedit.utils.BorderPreset
 import com.abizer_r.quickedit.utils.BorderUtils
 import com.thgiang.image.R
+import com.thgiang.image.core.design.theme.HomeUiTokens
 import com.thgiang.image.core.design.theme.HomeDarkStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -110,12 +111,12 @@ fun BorderPresetDock(
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
             },
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = HomeUiTokens.outerPadding, vertical = 4.dp)
         )
 
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp)
+            contentPadding = PaddingValues(horizontal = HomeUiTokens.outerPadding)
         ) {
             items(BorderGradientPresets.modernPresets) { preset ->
                 val selected = selectedPresetId == preset.id
@@ -141,21 +142,21 @@ fun BorderPresetDock(
 
                 Box(
                     modifier = Modifier
-                        .width(72.dp)
-                        .height(90.dp)
+                        .width(80.dp)
+                        .height(104.dp)
                         .scale(scale)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(HomeUiTokens.cardRadius))
                         .background(if (isDark) Color(0xFF101214) else Color(0xFFF6F3EE))
                         .then(
                             if (selected) {
                                 Modifier
-                                    .border(4.dp, selectedGlowBrush, RoundedCornerShape(12.dp))
-                                    .border(2.dp, selectedStroke, RoundedCornerShape(12.dp))
+                                    .border(4.dp, selectedGlowBrush, RoundedCornerShape(HomeUiTokens.cardRadius))
+                                    .border(2.dp, selectedStroke, RoundedCornerShape(HomeUiTokens.cardRadius))
                             } else {
                                 Modifier.border(
                                     1.5.dp,
                                     animatedBorderBrush,
-                                    RoundedCornerShape(12.dp)
+                                    RoundedCornerShape(HomeUiTokens.cardRadius)
                                 )
                             }
                         )

@@ -106,6 +106,17 @@ object HomeDarkStyle {
     val proBadgeBg = Color(0xFF26C6DA).copy(alpha = 0.2f)
 }
 
+object HomeUiTokens {
+    val outerPadding = 11.dp
+    val sectionSpacing = 24.dp
+    val cardRadius = 16.dp
+    val buttonRadius = 24.dp
+    val quickActionRadius = 16.dp
+    val quickActionIconSize = 28.dp
+    val quickActionTileSize = 56.dp
+    val shadowElevation = 3.dp
+}
+
 object ImageDesign {
     @Composable
     private fun isDarkMode(): Boolean {

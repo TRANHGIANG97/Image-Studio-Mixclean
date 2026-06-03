@@ -93,132 +93,67 @@ internal fun ThemeplateCardV2(
 ) {
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1f,
-        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "cardScale"
     )
-    
     val elevation by animateDpAsState(
-        targetValue = if (isPressed) 2.dp else 4.dp,
-        animationSpec = tween(150),
+        targetValue = if (isPressed) 2.dp else 5.dp,
+        animationSpec = tween(160),
         label = "cardElevation"
     )
-    
-    Column(
+
+    val baseAssetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
+
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        tonalElevation = elevation,
+        shadowElevation = elevation,
         modifier = Modifier
             .fillMaxWidth()
             .scale(scale)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
     ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            tonalElevation = elevation,
-            shadowElevation = elevation,
-            modifier = Modifier.fillMaxWidth()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(0.92f)
+                .background(Color(0xFFF5F5F5))
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(3f / 4f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFF5F5F5))
-            ) {
-                SubcomposeAsyncImage(
-                    model = "file:///android_asset/${themeplate.assetPath}",
-                    contentDescription = stringResource(themeplate.titleResId),
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    loading = {
-                        ShimmerBox(Modifier.matchParentSize())
-                    },
-                    error = {
-                        Box(
-                            Modifier.matchParentSize()
-                                .background(Color(0xFFEEEEEE)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Error,
-                                contentDescription = "Error",
-                                tint = Color.Gray.copy(alpha = 0.5f)
-                            )
-                        }
-                    },
-                    success = { state ->
-                        // Fade in animation
-                        var visible by remember { mutableStateOf(false) }
-                        val alpha by animateFloatAsState(
-                            targetValue = if (visible) 1f else 0f,
-                            animationSpec = tween(300),
-                            label = "imageFade"
+            SubcomposeAsyncImage(
+                model = "file:///android_asset/$baseAssetPath",
+                contentDescription = stringResource(themeplate.titleResId),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                loading = {
+                    ShimmerBox(Modifier.matchParentSize())
+                },
+                error = {
+                    Box(
+                        Modifier.matchParentSize().background(Color(0xFFEEEEEE)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Error,
+                            contentDescription = "Error",
+                            tint = Color.Gray.copy(alpha = 0.5f)
                         )
-                        
-                        LaunchedEffect(state) {
-                            visible = true
-                        }
-                        
-                        Box(Modifier.graphicsLayer { this.alpha = alpha }) {
-                            state.painter.let { painter ->
-                                androidx.compose.foundation.Image(
-                                    painter = painter,
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
                     }
-                )
-                
-                // AI badge
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = themeplate.accentColor.copy(alpha = 0.9f),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp)
-                ) {
-                    Text(
-                        text = "AI",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                    )
                 }
-                
-                // Bottom gradient for title readability
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.3f))
-                            )
-                        )
+            )
+
+            themeplate.objectSourceAssetPath?.let { objectPath ->
+                SubcomposeAsyncImage(
+                    model = "file:///android_asset/$objectPath",
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.Fit,
+                    loading = {},
+                    error = {}
                 )
             }
         }
-        
-        Spacer(Modifier.height(8.dp))
-        
-        Text(
-            text = stringResource(themeplate.titleResId),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
-        
-        Text(
-            text = "Tap to edit",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-        )
     }
 }
 

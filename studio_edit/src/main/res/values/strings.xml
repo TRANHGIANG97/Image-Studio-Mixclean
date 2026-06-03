@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Electronics</string>
@@ -37,12 +37,12 @@
     <string name="themeplate_professional_retro">Retro Desktop</string>
     <string name="themeplate_professional_cafe">Cafe</string>
     <string name="themeplate_professional_wall">Wall</string>
-    <string name="themeplate_professional_digital_life">My Digital Life</string>
+    <string name="themeplate_professional_digital_life">Digital Life</string>
     <string name="themeplate_professional_phone_mode">Phone Mode</string>
-    <string name="themeplate_professional_food_selfie">Foodie Selfie</string>
-    <string name="themeplate_section_digital_life">My Digital Life</string>
+    <string name="themeplate_professional_food_selfie">Mê ăn uống</string>
+    <string name="themeplate_section_digital_life">Digital Life</string>
     <string name="themeplate_section_phone_mode">Phone Mode</string>
-    <string name="themeplate_section_food_selfie">Selfie &amp; Đam mê ăn uống</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -92,4 +92,5 @@
     <string name="studio_pick_product_subtitle">Background is removed automatically</string>
     <string name="studio_export">Export</string>
     <string name="studio_crop_ratio_original">Original</string>
+    <string name="themeplate_gallery_title">Mẫu thiết kế</string>
 </resources>

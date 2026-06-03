@@ -167,4 +167,5 @@
     <string name="rotate_hint_desc">Rotate 90 degrees or flip horizontally and vertically to fix image orientation.</string>
     <string name="draft_label">Draft</string>
     <string name="draft_saved_successfully">Draft saved successfully</string>
+    <string name="home_see_all">See All</string>
 </resources>

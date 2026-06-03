@@ -5,6 +5,8 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -209,7 +211,9 @@ private fun SearchFilterBar(
         if (categories.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 FilterChip(
@@ -217,7 +221,7 @@ private fun SearchFilterBar(
                     onClick = { onCategorySelected(null) },
                     label = { Text("Tất cả") }
                 )
-                categories.take(5).forEach { cat ->
+                categories.forEach { cat ->
                     FilterChip(
                         selected = selectedCategory == cat,
                         onClick = { onCategorySelected(if (selectedCategory == cat) null else cat) },

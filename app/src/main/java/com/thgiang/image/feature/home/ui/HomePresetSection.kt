@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.thgiang.image.R
+import com.thgiang.image.core.design.theme.HomeUiTokens
 import com.thgiang.image.core.design.theme.HomeDarkStyle
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,11 +70,11 @@ fun PresetDock(
             text = stringResource(R.string.home_background_presets),
             style = MaterialTheme.typography.labelLarge,
             color = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = HomeUiTokens.outerPadding, vertical = 4.dp)
         )
         LazyRow(
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp)
+            contentPadding = PaddingValues(horizontal = HomeUiTokens.outerPadding)
         ) {
             itemsIndexed(BackgroundGradientPresets.modernPresets) { index, preset ->
                 val selected = selectedPresetId == preset.id
@@ -96,20 +97,20 @@ fun PresetDock(
 
                 Box(
                     modifier = Modifier
-                        .width(72.dp)
-                        .height(90.dp)
+                        .width(80.dp)
+                        .height(104.dp)
                         .scale(scale)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(HomeUiTokens.cardRadius))
                         .background(if (isDark) Color(0xFF101214) else Color(0xFFF6F3EE))
                         .then(
                             if (selected) Modifier.border(
                                 2.dp,
                                 if (useHomeDarkStyle) HomeDarkStyle.accent else Color(0xFFB78B50),
-                                RoundedCornerShape(12.dp)
+                                RoundedCornerShape(HomeUiTokens.cardRadius)
                             ) else Modifier.border(
                                 1.dp,
                                 if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f),
-                                RoundedCornerShape(12.dp)
+                                RoundedCornerShape(HomeUiTokens.cardRadius)
                             )
                         )
                         .clickable(

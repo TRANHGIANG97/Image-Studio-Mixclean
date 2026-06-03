@@ -147,6 +147,17 @@
     <string name="lightning_action_darken">Darken</string>
     <string name="lightning_action_clean">Clean</string>
 
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Create Professional Product Photos</string>
+    <string name="home_hero_subtitle">Remove background, change backdrop, add templates in seconds</string>
+    <string name="home_hero_action">Choose Photo</string>
+    <string name="review_app_button">Rate</string>
+    <string name="review_prompt_title">Enjoying %1$s?</string>
+    <string name="review_prompt_message">Tap a star to rate it on Google Play.</string>
+    <string name="review_prompt_rate_now">Submit</string>
+    <string name="review_prompt_later">Cancel</string>
+    <string name="home_see_all">See All</string>
+
     <string name="home_background_presets">Background Presets</string>
     <string name="home_applying_preset">Applying preset…</string>
     <string name="upgrade_sheet_title">Unlock Pro to use this feature</string>

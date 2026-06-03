@@ -69,7 +69,8 @@ fun BatchRemoveScreen(
     onAddMore: () -> Unit = {},
     viewModel: BatchRemoveViewModel = hiltViewModel(),
     contentPadding: PaddingValues = PaddingValues(),
-    onRequireSaveAd: ((() -> Unit) -> Unit)? = null
+    onRequireSaveAd: ((() -> Unit) -> Unit)? = null,
+    onSaveSuccess: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -98,6 +99,7 @@ fun BatchRemoveScreen(
             }
             BatchRemoveSnackbarEvent.SaveSuccess -> {
                 snackbarHostState.showSnackbar(saveSuccessText)
+                onSaveSuccess()
                 viewModel.onErrorConsumed()
             }
             BatchRemoveSnackbarEvent.SaveFailed -> {

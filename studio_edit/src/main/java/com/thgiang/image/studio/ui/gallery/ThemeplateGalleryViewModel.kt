@@ -1,4 +1,4 @@
-package com.thgiang.image.studio.ui.gallery
+﻿package com.thgiang.image.studio.ui.gallery
 
 import androidx.lifecycle.ViewModel
 import com.thgiang.image.core.domain.model.template.CloudCategory
@@ -23,10 +23,10 @@ class ThemeplateGalleryViewModel @Inject constructor() : ViewModel() {
         val mockCategories = listOf(
             CloudCategory("professional", "Chuyên nghiệp", 0),
             CloudCategory("cosmetics", "Mẫu Mỹ Phẩm", 1),
-            CloudCategory("digital_life", "Đời sống số của tôi", 2),
-            CloudCategory("phone_mode", "Chế độ Điện thoại", 3),
-            CloudCategory("selfie_food", "Selfie & Đam mê Ăn uống", 4)
+            CloudCategory("digital_life", "Đời sống số", 2),
+            CloudCategory("selfie_food", "Mê ăn uống", 3)
         )
         _categories.value = mockCategories
     }
 }
+

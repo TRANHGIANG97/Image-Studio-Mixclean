@@ -69,12 +69,15 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.compose.ui.zIndex
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
+import com.thgiang.image.core.domain.settings.ReviewPromptDecision
+import com.thgiang.image.core.domain.settings.UserPreferencesRepository
 import com.thgiang.image.core.diagnostics.ImageProcessingCrashReporter
 import com.thgiang.image.feature.editor.model.DraftManager
 import com.thgiang.image.feature.editor.model.LayerSnapshot
 import com.thgiang.image.feature.editor.model.ProjectSnapshot
 import com.abizer_r.quickedit.utils.toast
 import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
+import com.thgiang.image.core.design.components.ReviewPromptDialog
 import com.thgiang.image.core.design.theme.ImageTheme
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
@@ -92,6 +95,8 @@ import android.util.Log
 
 private const val TAG = "QuickEditRemoveBg"
 private const val QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS = 45_000L
+private const val PLAY_STORE_REVIEW_URL =
+    "https://play.google.com/store/apps/details?id=com.thgiang.image"
 
 @AndroidEntryPoint
 class QuickEditActivity : AppCompatActivity() {
@@ -107,6 +112,9 @@ class QuickEditActivity : AppCompatActivity() {
 
     @Inject
     lateinit var premiumRepository: PremiumRepository
+
+    @Inject
+    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -141,7 +149,8 @@ class QuickEditActivity : AppCompatActivity() {
                     targetTool = targetTool,
                     backgroundRemoverRepository = backgroundRemoverRepository,
                     rewardedAdManager = rewardedAdManager,
-                    premiumRepository = premiumRepository
+                    premiumRepository = premiumRepository,
+                    reviewPreferencesRepository = userPreferencesRepository
                 )
                     }
             }
@@ -211,6 +220,17 @@ private suspend fun detectFaceForAutoRemove(bitmap: Bitmap): Boolean {
     }.getOrDefault(false)
 }
 
+private fun openPlayStore(context: Context) {
+    runCatching {
+        context.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(PLAY_STORE_REVIEW_URL)
+            )
+        )
+    }
+}
+
 @Composable
 fun QuickEditEditorNavigation(
     initialImageUri: Uri?,
@@ -222,7 +242,8 @@ fun QuickEditEditorNavigation(
     targetTool: String? = null,
     backgroundRemoverRepository: BackgroundRemoverRepository? = null,
     rewardedAdManager: com.thgiang.image.core.ad.RewardedAdManager? = null,
-    premiumRepository: PremiumRepository? = null
+    premiumRepository: PremiumRepository? = null,
+    reviewPreferencesRepository: UserPreferencesRepository? = null
 ) {
     val isPremium by (premiumRepository?.isPremium ?: kotlinx.coroutines.flow.flowOf(false))
         .collectAsStateWithLifecycle(initialValue = false)
@@ -388,7 +409,21 @@ fun QuickEditEditorNavigation(
     var isSaveAdLoading by remember { mutableStateOf(false) }
     var saveAdWatchCount by remember { mutableStateOf(0) }
     var pendingSaveAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var showReviewPrompt by remember { mutableStateOf(false) }
     val draftNamePrefix = stringResource(id = com.thgiang.image.R.string.draft_name_prefix)
+
+    val onQuickEditSaveSuccess = remember(reviewPreferencesRepository) {
+        {
+            val repository = reviewPreferencesRepository
+            if (repository != null) {
+                scope.launch {
+                    if (repository.recordSuccessfulSave() is ReviewPromptDecision.ShowPrompt) {
+                        showReviewPrompt = true
+                    }
+                }
+            }
+        }
+    }
 
     val requestSaveAd: ((() -> Unit) -> Unit) = remember {
         { action ->
@@ -588,7 +623,8 @@ fun QuickEditEditorNavigation(
                     },
                     isPremium = isPremium,
                     onSaveDraftClicked = onSaveDraftClicked,
-                    onRequireSaveAd = requestSaveAd
+                    onRequireSaveAd = requestSaveAd,
+                    onSaveSuccess = onQuickEditSaveSuccess
                 )
 
                 if (isRemovingBg) {
@@ -778,6 +814,24 @@ fun QuickEditEditorNavigation(
                 onDoneClicked = onDoneClicked,
             )
         }
+    }
+
+    if (showReviewPrompt && reviewPreferencesRepository != null) {
+        ReviewPromptDialog(
+            onRateNow = {
+                scope.launch {
+                    reviewPreferencesRepository.markReviewAccepted()
+                    showReviewPrompt = false
+                    openPlayStore(context)
+                }
+            },
+            onLater = {
+                scope.launch {
+                    reviewPreferencesRepository.markReviewDeclined()
+                    showReviewPrompt = false
+                }
+            }
+        )
     }
 
     if (showSaveAdDialog && rewardedAdManager != null) {

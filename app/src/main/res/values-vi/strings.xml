@@ -147,26 +147,37 @@
     <string name="lightning_action_darken">Làm tối nền</string>
     <string name="lightning_action_clean">Làm sạch nền</string>
 
-    <string name="home_background_presets">Mẫu nền có sẵn</string>
+    <string name="home_hero_subtitle_short">Trình chỉnh sửa ảnh AI</string>
+    <string name="home_hero_title">Tạo ảnh sản phẩm chuyên nghiệp</string>
+    <string name="home_hero_subtitle">Xóa nền, thay phông, thêm mẫu chỉ trong vài giây</string>
+    <string name="home_hero_action">Chọn ảnh</string>
+    <string name="review_app_button">Đánh giá</string>
+    <string name="review_prompt_title">Thích %1$s?</string>
+    <string name="review_prompt_message">Chạm vào sao để đánh giá trên Google Play.</string>
+    <string name="review_prompt_rate_now">Gửi</string>
+    <string name="review_prompt_later">Hủy</string>
+    <string name="home_see_all">Xem tất cả</string>
+
+    <string name="home_background_presets">Mẫu nền</string>
     <string name="home_applying_preset">Đang áp dụng mẫu nền…</string>
     <string name="upgrade_sheet_title">Mở khóa tính năng Pro để tiếp tục</string>
     <string name="upgrade_sheet_subtitle">Sở hữu các công cụ AI cao cấp và xuất ảnh chất lượng HD.</string>
     <string name="upgrade_sheet_go_pro">Nâng cấp Pro</string>
     <string name="upgrade_sheet_later">Để sau</string>
     <string name="home_quick_tools">Công cụ nhanh</string>
-    <string name="home_dock_batch">Chế độ hàng loạt</string>
-    <string name="home_dock_blur">Làm mờ nền</string>
-    <string name="home_dock_effects">Hiệu ứng ảnh</string>
+    <string name="home_dock_batch">Hàng loạt</string>
+    <string name="home_dock_blur">Làm mờ</string>
+    <string name="home_dock_effects">Hiệu ứng</string>
     <string name="home_dock_studio">Studio</string>
-    <string name="home_dock_magic">Tẩy xóa vật thể</string>
-    <string name="home_dock_more">Thêm công cụ</string>
-    <string name="home_dock_pick_image">Xóa nền ảnh</string>
-    <string name="home_dock_photo_editor">Trình sửa ảnh</string>
+    <string name="home_dock_magic">Xóa vật thể</string>
+    <string name="home_dock_more">Công cụ</string>
+    <string name="home_dock_pick_image">Xóa nền</string>
+    <string name="home_dock_photo_editor">Sửa ảnh</string>
     <string name="home_dock_quick_edit">Sửa nhanh</string>
-    <string name="home_dock_hd_export">Xuất ảnh HD</string>
+    <string name="home_dock_hd_export">Xuất HD</string>
 
     <string name="pro_badge" translatable="false">PRO</string>
-    <string name="home_draft">Dự án nháp</string>
+    <string name="home_draft">Dự án</string>
     <string name="draft_select_all">Chọn tất cả</string>
     <string name="draft_confirm_delete_single">Bạn có chắc chắn muốn xóa bản nháp \'%1$s\' không?</string>
     <string name="draft_delete_title">Xóa bản nháp</string>

@@ -160,13 +160,14 @@ fun EditorCanvasV2(
                                 displayScale = calculatedScale,
                                 templateSize = templateSize,
                                 onGesture = { delta -> 
-                                    if (layer.id == selectedLayerId) onGesture(delta)
+                                    if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
                                 },
                                 onGestureEnd = {
-                                    if (layer.id == selectedLayerId) onGestureEnd()
+                                    if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
                                 },
                                 showOverlay = showOverlay,
                                 showBoundingBox = layer.id == selectedLayerId,
+                                isLocked = layer.isLocked,
                                 onBoundingBoxVisible = { /* Not used */ },
                                 onPickImage = onPickImage
                             )

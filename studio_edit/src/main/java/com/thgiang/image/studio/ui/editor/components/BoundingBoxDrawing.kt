@@ -87,136 +87,140 @@ fun DrawScope.drawRotatedOverlay(
     dimensions: CachedDimensions,
     gestureMode: GestureMode,
     activeHandle: HandleZone,
-    isGestureActive: Boolean
+    isGestureActive: Boolean,
+    isLocked: Boolean = false
 ) {
     withTransform({
         rotate(degrees = rotation, pivot = Offset(cx, cy))
     }) {
-        val pathEffect = when (gestureMode) {
-            GestureMode.DRAG -> PathEffect.dashPathEffect(floatArrayOf(12f, 6f), 0f)
-            GestureMode.SCALE_CORNER, GestureMode.PINCH -> PathEffect.dashPathEffect(floatArrayOf(8f, 4f, 2f, 4f), 0f)
+        val pathEffect = when {
+            isLocked -> PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
+            gestureMode == GestureMode.DRAG -> PathEffect.dashPathEffect(floatArrayOf(12f, 6f), 0f)
+            gestureMode == GestureMode.SCALE_CORNER || gestureMode == GestureMode.PINCH -> PathEffect.dashPathEffect(floatArrayOf(8f, 4f, 2f, 4f), 0f)
             else -> null
         }
 
         drawRect(
-            color = borderColor,
+            color = if (isLocked) Color.Gray.copy(alpha = 0.5f) else borderColor,
             topLeft = Offset(cx - hw, cy - hh),
             size = Size(screenW, screenH),
             style = Stroke(width = dimensions.borderStrokePx, pathEffect = pathEffect)
         )
 
-        // Corner handles
-        val corners = listOf(
-            Offset(cx - hw, cy - hh) to HandleZone.Corner.TL,
-            Offset(cx + hw, cy - hh) to HandleZone.Corner.TR,
-            Offset(cx - hw, cy + hh) to HandleZone.Corner.BL,
-            Offset(cx + hw, cy + hh) to HandleZone.Corner.BR
-        )
-
-        corners.forEach { (pos, zone) ->
-            val isActive = gestureMode == GestureMode.SCALE_CORNER && activeHandle == zone
-            val radius = if (isActive) dimensions.handleRadiusPx * EditorDims.CornerActiveScale else dimensions.handleRadiusPx
-            val color = if (isActive) EditorColors.HandleActive else EditorColors.HandleInactive
-
-            // Ambient shadow behind the handle
-            drawCircle(
-                color = Color.Black.copy(alpha = 0.25f),
-                radius = radius + 2.dp.toPx(),
-                center = pos
+        if (!isLocked) {
+            // Corner handles
+            val corners = listOf(
+                Offset(cx - hw, cy - hh) to HandleZone.Corner.TL,
+                Offset(cx + hw, cy - hh) to HandleZone.Corner.TR,
+                Offset(cx - hw, cy + hh) to HandleZone.Corner.BL,
+                Offset(cx + hw, cy + hh) to HandleZone.Corner.BR
             )
 
-            // Accent border glow when active
-            if (isActive) {
+            corners.forEach { (pos, zone) ->
+                val isActive = gestureMode == GestureMode.SCALE_CORNER && activeHandle == zone
+                val radius = if (isActive) dimensions.handleRadiusPx * EditorDims.CornerActiveScale else dimensions.handleRadiusPx
+                val color = if (isActive) EditorColors.HandleActive else EditorColors.HandleInactive
+
+                // Ambient shadow behind the handle
                 drawCircle(
-                    color = EditorColors.HandleActive.copy(alpha = 0.4f),
-                    radius = radius + 4.dp.toPx(),
+                    color = Color.Black.copy(alpha = 0.25f),
+                    radius = radius + 2.dp.toPx(),
                     center = pos
                 )
+
+                // Accent border glow when active
+                if (isActive) {
+                    drawCircle(
+                        color = EditorColors.HandleActive.copy(alpha = 0.4f),
+                        radius = radius + 4.dp.toPx(),
+                        center = pos
+                    )
+                }
+
+                // Inner filled circle
+                drawCircle(color = color, radius = radius, center = pos)
+
+                // Sleek dark stroke
+                drawCircle(
+                    color = EditorColors.HandleStroke,
+                    radius = radius,
+                    center = pos,
+                    style = Stroke(dimensions.borderStrokePx)
+                )
+
+                // White highlight inside when active
+                if (isActive) {
+                    drawCircle(
+                        color = Color.White,
+                        radius = radius * 0.4f,
+                        center = pos
+                    )
+                }
             }
 
-            // Inner filled circle
-            drawCircle(color = color, radius = radius, center = pos)
+            // Rotation handle
+            val rotPos = Offset(cx, cy + hh + dimensions.rotateLinePx + dimensions.rotateHandleOffsetPx)
 
-            // Sleek dark stroke
+            val isRotating = gestureMode == GestureMode.ROTATE
+            val rotColor = if (isRotating) EditorColors.RotateHandleActive else EditorColors.RotateHandle
+            val rotR = if (isRotating) dimensions.rotateRadiusActivePx else dimensions.rotateRadiusPx
+
+            // Ambient soft shadow behind the entire rotation handle
             drawCircle(
-                color = EditorColors.HandleStroke,
-                radius = radius,
-                center = pos,
-                style = Stroke(dimensions.borderStrokePx)
+                color = Color.Black.copy(alpha = 0.35f),
+                radius = rotR + 3.dp.toPx(),
+                center = rotPos
             )
 
-            // White highlight inside when active
-            if (isActive) {
-                drawCircle(
-                    color = Color.White,
-                    radius = radius * 0.4f,
-                    center = pos
-                )
+            // Accent outer glow
+            val glowColor = if (isRotating) rotColor.copy(alpha = 0.45f) else rotColor.copy(alpha = 0.2f)
+            drawCircle(
+                color = glowColor,
+                radius = rotR + 4.dp.toPx(),
+                center = rotPos
+            )
+
+            // Glossy lens/glass gradient background
+            val rotBgBrush = androidx.compose.ui.graphics.Brush.radialGradient(
+                colors = if (isRotating) {
+                    listOf(rotColor.copy(alpha = 0.95f), EditorColors.HandleStroke.copy(alpha = 0.9f))
+                } else {
+                    listOf(EditorColors.HandleStroke.copy(alpha = 0.95f), EditorColors.HandleStroke)
+                },
+                center = rotPos,
+                radius = rotR
+            )
+            drawCircle(
+                brush = rotBgBrush,
+                radius = rotR,
+                center = rotPos
+            )
+
+            // Draw accent border
+            drawCircle(
+                color = rotColor,
+                radius = rotR,
+                center = rotPos,
+                style = Stroke(width = 2.dp.toPx())
+            )
+
+            // Rotate handle icon — arc arrow in white
+            drawRotatingHandleIcon(
+                center = rotPos,
+                radius = rotR,
+                rotation = rotation,
+                color = Color.White
+            )
+
+            // Center crosshair
+            val cc = EditorColors.Crosshair
+            drawLine(cc, Offset(cx - dimensions.crosshairSizePx, cy), Offset(cx + dimensions.crosshairSizePx, cy), 1.5f.dp.toPx())
+            drawLine(cc, Offset(cx, cy - dimensions.crosshairSizePx), Offset(cx, cy + dimensions.crosshairSizePx), 1.5f.dp.toPx())
+
+            // Rule of thirds grid
+            if (isGestureActive) {
+                drawRuleOfThirdsGrid(cx, cy, hw, hh)
             }
-        }
-
-        // Rotation handle
-        val rotPos = Offset(cx, cy + hh + dimensions.rotateLinePx + dimensions.rotateHandleOffsetPx)
-
-        val isRotating = gestureMode == GestureMode.ROTATE
-        val rotColor = if (isRotating) EditorColors.RotateHandleActive else EditorColors.RotateHandle
-        val rotR = if (isRotating) dimensions.rotateRadiusActivePx else dimensions.rotateRadiusPx
-
-        // Ambient soft shadow behind the entire rotation handle
-        drawCircle(
-            color = Color.Black.copy(alpha = 0.35f),
-            radius = rotR + 3.dp.toPx(),
-            center = rotPos
-        )
-
-        // Accent outer glow
-        val glowColor = if (isRotating) rotColor.copy(alpha = 0.45f) else rotColor.copy(alpha = 0.2f)
-        drawCircle(
-            color = glowColor,
-            radius = rotR + 4.dp.toPx(),
-            center = rotPos
-        )
-
-        // Glossy lens/glass gradient background
-        val rotBgBrush = androidx.compose.ui.graphics.Brush.radialGradient(
-            colors = if (isRotating) {
-                listOf(rotColor.copy(alpha = 0.95f), EditorColors.HandleStroke.copy(alpha = 0.9f))
-            } else {
-                listOf(EditorColors.HandleStroke.copy(alpha = 0.95f), EditorColors.HandleStroke)
-            },
-            center = rotPos,
-            radius = rotR
-        )
-        drawCircle(
-            brush = rotBgBrush,
-            radius = rotR,
-            center = rotPos
-        )
-
-        // Draw accent border
-        drawCircle(
-            color = rotColor,
-            radius = rotR,
-            center = rotPos,
-            style = Stroke(width = 2.dp.toPx())
-        )
-
-        // Rotate handle icon — arc arrow in white
-        drawRotatingHandleIcon(
-            center = rotPos,
-            radius = rotR,
-            rotation = rotation,
-            color = Color.White
-        )
-
-        // Center crosshair
-        val cc = EditorColors.Crosshair
-        drawLine(cc, Offset(cx - dimensions.crosshairSizePx, cy), Offset(cx + dimensions.crosshairSizePx, cy), 1.5f.dp.toPx())
-        drawLine(cc, Offset(cx, cy - dimensions.crosshairSizePx), Offset(cx, cy + dimensions.crosshairSizePx), 1.5f.dp.toPx())
-
-        // Rule of thirds grid
-        if (isGestureActive) {
-            drawRuleOfThirdsGrid(cx, cy, hw, hh)
         }
     }
 }

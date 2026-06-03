@@ -1,4 +1,4 @@
-﻿package com.thgiang.image.admin.ui
+package com.thgiang.image.admin.ui
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,7 +37,12 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -95,6 +100,7 @@ fun TemplateBuilderScreen(
     viewModel: TemplateBuilderViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val availableCategories by viewModel.availableCategories.collectAsState()
     val templateAssetPath = state.template.assetPath.ifEmpty { themeplate.backgroundAssetPath ?: themeplate.assetPath }
     val canUndo by viewModel.canUndo.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()
@@ -281,7 +287,17 @@ fun TemplateBuilderScreen(
                                 layerIndex = selectedLayerIndex,
                                 layersCount = state.layers.size,
                                 onMoveUp = { viewModel.onEvent(EditorEvent.MoveLayerUp) },
-                                onMoveDown = { viewModel.onEvent(EditorEvent.MoveLayerDown) }
+                                onMoveDown = { viewModel.onEvent(EditorEvent.MoveLayerDown) },
+                                onToggleLock = {
+                                    currentLayer?.let {
+                                        viewModel.setLayerLocked(it.id, !it.isLocked)
+                                    }
+                                },
+                                onResetTransform = {
+                                    currentLayer?.let {
+                                        viewModel.resetTransform(it.id)
+                                    }
+                                }
                             )
                         }
 
@@ -378,13 +394,44 @@ fun TemplateBuilderScreen(
                             label = { Text(stringResource(AdminR.string.builder_save_dialog_title_label)) },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        var expanded by remember { mutableStateOf(false) }
                         Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = inputCategoryId,
-                            onValueChange = { inputCategoryId = it },
-                            label = { Text(stringResource(AdminR.string.builder_save_dialog_category_label)) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = inputCategoryId,
+                                onValueChange = { 
+                                    inputCategoryId = it
+                                    expanded = true
+                                },
+                                label = { Text(stringResource(AdminR.string.builder_save_dialog_category_label)) },
+                                modifier = Modifier.fillMaxWidth(),
+                                trailingIcon = {
+                                    IconButton(onClick = { expanded = !expanded }) {
+                                        Icon(
+                                            imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                            contentDescription = "Chọn danh mục"
+                                        )
+                                    }
+                                }
+                            )
+                            if (availableCategories.isNotEmpty()) {
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false },
+                                    modifier = Modifier.fillMaxWidth(0.9f)
+                                ) {
+                                    availableCategories.forEach { category ->
+                                        DropdownMenuItem(
+                                            text = { Text(category) },
+                                            onClick = {
+                                                inputCategoryId = category
+                                                expanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 confirmButton = {
@@ -597,6 +644,8 @@ private fun SelectedLayerHeader(
     layersCount: Int,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
+    onToggleLock: () -> Unit,
+    onResetTransform: () -> Unit
 ) {
     val tokens = LocalEditorTokens.current
     val safeIndex = layerIndex.coerceAtLeast(0)
@@ -669,6 +718,36 @@ private fun SelectedLayerHeader(
                         imageVector = Icons.Default.KeyboardArrowDown,
                         contentDescription = stringResource(AdminR.string.admin_tool_layer_down),
                         tint = if (layerIndex > 0) tokens.textPrimary else tokens.textDisabled.copy(alpha = 0.32f)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Surface(
+            shape = RoundedCornerShape(999.dp),
+            color = tokens.surfaceFloating,
+            border = androidx.compose.foundation.BorderStroke(1.dp, tokens.borderSubtle)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+            ) {
+                val isLocked = layer?.isLocked == true
+                IconButton(onClick = onToggleLock) {
+                    Icon(
+                        imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
+                        contentDescription = if (isLocked) "Unlock" else "Lock",
+                        tint = if (isLocked) MaterialTheme.colorScheme.error else tokens.textPrimary
+                    )
+                }
+                IconButton(onClick = onResetTransform, enabled = layer != null) {
+                    Icon(
+                        imageVector = Icons.Default.RestartAlt,
+                        contentDescription = "Reset Transform",
+                        tint = if (layer != null) tokens.textPrimary else tokens.textDisabled.copy(alpha = 0.32f)
                     )
                 }
             }

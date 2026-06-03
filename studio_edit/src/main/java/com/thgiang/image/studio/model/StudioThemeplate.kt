@@ -1,4 +1,4 @@
-﻿package com.thgiang.image.studio.model
+package com.thgiang.image.studio.model
 
 import androidx.compose.ui.graphics.Color
 import com.thgiang.image.studio.R
@@ -360,66 +360,10 @@ object StudioThemeplates {
             )
         ),
         StudioThemeplateSection(
-            id = "professional_phone_mode",
-            titleResId = R.string.themeplate_section_phone_mode,
-            themeplates = listOf(
-                professionalList[2].copy(
-                    id = "professional_phone_mode_handbag",
-                    category = "professional_phone_mode"
-                ),
-                professionalList[1].copy(
-                    id = "professional_phone_mode_perfume",
-                    category = "professional_phone_mode"
-                ),
-                professionalList[6].copy(
-                    id = "professional_phone_mode_lipstick",
-                    category = "professional_phone_mode"
-                ),
-                professionalList[7].copy(
-                    id = "professional_phone_mode_hat",
-                    category = "professional_phone_mode"
-                ),
-                professionalList[11].copy(
-                    id = "professional_phone_mode_lemonade_blue",
-                    category = "professional_phone_mode"
-                )
-            )
-        ),
-        StudioThemeplateSection(
             id = "professional_food_selfie",
             titleResId = R.string.themeplate_section_food_selfie,
             // Thay toÃ n bá»™ báº±ng 8 template má»›i tá»« selfie_dam_me_an_uong/
             themeplates = selfieFoodTemplateList
-        )
-    )
-
-    private val newProfessionalList = listOf(
-        StudioThemeplate(
-            id = "professional_lemonade_minimal",
-            titleResId = R.string.themeplate_professional_digital_life,
-            assetPath = "anh_chuyen_nghiep/lemonade_minimal_bg.jpg",
-            objectSourceAssetPath = "anh_chuyen_nghiep/lemonade_minimal_obj_src.webp",
-            backgroundAssetPath = null,
-            accentColor = Color(0xFFECEFF1),
-            category = "professional"
-        ),
-        StudioThemeplate(
-            id = "professional_lemonade_warm",
-            titleResId = R.string.themeplate_professional_phone_mode,
-            assetPath = "anh_chuyen_nghiep/lemonade_warm_bg.jpg",
-            objectSourceAssetPath = "anh_chuyen_nghiep/lemonade_warm_obj_src.webp",
-            backgroundAssetPath = null,
-            accentColor = Color(0xFFFFE0B2),
-            category = "professional"
-        ),
-        StudioThemeplate(
-            id = "professional_lemonade_fresh_blue",
-            titleResId = R.string.themeplate_professional_food_selfie,
-            assetPath = "anh_chuyen_nghiep/lemonade_fresh_blue_bg.jpg",
-            objectSourceAssetPath = "anh_chuyen_nghiep/lemonade_fresh_blue_obj_src.webp",
-            backgroundAssetPath = null,
-            accentColor = Color(0xFF81D4FA),
-            category = "professional"
         )
     )
 

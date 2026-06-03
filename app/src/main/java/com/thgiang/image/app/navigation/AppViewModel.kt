@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.thgiang.image.core.ad.AppOpenAdManager
 import com.thgiang.image.core.ad.InterstitialAdManager
 import com.thgiang.image.core.ad.RewardedAdManager
+import com.thgiang.image.core.domain.settings.ReviewPromptDecision
 import com.thgiang.image.core.domain.settings.UserPreferencesRepository
 import com.thgiang.image.feature.premium.domain.PremiumRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -103,6 +104,27 @@ class AppViewModel @Inject constructor(
     fun setHomePreviewEnabled(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setHomePreviewEnabled(enabled)
+        }
+    }
+
+    fun recordSuccessfulSave(onShowPrompt: () -> Unit = {}) {
+        viewModelScope.launch {
+            val decision = preferencesRepository.recordSuccessfulSave()
+            if (decision is ReviewPromptDecision.ShowPrompt) {
+                onShowPrompt()
+            }
+        }
+    }
+
+    fun markReviewAccepted() {
+        viewModelScope.launch {
+            preferencesRepository.markReviewAccepted()
+        }
+    }
+
+    fun markReviewDeclined() {
+        viewModelScope.launch {
+            preferencesRepository.markReviewDeclined()
         }
     }
 

@@ -36,6 +36,7 @@ fun EditorBottomToolbar(
     selectedTool: EditorTool?,
     onToolSelected: (EditorTool?) -> Unit,
     onReplaceImage: () -> Unit,
+    toolsLocked: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val tokens = LocalEditorTokens.current
@@ -75,9 +76,11 @@ fun EditorBottomToolbar(
                     is EditorTool.Duplicate, is EditorTool.Delete -> false // These are instant actions
                     else -> false
                 }
+                val isEnabled = tool is EditorTool.Replace || !toolsLocked
                 ToolButton(
                     tool = tool,
                     isSelected = isSelected,
+                    enabled = isEnabled,
                     accentColor = tokens.accent,
                     accentSoftColor = tokens.accentSoft,
                     primaryColor = tokens.textPrimary,
@@ -99,6 +102,7 @@ fun EditorBottomToolbar(
 private fun ToolButton(
     tool: EditorTool,
     isSelected: Boolean,
+    enabled: Boolean,
     accentColor: Color,
     accentSoftColor: Color,
     primaryColor: Color,
@@ -131,9 +135,9 @@ private fun ToolButton(
         else                       -> R.drawable.ic_tool_layout
     }
 
-    // Subtle spring scale animation on select
+    val baseScale = if (tool is EditorTool.Replace) 0.5f else 1.0f
     val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.08f else 1.0f,
+        targetValue = if (isSelected) baseScale * 1.08f else baseScale,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness    = Spring.StiffnessMedium
@@ -141,14 +145,16 @@ private fun ToolButton(
         label = "toolScale"
     )
 
-    val iconTint  = if (isSelected) accentColor  else secondaryColor
-    val labelColor = if (isSelected) accentColor  else secondaryColor
+    val iconTint  = if (isSelected) accentColor else secondaryColor
+    val labelColor = if (isSelected) accentColor else secondaryColor
+    val containerAlpha = if (enabled) 1f else 0.38f
 
     // Pill-shaped container for selected state
     Box(
         modifier = Modifier
             .widthIn(min = 64.dp)
             .clickable(
+                enabled = enabled,
                 interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                 indication = androidx.compose.foundation.LocalIndication.current,
                 onClick = onClick
@@ -162,7 +168,11 @@ private fun ToolButton(
                 .clip(RoundedCornerShape(14.dp))
                 .background(if (isSelected) accentSoftColor else Color.Transparent)
                 .padding(horizontal = 8.dp, vertical = 6.dp)
-                .graphicsLayer { scaleX = scale; scaleY = scale }
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = containerAlpha
+                }
         ) {
             Icon(
                 painter = painterResource(iconRes),

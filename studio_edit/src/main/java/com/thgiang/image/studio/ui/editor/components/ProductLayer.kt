@@ -55,7 +55,8 @@ fun ProductLayerV2(
     showOverlay: Boolean = false,
     showBoundingBox: Boolean = false,
     onBoundingBoxVisible: (Boolean) -> Unit = {},
-    onPickImage: () -> Unit = {}
+    onPickImage: () -> Unit = {},
+    isLocked: Boolean = false
 ) {
     val density = LocalDensity.current
     
@@ -233,11 +234,12 @@ fun ProductLayerV2(
             onGesture = onGesture,
             onGestureEnd = onGestureEnd,
             showBoundingBox = showBoundingBox,
-            onBoundingBoxVisible = onBoundingBoxVisible
+            onBoundingBoxVisible = onBoundingBoxVisible,
+            isLocked = isLocked
         )
 
         // Pink "Replace" Button for sample object
-        if (product.isSample && !product.processing) {
+        if (product.isSample && !product.processing && !isLocked) {
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)

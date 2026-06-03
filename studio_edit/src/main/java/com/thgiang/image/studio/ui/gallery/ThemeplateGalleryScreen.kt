@@ -1,4 +1,4 @@
-package com.thgiang.image.studio.ui.gallery
+﻿package com.thgiang.image.studio.ui.gallery
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,7 +50,7 @@ fun ThemeplateGalleryScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Mẫu Thiết Kế AI",
+                        text = stringResource(R.string.themeplate_gallery_title),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -127,9 +127,8 @@ fun ThemeplateGalleryScreen(
                             themeplates = StudioThemeplates.professionalSections.getOrNull(0)?.themeplates ?: emptyList(),
                             onThemeplateSelected = onThemeplateSelected
                         )
-                        "phone_mode" -> ComingSoonView()
                         "selfie_food" -> ThemeplateGrid(
-                            themeplates = StudioThemeplates.professionalSections.getOrNull(2)?.themeplates ?: emptyList(),
+                            themeplates = StudioThemeplates.professionalSections.getOrNull(1)?.themeplates ?: emptyList(),
                             onThemeplateSelected = onThemeplateSelected
                         )
                         else -> ComingSoonView()
@@ -158,10 +157,10 @@ private fun ThemeplateGrid(
         }
     } else {
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 160.dp),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            columns = GridCells.Fixed(3),
+            contentPadding = PaddingValues(start = 5.dp, top = 8.dp, end = 5.dp, bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             items(
@@ -207,3 +206,4 @@ private fun ComingSoonView() {
         }
     }
 }
+

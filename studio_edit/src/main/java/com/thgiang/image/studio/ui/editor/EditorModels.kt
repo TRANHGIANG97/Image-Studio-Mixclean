@@ -109,7 +109,8 @@ data class EditorLayer(
     val product: EditorProduct = EditorProduct(),
     val viewport: EditorViewport = EditorViewport(),
     val appearance: EditorAppearance = EditorAppearance(),
-    val cropRatio: CropRatio = CropRatio.ORIGINAL
+    val cropRatio: CropRatio = CropRatio.ORIGINAL,
+    val isLocked: Boolean = false
 ) : java.io.Serializable
 
 // ============ Tool & Config ============
@@ -192,8 +193,10 @@ data class TransformSnapshot(
             if (a.viewport.flippedV != b.viewport.flippedV) return false
             if (kotlin.math.abs(a.appearance.shadowIntensity - b.appearance.shadowIntensity) >= epsilon) return false
             if (kotlin.math.abs(a.appearance.alpha - b.appearance.alpha) >= epsilon) return false
+            if (a.isLocked != b.isLocked) return false
         }
         return true
     }
 }
+
 

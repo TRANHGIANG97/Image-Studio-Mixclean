@@ -195,7 +195,8 @@ fun BoundingBoxOverlayV6(
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     showBoundingBox: Boolean = true,
-    onBoundingBoxVisible: (Boolean) -> Unit = {}
+    onBoundingBoxVisible: (Boolean) -> Unit = {},
+    isLocked: Boolean = false
 ) {
     require(contentWidth > 0f) { "contentWidth must be > 0" }
     require(contentHeight > 0f) { "contentHeight must be > 0" }
@@ -247,8 +248,9 @@ fun BoundingBoxOverlayV6(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(contentWidth, contentHeight, displayScale, lockAspectRatio, showBoundingBox) {
-                if (!showBoundingBox) return@pointerInput
+            .pointerInput(contentWidth, contentHeight, displayScale, lockAspectRatio, showBoundingBox, isLocked) {
+                if (!showBoundingBox || isLocked) return@pointerInput
+
                 
                 awaitEachGesture {
                     val down = awaitFirstDown()
@@ -598,7 +600,8 @@ fun BoundingBoxOverlayV6(
                     dimensions = dimensions,
                     gestureMode = gestureMode,
                     activeHandle = activeHandle,
-                    isGestureActive = gestureMode != GestureMode.IDLE
+                    isGestureActive = gestureMode != GestureMode.IDLE,
+                    isLocked = isLocked
                 )
             }
         }
