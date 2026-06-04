@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">ស្ទូឌីយោផលិតផល AI</string>
     <string name="studio_category_electronics">គ្រឿងអេឡិចត្រូនិច</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">ស្រមោល</string>
     <string name="studio_tool_transparency">ភាពស្រអាប់</string>
     <string name="studio_tool_crop">កាត់តម្រឹម</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">បង្វិល/ផ្ដាប់</string>
     <string name="studio_replace_hint">ប៉ះ ផ្លាស់ប្ដូរ ដើម្បីជ្រើសរើសរូបថតផលិតផលពីវិចិត្រសាលរបស់អ្នក</string>
     <string name="studio_layout_hint">អូសដើម្បីផ្លាស់ទី · ពង្រីកដោយប្រើម្រាមដៃពីរ · បង្វិលដោយប្រើម្រាមដៃពីរ</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">ផ្ទៃខាងក្រោយត្រូវបានលុបដោយស្វ័យប្រវត្តិ</string>
     <string name="studio_export">នាំចេញ</string>
     <string name="studio_crop_ratio_original">ដើម</string>
+    <string name="themeplate_professional_watch">មើល</string>
+    <string name="themeplate_professional_perfume">ទឹកអប់</string>
+    <string name="themeplate_professional_handbag">កាបូបដៃ</string>
+    <string name="themeplate_professional_sneaker">ស្បែកជើងប៉ាតា</string>
+    <string name="themeplate_professional_glasses">វ៉ែនតា</string>
+    <string name="themeplate_professional_cup">ពែង</string>
+    <string name="themeplate_professional_lipstick">ក្រែមលាបមាត់</string>
+    <string name="themeplate_professional_hat">មួកដាក់ធុង</string>
+    <string name="themeplate_professional_beanie">មួក Beanie</string>
+    <string name="themeplate_professional_lemonade">ក្រូចឆ្មា</string>
+    <string name="themeplate_professional_lemonade_beige">Lemonade Beige</string>
+    <string name="themeplate_professional_lemonade_blue">ក្រូចឆ្មាពណ៌ខៀវ</string>
+    <string name="themeplate_professional_lemonade_cyan">Lemonade Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Lemonade តិចតួចបំផុត។</string>
+    <string name="themeplate_professional_lemonade_warm">Lemonade ក្តៅ</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade ខៀវស្រស់</string>
+    <string name="themeplate_professional_asphalt">ផ្លូវកៅស៊ូ</string>
+    <string name="themeplate_professional_sidewalk">ចិញ្ចើមផ្លូវ</string>
+    <string name="themeplate_professional_retro">ផ្ទៃតុ Retro</string>
+    <string name="themeplate_professional_cafe">ហាងកាហ្វេ</string>
+    <string name="themeplate_professional_wall">ជញ្ជាំង</string>
+    <string name="themeplate_professional_digital_life">ជីវិតឌីជីថល</string>
+    <string name="themeplate_professional_phone_mode">របៀបទូរស័ព្ទ</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; អាហារ</string>
+    <string name="studio_category_professional">វិជ្ជាជីវៈ</string>
+    <string name="themeplate_section_digital_life">ជីវិតឌីជីថល</string>
+    <string name="themeplate_section_phone_mode">របៀបទូរស័ព្ទ</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">អាហារ Selfie ១</string>
+    <string name="themeplate_selfie_food_02">អាហារ Selfie ២</string>
+    <string name="themeplate_selfie_food_03">អាហារ Selfie ៣</string>
+    <string name="themeplate_selfie_food_04">អាហារ Selfie ៤</string>
+    <string name="themeplate_selfie_food_05">អាហារ Selfie ៥</string>
+    <string name="themeplate_selfie_food_06">អាហារ Selfie ៦</string>
+    <string name="themeplate_selfie_food_07">អាហារ Selfie ៧</string>
+    <string name="themeplate_selfie_food_08">អាហារ Selfie ៨</string>
+    <string name="studio_tool_duplicate">ស្ទួន</string>
+    <string name="studio_tool_delete">លុប</string>
+    <string name="studio_badge_sample">គំរូ</string>
+    <string name="studio_action_replace">ជំនួស</string>
+    <string name="studio_gallery_no_templates">មិនមានគំរូដែលអាចប្រើបានទេ។</string>
+    <string name="studio_gallery_coming_soon">មកដល់ឆាប់ៗនេះ</string>
+    <string name="studio_gallery_coming_soon_desc">មុខងារនេះស្ថិតក្រោមការអភិវឌ្ឍន៍ ហើយនឹងមានក្នុងពេលឆាប់ៗនេះ!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">គំរូ</string>
+    <string name="studio_save_image_success">រូបភាពត្រូវបានរក្សាទុក</string>
+    <string name="studio_error_select_object">សូមជ្រើសរើសវត្ថុមួយ។</string>
+    <string name="studio_error_load_cloud_template">មិនអាចផ្ទុកគំរូពពក៖ %1$s</string>
+    <string name="studio_error_load_template">មិនអាចផ្ទុកគំរូ៖ %1$s</string>
+    <string name="studio_error_load_sample_product">មិនអាចផ្ទុកផលិតផលគំរូបានទេ។</string>
+    <string name="studio_error_process_image">ដំណើរការរូបភាពមានបញ្ហា</string>
+    <string name="studio_error_save_image">បរាជ័យក្នុងការរក្សាទុករូបភាព</string>
+    <string name="studio_error_render_failed">ការ​បង្ហាញ​បរាជ័យ៖ %1$s</string>
+    <string name="studio_error_unknown">កំហុសមិនស្គាល់</string>
 </resources>
+
+

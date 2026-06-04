@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktstudio</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Skugga</string>
     <string name="studio_tool_transparency">Opacitet</string>
     <string name="studio_tool_crop">Beskär</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Rotera/Vänd</string>
     <string name="studio_replace_hint">Tryck på Ersätt för att välja ett produktfoto från ditt galleri</string>
     <string name="studio_layout_hint">Dra för att flytta · Nyp för att zooma · Rotera med två fingrar</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Bakgrunden tas bort automatiskt</string>
     <string name="studio_export">Exportera</string>
     <string name="studio_crop_ratio_original">Original</string>
+    <string name="themeplate_professional_watch">Titta</string>
+    <string name="themeplate_professional_perfume">Parfym</string>
+    <string name="themeplate_professional_handbag">Handväska</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Glasögon</string>
+    <string name="themeplate_professional_cup">Kopp</string>
+    <string name="themeplate_professional_lipstick">Läppstift</string>
+    <string name="themeplate_professional_hat">Bucket Hat</string>
+    <string name="themeplate_professional_beanie">Mössa</string>
+    <string name="themeplate_professional_lemonade">Lemonad</string>
+    <string name="themeplate_professional_lemonade_beige">Lemonad Beige</string>
+    <string name="themeplate_professional_lemonade_blue">Lemonad blå</string>
+    <string name="themeplate_professional_lemonade_cyan">Lemonad Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Lemonad Minimal</string>
+    <string name="themeplate_professional_lemonade_warm">Lemonad varm</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonad Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Trottoar</string>
+    <string name="themeplate_professional_retro">Retro skrivbord</string>
+    <string name="themeplate_professional_cafe">Kafé</string>
+    <string name="themeplate_professional_wall">Vägg</string>
+    <string name="themeplate_professional_digital_life">Digitalt liv</string>
+    <string name="themeplate_professional_phone_mode">Telefonläge</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; Mat</string>
+    <string name="studio_category_professional">Professionell</string>
+    <string name="themeplate_section_digital_life">Digitalt liv</string>
+    <string name="themeplate_section_phone_mode">Telefonläge</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfiemat 1</string>
+    <string name="themeplate_selfie_food_02">Selfiemat 2</string>
+    <string name="themeplate_selfie_food_03">Selfiemat 3</string>
+    <string name="themeplate_selfie_food_04">Selfiemat 4</string>
+    <string name="themeplate_selfie_food_05">Selfiemat 5</string>
+    <string name="themeplate_selfie_food_06">Selfiemat 6</string>
+    <string name="themeplate_selfie_food_07">Selfiemat 7</string>
+    <string name="themeplate_selfie_food_08">Selfiemat 8</string>
+    <string name="studio_tool_duplicate">Duplicera</string>
+    <string name="studio_tool_delete">Radera</string>
+    <string name="studio_badge_sample">Prov</string>
+    <string name="studio_action_replace">Ersätta</string>
+    <string name="studio_gallery_no_templates">Inga mallar tillgängliga</string>
+    <string name="studio_gallery_coming_soon">Kommer snart</string>
+    <string name="studio_gallery_coming_soon_desc">Den här funktionen är under utveckling och kommer snart att finnas tillgänglig!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Mallar</string>
+    <string name="studio_save_image_success">Bilden sparad</string>
+    <string name="studio_error_select_object">Välj ett objekt</string>
+    <string name="studio_error_load_cloud_template">Kan inte ladda molnmall: %1$s</string>
+    <string name="studio_error_load_template">Kan inte ladda mall: %1$s</string>
+    <string name="studio_error_load_sample_product">Det går inte att ladda provprodukten</string>
+    <string name="studio_error_process_image">Bildbehandlingsfel</string>
+    <string name="studio_error_save_image">Det gick inte att spara bilden</string>
+    <string name="studio_error_render_failed">Renderingen misslyckades: %1$s</string>
+    <string name="studio_error_unknown">Okänt fel</string>
 </resources>
+
+

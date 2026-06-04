@@ -37,6 +37,7 @@
     <string name="studio_tool_shadow">Đổ bóng</string>
     <string name="studio_tool_transparency">Độ mờ</string>
     <string name="studio_tool_crop">Cắt</string>
+    <string name="studio_tool_sticker">Nhãn dán</string>
     <string name="studio_tool_rotateflip">Xoay/lật</string>
     <string name="studio_replace_hint">Chạm Thay ảnh để chọn ảnh sản phẩm từ thư viện</string>
     <string name="studio_layout_hint">Kéo để di chuyển · Chụm để phóng to · Xoay bằng 2 ngón</string>
@@ -81,5 +82,32 @@
     <string name="themeplate_section_digital_life">Đời sống số</string>
     <string name="themeplate_section_phone_mode">Chế độ Điện thoại</string>
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="studio_category_professional">Chuyên nghiệp</string>
+    <string name="studio_tool_duplicate">Sao chép</string>
+    <string name="studio_tool_delete">Xóa</string>
+    <string name="studio_badge_sample">Mẫu</string>
+    <string name="studio_action_replace">Thay thế</string>
+    <string name="studio_gallery_no_templates">Không có mẫu nào</string>
+    <string name="studio_gallery_coming_soon">Sắp ra mắt</string>
+    <string name="studio_gallery_coming_soon_desc">Tính năng này đang được phát triển và sẽ sớm xuất hiện!</string>
+    <string name="studio_gallery_design_note">Đội ngũ thiết kế đang nỗ lực bổ sung nhiều mẫu hơn trong thời gian tới</string>
+    <string name="themeplate_gallery_title">Mẫu thiết kế</string>
+    <string name="studio_save_image_success">Đã lưu ảnh</string>
+    <string name="studio_error_select_object">Vui lòng chọn đối tượng</string>
+    <string name="studio_error_load_cloud_template">Không thể tải cloud template: %1$s</string>
+    <string name="studio_error_load_template">Không thể tải template: %1$s</string>
+    <string name="studio_error_load_sample_product">Không thể tải sản phẩm mẫu</string>
+    <string name="studio_error_process_image">Lỗi xử lý ảnh</string>
+    <string name="studio_error_save_image">Lưu ảnh thất bại</string>
+    <string name="studio_error_render_failed">Render thất bại: %1$s</string>
+    <string name="studio_error_unknown">Lỗi không xác định</string>
+    <string name="themeplate_selfie_food_01">Selfie đồ ăn 1</string>
+    <string name="themeplate_selfie_food_02">Selfie đồ ăn 2</string>
+    <string name="themeplate_selfie_food_03">Selfie đồ ăn 3</string>
+    <string name="themeplate_selfie_food_04">Selfie đồ ăn 4</string>
+    <string name="themeplate_selfie_food_05">Selfie đồ ăn 5</string>
+    <string name="themeplate_selfie_food_06">Selfie đồ ăn 6</string>
+    <string name="themeplate_selfie_food_07">Selfie đồ ăn 7</string>
+    <string name="themeplate_selfie_food_08">Selfie đồ ăn 8</string>
 </resources>
 

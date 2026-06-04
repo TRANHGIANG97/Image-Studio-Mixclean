@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktų studija</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Šešėlis</string>
     <string name="studio_tool_transparency">Neskaidrumas</string>
     <string name="studio_tool_crop">Apkarpyti</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Pasukti/Apversti</string>
     <string name="studio_replace_hint">Bakstelėkite Pakeisti, kad pasirinktumėte produkto nuotrauką iš galerijos</string>
     <string name="studio_layout_hint">Vilkite, kad perkeltumėte · Suglauskite, kad priartintumėte · Sukite dviem pirštais</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Fonas pašalinamas automatiškai</string>
     <string name="studio_export">Eksportuoti</string>
     <string name="studio_crop_ratio_original">Originalus</string>
+    <string name="themeplate_professional_watch">Žiūrėti</string>
+    <string name="themeplate_professional_perfume">Kvepalai</string>
+    <string name="themeplate_professional_handbag">Rankinė</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Akiniai</string>
+    <string name="themeplate_professional_cup">Taurė</string>
+    <string name="themeplate_professional_lipstick">Lūpų dažai</string>
+    <string name="themeplate_professional_hat">Kibiro skrybėlė</string>
+    <string name="themeplate_professional_beanie">Beanie kepurė</string>
+    <string name="themeplate_professional_lemonade">Limonadas</string>
+    <string name="themeplate_professional_lemonade_beige">Limonadas smėlio spalvos</string>
+    <string name="themeplate_professional_lemonade_blue">Limonadas mėlynas</string>
+    <string name="themeplate_professional_lemonade_cyan">Ciano citrina</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonadas minimalus</string>
+    <string name="themeplate_professional_lemonade_warm">Limonadas šiltas</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">Asfaltas</string>
+    <string name="themeplate_professional_sidewalk">Šaligatvis</string>
+    <string name="themeplate_professional_retro">Retro darbalaukis</string>
+    <string name="themeplate_professional_cafe">Kavinė</string>
+    <string name="themeplate_professional_wall">Siena</string>
+    <string name="themeplate_professional_digital_life">Skaitmeninis gyvenimas</string>
+    <string name="themeplate_professional_phone_mode">Telefono režimas</string>
+    <string name="themeplate_professional_food_selfie">Selfie ir maistas</string>
+    <string name="studio_category_professional">Profesionalus</string>
+    <string name="themeplate_section_digital_life">Skaitmeninis gyvenimas</string>
+    <string name="themeplate_section_phone_mode">Telefono režimas</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Asmenukės maistas 1</string>
+    <string name="themeplate_selfie_food_02">Asmenukių maistas 2</string>
+    <string name="themeplate_selfie_food_03">Asmenukių maistas 3</string>
+    <string name="themeplate_selfie_food_04">Asmenukių maistas 4</string>
+    <string name="themeplate_selfie_food_05">Asmenukių maistas 5</string>
+    <string name="themeplate_selfie_food_06">Asmenukių maistas 6</string>
+    <string name="themeplate_selfie_food_07">Asmenukių maistas 7</string>
+    <string name="themeplate_selfie_food_08">Asmenukių maistas 8</string>
+    <string name="studio_tool_duplicate">Pasikartoti</string>
+    <string name="studio_tool_delete">Ištrinti</string>
+    <string name="studio_badge_sample">Pavyzdys</string>
+    <string name="studio_action_replace">Pakeiskite</string>
+    <string name="studio_gallery_no_templates">Nėra jokių šablonų</string>
+    <string name="studio_gallery_coming_soon">Netrukus</string>
+    <string name="studio_gallery_coming_soon_desc">Ši funkcija kuriama ir netrukus bus pasiekiama!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Šablonai</string>
+    <string name="studio_save_image_success">Vaizdas išsaugotas</string>
+    <string name="studio_error_select_object">Pasirinkite objektą</string>
+    <string name="studio_error_load_cloud_template">Nepavyko įkelti debesies šablono: %1$s</string>
+    <string name="studio_error_load_template">Nepavyko įkelti šablono: %1$s</string>
+    <string name="studio_error_load_sample_product">Nepavyko įkelti produkto pavyzdžio</string>
+    <string name="studio_error_process_image">Vaizdo apdorojimo klaida</string>
+    <string name="studio_error_save_image">Nepavyko išsaugoti vaizdo</string>
+    <string name="studio_error_render_failed">Nepavyko pateikti: %1$s</string>
+    <string name="studio_error_unknown">Nežinoma klaida</string>
 </resources>
+
+

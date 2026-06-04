@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">סטודיו מוצרים AI</string>
     <string name="studio_category_electronics">אלקטרוניקה</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">צל</string>
     <string name="studio_tool_transparency">אטימות</string>
     <string name="studio_tool_crop">חיתוך</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">סובב/הפוך תמונה</string>
     <string name="studio_replace_hint">הקש על החלף כדי לבחור תמונת מוצר מהגלריה שלך</string>
     <string name="studio_layout_hint">גרור כדי להזיז · צבוט כדי להגדיל · סובב עם שתי אצבעות</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_title">הוסף תמונת מוצר</string>
     <string name="studio_pick_product_subtitle">הרקע מוסר באופן אוטומטי</string>
     <string name="studio_export">ייצוא</string>
+    <string name="themeplate_professional_watch">לִצְפּוֹת</string>
+    <string name="themeplate_professional_perfume">נִיחוֹחַ</string>
+    <string name="themeplate_professional_handbag">אַרְנָק</string>
+    <string name="themeplate_professional_sneaker">נַעַל הִתעַמְלוּת</string>
+    <string name="themeplate_professional_glasses">מִשׁקָפַיִם</string>
+    <string name="themeplate_professional_cup">גָבִיעַ</string>
+    <string name="themeplate_professional_lipstick">שְׂפָתוֹן</string>
+    <string name="themeplate_professional_hat">כובע דלי</string>
+    <string name="themeplate_professional_beanie">כובע כפה</string>
+    <string name="themeplate_professional_lemonade">לִימוֹנָדָה</string>
+    <string name="themeplate_professional_lemonade_beige">לימונדה בז\'</string>
+    <string name="themeplate_professional_lemonade_blue">כחול לימונדה</string>
+    <string name="themeplate_professional_lemonade_cyan">לימונדה ציאן</string>
+    <string name="themeplate_professional_lemonade_minimal">לימונדה מינימלית</string>
+    <string name="themeplate_professional_lemonade_warm">לימונדה חמה</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">לימונדה טרי כחול</string>
+    <string name="themeplate_professional_asphalt">אַספַלט</string>
+    <string name="themeplate_professional_sidewalk">מִדרָכָה</string>
+    <string name="themeplate_professional_retro">שולחן עבודה רטרו</string>
+    <string name="themeplate_professional_cafe">בֵּית קָפֶה</string>
+    <string name="themeplate_professional_wall">קִיר</string>
+    <string name="themeplate_professional_digital_life">חיים דיגיטליים</string>
+    <string name="themeplate_professional_phone_mode">מצב טלפון</string>
+    <string name="themeplate_professional_food_selfie">סלפי ואוכל</string>
+    <string name="studio_category_professional">מִקצוֹעִי</string>
+    <string name="themeplate_section_digital_life">חיים דיגיטליים</string>
+    <string name="themeplate_section_phone_mode">מצב טלפון</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">אוכל סלפי 1</string>
+    <string name="themeplate_selfie_food_02">אוכל סלפי 2</string>
+    <string name="themeplate_selfie_food_03">אוכל סלפי 3</string>
+    <string name="themeplate_selfie_food_04">אוכל סלפי 4</string>
+    <string name="themeplate_selfie_food_05">אוכל סלפי 5</string>
+    <string name="themeplate_selfie_food_06">אוכל סלפי 6</string>
+    <string name="themeplate_selfie_food_07">אוכל סלפי 7</string>
+    <string name="themeplate_selfie_food_08">אוכל סלפי 8</string>
+    <string name="studio_tool_duplicate">לְשַׁכְפֵּל</string>
+    <string name="studio_tool_delete">לִמְחוֹק</string>
+    <string name="studio_badge_sample">לִטעוֹם</string>
+    <string name="studio_action_replace">לְהַחלִיף</string>
+    <string name="studio_gallery_no_templates">אין תבניות זמינות</string>
+    <string name="studio_gallery_coming_soon">בקרוב</string>
+    <string name="studio_gallery_coming_soon_desc">תכונה זו נמצאת בפיתוח והיא תהיה זמינה בקרוב!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">תבניות</string>
+    <string name="studio_save_image_success">התמונה נשמרה</string>
+    <string name="studio_error_select_object">אנא בחר אובייקט</string>
+    <string name="studio_error_load_cloud_template">לא ניתן לטעון תבנית ענן: %1$s</string>
+    <string name="studio_error_load_template">לא ניתן לטעון תבנית: %1$s</string>
+    <string name="studio_error_load_sample_product">לא ניתן לטעון מוצר לדוגמה</string>
+    <string name="studio_error_process_image">שגיאת עיבוד תמונה</string>
+    <string name="studio_error_save_image">שמירת התמונה נכשלה</string>
+    <string name="studio_error_render_failed">עיבוד נכשל: %1$s</string>
+    <string name="studio_error_unknown">שגיאה לא ידועה</string>
 </resources>
+
+

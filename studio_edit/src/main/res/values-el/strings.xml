@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Στούντιο προϊόντων</string>
     <string name="studio_category_electronics">Ηλεκτρονικά</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Σκιά</string>
     <string name="studio_tool_transparency">Αδιαφάνεια</string>
     <string name="studio_tool_crop">Περικοπή</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Περιστροφή/Αναστροφή</string>
     <string name="studio_replace_hint">Πατήστε Αντικατάσταση για να επιλέξετε μια φωτογραφία προϊόντος από τη συλλογή σας</string>
     <string name="studio_layout_hint">Σύρετε για μετακίνηση · Τσιμπήστε για ζουμ · Περιστροφή με δύο δάχτυλα</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Το φόντο αφαιρείται αυτόματα</string>
     <string name="studio_export">Εξαγωγή</string>
     <string name="studio_crop_ratio_original">Αρχικό</string>
+    <string name="themeplate_professional_watch">Ρολόι</string>
+    <string name="themeplate_professional_perfume">Αρωμα</string>
+    <string name="themeplate_professional_handbag">Τσάντα</string>
+    <string name="themeplate_professional_sneaker">Υπουλος</string>
+    <string name="themeplate_professional_glasses">Γυαλιά</string>
+    <string name="themeplate_professional_cup">Φλιτζάνι</string>
+    <string name="themeplate_professional_lipstick">Κραγιόν</string>
+    <string name="themeplate_professional_hat">Καπέλο κουβά</string>
+    <string name="themeplate_professional_beanie">Καπέλο Beanie</string>
+    <string name="themeplate_professional_lemonade">Λεμονάδα</string>
+    <string name="themeplate_professional_lemonade_beige">Λεμονάτο Μπεζ</string>
+    <string name="themeplate_professional_lemonade_blue">Μπλε λεμονάτο</string>
+    <string name="themeplate_professional_lemonade_cyan">Λεμονάδα Κυανή</string>
+    <string name="themeplate_professional_lemonade_minimal">Λεμονάδα Minimal</string>
+    <string name="themeplate_professional_lemonade_warm">Λεμονάδα Ζεστή</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Λεμονάδα φρέσκο ​​μπλε</string>
+    <string name="themeplate_professional_asphalt">Ασφάλτος</string>
+    <string name="themeplate_professional_sidewalk">Πεζοδρόμιο</string>
+    <string name="themeplate_professional_retro">Retro Desktop</string>
+    <string name="themeplate_professional_cafe">Καφενείο</string>
+    <string name="themeplate_professional_wall">Τείχος</string>
+    <string name="themeplate_professional_digital_life">Ψηφιακή Ζωή</string>
+    <string name="themeplate_professional_phone_mode">Λειτουργία τηλεφώνου</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; Φαγητό</string>
+    <string name="studio_category_professional">Επαγγελματίας</string>
+    <string name="themeplate_section_digital_life">Ψηφιακή Ζωή</string>
+    <string name="themeplate_section_phone_mode">Λειτουργία τηλεφώνου</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie Food 1</string>
+    <string name="themeplate_selfie_food_02">Selfie Food 2</string>
+    <string name="themeplate_selfie_food_03">Selfie Food 3</string>
+    <string name="themeplate_selfie_food_04">Selfie Food 4</string>
+    <string name="themeplate_selfie_food_05">Selfie Food 5</string>
+    <string name="themeplate_selfie_food_06">Selfie Food 6</string>
+    <string name="themeplate_selfie_food_07">Selfie Food 7</string>
+    <string name="themeplate_selfie_food_08">Selfie Food 8</string>
+    <string name="studio_tool_duplicate">Αντίγραφο</string>
+    <string name="studio_tool_delete">Διαγράφω</string>
+    <string name="studio_badge_sample">Δείγμα</string>
+    <string name="studio_action_replace">Αντικαθιστώ</string>
+    <string name="studio_gallery_no_templates">Δεν υπάρχουν διαθέσιμα πρότυπα</string>
+    <string name="studio_gallery_coming_soon">Προσεχώς</string>
+    <string name="studio_gallery_coming_soon_desc">Αυτή η δυνατότητα είναι υπό ανάπτυξη και θα είναι διαθέσιμη σύντομα!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Πρότυπα</string>
+    <string name="studio_save_image_success">Η εικόνα αποθηκεύτηκε</string>
+    <string name="studio_error_select_object">Επιλέξτε ένα αντικείμενο</string>
+    <string name="studio_error_load_cloud_template">Δεν είναι δυνατή η φόρτωση του προτύπου cloud: %1$s</string>
+    <string name="studio_error_load_template">Δεν είναι δυνατή η φόρτωση προτύπου: %1$s</string>
+    <string name="studio_error_load_sample_product">Δεν είναι δυνατή η φόρτωση του δείγματος προϊόντος</string>
+    <string name="studio_error_process_image">Σφάλμα επεξεργασίας εικόνας</string>
+    <string name="studio_error_save_image">Αποτυχία αποθήκευσης εικόνας</string>
+    <string name="studio_error_render_failed">Η απόδοση απέτυχε: %1$s</string>
+    <string name="studio_error_unknown">Άγνωστο σφάλμα</string>
 </resources>
+
+

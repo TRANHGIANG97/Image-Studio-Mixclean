@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">এআই প্রোডাক্ট স্টুডিও</string>
     <string name="studio_category_electronics">ইলেকট্রনিক্স</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">ছায়া</string>
     <string name="studio_tool_transparency">অস্বচ্ছতা</string>
     <string name="studio_tool_crop">ক্রপ</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">ঘোরান/উল্টান</string>
     <string name="studio_replace_hint">গ্যালারি থেকে পণ্যের ছবি বেছে নিতে \'পরিবর্তন\' এ ট্যাপ করুন</string>
     <string name="studio_layout_hint">সরানোর জন্য ড্র্যাগ করুন · জুম করতে পিঞ্চ করুন · দুই আঙুলে ঘোরান</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">ব্যাকগ্রাউন্ড স্বয়ংক্রিয়ভাবে মুছে ফেলা হবে</string>
     <string name="studio_export">রপ্তানি করুন</string>
     <string name="studio_crop_ratio_original">মূল</string>
+    <string name="themeplate_professional_watch">ঘড়ি</string>
+    <string name="themeplate_professional_perfume">পারফিউম</string>
+    <string name="themeplate_professional_handbag">হ্যান্ডব্যাগ</string>
+    <string name="themeplate_professional_sneaker">স্নিকার</string>
+    <string name="themeplate_professional_glasses">চশমা</string>
+    <string name="themeplate_professional_cup">কাপ</string>
+    <string name="themeplate_professional_lipstick">লিপস্টিক</string>
+    <string name="themeplate_professional_hat">বালতি হাট</string>
+    <string name="themeplate_professional_beanie">বেনি হাট</string>
+    <string name="themeplate_professional_lemonade">লেমনেড</string>
+    <string name="themeplate_professional_lemonade_beige">লেমনেড বেইজ</string>
+    <string name="themeplate_professional_lemonade_blue">লেমনেড ব্লু</string>
+    <string name="themeplate_professional_lemonade_cyan">লেমনেড সায়ান</string>
+    <string name="themeplate_professional_lemonade_minimal">লেমনেড ন্যূনতম</string>
+    <string name="themeplate_professional_lemonade_warm">লেমনেড উষ্ণ</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">লেমনেড ফ্রেশ ব্লু</string>
+    <string name="themeplate_professional_asphalt">অ্যাসফল্ট</string>
+    <string name="themeplate_professional_sidewalk">ফুটপাথ</string>
+    <string name="themeplate_professional_retro">রেট্রো ডেস্কটপ</string>
+    <string name="themeplate_professional_cafe">ক্যাফে</string>
+    <string name="themeplate_professional_wall">প্রাচীর</string>
+    <string name="themeplate_professional_digital_life">ডিজিটাল লাইফ</string>
+    <string name="themeplate_professional_phone_mode">ফোন মোড</string>
+    <string name="themeplate_professional_food_selfie">সেলফি এবং খাবার</string>
+    <string name="studio_category_professional">প্রফেশনাল</string>
+    <string name="themeplate_section_digital_life">ডিজিটাল লাইফ</string>
+    <string name="themeplate_section_phone_mode">ফোন মোড</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">সেলফি ফুড ঘ</string>
+    <string name="themeplate_selfie_food_02">সেলফি ফুড 2</string>
+    <string name="themeplate_selfie_food_03">সেলফি খাবার ৩</string>
+    <string name="themeplate_selfie_food_04">সেলফি ফুড 4</string>
+    <string name="themeplate_selfie_food_05">সেলফি ফুড 5</string>
+    <string name="themeplate_selfie_food_06">সেলফি ফুড 6</string>
+    <string name="themeplate_selfie_food_07">সেলফি ফুড 7</string>
+    <string name="themeplate_selfie_food_08">সেলফি ফুড 8</string>
+    <string name="studio_tool_duplicate">ডুপ্লিকেট</string>
+    <string name="studio_tool_delete">মুছুন</string>
+    <string name="studio_badge_sample">নমুনা</string>
+    <string name="studio_action_replace">প্রতিস্থাপন করুন</string>
+    <string name="studio_gallery_no_templates">কোন টেমপ্লেট উপলব্ধ</string>
+    <string name="studio_gallery_coming_soon">শীঘ্রই আসছে</string>
+    <string name="studio_gallery_coming_soon_desc">এই বৈশিষ্ট্যটি বিকাশাধীন এবং শীঘ্রই উপলব্ধ হবে!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">টেমপ্লেট</string>
+    <string name="studio_save_image_success">ছবি সংরক্ষিত</string>
+    <string name="studio_error_select_object">একটি বস্তু নির্বাচন করুন</string>
+    <string name="studio_error_load_cloud_template">ক্লাউড টেমপ্লেট লোড করা যাবে না: %1$s</string>
+    <string name="studio_error_load_template">টেমপ্লেট লোড করা যাবে না: %1$s</string>
+    <string name="studio_error_load_sample_product">নমুনা পণ্য লোড করা যাবে না</string>
+    <string name="studio_error_process_image">ছবি প্রক্রিয়াকরণ ত্রুটি</string>
+    <string name="studio_error_save_image">ছবি সংরক্ষণ করতে ব্যর্থ হয়েছে</string>
+    <string name="studio_error_render_failed">রেন্ডার ব্যর্থ হয়েছে: %1$s</string>
+    <string name="studio_error_unknown">অজানা ত্রুটি</string>
 </resources>
+
+

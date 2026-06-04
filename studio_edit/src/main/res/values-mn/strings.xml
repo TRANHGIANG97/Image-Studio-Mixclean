@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Бүтээгдэхүүний студи</string>
     <string name="studio_category_electronics">Цахилгаан хэрэгсэл</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Сүүдэр</string>
     <string name="studio_tool_transparency">Үл нэвтрэх байдал</string>
     <string name="studio_tool_crop">Танах</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Эргүүлэх/Төлөх</string>
     <string name="studio_replace_hint">Цомогхоосоо бүтээгдэхүүний зураг сонгохын тулд Солих дээр товшино уу</string>
     <string name="studio_layout_hint">Хөдөлгөхийн тулд чирнэ үү · Томруулахын тулд чимхэнэ үү · Хоёр хуруугаар эргүүлнэ үү</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Арын дэвсгэрийг автоматаар устгана</string>
     <string name="studio_export">Экспортлох</string>
     <string name="studio_crop_ratio_original">Эх хувь</string>
+    <string name="themeplate_professional_watch">үзэх</string>
+    <string name="themeplate_professional_perfume">Үнэртэй ус</string>
+    <string name="themeplate_professional_handbag">Гар цүнх</string>
+    <string name="themeplate_professional_sneaker">Пүүз</string>
+    <string name="themeplate_professional_glasses">Нүдний шил</string>
+    <string name="themeplate_professional_cup">Аяга</string>
+    <string name="themeplate_professional_lipstick">Уруулын будаг</string>
+    <string name="themeplate_professional_hat">Хувин малгай</string>
+    <string name="themeplate_professional_beanie">Beanie малгай</string>
+    <string name="themeplate_professional_lemonade">Нимбэгний ундаа</string>
+    <string name="themeplate_professional_lemonade_beige">Нимбэгний шаргал</string>
+    <string name="themeplate_professional_lemonade_blue">Цэнхэр нимбэгний ундаа</string>
+    <string name="themeplate_professional_lemonade_cyan">Цэнхэр нимбэгний ундаа</string>
+    <string name="themeplate_professional_lemonade_minimal">Хамгийн бага нимбэгний ундаа</string>
+    <string name="themeplate_professional_lemonade_warm">Дулаан нимбэгний ундаа</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Нимбэгний ундаа Шинэ хөх</string>
+    <string name="themeplate_professional_asphalt">Асфальт</string>
+    <string name="themeplate_professional_sidewalk">Явган хүний ​​зам</string>
+    <string name="themeplate_professional_retro">Retro ширээний компьютер</string>
+    <string name="themeplate_professional_cafe">Кафе</string>
+    <string name="themeplate_professional_wall">Хана</string>
+    <string name="themeplate_professional_digital_life">Дижитал амьдрал</string>
+    <string name="themeplate_professional_phone_mode">Утасны горим</string>
+    <string name="themeplate_professional_food_selfie">Селфи ба хоол</string>
+    <string name="studio_category_professional">Мэргэжлийн</string>
+    <string name="themeplate_section_digital_life">Дижитал амьдрал</string>
+    <string name="themeplate_section_phone_mode">Утасны горим</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Селфи хоол 1</string>
+    <string name="themeplate_selfie_food_02">Селфи хоол 2</string>
+    <string name="themeplate_selfie_food_03">Селфи хоол 3</string>
+    <string name="themeplate_selfie_food_04">Селфи хоол 4</string>
+    <string name="themeplate_selfie_food_05">Селфи хоол 5</string>
+    <string name="themeplate_selfie_food_06">Селфи хоол 6</string>
+    <string name="themeplate_selfie_food_07">Селфи хоол 7</string>
+    <string name="themeplate_selfie_food_08">Селфи хоол 8</string>
+    <string name="studio_tool_duplicate">Давхардсан</string>
+    <string name="studio_tool_delete">Устгах</string>
+    <string name="studio_badge_sample">Дээж</string>
+    <string name="studio_action_replace">Солих</string>
+    <string name="studio_gallery_no_templates">Загвар байхгүй</string>
+    <string name="studio_gallery_coming_soon">Удахгүй</string>
+    <string name="studio_gallery_coming_soon_desc">Энэ функцийг боловсруулж байгаа бөгөөд удахгүй ашиглах боломжтой болно!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Загварууд</string>
+    <string name="studio_save_image_success">Зургийг хадгалсан</string>
+    <string name="studio_error_select_object">Объект сонгоно уу</string>
+    <string name="studio_error_load_cloud_template">Үүл загварыг ачаалах боломжгүй: %1$s</string>
+    <string name="studio_error_load_template">Загварыг ачаалах боломжгүй: %1$s</string>
+    <string name="studio_error_load_sample_product">Бүтээгдэхүүний дээжийг ачаалах боломжгүй</string>
+    <string name="studio_error_process_image">Зураг боловсруулах алдаа</string>
+    <string name="studio_error_save_image">Зургийг хадгалж чадсангүй</string>
+    <string name="studio_error_render_failed">Дамжуулж чадсангүй: %1$s</string>
+    <string name="studio_error_unknown">Үл мэдэгдэх алдаа</string>
 </resources>
+
+

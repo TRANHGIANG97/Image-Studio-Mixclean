@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">IA Produktu Studioa</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Itzala</string>
     <string name="studio_tool_transparency">Opakutasuna</string>
     <string name="studio_tool_crop">Moztu</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Biratu/Irauli</string>
     <string name="studio_replace_hint">Sakatu Ordezkatu zure galeriako produktu baten argazkia aukeratzeko</string>
     <string name="studio_layout_hint">Arrastatu mugitzeko · Atximurkatu zooma egiteko · Biratu bi sormerekin</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Atzeko planoa automatikoki kentzen da</string>
     <string name="studio_export">Esportatu</string>
     <string name="studio_crop_ratio_original">Jatorrizkoa</string>
+    <string name="themeplate_professional_watch">Ikusi</string>
+    <string name="themeplate_professional_perfume">Perfumea</string>
+    <string name="themeplate_professional_handbag">Poltsa</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Betaurrekoak</string>
+    <string name="themeplate_professional_cup">Kopa</string>
+    <string name="themeplate_professional_lipstick">Lipstick</string>
+    <string name="themeplate_professional_hat">Txapela</string>
+    <string name="themeplate_professional_beanie">Txapela</string>
+    <string name="themeplate_professional_lemonade">Limonada</string>
+    <string name="themeplate_professional_lemonade_beige">Limonada Beige</string>
+    <string name="themeplate_professional_lemonade_blue">Limonada Urdina</string>
+    <string name="themeplate_professional_lemonade_cyan">Limonada Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonada minimoa</string>
+    <string name="themeplate_professional_lemonade_warm">Limonada Epela</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limonada Urdin Freskoa</string>
+    <string name="themeplate_professional_asphalt">Asfaltoa</string>
+    <string name="themeplate_professional_sidewalk">Espaloia</string>
+    <string name="themeplate_professional_retro">Retro mahaigaina</string>
+    <string name="themeplate_professional_cafe">Kafetegia</string>
+    <string name="themeplate_professional_wall">Horma</string>
+    <string name="themeplate_professional_digital_life">Bizitza digitala</string>
+    <string name="themeplate_professional_phone_mode">Telefono modua</string>
+    <string name="themeplate_professional_food_selfie">Selfie eta janaria</string>
+    <string name="studio_category_professional">Profesionala</string>
+    <string name="themeplate_section_digital_life">Bizitza digitala</string>
+    <string name="themeplate_section_phone_mode">Telefono modua</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie janaria 1</string>
+    <string name="themeplate_selfie_food_02">Selfie janaria 2</string>
+    <string name="themeplate_selfie_food_03">Selfie janaria 3</string>
+    <string name="themeplate_selfie_food_04">Selfie janaria 4</string>
+    <string name="themeplate_selfie_food_05">Selfie janaria 5</string>
+    <string name="themeplate_selfie_food_06">Selfie janaria 6</string>
+    <string name="themeplate_selfie_food_07">Selfie janaria 7</string>
+    <string name="themeplate_selfie_food_08">Selfie janaria 8</string>
+    <string name="studio_tool_duplicate">Bikoiztu</string>
+    <string name="studio_tool_delete">Ezabatu</string>
+    <string name="studio_badge_sample">Lagina</string>
+    <string name="studio_action_replace">Ordezkatu</string>
+    <string name="studio_gallery_no_templates">Ez dago txantiloirik eskuragarri</string>
+    <string name="studio_gallery_coming_soon">Laster</string>
+    <string name="studio_gallery_coming_soon_desc">Ezaugarri hau garatzen ari da eta laster egongo da eskuragarri!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Txantiloiak</string>
+    <string name="studio_save_image_success">Irudia gorde da</string>
+    <string name="studio_error_select_object">Mesedez, hautatu objektu bat</string>
+    <string name="studio_error_load_cloud_template">Ezin da kargatu hodeiko txantiloia: %1$s</string>
+    <string name="studio_error_load_template">Ezin da txantiloia kargatu: %1$s</string>
+    <string name="studio_error_load_sample_product">Ezin da lagin produktua kargatu</string>
+    <string name="studio_error_process_image">Irudiak prozesatzeko errorea</string>
+    <string name="studio_error_save_image">Ezin izan da irudia gorde</string>
+    <string name="studio_error_render_failed">Errendatzeak huts egin du: %1$s</string>
+    <string name="studio_error_unknown">Errore ezezaguna</string>
 </resources>
+
+

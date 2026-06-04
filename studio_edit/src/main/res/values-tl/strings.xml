@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Studio ng Produkto</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Anino</string>
     <string name="studio_tool_transparency">Opacity</string>
     <string name="studio_tool_crop">I-crop</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">I-rotate/I-flip</string>
     <string name="studio_replace_hint">I-tap ang Palitan para pumili ng larawan ng produkto mula sa iyong gallery</string>
     <string name="studio_layout_hint">I-drag para igalaw · I-pinch para mag-zoom · I-rotate gamit ang dalawang daliri</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Awtomatikong tinatanggal ang background</string>
     <string name="studio_export">I-export</string>
     <string name="studio_crop_ratio_original">Orihinal</string>
+    <string name="themeplate_professional_watch">Panoorin</string>
+    <string name="themeplate_professional_perfume">Pabango</string>
+    <string name="themeplate_professional_handbag">Handbag</string>
+    <string name="themeplate_professional_sneaker">sneaker</string>
+    <string name="themeplate_professional_glasses">Salamin</string>
+    <string name="themeplate_professional_cup">tasa</string>
+    <string name="themeplate_professional_lipstick">Lipstick</string>
+    <string name="themeplate_professional_hat">Bucket Hat</string>
+    <string name="themeplate_professional_beanie">Beanie Hat</string>
+    <string name="themeplate_professional_lemonade">limonada</string>
+    <string name="themeplate_professional_lemonade_beige">Lemonade Beige</string>
+    <string name="themeplate_professional_lemonade_blue">Lemonade Blue</string>
+    <string name="themeplate_professional_lemonade_cyan">Lemonade Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Lemonade Minimal</string>
+    <string name="themeplate_professional_lemonade_warm">Lemonade Warm</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">Aspalto</string>
+    <string name="themeplate_professional_sidewalk">Bangketa</string>
+    <string name="themeplate_professional_retro">Retro Desktop</string>
+    <string name="themeplate_professional_cafe">Cafe</string>
+    <string name="themeplate_professional_wall">Pader</string>
+    <string name="themeplate_professional_digital_life">Digital na Buhay</string>
+    <string name="themeplate_professional_phone_mode">Mode ng Telepono</string>
+    <string name="themeplate_professional_food_selfie">Selfie at Pagkain</string>
+    <string name="studio_category_professional">Propesyonal</string>
+    <string name="themeplate_section_digital_life">Digital na Buhay</string>
+    <string name="themeplate_section_phone_mode">Mode ng Telepono</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie Food 1</string>
+    <string name="themeplate_selfie_food_02">Selfie Food 2</string>
+    <string name="themeplate_selfie_food_03">Selfie Food 3</string>
+    <string name="themeplate_selfie_food_04">Selfie Food 4</string>
+    <string name="themeplate_selfie_food_05">Selfie Food 5</string>
+    <string name="themeplate_selfie_food_06">Selfie Food 6</string>
+    <string name="themeplate_selfie_food_07">Selfie Food 7</string>
+    <string name="themeplate_selfie_food_08">Selfie Food 8</string>
+    <string name="studio_tool_duplicate">Duplicate</string>
+    <string name="studio_tool_delete">Tanggalin</string>
+    <string name="studio_badge_sample">Sample</string>
+    <string name="studio_action_replace">Palitan</string>
+    <string name="studio_gallery_no_templates">Walang magagamit na mga template</string>
+    <string name="studio_gallery_coming_soon">Malapit na</string>
+    <string name="studio_gallery_coming_soon_desc">Ang tampok na ito ay nasa ilalim ng pagbuo at magiging available sa lalong madaling panahon!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Mga template</string>
+    <string name="studio_save_image_success">Na-save ang larawan</string>
+    <string name="studio_error_select_object">Mangyaring pumili ng isang bagay</string>
+    <string name="studio_error_load_cloud_template">Hindi ma-load ang template ng ulap: %1$s</string>
+    <string name="studio_error_load_template">Hindi ma-load ang template: %1$s</string>
+    <string name="studio_error_load_sample_product">Hindi ma-load ang sample na produkto</string>
+    <string name="studio_error_process_image">Error sa pagproseso ng larawan</string>
+    <string name="studio_error_save_image">Nabigong i-save ang larawan</string>
+    <string name="studio_error_render_failed">Nabigo ang pag-render: %1$s</string>
+    <string name="studio_error_unknown">Hindi kilalang error</string>
 </resources>
+
+

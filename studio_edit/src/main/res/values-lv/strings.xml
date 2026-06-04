@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktu studija</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Ēna</string>
     <string name="studio_tool_transparency">Necaurspīdība</string>
     <string name="studio_tool_crop">Apgriezt</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Pagriezt/Apvērst</string>
     <string name="studio_replace_hint">Pieskarieties Aizstāt, lai izvēlētos produkta fotoattēlu no galerijas</string>
     <string name="studio_layout_hint">Velciet, lai pārvietotu · Savelciet, lai tuvinātu · Pagrieziet ar diviem pirkstiem</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Fons tiek noņemts automātiski</string>
     <string name="studio_export">Eksportēt</string>
     <string name="studio_crop_ratio_original">Oriģināls</string>
+    <string name="themeplate_professional_watch">Skatīties</string>
+    <string name="themeplate_professional_perfume">Smaržas</string>
+    <string name="themeplate_professional_handbag">Rokassomiņa</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Brilles</string>
+    <string name="themeplate_professional_cup">Kauss</string>
+    <string name="themeplate_professional_lipstick">Lūpu krāsa</string>
+    <string name="themeplate_professional_hat">Kausa cepure</string>
+    <string name="themeplate_professional_beanie">Beanie cepure</string>
+    <string name="themeplate_professional_lemonade">Limonāde</string>
+    <string name="themeplate_professional_lemonade_beige">Limonāde bēšs</string>
+    <string name="themeplate_professional_lemonade_blue">Limonādes zils</string>
+    <string name="themeplate_professional_lemonade_cyan">Ciāna limonāde</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonāde minimāla</string>
+    <string name="themeplate_professional_lemonade_warm">Silta limonāde</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limonāde svaigi zila</string>
+    <string name="themeplate_professional_asphalt">Asfalts</string>
+    <string name="themeplate_professional_sidewalk">Ietve</string>
+    <string name="themeplate_professional_retro">Retro darbvirsma</string>
+    <string name="themeplate_professional_cafe">Kafejnīca</string>
+    <string name="themeplate_professional_wall">Siena</string>
+    <string name="themeplate_professional_digital_life">Digitālā dzīve</string>
+    <string name="themeplate_professional_phone_mode">Tālruņa režīms</string>
+    <string name="themeplate_professional_food_selfie">Pašbildes un ēdiens</string>
+    <string name="studio_category_professional">Profesionāls</string>
+    <string name="themeplate_section_digital_life">Digitālā dzīve</string>
+    <string name="themeplate_section_phone_mode">Tālruņa režīms</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Pašbildes ēdiens 1</string>
+    <string name="themeplate_selfie_food_02">Pašbildes ēdiens 2</string>
+    <string name="themeplate_selfie_food_03">Pašbildes ēdiens 3</string>
+    <string name="themeplate_selfie_food_04">Pašbildes ēdiens 4</string>
+    <string name="themeplate_selfie_food_05">Pašbildes ēdiens 5</string>
+    <string name="themeplate_selfie_food_06">Pašbildes ēdiens 6</string>
+    <string name="themeplate_selfie_food_07">Pašbildes ēdiens 7</string>
+    <string name="themeplate_selfie_food_08">Pašbildes ēdiens 8</string>
+    <string name="studio_tool_duplicate">Dublikāts</string>
+    <string name="studio_tool_delete">Dzēst</string>
+    <string name="studio_badge_sample">Paraugs</string>
+    <string name="studio_action_replace">Aizstāt</string>
+    <string name="studio_gallery_no_templates">Nav pieejamas veidnes</string>
+    <string name="studio_gallery_coming_soon">Drīzumā</string>
+    <string name="studio_gallery_coming_soon_desc">Šī funkcija tiek izstrādāta un drīzumā būs pieejama!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Veidnes</string>
+    <string name="studio_save_image_success">Attēls saglabāts</string>
+    <string name="studio_error_select_object">Lūdzu, atlasiet objektu</string>
+    <string name="studio_error_load_cloud_template">Nevar ielādēt mākoņa veidni: %1$s</string>
+    <string name="studio_error_load_template">Nevar ielādēt veidni: %1$s</string>
+    <string name="studio_error_load_sample_product">Nevar ielādēt produkta paraugu</string>
+    <string name="studio_error_process_image">Attēla apstrādes kļūda</string>
+    <string name="studio_error_save_image">Neizdevās saglabāt attēlu</string>
+    <string name="studio_error_render_failed">Renderēšana neizdevās: %1$s</string>
+    <string name="studio_error_unknown">Nezināma kļūda</string>
 </resources>
+
+

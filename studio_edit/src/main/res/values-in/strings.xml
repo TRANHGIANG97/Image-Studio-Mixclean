@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio Produk AI</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Bayangan</string>
     <string name="studio_tool_transparency">Opasitas</string>
     <string name="studio_tool_crop">Potong</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Putar/Balik</string>
     <string name="studio_replace_hint">Ketuk Ganti untuk memilih foto produk dari galeri Anda</string>
     <string name="studio_layout_hint">Seret untuk memindahkan · Jepit untuk memperbesar · Putar dengan dua jari</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Latar belakang dihapus secara otomatis</string>
     <string name="studio_export">Ekspor</string>
     <string name="studio_crop_ratio_original">Asli</string>
+    <string name="themeplate_professional_watch">Jam tangan</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Tas tangan</string>
+    <string name="themeplate_professional_sneaker">sepatu kets</string>
+    <string name="themeplate_professional_glasses">Kacamata</string>
+    <string name="themeplate_professional_cup">Cangkir</string>
+    <string name="themeplate_professional_lipstick">Lipstik</string>
+    <string name="themeplate_professional_hat">Topi Ember</string>
+    <string name="themeplate_professional_beanie">Topi Beanie</string>
+    <string name="themeplate_professional_lemonade">Limun</string>
+    <string name="themeplate_professional_lemonade_beige">limun krem</string>
+    <string name="themeplate_professional_lemonade_blue">Limun Biru</string>
+    <string name="themeplate_professional_lemonade_cyan">Limun Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Minimal Limun</string>
+    <string name="themeplate_professional_lemonade_warm">Limun Hangat</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limun Biru Segar</string>
+    <string name="themeplate_professional_asphalt">Aspal</string>
+    <string name="themeplate_professional_sidewalk">Trotoar</string>
+    <string name="themeplate_professional_retro">Desktop Retro</string>
+    <string name="themeplate_professional_cafe">Kafe</string>
+    <string name="themeplate_professional_wall">Dinding</string>
+    <string name="themeplate_professional_digital_life">Kehidupan Digital</string>
+    <string name="themeplate_professional_phone_mode">Modus Telepon</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; Makanan</string>
+    <string name="studio_category_professional">Profesional</string>
+    <string name="themeplate_section_digital_life">Kehidupan Digital</string>
+    <string name="themeplate_section_phone_mode">Modus Telepon</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Makanan Selfie 1</string>
+    <string name="themeplate_selfie_food_02">Makanan Selfie 2</string>
+    <string name="themeplate_selfie_food_03">Makanan Selfie 3</string>
+    <string name="themeplate_selfie_food_04">Makanan Selfie 4</string>
+    <string name="themeplate_selfie_food_05">Makanan Selfie 5</string>
+    <string name="themeplate_selfie_food_06">Makanan Selfie 6</string>
+    <string name="themeplate_selfie_food_07">Makanan Selfie 7</string>
+    <string name="themeplate_selfie_food_08">Makanan Selfie 8</string>
+    <string name="studio_tool_duplicate">Duplikat</string>
+    <string name="studio_tool_delete">Menghapus</string>
+    <string name="studio_badge_sample">Mencicipi</string>
+    <string name="studio_action_replace">Mengganti</string>
+    <string name="studio_gallery_no_templates">Tidak ada templat yang tersedia</string>
+    <string name="studio_gallery_coming_soon">Segera hadir</string>
+    <string name="studio_gallery_coming_soon_desc">Fitur ini sedang dalam pengembangan dan akan segera tersedia!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Templat</string>
+    <string name="studio_save_image_success">Gambar disimpan</string>
+    <string name="studio_error_select_object">Silakan pilih objek</string>
+    <string name="studio_error_load_cloud_template">Tidak dapat memuat templat cloud: %1$s</string>
+    <string name="studio_error_load_template">Tidak dapat memuat templat: %1$s</string>
+    <string name="studio_error_load_sample_product">Tidak dapat memuat produk sampel</string>
+    <string name="studio_error_process_image">Kesalahan pemrosesan gambar</string>
+    <string name="studio_error_save_image">Gagal menyimpan gambar</string>
+    <string name="studio_error_render_failed">Render gagal: %1$s</string>
+    <string name="studio_error_unknown">Kesalahan tidak diketahui</string>
 </resources>
+
+

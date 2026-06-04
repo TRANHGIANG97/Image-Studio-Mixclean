@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio ya Bidhaa ya AI</string>
     <string name="studio_category_electronics">Elektroniki</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Kivuli</string>
     <string name="studio_tool_transparency">Uhafifu</string>
     <string name="studio_tool_crop">Kata</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Zungusha/Pindua</string>
     <string name="studio_replace_hint">Gusa Badilisha ili kuchagua picha ya bidhaa kutoka kwenye ghala yako</string>
     <string name="studio_layout_hint">Buruta ili kusogeza · Finya ili kukuza · Zungusha kwa vidole viwili</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Asili huondolewa kiotomatiki</string>
     <string name="studio_export">Hamisha</string>
     <string name="studio_crop_ratio_original">Asili</string>
+    <string name="themeplate_professional_watch">Tazama</string>
+    <string name="themeplate_professional_perfume">Perfume</string>
+    <string name="themeplate_professional_handbag">Mkoba</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Miwani</string>
+    <string name="themeplate_professional_cup">Kombe</string>
+    <string name="themeplate_professional_lipstick">Lipstick</string>
+    <string name="themeplate_professional_hat">Kofia ya ndoo</string>
+    <string name="themeplate_professional_beanie">Kofia ya Beanie</string>
+    <string name="themeplate_professional_lemonade">Limau</string>
+    <string name="themeplate_professional_lemonade_beige">Lemonade Beige</string>
+    <string name="themeplate_professional_lemonade_blue">Lemonade Bluu</string>
+    <string name="themeplate_professional_lemonade_cyan">Lemonade Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Lemonade Ndogo</string>
+    <string name="themeplate_professional_lemonade_warm">Lemonade ya joto</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade Safi ya Bluu</string>
+    <string name="themeplate_professional_asphalt">Lami</string>
+    <string name="themeplate_professional_sidewalk">Njia ya kando</string>
+    <string name="themeplate_professional_retro">Desktop ya Retro</string>
+    <string name="themeplate_professional_cafe">Mkahawa</string>
+    <string name="themeplate_professional_wall">Ukuta</string>
+    <string name="themeplate_professional_digital_life">Maisha ya Kidijitali</string>
+    <string name="themeplate_professional_phone_mode">Hali ya Simu</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; Chakula</string>
+    <string name="studio_category_professional">Mtaalamu</string>
+    <string name="themeplate_section_digital_life">Maisha ya Kidijitali</string>
+    <string name="themeplate_section_phone_mode">Hali ya Simu</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Chakula cha Selfie 1</string>
+    <string name="themeplate_selfie_food_02">Chakula cha Selfie 2</string>
+    <string name="themeplate_selfie_food_03">Chakula cha Selfie 3</string>
+    <string name="themeplate_selfie_food_04">Chakula cha Selfie 4</string>
+    <string name="themeplate_selfie_food_05">Chakula cha Selfie 5</string>
+    <string name="themeplate_selfie_food_06">Chakula cha Selfie 6</string>
+    <string name="themeplate_selfie_food_07">Chakula cha Selfie 7</string>
+    <string name="themeplate_selfie_food_08">Chakula cha Selfie 8</string>
+    <string name="studio_tool_duplicate">Nakala</string>
+    <string name="studio_tool_delete">Futa</string>
+    <string name="studio_badge_sample">Sampuli</string>
+    <string name="studio_action_replace">Badilisha</string>
+    <string name="studio_gallery_no_templates">Hakuna violezo vinavyopatikana</string>
+    <string name="studio_gallery_coming_soon">Inakuja hivi karibuni</string>
+    <string name="studio_gallery_coming_soon_desc">Kipengele hiki kinatengenezwa na kitapatikana hivi karibuni!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Violezo</string>
+    <string name="studio_save_image_success">Picha imehifadhiwa</string>
+    <string name="studio_error_select_object">Tafadhali chagua kitu</string>
+    <string name="studio_error_load_cloud_template">Haiwezi kupakia kiolezo cha wingu: %1$s</string>
+    <string name="studio_error_load_template">Haiwezi kupakia kiolezo: %1$s</string>
+    <string name="studio_error_load_sample_product">Haiwezi kupakia sampuli ya bidhaa</string>
+    <string name="studio_error_process_image">Hitilafu ya kuchakata picha</string>
+    <string name="studio_error_save_image">Imeshindwa kuhifadhi picha</string>
+    <string name="studio_error_render_failed">Imeshindwa kutekeleza: %1$s</string>
+    <string name="studio_error_unknown">Hitilafu isiyojulikana</string>
 </resources>
+
+

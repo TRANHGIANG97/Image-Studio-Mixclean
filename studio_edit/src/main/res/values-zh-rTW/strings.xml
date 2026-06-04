@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI 商品工作室</string>
     <string name="studio_category_electronics">數位電子</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">陰影</string>
     <string name="studio_tool_transparency">不透明度</string>
     <string name="studio_tool_crop">裁剪</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">旋轉/翻轉</string>
     <string name="studio_replace_hint">輕點「替換」從相簿中選擇一張商品照片</string>
     <string name="studio_layout_hint">拖曳以移動 · 雙指捏合以縮放 · 雙指旋轉</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">背景將自動移除</string>
     <string name="studio_export">匯出</string>
     <string name="studio_crop_ratio_original">原始</string>
+    <string name="themeplate_professional_watch">手錶</string>
+    <string name="themeplate_professional_perfume">香水</string>
+    <string name="themeplate_professional_handbag">手提包</string>
+    <string name="themeplate_professional_sneaker">運動鞋</string>
+    <string name="themeplate_professional_glasses">眼鏡</string>
+    <string name="themeplate_professional_cup">杯子</string>
+    <string name="themeplate_professional_lipstick">口紅</string>
+    <string name="themeplate_professional_hat">漁夫帽</string>
+    <string name="themeplate_professional_beanie">無簷便帽</string>
+    <string name="themeplate_professional_lemonade">檸檬水</string>
+    <string name="themeplate_professional_lemonade_beige">檸檬水米色</string>
+    <string name="themeplate_professional_lemonade_blue">檸檬水藍</string>
+    <string name="themeplate_professional_lemonade_cyan">檸檬水青色</string>
+    <string name="themeplate_professional_lemonade_minimal">檸檬水最小</string>
+    <string name="themeplate_professional_lemonade_warm">溫暖的檸檬水</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">檸檬水鮮藍</string>
+    <string name="themeplate_professional_asphalt">瀝青</string>
+    <string name="themeplate_professional_sidewalk">人行道</string>
+    <string name="themeplate_professional_retro">復古桌面</string>
+    <string name="themeplate_professional_cafe">咖啡店</string>
+    <string name="themeplate_professional_wall">牆</string>
+    <string name="themeplate_professional_digital_life">數位生活</string>
+    <string name="themeplate_professional_phone_mode">電話模式</string>
+    <string name="themeplate_professional_food_selfie">自拍與美食</string>
+    <string name="studio_category_professional">專業的</string>
+    <string name="themeplate_section_digital_life">數位生活</string>
+    <string name="themeplate_section_phone_mode">電話模式</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">自拍食物1</string>
+    <string name="themeplate_selfie_food_02">自拍美食2</string>
+    <string name="themeplate_selfie_food_03">自拍美食3</string>
+    <string name="themeplate_selfie_food_04">自拍美食4</string>
+    <string name="themeplate_selfie_food_05">自拍美食5</string>
+    <string name="themeplate_selfie_food_06">自拍美食 6</string>
+    <string name="themeplate_selfie_food_07">自拍食物 7</string>
+    <string name="themeplate_selfie_food_08">自拍食物 8</string>
+    <string name="studio_tool_duplicate">複製</string>
+    <string name="studio_tool_delete">刪除</string>
+    <string name="studio_badge_sample">樣本</string>
+    <string name="studio_action_replace">代替</string>
+    <string name="studio_gallery_no_templates">沒有可用的模板</string>
+    <string name="studio_gallery_coming_soon">即將推出</string>
+    <string name="studio_gallery_coming_soon_desc">該功能正在開發中，很快就會推出！</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">範本</string>
+    <string name="studio_save_image_success">圖像已儲存</string>
+    <string name="studio_error_select_object">請選擇一個對象</string>
+    <string name="studio_error_load_cloud_template">無法載入雲端模板：%1$s</string>
+    <string name="studio_error_load_template">無法載入模板：%1$s</string>
+    <string name="studio_error_load_sample_product">無法加載樣品產品</string>
+    <string name="studio_error_process_image">影像處理錯誤</string>
+    <string name="studio_error_save_image">儲存映像失敗</string>
+    <string name="studio_error_render_failed">渲染失敗：%1$s</string>
+    <string name="studio_error_unknown">未知錯誤</string>
 </resources>
+
+

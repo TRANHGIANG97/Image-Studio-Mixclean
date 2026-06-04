@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Estudi de productes IA</string>
     <string name="studio_category_electronics">Electrònica</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Ombra</string>
     <string name="studio_tool_transparency">Opacitat</string>
     <string name="studio_tool_crop">Retalla</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Gira/Vola</string>
     <string name="studio_replace_hint">Toca Substitueix per triar una foto de producte de la teva galeria</string>
     <string name="studio_layout_hint">Arrossega per moure · Plica els dits per fer zoom · Gira amb dos dits</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">El fons s\'elimina automàticament</string>
     <string name="studio_export">Exporta</string>
     <string name="studio_crop_ratio_original">Original</string>
+    <string name="themeplate_professional_watch">Mira</string>
+    <string name="themeplate_professional_perfume">Perfum</string>
+    <string name="themeplate_professional_handbag">Bossa de mà</string>
+    <string name="themeplate_professional_sneaker">Sabatilla</string>
+    <string name="themeplate_professional_glasses">Ulleres</string>
+    <string name="themeplate_professional_cup">Copa</string>
+    <string name="themeplate_professional_lipstick">Pintallavis</string>
+    <string name="themeplate_professional_hat">Barret de galleda</string>
+    <string name="themeplate_professional_beanie">Gorro Beanie</string>
+    <string name="themeplate_professional_lemonade">Llimonada</string>
+    <string name="themeplate_professional_lemonade_beige">Beige llimonada</string>
+    <string name="themeplate_professional_lemonade_blue">Blau Llimonada</string>
+    <string name="themeplate_professional_lemonade_cyan">Llimonada Cian</string>
+    <string name="themeplate_professional_lemonade_minimal">Llimonada Mínima</string>
+    <string name="themeplate_professional_lemonade_warm">Llimonada calenta</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Llimonada Blava Fresca</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Vorera</string>
+    <string name="themeplate_professional_retro">Escriptori retro</string>
+    <string name="themeplate_professional_cafe">Cafè</string>
+    <string name="themeplate_professional_wall">Mur</string>
+    <string name="themeplate_professional_digital_life">Vida digital</string>
+    <string name="themeplate_professional_phone_mode">Mode de telèfon</string>
+    <string name="themeplate_professional_food_selfie">Selfie i menjar</string>
+    <string name="studio_category_professional">Professional</string>
+    <string name="themeplate_section_digital_life">Vida digital</string>
+    <string name="themeplate_section_phone_mode">Mode de telèfon</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Menjar selfie 1</string>
+    <string name="themeplate_selfie_food_02">Menjar selfie 2</string>
+    <string name="themeplate_selfie_food_03">Menjar selfie 3</string>
+    <string name="themeplate_selfie_food_04">Menjar selfie 4</string>
+    <string name="themeplate_selfie_food_05">Menjar selfie 5</string>
+    <string name="themeplate_selfie_food_06">Menjar selfie 6</string>
+    <string name="themeplate_selfie_food_07">Menjar selfie 7</string>
+    <string name="themeplate_selfie_food_08">Menjar selfie 8</string>
+    <string name="studio_tool_duplicate">Duplicat</string>
+    <string name="studio_tool_delete">Suprimeix</string>
+    <string name="studio_badge_sample">Mostra</string>
+    <string name="studio_action_replace">Substitueix</string>
+    <string name="studio_gallery_no_templates">No hi ha plantilles disponibles</string>
+    <string name="studio_gallery_coming_soon">Aviat</string>
+    <string name="studio_gallery_coming_soon_desc">Aquesta funció està en desenvolupament i estarà disponible aviat!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Plantilles</string>
+    <string name="studio_save_image_success">S\'ha guardat la imatge</string>
+    <string name="studio_error_select_object">Seleccioneu un objecte</string>
+    <string name="studio_error_load_cloud_template">No es pot carregar la plantilla del núvol: %1$s</string>
+    <string name="studio_error_load_template">No es pot carregar la plantilla: %1$s</string>
+    <string name="studio_error_load_sample_product">No es pot carregar el producte de mostra</string>
+    <string name="studio_error_process_image">Error de processament de la imatge</string>
+    <string name="studio_error_save_image">No s\'ha pogut desar la imatge</string>
+    <string name="studio_error_render_failed">Error de renderització: %1$s</string>
+    <string name="studio_error_unknown">Error desconegut</string>
 </resources>
+
+

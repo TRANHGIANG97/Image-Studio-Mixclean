@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI தயாரிப்பு ஸ்டுடியோ</string>
     <string name="studio_category_electronics">மின்னணுவியல்</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">நிழல்</string>
     <string name="studio_tool_transparency">ஒளிபுகாத்தன்மை</string>
     <string name="studio_tool_crop">கிராப்</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">சுழற்று/தலைகீழாக்கு</string>
     <string name="studio_replace_hint">உங்கள் கேலரியில் இருந்து தயாரிப்புப் புகைப்படத்தைத் தேர்ந்தெடுக்க \'மாற்று\' என்பதைத் தட்டவும்</string>
     <string name="studio_layout_hint">நகர்த்த இழுக்கவும் · பெரிதாக்க விரல்களைக் குவிக்வவும் · இரு விரல்களால் சுழற்றவும்</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">பின்னணி தானாகவே நீக்கப்படும்</string>
     <string name="studio_export">ஏற்றுமதி செய்</string>
     <string name="studio_crop_ratio_original">அசல்</string>
+    <string name="themeplate_professional_watch">பார்க்கவும்</string>
+    <string name="themeplate_professional_perfume">வாசனை திரவியம்</string>
+    <string name="themeplate_professional_handbag">கைப்பை</string>
+    <string name="themeplate_professional_sneaker">ஸ்னீக்கர்</string>
+    <string name="themeplate_professional_glasses">கண்ணாடிகள்</string>
+    <string name="themeplate_professional_cup">கோப்பை</string>
+    <string name="themeplate_professional_lipstick">உதட்டுச்சாயம்</string>
+    <string name="themeplate_professional_hat">பக்கெட் தொப்பி</string>
+    <string name="themeplate_professional_beanie">பீனி தொப்பி</string>
+    <string name="themeplate_professional_lemonade">எலுமிச்சைப்பழம்</string>
+    <string name="themeplate_professional_lemonade_beige">லெமனேட் பீஜ்</string>
+    <string name="themeplate_professional_lemonade_blue">லெமனேட் நீலம்</string>
+    <string name="themeplate_professional_lemonade_cyan">லெமனேட் சியான்</string>
+    <string name="themeplate_professional_lemonade_minimal">லெமனேட் குறைந்தபட்சம்</string>
+    <string name="themeplate_professional_lemonade_warm">லெமனேட் சூடு</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">எலுமிச்சைப் பழம் புதிய நீலம்</string>
+    <string name="themeplate_professional_asphalt">நிலக்கீல்</string>
+    <string name="themeplate_professional_sidewalk">நடைபாதை</string>
+    <string name="themeplate_professional_retro">ரெட்ரோ டெஸ்க்டாப்</string>
+    <string name="themeplate_professional_cafe">கஃபே</string>
+    <string name="themeplate_professional_wall">சுவர்</string>
+    <string name="themeplate_professional_digital_life">டிஜிட்டல் வாழ்க்கை</string>
+    <string name="themeplate_professional_phone_mode">தொலைபேசி பயன்முறை</string>
+    <string name="themeplate_professional_food_selfie">செல்ஃபி &amp; உணவு</string>
+    <string name="studio_category_professional">தொழில்முறை</string>
+    <string name="themeplate_section_digital_life">டிஜிட்டல் வாழ்க்கை</string>
+    <string name="themeplate_section_phone_mode">தொலைபேசி பயன்முறை</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">செல்ஃபி உணவு 1</string>
+    <string name="themeplate_selfie_food_02">செல்ஃபி உணவு 2</string>
+    <string name="themeplate_selfie_food_03">செல்ஃபி உணவு 3</string>
+    <string name="themeplate_selfie_food_04">செல்ஃபி உணவு 4</string>
+    <string name="themeplate_selfie_food_05">செல்ஃபி உணவு 5</string>
+    <string name="themeplate_selfie_food_06">செல்ஃபி உணவு 6</string>
+    <string name="themeplate_selfie_food_07">செல்ஃபி உணவு 7</string>
+    <string name="themeplate_selfie_food_08">செல்ஃபி உணவு 8</string>
+    <string name="studio_tool_duplicate">நகல்</string>
+    <string name="studio_tool_delete">நீக்கு</string>
+    <string name="studio_badge_sample">மாதிரி</string>
+    <string name="studio_action_replace">மாற்றவும்</string>
+    <string name="studio_gallery_no_templates">டெம்ப்ளேட்கள் எதுவும் இல்லை</string>
+    <string name="studio_gallery_coming_soon">விரைவில் வரும்</string>
+    <string name="studio_gallery_coming_soon_desc">இந்த அம்சம் உருவாக்கத்தில் உள்ளது மற்றும் விரைவில் கிடைக்கும்!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">வார்ப்புருக்கள்</string>
+    <string name="studio_save_image_success">படம் சேமிக்கப்பட்டது</string>
+    <string name="studio_error_select_object">தயவுசெய்து ஒரு பொருளைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="studio_error_load_cloud_template">கிளவுட் டெம்ப்ளேட்டை ஏற்ற முடியவில்லை: %1$s</string>
+    <string name="studio_error_load_template">டெம்ப்ளேட்டை ஏற்ற முடியவில்லை: %1$s</string>
+    <string name="studio_error_load_sample_product">மாதிரி தயாரிப்பை ஏற்ற முடியாது</string>
+    <string name="studio_error_process_image">படத்தை செயலாக்குவதில் பிழை</string>
+    <string name="studio_error_save_image">படத்தைச் சேமிப்பதில் தோல்வி</string>
+    <string name="studio_error_render_failed">வழங்குவதில் தோல்வி: %1$s</string>
+    <string name="studio_error_unknown">அறியப்படாத பிழை</string>
 </resources>
+
+

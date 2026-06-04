@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Vinnustofa</string>
     <string name="studio_category_electronics">Rafeindatæki</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Skuggi</string>
     <string name="studio_tool_transparency">Ógegnsæi</string>
     <string name="studio_tool_crop">Sníða</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Snúa/Spegla</string>
     <string name="studio_replace_hint">Snertu Skipta út til að velja vörumynd úr galleríinu þínu</string>
     <string name="studio_layout_hint">Draga til að færa · Klípa til að aðdrátta · Snúa með tveimur fingrum</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Bakgrunnur er fjarlægður sjálfvirkt</string>
     <string name="studio_export">Flytja út</string>
     <string name="studio_crop_ratio_original">Upprunalegt</string>
+    <string name="themeplate_professional_watch">Horfðu á</string>
+    <string name="themeplate_professional_perfume">Ilmvatn</string>
+    <string name="themeplate_professional_handbag">Handtaska</string>
+    <string name="themeplate_professional_sneaker">Strigaskór</string>
+    <string name="themeplate_professional_glasses">Gleraugu</string>
+    <string name="themeplate_professional_cup">Bikar</string>
+    <string name="themeplate_professional_lipstick">Varaliti</string>
+    <string name="themeplate_professional_hat">Bucket Hat</string>
+    <string name="themeplate_professional_beanie">Beanie Hat</string>
+    <string name="themeplate_professional_lemonade">Límónaði</string>
+    <string name="themeplate_professional_lemonade_beige">Límónaði Beige</string>
+    <string name="themeplate_professional_lemonade_blue">Sítrónublár</string>
+    <string name="themeplate_professional_lemonade_cyan">Sítrónu blár</string>
+    <string name="themeplate_professional_lemonade_minimal">Lágmarkslímonaði</string>
+    <string name="themeplate_professional_lemonade_warm">Límónaði Hlýtt</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Límónaði ferskt blátt</string>
+    <string name="themeplate_professional_asphalt">Malbik</string>
+    <string name="themeplate_professional_sidewalk">Gangstétt</string>
+    <string name="themeplate_professional_retro">Retro skjáborð</string>
+    <string name="themeplate_professional_cafe">Kaffihús</string>
+    <string name="themeplate_professional_wall">Veggur</string>
+    <string name="themeplate_professional_digital_life">Stafrænt líf</string>
+    <string name="themeplate_professional_phone_mode">Símastilling</string>
+    <string name="themeplate_professional_food_selfie">Selfie og matur</string>
+    <string name="studio_category_professional">Fagmaður</string>
+    <string name="themeplate_section_digital_life">Stafrænt líf</string>
+    <string name="themeplate_section_phone_mode">Símastilling</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie matur 1</string>
+    <string name="themeplate_selfie_food_02">Selfie matur 2</string>
+    <string name="themeplate_selfie_food_03">Selfie matur 3</string>
+    <string name="themeplate_selfie_food_04">Selfie matur 4</string>
+    <string name="themeplate_selfie_food_05">Selfie matur 5</string>
+    <string name="themeplate_selfie_food_06">Selfie matur 6</string>
+    <string name="themeplate_selfie_food_07">Selfie matur 7</string>
+    <string name="themeplate_selfie_food_08">Selfie matur 8</string>
+    <string name="studio_tool_duplicate">Afrit</string>
+    <string name="studio_tool_delete">Eyða</string>
+    <string name="studio_badge_sample">Sýnishorn</string>
+    <string name="studio_action_replace">Skipta um</string>
+    <string name="studio_gallery_no_templates">Engin sniðmát í boði</string>
+    <string name="studio_gallery_coming_soon">Kemur bráðum</string>
+    <string name="studio_gallery_coming_soon_desc">Þessi eiginleiki er í þróun og verður fáanlegur fljótlega!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Sniðmát</string>
+    <string name="studio_save_image_success">Mynd vistuð</string>
+    <string name="studio_error_select_object">Vinsamlegast veldu hlut</string>
+    <string name="studio_error_load_cloud_template">Get ekki hlaðið skýjasniðmát: %1$s</string>
+    <string name="studio_error_load_template">Get ekki hlaðið sniðmát: %1$s</string>
+    <string name="studio_error_load_sample_product">Ekki er hægt að hlaða sýnishornsvöru</string>
+    <string name="studio_error_process_image">Myndvinnsluvilla</string>
+    <string name="studio_error_save_image">Mistókst að vista mynd</string>
+    <string name="studio_error_render_failed">Útgáfa mistókst: %1$s</string>
+    <string name="studio_error_unknown">Óþekkt villa</string>
 </resources>
+
+

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI प्रॉडक्ट स्टुडिओ</string>
     <string name="studio_category_electronics">इलेक्ट्रॉनिक्स</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">सावली</string>
     <string name="studio_tool_transparency">अपारदर्शकता</string>
     <string name="studio_tool_crop">क्रॉप करा</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">फिरवा/उलट करा</string>
     <string name="studio_replace_hint">तुमच्या गॅलरीमधून प्रॉडक्टचा फोटो निवडण्यासाठी \'बदला\' वर टॅप करा</string>
     <string name="studio_layout_hint">हलवण्यासाठी ड्रॅग करा · झूम करण्यासाठी पिंच करा · दोन बोटांनी फिरवा</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">पार्श्वभूमी आपोआप हटवली जाते</string>
     <string name="studio_export">निर्यात करा</string>
     <string name="studio_crop_ratio_original">मूळ</string>
+    <string name="themeplate_professional_watch">पहा</string>
+    <string name="themeplate_professional_perfume">परफ्यूम</string>
+    <string name="themeplate_professional_handbag">हँडबॅग</string>
+    <string name="themeplate_professional_sneaker">स्नीकर</string>
+    <string name="themeplate_professional_glasses">चष्मा</string>
+    <string name="themeplate_professional_cup">कप</string>
+    <string name="themeplate_professional_lipstick">लिपस्टिक</string>
+    <string name="themeplate_professional_hat">बादली टोपी</string>
+    <string name="themeplate_professional_beanie">बीनी हॅट</string>
+    <string name="themeplate_professional_lemonade">लिंबूपाणी</string>
+    <string name="themeplate_professional_lemonade_beige">लेमोनेड बेज</string>
+    <string name="themeplate_professional_lemonade_blue">लिंबूपाणी निळा</string>
+    <string name="themeplate_professional_lemonade_cyan">लिंबूपाड निळसर</string>
+    <string name="themeplate_professional_lemonade_minimal">लिंबूपाणी किमान</string>
+    <string name="themeplate_professional_lemonade_warm">लिंबूपाणी उबदार</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">लिंबूपाड ताजे निळा</string>
+    <string name="themeplate_professional_asphalt">डांबर</string>
+    <string name="themeplate_professional_sidewalk">फुटपाथ</string>
+    <string name="themeplate_professional_retro">रेट्रो डेस्कटॉप</string>
+    <string name="themeplate_professional_cafe">कॅफे</string>
+    <string name="themeplate_professional_wall">भिंत</string>
+    <string name="themeplate_professional_digital_life">डिजिटल जीवन</string>
+    <string name="themeplate_professional_phone_mode">फोन मोड</string>
+    <string name="themeplate_professional_food_selfie">सेल्फी आणि अन्न</string>
+    <string name="studio_category_professional">व्यावसायिक</string>
+    <string name="themeplate_section_digital_life">डिजिटल जीवन</string>
+    <string name="themeplate_section_phone_mode">फोन मोड</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">सेल्फी फूड १</string>
+    <string name="themeplate_selfie_food_02">सेल्फी फूड 2</string>
+    <string name="themeplate_selfie_food_03">सेल्फी फूड ३</string>
+    <string name="themeplate_selfie_food_04">सेल्फी फूड 4</string>
+    <string name="themeplate_selfie_food_05">सेल्फी फूड 5</string>
+    <string name="themeplate_selfie_food_06">सेल्फी फूड 6</string>
+    <string name="themeplate_selfie_food_07">सेल्फी फूड 7</string>
+    <string name="themeplate_selfie_food_08">सेल्फी फूड 8</string>
+    <string name="studio_tool_duplicate">डुप्लिकेट</string>
+    <string name="studio_tool_delete">हटवा</string>
+    <string name="studio_badge_sample">नमुना</string>
+    <string name="studio_action_replace">बदला</string>
+    <string name="studio_gallery_no_templates">कोणतेही टेम्पलेट उपलब्ध नाहीत</string>
+    <string name="studio_gallery_coming_soon">लवकरच येत आहे</string>
+    <string name="studio_gallery_coming_soon_desc">हे वैशिष्ट्य विकसित होत आहे आणि लवकरच उपलब्ध होईल!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">टेम्पलेट्स</string>
+    <string name="studio_save_image_success">प्रतिमा जतन केली</string>
+    <string name="studio_error_select_object">कृपया एखादी वस्तू निवडा</string>
+    <string name="studio_error_load_cloud_template">मेघ टेम्पलेट लोड करू शकत नाही: %1$s</string>
+    <string name="studio_error_load_template">टेम्पलेट लोड करू शकत नाही: %1$s</string>
+    <string name="studio_error_load_sample_product">नमुना उत्पादन लोड करू शकत नाही</string>
+    <string name="studio_error_process_image">इमेज प्रोसेसिंग एरर</string>
+    <string name="studio_error_save_image">प्रतिमा जतन करण्यात अयशस्वी</string>
+    <string name="studio_error_render_failed">प्रस्तुत करणे अयशस्वी: %1$s</string>
+    <string name="studio_error_unknown">अज्ञात त्रुटी</string>
 </resources>
+
+

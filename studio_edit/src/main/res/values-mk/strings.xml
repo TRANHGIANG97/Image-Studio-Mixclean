@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Студио за производи</string>
     <string name="studio_category_electronics">Електроника</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Сенка</string>
     <string name="studio_tool_transparency">Проѕирност</string>
     <string name="studio_tool_crop">Исечи</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Ротирај/Сврти</string>
     <string name="studio_replace_hint">Допрете Замени за да изберете фотографија на производ од галеријата</string>
     <string name="studio_layout_hint">Влечете за поместување · Спојте прсти за зумирање · Ротирајте со два прста</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Позадината се отстранува автоматски</string>
     <string name="studio_export">Експортирај</string>
     <string name="studio_crop_ratio_original">Оригинал</string>
+    <string name="themeplate_professional_watch">Гледајте</string>
+    <string name="themeplate_professional_perfume">Парфем</string>
+    <string name="themeplate_professional_handbag">Рачна чанта</string>
+    <string name="themeplate_professional_sneaker">Патики</string>
+    <string name="themeplate_professional_glasses">Чаши</string>
+    <string name="themeplate_professional_cup">Чаша</string>
+    <string name="themeplate_professional_lipstick">Кармин</string>
+    <string name="themeplate_professional_hat">Капа за кофа</string>
+    <string name="themeplate_professional_beanie">Бени капа</string>
+    <string name="themeplate_professional_lemonade">Лимонада</string>
+    <string name="themeplate_professional_lemonade_beige">Лимонада беж</string>
+    <string name="themeplate_professional_lemonade_blue">Сина лимонада</string>
+    <string name="themeplate_professional_lemonade_cyan">Цијан лимонада</string>
+    <string name="themeplate_professional_lemonade_minimal">Лимонада минимум</string>
+    <string name="themeplate_professional_lemonade_warm">Топла лимонада</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Лимонада свежо сина</string>
+    <string name="themeplate_professional_asphalt">Асфалт</string>
+    <string name="themeplate_professional_sidewalk">Тротоар</string>
+    <string name="themeplate_professional_retro">Ретро работна површина</string>
+    <string name="themeplate_professional_cafe">Кафе</string>
+    <string name="themeplate_professional_wall">Ѕид</string>
+    <string name="themeplate_professional_digital_life">Дигитален живот</string>
+    <string name="themeplate_professional_phone_mode">Телефонски режим</string>
+    <string name="themeplate_professional_food_selfie">Селфи и храна</string>
+    <string name="studio_category_professional">Професионален</string>
+    <string name="themeplate_section_digital_life">Дигитален живот</string>
+    <string name="themeplate_section_phone_mode">Телефонски режим</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Храна за селфи 1</string>
+    <string name="themeplate_selfie_food_02">Храна за селфи 2</string>
+    <string name="themeplate_selfie_food_03">Храна за селфи 3</string>
+    <string name="themeplate_selfie_food_04">Храна за селфи 4</string>
+    <string name="themeplate_selfie_food_05">Храна за селфи 5</string>
+    <string name="themeplate_selfie_food_06">Храна за селфи 6</string>
+    <string name="themeplate_selfie_food_07">Храна за селфи 7</string>
+    <string name="themeplate_selfie_food_08">Храна за селфи 8</string>
+    <string name="studio_tool_duplicate">Дупликат</string>
+    <string name="studio_tool_delete">Избриши</string>
+    <string name="studio_badge_sample">Примерок</string>
+    <string name="studio_action_replace">Заменете</string>
+    <string name="studio_gallery_no_templates">Нема достапни шаблони</string>
+    <string name="studio_gallery_coming_soon">Наскоро</string>
+    <string name="studio_gallery_coming_soon_desc">Оваа функција е во развој и ќе биде достапна наскоро!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Шаблони</string>
+    <string name="studio_save_image_success">Сликата е зачувана</string>
+    <string name="studio_error_select_object">Изберете објект</string>
+    <string name="studio_error_load_cloud_template">Не може да се вчита шаблон за облак: %1$s</string>
+    <string name="studio_error_load_template">Не може да се вчита шаблонот: %1$s</string>
+    <string name="studio_error_load_sample_product">Не може да се вчита примерок од производот</string>
+    <string name="studio_error_process_image">Грешка во обработката на сликата</string>
+    <string name="studio_error_save_image">Сликата не успеа да се зачува</string>
+    <string name="studio_error_render_failed">Рендерирањето не успеа: %1$s</string>
+    <string name="studio_error_unknown">Непозната грешка</string>
 </resources>
+
+

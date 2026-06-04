@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio de produse IA</string>
     <string name="studio_category_electronics">Electronice</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Umbră</string>
     <string name="studio_tool_transparency">Opacitate</string>
     <string name="studio_tool_crop">Decupare</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Rotire/Răsturnare</string>
     <string name="studio_replace_hint">Atingeți Înlocuire pentru a alege o fotografie de produs din galeria dvs.</string>
     <string name="studio_layout_hint">Glisați pentru a muta · Apropiați degetele pentru zoom · Rotiți cu două degete</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Fundalul este eliminat automat</string>
     <string name="studio_export">Exportă</string>
     <string name="studio_crop_ratio_original">Original</string>
+    <string name="themeplate_professional_watch">Ceas</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Geantă de mână</string>
+    <string name="themeplate_professional_sneaker">Adidași</string>
+    <string name="themeplate_professional_glasses">Ochelari</string>
+    <string name="themeplate_professional_cup">Ceaşcă</string>
+    <string name="themeplate_professional_lipstick">Ruj</string>
+    <string name="themeplate_professional_hat">Pălărie de găleată</string>
+    <string name="themeplate_professional_beanie">Pălărie Beanie</string>
+    <string name="themeplate_professional_lemonade">Limonadă</string>
+    <string name="themeplate_professional_lemonade_beige">Bej limonadă</string>
+    <string name="themeplate_professional_lemonade_blue">Albastru limonadă</string>
+    <string name="themeplate_professional_lemonade_cyan">Limonadă Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonadă Minimă</string>
+    <string name="themeplate_professional_lemonade_warm">Limonadă caldă</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limonadă albastră proaspătă</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Trotuar</string>
+    <string name="themeplate_professional_retro">Desktop retro</string>
+    <string name="themeplate_professional_cafe">Cafenea</string>
+    <string name="themeplate_professional_wall">Perete</string>
+    <string name="themeplate_professional_digital_life">Viața digitală</string>
+    <string name="themeplate_professional_phone_mode">Modul telefon</string>
+    <string name="themeplate_professional_food_selfie">Selfie și mâncare</string>
+    <string name="studio_category_professional">Profesional</string>
+    <string name="themeplate_section_digital_life">Viața digitală</string>
+    <string name="themeplate_section_phone_mode">Modul telefon</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Mâncare pentru selfie-uri 1</string>
+    <string name="themeplate_selfie_food_02">Mâncare pentru selfie-uri 2</string>
+    <string name="themeplate_selfie_food_03">Mâncare pentru selfie-uri 3</string>
+    <string name="themeplate_selfie_food_04">Mâncare pentru selfie-uri 4</string>
+    <string name="themeplate_selfie_food_05">Mâncare pentru selfie-uri 5</string>
+    <string name="themeplate_selfie_food_06">Mâncare pentru selfie-uri 6</string>
+    <string name="themeplate_selfie_food_07">Mâncare pentru selfie-uri 7</string>
+    <string name="themeplate_selfie_food_08">Mâncare pentru selfie-uri 8</string>
+    <string name="studio_tool_duplicate">Duplicat</string>
+    <string name="studio_tool_delete">Şterge</string>
+    <string name="studio_badge_sample">Eşantion</string>
+    <string name="studio_action_replace">Înlocui</string>
+    <string name="studio_gallery_no_templates">Nu există șabloane disponibile</string>
+    <string name="studio_gallery_coming_soon">În curând</string>
+    <string name="studio_gallery_coming_soon_desc">Această funcție este în curs de dezvoltare și va fi disponibilă în curând!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Șabloane</string>
+    <string name="studio_save_image_success">Imaginea salvată</string>
+    <string name="studio_error_select_object">Vă rugăm să selectați un obiect</string>
+    <string name="studio_error_load_cloud_template">Nu se poate încărca șablonul cloud: %1$s</string>
+    <string name="studio_error_load_template">Nu se poate încărca șablonul: %1$s</string>
+    <string name="studio_error_load_sample_product">Produsul eșantion nu poate fi încărcat</string>
+    <string name="studio_error_process_image">Eroare de procesare a imaginii</string>
+    <string name="studio_error_save_image">Nu s-a putut salva imaginea</string>
+    <string name="studio_error_render_failed">Redare eșuată: %1$s</string>
+    <string name="studio_error_unknown">Eroare necunoscută</string>
 </resources>
+
+

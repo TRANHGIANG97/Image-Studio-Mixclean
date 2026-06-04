@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Termékstúdió</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Árnyék</string>
     <string name="studio_tool_transparency">Átlátszatlanság</string>
     <string name="studio_tool_crop">Kivágás</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Forgatás/Tükrözés</string>
     <string name="studio_replace_hint">Koppintson a Csere gombra egy termékfotó kiválasztásához a galériából</string>
     <string name="studio_layout_hint">Húzza a mozgatáshoz · Csippentse a nagyításhoz · Forgassa két ujjal</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">A háttér automatikusan eltávolításra kerül</string>
     <string name="studio_export">Exportálás</string>
     <string name="studio_crop_ratio_original">Eredeti</string>
+    <string name="themeplate_professional_watch">Óra</string>
+    <string name="themeplate_professional_perfume">Parfüm</string>
+    <string name="themeplate_professional_handbag">Kézitáska</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Szemüveg</string>
+    <string name="themeplate_professional_cup">Csésze</string>
+    <string name="themeplate_professional_lipstick">Ajakrúzs</string>
+    <string name="themeplate_professional_hat">Vödör kalap</string>
+    <string name="themeplate_professional_beanie">Beanie Hat</string>
+    <string name="themeplate_professional_lemonade">Limonádé</string>
+    <string name="themeplate_professional_lemonade_beige">Limonádé bézs</string>
+    <string name="themeplate_professional_lemonade_blue">Limonádé kék</string>
+    <string name="themeplate_professional_lemonade_cyan">Cián limonádé</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonádé Minimális</string>
+    <string name="themeplate_professional_lemonade_warm">Limonádé meleg</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limonádé friss kék</string>
+    <string name="themeplate_professional_asphalt">Aszfalt</string>
+    <string name="themeplate_professional_sidewalk">Járda</string>
+    <string name="themeplate_professional_retro">Retro asztali számítógép</string>
+    <string name="themeplate_professional_cafe">Kávéház</string>
+    <string name="themeplate_professional_wall">Fal</string>
+    <string name="themeplate_professional_digital_life">Digitális Élet</string>
+    <string name="themeplate_professional_phone_mode">Telefon mód</string>
+    <string name="themeplate_professional_food_selfie">Szelfi és étel</string>
+    <string name="studio_category_professional">Szakmai</string>
+    <string name="themeplate_section_digital_life">Digitális Élet</string>
+    <string name="themeplate_section_phone_mode">Telefon mód</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Szelfi étel 1</string>
+    <string name="themeplate_selfie_food_02">Szelfi étel 2</string>
+    <string name="themeplate_selfie_food_03">Szelfi étel 3</string>
+    <string name="themeplate_selfie_food_04">Szelfi étel 4</string>
+    <string name="themeplate_selfie_food_05">Szelfi étel 5</string>
+    <string name="themeplate_selfie_food_06">Szelfi étel 6</string>
+    <string name="themeplate_selfie_food_07">Szelfi étel 7</string>
+    <string name="themeplate_selfie_food_08">Szelfi étel 8</string>
+    <string name="studio_tool_duplicate">Másolat</string>
+    <string name="studio_tool_delete">Töröl</string>
+    <string name="studio_badge_sample">Minta</string>
+    <string name="studio_action_replace">Cserélje ki</string>
+    <string name="studio_gallery_no_templates">Nem állnak rendelkezésre sablonok</string>
+    <string name="studio_gallery_coming_soon">Hamarosan</string>
+    <string name="studio_gallery_coming_soon_desc">Ez a funkció fejlesztés alatt áll, és hamarosan elérhető lesz!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Sablonok</string>
+    <string name="studio_save_image_success">Kép mentve</string>
+    <string name="studio_error_select_object">Kérjük, válasszon egy objektumot</string>
+    <string name="studio_error_load_cloud_template">Nem sikerült betölteni a felhősablont: %1$s</string>
+    <string name="studio_error_load_template">Nem lehet betölteni a sablont: %1$s</string>
+    <string name="studio_error_load_sample_product">A termékminta nem tölthető be</string>
+    <string name="studio_error_process_image">Képfeldolgozási hiba</string>
+    <string name="studio_error_save_image">Nem sikerült menteni a képet</string>
+    <string name="studio_error_render_failed">A renderelés sikertelen: %1$s</string>
+    <string name="studio_error_unknown">Ismeretlen hiba</string>
 </resources>
+
+

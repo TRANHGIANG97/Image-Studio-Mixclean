@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">I-Studio yoMkhiqizo ye-AI</string>
     <string name="studio_category_electronics">Ezogesi</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Isithunzi</string>
     <string name="studio_tool_transparency">Ukucaca</string>
     <string name="studio_tool_crop">Nquma</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Phendula/Yisa phezulu naphansi</string>
     <string name="studio_replace_hint">Thinta okuthi Buyisela ukuze ukhethe isithombe somkhiqizo kugalari yakho</string>
     <string name="studio_layout_hint">Donsa ukuze unyakaze · Nciza ukuze usondeze · Phendula ngeminwe emibili</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Ingemuva lisuswa ngokuzenzakalelayo</string>
     <string name="studio_export">Khipha</string>
     <string name="studio_crop_ratio_original">Okwangempela</string>
+    <string name="themeplate_professional_watch">Buka</string>
+    <string name="themeplate_professional_perfume">Amakha</string>
+    <string name="themeplate_professional_handbag">Isikhwama</string>
+    <string name="themeplate_professional_sneaker">Isikibha</string>
+    <string name="themeplate_professional_glasses">Izibuko</string>
+    <string name="themeplate_professional_cup">Indebe</string>
+    <string name="themeplate_professional_lipstick">I-lipstick</string>
+    <string name="themeplate_professional_hat">Isigqoko Sebhakede</string>
+    <string name="themeplate_professional_beanie">Beanie Hat</string>
+    <string name="themeplate_professional_lemonade">Ilamuna</string>
+    <string name="themeplate_professional_lemonade_beige">I-Lemonade Beige</string>
+    <string name="themeplate_professional_lemonade_blue">I-Lemonade Blue</string>
+    <string name="themeplate_professional_lemonade_cyan">I-Lemonade Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">I-Lemonade Minimal</string>
+    <string name="themeplate_professional_lemonade_warm">I-Lemonade Efudumele</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">I-Lemonade Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">Itiyela</string>
+    <string name="themeplate_professional_sidewalk">Umgwaqo oseceleni</string>
+    <string name="themeplate_professional_retro">I-Retro Desktop</string>
+    <string name="themeplate_professional_cafe">Ikhefi</string>
+    <string name="themeplate_professional_wall">Udonga</string>
+    <string name="themeplate_professional_digital_life">Impilo Yedijithali</string>
+    <string name="themeplate_professional_phone_mode">Imodi yefoni</string>
+    <string name="themeplate_professional_food_selfie">Isithombe ozishuthe sona kanye nokudla</string>
+    <string name="studio_category_professional">Uchwepheshe</string>
+    <string name="themeplate_section_digital_life">Impilo Yedijithali</string>
+    <string name="themeplate_section_phone_mode">Imodi yefoni</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Ukudla kwesithombe ozishuthe sona 1</string>
+    <string name="themeplate_selfie_food_02">Ukudla kweSelfie 2</string>
+    <string name="themeplate_selfie_food_03">Ukudla kweSelfie 3</string>
+    <string name="themeplate_selfie_food_04">Ukudla kweSelfie 4</string>
+    <string name="themeplate_selfie_food_05">Ukudla kweSelfie 5</string>
+    <string name="themeplate_selfie_food_06">Ukudla kweSelfie 6</string>
+    <string name="themeplate_selfie_food_07">Ukudla kwesithombe ozishuthe sona 7</string>
+    <string name="themeplate_selfie_food_08">Ukudla kwesithombe ozishuthe sona 8</string>
+    <string name="studio_tool_duplicate">Impinda</string>
+    <string name="studio_tool_delete">Susa</string>
+    <string name="studio_badge_sample">Isampula</string>
+    <string name="studio_action_replace">Faka esikhundleni</string>
+    <string name="studio_gallery_no_templates">Azikho izifanekiso ezitholakalayo</string>
+    <string name="studio_gallery_coming_soon">Kuyeza maduze</string>
+    <string name="studio_gallery_coming_soon_desc">Lesi sici sisathuthukiswa futhi sizotholakala maduze!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Izifanekiso</string>
+    <string name="studio_save_image_success">Isithombe silondoloziwe</string>
+    <string name="studio_error_select_object">Sicela ukhethe into</string>
+    <string name="studio_error_load_cloud_template">Ayikwazi ukulayisha isifanekiso sefu: %1$s</string>
+    <string name="studio_error_load_template">Ayikwazi ukulayisha isifanekiso: __%1$s</string>
+    <string name="studio_error_load_sample_product">Ayikwazi ukulayisha umkhiqizo oyisampula</string>
+    <string name="studio_error_process_image">Iphutha lokucubungula isithombe</string>
+    <string name="studio_error_save_image">Yehlulekile ukulondoloza isithombe</string>
+    <string name="studio_error_render_failed">Ukunikezela kuhlulekile: __%1$s</string>
+    <string name="studio_error_unknown">Iphutha elingaziwa</string>
 </resources>
+
+

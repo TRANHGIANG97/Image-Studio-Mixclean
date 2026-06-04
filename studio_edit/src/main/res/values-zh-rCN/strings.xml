@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI 商品工作室</string>
     <string name="studio_category_electronics">数码電子</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">阴影</string>
     <string name="studio_tool_transparency">不透明度</string>
     <string name="studio_tool_crop">裁剪</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">旋转/翻转</string>
     <string name="studio_replace_hint">轻点“替换”从相册中选择一张商品照片</string>
     <string name="studio_layout_hint">拖动以移动 · 双指捏合以缩放 · 双指旋转</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">自动抠图隐藏背景</string>
     <string name="studio_export">导出</string>
     <string name="studio_crop_ratio_original">原始</string>
+    <string name="themeplate_professional_watch">手表</string>
+    <string name="themeplate_professional_perfume">香水</string>
+    <string name="themeplate_professional_handbag">手提包</string>
+    <string name="themeplate_professional_sneaker">运动鞋</string>
+    <string name="themeplate_professional_glasses">眼镜</string>
+    <string name="themeplate_professional_cup">杯子</string>
+    <string name="themeplate_professional_lipstick">口红</string>
+    <string name="themeplate_professional_hat">渔夫帽</string>
+    <string name="themeplate_professional_beanie">无檐便帽</string>
+    <string name="themeplate_professional_lemonade">柠檬水</string>
+    <string name="themeplate_professional_lemonade_beige">柠檬水米色</string>
+    <string name="themeplate_professional_lemonade_blue">柠檬水蓝</string>
+    <string name="themeplate_professional_lemonade_cyan">柠檬水青色</string>
+    <string name="themeplate_professional_lemonade_minimal">柠檬水最小</string>
+    <string name="themeplate_professional_lemonade_warm">温暖的柠檬水</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">柠檬水鲜蓝</string>
+    <string name="themeplate_professional_asphalt">沥青</string>
+    <string name="themeplate_professional_sidewalk">人行道</string>
+    <string name="themeplate_professional_retro">复古桌面</string>
+    <string name="themeplate_professional_cafe">咖啡店</string>
+    <string name="themeplate_professional_wall">墙</string>
+    <string name="themeplate_professional_digital_life">数字生活</string>
+    <string name="themeplate_professional_phone_mode">电话模式</string>
+    <string name="themeplate_professional_food_selfie">自拍与美食</string>
+    <string name="studio_category_professional">专业的</string>
+    <string name="themeplate_section_digital_life">数字生活</string>
+    <string name="themeplate_section_phone_mode">电话模式</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">自拍食物1</string>
+    <string name="themeplate_selfie_food_02">自拍美食2</string>
+    <string name="themeplate_selfie_food_03">自拍美食3</string>
+    <string name="themeplate_selfie_food_04">自拍美食4</string>
+    <string name="themeplate_selfie_food_05">自拍美食5</string>
+    <string name="themeplate_selfie_food_06">自拍美食 6</string>
+    <string name="themeplate_selfie_food_07">自拍食物 7</string>
+    <string name="themeplate_selfie_food_08">自拍食物 8</string>
+    <string name="studio_tool_duplicate">复制</string>
+    <string name="studio_tool_delete">删除</string>
+    <string name="studio_badge_sample">样本</string>
+    <string name="studio_action_replace">代替</string>
+    <string name="studio_gallery_no_templates">没有可用的模板</string>
+    <string name="studio_gallery_coming_soon">即将推出</string>
+    <string name="studio_gallery_coming_soon_desc">该功能正在开发中，很快就会推出！</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">模板</string>
+    <string name="studio_save_image_success">图像已保存</string>
+    <string name="studio_error_select_object">请选择一个对象</string>
+    <string name="studio_error_load_cloud_template">无法加载云模板：%1$s</string>
+    <string name="studio_error_load_template">无法加载模板：%1$s</string>
+    <string name="studio_error_load_sample_product">无法加载样品产品</string>
+    <string name="studio_error_process_image">图像处理错误</string>
+    <string name="studio_error_save_image">保存图像失败</string>
+    <string name="studio_error_render_failed">渲染失败：%1$s</string>
+    <string name="studio_error_unknown">未知错误</string>
 </resources>
+
+

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI ထုတ်ကုန် စတူဒီယို</string>
     <string name="studio_category_electronics">လျှပ်စစ်ပစ္စည်းများ</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">အရိပ်</string>
     <string name="studio_tool_transparency">အလင်းပိတ်အား</string>
     <string name="studio_tool_crop">ဖြတ်ညှပ်ရန်</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">လှည့်ရန်/လှန်ရန်</string>
     <string name="studio_replace_hint">ပြခန်းမှ ထုတ်ကုန်ဓာတ်ပုံကို ရွေးချယ်ရန် \'အစားထိုးရန်\' ကို နှိပ်ပါ</string>
     <string name="studio_layout_hint">ရွှေ့ရန် ဆွဲပါ · ချဲ့ရန်/ချုံ့ရန် လက်ချောင်းများစုပါ · လက်ချောင်းနှစ်ချောင်းဖြင့် လှည့်ပါ</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">နောက်ခံကို အလိုအလျောက် ဖယ်ရှားပေးပါသည်</string>
     <string name="studio_export">ထုတ်ယူရန်</string>
     <string name="studio_crop_ratio_original">မူရင်း</string>
+    <string name="themeplate_professional_watch">ကင်း</string>
+    <string name="themeplate_professional_perfume">ရေမွှေး</string>
+    <string name="themeplate_professional_handbag">လက်ကိုင်အိတ်</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">မျက်မှန်</string>
+    <string name="themeplate_professional_cup">ဖလား</string>
+    <string name="themeplate_professional_lipstick">နှုတ်ခမ်းနီ</string>
+    <string name="themeplate_professional_hat">Bucket Hat</string>
+    <string name="themeplate_professional_beanie">Beanie ဦးထုပ်</string>
+    <string name="themeplate_professional_lemonade">သံပုရာရည်</string>
+    <string name="themeplate_professional_lemonade_beige">သံပုရာရည်</string>
+    <string name="themeplate_professional_lemonade_blue">Lemonade အပြာ</string>
+    <string name="themeplate_professional_lemonade_cyan">သံပုရာရည် အစိမ်းနုရောင်</string>
+    <string name="themeplate_professional_lemonade_minimal">သံပုရာရည်အနည်းငယ်မျှသာ</string>
+    <string name="themeplate_professional_lemonade_warm">သံပုရာရည်နွေး</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">ကတ္တရာ</string>
+    <string name="themeplate_professional_sidewalk">လမ်းဘေး</string>
+    <string name="themeplate_professional_retro">Retro Desktop</string>
+    <string name="themeplate_professional_cafe">ကဖေး</string>
+    <string name="themeplate_professional_wall">ဝေါ</string>
+    <string name="themeplate_professional_digital_life">ဒစ်ဂျစ်တယ်ဘဝ</string>
+    <string name="themeplate_professional_phone_mode">ဖုန်းမုဒ်</string>
+    <string name="themeplate_professional_food_selfie">Selfie နှင့် အစားအသောက်</string>
+    <string name="studio_category_professional">အတတ်ပညာ</string>
+    <string name="themeplate_section_digital_life">ဒစ်ဂျစ်တယ်ဘဝ</string>
+    <string name="themeplate_section_phone_mode">ဖုန်းမုဒ်</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie အစားအစာ ၁</string>
+    <string name="themeplate_selfie_food_02">Selfie အစားအစာ ၂</string>
+    <string name="themeplate_selfie_food_03">Selfie အစားအစာ ၃</string>
+    <string name="themeplate_selfie_food_04">Selfie အစားအစာ ၄</string>
+    <string name="themeplate_selfie_food_05">Selfie အစားအစာ ၅</string>
+    <string name="themeplate_selfie_food_06">Selfie အစားအစာ ၆</string>
+    <string name="themeplate_selfie_food_07">Selfie အစားအစာ ၇</string>
+    <string name="themeplate_selfie_food_08">Selfie အစားအစာ ၈</string>
+    <string name="studio_tool_duplicate">ပွား</string>
+    <string name="studio_tool_delete">ဖျက်ပါ။</string>
+    <string name="studio_badge_sample">နမူနာ</string>
+    <string name="studio_action_replace">အစားထိုးပါ။</string>
+    <string name="studio_gallery_no_templates">နမူနာပုံစံများ မရရှိနိုင်ပါ။</string>
+    <string name="studio_gallery_coming_soon">မကြာမီလာမည်</string>
+    <string name="studio_gallery_coming_soon_desc">ဤဝန်ဆောင်မှုကို တည်ဆောက်ဆဲဖြစ်ပြီး မကြာမီ ရနိုင်ပါမည်။</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">ပုံစံများ</string>
+    <string name="studio_save_image_success">ပုံကို သိမ်းထားသည်။</string>
+    <string name="studio_error_select_object">အရာဝတ္ထုတစ်ခုကို ရွေးပါ။</string>
+    <string name="studio_error_load_cloud_template">cloud နမူနာပုံစံကို ဖွင့်၍မရပါ- %1$s</string>
+    <string name="studio_error_load_template">နမူနာပုံစံကို ဖွင့်၍မရပါ- %1$s</string>
+    <string name="studio_error_load_sample_product">နမူနာထုတ်ကုန်ကို တင်၍မရပါ။</string>
+    <string name="studio_error_process_image">ရုပ်ပုံလုပ်ဆောင်ခြင်း အမှားအယွင်း</string>
+    <string name="studio_error_save_image">ပုံကို သိမ်းဆည်းရန် မအောင်မြင်ပါ။</string>
+    <string name="studio_error_render_failed">တင်ဆက်မှု မအောင်မြင်ပါ- %1$s</string>
+    <string name="studio_error_unknown">အမည်မသိ အမှား</string>
 </resources>
+
+

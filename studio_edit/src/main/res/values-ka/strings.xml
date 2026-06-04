@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI პროდუქტის სტუდია</string>
     <string name="studio_category_electronics">ელექტრონიკა</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">ჩრდილი</string>
     <string name="studio_tool_transparency">გაუმჭვირვალობა</string>
     <string name="studio_tool_crop">მოჭრა</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">დატრიალება/ასახვა</string>
     <string name="studio_replace_hint">შეეხეთ \"შეცვლას\" გალერეიდან პროდუქტის ფოტოს ასარჩევად</string>
     <string name="studio_layout_hint">გადაათრიეთ გადასაადგილებლად · ჩამოწელეთ მასშტაბირებისთვის · დაატრიალეთ ორი თითით</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">ფონი ავტომატურად იშლება</string>
     <string name="studio_export">ექსპორტი</string>
     <string name="studio_crop_ratio_original">ორიგინალი</string>
+    <string name="themeplate_professional_watch">უყურე</string>
+    <string name="themeplate_professional_perfume">სუნამო</string>
+    <string name="themeplate_professional_handbag">ხელჩანთა</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">სათვალეები</string>
+    <string name="themeplate_professional_cup">თასი</string>
+    <string name="themeplate_professional_lipstick">პომადა</string>
+    <string name="themeplate_professional_hat">Bucket ქუდი</string>
+    <string name="themeplate_professional_beanie">Beanie ქუდი</string>
+    <string name="themeplate_professional_lemonade">ლიმონათი</string>
+    <string name="themeplate_professional_lemonade_beige">ლიმონათის კრემისფერი</string>
+    <string name="themeplate_professional_lemonade_blue">ლიმონათი ლურჯი</string>
+    <string name="themeplate_professional_lemonade_cyan">ლიმონათი ციანი</string>
+    <string name="themeplate_professional_lemonade_minimal">ლიმონათი მინიმალური</string>
+    <string name="themeplate_professional_lemonade_warm">ლიმონათი თბილი</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">ლიმონათი ახალი ლურჯი</string>
+    <string name="themeplate_professional_asphalt">ასფალტი</string>
+    <string name="themeplate_professional_sidewalk">ტროტუარი</string>
+    <string name="themeplate_professional_retro">რეტრო სამუშაო მაგიდა</string>
+    <string name="themeplate_professional_cafe">კაფე</string>
+    <string name="themeplate_professional_wall">კედელი</string>
+    <string name="themeplate_professional_digital_life">ციფრული ცხოვრება</string>
+    <string name="themeplate_professional_phone_mode">ტელეფონის რეჟიმი</string>
+    <string name="themeplate_professional_food_selfie">სელფი და კვება</string>
+    <string name="studio_category_professional">პროფესიონალი</string>
+    <string name="themeplate_section_digital_life">ციფრული ცხოვრება</string>
+    <string name="themeplate_section_phone_mode">ტელეფონის რეჟიმი</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">სელფის საჭმელი 1</string>
+    <string name="themeplate_selfie_food_02">სელფის საკვები 2</string>
+    <string name="themeplate_selfie_food_03">სელფის საჭმელი 3</string>
+    <string name="themeplate_selfie_food_04">სელფის საჭმელი 4</string>
+    <string name="themeplate_selfie_food_05">სელფის საკვები 5</string>
+    <string name="themeplate_selfie_food_06">სელფის საჭმელი 6</string>
+    <string name="themeplate_selfie_food_07">სელფის საკვები 7</string>
+    <string name="themeplate_selfie_food_08">სელფის საჭმელი 8</string>
+    <string name="studio_tool_duplicate">დუბლიკატი</string>
+    <string name="studio_tool_delete">წაშლა</string>
+    <string name="studio_badge_sample">ნიმუში</string>
+    <string name="studio_action_replace">ჩანაცვლება</string>
+    <string name="studio_gallery_no_templates">შაბლონები არ არის ხელმისაწვდომი</string>
+    <string name="studio_gallery_coming_soon">მალე მოვა</string>
+    <string name="studio_gallery_coming_soon_desc">ეს ფუნქცია დამუშავების პროცესშია და მალე იქნება ხელმისაწვდომი!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">შაბლონები</string>
+    <string name="studio_save_image_success">სურათი შენახულია</string>
+    <string name="studio_error_select_object">გთხოვთ, აირჩიოთ ობიექტი</string>
+    <string name="studio_error_load_cloud_template">ღრუბლის შაბლონის ჩატვირთვა შეუძლებელია: %1$s</string>
+    <string name="studio_error_load_template">შაბლონის ჩატვირთვა შეუძლებელია: %1$s</string>
+    <string name="studio_error_load_sample_product">პროდუქტის ნიმუშის ჩატვირთვა შეუძლებელია</string>
+    <string name="studio_error_process_image">სურათის დამუშავების შეცდომა</string>
+    <string name="studio_error_save_image">სურათის შენახვა ვერ მოხერხდა</string>
+    <string name="studio_error_render_failed">რენდერი ვერ მოხერხდა: %1$s</string>
+    <string name="studio_error_unknown">უცნობი შეცდომა</string>
 </resources>
+
+

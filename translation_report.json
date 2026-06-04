@@ -1,114 +1,115 @@
-[
+﻿[
   {
     "lang": "ar",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "de",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "es",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "fr",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "hi",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "in",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "it",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "ja",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "ko",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "pl",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "pt-rBR",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "th",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "tr",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "vi",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "zh-rCN",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   },
   {
     "lang": "zh-rTW",
-    "total": 249,
-    "translated": 249,
+    "total": 251,
+    "translated": 251,
     "missing_count": 0,
     "missing_keys": []
   }
 ]
+

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">ສະຕູດິໂອຜະລິດຕະພັນ AI</string>
     <string name="studio_category_electronics">ເຄື່ອງເອເລັກໂຕຣນິກ</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">ເງົາ</string>
     <string name="studio_tool_transparency">ຄວາມໂປ່ງແສງ</string>
     <string name="studio_tool_crop">ຕັດຂະໜາດ</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">ໝູນ/ພິກ</string>
     <string name="studio_replace_hint">ແຕະ ປ່ຽນແທນ ເພື່ອເລືອກຮູບຜະລິດຕະພັນຈາກຄັງຮູບຂອງທ່ານ</string>
     <string name="studio_layout_hint">ລາກເພື່ອຍ້າຍ · ຈີບນິ້ວເພື່ອຊູມ · ໝູນດ້ວຍສອງນິ້ວ</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">ພື້ນຫຼັງຈະຖືກລຶບອອກໂດຍອັດຕະໂນມັດ</string>
     <string name="studio_export">ສົ່ງອອກ</string>
     <string name="studio_crop_ratio_original">ຕົ້ນສະບັບ</string>
+    <string name="themeplate_professional_watch">ສັງເກດເບິ່ງ</string>
+    <string name="themeplate_professional_perfume">ນໍ້າຫອມ</string>
+    <string name="themeplate_professional_handbag">ກະເປົາຖື</string>
+    <string name="themeplate_professional_sneaker">ເກີບຜ້າໃບ</string>
+    <string name="themeplate_professional_glasses">ແວ່ນຕາ</string>
+    <string name="themeplate_professional_cup">ຈອກ</string>
+    <string name="themeplate_professional_lipstick">ລິບສະຕິກ</string>
+    <string name="themeplate_professional_hat">Bucket Hat</string>
+    <string name="themeplate_professional_beanie">ໝວກ Beanie</string>
+    <string name="themeplate_professional_lemonade">ໝາກນາວ</string>
+    <string name="themeplate_professional_lemonade_beige">Lemonade Beige</string>
+    <string name="themeplate_professional_lemonade_blue">ໝາກນາວ ສີຟ້າ</string>
+    <string name="themeplate_professional_lemonade_cyan">ໝາກນາວ Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Lemonade ຫນ້ອຍທີ່ສຸດ</string>
+    <string name="themeplate_professional_lemonade_warm">Lemonade ອົບອຸ່ນ</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">ໝາກນາວສົດສີຟ້າ</string>
+    <string name="themeplate_professional_asphalt">ປູຢາງ</string>
+    <string name="themeplate_professional_sidewalk">ທາງຍ່າງ</string>
+    <string name="themeplate_professional_retro">Retro Desktop</string>
+    <string name="themeplate_professional_cafe">ຮ້ານ</string>
+    <string name="themeplate_professional_wall">ກຳແພງ</string>
+    <string name="themeplate_professional_digital_life">ຊີວິດດິຈິຕອນ</string>
+    <string name="themeplate_professional_phone_mode">ໂໝດໂທລະສັບ</string>
+    <string name="themeplate_professional_food_selfie">ເຊວຟີ ແລະ ອາຫານ</string>
+    <string name="studio_category_professional">ມືອາຊີບ</string>
+    <string name="themeplate_section_digital_life">ຊີວິດດິຈິຕອນ</string>
+    <string name="themeplate_section_phone_mode">ໂໝດໂທລະສັບ</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">ອາຫານເຊວຟີ 1</string>
+    <string name="themeplate_selfie_food_02">ອາຫານເຊວຟີ 2</string>
+    <string name="themeplate_selfie_food_03">ອາຫານເຊວຟີ 3</string>
+    <string name="themeplate_selfie_food_04">ອາຫານເຊວຟີ 4</string>
+    <string name="themeplate_selfie_food_05">ອາຫານເຊວຟີ 5</string>
+    <string name="themeplate_selfie_food_06">ອາຫານເຊວຟີ 6</string>
+    <string name="themeplate_selfie_food_07">ອາຫານເຊວຟີ 7</string>
+    <string name="themeplate_selfie_food_08">ອາຫານເຊວຟີ 8</string>
+    <string name="studio_tool_duplicate">ຊໍ້າກັນ</string>
+    <string name="studio_tool_delete">ລຶບ</string>
+    <string name="studio_badge_sample">ຕົວຢ່າງ</string>
+    <string name="studio_action_replace">ແທນທີ່</string>
+    <string name="studio_gallery_no_templates">ບໍ່ມີແມ່ແບບທີ່ມີຢູ່</string>
+    <string name="studio_gallery_coming_soon">ໄວໆນີ້</string>
+    <string name="studio_gallery_coming_soon_desc">ຄຸນສົມບັດນີ້ຢູ່ໃນລະຫວ່າງການພັດທະນາ ແລະຈະສາມາດໃຊ້ໄດ້ໃນໄວໆນີ້!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">ແມ່ແບບ</string>
+    <string name="studio_save_image_success">ບັນທຶກຮູບພາບແລ້ວ</string>
+    <string name="studio_error_select_object">ກະລຸນາເລືອກວັດຖຸ</string>
+    <string name="studio_error_load_cloud_template">ບໍ່ສາມາດໂຫຼດແມ່ແບບຄລາວໄດ້: %1$s</string>
+    <string name="studio_error_load_template">ບໍ່ສາມາດໂຫຼດແມ່ແບບ: %1$s</string>
+    <string name="studio_error_load_sample_product">ບໍ່ສາມາດໂຫຼດສິນຄ້າຕົວຢ່າງໄດ້</string>
+    <string name="studio_error_process_image">ການປະມວນຜົນຮູບພາບຜິດພາດ</string>
+    <string name="studio_error_save_image">ບັນທຶກຮູບບໍ່ສຳເລັດ</string>
+    <string name="studio_error_render_failed">ການສະແດງຜົນລົ້ມເຫລວ: %1$s</string>
+    <string name="studio_error_unknown">ຄວາມຜິດພາດທີ່ບໍ່ຮູ້ຈັກ</string>
 </resources>
+
+

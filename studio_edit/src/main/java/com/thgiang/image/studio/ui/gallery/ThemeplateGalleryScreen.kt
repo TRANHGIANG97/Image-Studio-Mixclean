@@ -1,4 +1,4 @@
-﻿package com.thgiang.image.studio.ui.gallery
+package com.thgiang.image.studio.ui.gallery
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -95,8 +96,15 @@ fun ThemeplateGalleryScreen(
                                 if (selected) Color(0xFFFF2D55) else Color(0xFFFF2D55).copy(alpha = 0.08f)
                             ),
                         text = {
+                            val categoryName = when (category.id) {
+                                "professional" -> stringResource(R.string.studio_category_professional)
+                                "cosmetics" -> stringResource(R.string.studio_category_cosmetics)
+                                "digital_life" -> stringResource(R.string.themeplate_professional_digital_life)
+                                "selfie_food" -> stringResource(R.string.themeplate_professional_food_selfie)
+                                else -> category.name
+                            }
                             Text(
-                                text = category.name,
+                                text = categoryName,
                                 color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                                 style = MaterialTheme.typography.labelLarge,
@@ -144,35 +152,56 @@ private fun ThemeplateGrid(
     themeplates: List<StudioThemeplate>,
     onThemeplateSelected: (StudioThemeplate) -> Unit
 ) {
-    if (themeplates.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Không có mẫu nào",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    } else {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(start = 5.dp, top = 8.dp, end = 5.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(
-                items = themeplates,
-                key = { it.id }
-            ) { themeplate ->
-                ThemeplateCardV2(
-                    themeplate = themeplate,
-                    onClick = { onThemeplateSelected(themeplate) }
-                )
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            if (themeplates.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.studio_gallery_no_templates),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    contentPadding = PaddingValues(start = 5.dp, top = 8.dp, end = 5.dp, bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(
+                        items = themeplates,
+                        key = { it.id }
+                    ) { themeplate ->
+                        ThemeplateCardV2(
+                            themeplate = themeplate,
+                            onClick = { onThemeplateSelected(themeplate) }
+                        )
+                    }
+                }
             }
         }
+
+        Text(
+            text = stringResource(R.string.studio_gallery_design_note),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 12.dp),
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontSize = 11.sp,
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Medium,
+                lineHeight = 14.sp
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f),
+            textAlign = TextAlign.Center,
+            maxLines = 3
+        )
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
@@ -189,7 +218,7 @@ private fun ComingSoonView() {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Sắp ra mắt",
+                text = stringResource(R.string.studio_gallery_coming_soon),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFFF2D55)
@@ -198,7 +227,7 @@ private fun ComingSoonView() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Tính năng này đang được phát triển và sẽ sớm xuất hiện!",
+                text = stringResource(R.string.studio_gallery_coming_soon_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktstudie</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Skygge</string>
     <string name="studio_tool_transparency">Opacitet</string>
     <string name="studio_tool_crop">Beskær</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Roter/Vend</string>
     <string name="studio_replace_hint">Tryk på Erstat for at vælge et produktbillede fra dit galleri</string>
     <string name="studio_layout_hint">Træk for at flytte · Knib for at zoome · Roter med to fingre</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Baggrunden fjernes automatisk</string>
     <string name="studio_export">Eksporter</string>
     <string name="studio_crop_ratio_original">Original</string>
+    <string name="themeplate_professional_watch">Ur</string>
+    <string name="themeplate_professional_perfume">Parfume</string>
+    <string name="themeplate_professional_handbag">Håndtaske</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Briller</string>
+    <string name="themeplate_professional_cup">Kop</string>
+    <string name="themeplate_professional_lipstick">Læbestift</string>
+    <string name="themeplate_professional_hat">Bøttehat</string>
+    <string name="themeplate_professional_beanie">Beanie hat</string>
+    <string name="themeplate_professional_lemonade">Limonade</string>
+    <string name="themeplate_professional_lemonade_beige">Limonade beige</string>
+    <string name="themeplate_professional_lemonade_blue">Lemonade blå</string>
+    <string name="themeplate_professional_lemonade_cyan">Cyan limonade</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonade Minimal</string>
+    <string name="themeplate_professional_lemonade_warm">Lemonade varm</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade frisk blå</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Fortov</string>
+    <string name="themeplate_professional_retro">Retro skrivebord</string>
+    <string name="themeplate_professional_cafe">Cafe</string>
+    <string name="themeplate_professional_wall">Væg</string>
+    <string name="themeplate_professional_digital_life">Digitalt liv</string>
+    <string name="themeplate_professional_phone_mode">Telefontilstand</string>
+    <string name="themeplate_professional_food_selfie">Selfie og mad</string>
+    <string name="studio_category_professional">Professionel</string>
+    <string name="themeplate_section_digital_life">Digitalt liv</string>
+    <string name="themeplate_section_phone_mode">Telefontilstand</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie mad 1</string>
+    <string name="themeplate_selfie_food_02">Selfie mad 2</string>
+    <string name="themeplate_selfie_food_03">Selfie mad 3</string>
+    <string name="themeplate_selfie_food_04">Selfie mad 4</string>
+    <string name="themeplate_selfie_food_05">Selfie mad 5</string>
+    <string name="themeplate_selfie_food_06">Selfie mad 6</string>
+    <string name="themeplate_selfie_food_07">Selfie mad 7</string>
+    <string name="themeplate_selfie_food_08">Selfie mad 8</string>
+    <string name="studio_tool_duplicate">Duplikere</string>
+    <string name="studio_tool_delete">Slet</string>
+    <string name="studio_badge_sample">Prøve</string>
+    <string name="studio_action_replace">Erstatte</string>
+    <string name="studio_gallery_no_templates">Ingen tilgængelige skabeloner</string>
+    <string name="studio_gallery_coming_soon">Kommer snart</string>
+    <string name="studio_gallery_coming_soon_desc">Denne funktion er under udvikling og vil snart være tilgængelig!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Skabeloner</string>
+    <string name="studio_save_image_success">Billedet er gemt</string>
+    <string name="studio_error_select_object">Vælg venligst et objekt</string>
+    <string name="studio_error_load_cloud_template">Kan ikke indlæse skyskabelon: %1$s</string>
+    <string name="studio_error_load_template">Kan ikke indlæse skabelon: %1$s</string>
+    <string name="studio_error_load_sample_product">Kan ikke indlæse prøveprodukt</string>
+    <string name="studio_error_process_image">Billedbehandlingsfejl</string>
+    <string name="studio_error_save_image">Billedet kunne ikke gemmes</string>
+    <string name="studio_error_render_failed">Gengivelse mislykkedes: %1$s</string>
+    <string name="studio_error_unknown">Ukendt fejl</string>
 </resources>
+
+

@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import com.thgiang.image.core.design.theme.AuroraCoral
+import com.thgiang.image.studio.R
+import androidx.compose.ui.res.stringResource
 import com.thgiang.image.studio.ui.editor.*
 import kotlin.math.roundToInt
 
@@ -255,13 +257,13 @@ fun ProductLayerV2(
                 ) {
                     Icon(
                         painter = androidx.compose.ui.res.painterResource(id = com.thgiang.image.studio.R.drawable.ic_replace_product),
-                        contentDescription = "Thay thế",
+                        contentDescription = stringResource(R.string.studio_action_replace),
                         tint = Color.White,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Thay thế",
+                        text = stringResource(R.string.studio_action_replace),
                         color = Color.White,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold

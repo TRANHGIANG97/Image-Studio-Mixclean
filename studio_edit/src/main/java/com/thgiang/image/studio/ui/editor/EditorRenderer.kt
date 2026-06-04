@@ -202,7 +202,11 @@ class EditorRenderer @Inject constructor(
         return try {
             when {
                 path.startsWith("content://") || path.startsWith("file://") -> {
-                    context.contentResolver.openInputStream(Uri.parse(path))
+                    if (path.startsWith("file:///android_asset/")) {
+                        context.assets.open(path.removePrefix("file:///android_asset/"))
+                    } else {
+                        context.contentResolver.openInputStream(Uri.parse(path))
+                    }
                 }
                 path.startsWith("http://") || path.startsWith("https://") -> {
                     java.net.URL(path).openStream()

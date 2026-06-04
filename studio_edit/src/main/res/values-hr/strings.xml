@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Studio za proizvode</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Sjena</string>
     <string name="studio_tool_transparency">Neprozirnost</string>
     <string name="studio_tool_crop">Izreži</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Zakreni/Preokreni</string>
     <string name="studio_replace_hint">Dodirnite Zamijeni kako biste odabrali fotografiju proizvoda iz galerije</string>
     <string name="studio_layout_hint">Povucite za pomicanje · Uštipnite za zumiranje · Zakrenite s dva prsta</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Pozadina se uklanja automatski</string>
     <string name="studio_export">Izvezi</string>
     <string name="studio_crop_ratio_original">Izvorno</string>
+    <string name="themeplate_professional_watch">Gledati</string>
+    <string name="themeplate_professional_perfume">Parfem</string>
+    <string name="themeplate_professional_handbag">ručna torbica</string>
+    <string name="themeplate_professional_sneaker">Tenisica</string>
+    <string name="themeplate_professional_glasses">Naočale</string>
+    <string name="themeplate_professional_cup">Kupa</string>
+    <string name="themeplate_professional_lipstick">Ruž</string>
+    <string name="themeplate_professional_hat">Šešir s kantom</string>
+    <string name="themeplate_professional_beanie">Beanie Kapa</string>
+    <string name="themeplate_professional_lemonade">Limunada</string>
+    <string name="themeplate_professional_lemonade_beige">Limunada bež</string>
+    <string name="themeplate_professional_lemonade_blue">Plava limunada</string>
+    <string name="themeplate_professional_lemonade_cyan">Cijan limunada</string>
+    <string name="themeplate_professional_lemonade_minimal">Limunada Minimalna</string>
+    <string name="themeplate_professional_lemonade_warm">Limunada Topla</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limunada Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Trotoar</string>
+    <string name="themeplate_professional_retro">Retro radna površina</string>
+    <string name="themeplate_professional_cafe">Kafić</string>
+    <string name="themeplate_professional_wall">Zid</string>
+    <string name="themeplate_professional_digital_life">Digitalni život</string>
+    <string name="themeplate_professional_phone_mode">Telefonski način rada</string>
+    <string name="themeplate_professional_food_selfie">Selfie i hrana</string>
+    <string name="studio_category_professional">Profesionalni</string>
+    <string name="themeplate_section_digital_life">Digitalni život</string>
+    <string name="themeplate_section_phone_mode">Telefonski način rada</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie hrana 1</string>
+    <string name="themeplate_selfie_food_02">Selfie hrana 2</string>
+    <string name="themeplate_selfie_food_03">Selfie hrana 3</string>
+    <string name="themeplate_selfie_food_04">Selfie hrana 4</string>
+    <string name="themeplate_selfie_food_05">Selfie hrana 5</string>
+    <string name="themeplate_selfie_food_06">Selfie hrana 6</string>
+    <string name="themeplate_selfie_food_07">Selfie hrana 7</string>
+    <string name="themeplate_selfie_food_08">Selfie hrana 8</string>
+    <string name="studio_tool_duplicate">Duplikat</string>
+    <string name="studio_tool_delete">Izbrisati</string>
+    <string name="studio_badge_sample">Uzorak</string>
+    <string name="studio_action_replace">Zamijeniti</string>
+    <string name="studio_gallery_no_templates">Nema dostupnih predložaka</string>
+    <string name="studio_gallery_coming_soon">Dolazi uskoro</string>
+    <string name="studio_gallery_coming_soon_desc">Ova značajka je u razvoju i uskoro će biti dostupna!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Predlošci</string>
+    <string name="studio_save_image_success">Slika je spremljena</string>
+    <string name="studio_error_select_object">Odaberite objekt</string>
+    <string name="studio_error_load_cloud_template">Nije moguće učitati predložak oblaka: %1$s</string>
+    <string name="studio_error_load_template">Nije moguće učitati predložak: %1$s</string>
+    <string name="studio_error_load_sample_product">Nije moguće učitati uzorak proizvoda</string>
+    <string name="studio_error_process_image">Pogreška obrade slike</string>
+    <string name="studio_error_save_image">Spremanje slike nije uspjelo</string>
+    <string name="studio_error_render_failed">Renderiranje nije uspjelo: %1$s</string>
+    <string name="studio_error_unknown">Nepoznata greška</string>
 </resources>
+
+

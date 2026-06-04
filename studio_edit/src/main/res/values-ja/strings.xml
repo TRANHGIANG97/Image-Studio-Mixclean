@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AIプロダクトスタジオ</string>
     <string name="studio_category_electronics">電化製品</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">シャドウ</string>
     <string name="studio_tool_transparency">不透明度</string>
     <string name="studio_tool_crop">切り抜き</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">回転/反転</string>
     <string name="studio_replace_hint">「置き換え」をタップしてギャラリーから製品写真を選択します</string>
     <string name="studio_layout_hint">ドラッグして移動 · ピンチしてズーム · 2本の指で回転</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">背景は自動的に削除されます</string>
     <string name="studio_export">エクスポート</string>
     <string name="studio_crop_ratio_original">元の比率</string>
+    <string name="themeplate_professional_watch">時計</string>
+    <string name="themeplate_professional_perfume">香水</string>
+    <string name="themeplate_professional_handbag">ハンドバッグ</string>
+    <string name="themeplate_professional_sneaker">スニーカー</string>
+    <string name="themeplate_professional_glasses">眼鏡</string>
+    <string name="themeplate_professional_cup">カップ</string>
+    <string name="themeplate_professional_lipstick">口紅</string>
+    <string name="themeplate_professional_hat">バケットハット</string>
+    <string name="themeplate_professional_beanie">ビーニーハット</string>
+    <string name="themeplate_professional_lemonade">レモネード</string>
+    <string name="themeplate_professional_lemonade_beige">レモネードベージュ</string>
+    <string name="themeplate_professional_lemonade_blue">レモネードブルー</string>
+    <string name="themeplate_professional_lemonade_cyan">レモネードシアン</string>
+    <string name="themeplate_professional_lemonade_minimal">レモネードミニマル</string>
+    <string name="themeplate_professional_lemonade_warm">レモネードウォーム</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">レモネードフレッシュブルー</string>
+    <string name="themeplate_professional_asphalt">アスファルト</string>
+    <string name="themeplate_professional_sidewalk">歩道</string>
+    <string name="themeplate_professional_retro">レトロなデスクトップ</string>
+    <string name="themeplate_professional_cafe">カフェ</string>
+    <string name="themeplate_professional_wall">壁</string>
+    <string name="themeplate_professional_digital_life">デジタルライフ</string>
+    <string name="themeplate_professional_phone_mode">電話モード</string>
+    <string name="themeplate_professional_food_selfie">自撮りと食べ物</string>
+    <string name="studio_category_professional">プロ</string>
+    <string name="themeplate_section_digital_life">デジタルライフ</string>
+    <string name="themeplate_section_phone_mode">電話モード</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">自撮り料理 1</string>
+    <string name="themeplate_selfie_food_02">自撮り料理 2</string>
+    <string name="themeplate_selfie_food_03">自撮り料理 3</string>
+    <string name="themeplate_selfie_food_04">自撮り料理 4</string>
+    <string name="themeplate_selfie_food_05">自撮り料理 5</string>
+    <string name="themeplate_selfie_food_06">自撮り食べ物 6</string>
+    <string name="themeplate_selfie_food_07">自撮り料理 7</string>
+    <string name="themeplate_selfie_food_08">自撮り食べ物 8</string>
+    <string name="studio_tool_duplicate">重複</string>
+    <string name="studio_tool_delete">消去</string>
+    <string name="studio_badge_sample">サンプル</string>
+    <string name="studio_action_replace">交換する</string>
+    <string name="studio_gallery_no_templates">利用可能なテンプレートはありません</string>
+    <string name="studio_gallery_coming_soon">近日公開</string>
+    <string name="studio_gallery_coming_soon_desc">この機能は開発中であり、間もなく利用可能になる予定です。</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">テンプレート</string>
+    <string name="studio_save_image_success">画像を保存しました</string>
+    <string name="studio_error_select_object">オブジェクトを選択してください</string>
+    <string name="studio_error_load_cloud_template">クラウド テンプレートを読み込めません: %1$s</string>
+    <string name="studio_error_load_template">テンプレートを読み込めません: %1$s</string>
+    <string name="studio_error_load_sample_product">サンプル商品を読み込めません</string>
+    <string name="studio_error_process_image">画像処理エラー</string>
+    <string name="studio_error_save_image">画像の保存に失敗しました</string>
+    <string name="studio_error_render_failed">レンダリングに失敗しました: %1$s</string>
+    <string name="studio_error_unknown">不明なエラー</string>
 </resources>
+
+

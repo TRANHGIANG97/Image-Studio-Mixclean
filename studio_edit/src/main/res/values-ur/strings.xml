@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI پروڈکٹ اسٹوڈیو</string>
     <string name="studio_category_electronics">الیکٹرانکس</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">سایہ</string>
     <string name="studio_tool_transparency">دھندلاپن</string>
     <string name="studio_tool_crop">کراپ کریں</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">گھمائیں/پلٹیں</string>
     <string name="studio_replace_hint">اپنی گیلरी سے پروڈکٹ کی تصویر منتخب کرنے کے لیے \'تبدیل کریں\' پر ٹیپ کریں</string>
     <string name="studio_layout_hint">منتقل کرنے کے لیے گھسیٹیں · زوم کرنے کے لیے چٹکی لیں · دو انگلیوں سے گھمائیں</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">بیک گراؤنڈ خود بخود ہٹا دیا جاتا ہے</string>
     <string name="studio_export">ایکسپورٹ کریں</string>
     <string name="studio_crop_ratio_original">اصل</string>
+    <string name="themeplate_professional_watch">دیکھو</string>
+    <string name="themeplate_professional_perfume">پرفیوم</string>
+    <string name="themeplate_professional_handbag">ہینڈ بیگ</string>
+    <string name="themeplate_professional_sneaker">اسنیکر</string>
+    <string name="themeplate_professional_glasses">شیشے</string>
+    <string name="themeplate_professional_cup">کپ</string>
+    <string name="themeplate_professional_lipstick">لپ اسٹک</string>
+    <string name="themeplate_professional_hat">بالٹی ٹوپی</string>
+    <string name="themeplate_professional_beanie">بینی ہیٹ</string>
+    <string name="themeplate_professional_lemonade">لیمونیڈ</string>
+    <string name="themeplate_professional_lemonade_beige">لیمونیڈ بیج</string>
+    <string name="themeplate_professional_lemonade_blue">لیمونیڈ بلیو</string>
+    <string name="themeplate_professional_lemonade_cyan">لیمونیڈ سیان</string>
+    <string name="themeplate_professional_lemonade_minimal">لیمونیڈ کم سے کم</string>
+    <string name="themeplate_professional_lemonade_warm">لیمونیڈ گرم</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">لیمونیڈ فریش بلیو</string>
+    <string name="themeplate_professional_asphalt">اسفالٹ</string>
+    <string name="themeplate_professional_sidewalk">فٹ پاتھ</string>
+    <string name="themeplate_professional_retro">ریٹرو ڈیسک ٹاپ</string>
+    <string name="themeplate_professional_cafe">کیفے</string>
+    <string name="themeplate_professional_wall">دیوار</string>
+    <string name="themeplate_professional_digital_life">ڈیجیٹل لائف</string>
+    <string name="themeplate_professional_phone_mode">فون موڈ</string>
+    <string name="themeplate_professional_food_selfie">سیلفی اور کھانا</string>
+    <string name="studio_category_professional">پیشہ ورانہ</string>
+    <string name="themeplate_section_digital_life">ڈیجیٹل لائف</string>
+    <string name="themeplate_section_phone_mode">فون موڈ</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">سیلفی فوڈ 1</string>
+    <string name="themeplate_selfie_food_02">سیلفی فوڈ 2</string>
+    <string name="themeplate_selfie_food_03">سیلفی فوڈ 3</string>
+    <string name="themeplate_selfie_food_04">سیلفی فوڈ 4</string>
+    <string name="themeplate_selfie_food_05">سیلفی فوڈ 5</string>
+    <string name="themeplate_selfie_food_06">سیلفی فوڈ 6</string>
+    <string name="themeplate_selfie_food_07">سیلفی فوڈ 7</string>
+    <string name="themeplate_selfie_food_08">سیلفی فوڈ 8</string>
+    <string name="studio_tool_duplicate">نقل</string>
+    <string name="studio_tool_delete">حذف کریں۔</string>
+    <string name="studio_badge_sample">نمونہ</string>
+    <string name="studio_action_replace">بدل دیں۔</string>
+    <string name="studio_gallery_no_templates">کوئی ٹیمپلیٹس دستیاب نہیں ہیں۔</string>
+    <string name="studio_gallery_coming_soon">جلد آرہا ہے۔</string>
+    <string name="studio_gallery_coming_soon_desc">یہ خصوصیت تیار ہو رہی ہے اور جلد ہی دستیاب ہو جائے گی!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">ٹیمپلیٹس</string>
+    <string name="studio_save_image_success">تصویر محفوظ ہو گئی۔</string>
+    <string name="studio_error_select_object">براہ کرم ایک آبجیکٹ منتخب کریں۔</string>
+    <string name="studio_error_load_cloud_template">کلاؤڈ ٹیمپلیٹ کو لوڈ نہیں کیا جا سکتا: %1$s</string>
+    <string name="studio_error_load_template">سانچہ لوڈ نہیں کیا جا سکتا: %1$s</string>
+    <string name="studio_error_load_sample_product">نمونہ پروڈکٹ لوڈ نہیں کر سکتے</string>
+    <string name="studio_error_process_image">تصویری کارروائی میں خرابی۔</string>
+    <string name="studio_error_save_image">تصویر محفوظ کرنے میں ناکام</string>
+    <string name="studio_error_render_failed">رینڈر ناکام ہو گیا: %1$s</string>
+    <string name="studio_error_unknown">نامعلوم خرابی۔</string>
 </resources>
+
+

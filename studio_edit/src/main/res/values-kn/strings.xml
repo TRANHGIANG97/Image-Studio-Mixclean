@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI ಪ್ರಾಡಕ್ಟ್ ಸ್ಟುಡಿಯೋ</string>
     <string name="studio_category_electronics">ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">ನೆರಳು</string>
     <string name="studio_tool_transparency">ಅಪಾರದರ್ಶಕತೆ</string>
     <string name="studio_tool_crop">ಕ್ರಾಪ್</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">ತಿರುಗಿಸಿ/ಫ್ಲಿಪ್ ಮಾಡಿ</string>
     <string name="studio_replace_hint">ನಿಮ್ಮ ಗ್ಯಾಲರಿಯಿಂದ ಉತ್ಪನ್ನದ ಫೋಟೋವನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಬದಲಾಯಿಸಿ ಎಂಬುದನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
     <string name="studio_layout_hint">ಸರಿಸಲು ಎಳೆಯಿರಿ · ಜೂಮ್ ಮಾಡಲು ಪಿಂಚ್ ಮಾಡಿ · ಎರಡು ಬೆರಳುಗಳಿಂದ ತಿರುಗಿಸಿ</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">ಹಿನ್ನೆಲೆಯನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ತೆಗೆದುಹಾಕಲಾಗುತ್ತದೆ</string>
     <string name="studio_export">ರಫ್ತು ಮಾಡಿ</string>
     <string name="studio_crop_ratio_original">ಮೂಲ</string>
+    <string name="themeplate_professional_watch">ವೀಕ್ಷಿಸಿ</string>
+    <string name="themeplate_professional_perfume">ಸುಗಂಧ ದ್ರವ್ಯ</string>
+    <string name="themeplate_professional_handbag">ಕೈಚೀಲ</string>
+    <string name="themeplate_professional_sneaker">ಸ್ನೀಕರ್</string>
+    <string name="themeplate_professional_glasses">ಕನ್ನಡಕ</string>
+    <string name="themeplate_professional_cup">ಕಪ್</string>
+    <string name="themeplate_professional_lipstick">ಲಿಪ್ಸ್ಟಿಕ್</string>
+    <string name="themeplate_professional_hat">ಬಕೆಟ್ ಹ್ಯಾಟ್</string>
+    <string name="themeplate_professional_beanie">ಬೀನಿ ಹ್ಯಾಟ್</string>
+    <string name="themeplate_professional_lemonade">ನಿಂಬೆ ಪಾನಕ</string>
+    <string name="themeplate_professional_lemonade_beige">ನಿಂಬೆ ಪಾನಕ ಬೀಜ್</string>
+    <string name="themeplate_professional_lemonade_blue">ನಿಂಬೆ ಪಾನಕ ನೀಲಿ</string>
+    <string name="themeplate_professional_lemonade_cyan">ನಿಂಬೆ ಪಾನಕ ಸಯಾನ್</string>
+    <string name="themeplate_professional_lemonade_minimal">ನಿಂಬೆ ಪಾನಕ ಕನಿಷ್ಠ</string>
+    <string name="themeplate_professional_lemonade_warm">ನಿಂಬೆ ಪಾನಕ ಬೆಚ್ಚಗಿನ</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">ನಿಂಬೆ ಪಾನಕ ತಾಜಾ ನೀಲಿ</string>
+    <string name="themeplate_professional_asphalt">ಡಾಂಬರು</string>
+    <string name="themeplate_professional_sidewalk">ಕಾಲುದಾರಿ</string>
+    <string name="themeplate_professional_retro">ರೆಟ್ರೊ ಡೆಸ್ಕ್ಟಾಪ್</string>
+    <string name="themeplate_professional_cafe">ಕೆಫೆ</string>
+    <string name="themeplate_professional_wall">ಗೋಡೆ</string>
+    <string name="themeplate_professional_digital_life">ಡಿಜಿಟಲ್ ಲೈಫ್</string>
+    <string name="themeplate_professional_phone_mode">ಫೋನ್ ಮೋಡ್</string>
+    <string name="themeplate_professional_food_selfie">ಸೆಲ್ಫಿ ಮತ್ತು ಆಹಾರ</string>
+    <string name="studio_category_professional">ವೃತ್ತಿಪರ</string>
+    <string name="themeplate_section_digital_life">ಡಿಜಿಟಲ್ ಲೈಫ್</string>
+    <string name="themeplate_section_phone_mode">ಫೋನ್ ಮೋಡ್</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">ಸೆಲ್ಫಿ ಆಹಾರ 1</string>
+    <string name="themeplate_selfie_food_02">ಸೆಲ್ಫಿ ಆಹಾರ 2</string>
+    <string name="themeplate_selfie_food_03">ಸೆಲ್ಫಿ ಆಹಾರ 3</string>
+    <string name="themeplate_selfie_food_04">ಸೆಲ್ಫಿ ಆಹಾರ 4</string>
+    <string name="themeplate_selfie_food_05">ಸೆಲ್ಫಿ ಆಹಾರ 5</string>
+    <string name="themeplate_selfie_food_06">ಸೆಲ್ಫಿ ಆಹಾರ 6</string>
+    <string name="themeplate_selfie_food_07">ಸೆಲ್ಫಿ ಆಹಾರ 7</string>
+    <string name="themeplate_selfie_food_08">ಸೆಲ್ಫಿ ಆಹಾರ 8</string>
+    <string name="studio_tool_duplicate">ನಕಲು</string>
+    <string name="studio_tool_delete">ಅಳಿಸಿ</string>
+    <string name="studio_badge_sample">ಮಾದರಿ</string>
+    <string name="studio_action_replace">ಬದಲಾಯಿಸಿ</string>
+    <string name="studio_gallery_no_templates">ಯಾವುದೇ ಟೆಂಪ್ಲೇಟ್‌ಗಳು ಲಭ್ಯವಿಲ್ಲ</string>
+    <string name="studio_gallery_coming_soon">ಶೀಘ್ರದಲ್ಲೇ ಬರಲಿದೆ</string>
+    <string name="studio_gallery_coming_soon_desc">ಈ ವೈಶಿಷ್ಟ್ಯವು ಅಭಿವೃದ್ಧಿ ಹಂತದಲ್ಲಿದೆ ಮತ್ತು ಶೀಘ್ರದಲ್ಲೇ ಲಭ್ಯವಿರುತ್ತದೆ!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">ಟೆಂಪ್ಲೇಟ್‌ಗಳು</string>
+    <string name="studio_save_image_success">ಚಿತ್ರವನ್ನು ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="studio_error_select_object">ದಯವಿಟ್ಟು ವಸ್ತುವನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="studio_error_load_cloud_template">ಕ್ಲೌಡ್ ಟೆಂಪ್ಲೇಟ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ: %1$s</string>
+    <string name="studio_error_load_template">ಟೆಂಪ್ಲೇಟ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ: %1$s</string>
+    <string name="studio_error_load_sample_product">ಮಾದರಿ ಉತ್ಪನ್ನವನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ</string>
+    <string name="studio_error_process_image">ಇಮೇಜ್ ಪ್ರೊಸೆಸಿಂಗ್ ದೋಷ</string>
+    <string name="studio_error_save_image">ಚಿತ್ರವನ್ನು ಉಳಿಸಲು ವಿಫಲವಾಗಿದೆ</string>
+    <string name="studio_error_render_failed">ರೆಂಡರ್ ವಿಫಲವಾಗಿದೆ: %1$s</string>
+    <string name="studio_error_unknown">ಅಜ್ಞಾತ ದೋಷ</string>
 </resources>
+
+

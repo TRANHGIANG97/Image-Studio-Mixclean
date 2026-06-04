@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktové štúdio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Tieň</string>
     <string name="studio_tool_transparency">Nepriehľadnosť</string>
     <string name="studio_tool_crop">Orezať</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Otočiť/Preklopiť</string>
     <string name="studio_replace_hint">Klepnutím na Nahradiť vyberte fotografiu produktu z galérie</string>
     <string name="studio_layout_hint">Potiahnutím posuniete · Zoovretím prstov priblížite · Otočenie dvoma prstami</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Pozadie sa odstráni automaticky</string>
     <string name="studio_export">Exportovať</string>
     <string name="studio_crop_ratio_original">Pôvodné</string>
+    <string name="themeplate_professional_watch">Sledujte</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Kabelka</string>
+    <string name="themeplate_professional_sneaker">Tenisky</string>
+    <string name="themeplate_professional_glasses">Okuliare</string>
+    <string name="themeplate_professional_cup">pohár</string>
+    <string name="themeplate_professional_lipstick">Rúž</string>
+    <string name="themeplate_professional_hat">Vedro klobúk</string>
+    <string name="themeplate_professional_beanie">Čiapka s čiapkou</string>
+    <string name="themeplate_professional_lemonade">Limonáda</string>
+    <string name="themeplate_professional_lemonade_beige">Limonáda béžová</string>
+    <string name="themeplate_professional_lemonade_blue">Limonádová modrá</string>
+    <string name="themeplate_professional_lemonade_cyan">Limonáda azúrová</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonáda minimálne</string>
+    <string name="themeplate_professional_lemonade_warm">Limonáda teplá</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limonáda Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Chodník</string>
+    <string name="themeplate_professional_retro">Retro Desktop</string>
+    <string name="themeplate_professional_cafe">Kaviareň</string>
+    <string name="themeplate_professional_wall">Stena</string>
+    <string name="themeplate_professional_digital_life">Digitálny život</string>
+    <string name="themeplate_professional_phone_mode">Režim telefónu</string>
+    <string name="themeplate_professional_food_selfie">Selfie a jedlo</string>
+    <string name="studio_category_professional">Profesionálny</string>
+    <string name="themeplate_section_digital_life">Digitálny život</string>
+    <string name="themeplate_section_phone_mode">Režim telefónu</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie jedlo 1</string>
+    <string name="themeplate_selfie_food_02">Selfie jedlo 2</string>
+    <string name="themeplate_selfie_food_03">Jedlo na selfie 3</string>
+    <string name="themeplate_selfie_food_04">Jedlo na selfie 4</string>
+    <string name="themeplate_selfie_food_05">Jedlo na selfie 5</string>
+    <string name="themeplate_selfie_food_06">Jedlo na selfie 6</string>
+    <string name="themeplate_selfie_food_07">Jedlo na selfie 7</string>
+    <string name="themeplate_selfie_food_08">Selfie jedlo 8</string>
+    <string name="studio_tool_duplicate">Duplicitné</string>
+    <string name="studio_tool_delete">Odstrániť</string>
+    <string name="studio_badge_sample">Ukážka</string>
+    <string name="studio_action_replace">Nahradiť</string>
+    <string name="studio_gallery_no_templates">Nie sú k dispozícii žiadne šablóny</string>
+    <string name="studio_gallery_coming_soon">Už čoskoro</string>
+    <string name="studio_gallery_coming_soon_desc">Táto funkcia je vo vývoji a bude čoskoro k dispozícii!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Šablóny</string>
+    <string name="studio_save_image_success">Obrázok bol uložený</string>
+    <string name="studio_error_select_object">Vyberte objekt</string>
+    <string name="studio_error_load_cloud_template">Nedá sa načítať cloudová šablóna: %1$s</string>
+    <string name="studio_error_load_template">Nie je možné načítať šablónu: %1$s</string>
+    <string name="studio_error_load_sample_product">Nie je možné načítať vzorový produkt</string>
+    <string name="studio_error_process_image">Chyba spracovania obrazu</string>
+    <string name="studio_error_save_image">Obrázok sa nepodarilo uložiť</string>
+    <string name="studio_error_render_failed">Vykreslenie zlyhalo: %1$s</string>
+    <string name="studio_error_unknown">Neznáma chyba</string>
 </resources>
+
+

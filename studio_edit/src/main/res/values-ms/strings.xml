@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio Produk AI</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Bayंग</string>
     <string name="studio_tool_transparency">Kelegapan</string>
     <string name="studio_tool_crop">Potong</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Putar/Balik</string>
     <string name="studio_replace_hint">Ketik Ganti untuk memilih foto produk dari galeri anda</string>
     <string name="studio_layout_hint">Seret untuk alih · Cubit untuk zum · Putar dua jari</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Latar belakang dialih keluar secara automatik</string>
     <string name="studio_export">Eksport</string>
     <string name="studio_crop_ratio_original">Asal</string>
+    <string name="themeplate_professional_watch">Tonton</string>
+    <string name="themeplate_professional_perfume">Minyak wangi</string>
+    <string name="themeplate_professional_handbag">Beg tangan</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Cermin mata</string>
+    <string name="themeplate_professional_cup">Cawan</string>
+    <string name="themeplate_professional_lipstick">Gincu</string>
+    <string name="themeplate_professional_hat">Topi Baldi</string>
+    <string name="themeplate_professional_beanie">Topi Beanie</string>
+    <string name="themeplate_professional_lemonade">air limau</string>
+    <string name="themeplate_professional_lemonade_beige">Lemonade Beige</string>
+    <string name="themeplate_professional_lemonade_blue">Biru Limau</string>
+    <string name="themeplate_professional_lemonade_cyan">Lemonade Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Lemonade Minimal</string>
+    <string name="themeplate_professional_lemonade_warm">Lemonade Suam</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade Biru Segar</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">kaki lima</string>
+    <string name="themeplate_professional_retro">Desktop Retro</string>
+    <string name="themeplate_professional_cafe">Kafe</string>
+    <string name="themeplate_professional_wall">dinding</string>
+    <string name="themeplate_professional_digital_life">Kehidupan Digital</string>
+    <string name="themeplate_professional_phone_mode">Mod Telefon</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; Makanan</string>
+    <string name="studio_category_professional">Profesional</string>
+    <string name="themeplate_section_digital_life">Kehidupan Digital</string>
+    <string name="themeplate_section_phone_mode">Mod Telefon</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Makanan Selfie 1</string>
+    <string name="themeplate_selfie_food_02">Makanan Selfie 2</string>
+    <string name="themeplate_selfie_food_03">Makanan Selfie 3</string>
+    <string name="themeplate_selfie_food_04">Makanan Selfie 4</string>
+    <string name="themeplate_selfie_food_05">Makanan Selfie 5</string>
+    <string name="themeplate_selfie_food_06">Makanan Selfie 6</string>
+    <string name="themeplate_selfie_food_07">Makanan Selfie 7</string>
+    <string name="themeplate_selfie_food_08">Makanan Selfie 8</string>
+    <string name="studio_tool_duplicate">Pendua</string>
+    <string name="studio_tool_delete">Padam</string>
+    <string name="studio_badge_sample">Sampel</string>
+    <string name="studio_action_replace">Gantikan</string>
+    <string name="studio_gallery_no_templates">Tiada templat tersedia</string>
+    <string name="studio_gallery_coming_soon">Akan datang</string>
+    <string name="studio_gallery_coming_soon_desc">Ciri ini sedang dibangunkan dan akan tersedia tidak lama lagi!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">templat</string>
+    <string name="studio_save_image_success">Imej disimpan</string>
+    <string name="studio_error_select_object">Sila pilih objek</string>
+    <string name="studio_error_load_cloud_template">Tidak dapat memuatkan templat awan: %1$s</string>
+    <string name="studio_error_load_template">Tidak dapat memuatkan templat: %1$s</string>
+    <string name="studio_error_load_sample_product">Tidak dapat memuatkan sampel produk</string>
+    <string name="studio_error_process_image">Ralat pemprosesan imej</string>
+    <string name="studio_error_save_image">Gagal menyimpan imej</string>
+    <string name="studio_error_render_failed">Penyampaian gagal: %1$s</string>
+    <string name="studio_error_unknown">Ralat tidak diketahui</string>
 </resources>
+
+

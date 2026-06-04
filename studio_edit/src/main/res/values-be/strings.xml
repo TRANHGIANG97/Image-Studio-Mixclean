@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Студыя тавараў</string>
     <string name="studio_category_electronics">Электроніка</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Цень</string>
     <string name="studio_tool_transparency">Непразрыстасць</string>
     <string name="studio_tool_crop">Абрэзаць</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Павярнуць/Адлюстраваць</string>
     <string name="studio_replace_hint">Націсніце \"Замяніць\", каб выбраць фота тавару з галерэі</string>
     <string name="studio_layout_hint">Перацягвайце для перамяшчэння · Зводзьце пальцы для маштабавання · Паварочвайце двума пальцамі</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Фон выдаляецца аўтаматычна</string>
     <string name="studio_export">Экспарт</string>
     <string name="studio_crop_ratio_original">Арыгінал</string>
+    <string name="themeplate_professional_watch">Глядзець</string>
+    <string name="themeplate_professional_perfume">Духі</string>
+    <string name="themeplate_professional_handbag">Сумочка</string>
+    <string name="themeplate_professional_sneaker">Тапкі</string>
+    <string name="themeplate_professional_glasses">Акуляры</string>
+    <string name="themeplate_professional_cup">Кубак</string>
+    <string name="themeplate_professional_lipstick">Губная памада</string>
+    <string name="themeplate_professional_hat">Капялюш-вядро</string>
+    <string name="themeplate_professional_beanie">Капялюш-біні</string>
+    <string name="themeplate_professional_lemonade">Ліманад</string>
+    <string name="themeplate_professional_lemonade_beige">Бэжавы ліманад</string>
+    <string name="themeplate_professional_lemonade_blue">Сіні ліманад</string>
+    <string name="themeplate_professional_lemonade_cyan">Ліманад Сінюха</string>
+    <string name="themeplate_professional_lemonade_minimal">Мінімальны ліманад</string>
+    <string name="themeplate_professional_lemonade_warm">Цёплы ліманад</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">Асфальт</string>
+    <string name="themeplate_professional_sidewalk">Тратуар</string>
+    <string name="themeplate_professional_retro">Рэтра працоўны стол</string>
+    <string name="themeplate_professional_cafe">Кафэ</string>
+    <string name="themeplate_professional_wall">Сцяна</string>
+    <string name="themeplate_professional_digital_life">Лічбавае жыццё</string>
+    <string name="themeplate_professional_phone_mode">Тэлефонны рэжым</string>
+    <string name="themeplate_professional_food_selfie">Сэлфі і ежа</string>
+    <string name="studio_category_professional">Прафесійны</string>
+    <string name="themeplate_section_digital_life">Лічбавае жыццё</string>
+    <string name="themeplate_section_phone_mode">Тэлефонны рэжым</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Ежа для сэлфі 1</string>
+    <string name="themeplate_selfie_food_02">Ежа для сэлфі 2</string>
+    <string name="themeplate_selfie_food_03">Ежа для сэлфі 3</string>
+    <string name="themeplate_selfie_food_04">Ежа для сэлфі 4</string>
+    <string name="themeplate_selfie_food_05">Ежа для сэлфі 5</string>
+    <string name="themeplate_selfie_food_06">Ежа для сэлфі 6</string>
+    <string name="themeplate_selfie_food_07">Ежа для сэлфі 7</string>
+    <string name="themeplate_selfie_food_08">Ежа для сэлфі 8</string>
+    <string name="studio_tool_duplicate">Дублікат</string>
+    <string name="studio_tool_delete">Выдаліць</string>
+    <string name="studio_badge_sample">Узор</string>
+    <string name="studio_action_replace">Замяніць</string>
+    <string name="studio_gallery_no_templates">Няма даступных шаблонаў</string>
+    <string name="studio_gallery_coming_soon">Хутка будзе</string>
+    <string name="studio_gallery_coming_soon_desc">Гэтая функцыя знаходзіцца ў стадыі распрацоўкі і хутка стане даступнай!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Шаблоны</string>
+    <string name="studio_save_image_success">Відарыс захаваны</string>
+    <string name="studio_error_select_object">Выберыце аб\'ект</string>
+    <string name="studio_error_load_cloud_template">Немагчыма загрузіць воблачны шаблон: %1$s</string>
+    <string name="studio_error_load_template">Немагчыма загрузіць шаблон: %1$s</string>
+    <string name="studio_error_load_sample_product">Немагчыма загрузіць узор прадукту</string>
+    <string name="studio_error_process_image">Памылка апрацоўкі выявы</string>
+    <string name="studio_error_save_image">Не ўдалося захаваць выяву</string>
+    <string name="studio_error_render_failed">Збой візуалізацыі: %1$s</string>
+    <string name="studio_error_unknown">Невядомая памылка</string>
 </resources>
+
+

@@ -9,6 +9,7 @@ sealed class EditorEvent {
     data class LoadTemplate(val assetPath: String, val objectSourceAssetPath: String? = null) : EditorEvent()
     data class LoadCloudTemplate(val cloudTemplate: CloudTemplate) : EditorEvent()
     data class SetProductImage(val uri: Uri, val replaceLayerId: String? = null) : EditorEvent()
+    data class AddSticker(val assetPath: String) : EditorEvent()
     data class UpdateGesture(val delta: GestureDelta) : EditorEvent()
     data class UpdateOffset(val delta: Offset) : EditorEvent()
     data class SetOffset(val offset: Offset) : EditorEvent()

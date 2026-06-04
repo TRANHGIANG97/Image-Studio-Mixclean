@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI 상품 스튜디오</string>
     <string name="studio_category_electronics">전자기기</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">그림자</string>
     <string name="studio_tool_transparency">불투명도</string>
     <string name="studio_tool_crop">자르기</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">회전/대칭</string>
     <string name="studio_replace_hint">갤러리에서 상품 사진을 선택하려면 [교체]를 탭하세요</string>
     <string name="studio_layout_hint">드래그하여 이동 · 핀치하여 확대/축소 · 두 손가락으로 회전</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">배경이 자동으로 제거됩니다</string>
     <string name="studio_export">내보내기</string>
     <string name="studio_crop_ratio_original">원본</string>
+    <string name="themeplate_professional_watch">보다</string>
+    <string name="themeplate_professional_perfume">향수</string>
+    <string name="themeplate_professional_handbag">핸드백</string>
+    <string name="themeplate_professional_sneaker">고무창 운동화</string>
+    <string name="themeplate_professional_glasses">안경</string>
+    <string name="themeplate_professional_cup">컵</string>
+    <string name="themeplate_professional_lipstick">입술 연지</string>
+    <string name="themeplate_professional_hat">버킷햇</string>
+    <string name="themeplate_professional_beanie">비니 모자</string>
+    <string name="themeplate_professional_lemonade">레모네이드</string>
+    <string name="themeplate_professional_lemonade_beige">레모네이드 베이지</string>
+    <string name="themeplate_professional_lemonade_blue">레모네이드 블루</string>
+    <string name="themeplate_professional_lemonade_cyan">레모네이드 시안</string>
+    <string name="themeplate_professional_lemonade_minimal">레모네이드 미니멀</string>
+    <string name="themeplate_professional_lemonade_warm">레모네이드 따뜻한</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">레모네이드 프레시 블루</string>
+    <string name="themeplate_professional_asphalt">아스팔트</string>
+    <string name="themeplate_professional_sidewalk">보도</string>
+    <string name="themeplate_professional_retro">레트로 데스크탑</string>
+    <string name="themeplate_professional_cafe">카페</string>
+    <string name="themeplate_professional_wall">벽</string>
+    <string name="themeplate_professional_digital_life">디지털 라이프</string>
+    <string name="themeplate_professional_phone_mode">전화 모드</string>
+    <string name="themeplate_professional_food_selfie">셀카 및 음식</string>
+    <string name="studio_category_professional">전문적인</string>
+    <string name="themeplate_section_digital_life">디지털 라이프</string>
+    <string name="themeplate_section_phone_mode">전화 모드</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">셀카 음식 1</string>
+    <string name="themeplate_selfie_food_02">셀카 음식 2</string>
+    <string name="themeplate_selfie_food_03">셀카 음식 3</string>
+    <string name="themeplate_selfie_food_04">셀카 음식 4</string>
+    <string name="themeplate_selfie_food_05">셀카 음식 5</string>
+    <string name="themeplate_selfie_food_06">셀카 음식 6</string>
+    <string name="themeplate_selfie_food_07">셀카 음식 7</string>
+    <string name="themeplate_selfie_food_08">셀카 음식 8</string>
+    <string name="studio_tool_duplicate">복제하다</string>
+    <string name="studio_tool_delete">삭제</string>
+    <string name="studio_badge_sample">견본</string>
+    <string name="studio_action_replace">바꾸다</string>
+    <string name="studio_gallery_no_templates">사용 가능한 템플릿이 없습니다.</string>
+    <string name="studio_gallery_coming_soon">곧 출시 예정</string>
+    <string name="studio_gallery_coming_soon_desc">이 기능은 개발 중이며 곧 제공될 예정입니다!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">템플릿</string>
+    <string name="studio_save_image_success">이미지가 저장되었습니다</string>
+    <string name="studio_error_select_object">개체를 선택하세요.</string>
+    <string name="studio_error_load_cloud_template">클라우드 템플릿을 로드할 수 없습니다: %1$s</string>
+    <string name="studio_error_load_template">템플릿을 로드할 수 없습니다: %1$s</string>
+    <string name="studio_error_load_sample_product">샘플 제품을 로드할 수 없습니다</string>
+    <string name="studio_error_process_image">이미지 처리 오류</string>
+    <string name="studio_error_save_image">이미지를 저장하지 못했습니다.</string>
+    <string name="studio_error_render_failed">렌더링 실패: %1$s</string>
+    <string name="studio_error_unknown">알 수 없는 오류</string>
 </resources>
+
+

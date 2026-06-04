@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.core.util.processors.ProcessorUtils
+import com.thgiang.image.studio.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -109,6 +110,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath, event.objectSourceAssetPath)
             is EditorEvent.LoadCloudTemplate -> loadCloudTemplate(event.cloudTemplate)
             is EditorEvent.SetProductImage -> setProductImage(event.uri, event.replaceLayerId)
+            is EditorEvent.AddSticker -> addSticker(event.assetPath)
             is EditorEvent.UpdateGesture -> {
                 gestureThrottleFlow.tryEmit(event.delta)
                 requestHistoryPush()
@@ -177,7 +179,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             EditorEvent.DuplicateLayer -> {
                 val current = _state.value
                 if (current.selectedLayerId == null) {
-                    _state.update { it.copy(errorMessage = "Vui lòng chọn đối tượng") }
+                    _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
                     return
                 }
                 val activeLayer = current.layers.find { it.id == current.selectedLayerId }
@@ -234,7 +236,11 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun getInputStreamForPath(path: String): java.io.InputStream? {
         return when {
             path.startsWith("content://") || path.startsWith("file://") -> {
-                context.contentResolver.openInputStream(Uri.parse(path))
+                if (path.startsWith("file:///android_asset/")) {
+                    context.assets.open(path.removePrefix("file:///android_asset/"))
+                } else {
+                    context.contentResolver.openInputStream(Uri.parse(path))
+                }
             }
             path.startsWith("http://") || path.startsWith("https://") -> {
                 java.net.URL(path).openStream()
@@ -323,7 +329,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 } ?: throw Exception("Failed to open stream")
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "loadCloudTemplate failed to load template: $assetPath", e)
-                _state.update { it.copy(errorMessage = "Không thể tải cloud template: ${e.message}") }
+                _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_load_cloud_template, e.message ?: "")) }
             }
         }
     }
@@ -369,7 +375,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 } ?: throw Exception("Failed to open stream")
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "loadTemplate failed to load template: $assetPath", e)
-                _state.update { it.copy(errorMessage = "Không thể tải template: ${e.message}") }
+                _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_load_template, e.message ?: "")) }
             }
         }
     }
@@ -450,9 +456,70 @@ class ThemeplateEditorViewModel @Inject constructor(
                     state.copy(
                         layers = state.layers.filterNot { it.id == processingId },
                         selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId,
-                        errorMessage = "Không thể tải sản phẩm mẫu"
+                        errorMessage = context.getString(R.string.studio_error_load_sample_product)
                     )
                 }
+            }
+        }
+    }
+
+    private fun addSticker(assetPath: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val templateSize = _state.value.template.originalSize
+                val stickerPath = "file:///android_asset/$assetPath"
+
+                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                val decoded = getInputStreamForPath(stickerPath)?.use { input ->
+                    BitmapFactory.decodeStream(input, null, options)
+                    options.outWidth > 0 && options.outHeight > 0
+                } == true
+
+                val stickerWidth = if (decoded) options.outWidth.coerceAtLeast(1) else 512
+                val stickerHeight = if (decoded) options.outHeight.coerceAtLeast(1) else 512
+                val maxStickerDim = maxOf(stickerWidth, stickerHeight).toFloat()
+                val targetSize = if (templateSize.width > 0 && templateSize.height > 0) {
+                    minOf(templateSize.width, templateSize.height) * 0.28f
+                } else {
+                    maxStickerDim * 0.35f
+                }
+                val initialScale = (targetSize / maxStickerDim).coerceIn(0.15f, 1.4f)
+
+                val layerId = java.util.UUID.randomUUID().toString()
+                val stickerLayer = EditorLayer(
+                    id = layerId,
+                    product = EditorProduct(
+                        originalUriString = stickerPath,
+                        foregroundUriString = stickerPath,
+                        isBackgroundRemoved = true,
+                        baseWidth = stickerWidth,
+                        baseHeight = stickerHeight,
+                        processing = false,
+                        isSample = false
+                    ),
+                    viewport = EditorViewport(scale = initialScale),
+                    appearance = EditorAppearance(
+                        shadowIntensity = 0f,
+                        alpha = 1f,
+                        shadowAngle = 45f,
+                        shadowDistance = 12f,
+                        shadowColorArgb = 0xFF000000.toInt()
+                    ),
+                    cropRatio = CropRatio.ORIGINAL
+                )
+
+                _state.update { state ->
+                    state.copy(
+                        layers = state.layers + stickerLayer,
+                        selectedLayerId = layerId,
+                        showBoundingBox = true,
+                        errorMessage = null
+                    )
+                }
+                pushHistory()
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "addSticker failed for: $assetPath", e)
+                _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_unknown)) }
             }
         }
     }
@@ -570,7 +637,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 _state.update { state ->
                     state.copy(
                         layers = state.layers.filterNot { it.id == processingId },
-                        errorMessage = e.message ?: "Lỗi xử lý ảnh"
+                        errorMessage = e.message ?: context.getString(R.string.studio_error_process_image)
                     ) 
                 }
             }
@@ -693,13 +760,13 @@ class ThemeplateEditorViewModel @Inject constructor(
                             _state.update { it.copy(isExporting = false, exportResult = uri) }
                         } else {
                             _state.update { 
-                                it.copy(isExporting = false, errorMessage = "Lưu ảnh thất bại") 
+                                it.copy(isExporting = false, errorMessage = context.getString(R.string.studio_error_save_image)) 
                             }
                         }
                     },
                     onFailure = { e ->
                         _state.update { 
-                            it.copy(isExporting = false, errorMessage = e.message ?: "Render thất bại") 
+                            it.copy(isExporting = false, errorMessage = context.getString(R.string.studio_error_render_failed, e.message ?: "")) 
                         }
                     }
                 )
@@ -708,7 +775,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 _state.update { 
-                    it.copy(isExporting = false, errorMessage = e.message ?: "Lỗi không xác định") 
+                    it.copy(isExporting = false, errorMessage = e.message ?: context.getString(R.string.studio_error_unknown)) 
                 }
             }
         }

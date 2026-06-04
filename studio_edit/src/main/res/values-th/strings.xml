@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">สตูดิโอสินค้า AI</string>
     <string name="studio_category_electronics">เครื่องใช้ไฟฟ้า</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">เงา</string>
     <string name="studio_tool_transparency">ความโปร่งแสง</string>
     <string name="studio_tool_crop">ครอบตัด</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">หมุน/พลิก</string>
     <string name="studio_replace_hint">แตะเปลี่ยนรูปเพื่อเลือกภาพสินค้าจากแกลเลอรีของคุณ</string>
     <string name="studio_layout_hint">ลากเพื่อย้าย · หนีบนิ้วเพื่อซูม · หมุนด้วยสองนิ้ว</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">ลบพื้นหลังออกโดยอัตโนมัติ</string>
     <string name="studio_export">ส่งออก</string>
     <string name="studio_crop_ratio_original">ต้นฉบับ</string>
+    <string name="themeplate_professional_watch">ดู</string>
+    <string name="themeplate_professional_perfume">น้ำหอม</string>
+    <string name="themeplate_professional_handbag">กระเป๋าถือ</string>
+    <string name="themeplate_professional_sneaker">รองเท้าผ้าใบ</string>
+    <string name="themeplate_professional_glasses">แว่นตา</string>
+    <string name="themeplate_professional_cup">ถ้วย</string>
+    <string name="themeplate_professional_lipstick">ลิปสติก</string>
+    <string name="themeplate_professional_hat">หมวกบักเก็ต</string>
+    <string name="themeplate_professional_beanie">หมวกบีนนี่</string>
+    <string name="themeplate_professional_lemonade">น้ำมะนาว</string>
+    <string name="themeplate_professional_lemonade_beige">น้ำมะนาวสีเบจ</string>
+    <string name="themeplate_professional_lemonade_blue">น้ำมะนาวสีฟ้า</string>
+    <string name="themeplate_professional_lemonade_cyan">น้ำมะนาวสีฟ้า</string>
+    <string name="themeplate_professional_lemonade_minimal">น้ำมะนาวมินิมอล</string>
+    <string name="themeplate_professional_lemonade_warm">น้ำมะนาวอุ่น</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">น้ำมะนาวสดสีฟ้า</string>
+    <string name="themeplate_professional_asphalt">ยางมะตอย</string>
+    <string name="themeplate_professional_sidewalk">ทางเท้า</string>
+    <string name="themeplate_professional_retro">เดสก์ท็อปย้อนยุค</string>
+    <string name="themeplate_professional_cafe">คาเฟ่</string>
+    <string name="themeplate_professional_wall">กำแพง</string>
+    <string name="themeplate_professional_digital_life">ชีวิตดิจิทัล</string>
+    <string name="themeplate_professional_phone_mode">โหมดโทรศัพท์</string>
+    <string name="themeplate_professional_food_selfie">เซลฟี่และอาหาร</string>
+    <string name="studio_category_professional">มืออาชีพ</string>
+    <string name="themeplate_section_digital_life">ชีวิตดิจิทัล</string>
+    <string name="themeplate_section_phone_mode">โหมดโทรศัพท์</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">อาหารเซลฟี่1</string>
+    <string name="themeplate_selfie_food_02">อาหารเซลฟี่2</string>
+    <string name="themeplate_selfie_food_03">อาหารเซลฟี่ 3</string>
+    <string name="themeplate_selfie_food_04">อาหารเซลฟี่ 4</string>
+    <string name="themeplate_selfie_food_05">อาหารเซลฟี่5</string>
+    <string name="themeplate_selfie_food_06">อาหารเซลฟี่ 6</string>
+    <string name="themeplate_selfie_food_07">อาหารเซลฟี่ 7</string>
+    <string name="themeplate_selfie_food_08">อาหารเซลฟี่ 8</string>
+    <string name="studio_tool_duplicate">ทำซ้ำ</string>
+    <string name="studio_tool_delete">ลบ</string>
+    <string name="studio_badge_sample">ตัวอย่าง</string>
+    <string name="studio_action_replace">แทนที่</string>
+    <string name="studio_gallery_no_templates">ไม่มีเทมเพลต</string>
+    <string name="studio_gallery_coming_soon">เร็วๆ นี้</string>
+    <string name="studio_gallery_coming_soon_desc">ฟีเจอร์นี้อยู่ระหว่างการพัฒนาและจะพร้อมใช้งานเร็วๆ นี้!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">เทมเพลต</string>
+    <string name="studio_save_image_success">บันทึกรูปภาพแล้ว</string>
+    <string name="studio_error_select_object">โปรดเลือกวัตถุ</string>
+    <string name="studio_error_load_cloud_template">ไม่สามารถโหลดเทมเพลตคลาวด์: %1$s</string>
+    <string name="studio_error_load_template">ไม่สามารถโหลดเทมเพลต: %1$s</string>
+    <string name="studio_error_load_sample_product">ไม่สามารถโหลดผลิตภัณฑ์ตัวอย่างได้</string>
+    <string name="studio_error_process_image">ข้อผิดพลาดในการประมวลผลภาพ</string>
+    <string name="studio_error_save_image">ไม่สามารถบันทึกภาพได้</string>
+    <string name="studio_error_render_failed">การแสดงผลล้มเหลว: %1$s</string>
+    <string name="studio_error_unknown">ข้อผิดพลาดที่ไม่รู้จัก</string>
 </resources>
+
+

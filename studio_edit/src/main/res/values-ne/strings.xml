@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI उत्पादन स्टुडियो</string>
     <string name="studio_category_electronics">इलेक्ट्रोनिक्स</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">छाया</string>
     <string name="studio_tool_transparency">अपारदर्शिता</string>
     <string name="studio_tool_crop">क्रप गर्नुहोस्</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">घुमाउनुहोस्/उल्टाउनुहोस्</string>
     <string name="studio_replace_hint">आफ्नो ग्यालरीबाट उत्पादनको फोटो छान्न \'बदल्नुहोस्\' मा ट्याप गर्नुहोस्</string>
     <string name="studio_layout_hint">सार्नका लागि ड्र्याग गर्नुहोस् · जुम गर्न औंलाहरू खुम्च्याउनुहोस् · दुई औंलाले घुमाउनुहोस्</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">पृष्ठभूमि स्वतः हटाइन्छ</string>
     <string name="studio_export">निर्यात गर्नुहोस्</string>
     <string name="studio_crop_ratio_original">मूल</string>
+    <string name="themeplate_professional_watch">हेर्नुहोस्</string>
+    <string name="themeplate_professional_perfume">अत्तर</string>
+    <string name="themeplate_professional_handbag">ह्यान्डब्याग</string>
+    <string name="themeplate_professional_sneaker">स्नीकर</string>
+    <string name="themeplate_professional_glasses">चश्मा</string>
+    <string name="themeplate_professional_cup">कप</string>
+    <string name="themeplate_professional_lipstick">लिपस्टिक</string>
+    <string name="themeplate_professional_hat">बाल्टी टोपी</string>
+    <string name="themeplate_professional_beanie">बेनी टोपी</string>
+    <string name="themeplate_professional_lemonade">लेमोनेड</string>
+    <string name="themeplate_professional_lemonade_beige">लेमोनेड बेज</string>
+    <string name="themeplate_professional_lemonade_blue">लेमोनेड निलो</string>
+    <string name="themeplate_professional_lemonade_cyan">लेमोनेड स्यान</string>
+    <string name="themeplate_professional_lemonade_minimal">लेमोनेड न्यूनतम</string>
+    <string name="themeplate_professional_lemonade_warm">लेमोनेड तातो</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">लेमोनेड ताजा नीलो</string>
+    <string name="themeplate_professional_asphalt">डामर</string>
+    <string name="themeplate_professional_sidewalk">फुटपाथ</string>
+    <string name="themeplate_professional_retro">रेट्रो डेस्कटप</string>
+    <string name="themeplate_professional_cafe">क्याफे</string>
+    <string name="themeplate_professional_wall">पर्खाल</string>
+    <string name="themeplate_professional_digital_life">डिजिटल जीवन</string>
+    <string name="themeplate_professional_phone_mode">फोन मोड</string>
+    <string name="themeplate_professional_food_selfie">सेल्फी र खाना</string>
+    <string name="studio_category_professional">व्यावसायिक</string>
+    <string name="themeplate_section_digital_life">डिजिटल जीवन</string>
+    <string name="themeplate_section_phone_mode">फोन मोड</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">सेल्फी खाना १</string>
+    <string name="themeplate_selfie_food_02">सेल्फी खाना २</string>
+    <string name="themeplate_selfie_food_03">सेल्फी खाना ३</string>
+    <string name="themeplate_selfie_food_04">सेल्फी खाना ४</string>
+    <string name="themeplate_selfie_food_05">सेल्फी खाना 5</string>
+    <string name="themeplate_selfie_food_06">सेल्फी खाना 6</string>
+    <string name="themeplate_selfie_food_07">सेल्फी खाना 7</string>
+    <string name="themeplate_selfie_food_08">सेल्फी खाना 8</string>
+    <string name="studio_tool_duplicate">नक्कल</string>
+    <string name="studio_tool_delete">मेट्नुहोस्</string>
+    <string name="studio_badge_sample">नमूना</string>
+    <string name="studio_action_replace">प्रतिस्थापन गर्नुहोस्</string>
+    <string name="studio_gallery_no_templates">कुनै टेम्प्लेटहरू उपलब्ध छैनन्</string>
+    <string name="studio_gallery_coming_soon">चाँडै आउँदैछ</string>
+    <string name="studio_gallery_coming_soon_desc">यो सुविधा विकास अन्तर्गत छ र चाँडै उपलब्ध हुनेछ!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">टेम्प्लेटहरू</string>
+    <string name="studio_save_image_success">छवि सुरक्षित गरियो</string>
+    <string name="studio_error_select_object">कृपया एउटा वस्तु चयन गर्नुहोस्</string>
+    <string name="studio_error_load_cloud_template">क्लाउड टेम्प्लेट लोड गर्न सकिँदैन: %1$s</string>
+    <string name="studio_error_load_template">टेम्प्लेट लोड गर्न सकिँदैन: %1$s</string>
+    <string name="studio_error_load_sample_product">नमूना उत्पादन लोड गर्न सकिँदैन</string>
+    <string name="studio_error_process_image">छवि प्रशोधन त्रुटि</string>
+    <string name="studio_error_save_image">छवि बचत गर्न असफल भयो</string>
+    <string name="studio_error_render_failed">रेन्डर असफल भयो: %1$s</string>
+    <string name="studio_error_unknown">अज्ञात त्रुटि</string>
 </resources>
+
+

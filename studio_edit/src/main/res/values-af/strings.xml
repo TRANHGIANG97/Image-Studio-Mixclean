@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI-produkstudio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Skaduwee</string>
     <string name="studio_tool_transparency">Deursigtigheid</string>
     <string name="studio_tool_crop">Knip</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Draai/Spieël</string>
     <string name="studio_replace_hint">Tik op Vervang om \'n produkfoto uit jou galery te kies</string>
     <string name="studio_layout_hint">Sleep om te skuif · Knyp om te zoem · Draai met twee vingers</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Agtergrond word outomaties verwyder</string>
     <string name="studio_export">Voer uit</string>
     <string name="studio_crop_ratio_original">Oorspronklik</string>
+    <string name="themeplate_professional_watch">Kyk</string>
+    <string name="themeplate_professional_perfume">Parfuum</string>
+    <string name="themeplate_professional_handbag">Handsak</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Bril</string>
+    <string name="themeplate_professional_cup">Beker</string>
+    <string name="themeplate_professional_lipstick">Lipstiffie</string>
+    <string name="themeplate_professional_hat">Emmerhoed</string>
+    <string name="themeplate_professional_beanie">Beanie Hoed</string>
+    <string name="themeplate_professional_lemonade">Limonade</string>
+    <string name="themeplate_professional_lemonade_beige">Limonade Beige</string>
+    <string name="themeplate_professional_lemonade_blue">Limonade Blou</string>
+    <string name="themeplate_professional_lemonade_cyan">Siaan limonade</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonade Minimaal</string>
+    <string name="themeplate_professional_lemonade_warm">Lemonade warm</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Lemonade Vars Blou</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Sypaadjie</string>
+    <string name="themeplate_professional_retro">Retro lessenaar</string>
+    <string name="themeplate_professional_cafe">Kafee</string>
+    <string name="themeplate_professional_wall">Muur</string>
+    <string name="themeplate_professional_digital_life">Digitale Lewe</string>
+    <string name="themeplate_professional_phone_mode">Foonmodus</string>
+    <string name="themeplate_professional_food_selfie">Selfie en kos</string>
+    <string name="studio_category_professional">Professioneel</string>
+    <string name="themeplate_section_digital_life">Digitale Lewe</string>
+    <string name="themeplate_section_phone_mode">Foonmodus</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie Kos 1</string>
+    <string name="themeplate_selfie_food_02">Selfie Kos 2</string>
+    <string name="themeplate_selfie_food_03">Selfie Kos 3</string>
+    <string name="themeplate_selfie_food_04">Selfie Kos 4</string>
+    <string name="themeplate_selfie_food_05">Selfie Kos 5</string>
+    <string name="themeplate_selfie_food_06">Selfie Kos 6</string>
+    <string name="themeplate_selfie_food_07">Selfie Kos 7</string>
+    <string name="themeplate_selfie_food_08">Selfie Kos 8</string>
+    <string name="studio_tool_duplicate">Duplikaat</string>
+    <string name="studio_tool_delete">Vee uit</string>
+    <string name="studio_badge_sample">Voorbeeld</string>
+    <string name="studio_action_replace">Vervang</string>
+    <string name="studio_gallery_no_templates">Geen sjablone beskikbaar nie</string>
+    <string name="studio_gallery_coming_soon">Binnekort beskikbaar</string>
+    <string name="studio_gallery_coming_soon_desc">Hierdie kenmerk is onder ontwikkeling en sal binnekort beskikbaar wees!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Sjablone</string>
+    <string name="studio_save_image_success">Prent is gestoor</string>
+    <string name="studio_error_select_object">Kies asseblief \'n voorwerp</string>
+    <string name="studio_error_load_cloud_template">Kan nie wolksjabloon laai nie: %1$s</string>
+    <string name="studio_error_load_template">Kan nie sjabloon laai nie: %1$s</string>
+    <string name="studio_error_load_sample_product">Kan nie voorbeeldproduk laai nie</string>
+    <string name="studio_error_process_image">Beeldverwerkingsfout</string>
+    <string name="studio_error_save_image">Kon nie prent stoor nie</string>
+    <string name="studio_error_render_failed">Lewering het misluk: %1$s</string>
+    <string name="studio_error_unknown">Onbekende fout</string>
 </resources>
+
+

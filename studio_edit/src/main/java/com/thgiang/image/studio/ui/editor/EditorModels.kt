@@ -117,6 +117,7 @@ data class EditorLayer(
 
 sealed class EditorTool(val iconName: String) : java.io.Serializable {
     data object Replace : EditorTool("photo")
+    data object Sticker : EditorTool("sticker")
     data object Layout : EditorTool("drag_indicator")
     data object Rotate : EditorTool("refresh")
     data object Shadow : EditorTool("wb_sunny")
@@ -126,7 +127,7 @@ sealed class EditorTool(val iconName: String) : java.io.Serializable {
     data object Delete : EditorTool("delete")
     
     companion object {
-        val ALL = listOf(Replace, Rotate, Shadow, Transparency, Crop, Duplicate, Delete)
+        val ALL = listOf(Replace, Sticker, Rotate, Shadow, Transparency, Crop, Duplicate, Delete)
     }
 }
 

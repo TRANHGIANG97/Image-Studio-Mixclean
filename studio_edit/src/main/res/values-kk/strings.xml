@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI өнім студиясы</string>
     <string name="studio_category_electronics">Электроника</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Көлеңке</string>
     <string name="studio_tool_transparency">Мөлдірсіздік</string>
     <string name="studio_tool_crop">Қию</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Бұру/Шағылыстыру</string>
     <string name="studio_replace_hint">Галереяңыздан өнім фотосын таңдау үшін Ауыстыру түймесін түртіңіз</string>
     <string name="studio_layout_hint">Жылжыту үшін сүйреңіз · Масштабтау үшін екі саусақпен қысыңыз · Екі саусақпен бұрыңыз</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Фон автоматты түрде жойылады</string>
     <string name="studio_export">Экспорттау</string>
     <string name="studio_crop_ratio_original">Түпнұсқа</string>
+    <string name="themeplate_professional_watch">Қарау</string>
+    <string name="themeplate_professional_perfume">Парфюмерия</string>
+    <string name="themeplate_professional_handbag">Қол сөмке</string>
+    <string name="themeplate_professional_sneaker">Кроссовка</string>
+    <string name="themeplate_professional_glasses">Көзілдірік</string>
+    <string name="themeplate_professional_cup">Кубок</string>
+    <string name="themeplate_professional_lipstick">Ерін далабы</string>
+    <string name="themeplate_professional_hat">Шелек қалпақ</string>
+    <string name="themeplate_professional_beanie">Бини қалпақ</string>
+    <string name="themeplate_professional_lemonade">Лимонад</string>
+    <string name="themeplate_professional_lemonade_beige">Лимонадты бежевый</string>
+    <string name="themeplate_professional_lemonade_blue">Лимонад көк</string>
+    <string name="themeplate_professional_lemonade_cyan">Лимонад көгілдір</string>
+    <string name="themeplate_professional_lemonade_minimal">Лимонад Минималды</string>
+    <string name="themeplate_professional_lemonade_warm">Жылы лимонад</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Лимонад Балғын көк</string>
+    <string name="themeplate_professional_asphalt">Асфальт</string>
+    <string name="themeplate_professional_sidewalk">Тротуар</string>
+    <string name="themeplate_professional_retro">Ретро жұмыс үстелі</string>
+    <string name="themeplate_professional_cafe">Кафе</string>
+    <string name="themeplate_professional_wall">Қабырға</string>
+    <string name="themeplate_professional_digital_life">Сандық өмір</string>
+    <string name="themeplate_professional_phone_mode">Телефон режимі</string>
+    <string name="themeplate_professional_food_selfie">Селфи және тағам</string>
+    <string name="studio_category_professional">Кәсіби</string>
+    <string name="themeplate_section_digital_life">Сандық өмір</string>
+    <string name="themeplate_section_phone_mode">Телефон режимі</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Селфи тағамы 1</string>
+    <string name="themeplate_selfie_food_02">Селфи тағамы 2</string>
+    <string name="themeplate_selfie_food_03">Селфи тағамы 3</string>
+    <string name="themeplate_selfie_food_04">Селфи тағамы 4</string>
+    <string name="themeplate_selfie_food_05">Селфи тағамы 5</string>
+    <string name="themeplate_selfie_food_06">Селфи тағамы 6</string>
+    <string name="themeplate_selfie_food_07">Селфи тағамы 7</string>
+    <string name="themeplate_selfie_food_08">Селфи тағамы 8</string>
+    <string name="studio_tool_duplicate">Көшірме</string>
+    <string name="studio_tool_delete">Жою</string>
+    <string name="studio_badge_sample">Үлгі</string>
+    <string name="studio_action_replace">Ауыстыру</string>
+    <string name="studio_gallery_no_templates">Үлгілер қолжетімді емес</string>
+    <string name="studio_gallery_coming_soon">Жақында</string>
+    <string name="studio_gallery_coming_soon_desc">Бұл мүмкіндік әзірлену үстінде және жақын арада қолжетімді болады!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Үлгілер</string>
+    <string name="studio_save_image_success">Кескін сақталды</string>
+    <string name="studio_error_select_object">Объектіні таңдаңыз</string>
+    <string name="studio_error_load_cloud_template">Бұлтты үлгіні жүктеу мүмкін емес: %1$s</string>
+    <string name="studio_error_load_template">Үлгіні жүктеу мүмкін емес: %1$s</string>
+    <string name="studio_error_load_sample_product">Үлгі өнімді жүктеу мүмкін емес</string>
+    <string name="studio_error_process_image">Кескінді өңдеу қатесі</string>
+    <string name="studio_error_save_image">Кескінді сақтау орындалмады</string>
+    <string name="studio_error_render_failed">Көрсету сәтсіз аяқталды: %1$s</string>
+    <string name="studio_error_unknown">Белгісіз қате</string>
 </resources>
+
+

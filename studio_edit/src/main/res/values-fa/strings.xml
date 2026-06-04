@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">استودیوی محصول هوش مصنوعی</string>
     <string name="studio_category_electronics">الکترونیک</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">سایه</string>
     <string name="studio_tool_transparency">شفافیت</string>
     <string name="studio_tool_crop">برش تصویر</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">چرخش/قرینه</string>
     <string name="studio_replace_hint">برای انتخاب عکس محصول از گالری، روی جایگزینی ضربه بزنید</string>
     <string name="studio_layout_hint">بکشید برای جابجایی · نیشگون بگیرید برای زوم · با دو انگشت بچرخانید</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">پس‌زمینه به طور خودکار حذف می‌شود</string>
     <string name="studio_export">صادر کردن</string>
     <string name="studio_crop_ratio_original">اصلی</string>
+    <string name="themeplate_professional_watch">تماشا کنید</string>
+    <string name="themeplate_professional_perfume">عطر</string>
+    <string name="themeplate_professional_handbag">کیف دستی</string>
+    <string name="themeplate_professional_sneaker">کفش ورزشی</string>
+    <string name="themeplate_professional_glasses">عینک</string>
+    <string name="themeplate_professional_cup">جام</string>
+    <string name="themeplate_professional_lipstick">رژ لب</string>
+    <string name="themeplate_professional_hat">کلاه سطلی</string>
+    <string name="themeplate_professional_beanie">کلاه بانی</string>
+    <string name="themeplate_professional_lemonade">لیموناد</string>
+    <string name="themeplate_professional_lemonade_beige">لیموناد بژ</string>
+    <string name="themeplate_professional_lemonade_blue">آبی لیمونادی</string>
+    <string name="themeplate_professional_lemonade_cyan">لیموناد فیروزه ای</string>
+    <string name="themeplate_professional_lemonade_minimal">لیموناد مینیمال</string>
+    <string name="themeplate_professional_lemonade_warm">لیموناد گرم</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">لیموناد تازه آبی</string>
+    <string name="themeplate_professional_asphalt">آسفالت</string>
+    <string name="themeplate_professional_sidewalk">پیاده رو</string>
+    <string name="themeplate_professional_retro">یکپارچهسازی با سیستمعامل رومیزی</string>
+    <string name="themeplate_professional_cafe">کافه</string>
+    <string name="themeplate_professional_wall">دیوار</string>
+    <string name="themeplate_professional_digital_life">زندگی دیجیتال</string>
+    <string name="themeplate_professional_phone_mode">حالت تلفن</string>
+    <string name="themeplate_professional_food_selfie">سلفی و غذا</string>
+    <string name="studio_category_professional">حرفه ای</string>
+    <string name="themeplate_section_digital_life">زندگی دیجیتال</string>
+    <string name="themeplate_section_phone_mode">حالت تلفن</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">غذای سلفی 1</string>
+    <string name="themeplate_selfie_food_02">غذای سلفی ۲</string>
+    <string name="themeplate_selfie_food_03">غذای سلفی 3</string>
+    <string name="themeplate_selfie_food_04">غذای سلفی 4</string>
+    <string name="themeplate_selfie_food_05">غذای سلفی 5</string>
+    <string name="themeplate_selfie_food_06">غذای سلفی ۶</string>
+    <string name="themeplate_selfie_food_07">غذای سلفی ۷</string>
+    <string name="themeplate_selfie_food_08">غذای سلفی 8</string>
+    <string name="studio_tool_duplicate">تکراری</string>
+    <string name="studio_tool_delete">حذف کنید</string>
+    <string name="studio_badge_sample">نمونه</string>
+    <string name="studio_action_replace">جایگزین کنید</string>
+    <string name="studio_gallery_no_templates">هیچ قالبی در دسترس نیست</string>
+    <string name="studio_gallery_coming_soon">به زودی</string>
+    <string name="studio_gallery_coming_soon_desc">این ویژگی در حال توسعه است و به زودی در دسترس خواهد بود!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">قالب ها</string>
+    <string name="studio_save_image_success">تصویر ذخیره شد</string>
+    <string name="studio_error_select_object">لطفاً یک شی را انتخاب کنید</string>
+    <string name="studio_error_load_cloud_template">بارگیری الگوی ابری ممکن نیست: %1$s</string>
+    <string name="studio_error_load_template">قالب بارگیری نمی شود: %1$s</string>
+    <string name="studio_error_load_sample_product">محصول نمونه بارگیری نمی شود</string>
+    <string name="studio_error_process_image">خطای پردازش تصویر</string>
+    <string name="studio_error_save_image">تصویر ذخیره نشد</string>
+    <string name="studio_error_render_failed">رندر انجام نشد: %1$s</string>
+    <string name="studio_error_unknown">خطای ناشناخته</string>
 </resources>
+
+

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI-Produktstudio</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Schatten</string>
     <string name="studio_tool_transparency">Deckkraft</string>
     <string name="studio_tool_crop">Zuschneiden</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Drehen/Spiegeln</string>
     <string name="studio_replace_hint">Tippen Sie auf Ersetzen, um ein Produktfoto aus Ihrer Galerie auszuwählen</string>
     <string name="studio_layout_hint">Zum Bewegen ziehen · Zum Zoomen zusammenziehen · Mit zwei Fingern drehen</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Hintergrund wird automatisch entfernt</string>
     <string name="studio_export">Exportieren</string>
     <string name="studio_crop_ratio_original">Original</string>
+    <string name="themeplate_professional_watch">Betrachten</string>
+    <string name="themeplate_professional_perfume">Parfüm</string>
+    <string name="themeplate_professional_handbag">Handtasche</string>
+    <string name="themeplate_professional_sneaker">Sneaker</string>
+    <string name="themeplate_professional_glasses">Gläser</string>
+    <string name="themeplate_professional_cup">Tasse</string>
+    <string name="themeplate_professional_lipstick">Lippenstift</string>
+    <string name="themeplate_professional_hat">Eimerhut</string>
+    <string name="themeplate_professional_beanie">Beanie-Mütze</string>
+    <string name="themeplate_professional_lemonade">Limonade</string>
+    <string name="themeplate_professional_lemonade_beige">Limonadenbeige</string>
+    <string name="themeplate_professional_lemonade_blue">Limonadenblau</string>
+    <string name="themeplate_professional_lemonade_cyan">Limonade-Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonade Minimal</string>
+    <string name="themeplate_professional_lemonade_warm">Limonade warm</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limonade Fresh Blue</string>
+    <string name="themeplate_professional_asphalt">Asphalt</string>
+    <string name="themeplate_professional_sidewalk">Gehweg</string>
+    <string name="themeplate_professional_retro">Retro-Desktop</string>
+    <string name="themeplate_professional_cafe">Cafe</string>
+    <string name="themeplate_professional_wall">Wand</string>
+    <string name="themeplate_professional_digital_life">Digitales Leben</string>
+    <string name="themeplate_professional_phone_mode">Telefonmodus</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; Essen</string>
+    <string name="studio_category_professional">Professional</string>
+    <string name="themeplate_section_digital_life">Digitales Leben</string>
+    <string name="themeplate_section_phone_mode">Telefonmodus</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie-Essen 1</string>
+    <string name="themeplate_selfie_food_02">Selfie-Essen 2</string>
+    <string name="themeplate_selfie_food_03">Selfie-Essen 3</string>
+    <string name="themeplate_selfie_food_04">Selfie-Essen 4</string>
+    <string name="themeplate_selfie_food_05">Selfie-Essen 5</string>
+    <string name="themeplate_selfie_food_06">Selfie-Essen 6</string>
+    <string name="themeplate_selfie_food_07">Selfie-Essen 7</string>
+    <string name="themeplate_selfie_food_08">Selfie-Essen 8</string>
+    <string name="studio_tool_duplicate">Duplikat</string>
+    <string name="studio_tool_delete">Löschen</string>
+    <string name="studio_badge_sample">Probe</string>
+    <string name="studio_action_replace">Ersetzen</string>
+    <string name="studio_gallery_no_templates">Keine Vorlagen verfügbar</string>
+    <string name="studio_gallery_coming_soon">Kommt bald</string>
+    <string name="studio_gallery_coming_soon_desc">Diese Funktion befindet sich in der Entwicklung und wird bald verfügbar sein!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Vorlagen</string>
+    <string name="studio_save_image_success">Bild gespeichert</string>
+    <string name="studio_error_select_object">Bitte wählen Sie ein Objekt aus</string>
+    <string name="studio_error_load_cloud_template">Cloud-Vorlage kann nicht geladen werden: %1$s</string>
+    <string name="studio_error_load_template">Vorlage kann nicht geladen werden: %1$s</string>
+    <string name="studio_error_load_sample_product">Beispielprodukt kann nicht geladen werden</string>
+    <string name="studio_error_process_image">Bildverarbeitungsfehler</string>
+    <string name="studio_error_save_image">Bild konnte nicht gespeichert werden</string>
+    <string name="studio_error_render_failed">Rendern fehlgeschlagen: %1$s</string>
+    <string name="studio_error_unknown">Unbekannter Fehler</string>
 </resources>
+
+

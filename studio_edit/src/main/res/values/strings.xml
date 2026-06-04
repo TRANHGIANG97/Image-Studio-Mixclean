@@ -39,7 +39,8 @@
     <string name="themeplate_professional_wall">Wall</string>
     <string name="themeplate_professional_digital_life">Digital Life</string>
     <string name="themeplate_professional_phone_mode">Phone Mode</string>
-    <string name="themeplate_professional_food_selfie">Mê ăn uống</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; Food</string>
+    <string name="studio_category_professional">Professional</string>
     <string name="themeplate_section_digital_life">Digital Life</string>
     <string name="themeplate_section_phone_mode">Phone Mode</string>
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
@@ -60,8 +61,15 @@
     <string name="studio_tool_shadow">Shadow</string>
     <string name="studio_tool_transparency">Opacity</string>
     <string name="studio_tool_crop">Crop</string>
-    <string name="studio_tool_duplicate">Sao chép</string>
-    <string name="studio_tool_delete">Xóa</string>
+    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_duplicate">Duplicate</string>
+    <string name="studio_tool_delete">Delete</string>
+    <string name="studio_badge_sample">Sample</string>
+    <string name="studio_action_replace">Replace</string>
+    <string name="studio_gallery_no_templates">No templates available</string>
+    <string name="studio_gallery_coming_soon">Coming soon</string>
+    <string name="studio_gallery_coming_soon_desc">This feature is under development and will be available soon!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
     <string name="studio_tool_rotateflip">Rotate/Flip</string>
     <string name="studio_replace_hint">Tap Replace to choose a product photo from your gallery</string>
     <string name="studio_layout_hint">Drag to move · Pinch to zoom · Two-finger rotate</string>
@@ -92,5 +100,15 @@
     <string name="studio_pick_product_subtitle">Background is removed automatically</string>
     <string name="studio_export">Export</string>
     <string name="studio_crop_ratio_original">Original</string>
-    <string name="themeplate_gallery_title">Mẫu thiết kế</string>
+    <string name="themeplate_gallery_title">Templates</string>
+    <string name="studio_save_image_success">Image saved</string>
+    <string name="studio_error_select_object">Please select an object</string>
+    <string name="studio_error_load_cloud_template">Cannot load cloud template: %1$s</string>
+    <string name="studio_error_load_template">Cannot load template: %1$s</string>
+    <string name="studio_error_load_sample_product">Cannot load sample product</string>
+    <string name="studio_error_process_image">Image processing error</string>
+    <string name="studio_error_save_image">Failed to save image</string>
+    <string name="studio_error_render_failed">Render failed: %1$s</string>
+    <string name="studio_error_unknown">Unknown error</string>
 </resources>
+

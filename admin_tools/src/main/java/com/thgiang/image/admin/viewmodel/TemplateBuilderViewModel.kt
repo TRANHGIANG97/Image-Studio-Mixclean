@@ -122,6 +122,7 @@ class TemplateBuilderViewModel @Inject constructor(
             is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath, event.objectSourceAssetPath)
             is EditorEvent.LoadCloudTemplate -> loadCloudTemplate(event.cloudTemplate)
             is EditorEvent.SetProductImage -> setProductImage(event.uri, event.replaceLayerId)
+            is EditorEvent.AddSticker -> addSticker(event.assetPath)
             is EditorEvent.UpdateGesture -> {
                 gestureThrottleFlow.tryEmit(event.delta)
                 requestHistoryPush()
@@ -654,6 +655,82 @@ class TemplateBuilderViewModel @Inject constructor(
                         layers = state.layers.filterNot { it.id == processingId },
                         selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId,
                         errorMessage = "Không thể tải trang trí"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun addSticker(assetPath: String) {
+        val stickerUri = "file:///android_asset/$assetPath"
+        val processingId = java.util.UUID.randomUUID().toString()
+        _state.update { state ->
+            val newLayerTemplate = EditorLayer(
+                id = processingId,
+                product = EditorProduct(originalUriString = stickerUri, processing = true)
+            )
+            state.copy(
+                layers = state.layers + newLayerTemplate,
+                selectedLayerId = processingId,
+                errorMessage = null
+            )
+        }
+
+        viewModelScope.launch {
+            try {
+                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                val decoded = withContext(Dispatchers.IO) {
+                    fileRepository.getInputStreamForPath(stickerUri)?.use { input ->
+                        BitmapFactory.decodeStream(input, null, options)
+                        options.outWidth > 0 && options.outHeight > 0
+                    } == true
+                }
+
+                val tw = _state.value.template.originalSize.width
+                val th = _state.value.template.originalSize.height
+                val w = if (decoded) options.outWidth else 512
+                val h = if (decoded) options.outHeight else 512
+
+                val baseSize = if (tw > 0 && th > 0 && w > 0 && h > 0) {
+                    val baseFitScale = kotlin.math.min(
+                        tw.toFloat() / w,
+                        th.toFloat() / h
+                    )
+                    IntSize(
+                        (w * baseFitScale).toInt(),
+                        (h * baseFitScale).toInt()
+                    )
+                } else {
+                    IntSize(w.coerceAtLeast(0), h.coerceAtLeast(0))
+                }
+
+                _state.update { state ->
+                    val newProduct = EditorProduct(
+                        originalUriString = stickerUri,
+                        foregroundUriString = stickerUri,
+                        isBackgroundRemoved = true,
+                        baseWidth = baseSize.width,
+                        baseHeight = baseSize.height,
+                        processing = false,
+                        isSample = false
+                    )
+                    val updatedLayers = state.layers.map {
+                        if (it.id == processingId) it.copy(product = newProduct, viewport = EditorViewport(scale = 0.5f)) else it
+                    }
+                    state.copy(
+                        layers = updatedLayers,
+                        showBoundingBox = true
+                    )
+                }
+                triggerOverlay()
+                pushHistory()
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "Failed to load sticker: $assetPath", e)
+                _state.update { state ->
+                    state.copy(
+                        layers = state.layers.filterNot { it.id == processingId },
+                        selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId,
+                        errorMessage = "KhÃ´ng thá»ƒ táº£i nhÃ£n dáº¥n"
                     )
                 }
             }

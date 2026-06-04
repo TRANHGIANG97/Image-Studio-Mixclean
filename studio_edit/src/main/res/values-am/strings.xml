@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">የAI ምርት ስቱዲዮ</string>
     <string name="studio_category_electronics">ኤሌክትሮኒክስ</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">ጥላ</string>
     <string name="studio_tool_transparency">ግልጽነት</string>
     <string name="studio_tool_crop">ከርክም</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">አሽከርክር/ግልብጥ</string>
     <string name="studio_replace_hint">ከማዕከለ-ስዕላትዎ የምርት ፎቶ ለመምረጥ \'ቀይር\' የሚለውን ይንኩ</string>
     <string name="studio_layout_hint">ለማንቀሳቀስ ይጎትቱ · ለማጉላት በሁለት ጣት ያጥቡ · በሁለት ጣት ያሽከረክሩ</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">ዳራ በራስ-ሰር ይወገዳል</string>
     <string name="studio_export">ላክ</string>
     <string name="studio_crop_ratio_original">የመጀመሪያው</string>
+    <string name="themeplate_professional_watch">ይመልከቱ</string>
+    <string name="themeplate_professional_perfume">ሽቶ</string>
+    <string name="themeplate_professional_handbag">የእጅ ቦርሳ</string>
+    <string name="themeplate_professional_sneaker">ስኒከር</string>
+    <string name="themeplate_professional_glasses">መነጽር</string>
+    <string name="themeplate_professional_cup">ዋንጫ</string>
+    <string name="themeplate_professional_lipstick">ሊፕስቲክ</string>
+    <string name="themeplate_professional_hat">ባልዲ ኮፍያ</string>
+    <string name="themeplate_professional_beanie">ቢኒ ኮፍያ</string>
+    <string name="themeplate_professional_lemonade">ሎሚ</string>
+    <string name="themeplate_professional_lemonade_beige">Lemonade Beige</string>
+    <string name="themeplate_professional_lemonade_blue">ሎሚ ሰማያዊ</string>
+    <string name="themeplate_professional_lemonade_cyan">የሎሚ ሲያን</string>
+    <string name="themeplate_professional_lemonade_minimal">ሎሚ በትንሹ</string>
+    <string name="themeplate_professional_lemonade_warm">የሎሚ ሙቅ</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">ሎሚ ትኩስ ሰማያዊ</string>
+    <string name="themeplate_professional_asphalt">አስፋልት</string>
+    <string name="themeplate_professional_sidewalk">የእግረኛ መንገድ</string>
+    <string name="themeplate_professional_retro">Retro ዴስክቶፕ</string>
+    <string name="themeplate_professional_cafe">ካፌ</string>
+    <string name="themeplate_professional_wall">ግድግዳ</string>
+    <string name="themeplate_professional_digital_life">ዲጂታል ሕይወት</string>
+    <string name="themeplate_professional_phone_mode">የስልክ ሁነታ</string>
+    <string name="themeplate_professional_food_selfie">የራስ ፎቶ እና ምግብ</string>
+    <string name="studio_category_professional">ፕሮፌሽናል</string>
+    <string name="themeplate_section_digital_life">ዲጂታል ሕይወት</string>
+    <string name="themeplate_section_phone_mode">የስልክ ሁነታ</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">የራስ ፎቶ ምግብ 1</string>
+    <string name="themeplate_selfie_food_02">የራስ ፎቶ ምግብ 2</string>
+    <string name="themeplate_selfie_food_03">የራስ ፎቶ ምግብ 3</string>
+    <string name="themeplate_selfie_food_04">የራስ ፎቶ ምግብ 4</string>
+    <string name="themeplate_selfie_food_05">የራስ ፎቶ ምግብ 5</string>
+    <string name="themeplate_selfie_food_06">የራስ ፎቶ ምግብ 6</string>
+    <string name="themeplate_selfie_food_07">የራስ ፎቶ ምግብ 7</string>
+    <string name="themeplate_selfie_food_08">የራስ ፎቶ ምግብ 8</string>
+    <string name="studio_tool_duplicate">ማባዛት።</string>
+    <string name="studio_tool_delete">ሰርዝ</string>
+    <string name="studio_badge_sample">ናሙና</string>
+    <string name="studio_action_replace">ተካ</string>
+    <string name="studio_gallery_no_templates">ምንም አብነቶች የሉም</string>
+    <string name="studio_gallery_coming_soon">በቅርቡ ይመጣል</string>
+    <string name="studio_gallery_coming_soon_desc">ይህ ባህሪ በመገንባት ላይ ነው እና በቅርቡ ይገኛል!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">አብነቶች</string>
+    <string name="studio_save_image_success">ምስል ተቀምጧል</string>
+    <string name="studio_error_select_object">እባክዎ አንድ ነገር ይምረጡ</string>
+    <string name="studio_error_load_cloud_template">የደመና አብነት መጫን አልተቻለም፡ %1$s_</string>
+    <string name="studio_error_load_template">አብነት መጫን አልተቻለም፡ %1$s_</string>
+    <string name="studio_error_load_sample_product">የናሙና ምርትን መጫን አልተቻለም</string>
+    <string name="studio_error_process_image">የምስል ሂደት ስህተት</string>
+    <string name="studio_error_save_image">ምስል ማስቀመጥ አልተሳካም።</string>
+    <string name="studio_error_render_failed">ማቅረብ አልተሳካም፦ %1$s_</string>
+    <string name="studio_error_unknown">ያልታወቀ ስህተት</string>
 </resources>
+
+

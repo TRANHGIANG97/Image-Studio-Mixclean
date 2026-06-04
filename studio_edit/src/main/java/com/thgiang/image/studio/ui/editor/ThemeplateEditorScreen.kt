@@ -64,9 +64,10 @@ fun ThemeplateEditorScreen(
         }
     }
 
+    val saveSuccessMessage = stringResource(R.string.studio_save_image_success)
     LaunchedEffect(state.exportResult) {
         state.exportResult?.let { uri ->
-            snackbarHostState.showSnackbar("Đã lưu ảnh")
+            snackbarHostState.showSnackbar(saveSuccessMessage)
             onExportSuccess()
             onDone(uri)
         }
@@ -104,7 +105,7 @@ fun ThemeplateEditorScreen(
                     showOverlay = state.showOverlay,
                     viewportPadding = PaddingValues(
                         top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp,
-                        bottom = if (state.layers.any { it.product.isBackgroundRemoved }) 296.dp else 88.dp
+                        bottom = if (state.layers.isNotEmpty()) 384.dp else 88.dp
                     ),
                     onGesture = { delta -> viewModel.onEvent(EditorEvent.UpdateGesture(delta)) },
                     onGestureEnd = { viewModel.onEvent(EditorEvent.CommitTransform) },
@@ -281,6 +282,14 @@ fun ThemeplateEditorScreen(
                         )
                     }
                 }
+
+                // ── Danh sách đối tượng ngang ────────────────────────
+                EditorObjectList(
+                    layers = state.layers,
+                    selectedLayerId = state.selectedLayerId,
+                    onSelectLayer = { id -> viewModel.onEvent(EditorEvent.SelectLayer(id)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 EditorBottomToolbar(
                     selectedTool = selectedToolForUi,

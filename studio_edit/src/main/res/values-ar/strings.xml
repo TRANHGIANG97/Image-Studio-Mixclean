@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">استوديو المنتجات بالذكاء الاصطناعي</string>
     <string name="studio_category_electronics">إلكترونيات</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">ظل</string>
     <string name="studio_tool_transparency">شفافية</string>
     <string name="studio_tool_crop">قص</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">تدوير/عكس</string>
     <string name="studio_replace_hint">اضغط على استبدال لاختيار صورة منتج من معرض الصور</string>
     <string name="studio_layout_hint">اسحب للتحريك · اضغط بإصبعين للتكبير · تدوير بإصبعين</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">يتم إزالة الخلفية تلقائيًا</string>
     <string name="studio_export">تصدير</string>
     <string name="studio_crop_ratio_original">الأصلي</string>
+    <string name="themeplate_professional_watch">يشاهد</string>
+    <string name="themeplate_professional_perfume">عطر</string>
+    <string name="themeplate_professional_handbag">حقيبة يد</string>
+    <string name="themeplate_professional_sneaker">حذاء رياضة</string>
+    <string name="themeplate_professional_glasses">نظارات</string>
+    <string name="themeplate_professional_cup">كوب</string>
+    <string name="themeplate_professional_lipstick">أحمر الشفاه</string>
+    <string name="themeplate_professional_hat">قبعة دلو</string>
+    <string name="themeplate_professional_beanie">قبعة صغيرة</string>
+    <string name="themeplate_professional_lemonade">عصير الليمون</string>
+    <string name="themeplate_professional_lemonade_beige">ليمونادة بيج</string>
+    <string name="themeplate_professional_lemonade_blue">عصير الليمون الأزرق</string>
+    <string name="themeplate_professional_lemonade_cyan">عصير الليمون سماوي</string>
+    <string name="themeplate_professional_lemonade_minimal">عصير الليمون الحد الأدنى</string>
+    <string name="themeplate_professional_lemonade_warm">عصير الليمون الدافئ</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">عصير الليمون الأزرق الطازج</string>
+    <string name="themeplate_professional_asphalt">أسفلت</string>
+    <string name="themeplate_professional_sidewalk">الرصيف</string>
+    <string name="themeplate_professional_retro">سطح المكتب الرجعية</string>
+    <string name="themeplate_professional_cafe">مقهى</string>
+    <string name="themeplate_professional_wall">حائط</string>
+    <string name="themeplate_professional_digital_life">الحياة الرقمية</string>
+    <string name="themeplate_professional_phone_mode">وضع الهاتف</string>
+    <string name="themeplate_professional_food_selfie">صورة شخصية والطعام</string>
+    <string name="studio_category_professional">احترافي</string>
+    <string name="themeplate_section_digital_life">الحياة الرقمية</string>
+    <string name="themeplate_section_phone_mode">وضع الهاتف</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">طعام سيلفي 1</string>
+    <string name="themeplate_selfie_food_02">صورة شخصية للأغذية 2</string>
+    <string name="themeplate_selfie_food_03">صورة شخصية للأغذية 3</string>
+    <string name="themeplate_selfie_food_04">صورة شخصية للأغذية 4</string>
+    <string name="themeplate_selfie_food_05">صورة شخصية للأغذية 5</string>
+    <string name="themeplate_selfie_food_06">صورة شخصية للأغذية 6</string>
+    <string name="themeplate_selfie_food_07">صورة شخصية للأغذية 7</string>
+    <string name="themeplate_selfie_food_08">صورة شخصية للأغذية 8</string>
+    <string name="studio_tool_duplicate">ينسخ</string>
+    <string name="studio_tool_delete">يمسح</string>
+    <string name="studio_badge_sample">عينة</string>
+    <string name="studio_action_replace">يستبدل</string>
+    <string name="studio_gallery_no_templates">لا توجد قوالب متاحة</string>
+    <string name="studio_gallery_coming_soon">قريباً</string>
+    <string name="studio_gallery_coming_soon_desc">هذه الميزة قيد التطوير وستكون متاحة قريبًا!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">قوالب</string>
+    <string name="studio_save_image_success">تم حفظ الصورة</string>
+    <string name="studio_error_select_object">الرجاء تحديد كائن</string>
+    <string name="studio_error_load_cloud_template">لا يمكن تحميل قالب السحابة: __PH0____</string>
+    <string name="studio_error_load_template">لا يمكن تحميل القالب: __PH0____</string>
+    <string name="studio_error_load_sample_product">لا يمكن تحميل نموذج المنتج</string>
+    <string name="studio_error_process_image">خطأ في معالجة الصورة</string>
+    <string name="studio_error_save_image">فشل حفظ الصورة</string>
+    <string name="studio_error_render_failed">فشل العرض: __PH0____</string>
+    <string name="studio_error_unknown">خطأ غير معروف</string>
 </resources>
+
+

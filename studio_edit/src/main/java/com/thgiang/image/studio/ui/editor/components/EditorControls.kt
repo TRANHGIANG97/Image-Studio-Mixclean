@@ -1,5 +1,6 @@
 package com.thgiang.image.studio.ui.editor.components
 
+import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -24,6 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Canvas
@@ -31,6 +34,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.toArgb
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.*
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
@@ -138,6 +143,14 @@ fun EditorControlsV2(
                                         onEvent = onLayoutEvent
                                     )
                                 }
+                            }
+
+                            is EditorTool.Sticker -> {
+                                StickerPicker(
+                                    onStickerSelected = { assetPath ->
+                                        onLayoutEvent(EditorEvent.AddSticker(assetPath))
+                                    }
+                                )
                             }
 
                             is EditorTool.Shadow -> {
@@ -601,6 +614,85 @@ private fun CropRatioButton(
 }
 
 // ── Layout Controls ──────────────────────────────────────────
+
+@Composable
+private fun StickerPicker(
+    onStickerSelected: (String) -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
+) {
+    val context = LocalContext.current
+    val stickerAssets = remember(context) {
+        context.assets.list("sticker")
+            ?.filter { it.endsWith(".png", ignoreCase = true) }
+            ?.sortedWith(compareBy { asset ->
+                asset.substringBeforeLast('.').toIntOrNull() ?: Int.MAX_VALUE
+            })
+            .orEmpty()
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.studio_tool_sticker),
+            style = MaterialTheme.typography.titleSmall,
+            color = tokens.textPrimary
+        )
+
+        if (stickerAssets.isEmpty()) {
+            Text(
+                text = stringResource(R.string.studio_gallery_no_templates),
+                color = tokens.textSecondary,
+                style = MaterialTheme.typography.bodySmall
+            )
+            return@Column
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(bottom = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            stickerAssets.forEach { assetName ->
+                val assetPath = "sticker/$assetName"
+                StickerThumb(
+                    context = context,
+                    assetPath = assetPath,
+                    onClick = { onStickerSelected(assetPath) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StickerThumb(
+    context: Context,
+    assetPath: String,
+    onClick: () -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
+) {
+    Box(
+        modifier = Modifier
+            .size(76.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFF8F8F8))
+            .border(1.dp, tokens.borderSubtle, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data("file:///android_asset/$assetPath")
+                .crossfade(true)
+                .build(),
+            contentDescription = assetPath,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
 
 @Composable
 fun EditorLayoutControls(

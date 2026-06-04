@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Məhsul Studiyası</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Kölgə</string>
     <string name="studio_tool_transparency">Şəffaflıq</string>
     <string name="studio_tool_crop">Kəs</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Döndər/Çevir</string>
     <string name="studio_replace_hint">Qalereyadan məhsul şəkli seçmək üçün Dəyişdir düyməsinə toxunun</string>
     <string name="studio_layout_hint">Köçürmək üçün sürükləyin · Yaxınlaşdırmaq üçün sıxın · İki barmaqla döndərin</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Arxa fon avtomatik silinir</string>
     <string name="studio_export">Eksport et</string>
     <string name="studio_crop_ratio_original">Orijinal</string>
+    <string name="themeplate_professional_watch">Bax</string>
+    <string name="themeplate_professional_perfume">Ətir</string>
+    <string name="themeplate_professional_handbag">Əl çantası</string>
+    <string name="themeplate_professional_sneaker">İdman ayaqqabısı</string>
+    <string name="themeplate_professional_glasses">Eynək</string>
+    <string name="themeplate_professional_cup">kubok</string>
+    <string name="themeplate_professional_lipstick">Pomada</string>
+    <string name="themeplate_professional_hat">Bucket Papaq</string>
+    <string name="themeplate_professional_beanie">Şapka</string>
+    <string name="themeplate_professional_lemonade">Limonad</string>
+    <string name="themeplate_professional_lemonade_beige">Limonad Bej</string>
+    <string name="themeplate_professional_lemonade_blue">Limonad Mavi</string>
+    <string name="themeplate_professional_lemonade_cyan">Limonad Cyan</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonad Minimal</string>
+    <string name="themeplate_professional_lemonade_warm">Limonad isti</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limonad Təzə Mavi</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Səki</string>
+    <string name="themeplate_professional_retro">Retro masa üstü</string>
+    <string name="themeplate_professional_cafe">Kafe</string>
+    <string name="themeplate_professional_wall">Divar</string>
+    <string name="themeplate_professional_digital_life">Rəqəmsal Həyat</string>
+    <string name="themeplate_professional_phone_mode">Telefon rejimi</string>
+    <string name="themeplate_professional_food_selfie">Selfie &amp; Qida</string>
+    <string name="studio_category_professional">Peşəkar</string>
+    <string name="themeplate_section_digital_life">Rəqəmsal Həyat</string>
+    <string name="themeplate_section_phone_mode">Telefon rejimi</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfie yeməyi 1</string>
+    <string name="themeplate_selfie_food_02">Selfie Yemək 2</string>
+    <string name="themeplate_selfie_food_03">Selfie Yemək 3</string>
+    <string name="themeplate_selfie_food_04">Selfie yeməyi 4</string>
+    <string name="themeplate_selfie_food_05">Selfie yeməyi 5</string>
+    <string name="themeplate_selfie_food_06">Selfie yeməyi 6</string>
+    <string name="themeplate_selfie_food_07">Selfie yeməyi 7</string>
+    <string name="themeplate_selfie_food_08">Selfie yeməyi 8</string>
+    <string name="studio_tool_duplicate">Dublikat</string>
+    <string name="studio_tool_delete">Sil</string>
+    <string name="studio_badge_sample">Nümunə</string>
+    <string name="studio_action_replace">Əvəz edin</string>
+    <string name="studio_gallery_no_templates">Əlçatan şablon yoxdur</string>
+    <string name="studio_gallery_coming_soon">Tezliklə</string>
+    <string name="studio_gallery_coming_soon_desc">Bu funksiya inkişaf mərhələsindədir və tezliklə istifadəyə veriləcək!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Şablonlar</string>
+    <string name="studio_save_image_success">Şəkil yadda saxlanıldı</string>
+    <string name="studio_error_select_object">Zəhmət olmasa obyekt seçin</string>
+    <string name="studio_error_load_cloud_template">Bulud şablonunu yükləmək mümkün deyil: %1$s</string>
+    <string name="studio_error_load_template">Şablonu yükləmək mümkün deyil: %1$s</string>
+    <string name="studio_error_load_sample_product">Nümunə məhsulu yükləmək mümkün deyil</string>
+    <string name="studio_error_process_image">Şəkil emal xətası</string>
+    <string name="studio_error_save_image">Şəkli yadda saxlamaq alınmadı</string>
+    <string name="studio_error_render_failed">Göstərmək alınmadı: %1$s</string>
+    <string name="studio_error_unknown">Naməlum xəta</string>
 </resources>
+
+

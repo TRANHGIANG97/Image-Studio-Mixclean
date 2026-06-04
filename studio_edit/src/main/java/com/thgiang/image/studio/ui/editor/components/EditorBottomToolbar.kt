@@ -69,6 +69,7 @@ fun EditorBottomToolbar(
             tools.forEach { tool ->
                 val isSelected = when (tool) {
                     is EditorTool.Replace -> selectedTool is EditorTool.Replace
+                    is EditorTool.Sticker -> selectedTool is EditorTool.Sticker
                     is EditorTool.Rotate -> selectedTool is EditorTool.Rotate
                     is EditorTool.Shadow -> selectedTool is EditorTool.Shadow
                     is EditorTool.Transparency -> selectedTool is EditorTool.Transparency
@@ -112,6 +113,7 @@ private fun ToolButton(
     @Suppress("REDUNDANT_ELSE_IN_WHEN")
     val labelRes = when (tool) {
         is EditorTool.Replace      -> R.string.studio_tool_replace
+        is EditorTool.Sticker      -> R.string.studio_tool_sticker
         is EditorTool.Layout       -> R.string.studio_tool_layout
         is EditorTool.Rotate       -> R.string.studio_tool_rotateflip
         is EditorTool.Shadow       -> R.string.studio_tool_shadow
@@ -125,6 +127,7 @@ private fun ToolButton(
     @Suppress("REDUNDANT_ELSE_IN_WHEN")
     val iconRes = when (tool) {
         is EditorTool.Replace      -> R.drawable.ic_tool_replace_image
+        is EditorTool.Sticker      -> R.drawable.ic_tool_sticker
         is EditorTool.Layout       -> R.drawable.ic_tool_layout
         is EditorTool.Rotate       -> R.drawable.ic_tool_rotate_flip
         is EditorTool.Shadow       -> R.drawable.ic_tool_shadow
@@ -135,7 +138,7 @@ private fun ToolButton(
         else                       -> R.drawable.ic_tool_layout
     }
 
-    val baseScale = if (tool is EditorTool.Replace) 0.5f else 1.0f
+    val baseScale = 1.0f
     val scale by animateFloatAsState(
         targetValue = if (isSelected) baseScale * 1.08f else baseScale,
         animationSpec = spring(
@@ -155,7 +158,7 @@ private fun ToolButton(
             .widthIn(min = 64.dp)
             .clickable(
                 enabled = enabled,
-                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                interactionSource = remember { MutableInteractionSource() },
                 indication = androidx.compose.foundation.LocalIndication.current,
                 onClick = onClick
             )

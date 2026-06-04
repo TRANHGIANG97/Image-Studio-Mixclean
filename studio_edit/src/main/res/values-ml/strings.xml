@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI പ്രൊഡക്റ്റ് സ്റ്റുഡിയോ</string>
     <string name="studio_category_electronics">ഇലക്ട്രോണിക്സ്</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">ഷാഡോ</string>
     <string name="studio_tool_transparency">ഒപാസിറ്റി</string>
     <string name="studio_tool_crop">ക്രോപ്പ് ചെയ്യുക</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">തിരിക്കുക/മറിക്കുക</string>
     <string name="studio_replace_hint">ഗാലറിയിൽ നിന്ന് ഉൽപ്പന്ന ഫോട്ടോ തിരഞ്ഞെടുക്കാൻ മാറ്റുക എന്നത് ടാപ്പ് ചെയ്യുക</string>
     <string name="studio_layout_hint">നീക്കാൻ വലിച്ചിടുക · സൂം ചെയ്യാൻ വിരലുകൾ അടുപ്പിക്കുക · രണ്ട് വിരലുകളാൽ തിരിക്കുക</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">പശ്ചാത്തലം സ്വയമേവ നീക്കംചെയ്യപ്പെടും</string>
     <string name="studio_export">എക്സ്പോർട്ട് ചെയ്യുക</string>
     <string name="studio_crop_ratio_original">ഒറിജിനൽ</string>
+    <string name="themeplate_professional_watch">കാണുക</string>
+    <string name="themeplate_professional_perfume">പെർഫ്യൂം</string>
+    <string name="themeplate_professional_handbag">ഹാൻഡ്ബാഗ്</string>
+    <string name="themeplate_professional_sneaker">സ്നീക്കർ</string>
+    <string name="themeplate_professional_glasses">കണ്ണടകൾ</string>
+    <string name="themeplate_professional_cup">കപ്പ്</string>
+    <string name="themeplate_professional_lipstick">ലിപ്സ്റ്റിക്ക്</string>
+    <string name="themeplate_professional_hat">ബക്കറ്റ് തൊപ്പി</string>
+    <string name="themeplate_professional_beanie">ബീനി ഹാറ്റ്</string>
+    <string name="themeplate_professional_lemonade">ലെമനേഡ്</string>
+    <string name="themeplate_professional_lemonade_beige">നാരങ്ങാനീര് ബീജ്</string>
+    <string name="themeplate_professional_lemonade_blue">നാരങ്ങാനീര് നീല</string>
+    <string name="themeplate_professional_lemonade_cyan">നാരങ്ങാനീര് സിയാൻ</string>
+    <string name="themeplate_professional_lemonade_minimal">ചെറുനാരങ്ങാവെള്ളം</string>
+    <string name="themeplate_professional_lemonade_warm">ചെറുനാരങ്ങാവെള്ളം ചൂട്</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">നാരങ്ങാവെള്ളം ഫ്രഷ് ബ്ലൂ</string>
+    <string name="themeplate_professional_asphalt">അസ്ഫാൽറ്റ്</string>
+    <string name="themeplate_professional_sidewalk">നടപ്പാത</string>
+    <string name="themeplate_professional_retro">റെട്രോ ഡെസ്ക്ടോപ്പ്</string>
+    <string name="themeplate_professional_cafe">കഫേ</string>
+    <string name="themeplate_professional_wall">മതിൽ</string>
+    <string name="themeplate_professional_digital_life">ഡിജിറ്റൽ ലൈഫ്</string>
+    <string name="themeplate_professional_phone_mode">ഫോൺ മോഡ്</string>
+    <string name="themeplate_professional_food_selfie">സെൽഫിയും ഭക്ഷണവും</string>
+    <string name="studio_category_professional">പ്രൊഫഷണൽ</string>
+    <string name="themeplate_section_digital_life">ഡിജിറ്റൽ ലൈഫ്</string>
+    <string name="themeplate_section_phone_mode">ഫോൺ മോഡ്</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">സെൽഫി ഭക്ഷണം 1</string>
+    <string name="themeplate_selfie_food_02">സെൽഫി ഭക്ഷണം 2</string>
+    <string name="themeplate_selfie_food_03">സെൽഫി ഭക്ഷണം 3</string>
+    <string name="themeplate_selfie_food_04">സെൽഫി ഭക്ഷണം 4</string>
+    <string name="themeplate_selfie_food_05">സെൽഫി ഭക്ഷണം 5</string>
+    <string name="themeplate_selfie_food_06">സെൽഫി ഭക്ഷണം 6</string>
+    <string name="themeplate_selfie_food_07">സെൽഫി ഭക്ഷണം 7</string>
+    <string name="themeplate_selfie_food_08">സെൽഫി ഭക്ഷണം 8</string>
+    <string name="studio_tool_duplicate">ഡ്യൂപ്ലിക്കേറ്റ്</string>
+    <string name="studio_tool_delete">ഇല്ലാതാക്കുക</string>
+    <string name="studio_badge_sample">സാമ്പിൾ</string>
+    <string name="studio_action_replace">മാറ്റിസ്ഥാപിക്കുക</string>
+    <string name="studio_gallery_no_templates">ടെംപ്ലേറ്റുകളൊന്നും ലഭ്യമല്ല</string>
+    <string name="studio_gallery_coming_soon">ഉടൻ വരുന്നു</string>
+    <string name="studio_gallery_coming_soon_desc">ഈ ഫീച്ചർ വികസിപ്പിച്ചുകൊണ്ടിരിക്കുന്നു, ഉടൻ ലഭ്യമാകും!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">ടെംപ്ലേറ്റുകൾ</string>
+    <string name="studio_save_image_success">ചിത്രം സംരക്ഷിച്ചു</string>
+    <string name="studio_error_select_object">ദയവായി ഒരു വസ്തു തിരഞ്ഞെടുക്കുക</string>
+    <string name="studio_error_load_cloud_template">ക്ലൗഡ് ടെംപ്ലേറ്റ് ലോഡ് ചെയ്യാൻ കഴിയില്ല: %1$s</string>
+    <string name="studio_error_load_template">ടെംപ്ലേറ്റ് ലോഡ് ചെയ്യാൻ കഴിയില്ല: %1$s</string>
+    <string name="studio_error_load_sample_product">സാമ്പിൾ ഉൽപ്പന്നം ലോഡ് ചെയ്യാൻ കഴിയില്ല</string>
+    <string name="studio_error_process_image">ഇമേജ് പ്രോസസ്സിംഗ് പിശക്</string>
+    <string name="studio_error_save_image">ചിത്രം സംരക്ഷിക്കുന്നതിൽ പരാജയപ്പെട്ടു</string>
+    <string name="studio_error_render_failed">റെൻഡർ പരാജയപ്പെട്ടു: %1$s</string>
+    <string name="studio_error_unknown">അജ്ഞാത പിശക്</string>
 </resources>
+
+

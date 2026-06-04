@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Mahsulot Studiyasi</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,6 +24,7 @@
     <string name="studio_tool_shadow">Soya</string>
     <string name="studio_tool_transparency">Shaffoflik</string>
     <string name="studio_tool_crop">Kesish</string>
+    <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_rotateflip">Burish/Aylantirish</string>
     <string name="studio_replace_hint">Galereyangizdan mahsulot rasmini tanlash uchun Almashtirish tugmasini bosing</string>
     <string name="studio_layout_hint">Ko\'chirish uchun sudrang · Kattalashtirish uchun chimding · Ikki barmoq bilan buring</string>
@@ -54,4 +55,60 @@
     <string name="studio_pick_product_subtitle">Orqa fon avtomatik ravishda olib tashlanadi</string>
     <string name="studio_export">Eksport qilish</string>
     <string name="studio_crop_ratio_original">Asl</string>
+    <string name="themeplate_professional_watch">Tomosha qiling</string>
+    <string name="themeplate_professional_perfume">Parfyumeriya</string>
+    <string name="themeplate_professional_handbag">Qo\'l sumkasi</string>
+    <string name="themeplate_professional_sneaker">Krossovka</string>
+    <string name="themeplate_professional_glasses">Ko\'zoynak</string>
+    <string name="themeplate_professional_cup">Kubok</string>
+    <string name="themeplate_professional_lipstick">Pomada</string>
+    <string name="themeplate_professional_hat">Paqirli qalpoq</string>
+    <string name="themeplate_professional_beanie">Beanie qalpoq</string>
+    <string name="themeplate_professional_lemonade">Limonad</string>
+    <string name="themeplate_professional_lemonade_beige">Limonad bej</string>
+    <string name="themeplate_professional_lemonade_blue">Moviy limonad</string>
+    <string name="themeplate_professional_lemonade_cyan">Limonad ko\'k</string>
+    <string name="themeplate_professional_lemonade_minimal">Limonad minimal</string>
+    <string name="themeplate_professional_lemonade_warm">Issiq limonad</string>
+    <string name="themeplate_professional_lemonade_fresh_blue">Limonad yangi ko\'k</string>
+    <string name="themeplate_professional_asphalt">Asfalt</string>
+    <string name="themeplate_professional_sidewalk">Yo\'lak</string>
+    <string name="themeplate_professional_retro">Retro ish stoli</string>
+    <string name="themeplate_professional_cafe">Kafe</string>
+    <string name="themeplate_professional_wall">Devor</string>
+    <string name="themeplate_professional_digital_life">Raqamli hayot</string>
+    <string name="themeplate_professional_phone_mode">Telefon rejimi</string>
+    <string name="themeplate_professional_food_selfie">Selfi va taom</string>
+    <string name="studio_category_professional">Professional</string>
+    <string name="themeplate_section_digital_life">Raqamli hayot</string>
+    <string name="themeplate_section_phone_mode">Telefon rejimi</string>
+    <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_selfie_food_01">Selfi taomi 1</string>
+    <string name="themeplate_selfie_food_02">Selfi taomlari 2</string>
+    <string name="themeplate_selfie_food_03">Selfi taomlari 3</string>
+    <string name="themeplate_selfie_food_04">Selfi taomlari 4</string>
+    <string name="themeplate_selfie_food_05">Selfi taomlari 5</string>
+    <string name="themeplate_selfie_food_06">Selfi taomlari 6</string>
+    <string name="themeplate_selfie_food_07">Selfi taomlari 7</string>
+    <string name="themeplate_selfie_food_08">Selfi taomlari 8</string>
+    <string name="studio_tool_duplicate">Dublikat</string>
+    <string name="studio_tool_delete">Oʻchirish</string>
+    <string name="studio_badge_sample">Namuna</string>
+    <string name="studio_action_replace">O\'zgartiring</string>
+    <string name="studio_gallery_no_templates">Hech qanday shablon mavjud emas</string>
+    <string name="studio_gallery_coming_soon">Tez kunlarda</string>
+    <string name="studio_gallery_coming_soon_desc">Bu xususiyat ishlab chiqilmoqda va tez orada foydalanishga topshiriladi!</string>
+    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="themeplate_gallery_title">Shablonlar</string>
+    <string name="studio_save_image_success">Rasm saqlandi</string>
+    <string name="studio_error_select_object">Ob\'ektni tanlang</string>
+    <string name="studio_error_load_cloud_template">Bulutli shablonni yuklab bo‘lmadi: %1$s</string>
+    <string name="studio_error_load_template">Shablonni yuklab bo‘lmadi: %1$s</string>
+    <string name="studio_error_load_sample_product">Namuna mahsulot yuklanmadi</string>
+    <string name="studio_error_process_image">Rasmni qayta ishlash xatosi</string>
+    <string name="studio_error_save_image">Rasm saqlanmadi</string>
+    <string name="studio_error_render_failed">Render amalga oshmadi: %1$s</string>
+    <string name="studio_error_unknown">Noma\'lum xato</string>
 </resources>
+
+
