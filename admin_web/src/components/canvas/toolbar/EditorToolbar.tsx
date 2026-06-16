@@ -18,6 +18,7 @@ interface EditorToolbarProps {
   onAddText: () => void;
   onAddImage: () => void;
   onCrop: () => void;
+  hasImageTarget?: boolean;
   showGrid: boolean;
   onToggleGrid: () => void;
   snappingEnabled: boolean;
@@ -38,7 +39,7 @@ const SHAPE_TYPES: { key: string; label: string }[] = [
 
 export default function EditorToolbar({
   zoom, onZoomIn, onZoomOut, onUndo, onRedo, undoStack, redoStack,
-  onAddText, onAddImage, onCrop, showGrid, onToggleGrid, snappingEnabled, onToggleSnapping, onShapeSelect,
+  onAddText, onAddImage, onCrop, hasImageTarget = false, showGrid, onToggleGrid, snappingEnabled, onToggleSnapping, onShapeSelect,
 }: EditorToolbarProps) {
   const [shapeOpen, setShapeOpen] = useState(false);
 
@@ -98,9 +99,14 @@ export default function EditorToolbar({
         <ImageUp className="w-4 h-4" />
       </Button>
 
-      <Button variant="ghost" size="icon" onClick={onCrop}
-        className="w-8 h-8 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
-        title="Cắt ảnh">
+      <Button variant="ghost" size="icon" onClick={hasImageTarget ? onCrop : undefined}
+        disabled={!hasImageTarget}
+        className={`w-8 h-8 rounded-xl cursor-pointer transition-all ${
+          hasImageTarget
+            ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+            : 'text-slate-700 opacity-40 cursor-not-allowed'
+        }`}
+        title={hasImageTarget ? 'Trích xuất vùng cắt làm layer mới' : 'Chọn layer ảnh hoặc có ảnh nền để cắt'}>
         <CropIcon className="w-4 h-4" />
       </Button>
 

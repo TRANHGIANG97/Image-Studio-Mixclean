@@ -216,7 +216,8 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
   const {
     setActiveObjectId,
     setActiveObjectProps,
-    setLayers
+    setLayers,
+    activeObjectProps,
   } = useLayersStore();
   const {
     request: cropRequest,
@@ -239,6 +240,10 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
   const [imageUrl, setImageUrl] = useState('');
   const [isShapeDropdownOpen, setIsShapeDropdownOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; visible: boolean } | null>(null);
+
+  // Determine if there is an image layer or background image as crop target
+  const hasImageTarget = !!(activeObjectProps?.layerType === 'IMAGE' || activeObjectProps?.layerType === 'image'
+    || (fabricCanvasRef.current?.backgroundImage));
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -352,8 +357,10 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       (img as any).src = url;
       (img as any).defaultImageUrl = url;
 
-      if (img.width && img.width > baseWidth * 0.5) {
-        img.scaleToWidth(baseWidth * 0.5);
+      if (img.width && img.width > baseWidth * 0.8) {
+        img.scaleToWidth(baseWidth * 0.8);
+      } else if (img.height && img.height > baseHeight * 0.8) {
+        img.scaleToHeight(baseHeight * 0.8);
       }
 
       fabricCanvas.add(img);
@@ -390,6 +397,52 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     } catch (err) {
       console.error('Failed to add crop layer:', err);
       toast.error('Lỗi khi chèn layer mới vào canvas');
+    }
+  };
+
+  const replaceImageLayerFromUrl = async (url: string) => {
+    const fabricCanvas = fabricCanvasRef.current;
+    if (!fabricCanvas) return;
+
+    const activeObj = fabricCanvas.getActiveObject() as any;
+    if (!activeObj || (activeObj.type !== 'image' && activeObj.layerType !== 'IMAGE')) {
+      toast.error('Không tìm thấy layer ảnh đang chọn để thay thế.');
+      return;
+    }
+
+    try {
+      const newImg = await FabricImage.fromURL(url, { crossOrigin: 'anonymous' });
+      // Preserve position and scale from the original object
+      newImg.set({
+        left: activeObj.left,
+        top: activeObj.top,
+        originX: activeObj.originX || 'left',
+        originY: activeObj.originY || 'top',
+        scaleX: activeObj.scaleX,
+        scaleY: activeObj.scaleY,
+        angle: activeObj.angle,
+        opacity: activeObj.opacity,
+        flipX: activeObj.flipX,
+        flipY: activeObj.flipY,
+      });
+
+      (newImg as any).layerId = activeObj.layerId;
+      (newImg as any).layerType = activeObj.layerType;
+      (newImg as any).layerName = activeObj.layerName;
+      (newImg as any).src = url;
+      (newImg as any).defaultImageUrl = url;
+
+      fabricCanvas.remove(activeObj);
+      fabricCanvas.add(newImg);
+      fabricCanvas.setActiveObject(newImg);
+      fabricCanvas.renderAll();
+      pushState();
+      setIsDirty(true);
+      syncLayersList(fabricCanvas);
+      toast.success('Đã thay thế ảnh layer thành công!');
+    } catch (err) {
+      console.error('Failed to replace image layer:', err);
+      toast.error('Lỗi khi thay thế ảnh. Vui lòng thử lại.');
     }
   };
 
@@ -1376,6 +1429,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         onAddText={addTextToCanvas}
         onAddImage={() => setIsImageUrlOpen(true)}
         onCrop={openCropForCurrentTarget}
+        hasImageTarget={hasImageTarget}
         showGrid={showGrid}
         onToggleGrid={() => setShowGrid(!showGrid)}
         snappingEnabled={snappingEnabled}
@@ -1399,6 +1453,10 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
           initialRatio={cropRequest.initialRatio || 'FREE'}
           onCropComplete={async (newImageUrl) => {
             await addImageLayerFromUrl(newImageUrl, `Cắt từ ${cropRequest.sourceName}`);
+            closeCrop();
+          }}
+          onCropReplace={async (newImageUrl) => {
+            await replaceImageLayerFromUrl(newImageUrl);
             closeCrop();
           }}
         />
