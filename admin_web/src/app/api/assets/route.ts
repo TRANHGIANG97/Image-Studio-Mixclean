@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listAssets, deleteAsset, updateAsset, deleteAssetsBulk } from '@/domains/assets/asset.service';
+import { listAssets, deleteAsset, updateAsset, updateAssetsBulk, deleteAssetsBulk } from '@/domains/assets/asset.service';
 
 // GET: Fetch all assets with search and folder filters
 export async function GET(req: NextRequest) {
@@ -53,17 +53,22 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
-// PUT: Update asset attributes (like category_id)
+// PUT: Update asset attributes (like category_id, folder)
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id, categoryId } = body;
+    const { id, ids, folder, categoryId } = body;
 
-    if (!id) {
-      return NextResponse.json({ error: 'Asset ID is required' }, { status: 400 });
+    if (ids && Array.isArray(ids) && ids.length > 0) {
+      const assets = await updateAssetsBulk(ids, { folder, categoryId });
+      return NextResponse.json({ success: true, count: assets.length });
     }
 
-    const asset = await updateAsset(id, categoryId);
+    if (!id) {
+      return NextResponse.json({ error: 'Asset ID or IDs is required' }, { status: 400 });
+    }
+
+    const asset = await updateAsset(id, { folder, categoryId });
     return NextResponse.json({ success: true, asset });
   } catch (error: any) {
     console.error('Error updating asset:', error);

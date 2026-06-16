@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { Asset, useDeleteAsset, useDeleteAssetsBulk } from '@/hooks/useAssets';
-import { Trash2, Image as ImageIcon, FileType, Copy, Check, Loader2 } from 'lucide-react';
+import { Trash2, Image as ImageIcon, FileType, Copy, Check, Loader2, FolderInput } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { MoveAssetModal } from './MoveAssetModal';
 
 interface AssetGalleryProps {
   assets: Asset[];
@@ -39,6 +40,13 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
   const bulkDeleteMutation = useDeleteAssetsBulk();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+  const [targetIdsForMove, setTargetIdsForMove] = useState<string[]>([]);
+
+  const handleOpenMoveModal = (ids: string[]) => {
+    setTargetIdsForMove(ids);
+    setIsMoveModalOpen(true);
+  };
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -179,6 +187,17 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
 
                 <Button
                   type="button"
+                  variant="secondary"
+                  size="icon"
+                  className="rounded-xl w-10 h-10 shadow-xl bg-slate-900/90 border border-slate-700/80 text-indigo-400 hover:text-white hover:bg-indigo-600/20 hover:border-indigo-500 transition-all duration-200"
+                  onClick={() => handleOpenMoveModal([asset.id])}
+                  title="Di chuyển thư mục"
+                >
+                  <FolderInput className="w-4 h-4" />
+                </Button>
+
+                <Button
+                  type="button"
                   variant="destructive"
                   size="icon"
                   className="rounded-xl w-10 h-10 shadow-xl bg-rose-600/90 hover:bg-rose-600 border border-rose-500 text-white transition-all duration-200"
@@ -267,6 +286,15 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
               Hủy chọn
             </Button>
             <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleOpenMoveModal(selectedIds)}
+              className="border-indigo-500/20 bg-indigo-500/10 text-indigo-300 hover:text-white hover:bg-indigo-500/20 rounded-xl text-xs px-4 py-2 font-medium flex items-center gap-1.5 shadow-lg shadow-indigo-600/5"
+            >
+              <FolderInput className="w-3.5 h-3.5" />
+              Di chuyển
+            </Button>
+            <Button
               variant="destructive"
               size="sm"
               onClick={handleBulkDelete}
@@ -283,6 +311,19 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
           </div>
         </div>
       )}
+
+      {/* Move Asset Modal */}
+      <MoveAssetModal
+        isOpen={isMoveModalOpen}
+        onClose={() => {
+          setIsMoveModalOpen(false);
+          setTargetIdsForMove([]);
+        }}
+        assetIds={targetIdsForMove}
+        onSuccess={() => {
+          setSelectedIds([]);
+        }}
+      />
     </div>
   );
 }

@@ -218,15 +218,37 @@ export async function deleteAssetsBulk(ids: string[]) {
 }
 
 /**
- * Update asset attributes (e.g., category_id).
+ * Update asset attributes (e.g., category_id, folder).
  */
-export async function updateAsset(id: string, categoryId?: string | null) {
+export async function updateAsset(id: string, updates: { categoryId?: string | null; folder?: string }) {
+  const updatePayload: any = {};
+  if (updates.categoryId !== undefined) updatePayload.category_id = updates.categoryId;
+  if (updates.folder !== undefined) updatePayload.folder = updates.folder;
+
   const { data, error } = await DB()
     .from('assets')
-    .update({ category_id: categoryId || null })
+    .update(updatePayload)
     .eq('id', id)
     .select()
     .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Bulk update asset attributes.
+ */
+export async function updateAssetsBulk(ids: string[], updates: { categoryId?: string | null; folder?: string }) {
+  const updatePayload: any = {};
+  if (updates.categoryId !== undefined) updatePayload.category_id = updates.categoryId;
+  if (updates.folder !== undefined) updatePayload.folder = updates.folder;
+
+  const { data, error } = await DB()
+    .from('assets')
+    .update(updatePayload)
+    .in('id', ids)
+    .select();
 
   if (error) throw error;
   return data;

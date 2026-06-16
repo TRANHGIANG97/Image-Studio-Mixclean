@@ -165,3 +165,20 @@ export function useDeleteAssetsBulk() {
     },
   });
 }
+
+export function useUpdateAssetsFolder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { ids: string[]; folder: string }) =>
+      apiClient.put<{ success: boolean; count?: number }>('/api/assets', payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assets'] });
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+      toast.success('Cập nhật phân loại tài nguyên thành công!');
+    },
+    onError: (error: any) => {
+      toast.error(`Lỗi di chuyển tài nguyên: ${error.message}`);
+    },
+  });
+}

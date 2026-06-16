@@ -13,7 +13,9 @@ export const listAssetsSchema = z.object({
 });
 
 export const updateAssetSchema = z.object({
-  id: z.string().min(1, 'id is required'),
+  id: z.string().optional(),
+  ids: z.array(z.string()).optional(),
+  folder: z.string().optional(),
   categoryId: z.string().optional().nullable(),
 });
 
