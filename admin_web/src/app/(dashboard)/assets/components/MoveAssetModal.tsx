@@ -35,6 +35,7 @@ export function MoveAssetModal({ isOpen, onClose, assetIds, onSuccess }: MoveAss
       case 'stickers': return 'Stickers (Nhãn dán)';
       case 'fonts': return 'Fonts (Phông chữ)';
       case 'uncategorized': return 'Chưa phân loại';
+      case 'doi_song_so': return 'Đời sống số';
       default: return folderName.charAt(0).toUpperCase() + folderName.slice(1);
     }
   };

@@ -44,6 +44,7 @@ const folders = [
   { id: 'anh_chuyen_nghiep', label: 'Chuyên nghiệp' },
   { id: 'anh_my_pham', label: 'Mỹ phẩm' },
   { id: 'selfie_dam_me_an_uong', label: 'Mê ăn uống' },
+  { id: 'doi_song_so', label: 'Đời sống số' },
   { id: 'imported-psd', label: 'PSD Imports' },
   { id: 'uncategorized', label: 'Khác' }
 ];
