@@ -231,3 +231,19 @@ export async function updateAsset(id: string, categoryId?: string | null) {
   if (error) throw error;
   return data;
 }
+
+/**
+ * Get list of unique folders from assets.
+ */
+export async function listAssetFolders() {
+  const { data, error } = await DB()
+    .from('assets')
+    .select('folder');
+
+  if (error) throw error;
+
+  const defaultFolders = ['backgrounds', 'stickers', 'fonts', 'uncategorized'];
+  const dbFolders = data?.map((item) => item.folder).filter(Boolean) || [];
+  return Array.from(new Set([...defaultFolders, ...dbFolders]));
+}
+

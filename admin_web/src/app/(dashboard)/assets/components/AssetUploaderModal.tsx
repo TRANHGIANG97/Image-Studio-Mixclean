@@ -3,9 +3,9 @@
 import { useDropzone } from 'react-dropzone';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { UploadCloud, X, Loader2, FolderOpen } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useUploadAsset } from '@/hooks/useAssets';
+import { useUploadAsset, useFolders } from '@/hooks/useAssets';
 import { useCategories } from '@/hooks/useCategories';
 
 interface AssetUploaderModalProps {
@@ -17,8 +17,24 @@ interface AssetUploaderModalProps {
 export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }: AssetUploaderModalProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [categoryId, setCategoryId] = useState('');
+  const [selectedFolder, setSelectedFolder] = useState(folder);
+  const [isCustomFolder, setIsCustomFolder] = useState(false);
+  const [customFolder, setCustomFolder] = useState('');
+
+  const { data: folders = [] } = useFolders();
   const uploadMutation = useUploadAsset();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+
+  // Reset/Initialize state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setFiles([]);
+      setCategoryId('');
+      setSelectedFolder(folder || 'uncategorized');
+      setIsCustomFolder(false);
+      setCustomFolder('');
+    }
+  }, [isOpen, folder]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -38,19 +54,32 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
   };
 
   const handleUploadAll = async () => {
+    const destFolder = isCustomFolder ? (customFolder.trim() || 'uncategorized') : selectedFolder;
     for (const file of files) {
-      await uploadMutation.mutateAsync({ file, folder, categoryId: categoryId || null });
+      await uploadMutation.mutateAsync({ file, folder: destFolder, categoryId: categoryId || null });
     }
     setFiles([]);
     setCategoryId('');
+    setIsCustomFolder(false);
+    setCustomFolder('');
     onClose();
   };
+
+  const getFolderLabel = (folderName: string) => {
+    switch (folderName) {
+      case 'backgrounds': return 'Backgrounds (Nền)';
+      case 'stickers': return 'Stickers (Nhãn dán)';
+      case 'fonts': return 'Fonts (Phông chữ)';
+      case 'uncategorized': return 'Chưa phân loại';
+      default: return folderName.charAt(0).toUpperCase() + folderName.slice(1);
+    }
+  };
+
+  const currentDestFolder = isCustomFolder ? (customFolder.trim() || 'uncategorized') : selectedFolder;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) {
-        setFiles([]);
-        setCategoryId('');
         onClose();
       }
     }}>
@@ -58,7 +87,7 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Tải lên tài nguyên mới</DialogTitle>
           <DialogDescription className="text-sm text-slate-400">
-            Thư mục đích: <span className="font-mono text-indigo-400">{folder}</span>
+            Thư mục đích: <span className="font-mono text-indigo-400">{currentDestFolder}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -76,6 +105,46 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
           <p className="text-xs text-slate-500 mt-2">Hỗ trợ: PNG, JPG, WEBP, SVG, TTF, OTF</p>
         </div>
 
+        {/* Folder Selector / Creator */}
+        <div className="grid gap-2 mt-4">
+          <label className="text-xs font-medium text-slate-400 flex items-center gap-2">
+            <FolderOpen className="w-4 h-4 text-indigo-400" />
+            Thư mục lưu trữ
+          </label>
+          <select
+            value={isCustomFolder ? 'new_folder' : selectedFolder}
+            onChange={(e) => {
+              if (e.target.value === 'new_folder') {
+                setIsCustomFolder(true);
+              } else {
+                setIsCustomFolder(false);
+                setSelectedFolder(e.target.value);
+              }
+            }}
+            className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500"
+          >
+            {folders.map((f) => (
+              <option key={f} value={f}>
+                {getFolderLabel(f)}
+              </option>
+            ))}
+            <option value="new_folder" className="text-indigo-400 font-semibold">
+              + Tạo thư mục mới
+            </option>
+          </select>
+
+          {isCustomFolder && (
+            <input
+              type="text"
+              value={customFolder}
+              onChange={(e) => setCustomFolder(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+              placeholder="Nhập tên thư mục mới (viết liền không dấu, vd: frames)..."
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500 animate-in slide-in-from-top-1 duration-200"
+            />
+          )}
+        </div>
+
+        {/* Category Classification */}
         <div className="grid gap-2 mt-4">
           <label className="text-xs font-medium text-slate-400 flex items-center gap-2">
             <FolderOpen className="w-4 h-4 text-indigo-400" />

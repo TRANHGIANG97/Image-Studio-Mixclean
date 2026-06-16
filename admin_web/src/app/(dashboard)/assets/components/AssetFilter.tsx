@@ -2,6 +2,7 @@
 
 import { Search, FolderOpen, ArrowUpDown, Filter, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useFolders } from '@/hooks/useAssets';
 
 interface AssetFilterProps {
   search: string;
@@ -16,13 +17,7 @@ interface AssetFilterProps {
   onSortOrderChange: (val: 'asc' | 'desc') => void;
 }
 
-const FOLDER_OPTIONS = [
-  { value: '', label: 'Tất cả thư mục' },
-  { value: 'backgrounds', label: 'Backgrounds (Nền)' },
-  { value: 'stickers', label: 'Stickers (Nhãn dán)' },
-  { value: 'fonts', label: 'Fonts (Phông chữ)' },
-  { value: 'uncategorized', label: 'Chưa phân loại' },
-];
+// Moved inside component dynamically using useFolders hook
 
 const MIME_TYPE_OPTIONS = [
   { value: '', label: 'Tất cả định dạng' },
@@ -49,6 +44,18 @@ export function AssetFilter({
   sortOrder,
   onSortOrderChange,
 }: AssetFilterProps) {
+  const { data: folders = [] } = useFolders();
+
+  const getFolderLabel = (folderName: string) => {
+    switch (folderName) {
+      case 'backgrounds': return 'Backgrounds (Nền)';
+      case 'stickers': return 'Stickers (Nhãn dán)';
+      case 'fonts': return 'Fonts (Phông chữ)';
+      case 'uncategorized': return 'Chưa phân loại';
+      default: return folderName.charAt(0).toUpperCase() + folderName.slice(1);
+    }
+  };
+
   return (
     <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-4 bg-slate-900/60 border border-slate-800/80 p-4 rounded-3xl backdrop-blur-md shadow-xl transition-all duration-300">
       {/* Search */}
@@ -71,9 +78,12 @@ export function AssetFilter({
             onChange={(e) => onFolderChange(e.target.value)}
             className="bg-transparent border-0 text-slate-300 focus:outline-none pr-3 cursor-pointer text-xs font-medium"
           >
-            {FOLDER_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-slate-950 text-slate-300">
-                {opt.label}
+            <option value="" className="bg-slate-950 text-slate-300">
+              Tất cả thư mục
+            </option>
+            {folders.map((f) => (
+              <option key={f} value={f} className="bg-slate-950 text-slate-300">
+                {getFolderLabel(f)}
               </option>
             ))}
           </select>

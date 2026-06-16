@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/apiClient';
 
@@ -51,6 +51,13 @@ export function useAssets(filters: AssetFilters = {}) {
   });
 }
 
+export function useFolders() {
+  return useQuery({
+    queryKey: ['folders'],
+    queryFn: () => apiClient.get<{ folders: string[] }>('/api/assets/folders').then((res) => res.folders),
+  });
+}
+
 export function useUploadAsset() {
   const queryClient = useQueryClient();
 
@@ -64,6 +71,7 @@ export function useUploadAsset() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] });
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
       toast.success('Upload tài nguyên thành công!');
     },
     onError: (error: any) => {
