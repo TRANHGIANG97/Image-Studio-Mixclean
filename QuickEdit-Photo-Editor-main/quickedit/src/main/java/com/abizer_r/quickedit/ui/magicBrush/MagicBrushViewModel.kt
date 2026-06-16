@@ -404,7 +404,7 @@ class MagicBrushViewModel @Inject constructor(
         
         viewModelScope.launch(Dispatchers.IO) {
             bitmapMutex.withLock {
-                if (isDisposed) return@withLock
+                if (isDisposed || undoStack.isEmpty()) return@withLock
                 
                 cancelEraseQueue() 
                 
@@ -435,7 +435,7 @@ class MagicBrushViewModel @Inject constructor(
         
         viewModelScope.launch(Dispatchers.IO) {
             bitmapMutex.withLock {
-                if (isDisposed) return@withLock
+                if (isDisposed || redoStack.isEmpty()) return@withLock
                 
                 cancelEraseQueue()
                 

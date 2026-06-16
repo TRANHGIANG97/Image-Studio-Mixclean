@@ -303,10 +303,17 @@ fun DraftItem(
     var menuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val thumbnailFile = remember(draft.id) {
-        val draftsDir = File(context.cacheDir, "drafts")
-        val draftDir = File(draftsDir, draft.id)
-        draftDir.listFiles { f -> f.name.startsWith("layer_") }?.firstOrNull()
+    val draftId = draft.id ?: ""
+    val draftName = draft.name ?: "Untitled"
+    val thumbnailFile = remember(draftId) {
+        val cacheDir = context.cacheDir
+        if (cacheDir != null && draftId.isNotEmpty()) {
+            val draftsDir = File(cacheDir, "drafts")
+            val draftDir = File(draftsDir, draftId)
+            if (draftDir.exists() && draftDir.isDirectory) {
+                draftDir.listFiles { f -> f?.name?.startsWith("layer_") == true }?.firstOrNull()
+            } else null
+        } else null
     }
 
     val borderColor = if (isSelected) {
@@ -430,14 +437,22 @@ fun DraftItem(
                     .heightIn(min = 82.dp)
             ) {
                 Text(
-                    text = draft.name,
+                    text = draftName,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Bold
                 )
+                val formattedDate = remember(draft.updatedAt) {
+                    try {
+                        val time = draft.updatedAt ?: 0L
+                        SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(time))
+                    } catch (e: Exception) {
+                        ""
+                    }
+                }
                 Text(
-                    text = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(draft.updatedAt)),
+                    text = formattedDate,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     fontSize = 10.sp

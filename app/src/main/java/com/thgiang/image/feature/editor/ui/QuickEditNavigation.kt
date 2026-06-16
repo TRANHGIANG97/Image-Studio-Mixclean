@@ -349,35 +349,43 @@ fun QuickEditEditorNavigation(
         }
 
         composable(route = NavDestinations.CROPPER_SCREEN) {
-            CropperScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked,
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                CropperScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked,
+                )
+            }
         }
 
         composable(route = NavDestinations.DRAW_MODE_SCREEN) {
-            DrawModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked,
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                DrawModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked,
+                )
+            }
         }
 
         composable(route = NavDestinations.TEXT_MODE_SCREEN) {
-            TextModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked,
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                TextModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked,
+                )
+            }
         }
 
         composable(route = NavDestinations.EFFECTS_MODE_SCREEN) {
-            EffectsModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked,
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                EffectsModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked,
+                )
+            }
         }
 
         composable(
@@ -392,29 +400,35 @@ fun QuickEditEditorNavigation(
             val gradientPresetId = entry.arguments
                 ?.getString("gradientPresetId")
                 ?.takeIf { it.isNotBlank() }
-            BorderModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked,
-                initialGradientPresetId = gradientPresetId
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                BorderModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked,
+                    initialGradientPresetId = gradientPresetId
+                )
+            }
         }
 
         composable(route = NavDestinations.STUDIO_MODE_SCREEN) {
-            StudioModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked,
-                onCheckClicked = null
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                StudioModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked,
+                    onCheckClicked = null
+                )
+            }
         }
 
         composable(route = NavDestinations.REMOVE_BG_MODE_SCREEN) {
-            com.abizer_r.quickedit.ui.removeBgMode.RemoveBgModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                com.abizer_r.quickedit.ui.removeBgMode.RemoveBgModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked
+                )
+            }
         }
 
         composable(
@@ -441,16 +455,18 @@ fun QuickEditEditorNavigation(
                 }
             }
 
-            BackgroundModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked,
-                onPickImageRequest = {
-                    navController.navigate(NavDestinations.SINGLE_IMAGE_PICKER_SCREEN + "?autoRemove=false")
-                },
-                pickedImage = pickedBitmap,
-                initialGradientPresetId = gradientPresetId
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                BackgroundModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked,
+                    onPickImageRequest = {
+                        navController.navigate(NavDestinations.SINGLE_IMAGE_PICKER_SCREEN + "?autoRemove=false")
+                    },
+                    pickedImage = pickedBitmap,
+                    initialGradientPresetId = gradientPresetId
+                )
+            }
         }
 
         composable(
@@ -495,28 +511,33 @@ fun QuickEditEditorNavigation(
         }
 
         composable(route = NavDestinations.MAGIC_BRUSH_SCREEN) {
-            MagicBrushScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = { navController.navigateUp() },
-                onDoneClicked = { resultBitmap: Bitmap ->
-                    sharedEditorViewModel.addBitmapToStack(
-                        bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
-                    )
-                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                MagicBrushScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = { navController.navigateUp() },
+                    onDoneClicked = { resultBitmap: Bitmap ->
+                        sharedEditorViewModel.addBitmapToStack(
+                            bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
+                        )
+                        navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                            popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         composable(route = NavDestinations.ROTATE_SCREEN) {
-            RotateModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressed,
-                onDoneClicked = onDoneClicked,
-            )
+            SafeScreenWrapper(sharedEditorViewModel, navController) { bmp ->
+                RotateModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressed,
+                    onDoneClicked = onDoneClicked,
+                )
+            }
         }
     }
+
 
     if (uiState.showSaveSuccessScreen) {
         SaveSuccessScreen(
@@ -608,6 +629,30 @@ fun QuickEditEditorNavigation(
                 showSaveAdDialog = false
                 pendingSaveAction = null
             }
+        )
+    }
+}
+
+@Composable
+private fun SafeScreenWrapper(
+    sharedEditorViewModel: SharedEditorViewModel,
+    navController: androidx.navigation.NavController,
+    content: @Composable (Bitmap) -> Unit
+) {
+    val bitmap = remember {
+        runCatching { sharedEditorViewModel.getCurrentBitmap() }.getOrNull()
+    }
+    if (bitmap != null) {
+        content(bitmap)
+    } else {
+        LaunchedEffect(Unit) {
+            navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+        BackgroundRemovalLoadingOverlay(
+            modifier = Modifier.fillMaxSize(),
+            message = ""
         )
     }
 }
