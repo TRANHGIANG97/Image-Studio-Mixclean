@@ -38,8 +38,6 @@
     <string name="licenses_title">اوپن سورس لائسنس</string>
     <string name="dark_mode_title">ڈارک موڈ</string>
     <string name="dark_mode_description">ایپ کی ڈارک تھیم کو تبدیل کریں۔</string>
-    <string name="home_preview_title">ہوم اسکرین پر پیش نظارہ دکھائیں</string>
-    <string name="home_preview_description">ہوم اسکرین پر پہلے / بعد کا موازنہ باکس دکھائیں۔</string>
 
     <string name="home_remove_background_title">بیک گراؤنڈ ہٹائیں</string>
     <string name="home_remove_background_subtitle">ایک تصویر منتخب کریں اور ایک کلک سے اس کا بیک گراؤنڈ ہٹائیں۔</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">ہموار AI توسیع</string>
     <string name="pro_see_details">تفصیلات ></string>
     <string name="picker_sample_badge">نمونہ</string>
+    <string name="home_hero_subtitle_short">اے آئی فوٹو ایڈیٹر</string>
+    <string name="home_hero_title">پیشہ ورانہ مصنوعات کی تصاویر بنائیں</string>
+    <string name="home_hero_subtitle">پس منظر کو ہٹائیں، بیک ڈراپ تبدیل کریں، سیکنڈوں میں ٹیمپلیٹس شامل کریں۔</string>
+    <string name="home_hero_action">تصویر کا انتخاب کریں۔</string>
+    <string name="review_app_button">شرح</string>
+    <string name="review_prompt_title">%1$s سے لطف اندوز ہو رہے ہیں؟</string>
+    <string name="review_prompt_message">گوگل پلے پر اس کی درجہ بندی کرنے کے لیے ستارے کو تھپتھپائیں۔</string>
+    <string name="review_prompt_rate_now">جمع کروائیں۔</string>
+    <string name="review_prompt_later">منسوخ کریں۔</string>
+    <string name="home_see_all">سب دیکھیں</string>
+    <string name="save_success_title">محفوظ کیا گیا!</string>
+    <string name="save_success_create_new">نیا بنائیں</string>
+    <string name="save_success_try_other_tools">دوسرے ٹولز آزمائیں۔</string>
+    <string name="save_success_share">شیئر کریں۔</string>
+    <string name="save_success_back">پیچھے</string>
+    <string name="save_success_home">گھر</string>
+    <string name="save_success_saved_image">محفوظ کردہ تصویر</string>
+    <string name="save_success_share_with">کے ساتھ اشتراک کریں…</string>
+    <string name="batch_remove_error_load_image">اس تصویر کو لوڈ نہیں کیا جا سکتا۔</string>
+    <string name="drafts_error_load">ڈرافٹ لوڈ کرنے میں خرابی: %1$s</string>
 </resources>

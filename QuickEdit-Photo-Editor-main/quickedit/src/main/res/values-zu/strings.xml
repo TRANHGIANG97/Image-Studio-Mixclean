@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Zungezisa ngamadigri angama-90 noma uyiphendule ukuze ulungise ukuqondiswa kwesithombe.</string>
     <string name="draft_label">Okusalungiswa</string>
     <string name="draft_saved_successfully">Qoralama muvaffaqiyatli saqlandi</string>
+    <string name="professional_section_title">Uchwepheshe</string>
+    <string name="themeplate_professional_watch">Buka</string>
+    <string name="themeplate_professional_perfume">Amakha</string>
+    <string name="themeplate_professional_handbag">Isikhwama</string>
+    <string name="home_see_all">Bona Konke</string>
 </resources>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Open Source လိုင်စင်များ</string>
     <string name="dark_mode_title">အမှောင်မုဒ်</string>
     <string name="dark_mode_description">အက်ပ်၏ အမှောင်ပုံစံကို ပြောင်းလဲပါ။</string>
-    <string name="home_preview_title">ပင်မစာမျက်နှာ အစမ်းကြည့်ရှုမှုပြရန်</string>
-    <string name="home_preview_description">ပင်မမျက်နှာပြင်ပေါ်တွင် မပြင်မီ/ပြင်ပြီး နှိုင်းယှဉ်မှုပြကွက်ကို ပြသပါ။</string>
 
     <string name="home_remove_background_title">နောက်ခံဖျက်ရန်</string>
     <string name="home_remove_background_subtitle">ဓာတ်ပုံတစ်ပုံကို ရွေးချယ်ပြီး တစ်ချက်နှိပ်ရုံဖြင့် ၎င်း၏နောက်ခံကို ဖျက်ပါ။</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">ချောမွေ့သော AI အကျယ်ချဲ့စနစ်</string>
     <string name="pro_see_details">အသေးစိတ် ></string>
     <string name="picker_sample_badge">နမူနာ</string>
+    <string name="home_hero_subtitle_short">AI ဓာတ်ပုံတည်းဖြတ်သူ</string>
+    <string name="home_hero_title">ပရော်ဖက်ရှင်နယ်ထုတ်ကုန်ဓာတ်ပုံများဖန်တီးပါ။</string>
+    <string name="home_hero_subtitle">နောက်ခံကိုဖယ်ရှားပါ၊ နောက်ခံကားကိုပြောင်းပါ၊ စက္ကန့်ပိုင်းအတွင်း နမူနာများထည့်ပါ။</string>
+    <string name="home_hero_action">ဓာတ်ပုံကို ရွေးပါ။</string>
+    <string name="review_app_button">နှုန်းထား</string>
+    <string name="review_prompt_title">%1$s ပျော်နေသလား။</string>
+    <string name="review_prompt_message">Google Play တွင် အဆင့်သတ်မှတ်ရန် ကြယ်တစ်ပွင့်ကို တို့ပါ။</string>
+    <string name="review_prompt_rate_now">တင်ပြပါ။</string>
+    <string name="review_prompt_later">မလုပ်တော့</string>
+    <string name="home_see_all">အားလုံးကြည့်ပါ။</string>
+    <string name="save_success_title">သိမ်းဆည်းပြီး။</string>
+    <string name="save_success_create_new">အသစ်ဖန်တီးပါ။</string>
+    <string name="save_success_try_other_tools">အခြားကိရိယာများကို စမ်းကြည့်ပါ။</string>
+    <string name="save_success_share">မျှဝေပါ။</string>
+    <string name="save_success_back">ကျော</string>
+    <string name="save_success_home">အိမ်</string>
+    <string name="save_success_saved_image">သိမ်းဆည်းထားသောပုံ</string>
+    <string name="save_success_share_with">မျှဝေပါ…</string>
+    <string name="batch_remove_error_load_image">ဤပုံကို တင်၍မရပါ။</string>
+    <string name="drafts_error_load">မူကြမ်းများကို တင်ရာတွင် အမှားအယွင်းရှိသည်- %1$s</string>
 </resources>

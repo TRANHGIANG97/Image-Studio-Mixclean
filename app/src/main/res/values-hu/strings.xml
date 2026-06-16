@@ -38,8 +38,6 @@
     <string name="licenses_title">Nyílt forráskódú licencek</string>
     <string name="dark_mode_title">Sötét mód</string>
     <string name="dark_mode_description">Alkalmazás sötét témájának átkapcsolása.</string>
-    <string name="home_preview_title">Előnézet megjelenítése a kezdőlapon</string>
-    <string name="home_preview_description">Előtte / Utána összehasonlító doboz megjelenítése a kezdőképernyőn.</string>
 
     <string name="home_remove_background_title">Háttér eltávolítása</string>
     <string name="home_remove_background_subtitle">Válasszon ki egy képet, és távolítsa el a hátterét egyetlen érintéssel.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Sima AI bővítés</string>
     <string name="pro_see_details">Részletek ></string>
     <string name="picker_sample_badge">Minta</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Készítsen professzionális termékfotókat</string>
+    <string name="home_hero_subtitle">Távolítsa el a hátteret, változtassa meg a hátteret, adjon hozzá sablonokat másodpercek alatt</string>
+    <string name="home_hero_action">Válassza a Fotó lehetőséget</string>
+    <string name="review_app_button">Arány</string>
+    <string name="review_prompt_title">Tetszik a %1$s?</string>
+    <string name="review_prompt_message">Koppintson egy csillagra, hogy értékelje a Google Playen.</string>
+    <string name="review_prompt_rate_now">Beküld</string>
+    <string name="review_prompt_later">Mégsem</string>
+    <string name="home_see_all">Összes megtekintése</string>
+    <string name="save_success_title">Mentve!</string>
+    <string name="save_success_create_new">Új létrehozása</string>
+    <string name="save_success_try_other_tools">Próbáljon ki más eszközöket</string>
+    <string name="save_success_share">Részesedés</string>
+    <string name="save_success_back">Vissza</string>
+    <string name="save_success_home">Otthon</string>
+    <string name="save_success_saved_image">Mentett kép</string>
+    <string name="save_success_share_with">Megosztás…</string>
+    <string name="batch_remove_error_load_image">Ezt a képet nem lehet betölteni.</string>
+    <string name="drafts_error_load">Hiba a piszkozatok betöltésekor: %1$s</string>
 </resources>

@@ -11,8 +11,11 @@ sealed class Screen(val route: String) {
 
     // Studio module
     data object StudioThemeplateList : Screen("studio_themeplate_list")
-    data object StudioEditor : Screen("studio_editor/{themeplateId}") {
-        fun createRoute(themeplateId: String) = "studio_editor/$themeplateId"
+    data object StudioEditor : Screen("studio_editor/{themeplateId}?draftId={draftId}") {
+        fun createRoute(themeplateId: String, draftId: String? = null): String {
+            return if (draftId != null) "studio_editor/$themeplateId?draftId=$draftId"
+            else "studio_editor/$themeplateId"
+        }
     }
     data object ThemeplateGallery : Screen("themeplate_gallery/{initialTab}") {
         fun createRoute(initialTab: Int) = "themeplate_gallery/$initialTab"

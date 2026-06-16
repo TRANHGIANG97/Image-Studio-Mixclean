@@ -38,8 +38,6 @@
     <string name="licenses_title">Άδειες ανοιχτού κώδικα</string>
     <string name="dark_mode_title">Σκοτεινή λειτουργία</string>
     <string name="dark_mode_description">Εναλλαγή στο σκοτεινό θέμα της εφαρμογής.</string>
-    <string name="home_preview_title">Εμφάνιση προεπισκόπησης στην αρχική</string>
-    <string name="home_preview_description">Εμφάνιση πλαισίου σύγκρισης πριν/μετά στην αρχική οθόνη.</string>
 
     <string name="home_remove_background_title">Αφαίρεση Φόντου</string>
     <string name="home_remove_background_subtitle">Επιλέξτε μια εικόνα και αφαιρέστε το φόντο με ένα πάτημα.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Ομαλή επέκταση AI</string>
     <string name="pro_see_details">Λεπτομέρειες ></string>
     <string name="picker_sample_badge">Δείγμα</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Δημιουργήστε επαγγελματικές φωτογραφίες προϊόντων</string>
+    <string name="home_hero_subtitle">Αφαίρεση φόντου, αλλαγή φόντου, προσθήκη προτύπων σε δευτερόλεπτα</string>
+    <string name="home_hero_action">Επιλέξτε Φωτογραφία</string>
+    <string name="review_app_button">Τιμή</string>
+    <string name="review_prompt_title">Σας αρέσει το %1$s;</string>
+    <string name="review_prompt_message">Πατήστε ένα αστέρι για να το βαθμολογήσετε στο Google Play.</string>
+    <string name="review_prompt_rate_now">Υποτάσσομαι</string>
+    <string name="review_prompt_later">Ματαίωση</string>
+    <string name="home_see_all">Δείτε όλα</string>
+    <string name="save_success_title">Αποθηκεύτηκε!</string>
+    <string name="save_success_create_new">Δημιουργία νέου</string>
+    <string name="save_success_try_other_tools">Δοκιμάστε άλλα εργαλεία</string>
+    <string name="save_success_share">Μερίδιο</string>
+    <string name="save_success_back">Πίσω</string>
+    <string name="save_success_home">Σπίτι</string>
+    <string name="save_success_saved_image">Αποθηκευμένη εικόνα</string>
+    <string name="save_success_share_with">Κοινοποίηση με…</string>
+    <string name="batch_remove_error_load_image">Δεν είναι δυνατή η φόρτωση αυτής της εικόνας.</string>
+    <string name="drafts_error_load">Σφάλμα φόρτωσης πρόχειρων: %1$s</string>
 </resources>

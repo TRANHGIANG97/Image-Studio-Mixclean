@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Ruota di 90 gradi o capovolgi orizzontalmente e verticalmente per correggere l\'orientamento dell\'immagine.</string>
     <string name="draft_label">Bozza</string>
     <string name="draft_saved_successfully">Bozza salvata con successo</string>
+    <string name="professional_section_title">Professionale</string>
+    <string name="themeplate_professional_watch">Orologio</string>
+    <string name="themeplate_professional_perfume">Profumo</string>
+    <string name="themeplate_professional_handbag">Borsetta</string>
+    <string name="home_see_all">Vedi tutto</string>
 </resources>

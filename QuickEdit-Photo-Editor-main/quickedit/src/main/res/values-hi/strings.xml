@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">इमेज का ओरिएंटेशन ठीक करने के लिए 90 डिग्री रोटेट करें या क्षैतिज (हॉरिजॉन्टल) और लंबवत (वर्टिकल) फ्लिप करें।</string>
     <string name="draft_label">ड्राफ्ट</string>
     <string name="draft_saved_successfully">ड्राफ्ट सफलतापूर्वक सेव किया गया</string>
+    <string name="professional_section_title">पेशेवर</string>
+    <string name="themeplate_professional_watch">घड़ी</string>
+    <string name="themeplate_professional_perfume">इत्र</string>
+    <string name="themeplate_professional_handbag">हैंडबैग</string>
+    <string name="home_see_all">सभी देखें</string>
 </resources>

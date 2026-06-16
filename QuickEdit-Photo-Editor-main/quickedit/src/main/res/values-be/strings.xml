@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Гэта функцыя даступная толькі тады, калі ў аб\'екта ёсць фон</string>
     <string name="draft_label">Чарнавік</string>
     <string name="draft_saved_successfully">Чарнавік паспяхова захаваны</string>
+    <string name="professional_section_title">Прафесійны</string>
+    <string name="themeplate_professional_watch">Глядзець</string>
+    <string name="themeplate_professional_perfume">Духі</string>
+    <string name="themeplate_professional_handbag">Сумочка</string>
+    <string name="home_see_all">Глядзець усе</string>
 </resources>

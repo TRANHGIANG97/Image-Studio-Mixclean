@@ -14,6 +14,21 @@ import com.thgiang.image.core.util.processors.ProcessorUtils
 import com.thgiang.image.studio.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.thgiang.image.studio.BuildConfig
+import com.thgiang.image.studio.model.StudioThemeplates
+import com.thgiang.image.core.domain.model.template.CloudCategory
+import com.thgiang.image.core.domain.model.template.CloudLayer
+import com.thgiang.image.core.domain.model.template.CloudPayload
+import com.thgiang.image.core.domain.model.template.CloudTemplate
+import com.thgiang.image.core.domain.model.template.CloudTransform
+import com.thgiang.image.core.domain.model.template.TemplateCanvas
+import com.thgiang.image.core.domain.model.template.TemplateMetadata
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import com.thgiang.image.studio.data.TemplateDraftRepository
+import com.thgiang.image.studio.util.openAssetSourceInputStream
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -24,6 +39,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val backgroundRemoverRepository: BackgroundRemoverRepository,
     private val imageSaveRepository: ImageSaveRepository,
+    private val templateDraftRepository: TemplateDraftRepository,
     private val renderer: EditorRenderer,
     private val historyManager: EditorHistoryManager,
     private val sampleObjectCacheManager: SampleObjectCacheManager,
@@ -32,6 +48,7 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "EditorVM"
+        private const val BG_DEBUG_TAG = "TPL_BG_DEBUG"
         private const val MIN_SCALE = 0.2f
         private const val MAX_SCALE = 5f
         private const val SNAP_ANGLE_THRESHOLD = 5f
@@ -40,8 +57,10 @@ class ThemeplateEditorViewModel @Inject constructor(
         private const val GESTURE_THROTTLE_MS = 16L // ~60fps
     }
 
+    val draftId: String? = savedStateHandle.get<String>("draftId")
+    
     private val _state = MutableStateFlow(
-        (savedStateHandle.get<EditorState>("editor_state") ?: EditorState()).let { restored ->
+        (templateDraftRepository.loadDraft(draftId ?: "") ?: EditorState()).let { restored ->
             restored.copy(
                 template = restored.template ?: EditorTemplate(),
                 selectedTool = restored.selectedTool,
@@ -63,7 +82,10 @@ class ThemeplateEditorViewModel @Inject constructor(
     private var bgRemoveJob: Job? = null
     private var exportJob: Job? = null
     private var historyPushJob: Job? = null
+    private var saveDraftJob: Job? = null
     private var overlayJob: Job? = null
+
+    val themeplateId: String? = savedStateHandle.get<String>("themeplateId")
 
     init {
         // Debounced history push
@@ -88,9 +110,22 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
         
         // Restore state if available
-        savedStateHandle.get<String>("template_path")?.let {
+        val savedPath = savedStateHandle.get<String>("template_path")
+        if (savedPath != null) {
             if (!_state.value.template.loaded) {
-                loadTemplate(it)
+                loadTemplate(savedPath)
+            }
+        } else {
+            val tId = themeplateId
+            if (!tId.isNullOrEmpty() && tId != "draft") {
+                if (!_state.value.template.loaded) {
+                    val localTemplate = StudioThemeplates.findById(tId)
+                    if (localTemplate != null) {
+                        loadTemplate(localTemplate.backgroundAssetPath ?: localTemplate.assetPath, localTemplate.objectSourceAssetPath)
+                    } else {
+                        loadCloudTemplateById(tId)
+                    }
+                }
             }
         }
     }
@@ -109,8 +144,35 @@ class ThemeplateEditorViewModel @Inject constructor(
         when (event) {
             is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath, event.objectSourceAssetPath)
             is EditorEvent.LoadCloudTemplate -> loadCloudTemplate(event.cloudTemplate)
+            is EditorEvent.LoadCloudTemplateById -> loadCloudTemplateById(event.templateId)
             is EditorEvent.SetProductImage -> setProductImage(event.uri, event.replaceLayerId)
             is EditorEvent.AddSticker -> addSticker(event.assetPath)
+            EditorEvent.AddTextLayer -> addTextLayer()
+            is EditorEvent.AddShapeTextLayer -> addShapeTextLayer(event.shapeType)
+            is EditorEvent.UpdateShapeText -> {
+                updateActiveLayer { it.copy(text = event.text) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateShapeColor -> {
+                updateActiveLayer { it.copy(shapeColorArgb = event.argb) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextColor -> {
+                updateActiveLayer { it.copy(textColorArgb = event.argb) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextSize -> {
+                updateActiveLayer { it.copy(textSizeSp = event.sizeSp.coerceIn(8f, 72f)) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextFontFamily -> {
+                updateActiveLayer { it.copy(fontFamily = event.fontFamily?.takeIf { family -> family.isNotBlank() }) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateShapeType -> {
+                updateActiveLayer { it.copy(shapeType = event.shapeType) }
+                requestHistoryPush()
+            }
             is EditorEvent.UpdateGesture -> {
                 gestureThrottleFlow.tryEmit(event.delta)
                 requestHistoryPush()
@@ -211,6 +273,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             EditorEvent.Redo -> redo()
             EditorEvent.MoveLayerUp -> moveLayer(up = true)
             EditorEvent.MoveLayerDown -> moveLayer(up = false)
+            EditorEvent.SaveDraft -> saveDraft()
             is EditorEvent.Export -> export(event.templateAssetPath)
         }
     }
@@ -233,22 +296,67 @@ class ThemeplateEditorViewModel @Inject constructor(
         pushHistory()
     }
 
-    private fun getInputStreamForPath(path: String): java.io.InputStream? {
-        return when {
-            path.startsWith("content://") || path.startsWith("file://") -> {
-                if (path.startsWith("file:///android_asset/")) {
-                    context.assets.open(path.removePrefix("file:///android_asset/"))
-                } else {
-                    context.contentResolver.openInputStream(Uri.parse(path))
-                }
-            }
-            path.startsWith("http://") || path.startsWith("https://") -> {
-                java.net.URL(path).openStream()
-            }
-            else -> {
-                context.assets.open(path)
-            }
+    private fun addShapeTextLayer(shapeType: ShapeType) {
+        val tw = _state.value.template.originalSize.width.toFloat()
+        // Default shape size: ~40% of template width, proportional height
+        val defaultW = (if (tw > 0f) tw * 0.40f else 240f).coerceIn(120f, 600f)
+        val defaultH = (defaultW * 0.42f).coerceIn(60f, 220f)
+
+        val layerId = java.util.UUID.randomUUID().toString()
+        val layer = EditorLayer(
+            id            = layerId,
+            type          = LayerType.SHAPE_TEXT,
+            text          = "Label",
+            textColorArgb = 0xFFFFFFFF.toInt(),
+            textSizeSp    = 16f,
+            shapeType     = shapeType,
+            shapeColorArgb = 0xFFE53935.toInt(),
+            shapeWidthPx  = defaultW,
+            shapeHeightPx = defaultH,
+            viewport      = EditorViewport(scale = 1f),
+            appearance    = EditorAppearance(shadowIntensity = 0f, alpha = 1f)
+        )
+        _state.update {
+            it.copy(
+                layers = it.layers + layer,
+                selectedLayerId = layerId,
+                selectedTool = EditorTool.Label
+            )
         }
+        pushHistory()
+    }
+
+    private fun addTextLayer() {
+        val tw = _state.value.template.originalSize.width.toFloat()
+        val defaultW = (if (tw > 0f) tw * 0.58f else 360f).coerceIn(180f, 760f)
+        val defaultH = (defaultW * 0.24f).coerceIn(72f, 220f)
+        val layerId = java.util.UUID.randomUUID().toString()
+        val layer = EditorLayer(
+            id = layerId,
+            type = LayerType.SHAPE_TEXT,
+            text = "Nhập chữ...",
+            textColorArgb = 0xFF5B21B6.toInt(),
+            textSizeSp = 28f,
+            shapeType = ShapeType.CARD,
+            shapeColorArgb = 0x00FFFFFF,
+            shapeWidthPx = defaultW,
+            shapeHeightPx = defaultH,
+            fontFamily = "sans-serif",
+            viewport = EditorViewport(scale = 1f),
+            appearance = EditorAppearance(shadowIntensity = 0f, alpha = 1f)
+        )
+        _state.update {
+            it.copy(
+                layers = it.layers + layer,
+                selectedLayerId = layerId,
+                selectedTool = EditorTool.Label
+            )
+        }
+        pushHistory()
+    }
+
+    private fun getInputStreamForPath(path: String): java.io.InputStream? {
+        return context.openAssetSourceInputStream(path)
     }
 
     private fun com.thgiang.image.core.domain.model.template.CloudLayer.resolvedImageUrl(): String? {
@@ -261,31 +369,102 @@ class ThemeplateEditorViewModel @Inject constructor(
             ?: CropRatio.ORIGINAL
     }
 
+    private fun com.thgiang.image.core.domain.model.template.CloudLayer.isShadowRegion(): Boolean {
+        return type.equals("DECORATION", ignoreCase = true) &&
+            payload.sourceKind.equals("shadow-region", ignoreCase = true)
+    }
+
     private fun loadCloudTemplate(cloudTemplate: com.thgiang.image.core.domain.model.template.CloudTemplate) {
-        val assetPath = cloudTemplate.canvas.backgroundUrl ?: return
+        val backgroundUrl = cloudTemplate.canvas.backgroundUrl
+        val assetPath = backgroundUrl ?: ""
+        android.util.Log.d(
+            BG_DEBUG_TAG,
+            "load parsed templateId=${cloudTemplate.templateId} backgroundUrl=${backgroundUrl?.take(160)} backgroundColorArgb=${cloudTemplate.canvas.backgroundColorArgb} canvas=${cloudTemplate.canvas.baseWidth}x${cloudTemplate.canvas.baseHeight} layers=${cloudTemplate.layers.size}"
+        )
         
         savedStateHandle["template_path"] = assetPath
         
         templateLoadJob?.cancel()
         templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                getInputStreamForPath(assetPath)?.use { input ->
-                    val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                    BitmapFactory.decodeStream(input, null, opts)
+                val tw = cloudTemplate.canvas.baseWidth
+                val th = cloudTemplate.canvas.baseHeight
+
+                if (backgroundUrl == null || backgroundUrl.isBlank() || backgroundUrl == "null") {
+                    android.util.Log.w(
+                        BG_DEBUG_TAG,
+                        "missing backgroundUrl templateId=${cloudTemplate.templateId}; using color=${cloudTemplate.canvas.backgroundColorArgb ?: 0xFFFFFFFF.toInt()}"
+                    )
+                } else {
+                    android.util.Log.d(
+                        BG_DEBUG_TAG,
+                        "use canvas size templateId=${cloudTemplate.templateId} canvas=${tw}x${th} backgroundUrl=${backgroundUrl.take(160)}"
+                    )
+                }
+                
+                val editorLayers = cloudTemplate.layers.sortedBy { it.zIndex }.mapNotNull { cloudLayer ->
+                    val isText = cloudLayer.type == "TEXT" || cloudLayer.type == "SHAPE_TEXT"
+                    val isShadowRegion = cloudLayer.isShadowRegion()
+                    val anchorX = cloudLayer.transform.anchorX
+                    val anchorY = cloudLayer.transform.anchorY
                     
-                    val tw = opts.outWidth
-                    val th = opts.outHeight
+                    val offsetX = (anchorX - 0.5f) * tw.toFloat()
+                    val offsetY = (anchorY - 0.5f) * th.toFloat()
                     
-                    val editorLayers = cloudTemplate.layers.sortedBy { it.zIndex }.mapNotNull { cloudLayer ->
-                        val imageUrl = cloudLayer.resolvedImageUrl() ?: return@mapNotNull null
-                        val anchorX = cloudLayer.transform.anchorX
-                        val anchorY = cloudLayer.transform.anchorY
-                        
-                        val offsetX = (anchorX - 0.5f) * tw.toFloat()
-                        val offsetY = (anchorY - 0.5f) * th.toFloat()
-                        
+                    if (isText) {
+                        val density = context.resources.displayMetrics.scaledDensity.coerceAtLeast(1f)
                         EditorLayer(
                             id = cloudLayer.layerId.ifEmpty { java.util.UUID.randomUUID().toString() },
+                            type = LayerType.SHAPE_TEXT,
+                            text = cloudLayer.payload.text ?: "Label",
+                            textColorArgb = cloudLayer.payload.textColorArgb ?: 0xFFFFFFFF.toInt(),
+                            textSizeSp = ((cloudLayer.payload.fontSize ?: 60f) / density).coerceIn(8f, 72f),
+                            shapeType = ShapeType.PILL,
+                            shapeColorArgb = 0x00FFFFFF.toInt(), // transparent shape color
+                            shapeWidthPx = 350f,
+                            shapeHeightPx = 140f,
+                            fontFamily = cloudLayer.payload.font,
+                            viewport = EditorViewport(
+                                offsetX = offsetX,
+                                offsetY = offsetY,
+                                scale = cloudLayer.transform.scale,
+                                rotation = cloudLayer.transform.rotation
+                            ),
+                            appearance = EditorAppearance(
+                                shadowIntensity = cloudLayer.payload.shadowIntensity ?: 0f,
+                                alpha = cloudLayer.payload.alpha ?: 1f,
+                                shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
+                                shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
+                                shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt()
+                            )
+                        )
+                    } else if (isShadowRegion) {
+                        EditorLayer(
+                            id = cloudLayer.layerId.ifEmpty { java.util.UUID.randomUUID().toString() },
+                            type = LayerType.SHADOW_REGION,
+                            product = EditorProduct(
+                                baseWidth = cloudLayer.payload.baseWidth ?: 0,
+                                baseHeight = cloudLayer.payload.baseHeight ?: 0
+                            ),
+                            viewport = EditorViewport(
+                                offsetX = offsetX,
+                                offsetY = offsetY,
+                                scale = cloudLayer.transform.scale,
+                                rotation = cloudLayer.transform.rotation
+                            ),
+                            appearance = EditorAppearance(
+                                shadowIntensity = cloudLayer.payload.shadowIntensity ?: 0f,
+                                alpha = cloudLayer.payload.alpha ?: 1f,
+                                shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
+                                shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
+                                shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt()
+                            )
+                        )
+                    } else {
+                        val imageUrl = cloudLayer.resolvedImageUrl() ?: return@mapNotNull null
+                        EditorLayer(
+                            id = cloudLayer.layerId.ifEmpty { java.util.UUID.randomUUID().toString() },
+                            type = LayerType.IMAGE,
                             product = EditorProduct(
                                 originalUriString = imageUrl,
                                 foregroundUriString = imageUrl,
@@ -312,21 +491,26 @@ class ThemeplateEditorViewModel @Inject constructor(
                             cropRatio = cloudLayer.resolvedCropRatio()
                         )
                     }
-                    
-                    _state.update {
-                        it.copy(
-                            template = EditorTemplate(
-                                assetPath = assetPath,
-                                originalWidth = tw,
-                                originalHeight = th,
-                                loaded = true
-                            ),
-                            layers = editorLayers,
-                            selectedLayerId = editorLayers.firstOrNull { layer -> layer.product.isSample }?.id,
-                            errorMessage = null
-                        )
-                    }
-                } ?: throw Exception("Failed to open stream")
+                }
+                
+                _state.update {
+                    it.copy(
+                        template = EditorTemplate(
+                            assetPath = assetPath,
+                            originalWidth = tw,
+                            originalHeight = th,
+                            backgroundColorArgb = cloudTemplate.canvas.backgroundColorArgb ?: 0xFFFFFFFF.toInt(),
+                            loaded = true
+                        ),
+                        layers = editorLayers,
+                        selectedLayerId = editorLayers.firstOrNull { layer -> layer.product.isSample }?.id,
+                        errorMessage = null
+                    )
+                }
+                android.util.Log.d(
+                    BG_DEBUG_TAG,
+                    "state applied templateId=${cloudTemplate.templateId} assetPath=${assetPath.take(160)} bgColor=${cloudTemplate.canvas.backgroundColorArgb ?: 0xFFFFFFFF.toInt()} finalSize=${tw}x${th} editorLayers=${editorLayers.size}"
+                )
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "loadCloudTemplate failed to load template: $assetPath", e)
                 _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_load_cloud_template, e.message ?: "")) }
@@ -335,11 +519,10 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private fun loadTemplate(assetPath: String, objectSourceAssetPath: String? = null) {
-        android.util.Log.d(TAG, "loadTemplate called with path: $assetPath, objectSourceAssetPath: $objectSourceAssetPath")
-        if (_state.value.template.loaded && _state.value.template.assetPath == assetPath) {
-            android.util.Log.d(TAG, "Template already loaded, ignoring template load but checking sample object.")
-            val hasObject = _state.value.layers.any { it.product.foregroundUriString != null || it.product.processing }
-            if (objectSourceAssetPath != null && !hasObject) {
+        if (assetPath.isBlank()) return
+
+        if (assetPath == _state.value.template.assetPath && _state.value.template.loaded) {
+            if (objectSourceAssetPath != null) {
                 loadSampleObject(objectSourceAssetPath)
             }
             return
@@ -410,18 +593,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                     val h = options.outHeight
                     android.util.Log.d(TAG, "loadSampleObject: cached bounds $w x $h")
                     
-                    val baseSize = if (tw > 0 && th > 0 && w > 0 && h > 0) {
-                        val baseFitScale = kotlin.math.min(
-                            tw.toFloat() / w,
-                            th.toFloat() / h
-                        )
-                        IntSize(
-                            (w * baseFitScale).toInt(),
-                            (h * baseFitScale).toInt()
-                        )
-                    } else {
-                        IntSize(w.coerceAtLeast(0), h.coerceAtLeast(0))
-                    }
+                    val baseSize = IntSize(w.coerceAtLeast(0), h.coerceAtLeast(0))
                     
                     _state.update { state ->
                         val newProduct = EditorProduct(
@@ -467,7 +639,11 @@ class ThemeplateEditorViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val templateSize = _state.value.template.originalSize
-                val stickerPath = "file:///android_asset/$assetPath"
+                val stickerPath = if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
+                    assetPath
+                } else {
+                    "file:///android_asset/$assetPath"
+                }
 
                 val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                 val decoded = getInputStreamForPath(stickerPath)?.use { input ->
@@ -579,29 +755,10 @@ class ThemeplateEditorViewModel @Inject constructor(
                     val tw = _state.value.template.originalSize.width
                     val th = _state.value.template.originalSize.height
                     
-                    val baseSize = if (tw > 0 && th > 0) {
-                        val baseFitScale = kotlin.math.min(
-                            tw.toFloat() / foreground.width,
-                            th.toFloat() / foreground.height
-                        )
-                        var finalWidth = (foreground.width * baseFitScale).toInt()
-                        var finalHeight = (foreground.height * baseFitScale).toInt()
-                        if (finalWidth > 500) {
-                            val downScale = 500f / finalWidth
-                            finalWidth = 500
-                            finalHeight = (finalHeight * downScale).toInt()
-                        }
-                        IntSize(finalWidth, finalHeight)
-                    } else {
-                        var finalWidth = foreground.width
-                        var finalHeight = foreground.height
-                        if (finalWidth > 500) {
-                            val downScale = 500f / finalWidth
-                            finalWidth = 500
-                            finalHeight = (finalHeight * downScale).toInt()
-                        }
-                        IntSize(finalWidth, finalHeight)
-                    }
+                    val baseSize = IntSize(
+                        foreground.width.coerceAtLeast(0),
+                        foreground.height.coerceAtLeast(0)
+                    )
 
                     _state.update { state ->
                         val newProduct = EditorProduct(
@@ -746,7 +903,12 @@ class ThemeplateEditorViewModel @Inject constructor(
                     EditorRenderer.MultiLayerRenderRequest(
                         templateAssetPath = templateAssetPath,
                         templateSize = templateSize,
-                        layers = currentState.layers.filter { it.product.foregroundUri != null }
+                        layers = currentState.layers.filter {
+                            it.type == LayerType.SHAPE_TEXT ||
+                                it.type == LayerType.SHADOW_REGION ||
+                                it.product.foregroundUri != null
+                        },
+                        backgroundColorArgb = currentState.template.backgroundColorArgb
                     )
                 )
 
@@ -781,10 +943,49 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
+    // ============ Save Draft ============
+
+    private fun saveDraft() {
+        val currentState = _state.value
+        val templateAssetPath = currentState.template.assetPath
+        val templateSize = currentState.template.originalSize
+        if (templateSize.width == 0 || templateSize.height == 0) return
+
+        saveDraftJob?.cancel()
+        saveDraftJob = viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Determine template draft name
+                val name = "Template_${System.currentTimeMillis()}"
+                
+                // Save state to draft repository
+                val newDraftId = templateDraftRepository.saveDraft(
+                    draftId = draftId,
+                    name = name,
+                    state = currentState,
+                    templateAssetPath = templateAssetPath,
+                    templateObjectAssetPath = null // Adjust if you keep object asset path
+                )
+                
+                // Update SavedStateHandle with new draft ID if it was created
+                if (draftId == null) {
+                    savedStateHandle["draftId"] = newDraftId
+                }
+                
+                _state.update { it.copy(draftSavedAt = System.currentTimeMillis()) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     // ============ SavedState Persistence ============
-    
+
     private fun persistState() {
-        savedStateHandle["editor_state"] = _state.value
+        savedStateHandle["editor_state_template_path"] = _state.value.template.assetPath
+        savedStateHandle["editor_state_selected_layer_id"] = _state.value.selectedLayerId
+        savedStateHandle["editor_state_selected_tool"] = _state.value.selectedTool?.javaClass?.name
+        savedStateHandle["editor_state_show_overlay"] = _state.value.showOverlay
+        savedStateHandle["editor_state_show_bounding_box"] = _state.value.showBoundingBox
     }
 
     override fun onCleared() {
@@ -804,6 +1005,150 @@ class ThemeplateEditorViewModel @Inject constructor(
         overlayJob = viewModelScope.launch {
             delay(2000)
             _state.update { it.copy(showOverlay = false) }
+        }
+    }
+
+    private fun loadCloudTemplateById(templateId: String) {
+        val baseUrl = BuildConfig.ADMIN_WEB_BASE_URL
+        if (baseUrl.isBlank()) return
+
+        templateLoadJob?.cancel()
+        templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(errorMessage = null) }
+            val connection = (URL("$baseUrl/api/v1/templates?templateId=$templateId").openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                connectTimeout = 5000
+                readTimeout = 5000
+                setRequestProperty("Accept", "application/json")
+            }
+
+            try {
+                val responseCode = connection.responseCode
+                val body = if (responseCode in 200..299) {
+                    connection.inputStream.bufferedReader().use { it.readText() }
+                } else {
+                    connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+                }
+                android.util.Log.d(
+                    BG_DEBUG_TAG,
+                    "fetch templateId=$templateId status=$responseCode bodyChars=${body.length} baseUrl=$baseUrl"
+                )
+
+                if (body.isBlank()) throw Exception("Empty response from server")
+
+                val root = JSONObject(body)
+                if (!root.optBoolean("success", false)) throw Exception("API returned success=false")
+
+                val templatesArray = root.optJSONArray("templates") 
+                    ?: throw Exception("No templates field in response")
+                if (templatesArray.length() == 0) throw Exception("Template not found on server")
+
+                val item = templatesArray.optJSONObject(0) ?: throw Exception("Invalid template JSON")
+                val canvasData = item.optJSONObject("canvas_data") ?: throw Exception("Template missing canvas data")
+                val rawCanvas = canvasData.optJSONObject("canvas")
+                android.util.Log.d(
+                    BG_DEBUG_TAG,
+                    "raw templateId=$templateId rowTemplateId=${item.optString("template_id")} thumbnail=${item.optString("thumbnail_url").take(120)} canvasBackgroundUrl=${rawCanvas?.optString("backgroundUrl")} canvasBackgroundColorArgb=${rawCanvas?.optString("backgroundColorArgb")} layers=${canvasData.optJSONArray("layers")?.length() ?: -1}"
+                )
+
+                val parsedTemplate = parseCloudTemplate(
+                    templateId = item.optString("template_id").ifBlank { item.optString("id") },
+                    categoryId = item.optString("category_id"),
+                    canvasData = canvasData,
+                    title = item.optString("title"),
+                    thumbnailUrl = item.optString("thumbnail_url"),
+                    status = item.optString("status")
+                )
+
+                loadCloudTemplate(parsedTemplate)
+            } catch (e: Exception) {
+                android.util.Log.e("EditorVM", "Failed to load remote template $templateId", e)
+                _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_load_cloud_template, e.message ?: "")) }
+            } finally {
+                connection.disconnect()
+            }
+        }
+    }
+
+    private fun parseCloudTemplate(
+        templateId: String,
+        categoryId: String,
+        canvasData: JSONObject,
+        title: String,
+        thumbnailUrl: String,
+        status: String
+    ): CloudTemplate {
+        val metadataJson = canvasData.optJSONObject("metadata")
+        val canvasJson = canvasData.optJSONObject("canvas")
+
+        return CloudTemplate(
+            templateId = canvasData.optString("templateId", templateId).takeIf { it.isNotBlank() && it != "null" } ?: templateId,
+            categoryId = canvasData.optString("categoryId", categoryId).takeIf { it.isNotBlank() && it != "null" } ?: categoryId,
+            metadata = TemplateMetadata(
+                title = metadataJson?.optString("title")?.takeIf { it.isNotBlank() && it != "null" } ?: title,
+                thumbnailUrl = metadataJson?.optString("thumbnailUrl")?.takeIf { it.isNotBlank() && it != "null" } ?: thumbnailUrl.takeIf { it != "null" } ?: "",
+                status = metadataJson?.optString("status")?.takeIf { it.isNotBlank() && it != "null" } ?: status,
+                schemaVersion = metadataJson?.optInt("schemaVersion", 1) ?: 1,
+                createdAt = metadataJson?.optLong("createdAt", System.currentTimeMillis()) ?: System.currentTimeMillis(),
+                updatedAt = metadataJson?.optLong("updatedAt", System.currentTimeMillis()) ?: System.currentTimeMillis()
+            ),
+            canvas = TemplateCanvas(
+                baseWidth = canvasJson?.optInt("baseWidth", 1080) ?: 1080,
+                baseHeight = canvasJson?.optInt("baseHeight", 1920) ?: 1920,
+                aspectRatio = canvasJson?.optString("aspectRatio")?.takeIf { it.isNotBlank() && it != "null" } ?: "9:16",
+                backgroundUrl = canvasJson?.optString("backgroundUrl")?.takeIf { it.isNotBlank() && it != "null" },
+                backgroundColorArgb = canvasJson?.takeIf { it.has("backgroundColorArgb") }?.optInt("backgroundColorArgb")
+            ),
+            layers = parseLayers(canvasData.optJSONArray("layers"))
+        )
+    }
+
+    private fun parseLayers(layersArray: JSONArray?): List<CloudLayer> {
+        if (layersArray == null) return emptyList()
+
+        return buildList {
+            for (index in 0 until layersArray.length()) {
+                val item = layersArray.optJSONObject(index) ?: continue
+                val transformJson = item.optJSONObject("transform")
+                val payloadJson = item.optJSONObject("payload")
+
+                add(
+                    CloudLayer(
+                        layerId = item.optString("layerId").takeIf { it != "null" } ?: "",
+                        type = item.optString("type", "IMAGE").takeIf { it != "null" } ?: "IMAGE",
+                        zIndex = item.optInt("zIndex", index),
+                        transform = CloudTransform(
+                            anchorX = transformJson?.optDouble("anchorX", 0.5)?.toFloat() ?: 0.5f,
+                            anchorY = transformJson?.optDouble("anchorY", 0.5)?.toFloat() ?: 0.5f,
+                            scale = transformJson?.optDouble("scale", 1.0)?.toFloat() ?: 1.0f,
+                            rotation = transformJson?.optDouble("rotation", 0.0)?.toFloat() ?: 0.0f
+                        ),
+                        payload = CloudPayload(
+                            defaultImageUrl = payloadJson?.optString("defaultImageUrl")?.takeIf { it.isNotBlank() && it != "null" },
+                            imageUrl = payloadJson?.optString("imageUrl")?.takeIf { it.isNotBlank() && it != "null" },
+                            sourceKind = payloadJson?.optString("sourceKind")?.takeIf { it.isNotBlank() && it != "null" },
+                            shadowIntensity = payloadJson?.optDouble("shadowIntensity")?.toFloat()?.takeUnless { it.isNaN() },
+                            shadowAngle = payloadJson?.optDouble("shadowAngle")?.toFloat()?.takeUnless { it.isNaN() },
+                            shadowDistance = payloadJson?.optDouble("shadowDistance")?.toFloat()?.takeUnless { it.isNaN() },
+                            shadowBlur = payloadJson?.optDouble("shadowBlur")?.toFloat()?.takeUnless { it.isNaN() },
+                            alpha = payloadJson?.optDouble("alpha")?.toFloat()?.takeUnless { it.isNaN() },
+                            shadowColorArgb = payloadJson?.optInt("shadowColorArgb"),
+                            cropRatio = payloadJson?.optString("cropRatio")?.takeIf { it.isNotBlank() && it != "null" },
+                            flippedH = payloadJson?.optBoolean("flippedH"),
+                            flippedV = payloadJson?.optBoolean("flippedV"),
+                            baseWidth = payloadJson?.optInt("baseWidth"),
+                            baseHeight = payloadJson?.optInt("baseHeight"),
+                            text = payloadJson?.optString("text")?.takeIf { it.isNotBlank() && it != "null" },
+                            font = payloadJson?.optString("font")?.takeIf { it.isNotBlank() && it != "null" },
+                            textColorArgb = payloadJson?.takeIf { it.has("textColorArgb") }?.optInt("textColorArgb"),
+                            fontSize = payloadJson?.takeIf { it.has("fontSize") }?.optDouble("fontSize")?.toFloat()?.takeUnless { it.isNaN() },
+                            fontWeight = payloadJson?.optString("fontWeight")?.takeIf { it.isNotBlank() && it != "null" },
+                            fontStyle = payloadJson?.optString("fontStyle")?.takeIf { it.isNotBlank() && it != "null" },
+                            textAlign = payloadJson?.optString("textAlign")?.takeIf { it.isNotBlank() && it != "null" }
+                        )
+                    )
+                )
+            }
         }
     }
 }

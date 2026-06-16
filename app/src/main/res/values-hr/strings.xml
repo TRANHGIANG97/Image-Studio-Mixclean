@@ -38,8 +38,6 @@
     <string name="licenses_title">Licence otvorenog koda</string>
     <string name="dark_mode_title">Tamni način</string>
     <string name="dark_mode_description">Prebacite tamnu temu aplikacije.</string>
-    <string name="home_preview_title">Prikaži pretpregled na početnoj</string>
-    <string name="home_preview_description">Prikaži okvir za usporedbu Prije / Poslije na početnom zaslonu.</string>
 
     <string name="home_remove_background_title">Ukloni pozadinu</string>
     <string name="home_remove_background_subtitle">Odaberite sliku i uklonite njezinu pozadinu jednim dodirom.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Glatko AI proširenje</string>
     <string name="pro_see_details">Detalji ></string>
     <string name="picker_sample_badge">Uzorak</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Izradite profesionalne fotografije proizvoda</string>
+    <string name="home_hero_subtitle">Uklonite pozadinu, promijenite pozadinu, dodajte predloške u nekoliko sekundi</string>
+    <string name="home_hero_action">Odaberite fotografiju</string>
+    <string name="review_app_button">Stopa</string>
+    <string name="review_prompt_title">Uživate u %1$s?</string>
+    <string name="review_prompt_message">Dodirnite zvjezdicu da biste ga ocijenili na Google Playu.</string>
+    <string name="review_prompt_rate_now">Pošalji</string>
+    <string name="review_prompt_later">Otkazati</string>
+    <string name="home_see_all">Vidi sve</string>
+    <string name="save_success_title">Spremljeno!</string>
+    <string name="save_success_create_new">Stvori novo</string>
+    <string name="save_success_try_other_tools">Pokušajte s drugim alatima</string>
+    <string name="save_success_share">Udio</string>
+    <string name="save_success_back">Nazad</string>
+    <string name="save_success_home">Dom</string>
+    <string name="save_success_saved_image">Spremljena slika</string>
+    <string name="save_success_share_with">Podijeli sa...</string>
+    <string name="batch_remove_error_load_image">Ne mogu učitati ovu sliku.</string>
+    <string name="drafts_error_load">Pogreška pri učitavanju skica: %1$s</string>
 </resources>

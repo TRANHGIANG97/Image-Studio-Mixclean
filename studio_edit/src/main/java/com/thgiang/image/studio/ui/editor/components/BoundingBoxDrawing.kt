@@ -103,7 +103,7 @@ fun DrawScope.drawRotatedOverlay(
         drawRect(
             color = if (isLocked) Color.Gray.copy(alpha = 0.5f) else borderColor,
             topLeft = Offset(cx - hw, cy - hh),
-            size = Size(screenW, screenH),
+            size = Size(hw * 2, hh * 2),
             style = Stroke(width = dimensions.borderStrokePx, pathEffect = pathEffect)
         )
 

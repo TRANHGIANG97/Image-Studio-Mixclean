@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI ထုတ်ကုန် စတူဒီယို</string>
     <string name="studio_category_electronics">လျှပ်စစ်ပစ္စည်းများ</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">အရိပ်</string>
     <string name="studio_tool_transparency">အလင်းပိတ်အား</string>
     <string name="studio_tool_crop">ဖြတ်ညှပ်ရန်</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">စတစ်ကာ</string>
     <string name="studio_tool_rotateflip">လှည့်ရန်/လှန်ရန်</string>
     <string name="studio_replace_hint">ပြခန်းမှ ထုတ်ကုန်ဓာတ်ပုံကို ရွေးချယ်ရန် \'အစားထိုးရန်\' ကို နှိပ်ပါ</string>
     <string name="studio_layout_hint">ရွှေ့ရန် ဆွဲပါ · ချဲ့ရန်/ချုံ့ရန် လက်ချောင်းများစုပါ · လက်ချောင်းနှစ်ချောင်းဖြင့် လှည့်ပါ</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">နမူနာပုံစံများ မရရှိနိုင်ပါ။</string>
     <string name="studio_gallery_coming_soon">မကြာမီလာမည်</string>
     <string name="studio_gallery_coming_soon_desc">ဤဝန်ဆောင်မှုကို တည်ဆောက်ဆဲဖြစ်ပြီး မကြာမီ ရနိုင်ပါမည်။</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">ဒီဇိုင်းအဖွဲ့သည် မကြာမီ နမူနာပုံစံများကို ထပ်မံထည့်သွင်းရန် ကြိုးစားလုပ်ဆောင်နေသည်။</string>
     <string name="themeplate_gallery_title">ပုံစံများ</string>
     <string name="studio_save_image_success">ပုံကို သိမ်းထားသည်။</string>
     <string name="studio_error_select_object">အရာဝတ္ထုတစ်ခုကို ရွေးပါ။</string>

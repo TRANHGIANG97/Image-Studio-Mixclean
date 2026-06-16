@@ -38,8 +38,6 @@
     <string name="licenses_title">ओपन सोर्स लाइसेन्स</string>
     <string name="dark_mode_title">डार्क मोड</string>
     <string name="dark_mode_description">अनुप्रयोगको थिम डार्क मोडमा बदल्नुहोस्।</string>
-    <string name="home_preview_title">गृह स्क्रिनमा पूर्वावलोकन देखाउनुहोस्</string>
-    <string name="home_preview_description">गृह स्क्रिनमा अघि/पछि (Before/After) को तुलना बाकस देखाउनुहोस्।</string>
 
     <string name="home_remove_background_title">ब्याकग्राउन्ड हटाउनुहोस्</string>
     <string name="home_remove_background_subtitle">फोटो चयन गर्नुहोस् र एक क्लिकमा ब्याकग्राउन्ड हटाउनुहोस्।</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI द्वारा तस्विर प्राकृतिक रूपमा बढाउनुहोस्</string>
     <string name="pro_see_details">विवरण हेर्नुहोस् ></string>
     <string name="picker_sample_badge">नमुना</string>
+    <string name="home_hero_subtitle_short">एआई फोटो सम्पादक</string>
+    <string name="home_hero_title">व्यावसायिक उत्पादन फोटोहरू सिर्जना गर्नुहोस्</string>
+    <string name="home_hero_subtitle">पृष्ठभूमि हटाउनुहोस्, पृष्ठभूमि परिवर्तन गर्नुहोस्, सेकेन्डमा टेम्प्लेटहरू थप्नुहोस्</string>
+    <string name="home_hero_action">फोटो छान्नुहोस्</string>
+    <string name="review_app_button">दर</string>
+    <string name="review_prompt_title">%1$s रमाइलो गर्दै हुनुहुन्छ?</string>
+    <string name="review_prompt_message">Google Play मा मूल्याङ्कन गर्न तारा ट्याप गर्नुहोस्।</string>
+    <string name="review_prompt_rate_now">पेश गर्नुहोस्</string>
+    <string name="review_prompt_later">रद्द गर्नुहोस्</string>
+    <string name="home_see_all">सबै हेर्नुहोस्</string>
+    <string name="save_success_title">सुरक्षित गरियो!</string>
+    <string name="save_success_create_new">नयाँ सिर्जना गर्नुहोस्</string>
+    <string name="save_success_try_other_tools">अन्य उपकरणहरू प्रयास गर्नुहोस्</string>
+    <string name="save_success_share">सेयर गर्नुहोस्</string>
+    <string name="save_success_back">पछाडि</string>
+    <string name="save_success_home">घर</string>
+    <string name="save_success_saved_image">बचत गरिएको छवि</string>
+    <string name="save_success_share_with">यससँग साझेदारी गर्नुहोस्…</string>
+    <string name="batch_remove_error_load_image">यो छवि लोड गर्न सकिँदैन।</string>
+    <string name="drafts_error_load">ड्राफ्टहरू लोड गर्दा त्रुटि: %1$s</string>
 </resources>

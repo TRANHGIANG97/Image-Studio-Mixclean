@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Поверните на 90 градусов или отразите по горизонтали и вертикали, чтобы исправить ориентацию изображения.</string>
     <string name="draft_label">Черновик</string>
     <string name="draft_saved_successfully">Черновик успешно сохранен</string>
+    <string name="professional_section_title">Профессиональный</string>
+    <string name="themeplate_professional_watch">Смотреть</string>
+    <string name="themeplate_professional_perfume">Духи</string>
+    <string name="themeplate_professional_handbag">Сумочка</string>
+    <string name="home_see_all">Посмотреть все</string>
 </resources>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Ліцэнзіі адкрытага ПЗ</string>
     <string name="dark_mode_title">Цёмны рэжым</string>
     <string name="dark_mode_description">Пераключэнне на цёмную тэму праграмы.</string>
-    <string name="home_preview_title">Паказваць папярэдні прагляд на галоўнай</string>
-    <string name="home_preview_description">Адлюстраванне поля параўнання \"да/пасля\" на галоўным экране.</string>
 
     <string name="home_remove_background_title">Выдаленне фону</string>
     <string name="home_remove_background_subtitle">Выберыце выяву і выдаліце фон адным дотыкам.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Плаўнае пашырэнне AI</string>
     <string name="pro_see_details">Падрабязней ></string>
     <string name="picker_sample_badge">Узор</string>
+    <string name="home_hero_subtitle_short">Фотарэдактар ​​AI</string>
+    <string name="home_hero_title">Стварыце прафесійныя фатаграфіі прадукту</string>
+    <string name="home_hero_subtitle">Выдаліце ​​фон, зменіце фон, дадайце шаблоны за лічаныя секунды</string>
+    <string name="home_hero_action">Выберыце фота</string>
+    <string name="review_app_button">Стаўка</string>
+    <string name="review_prompt_title">Вам падабаецца %1$s?</string>
+    <string name="review_prompt_message">Націсніце на зорку, каб ацаніць яго ў Google Play.</string>
+    <string name="review_prompt_rate_now">Падаць</string>
+    <string name="review_prompt_later">Адмяніць</string>
+    <string name="home_see_all">Глядзець усе</string>
+    <string name="save_success_title">Захавана!</string>
+    <string name="save_success_create_new">Стварыць новы</string>
+    <string name="save_success_try_other_tools">Паспрабуйце іншыя інструменты</string>
+    <string name="save_success_share">Падзяліцеся</string>
+    <string name="save_success_back">Назад</string>
+    <string name="save_success_home">дадому</string>
+    <string name="save_success_saved_image">Захаваны малюнак</string>
+    <string name="save_success_share_with">Падзяліцца з…</string>
+    <string name="batch_remove_error_load_image">Немагчыма загрузіць гэты відарыс.</string>
+    <string name="drafts_error_load">Памылка загрузкі чарнавікоў: %1$s</string>
 </resources>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Lesen Sumber Terbuka</string>
     <string name="dark_mode_title">Mod Gelap</string>
     <string name="dark_mode_description">Tukar tema gelap aplikasi.</string>
-    <string name="home_preview_title">Papar Pratinjau Utama</string>
-    <string name="home_preview_description">Papar kotak perbandingan sebelum / selepas di skrin utama.</string>
 
     <string name="home_remove_background_title">Buang Latar Belakang</string>
     <string name="home_remove_background_subtitle">Pilih imej dan padamkan latar belakangnya dengan satu ketukan.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Pelanjutan AI Lancar</string>
     <string name="pro_see_details">Butiran ></string>
     <string name="picker_sample_badge">Contoh</string>
+    <string name="home_hero_subtitle_short">Editor Foto AI</string>
+    <string name="home_hero_title">Cipta Foto Produk Profesional</string>
+    <string name="home_hero_subtitle">Alih keluar latar belakang, tukar tirai latar, tambah templat dalam beberapa saat</string>
+    <string name="home_hero_action">Pilih Foto</string>
+    <string name="review_app_button">Kadar</string>
+    <string name="review_prompt_title">Menikmati %1$s?</string>
+    <string name="review_prompt_message">Ketik bintang untuk menilainya di Google Play.</string>
+    <string name="review_prompt_rate_now">Hantar</string>
+    <string name="review_prompt_later">Batal</string>
+    <string name="home_see_all">Lihat Semua</string>
+    <string name="save_success_title">Disimpan!</string>
+    <string name="save_success_create_new">Buat Baharu</string>
+    <string name="save_success_try_other_tools">Cuba alat lain</string>
+    <string name="save_success_share">Kongsi</string>
+    <string name="save_success_back">belakang</string>
+    <string name="save_success_home">Rumah</string>
+    <string name="save_success_saved_image">Imej disimpan</string>
+    <string name="save_success_share_with">Kongsi dengan…</string>
+    <string name="batch_remove_error_load_image">Tidak dapat memuatkan imej ini.</string>
+    <string name="drafts_error_load">Ralat memuatkan draf: %1$s</string>
 </resources>

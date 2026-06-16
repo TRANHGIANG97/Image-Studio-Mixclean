@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">បង្វិល 90 ដឺក្រេ ឬបង្វិលផ្ដេកនិងបញ្ឈរ ដើម្បីកែតម្រូវទិសដៅរូបភាព。</string>
     <string name="draft_label">សេចក្តីព្រាង</string>
     <string name="draft_saved_successfully">បានរក្សាទុកសេចក្តីព្រាងដោយជោគជ័យ</string>
+    <string name="professional_section_title">វិជ្ជាជីវៈ</string>
+    <string name="themeplate_professional_watch">មើល</string>
+    <string name="themeplate_professional_perfume">ទឹកអប់</string>
+    <string name="themeplate_professional_handbag">កាបូបដៃ</string>
+    <string name="home_see_all">មើលទាំងអស់។</string>
 </resources>

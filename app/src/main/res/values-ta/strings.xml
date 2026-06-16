@@ -38,8 +38,6 @@
     <string name="licenses_title">திறந்த மூல உரிமங்கள்</string>
     <string name="dark_mode_title">இருண்ட பயன்முறை</string>
     <string name="dark_mode_description">செயலியின் தீமினை இருண்ட பயன்முறைக்கு மாற்றவும்.</string>
-    <string name="home_preview_title">முகப்புத் திரை முன்னோட்டம்</string>
-    <string name="home_preview_description">முகப்புத் திரையில் முன்னும் பின்னும் ஒப்பீட்டுப் பெட்டியைக் காட்டு.</string>
 
     <string name="home_remove_background_title">பின்னணியை நீக்கு</string>
     <string name="home_remove_background_subtitle">ஒரு புகைப்படத்தைத் தேர்ந்தெடுத்து ஒரே கிளிக்கில் பின்னணியை நீக்கவும்.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI மூலம் படத்தை இயற்கையாக விரிவுபடுத்துங்கள்</string>
     <string name="pro_see_details">விவரங்களைக் காண்க ></string>
     <string name="picker_sample_badge">மாதிரி</string>
+    <string name="home_hero_subtitle_short">AI புகைப்பட எடிட்டர்</string>
+    <string name="home_hero_title">தொழில்முறை தயாரிப்பு புகைப்படங்களை உருவாக்கவும்</string>
+    <string name="home_hero_subtitle">பின்னணியை அகற்றவும், பின்னணியை மாற்றவும், வினாடிகளில் டெம்ப்ளேட்களைச் சேர்க்கவும்</string>
+    <string name="home_hero_action">புகைப்படத்தைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="review_app_button">மதிப்பிடவும்</string>
+    <string name="review_prompt_title">%1$sஐ அனுபவிக்கிறீர்களா?</string>
+    <string name="review_prompt_message">Google Play இல் அதை மதிப்பிட நட்சத்திரத்தைத் தட்டவும்.</string>
+    <string name="review_prompt_rate_now">சமர்ப்பிக்கவும்</string>
+    <string name="review_prompt_later">ரத்து செய்</string>
+    <string name="home_see_all">அனைத்தையும் பார்க்கவும்</string>
+    <string name="save_success_title">சேமிக்கப்பட்டது!</string>
+    <string name="save_success_create_new">புதிதாக உருவாக்கவும்</string>
+    <string name="save_success_try_other_tools">மற்ற கருவிகளை முயற்சிக்கவும்</string>
+    <string name="save_success_share">பகிரவும்</string>
+    <string name="save_success_back">மீண்டும்</string>
+    <string name="save_success_home">வீடு</string>
+    <string name="save_success_saved_image">சேமிக்கப்பட்ட படம்</string>
+    <string name="save_success_share_with">இவருடன் பகிரவும்…</string>
+    <string name="batch_remove_error_load_image">இந்தப் படத்தை ஏற்ற முடியவில்லை.</string>
+    <string name="drafts_error_load">வரைவுகளை ஏற்றுவதில் பிழை: %1$s</string>
 </resources>

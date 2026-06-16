@@ -164,4 +164,9 @@
     <string name="rotate_hint_desc">Roteer 90 grade of kantel horisontaal en vertikaal om die prent-oriëntasie reg te stel.</string>
     <string name="draft_label">Konsep</string>
     <string name="draft_saved_successfully">Konsep suksesvol gestoor</string>
+    <string name="professional_section_title">Professioneel</string>
+    <string name="themeplate_professional_watch">Kyk</string>
+    <string name="themeplate_professional_perfume">Parfuum</string>
+    <string name="themeplate_professional_handbag">Handsak</string>
+    <string name="home_see_all">Sien Alles</string>
 </resources>

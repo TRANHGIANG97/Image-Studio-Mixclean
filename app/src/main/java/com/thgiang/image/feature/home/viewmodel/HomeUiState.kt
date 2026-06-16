@@ -20,7 +20,12 @@ data class HomeUiState(
     val lastSliderBeforeUri: Uri? = null,
     val lastSliderAfterUri: Uri? = null,
     val currentBorderThickness: Int? = null,
-    val pureForegroundUri: Uri? = null
+    val pureForegroundUri: Uri? = null,
+    val cosmeticsTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
+    val professionalTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
+    val digitalLifeTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
+    val selfieFoodTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
+    val isLoadingTemplates: Boolean = false
 )
 
 

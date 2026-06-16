@@ -48,7 +48,6 @@ import com.abizer_r.quickedit.ui.common.LoadingView
 import com.abizer_r.quickedit.ui.common.topToolbarModifier
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_EXTRA_LARGE
 import com.abizer_r.quickedit.ui.editorScreen.bottomToolbar.TOOLBAR_HEIGHT_SMALL
-import com.abizer_r.quickedit.ui.removeBgMode.RemoveBgModeViewModel.RemoveBgOption
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 
 @Composable
@@ -150,7 +149,7 @@ fun RemoveBgModeScreen(
             modifier = Modifier
                 .constrainAs(mainImage) {
                     top.linkTo(topToolBar.bottom)
-                    bottom.linkTo(bottomToolbar.top)
+                    bottom.linkTo(navBarZone.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     width = Dimension.fillToConstraints
@@ -199,7 +198,7 @@ fun RemoveBgModeScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = state.processingMessageRes?.let { stringResource(id = it) } ?: stringResource(id = R.string.loading),
+                            text = stringResource(id = R.string.loading),
                             color = Color.White,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -252,139 +251,5 @@ fun RemoveBgModeScreen(
             }
         }
 
-        val warningRef = createRef()
-    AnimatedVisibility(
-        visible = state.warningMessageRes != null && !state.isProcessing,
-        enter = fadeIn(),
-        exit = fadeOut(),
-        modifier = Modifier.constrainAs(warningRef) {
-            bottom.linkTo(bottomToolbar.top, margin = 16.dp)
-            start.linkTo(parent.start, margin = 24.dp)
-            end.linkTo(parent.end, margin = 24.dp)
-            width = Dimension.fillToConstraints
-        }
-    ) {
-        state.warningMessageRes?.let { warningRes ->
-            Surface(
-                color = Color.Black.copy(alpha = 0.7f),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.9f),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(id = warningRes),
-                        color = Color.White,
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 16.sp
-                    )
-                }
-            }
-        }
-    }
-
-    AnimatedToolbarContainer(
-            toolbarVisible = toolbarVisible,
-            modifier = Modifier.constrainAs(bottomToolbar) {
-                bottom.linkTo(navBarZone.top)
-                width = Dimension.matchParent
-                height = Dimension.wrapContent
-            }
-        ) {
-            RemoveBgOptionsList(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(108.dp)
-                    .background(MaterialTheme.colorScheme.surface),
-                selectedOption = state.currentOption,
-                onOptionSelected = { viewModel.applyOption(it) }
-            )
-        }
-    }
-}
-
-@Composable
-fun RemoveBgOptionsList(
-    modifier: Modifier = Modifier,
-    selectedOption: RemoveBgOption,
-    onOptionSelected: (RemoveBgOption) -> Unit
-) {
-    val options = listOf(
-        Pair(RemoveBgOption.AUTO, Pair(stringResource(R.string.remove_bg_auto), Icons.Default.AutoFixHigh)),
-        Pair(RemoveBgOption.PORTRAIT, Pair(stringResource(R.string.remove_bg_portrait), Icons.Outlined.Face)),
-        Pair(RemoveBgOption.OBJECT, Pair(stringResource(R.string.remove_bg_object), Icons.Outlined.Person))
-    )
-
-    Row(
-        modifier = modifier.padding(horizontal = 12.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        options.forEach { (option, data) ->
-            val (title, icon) = data
-            RemoveBgOptionItem(
-                modifier = Modifier.weight(1f),
-                title = title,
-                icon = icon,
-                isSelected = selectedOption == option,
-                onClick = { onOptionSelected(option) }
-            )
-        }
-    }
-}
-
-@Composable
-fun RemoveBgOptionItem(
-    modifier: Modifier = Modifier,
-    title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.1f))
-                .border(2.dp, if (isSelected) Color.White else Color.Transparent, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(26.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 11.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-            ),
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            minLines = 2,
-            textAlign = TextAlign.Center,
-            lineHeight = 14.sp
-        )
     }
 }

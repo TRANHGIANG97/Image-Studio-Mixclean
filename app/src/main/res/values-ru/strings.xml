@@ -38,8 +38,6 @@
     <string name="licenses_title">Лицензии открытого ПО</string>
     <string name="dark_mode_title">Темная тема</string>
     <string name="dark_mode_description">Переключение темной темы приложения.</string>
-    <string name="home_preview_title">Показывать превью на главной</string>
-    <string name="home_preview_description">Показывать блок сравнения До / После на главном экране.</string>
 
     <string name="home_remove_background_title">Удалить фон</string>
     <string name="home_remove_background_subtitle">Выберите изображение и удалите его фон одним нажатием.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Плавное ИИ-расширение</string>
     <string name="pro_see_details">Подробнее ></string>
     <string name="picker_sample_badge">Образец</string>
+    <string name="home_hero_subtitle_short">Фоторедактор с искусственным интеллектом</string>
+    <string name="home_hero_title">Создавайте профессиональные фотографии продуктов</string>
+    <string name="home_hero_subtitle">Удаление фона, изменение фона, добавление шаблонов за считанные секунды</string>
+    <string name="home_hero_action">Выбрать фото</string>
+    <string name="review_app_button">Ставка</string>
+    <string name="review_prompt_title">Наслаждаетесь %1$s_?</string>
+    <string name="review_prompt_message">Нажмите звездочку, чтобы оценить его в Google Play.</string>
+    <string name="review_prompt_rate_now">Представлять на рассмотрение</string>
+    <string name="review_prompt_later">Отмена</string>
+    <string name="home_see_all">Посмотреть все</string>
+    <string name="save_success_title">Спасено!</string>
+    <string name="save_success_create_new">Создать новый</string>
+    <string name="save_success_try_other_tools">Попробуйте другие инструменты</string>
+    <string name="save_success_share">Делиться</string>
+    <string name="save_success_back">Назад</string>
+    <string name="save_success_home">Дом</string>
+    <string name="save_success_saved_image">Сохраненное изображение</string>
+    <string name="save_success_share_with">Поделиться с…</string>
+    <string name="batch_remove_error_load_image">Невозможно загрузить это изображение.</string>
+    <string name="drafts_error_load">Ошибка при загрузке черновиков: %1$s.</string>
 </resources>

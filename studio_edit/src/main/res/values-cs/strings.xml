@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktové studio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Stín</string>
     <string name="studio_tool_transparency">Neprůhlednost</string>
     <string name="studio_tool_crop">Oříznout</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Samolepka</string>
     <string name="studio_tool_rotateflip">Otočit/Překlopit</string>
     <string name="studio_replace_hint">Klepnutím na Nahradit vyberte fotografii produktu z galerie</string>
     <string name="studio_layout_hint">Tažením posunete · Sevřením prstů přiblížíte · Otočení dvěma prsty</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Nejsou k dispozici žádné šablony</string>
     <string name="studio_gallery_coming_soon">Již brzy</string>
     <string name="studio_gallery_coming_soon_desc">Tato funkce je ve vývoji a bude brzy k dispozici!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Designový tým usilovně pracuje na přidání dalších šablon brzy.</string>
     <string name="themeplate_gallery_title">Šablony</string>
     <string name="studio_save_image_success">Obrázek uložen</string>
     <string name="studio_error_select_object">Vyberte prosím objekt</string>

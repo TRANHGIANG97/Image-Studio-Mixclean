@@ -38,8 +38,6 @@
     <string name="licenses_title">Odprtokodne licence</string>
     <string name="dark_mode_title">Temni način</string>
     <string name="dark_mode_description">Preklopi temno temo aplikacije.</string>
-    <string name="home_preview_title">Prikaži predogled na domov</string>
-    <string name="home_preview_description">Prikaži okence za primerjavo Pred / Potem na začetnem zaslonu.</string>
 
     <string name="home_remove_background_title">Odstrani ozadje</string>
     <string name="home_remove_background_subtitle">Izberite sliko in z enim dotikom odstranite njeno ozadje.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Gladka AI razširitev</string>
     <string name="pro_see_details">Podrobnosti ></string>
     <string name="picker_sample_badge">නියැදිය</string>
+    <string name="home_hero_subtitle_short">AI ඡායාරූප සංස්කාරකය</string>
+    <string name="home_hero_title">වෘත්තීය නිෂ්පාදන ඡායාරූප සාදන්න</string>
+    <string name="home_hero_subtitle">පසුබිම ඉවත් කරන්න, පසුතිරය වෙනස් කරන්න, තත්පර කිහිපයකින් සැකිලි එකතු කරන්න</string>
+    <string name="home_hero_action">ඡායාරූපය තෝරන්න</string>
+    <string name="review_app_button">අගය කරන්න</string>
+    <string name="review_prompt_title">%1$s භුක්ති විඳිනවාද?</string>
+    <string name="review_prompt_message">Google Play හි එය ඇගයීමට තරුවක් තට්ටු කරන්න.</string>
+    <string name="review_prompt_rate_now">ඉදිරිපත් කරන්න</string>
+    <string name="review_prompt_later">අවලංගු කරන්න</string>
+    <string name="home_see_all">සියල්ල බලන්න</string>
+    <string name="save_success_title">සුරකින ලදී!</string>
+    <string name="save_success_create_new">නව නිර්මාණය කරන්න</string>
+    <string name="save_success_try_other_tools">වෙනත් මෙවලම් උත්සාහ කරන්න</string>
+    <string name="save_success_share">බෙදාගන්න</string>
+    <string name="save_success_back">ආපසු</string>
+    <string name="save_success_home">නිවස</string>
+    <string name="save_success_saved_image">සුරැකි රූපය</string>
+    <string name="save_success_share_with">සමඟ බෙදාගන්න...</string>
+    <string name="batch_remove_error_load_image">මෙම රූපය පූරණය කළ නොහැක.</string>
+    <string name="drafts_error_load">කෙටුම්පත් පැටවීමේ දෝෂයකි: %1$s</string>
 </resources>

@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Biratu 90 gradu edo islatu horizontalki zein bertikalki irudiaren orientazioa zuzentzeko.</string>
     <string name="draft_label">Zirriborroa</string>
     <string name="draft_saved_successfully">Zirriborroa ondo gorde da</string>
+    <string name="professional_section_title">Profesionala</string>
+    <string name="themeplate_professional_watch">Ikusi</string>
+    <string name="themeplate_professional_perfume">Perfumea</string>
+    <string name="themeplate_professional_handbag">Poltsa</string>
+    <string name="home_see_all">Ikusi guztiak</string>
 </resources>

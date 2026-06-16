@@ -45,7 +45,7 @@ import java.util.Locale
 @Composable
 fun DraftsScreen(
     onBack: () -> Unit,
-    onSelectDraft: (String) -> Unit,
+    onSelectDraft: (DraftMetadata) -> Unit,
     viewModel: DraftsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -178,7 +178,7 @@ fun DraftsScreen(
                                 if (uiState.isSelectionMode) {
                                     viewModel.toggleSelection(draft.id)
                                 } else {
-                                    onSelectDraft(draft.id)
+                                    onSelectDraft(draft)
                                 }
                             },
                             onLongClick = {

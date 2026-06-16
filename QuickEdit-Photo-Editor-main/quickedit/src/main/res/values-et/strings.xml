@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Pöörake 90 kraadi või seadke horisontaalselt ja vertikaalselt peegelpilti, et korrigeerida pildi suunda.</string>
     <string name="draft_label">Mustand</string>
     <string name="draft_saved_successfully">Mustand on edukalt salvestatud</string>
+    <string name="professional_section_title">Professionaalne</string>
+    <string name="themeplate_professional_watch">Vaata</string>
+    <string name="themeplate_professional_perfume">Parfüüm</string>
+    <string name="themeplate_professional_handbag">Käekott</string>
+    <string name="home_see_all">Vaata kõiki</string>
 </resources>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Licenze open source</string>
     <string name="dark_mode_title">Modalità scura</string>
     <string name="dark_mode_description">Attiva o disattiva il tema scuro dell\'app.</string>
-    <string name="home_preview_title">Mostra anteprima in Home</string>
-    <string name="home_preview_description">Mostra il box di confronto prima/dopo nella schermata principale.</string>
 
     <string name="home_remove_background_title">Rimuovi sfondo</string>
     <string name="home_remove_background_subtitle">Seleziona un\'immagine e rimuovi lo sfondo con un solo tocco.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Espansione IA fluida</string>
     <string name="pro_see_details">Dettagli ></string>
     <string name="picker_sample_badge">Esempio</string>
+    <string name="home_hero_subtitle_short">Editor di foto AI</string>
+    <string name="home_hero_title">Crea foto di prodotti professionali</string>
+    <string name="home_hero_subtitle">Rimuovi lo sfondo, cambia lo sfondo, aggiungi modelli in pochi secondi</string>
+    <string name="home_hero_action">Scegli Foto</string>
+    <string name="review_app_button">Valutare</string>
+    <string name="review_prompt_title">Ti piace %1$s?</string>
+    <string name="review_prompt_message">Tocca una stella per valutarla su Google Play.</string>
+    <string name="review_prompt_rate_now">Invia</string>
+    <string name="review_prompt_later">Cancellare</string>
+    <string name="home_see_all">Vedi tutto</string>
+    <string name="save_success_title">Salvato!</string>
+    <string name="save_success_create_new">Crea nuovo</string>
+    <string name="save_success_try_other_tools">Prova altri strumenti</string>
+    <string name="save_success_share">Condividere</string>
+    <string name="save_success_back">Indietro</string>
+    <string name="save_success_home">Casa</string>
+    <string name="save_success_saved_image">Immagine salvata</string>
+    <string name="save_success_share_with">Condividi con…</string>
+    <string name="batch_remove_error_load_image">Impossibile caricare questa immagine.</string>
+    <string name="drafts_error_load">Errore durante il caricamento delle bozze: %1$s</string>
 </resources>

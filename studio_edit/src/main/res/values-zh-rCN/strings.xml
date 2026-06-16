@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI 商品工作室</string>
     <string name="studio_category_electronics">数码電子</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">阴影</string>
     <string name="studio_tool_transparency">不透明度</string>
     <string name="studio_tool_crop">裁剪</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">贴纸</string>
     <string name="studio_tool_rotateflip">旋转/翻转</string>
     <string name="studio_replace_hint">轻点“替换”从相册中选择一张商品照片</string>
     <string name="studio_layout_hint">拖动以移动 · 双指捏合以缩放 · 双指旋转</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">没有可用的模板</string>
     <string name="studio_gallery_coming_soon">即将推出</string>
     <string name="studio_gallery_coming_soon_desc">该功能正在开发中，很快就会推出！</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">设计团队正在努力，很快会添加更多模板。</string>
     <string name="themeplate_gallery_title">模板</string>
     <string name="studio_save_image_success">图像已保存</string>
     <string name="studio_error_select_object">请选择一个对象</string>

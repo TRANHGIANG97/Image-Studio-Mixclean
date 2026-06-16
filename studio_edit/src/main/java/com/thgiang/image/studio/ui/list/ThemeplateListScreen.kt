@@ -31,6 +31,7 @@ import coil.compose.SubcomposeAsyncImage
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.model.StudioThemeplates
+import com.thgiang.image.studio.util.CloudFirstSubcomposeAsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,8 +122,8 @@ internal fun ThemeplateCardV2(
                 .aspectRatio(0.92f)
                 .background(Color(0xFFF5F5F5))
         ) {
-            SubcomposeAsyncImage(
-                model = "file:///android_asset/$baseAssetPath",
+            CloudFirstSubcomposeAsyncImage(
+                sourcePath = baseAssetPath,
                 contentDescription = stringResource(themeplate.titleResId),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
@@ -144,8 +145,8 @@ internal fun ThemeplateCardV2(
             )
 
             themeplate.objectSourceAssetPath?.let { objectPath ->
-                SubcomposeAsyncImage(
-                    model = "file:///android_asset/$objectPath",
+                CloudFirstSubcomposeAsyncImage(
+                    sourcePath = objectPath,
                     contentDescription = null,
                     modifier = Modifier.matchParentSize(),
                     contentScale = ContentScale.Fit,

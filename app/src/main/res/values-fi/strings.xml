@@ -38,8 +38,6 @@
     <string name="licenses_title">Avoimen lähdekoodin lisenssit</string>
     <string name="dark_mode_title">Tumma tila</string>
     <string name="dark_mode_description">Vaihda sovelluksen tummaan teemaan.</string>
-    <string name="home_preview_title">Näytä esikatselu kotinäkymässä</string>
-    <string name="home_preview_description">Näytä ennen/jälkeen-vertailulaatikko aloitusnäytössä.</string>
 
     <string name="home_remove_background_title">Poista tausta</string>
     <string name="home_remove_background_subtitle">Valitse kuva ja poista tausta yhdellä napautuksella.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Pehmeä AI-laajennus</string>
     <string name="pro_see_details">Katso tiedot ></string>
     <string name="picker_sample_badge">Näyte</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Luo ammattimaisia ​​tuotekuvia</string>
+    <string name="home_hero_subtitle">Poista tausta, muuta taustaa, lisää malleja sekunneissa</string>
+    <string name="home_hero_action">Valitse Valokuva</string>
+    <string name="review_app_button">Rate</string>
+    <string name="review_prompt_title">Nautitko %1$s:sta?</string>
+    <string name="review_prompt_message">Arvioi se Google Playssa napauttamalla tähteä.</string>
+    <string name="review_prompt_rate_now">Lähetä</string>
+    <string name="review_prompt_later">Peruuttaa</string>
+    <string name="home_see_all">Katso kaikki</string>
+    <string name="save_success_title">Tallennettu!</string>
+    <string name="save_success_create_new">Luo uusi</string>
+    <string name="save_success_try_other_tools">Kokeile muita työkaluja</string>
+    <string name="save_success_share">Jakaa</string>
+    <string name="save_success_back">Takaisin</string>
+    <string name="save_success_home">Kotiin</string>
+    <string name="save_success_saved_image">Tallennettu kuva</string>
+    <string name="save_success_share_with">Jaa…</string>
+    <string name="batch_remove_error_load_image">Tätä kuvaa ei voi ladata.</string>
+    <string name="drafts_error_load">Virhe ladattaessa luonnoksia: %1$s</string>
 </resources>

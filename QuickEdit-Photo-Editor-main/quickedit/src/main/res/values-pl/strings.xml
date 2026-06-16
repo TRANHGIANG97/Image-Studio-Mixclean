@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Obróć o 90 stopni lub odwróć w poziomie i pionie, aby poprawić orientację obrazu.</string>
     <string name="draft_label">Szkic</string>
     <string name="draft_saved_successfully">Projekt został pomyślnie zapisany</string>
+    <string name="professional_section_title">Profesjonalny</string>
+    <string name="themeplate_professional_watch">Oglądać</string>
+    <string name="themeplate_professional_perfume">Perfumy</string>
+    <string name="themeplate_professional_handbag">Torebka</string>
+    <string name="home_see_all">Zobacz wszystko</string>
 </resources>

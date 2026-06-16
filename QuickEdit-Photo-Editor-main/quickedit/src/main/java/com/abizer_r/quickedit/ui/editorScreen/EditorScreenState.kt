@@ -5,8 +5,8 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class EditorScreenState(
-    val bitmapStack: List<Bitmap> = emptyList(),      // Đổi từ Stack sang List
-    val bitmapRedoStack: List<Bitmap> = emptyList(),  // Đổi từ Stack sang List
+    val bitmapStack: List<String> = emptyList(),      // Lưu đường dẫn file tạm
+    val bitmapRedoStack: List<String> = emptyList(),  // Lưu đường dẫn file tạm
     val recompositionTrigger: Long = 0,
     val showOverlay: Boolean = false
 )

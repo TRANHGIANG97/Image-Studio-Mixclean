@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Draai 90 graden of spiegel horizontaal en verticaal om de stand van de afbeelding te corrigeren.</string>
     <string name="draft_label">Concept</string>
     <string name="draft_saved_successfully">Concept succesvol opgeslagen</string>
+    <string name="professional_section_title">Professioneel</string>
+    <string name="themeplate_professional_watch">Horloge</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Handtas</string>
+    <string name="home_see_all">Bekijk alles</string>
 </resources>

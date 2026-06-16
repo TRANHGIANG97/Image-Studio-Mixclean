@@ -41,8 +41,8 @@ fun ThemeplateEditorScreen(
     onExportSuccess: () -> Unit = {},
     viewModel: ThemeplateEditorViewModel = hiltViewModel()
 ) {
-    val templateAssetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
     val state by viewModel.state.collectAsState()
+    val templateAssetPath = state.template.assetPath
     val canUndo by viewModel.canUndo.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -78,9 +78,23 @@ fun ThemeplateEditorScreen(
             snackbarHostState.showSnackbar(msg, duration = SnackbarDuration.Long)
         }
     }
+    
+    val draftSavedMessage = stringResource(R.string.studio_draft_saved)
+    LaunchedEffect(state.draftSavedAt) {
+        if (state.draftSavedAt != null) {
+            snackbarHostState.showSnackbar(draftSavedMessage)
+        }
+    }
 
     LaunchedEffect(themeplate) {
-        viewModel.onEvent(EditorEvent.LoadTemplate(templateAssetPath, themeplate.objectSourceAssetPath))
+        if (themeplate.id != "draft") {
+            val assetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
+            if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
+                viewModel.onEvent(EditorEvent.LoadCloudTemplateById(themeplate.id))
+            } else {
+                viewModel.onEvent(EditorEvent.LoadTemplate(assetPath, themeplate.objectSourceAssetPath))
+            }
+        }
     }
 
 
@@ -91,14 +105,17 @@ fun ThemeplateEditorScreen(
         val editingToolsUnlocked = state.layers.any {
             it.product.isBackgroundRemoved && !it.product.isSample && !it.product.processing
         }
-        val selectedToolForUi = state.selectedTool.takeIf { editingToolsUnlocked }
+        val selectedToolForUi = state.selectedTool.takeIf { tool ->
+            editingToolsUnlocked || tool is EditorTool.Label || tool is EditorTool.Sticker
+        }
 
         Box(modifier = Modifier.fillMaxSize().background(tokens.moduleBackground)) {
 
             // ── Layer 1: Canvas ───────────────────────────────────────
             if (state.template.loaded && state.template.originalSize.width > 0) {
                 EditorCanvasV2(
-                    templateAssetPath = templateAssetPath,
+                    templateAssetPath = state.template.assetPath,
+                    templateBackgroundColor = Color(state.template.backgroundColorArgb),
                     templateSize = state.template.originalSize,
                     layers = state.layers,
                     selectedLayerId = state.selectedLayerId,
@@ -207,6 +224,18 @@ fun ThemeplateEditorScreen(
                                 StudioLottieLoader(modifier = Modifier.size(36.dp))
                             }
                         } else {
+                            // Save Draft Button
+                            Text(
+                                text = stringResource(R.string.studio_save_draft),
+                                color = tokens.textPrimary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(999.dp))
+                                    .clickable { viewModel.onEvent(EditorEvent.SaveDraft) }
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                            )
+                            
                             Box(
                                 modifier = Modifier
                                     .height(36.dp)
@@ -263,15 +292,18 @@ fun ThemeplateEditorScreen(
                 }
 
                 AnimatedVisibility(
-                    visible = state.template.loaded && selectedToolForUi != null && activeLayer != null,
+                    visible = state.template.loaded &&
+                        selectedToolForUi != null &&
+                        (activeLayer != null || selectedToolForUi is EditorTool.Label || selectedToolForUi is EditorTool.Sticker),
                     enter = slideInVertically { it } + fadeIn(tween(200)),
                     exit  = slideOutVertically { it } + fadeOut(tween(180))
                 ) {
-                    if (activeLayer != null) {
+                    if (selectedToolForUi != null) {
                         EditorControlsV2(
                             tool = selectedToolForUi,
-                            appearance = activeLayer.appearance,
-                            cropRatio = activeLayer.cropRatio,
+                            appearance = activeLayer?.appearance ?: EditorAppearance(shadowIntensity = 0f),
+                            cropRatio = activeLayer?.cropRatio ?: CropRatio.ORIGINAL,
+                            selectedLayer = activeLayer,
                             onUpdateShadow         = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
                             onUpdateShadowAngle    = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
                             onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },

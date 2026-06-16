@@ -42,8 +42,6 @@
     <string name="licenses_title">Ochiq kodli litsenziyalar</string>
     <string name="dark_mode_title">Tungi rejim</string>
     <string name="dark_mode_description">Ilova mavzusini tungi rejimga oʻtkazish.</string>
-    <string name="home_preview_title">Bosh sahifadagi oldindan koʻrish</string>
-    <string name="home_preview_description">Bosh sahifada \"Oldin / Keyin\" solishtirish oynasini koʻrsatish.</string>
 
     <!-- Dashboard & Single Mode -->
     <string name="home_remove_background_title">Orqa fonni oʻchirish</string>
@@ -321,4 +319,24 @@
     <string name="pro_feature_expand">Rasmni AI yordamida tabiiy ravishda kengaytirish</string>
     <string name="pro_see_details">Tafsilotlarni koʻrish ></string>
     <string name="picker_sample_badge">Isampula</string>
+    <string name="home_hero_subtitle_short">I-AI Photo Editor</string>
+    <string name="home_hero_title">Dala Izithombe Zomkhiqizo Wochwepheshe</string>
+    <string name="home_hero_subtitle">Susa ingemuva, shintsha okwasemuva, engeza izifanekiso ngemizuzwana</string>
+    <string name="home_hero_action">Khetha Isithombe</string>
+    <string name="review_app_button">Linganisa</string>
+    <string name="review_prompt_title">Ujabulela i-%1$s?</string>
+    <string name="review_prompt_message">Thepha inkanyezi ukuze uyikale ku-Google Play.</string>
+    <string name="review_prompt_rate_now">Thumela</string>
+    <string name="review_prompt_later">Khansela</string>
+    <string name="home_see_all">Bona Konke</string>
+    <string name="save_success_title">Kulondoloziwe!</string>
+    <string name="save_success_create_new">Dala Okusha</string>
+    <string name="save_success_try_other_tools">Zama amanye amathuluzi</string>
+    <string name="save_success_share">Yabelana</string>
+    <string name="save_success_back">Emuva</string>
+    <string name="save_success_home">Ikhaya</string>
+    <string name="save_success_saved_image">Isithombe esilondoloziwe</string>
+    <string name="save_success_share_with">Yabelana no...</string>
+    <string name="batch_remove_error_load_image">Ayikwazi ukulayisha lesi sithombe.</string>
+    <string name="drafts_error_load">Iphutha ekulayisheni okusalungiswa: %1$s</string>
 </resources>

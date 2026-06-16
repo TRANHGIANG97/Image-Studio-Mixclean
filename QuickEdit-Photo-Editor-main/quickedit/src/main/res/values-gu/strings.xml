@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">ચિત્રની દિશા સુધારવા માટે તેને 90 ડિગ્રી ફેરવો અથવા આડા અને ઊભા અરીસાની જેમ ઉલટાવો.</string>
     <string name="draft_label">ડ્રાફ્ટ</string>
     <string name="draft_saved_successfully">ડ્રાફ્ટ સફળતાપૂર્વક સેવ થયો</string>
+    <string name="professional_section_title">વ્યવસાયિક</string>
+    <string name="themeplate_professional_watch">વોચ</string>
+    <string name="themeplate_professional_perfume">અત્તર</string>
+    <string name="themeplate_professional_handbag">હેન્ડબેગ</string>
+    <string name="home_see_all">બધા જુઓ</string>
 </resources>

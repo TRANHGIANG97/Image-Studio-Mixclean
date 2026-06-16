@@ -1,19 +1,19 @@
 package com.thgiang.image.app
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
+import coil.Coil
+import coil.ImageLoader
+import coil.decode.SvgDecoder
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.thgiang.image.BuildConfig
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 
 @HiltAndroidApp
 class ImageApp : Application() {
@@ -21,32 +21,38 @@ class ImageApp : Application() {
     @Inject
     lateinit var backgroundRemoverRepository: BackgroundRemoverRepository
 
-    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate() {
         super.onCreate()
-        FirebaseCrashlytics.getInstance().setCustomKey("app_start_package", packageName)
-        // Khởi tạo AdMob SDK ngay khi app mở
-        com.google.android.gms.ads.MobileAds.initialize(this)
-        
-        appScope.launch {
-            delay(3000)
-            fixTransportRuntimeDbIfNeeded()
+        // Allow HttpURLConnection to follow HTTP→HTTPS redirects (needed for admin_web proxy fallback)
+        System.setProperty("http.redirectToHttps", "true")
+        val loggingInterceptor = HttpLoggingInterceptor { message ->
+            Log.d("CoilNetwork", message)
+        }.apply {
+            level = HttpLoggingInterceptor.Level.BASIC
         }
+        val okHttpClient = OkHttpClient.Builder()
+            .addNetworkInterceptor(loggingInterceptor)
+            .build()
+
+        val imageLoader = ImageLoader.Builder(this)
+            .components {
+                add(SvgDecoder.Factory())
+            }
+            .okHttpClient(okHttpClient)
+            .build()
+        Coil.setImageLoader(imageLoader)
+        clearTransportRuntimeDb()
+        if (!BuildConfig.DEBUG) {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+            FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true)
+            FirebaseCrashlytics.getInstance().setCustomKey("app_start_package", packageName)
+        }
+        // Initialize AdMob only after stale transport DB files have been removed.
+        com.google.android.gms.ads.MobileAds.initialize(this)
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
-    private fun fixTransportRuntimeDbIfNeeded() {
+    private fun clearTransportRuntimeDb() {
         try {
-            val prefs = getSharedPreferences("image_app_prefs", MODE_PRIVATE)
-            val lastVersion = prefs.getInt("transport_db_cleaned_version", 0)
-            val currentVersion = runCatching {
-                @Suppress("DEPRECATION")
-                packageManager.getPackageInfo(packageName, 0).longVersionCode.toInt()
-            }.getOrElse { 1 }
-            if (lastVersion >= currentVersion) return
-
             val dbDir = getDatabasePath("dummy").parentFile ?: return
             if (!dbDir.isDirectory) return
 
@@ -72,10 +78,10 @@ class ImageApp : Application() {
                 }
             }
             if (removed > 0) {
-                prefs.edit().putInt("transport_db_cleaned_version", currentVersion).apply()
+                Log.i(TAG, "Cleared $removed stale transport DB file(s)")
             }
         } catch (e: Exception) {
-            Log.w(TAG, "fixTransportRuntimeDbIfNeeded failed", e)
+            Log.w(TAG, "clearTransportRuntimeDb failed", e)
         }
     }
 

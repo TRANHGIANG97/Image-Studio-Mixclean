@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI தயாரிப்பு ஸ்டுடியோ</string>
     <string name="studio_category_electronics">மின்னணுவியல்</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">நிழல்</string>
     <string name="studio_tool_transparency">ஒளிபுகாத்தன்மை</string>
     <string name="studio_tool_crop">கிராப்</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">ஸ்டிக்கர்</string>
     <string name="studio_tool_rotateflip">சுழற்று/தலைகீழாக்கு</string>
     <string name="studio_replace_hint">உங்கள் கேலரியில் இருந்து தயாரிப்புப் புகைப்படத்தைத் தேர்ந்தெடுக்க \'மாற்று\' என்பதைத் தட்டவும்</string>
     <string name="studio_layout_hint">நகர்த்த இழுக்கவும் · பெரிதாக்க விரல்களைக் குவிக்வவும் · இரு விரல்களால் சுழற்றவும்</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">டெம்ப்ளேட்கள் எதுவும் இல்லை</string>
     <string name="studio_gallery_coming_soon">விரைவில் வரும்</string>
     <string name="studio_gallery_coming_soon_desc">இந்த அம்சம் உருவாக்கத்தில் உள்ளது மற்றும் விரைவில் கிடைக்கும்!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">வடிவமைப்பு குழு விரைவில் மேலும் டெம்ப்ளேட்டுகளை சேர்க்க கடுமையாக பணியாற்றுகிறது.</string>
     <string name="themeplate_gallery_title">வார்ப்புருக்கள்</string>
     <string name="studio_save_image_success">படம் சேமிக்கப்பட்டது</string>
     <string name="studio_error_select_object">தயவுசெய்து ஒரு பொருளைத் தேர்ந்தெடுக்கவும்</string>

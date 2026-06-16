@@ -1,4 +1,4 @@
-@image/ui/home/LightningQuickActionsBottomSheet.kt  
+image/ui/home/LightningQuickActionsBottomSheet.kt
 @image/viewmodel/studio/StudioRelightingViewModel.kt 
  @image/ui/components/PortraitBlurImage.kt 
  image/ui/components/UniversalBlurImage.kt

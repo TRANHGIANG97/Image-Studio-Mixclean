@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI પ્રોડક્ટ સ્ટુડિયો</string>
     <string name="studio_category_electronics">ઇલેક્ટ્રોનિક્સ</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">પડછાયો</string>
     <string name="studio_tool_transparency">અપારદર્શકતા</string>
     <string name="studio_tool_crop">ક્રોપ કરો</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">સ્ટીકર</string>
     <string name="studio_tool_rotateflip">ફેરવો/પલટો</string>
     <string name="studio_replace_hint">તમારી ગેલેરીમાંથી પ્રોડક્ટનો ફોટો પસંદ કરવા માટે \'બદલો\' પર ટેપ કરો</string>
     <string name="studio_layout_hint">ખસેડવા માટે ડ્રેગ કરો · ઝૂમ કરવા માટે પિંચ કરો · બે આંગળીઓથી ફેરવો</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">કોઈ નમૂનાઓ ઉપલબ્ધ નથી</string>
     <string name="studio_gallery_coming_soon">ટૂંક સમયમાં આવી રહ્યું છે</string>
     <string name="studio_gallery_coming_soon_desc">આ સુવિધા વિકાસ હેઠળ છે અને ટૂંક સમયમાં ઉપલબ્ધ થશે!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">ડિઝાઇન ટીમ ટૂંક સમયમાં વધુ નમૂનાઓ ઉમેરવા માટે ખંતપૂર્વક કામ કરી રહી છે.</string>
     <string name="themeplate_gallery_title">નમૂનાઓ</string>
     <string name="studio_save_image_success">છબી સાચવી</string>
     <string name="studio_error_select_object">કૃપા કરીને ઑબ્જેક્ટ પસંદ કરો</string>

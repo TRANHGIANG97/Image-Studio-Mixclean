@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Tuotestudio</string>
     <string name="studio_category_electronics">Elektroniikka</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Varjo</string>
     <string name="studio_tool_transparency">Peittävyys</string>
     <string name="studio_tool_crop">Rajaa</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Tarra</string>
     <string name="studio_tool_rotateflip">Kierrä/Käännä</string>
     <string name="studio_replace_hint">Valitse tuotekuva galleriastasi napauttamalla Korvaa</string>
     <string name="studio_layout_hint">Siirrä vetämällä · Zoomaa nipistämällä · Kierrä kahdella sormella</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Ei malleja saatavilla</string>
     <string name="studio_gallery_coming_soon">Tulossa pian</string>
     <string name="studio_gallery_coming_soon_desc">Tämä ominaisuus on kehitteillä ja on pian saatavilla!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Suunnittelutiimi tekee kovasti töitä lisätäkseen pian lisää malleja.</string>
     <string name="themeplate_gallery_title">Mallit</string>
     <string name="studio_save_image_success">Kuva tallennettu</string>
     <string name="studio_error_select_object">Valitse kohde</string>

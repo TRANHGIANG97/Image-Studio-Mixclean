@@ -38,8 +38,6 @@
     <string name="licenses_title">ఓపెన్ సోర్స్ లైసెన్సులు</string>
     <string name="dark_mode_title">డార్క్ మోడ్</string>
     <string name="dark_mode_description">యాప్ డార్క్ థీమ్‌ను మార్చండి.</string>
-    <string name="home_preview_title">హోమ్ ప్రివ్యూను చూపించు</string>
-    <string name="home_preview_description">హోమ్ స్క్రీన్‌పై ముందు / తర్వాత పోలిక బాక్స్‌ను చూపించు.</string>
 
     <string name="home_remove_background_title">బ్యాక్‌గ్రౌండ్ తొలగించు</string>
     <string name="home_remove_background_subtitle">ఒక చిత్రాన్ని ఎంచుకుని, ఒక్క ట్యాప్‌తో దాని బ్యాక్‌గ్రౌండ్‌ను తుడిచేయండి.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">స్మూత్ AI విస్తరణ</string>
     <string name="pro_see_details">వివరాలు ></string>
     <string name="picker_sample_badge">నమూనా</string>
+    <string name="home_hero_subtitle_short">AI ఫోటో ఎడిటర్</string>
+    <string name="home_hero_title">వృత్తిపరమైన ఉత్పత్తి ఫోటోలను సృష్టించండి</string>
+    <string name="home_hero_subtitle">నేపథ్యాన్ని తీసివేయండి, బ్యాక్‌డ్రాప్‌ను మార్చండి, సెకన్లలో టెంప్లేట్‌లను జోడించండి</string>
+    <string name="home_hero_action">ఫోటోను ఎంచుకోండి</string>
+    <string name="review_app_button">రేట్ చేయండి</string>
+    <string name="review_prompt_title">%1$sని ఆస్వాదిస్తున్నారా?</string>
+    <string name="review_prompt_message">Google Playలో రేట్ చేయడానికి నక్షత్రాన్ని నొక్కండి.</string>
+    <string name="review_prompt_rate_now">సమర్పించండి</string>
+    <string name="review_prompt_later">రద్దు చేయి</string>
+    <string name="home_see_all">అన్నీ చూడండి</string>
+    <string name="save_success_title">సేవ్ చేయబడింది!</string>
+    <string name="save_success_create_new">క్రొత్తదాన్ని సృష్టించండి</string>
+    <string name="save_success_try_other_tools">ఇతర సాధనాలను ప్రయత్నించండి</string>
+    <string name="save_success_share">షేర్ చేయండి</string>
+    <string name="save_success_back">వెనుకకు</string>
+    <string name="save_success_home">హోమ్</string>
+    <string name="save_success_saved_image">సేవ్ చేయబడిన చిత్రం</string>
+    <string name="save_success_share_with">వీరితో పంచుకోండి...</string>
+    <string name="batch_remove_error_load_image">ఈ చిత్రాన్ని లోడ్ చేయడం సాధ్యపడదు.</string>
+    <string name="drafts_error_load">చిత్తుప్రతులను లోడ్ చేయడంలో లోపం: %1$s</string>
 </resources>

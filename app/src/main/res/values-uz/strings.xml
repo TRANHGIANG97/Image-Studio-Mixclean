@@ -38,8 +38,6 @@
     <string name="licenses_title">Ochiq kodli litsenziyalar</string>
     <string name="dark_mode_title">Tungi rejim</string>
     <string name="dark_mode_description">Ilova mavzusini tungi rejimga oʻtkazish.</string>
-    <string name="home_preview_title">Bosh sahifadagi oldindan koʻrish</string>
-    <string name="home_preview_description">Bosh sahifada \"Oldin / Keyin\" solishtirish oynasini koʻrsatish.</string>
 
     <string name="home_remove_background_title">Orqa fonni oʻchirish</string>
     <string name="home_remove_background_subtitle">Rasmni tanlang va birgina bosish bilan orqa fonni oʻchiring.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Rasmni AI yordamida tabiiy ravishda kengaytirish</string>
     <string name="pro_see_details">Tafsilotlarni koʻrish ></string>
     <string name="picker_sample_badge">Namuna</string>
+    <string name="home_hero_subtitle_short">AI foto muharriri</string>
+    <string name="home_hero_title">Professional mahsulot fotosuratlarini yarating</string>
+    <string name="home_hero_subtitle">Bir necha soniya ichida fonni olib tashlang, fonni o\'zgartiring, shablonlarni qo\'shing</string>
+    <string name="home_hero_action">Rasmni tanlang</string>
+    <string name="review_app_button">Baho</string>
+    <string name="review_prompt_title">%1$s yoqyapsizmi?</string>
+    <string name="review_prompt_message">Google Play orqali baho berish uchun yulduzcha ustiga bosing.</string>
+    <string name="review_prompt_rate_now">Yuborish</string>
+    <string name="review_prompt_later">Bekor qilish</string>
+    <string name="home_see_all">Hammasini koʻrish</string>
+    <string name="save_success_title">Saqlandi!</string>
+    <string name="save_success_create_new">Yangi yaratish</string>
+    <string name="save_success_try_other_tools">Boshqa vositalarni sinab ko\'ring</string>
+    <string name="save_success_share">Ulashish</string>
+    <string name="save_success_back">Orqaga</string>
+    <string name="save_success_home">Uy</string>
+    <string name="save_success_saved_image">Saqlangan rasm</string>
+    <string name="save_success_share_with">Kimga ulashing…</string>
+    <string name="batch_remove_error_load_image">Bu rasmni yuklab bo‘lmadi.</string>
+    <string name="drafts_error_load">Qoralamalarni yuklashda xatolik: %1$s</string>
 </resources>

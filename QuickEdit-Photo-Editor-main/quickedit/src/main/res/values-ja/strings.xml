@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">画像を90度回転、または水平・垂直方向に反転して、画像の向きを修正します。</string>
     <string name="draft_label">下書き</string>
     <string name="draft_saved_successfully">下書きを正常に保存しました</string>
+    <string name="professional_section_title">プロ</string>
+    <string name="themeplate_professional_watch">時計</string>
+    <string name="themeplate_professional_perfume">香水</string>
+    <string name="themeplate_professional_handbag">ハンドバッグ</string>
+    <string name="home_see_all">すべて見る</string>
 </resources>

@@ -44,10 +44,7 @@ fun SettingsScreen(
     onDarkModeChange: (Boolean) -> Unit,
     selectedLanguage: String,
     onLanguageChange: (String) -> Unit,
-    preferredRemovalQuality: String = "standard",
-    onPreferredRemovalQualityChange: (String) -> Unit = {},
-    isHomePreviewEnabled: Boolean = false,
-    onHomePreviewEnabledChange: (Boolean) -> Unit = {},
+
     isPremium: Boolean = false,
     onOpenPro: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -76,8 +73,8 @@ fun SettingsScreen(
     val currentDensity = androidx.compose.ui.platform.LocalDensity.current
     val scaledDensity = remember(currentDensity) {
         androidx.compose.ui.unit.Density(
-            density = currentDensity.density * 0.8f,
-            fontScale = currentDensity.fontScale * 0.8f
+            density = currentDensity.density,
+            fontScale = currentDensity.fontScale
         )
     }
 
@@ -151,87 +148,12 @@ fun SettingsScreen(
                                 )
                             }
                         }
-
-                        Divider(
-                            modifier = Modifier.padding(start = 72.dp),
-                            color = surfaceColor.copy(alpha = 0.06f)
-                        )
-
-                        SettingsItemRow(
-                            icon = Icons.Rounded.AutoAwesome,
-                            iconTint = aiAccent,
-                            iconBackground = aiAccent.copy(alpha = 0.12f),
-                            title = stringResource(R.string.home_preview_title),
-                            subtitle = stringResource(R.string.home_preview_description),
-                            onClick = { onHomePreviewEnabledChange(!isHomePreviewEnabled) }
-                        ) {
-                            Switch(
-                                checked = isHomePreviewEnabled,
-                                onCheckedChange = onHomePreviewEnabledChange,
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = aiAccent,
-                                    checkedTrackColor = aiAccent.copy(alpha = 0.3f),
-                                    uncheckedThumbColor = mutedColor,
-                                    uncheckedTrackColor = mutedColor.copy(alpha = 0.12f)
-                                )
-                            )
-                        }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 
-            // ── Section 2: AI Engine ──────────────────────────────────
-            AnimatedVisibility(
-                visible = sectionsVisible >= 2,
-                enter = fadeIn(tween(300, delayMillis = 50)) + slideInVertically(tween(300, delayMillis = 50)) { it / 4 }
-            ) {
-                Column {
-                    SettingsGroup(title = stringResource(R.string.settings_section_ai)) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                        .background(ImageDesign.semantic.warning.copy(alpha = 0.15f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        Icons.Rounded.AutoAwesome,
-                                        contentDescription = null,
-                                        tint = ImageDesign.semantic.warning
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = stringResource(R.string.settings_removal_quality),
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                                        color = surfaceColor
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.settings_removal_quality_summary),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = mutedColor
-                                    )
-                                }
-                            }
 
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Custom animated segmented control
-                            SegmentedQualityControl(
-                                selected = preferredRemovalQuality,
-                                onSelect = onPreferredRemovalQualityChange,
-                                isPremium = isPremium,
-                                accentColor = aiAccent
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-            }
 
             // ── Section 3: About ──────────────────────────────────────
             AnimatedVisibility(
@@ -419,114 +341,7 @@ fun SettingsItemRow(
     }
 }
 
-// ── Segmented quality control ─────────────────────────────────────────
 
-@Composable
-private fun SegmentedQualityControl(
-    selected: String,
-    onSelect: (String) -> Unit,
-    isPremium: Boolean,
-    accentColor: Color
-) {
-    val isStandard = selected == "standard"
-    val isPro = selected == "pro"
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    val onSurface = MaterialTheme.colorScheme.onSurface
-
-    val standardBg by animateColorAsState(
-        targetValue = if (isStandard) surfaceColor else Color.Transparent,
-        animationSpec = tween(200),
-        label = "standardBg"
-    )
-    val proBg by animateColorAsState(
-        targetValue = if (isPro) surfaceColor else Color.Transparent,
-        animationSpec = tween(200),
-        label = "proBg"
-    )
-    val standardContent by animateColorAsState(
-        targetValue = if (isStandard) accentColor else onSurface,
-        animationSpec = tween(200),
-        label = "standardContent"
-    )
-    val proContent by animateColorAsState(
-        targetValue = if (isPro) ImageDesign.semantic.warning
-        else if (!isPremium) onSurface.copy(alpha = 0.4f)
-        else onSurface,
-        animationSpec = tween(200),
-        label = "proContent"
-    )
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(trackColor)
-            .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Standard option
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(standardBg)
-                .clickable { onSelect("standard") }
-                .padding(vertical = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.quality_standard),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = if (isStandard) FontWeight.Bold else FontWeight.Normal
-                ),
-                color = standardContent
-            )
-        }
-
-        // Pro option
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(proBg)
-                .clickable(enabled = isPremium) {
-                    if (isPremium) onSelect("pro")
-                }
-                .padding(vertical = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (!isPremium) {
-                    Icon(
-                        Icons.Rounded.Lock,
-                        contentDescription = null,
-                        tint = proContent,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-                Text(
-                    text = if (isPremium) stringResource(R.string.quality_pro)
-                    else stringResource(R.string.quality_pro_locked),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = if (isPro) FontWeight.Bold else FontWeight.Normal
-                    ),
-                    color = proContent
-                )
-                if (!isPremium) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    // "PRO" badge
-                    Text(
-                        text = "PRO",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.ExtraBold),
-                        color = ImageDesign.semantic.warning
-                    )
-                }
-            }
-        }
-    }
-}
 
 
 

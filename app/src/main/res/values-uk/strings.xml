@@ -38,8 +38,6 @@
     <string name="licenses_title">Ліцензії відкритого коду</string>
     <string name="dark_mode_title">Темний режим</string>
     <string name="dark_mode_description">Перемкнути темну тему додатка.</string>
-    <string name="home_preview_title">Показувати прев\'ю на головній</string>
-    <string name="home_preview_description">Показувати вікно порівняння До / Після на головному екрані.</string>
 
     <string name="home_remove_background_title">Видалити фон</string>
     <string name="home_remove_background_subtitle">Виберіть зображення та видаліть його фон одним дотиком.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Плавне AI-розширення</string>
     <string name="pro_see_details">Детальніше ></string>
     <string name="picker_sample_badge">Зразок</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Створюйте професійні фотографії продуктів</string>
+    <string name="home_hero_subtitle">Видаліть фон, змініть фон, додайте шаблони за лічені секунди</string>
+    <string name="home_hero_action">Виберіть Фото</string>
+    <string name="review_app_button">Оцінка</string>
+    <string name="review_prompt_title">Подобається %1$s?</string>
+    <string name="review_prompt_message">Торкніться зірочки, щоб оцінити його в Google Play.</string>
+    <string name="review_prompt_rate_now">Надіслати</string>
+    <string name="review_prompt_later">Скасувати</string>
+    <string name="home_see_all">Переглянути всі</string>
+    <string name="save_success_title">Збережено!</string>
+    <string name="save_success_create_new">Створити новий</string>
+    <string name="save_success_try_other_tools">Спробуйте інші засоби</string>
+    <string name="save_success_share">Поділіться</string>
+    <string name="save_success_back">Назад</string>
+    <string name="save_success_home">додому</string>
+    <string name="save_success_saved_image">Збережено зображення</string>
+    <string name="save_success_share_with">Поділіться з…</string>
+    <string name="batch_remove_error_load_image">Неможливо завантажити це зображення.</string>
+    <string name="drafts_error_load">Помилка завантаження чернеток: %1$s</string>
 </resources>

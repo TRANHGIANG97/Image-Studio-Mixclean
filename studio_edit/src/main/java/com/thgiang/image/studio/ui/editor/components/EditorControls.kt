@@ -1,3 +1,4 @@
+@file:Suppress("OPT_IN_USAGE", "OPT_IN_USAGE_ERROR")
 package com.thgiang.image.studio.ui.editor.components
 
 import android.content.Context
@@ -22,11 +23,15 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Canvas
@@ -36,12 +41,17 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.toArgb
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import io.mhssn.colorpicker.ColorPickerDialog
+import io.mhssn.colorpicker.ColorPickerType
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.*
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 import com.thgiang.image.core.design.components.PrecisionSlider
 import com.thgiang.image.core.design.components.PrecisionSliderColors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -86,6 +96,7 @@ fun EditorControlsV2(
     tool: EditorTool?,
     appearance: EditorAppearance,
     cropRatio: CropRatio,
+    selectedLayer: com.thgiang.image.studio.ui.editor.EditorLayer? = null,
     onUpdateShadow: (Float) -> Unit,
     onUpdateShadowAngle: (Float) -> Unit,
     onUpdateShadowDistance: (Float) -> Unit,
@@ -150,6 +161,13 @@ fun EditorControlsV2(
                                     onStickerSelected = { assetPath ->
                                         onLayoutEvent(EditorEvent.AddSticker(assetPath))
                                     }
+                                )
+                            }
+
+                            is EditorTool.Label -> {
+                                LabelShapePanel(
+                                    selectedLayer = selectedLayer,
+                                    onLayoutEvent = onLayoutEvent
                                 )
                             }
 
@@ -846,6 +864,296 @@ fun ShadowTabRow(
                 .fillMaxWidth()
                 .height(0.5.dp)
                 .background(tokens.borderDefault)
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Label / Shape-Text Panel
+// ─────────────────────────────────────────────────────────────────────────────
+
+@androidx.compose.material3.ExperimentalMaterial3Api
+@Composable
+fun LabelShapePanel(
+    selectedLayer: com.thgiang.image.studio.ui.editor.EditorLayer?,
+    onLayoutEvent: (EditorEvent) -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
+) {
+    val isShapeLayer = selectedLayer?.type == com.thgiang.image.studio.ui.editor.LayerType.SHAPE_TEXT
+    var showColorPickerFor by remember { mutableStateOf<String?>(null) } // "fill" or "text"
+
+    if (showColorPickerFor != null) {
+        ColorPickerDialog(
+            show = true,
+            type = ColorPickerType.Circle(showAlphaBar = false),
+            onDismissRequest = { showColorPickerFor = null },
+            onPickedColor = { color ->
+                if (showColorPickerFor == "fill") {
+                    onLayoutEvent(EditorEvent.UpdateShapeColor(color.toArgb()))
+                } else {
+                    onLayoutEvent(EditorEvent.UpdateTextColor(color.toArgb()))
+                }
+                showColorPickerFor = null
+            }
+        )
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+        Button(
+            onClick = { onLayoutEvent(EditorEvent.AddTextLayer) },
+            colors = ButtonDefaults.buttonColors(containerColor = tokens.accent),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.studio_label_add_text),
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        // ── Shape type picker ─────────────────────────────────────────────
+        Text(
+            text = stringResource(R.string.studio_label_shape_type),
+            style = MaterialTheme.typography.titleSmall,
+            color = tokens.textPrimary
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf(
+                ShapeType.PILL      to stringResource(R.string.studio_label_shape_pill),
+                ShapeType.CARD      to stringResource(R.string.studio_label_shape_card),
+                ShapeType.TEARDROP  to stringResource(R.string.studio_label_shape_teardrop),
+                ShapeType.CIRCLE    to "Circle",
+                ShapeType.STAR      to "Star",
+                ShapeType.HEXAGON   to "Hexagon"
+            ).forEach { (shape, label) ->
+                val isSelected = selectedLayer?.shapeType == shape
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(if (isSelected) tokens.accentSoft else Color(0xFFF5F5F5))
+                        .border(
+                            if (isSelected) 2.dp else 0.5.dp,
+                            if (isSelected) tokens.accent else tokens.borderSubtle,
+                            RoundedCornerShape(10.dp)
+                        )
+                        .clickable {
+                            if (isShapeLayer) {
+                                onLayoutEvent(EditorEvent.UpdateShapeType(shape))
+                            } else {
+                                onLayoutEvent(EditorEvent.AddShapeTextLayer(shape))
+                            }
+                        }
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = label,
+                        fontSize = 13.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        color = if (isSelected) tokens.accent else tokens.textSecondary
+                    )
+                }
+            }
+        }
+
+        if (isShapeLayer && selectedLayer != null) {
+            // ── Text input ────────────────────────────────────────────────
+            var textDraft by remember(selectedLayer.id) { mutableStateOf(selectedLayer.text) }
+            Text(
+                text = stringResource(R.string.studio_label_edit_text),
+                style = MaterialTheme.typography.titleSmall,
+                color = tokens.textPrimary
+            )
+            OutlinedTextField(
+                value = textDraft,
+                onValueChange = { textDraft = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                placeholder = { Text("Label text") },
+                trailingIcon = {
+                    if (textDraft != selectedLayer.text) {
+                        IconButton(onClick = {
+                            onLayoutEvent(EditorEvent.UpdateShapeText(textDraft))
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = "Apply",
+                                tint = tokens.accent
+                            )
+                        }
+                    }
+                },
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Done
+                ),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                    onDone = { onLayoutEvent(EditorEvent.UpdateShapeText(textDraft)) }
+                ),
+                shape = RoundedCornerShape(10.dp)
+            )
+
+            // ── Font family ───────────────────────────────────────────────
+            var fontFamilies by remember { mutableStateOf(listOf("sans-serif", "serif", "monospace", "cursive")) }
+            LaunchedEffect(Unit) {
+                fontFamilies = com.thgiang.image.studio.util.FontDownloader.getAvailableFontFamilies()
+            }
+            Text(
+                text = stringResource(R.string.studio_label_font_family),
+                style = MaterialTheme.typography.titleSmall,
+                color = tokens.textPrimary
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                fontFamilies.forEach { family ->
+                    val isSelected = (selectedLayer.fontFamily ?: "sans-serif").equals(family, ignoreCase = true)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (isSelected) tokens.accentSoft else Color(0xFFF5F5F5))
+                            .border(
+                                if (isSelected) 2.dp else 0.5.dp,
+                                if (isSelected) tokens.accent else tokens.borderSubtle,
+                                RoundedCornerShape(10.dp)
+                            )
+                            .clickable { onLayoutEvent(EditorEvent.UpdateTextFontFamily(family)) }
+                            .padding(horizontal = 14.dp, vertical = 9.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = family,
+                            fontSize = 12.sp,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (isSelected) tokens.accent else tokens.textSecondary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+
+            // ── Fill color ────────────────────────────────────────────────
+            Text(
+                text = stringResource(R.string.studio_label_fill_color),
+                style = MaterialTheme.typography.titleSmall,
+                color = tokens.textPrimary
+            )
+            LabelColorRow(
+                currentArgb = selectedLayer.shapeColorArgb,
+                palette = listOf(
+                    Color(0xFFE53935), Color(0xFF1E88E5), Color(0xFF43A047),
+                    Color(0xFFFB8C00), Color(0xFF8E24AA), Color(0xFF00ACC1),
+                    Color(0xFF6D4C41), Color(0xFF212121), Color(0xFFFFFFFF)
+                ),
+                onSelectColor = { onLayoutEvent(EditorEvent.UpdateShapeColor(it)) },
+                onCustomColorClick = { showColorPickerFor = "fill" }
+            )
+
+            // ── Text color ────────────────────────────────────────────────
+            Text(
+                text = stringResource(R.string.studio_label_text_color),
+                style = MaterialTheme.typography.titleSmall,
+                color = tokens.textPrimary
+            )
+            LabelColorRow(
+                currentArgb = selectedLayer.textColorArgb,
+                palette = listOf(
+                    Color(0xFFFFFFFF), Color(0xFF212121), Color(0xFFE53935),
+                    Color(0xFF1E88E5), Color(0xFF43A047), Color(0xFFFB8C00),
+                    Color(0xFF8E24AA), Color(0xFF00ACC1), Color(0xFF6D4C41)
+                ),
+                onSelectColor = { onLayoutEvent(EditorEvent.UpdateTextColor(it)) },
+                onCustomColorClick = { showColorPickerFor = "text" }
+            )
+
+            // ── Text size ─────────────────────────────────────────────────
+            val sliderColors = remember(tokens) {
+                PrecisionSliderColors(
+                    labelColor = tokens.textPrimary,
+                    labelActiveColor = tokens.accent,
+                    valuePillBackground = tokens.surfaceFloating,
+                    valuePillTextColor = tokens.textPrimary,
+                    trackColor = tokens.surfaceFloating,
+                    trackActiveColor = tokens.accent,
+                    thumbColor = Color.White,
+                    thumbGlowColor = tokens.accent,
+                    rangeLabelColor = tokens.textSecondary,
+                    borderColor = tokens.borderSubtle
+                )
+            }
+            PrecisionSlider(
+                label = stringResource(R.string.studio_label_text_size),
+                value = selectedLayer.textSizeSp,
+                valueRange = 8f..72f,
+                onValueChange = { onLayoutEvent(EditorEvent.UpdateTextSize(it)) },
+                valueFormatter = { "${it.toInt()}sp" },
+                colors = sliderColors
+            )
+        }
+    }
+}
+
+@Composable
+private fun LabelColorRow(
+    currentArgb: Int,
+    palette: List<Color>,
+    onSelectColor: (Int) -> Unit,
+    onCustomColorClick: () -> Unit,
+    tokens: EditorTokens = LocalEditorTokens.current
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        palette.forEach { color ->
+            val argb = color.toArgb()
+            val isSelected = currentArgb == argb
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(color)
+                    .border(
+                        border = BorderStroke(
+                            width = if (isSelected) 2.5.dp else 0.5.dp,
+                            color = if (isSelected) tokens.accent else tokens.borderSubtle
+                        ),
+                        shape = CircleShape
+                    )
+                    .clickable { onSelectColor(argb) }
+            )
+        }
+        
+        // Custom Color Picker Button
+        val rainbowBrush = androidx.compose.ui.graphics.Brush.sweepGradient(
+            colors = listOf(
+                Color.Red, Color.Magenta, Color.Blue, Color.Cyan,
+                Color.Green, Color.Yellow, Color.Red
+            )
+        )
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(rainbowBrush)
+                .border(
+                    border = BorderStroke(0.5.dp, tokens.borderSubtle),
+                    shape = CircleShape
+                )
+                .clickable { onCustomColorClick() }
         )
     }
 }

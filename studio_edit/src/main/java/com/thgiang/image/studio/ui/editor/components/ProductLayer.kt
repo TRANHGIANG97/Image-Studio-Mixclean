@@ -104,23 +104,23 @@ fun ProductLayerV2(
         )
     }
 
-    val originalWidth = with(density) { (product.baseSize.width * viewport.scale * displayScale).toInt().toDp() }
-    val originalHeight = with(density) { (product.baseSize.height * viewport.scale * displayScale).toInt().toDp() }
+    val originalWidth = with(density) { (actualSize.width * viewport.scale * displayScale).toInt().toDp() }
+    val originalHeight = with(density) { (actualSize.height * viewport.scale * displayScale).toInt().toDp() }
 
-    val cropShape = remember(actualSize, product.baseSize) {
+    val cropShape = remember(actualSize) {
         object : androidx.compose.ui.graphics.Shape {
             override fun createOutline(
                 size: Size,
                 layoutDirection: androidx.compose.ui.unit.LayoutDirection,
                 density: androidx.compose.ui.unit.Density
             ): androidx.compose.ui.graphics.Outline {
-                if (product.baseSize.width <= 0 || product.baseSize.height <= 0) {
+                if (actualSize.width <= 0 || actualSize.height <= 0) {
                     return androidx.compose.ui.graphics.Outline.Rectangle(
                         androidx.compose.ui.geometry.Rect(0f, 0f, size.width, size.height)
                     )
                 }
-                val scaleW = size.width / product.baseSize.width
-                val scaleH = size.height / product.baseSize.height
+                val scaleW = size.width / actualSize.width
+                val scaleH = size.height / actualSize.height
                 val cw = actualSize.width.toFloat() * scaleW
                 val ch = actualSize.height.toFloat() * scaleH
                 val left = (size.width - cw) / 2f
@@ -142,17 +142,15 @@ fun ProductLayerV2(
             SubcomposeAsyncImage(
                 model = product.foregroundUri,
                 contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        alpha = graphicsSpec.shadowAlpha
-                        scaleX = graphicsSpec.scaleX
-                        scaleY = graphicsSpec.scaleY
-                        rotationZ = graphicsSpec.rotation
-                        shadowElevation = graphicsSpec.shadowElevation
-                        ambientShadowColor = Color.Black
-                        spotShadowColor = Color.Black
-                    }
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    alpha = graphicsSpec.shadowAlpha
+                    rotationZ = graphicsSpec.rotation
+                    shadowElevation = graphicsSpec.shadowElevation
+                    ambientShadowColor = Color.Black
+                    spotShadowColor = Color.Black
+                }
                     .clip(cropShape)
                     .offset {
                         IntOffset(
@@ -174,8 +172,6 @@ fun ProductLayerV2(
                 .fillMaxSize()
                 .graphicsLayer {
                     alpha = graphicsSpec.alpha
-                    scaleX = graphicsSpec.scaleX
-                    scaleY = graphicsSpec.scaleY
                     rotationZ = graphicsSpec.rotation
                 }
                 .clip(cropShape),
@@ -210,8 +206,6 @@ fun ProductLayerV2(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        scaleX = graphicsSpec.scaleX
-                        scaleY = graphicsSpec.scaleY
                         rotationZ = graphicsSpec.rotation
                     }
                     .clip(cropShape),

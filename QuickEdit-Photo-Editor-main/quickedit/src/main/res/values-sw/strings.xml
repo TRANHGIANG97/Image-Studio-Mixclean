@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Zungusha digrii 90 au pindua kwa usawa na wima ili kurekebisha mwelekeo wa picha.</string>
     <string name="draft_label">Rasimu</string>
     <string name="draft_saved_successfully">Rasimu imehifadhiwa kwa mafanikio</string>
+    <string name="professional_section_title">Mtaalamu</string>
+    <string name="themeplate_professional_watch">Tazama</string>
+    <string name="themeplate_professional_perfume">Perfume</string>
+    <string name="themeplate_professional_handbag">Mkoba</string>
+    <string name="home_see_all">Tazama Yote</string>
 </resources>

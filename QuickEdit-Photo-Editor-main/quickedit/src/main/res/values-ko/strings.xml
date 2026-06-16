@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">이미지 방향을 바로잡으려면 90도 회전하거나 가로 및 세로로 뒤집으십시오.</string>
     <string name="draft_label">초안</string>
     <string name="draft_saved_successfully">임시 저장이 성공적으로 완료되었습니다</string>
+    <string name="professional_section_title">전문적인</string>
+    <string name="themeplate_professional_watch">보다</string>
+    <string name="themeplate_professional_perfume">향수</string>
+    <string name="themeplate_professional_handbag">핸드백</string>
+    <string name="home_see_all">모두 보기</string>
 </resources>

@@ -1,0 +1,31 @@
+<svg width="900" height="1400" viewBox="0 0 900 1400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="26" stdDeviation="24" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path fill="#111111" fill-rule="evenodd" d="M145 20H755C814.16 20 862 67.84 862 127V1273C862 1332.16 814.16 1380 755 1380H145C85.84 1380 38 1332.16 38 1273V127C38 67.84 85.84 20 145 20ZM195 116C168.49 116 147 137.49 147 164V1236C147 1262.51 168.49 1284 195 1284H705C731.51 1284 753 1262.51 753 1236V164C753 137.49 731.51 116 705 116H195Z" fill="#111111"/>
+    <path fill="#222222" fill-rule="evenodd" d="M195 116H705C731.51 116 753 137.49 753 164V1236C753 1262.51 731.51 1284 705 1284H195C168.49 1284 147 1262.51 147 1236V164C147 137.49 168.49 116 195 116Z" fill="#1A1A1A"/>
+    <path fill="#0B0B0B" fill-rule="evenodd" d="M210 132H690C709.33 132 725 147.67 725 167V1233C725 1252.33 709.33 1268 690 1268H210C190.67 1268 175 1252.33 175 1233V167C175 147.67 190.67 132 210 132Z" fill="#0B0B0B"/>
+    <path fill="#000000" fill-rule="evenodd" d="M210 132H690C709.33 132 725 147.67 725 167V1233C725 1252.33 709.33 1268 690 1268H210C190.67 1268 175 1252.33 175 1233V167C175 147.67 190.67 132 210 132Z" fill="white" fill-opacity="0.02"/>
+  </g>
+  <circle cx="794" cy="620" r="46" fill="#FFFFFF"/>
+  <circle cx="794" cy="620" r="22" fill="#111111"/>
+  <circle cx="794" cy="620" r="10" fill="#FFFFFF"/>
+  <g opacity="0.9" transform="translate(120 420) rotate(-90)">
+    <text x="0" y="0" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="2" fill="#D8B36C">PHOTO</text>
+    <text x="0" y="58" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="#8F7B55">PORTRAIT</text>
+    <text x="0" y="128" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="#8F7B55">VIDEO</text>
+    <text x="0" y="198" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="#8F7B55">PRO</text>
+  </g>
+  <circle cx="106" cy="1155" r="32" fill="#FFFFFF"/>
+  <circle cx="106" cy="1155" r="12" fill="#111111"/>
+  <g opacity="0.8">
+    <circle cx="82" cy="430" r="6" fill="#4A4A4A"/>
+    <circle cx="96" cy="440" r="6" fill="#4A4A4A"/>
+    <circle cx="110" cy="450" r="6" fill="#4A4A4A"/>
+    <circle cx="124" cy="460" r="6" fill="#4A4A4A"/>
+    <circle cx="138" cy="470" r="6" fill="#4A4A4A"/>
+  </g>
+</svg>

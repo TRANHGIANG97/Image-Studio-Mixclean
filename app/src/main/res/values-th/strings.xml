@@ -38,8 +38,6 @@
     <string name="licenses_title">ใบอนุญาตโอเพนซอร์ส</string>
     <string name="dark_mode_title">โหมดมืด</string>
     <string name="dark_mode_description">สลับธีมมืดของแอป</string>
-    <string name="home_preview_title">แสดงตัวอย่างบนหน้าแรก</string>
-    <string name="home_preview_description">แสดงกล่องเปรียบเทียบ ก่อน / หลัง บนหน้าจอหลัก</string>
 
     <string name="home_remove_background_title">ลบพื้นหลัง</string>
     <string name="home_remove_background_subtitle">เลือกรูปภาพและลบพื้นหลังด้วยการแตะเพียงครั้งเดียว</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">การขยายภาพด้วย AI อย่างแนบเนียน</string>
     <string name="pro_see_details">รายละเอียด ></string>
     <string name="picker_sample_badge">ตัวอย่าง</string>
+    <string name="home_hero_subtitle_short">โปรแกรมแก้ไขภาพ AI</string>
+    <string name="home_hero_title">สร้างภาพถ่ายผลิตภัณฑ์ระดับมืออาชีพ</string>
+    <string name="home_hero_subtitle">ลบพื้นหลัง เปลี่ยนฉากหลัง เพิ่มเทมเพลตในไม่กี่วินาที</string>
+    <string name="home_hero_action">เลือกภาพถ่าย</string>
+    <string name="review_app_button">ประเมิน</string>
+    <string name="review_prompt_title">กำลังเพลิดเพลินกับ %1$s?</string>
+    <string name="review_prompt_message">แตะดาวเพื่อให้คะแนนบน Google Play</string>
+    <string name="review_prompt_rate_now">ส่ง</string>
+    <string name="review_prompt_later">ยกเลิก</string>
+    <string name="home_see_all">ดูทั้งหมด</string>
+    <string name="save_success_title">บันทึกแล้ว!</string>
+    <string name="save_success_create_new">สร้างใหม่</string>
+    <string name="save_success_try_other_tools">ลองใช้เครื่องมืออื่นๆ</string>
+    <string name="save_success_share">แบ่งปัน</string>
+    <string name="save_success_back">กลับ</string>
+    <string name="save_success_home">บ้าน</string>
+    <string name="save_success_saved_image">ภาพที่บันทึกไว้</string>
+    <string name="save_success_share_with">แบ่งปันกับ...</string>
+    <string name="batch_remove_error_load_image">ไม่สามารถโหลดภาพนี้ได้</string>
+    <string name="drafts_error_load">เกิดข้อผิดพลาดในการโหลดฉบับร่าง: %1$s</string>
 </resources>

@@ -166,4 +166,9 @@
     <string name="rotate_hint_desc">ಚಿತ್ರದ ದೃಷ್ಟಿಕೋನವನ್ನು ಸರಿಪಡಿಸಲು 90 ಡಿಗ್ರಿ ತಿರುಗಿಸಿ ಅಥವಾ ಅಡ್ಡಲಾಗಿ ಮತ್ತು ಲಂಬವಾಗಿ ಫ್ಲಿಪ್ ಮಾಡಿ.</string>
     <string name="draft_label">ಕರಡು</string>
     <string name="draft_saved_successfully">ಕರಡನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="professional_section_title">ವೃತ್ತಿಪರ</string>
+    <string name="themeplate_professional_watch">ವೀಕ್ಷಿಸಿ</string>
+    <string name="themeplate_professional_perfume">ಸುಗಂಧ ದ್ರವ್ಯ</string>
+    <string name="themeplate_professional_handbag">ಕೈಚೀಲ</string>
+    <string name="home_see_all">ಎಲ್ಲವನ್ನೂ ನೋಡಿ</string>
 </resources>

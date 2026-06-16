@@ -38,8 +38,6 @@
     <string name="licenses_title">Açıq Mənbə Lisenziyaları</string>
     <string name="dark_mode_title">Tünd Rejim</string>
     <string name="dark_mode_description">Tətbiqin tünd mövzusunu dəyişdirin.</string>
-    <string name="home_preview_title">Ana Səhifə Önizləməsini Göstər</string>
-    <string name="home_preview_description">Ana səhifədə əvvəl/sonra müqayisə qutusunu göstərin.</string>
 
     <string name="home_remove_background_title">Arxa Fonu Sil</string>
     <string name="home_remove_background_subtitle">Bir şəkil seçin və bir toxunuşla arxa fonunu silin.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Hamar SI Genişləndirilməsi</string>
     <string name="pro_see_details">Detallar ></string>
     <string name="picker_sample_badge">Nümunə</string>
+    <string name="home_hero_subtitle_short">AI Foto Redaktoru</string>
+    <string name="home_hero_title">Professional Məhsul Fotoları yaradın</string>
+    <string name="home_hero_subtitle">Bir neçə saniyə ərzində fonu silin, fonu dəyişdirin, şablonlar əlavə edin</string>
+    <string name="home_hero_action">Şəkil seçin</string>
+    <string name="review_app_button">Qiymətləndirmə</string>
+    <string name="review_prompt_title">%1$s zövq alırsınız?</string>
+    <string name="review_prompt_message">Google Play-də onu qiymətləndirmək üçün ulduza toxunun.</string>
+    <string name="review_prompt_rate_now">Təqdim et</string>
+    <string name="review_prompt_later">Ləğv et</string>
+    <string name="home_see_all">Hamısına Bax</string>
+    <string name="save_success_title">Saxlandı!</string>
+    <string name="save_success_create_new">Yeni yaradın</string>
+    <string name="save_success_try_other_tools">Digər alətləri sınayın</string>
+    <string name="save_success_share">Paylaşın</string>
+    <string name="save_success_back">Geri</string>
+    <string name="save_success_home">Ev</string>
+    <string name="save_success_saved_image">Yadda saxlanan şəkil</string>
+    <string name="save_success_share_with">Paylaşın...</string>
+    <string name="batch_remove_error_load_image">Bu şəkli yükləmək mümkün deyil.</string>
+    <string name="drafts_error_load">Qaralamaları yükləmə xətası: %1$s</string>
 </resources>

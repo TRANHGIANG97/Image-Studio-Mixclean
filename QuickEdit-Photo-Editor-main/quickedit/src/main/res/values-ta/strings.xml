@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">படத்தின் நோக்குநிலையைச் சரிசெய்ய 90 டிகிரி சுழற்றவும் அல்லது கிடைమட்டமாகவும் செங்குத்தாகவும் திருப்பவும்.</string>
     <string name="draft_label">வரைவு</string>
     <string name="draft_saved_successfully">வரைவு வெற்றிகரமாக சேமிக்கப்பட்டது</string>
+    <string name="professional_section_title">தொழில்முறை</string>
+    <string name="themeplate_professional_watch">பார்க்கவும்</string>
+    <string name="themeplate_professional_perfume">வாசனை திரவியம்</string>
+    <string name="themeplate_professional_handbag">கைப்பை</string>
+    <string name="home_see_all">அனைத்தையும் பார்க்கவும்</string>
 </resources>

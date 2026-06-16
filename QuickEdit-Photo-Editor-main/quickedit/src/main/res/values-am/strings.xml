@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">ይህ ተግባር የሚሰራው ባለቤቱ የጀርባ ምስል ሲኖረው ብቻ ነው</string>
     <string name="draft_label">ረቂቅ</string>
     <string name="draft_saved_successfully">ረቂቁ በተሳካ ሁኔታ ተቀምጧል</string>
+    <string name="professional_section_title">ፕሮፌሽናል</string>
+    <string name="themeplate_professional_watch">ይመልከቱ</string>
+    <string name="themeplate_professional_perfume">ሽቶ</string>
+    <string name="themeplate_professional_handbag">የእጅ ቦርሳ</string>
+    <string name="home_see_all">ሁሉንም ይመልከቱ</string>
 </resources>

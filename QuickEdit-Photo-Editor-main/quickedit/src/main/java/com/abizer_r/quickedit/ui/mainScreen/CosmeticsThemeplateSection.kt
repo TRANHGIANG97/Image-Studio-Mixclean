@@ -54,18 +54,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.abizer_r.quickedit.R
 import com.thgiang.image.studio.model.StudioThemeplate
-import com.thgiang.image.studio.model.StudioThemeplates
 import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @Composable
 fun CosmeticsThemeplateSection(
+    templates: List<StudioThemeplate>,
     modifier: Modifier = Modifier,
     onOpenGallery: (() -> Unit)? = null,
     onThemeplateSelected: (StudioThemeplate) -> Unit
 ) {
-    val templates = remember { StudioThemeplates.cosmetics }
+    if (templates.isEmpty()) return
 
     Column(modifier = modifier.padding(horizontal = 11.dp)) {
         Row(
@@ -118,13 +116,6 @@ private fun CosmeticsThemeplateCard(
     themeplate: StudioThemeplate,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val bitmapState = produceState<Bitmap?>(initialValue = null, key1 = themeplate.assetPath) {
-        value = withContext(Dispatchers.IO) {
-            loadAssetBitmap(context, themeplate.assetPath)
-        }
-    }
-
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -153,28 +144,26 @@ private fun CosmeticsThemeplateCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            bitmapState.value?.let { bitmap ->
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = stringResource(themeplate.titleResId),
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } ?: Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(EditorColorPalette.PanelElevated),
-                contentAlignment = Alignment.Center
-            ) {
-            }
+            com.thgiang.image.studio.util.CloudFirstSubcomposeAsyncImage(
+                sourcePath = themeplate.assetPath,
+                contentDescription = themeplate.titleString ?: stringResource(themeplate.titleResId),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                loading = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(EditorColorPalette.PanelElevated)
+                    )
+                },
+                error = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(EditorColorPalette.PanelElevated)
+                    )
+                }
+            )
         }
     }
-}
-
-private fun loadAssetBitmap(context: Context, assetPath: String): Bitmap? {
-    return runCatching {
-        context.assets.open(assetPath).use { input ->
-            BitmapFactory.decodeStream(input)
-        }
-    }.getOrNull()
 }

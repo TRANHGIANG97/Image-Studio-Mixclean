@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Тази функция е достъпна само ако обектът има фон</string>
     <string name="draft_label">Чернова</string>
     <string name="draft_saved_successfully">Черновата е запазена успешно</string>
+    <string name="professional_section_title">Професионален</string>
+    <string name="themeplate_professional_watch">Гледай</string>
+    <string name="themeplate_professional_perfume">Парфюм</string>
+    <string name="themeplate_professional_handbag">Дамска чанта</string>
+    <string name="home_see_all">Вижте всички</string>
 </resources>

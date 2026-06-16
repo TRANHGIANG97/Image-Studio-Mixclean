@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Студыя тавараў</string>
     <string name="studio_category_electronics">Электроніка</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Цень</string>
     <string name="studio_tool_transparency">Непразрыстасць</string>
     <string name="studio_tool_crop">Абрэзаць</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Налепка</string>
     <string name="studio_tool_rotateflip">Павярнуць/Адлюстраваць</string>
     <string name="studio_replace_hint">Націсніце \"Замяніць\", каб выбраць фота тавару з галерэі</string>
     <string name="studio_layout_hint">Перацягвайце для перамяшчэння · Зводзьце пальцы для маштабавання · Паварочвайце двума пальцамі</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Няма даступных шаблонаў</string>
     <string name="studio_gallery_coming_soon">Хутка будзе</string>
     <string name="studio_gallery_coming_soon_desc">Гэтая функцыя знаходзіцца ў стадыі распрацоўкі і хутка стане даступнай!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Каманда дызайну ўпарта працуе, каб неўзабаве дадаць больш шаблонаў.</string>
     <string name="themeplate_gallery_title">Шаблоны</string>
     <string name="studio_save_image_success">Відарыс захаваны</string>
     <string name="studio_error_select_object">Выберыце аб\'ект</string>

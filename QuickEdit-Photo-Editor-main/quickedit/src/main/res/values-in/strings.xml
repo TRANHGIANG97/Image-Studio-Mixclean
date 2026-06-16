@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Rotasi 90 derajat lub balikkan secara horizontal dan vertikal untuk memperbaiki orientasi gambar.</string>
     <string name="draft_label">Draf</string>
     <string name="draft_saved_successfully">Draf berhasil disimpan</string>
+    <string name="professional_section_title">Profesional</string>
+    <string name="themeplate_professional_watch">Jam tangan</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Tas tangan</string>
+    <string name="home_see_all">Lihat Semua</string>
 </resources>

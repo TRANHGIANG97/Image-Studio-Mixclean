@@ -1,10 +1,15 @@
 package com.abizer_r.quickedit.ui
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.LruCache
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.abizer_r.quickedit.ui.editorScreen.EditorScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,27 +17,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import androidx.lifecycle.viewModelScope
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class SharedEditorViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
     companion object {
-        const val MAX_BITMAP_STACK_SIZE = 10  // Giới hạn tối đa
-        const val MAX_BITMAP_DIMENSION = 2048 // Resize xuống nếu quá lớn
+        const val MAX_BITMAP_STACK_SIZE = 10
+        const val MAX_BITMAP_DIMENSION = 2048
     }
 
     var useTransition = false
 
-    private val _bitmapStack = mutableListOf<Bitmap>()
-    private val _bitmapRedoStack = mutableListOf<Bitmap>()
+    private val _bitmapStack = mutableListOf<String>()
+    private val _bitmapRedoStack = mutableListOf<String>()
     
-    // Expose as read-only
-    val bitmapStack: List<Bitmap> get() = _bitmapStack.toList()
-    val bitmapRedoStack: List<Bitmap> get() = _bitmapRedoStack.toList()
+    val bitmapStack: List<String> get() = _bitmapStack.toList()
+    val bitmapRedoStack: List<String> get() = _bitmapRedoStack.toList()
 
     private val _recompositionTrigger = MutableStateFlow<Long>(0)
     val recompositionTrigger: StateFlow<Long> = _recompositionTrigger
@@ -43,17 +50,86 @@ class SharedEditorViewModel @Inject constructor(
     private var overlayJob: Job? = null
     private var latestTimeForAddingBitmapToStack: Long = 0
 
+    private val cacheDir = File(context.cacheDir, "editor_cache")
+
+    private val ramCache = object : LruCache<String, Bitmap>(3) {
+        override fun entryRemoved(evicted: Boolean, key: String, oldValue: Bitmap, newValue: Bitmap?) {
+            // Do NOT call oldValue.recycle() here. 
+            // Compose UI might still be holding a reference to the evicted bitmap (e.g., during transitions or in ImageBitmap wrappers).
+            // Manually recycling it causes 'Canvas: trying to use a recycled bitmap' crashes.
+            // Let the GC handle Bitmap memory.
+        }
+    }
+
+    private fun saveBitmapToCache(bitmap: Bitmap): String? {
+        if (!cacheDir.exists()) cacheDir.mkdirs()
+        val path = File(cacheDir, "shared_${UUID.randomUUID()}.png").absolutePath
+        try {
+            FileOutputStream(path).use { out ->
+                val success = bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                if (!success) return null
+            }
+            return path
+        } catch (e: Throwable) {
+            android.util.Log.e("SharedEditorVM", "Failed to save bitmap to cache", e)
+            deleteCacheFile(path)
+            return null
+        }
+    }
+
+    private fun loadBitmapFromCache(path: String): Bitmap {
+        val file = File(path)
+        if (!file.exists()) {
+            throw IllegalStateException("Cache file does not exist: $path")
+        }
+        var bitmap = BitmapFactory.decodeFile(path)
+        if (bitmap == null) {
+            // Try clearing RAM cache to free up memory and decode again
+            ramCache.evictAll()
+            System.gc()
+            bitmap = BitmapFactory.decodeFile(path)
+            if (bitmap == null) {
+                throw IllegalStateException("Failed to decode cache file (corrupted or OOM): $path")
+            }
+        }
+        return bitmap
+    }
+
+    private fun deleteCacheFile(path: String) {
+        try {
+            val file = File(path)
+            if (file.exists()) file.delete()
+        } catch (e: Exception) {
+            android.util.Log.e("SharedEditorVM", "Failed to delete cache file: $path", e)
+        }
+    }
+
     @Throws(Exception::class)
     fun getCurrentBitmap(): Bitmap {
         if (_bitmapStack.isEmpty()) {
             throw Exception("EmptyStackException: The bitmapStack should contain at least one bitmap")
         }
-        return _bitmapStack.last()
+        val path = _bitmapStack.last()
+        val cached = ramCache.get(path)
+        if (cached != null && !cached.isRecycled) {
+            return cached
+        }
+        val loaded = loadBitmapFromCache(path)
+        ramCache.put(path, loaded)
+        return loaded
     }
 
     fun resetStacks() {
         _bitmapStack.clear()
         _bitmapRedoStack.clear()
+        ramCache.evictAll()
+        try {
+            if (cacheDir.exists()) {
+                cacheDir.listFiles()?.forEach { it.delete() }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SharedEditorVM", "Failed to clean cache directory", e)
+        }
     }
 
     fun addBitmapToStack(
@@ -68,19 +144,19 @@ class SharedEditorViewModel @Inject constructor(
         }
         latestTimeForAddingBitmapToStack = currTime
 
-        // Resize nếu bitmap quá lớn
         val optimizedBitmap = optimizeBitmap(bitmap)
+        val path = saveBitmapToCache(optimizedBitmap) ?: return // Abort if saving failed
+        ramCache.put(path, optimizedBitmap)
         
-        // Xóa redo stack khi có action mới
-        _bitmapRedoStack.forEach { recycleSafely(it) }
+        _bitmapRedoStack.forEach { deleteCacheFile(it) }
         _bitmapRedoStack.clear()
 
-        _bitmapStack.add(optimizedBitmap)
+        _bitmapStack.add(path)
         
-        // Giới hạn stack size - xóa oldest
         while (_bitmapStack.size > MAX_BITMAP_STACK_SIZE) {
-            val removed = _bitmapStack.removeAt(0)
-            recycleSafely(removed)
+            val removedPath = _bitmapStack.removeAt(0)
+            deleteCacheFile(removedPath)
+            ramCache.remove(removedPath)
         }
 
         if (triggerRecomposition) {
@@ -89,25 +165,24 @@ class SharedEditorViewModel @Inject constructor(
     }
 
     fun undo(): Boolean {
-        if (_bitmapStack.size <= 1) return false // Giữ ít nhất 1 bitmap
+        if (_bitmapStack.size <= 1) return false
         
-        val current = _bitmapStack.removeAt(_bitmapStack.lastIndex)
-        _bitmapRedoStack.add(current)
+        val currentPath = _bitmapStack.removeAt(_bitmapStack.lastIndex)
+        _bitmapRedoStack.add(currentPath)
         return true
     }
 
     fun redo(): Boolean {
         if (_bitmapRedoStack.isEmpty()) return false
         
-        val bitmap = _bitmapRedoStack.removeAt(_bitmapRedoStack.lastIndex)
-        _bitmapStack.add(bitmap)
+        val path = _bitmapRedoStack.removeAt(_bitmapRedoStack.lastIndex)
+        _bitmapStack.add(path)
         return true
     }
 
     private fun optimizeBitmap(bitmap: Bitmap): Bitmap {
         val maxDim = maxOf(bitmap.width, bitmap.height)
         if (maxDim <= MAX_BITMAP_DIMENSION) {
-            // Chỉ copy nếu cần mutable hoặc config không đúng
             return if (bitmap.config == Bitmap.Config.ARGB_8888 && bitmap.isMutable) {
                 bitmap
             } else {
@@ -119,7 +194,6 @@ class SharedEditorViewModel @Inject constructor(
         val newWidth = (bitmap.width * scale).toInt()
         val newHeight = (bitmap.height * scale).toInt()
         
-        // createScaledBitmap trả về mutable bitmap
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
@@ -130,7 +204,14 @@ class SharedEditorViewModel @Inject constructor(
     }
 
     fun updateStacksFromEditorState(finalEditorState: EditorScreenState) {
-        // Chuyển đổi từ Stack sang List
+        val newPaths = (finalEditorState.bitmapStack + finalEditorState.bitmapRedoStack).toSet()
+        val oldPaths = (_bitmapStack + _bitmapRedoStack).toSet()
+        oldPaths.forEach { path ->
+            if (path !in newPaths) {
+                deleteCacheFile(path)
+                ramCache.remove(path)
+            }
+        }
         _bitmapStack.clear()
         _bitmapStack.addAll(finalEditorState.bitmapStack)
         _bitmapRedoStack.clear()

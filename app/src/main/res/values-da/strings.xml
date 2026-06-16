@@ -38,8 +38,6 @@
     <string name="licenses_title">Open Source-licenser</string>
     <string name="dark_mode_title">Mørk tilstand</string>
     <string name="dark_mode_description">Skift appens mørke tema.</string>
-    <string name="home_preview_title">Vis forhåndsvisning på startskærm</string>
-    <string name="home_preview_description">Vis før/efter sammenligningsboksen på startskærmen.</string>
 
     <string name="home_remove_background_title">Fjern baggrund</string>
     <string name="home_remove_background_subtitle">Vælg et billede og fjern dets baggrund med ét tryk.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Glat AI-udvidelse</string>
     <string name="pro_see_details">Detaljer ></string>
     <string name="picker_sample_badge">Prøve</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Opret professionelle produktfotos</string>
+    <string name="home_hero_subtitle">Fjern baggrund, skift baggrund, tilføj skabeloner på få sekunder</string>
+    <string name="home_hero_action">Vælg Foto</string>
+    <string name="review_app_button">Sats</string>
+    <string name="review_prompt_title">Nyder du %1$s?</string>
+    <string name="review_prompt_message">Tryk på en stjerne for at bedømme den i Google Play.</string>
+    <string name="review_prompt_rate_now">Indsend</string>
+    <string name="review_prompt_later">Ophæve</string>
+    <string name="home_see_all">Se alle</string>
+    <string name="save_success_title">Gemt!</string>
+    <string name="save_success_create_new">Opret ny</string>
+    <string name="save_success_try_other_tools">Prøv andre værktøjer</string>
+    <string name="save_success_share">Dele</string>
+    <string name="save_success_back">Tilbage</string>
+    <string name="save_success_home">Hjem</string>
+    <string name="save_success_saved_image">Gemt billede</string>
+    <string name="save_success_share_with">Del med...</string>
+    <string name="batch_remove_error_load_image">Kan ikke indlæse dette billede.</string>
+    <string name="drafts_error_load">Fejl ved indlæsning af kladder: %1$s</string>
 </resources>

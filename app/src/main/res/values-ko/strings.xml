@@ -38,8 +38,6 @@
     <string name="licenses_title">오픈소스 라이선스</string>
     <string name="dark_mode_title">다크 모드</string>
     <string name="dark_mode_description">앱 테마를 다크 모드로 변경합니다.</string>
-    <string name="home_preview_title">홈 화면에 미리보기 표시</string>
-    <string name="home_preview_description">홈 화면에 전/후 비교 상자를 표시합니다.</string>
 
     <string name="home_remove_background_title">배경 제거</string>
     <string name="home_remove_background_subtitle">사진을 선택하고 원터치로 배경을 제거하세요.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI 자연스러운 이미지 확장</string>
     <string name="pro_see_details">자세히 보기 ></string>
     <string name="picker_sample_badge">샘플</string>
+    <string name="home_hero_subtitle_short">AI 사진 편집기</string>
+    <string name="home_hero_title">전문적인 제품 사진 만들기</string>
+    <string name="home_hero_subtitle">몇 초 만에 배경 제거, 배경 변경, 템플릿 추가</string>
+    <string name="home_hero_action">사진 선택</string>
+    <string name="review_app_button">비율</string>
+    <string name="review_prompt_title">_%1$s을(를) 즐기고 계시나요?</string>
+    <string name="review_prompt_message">Google Play에서 별표를 탭하여 평가하세요.</string>
+    <string name="review_prompt_rate_now">제출하다</string>
+    <string name="review_prompt_later">취소</string>
+    <string name="home_see_all">모두 보기</string>
+    <string name="save_success_title">저장되었습니다!</string>
+    <string name="save_success_create_new">새로 만들기</string>
+    <string name="save_success_try_other_tools">다른 도구 사용해보기</string>
+    <string name="save_success_share">공유하다</string>
+    <string name="save_success_back">뒤쪽에</string>
+    <string name="save_success_home">집</string>
+    <string name="save_success_saved_image">저장된 이미지</string>
+    <string name="save_success_share_with">공유 대상:</string>
+    <string name="batch_remove_error_load_image">이 이미지를 로드할 수 없습니다.</string>
+    <string name="drafts_error_load">초안 로드 오류: %1$s</string>
 </resources>

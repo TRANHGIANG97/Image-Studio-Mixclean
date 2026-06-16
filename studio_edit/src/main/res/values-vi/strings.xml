@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio Ảnh Sản Phẩm AI</string>
     <string name="studio_category_electronics">Điện Tử</string>
@@ -109,5 +109,7 @@
     <string name="themeplate_selfie_food_06">Selfie đồ ăn 6</string>
     <string name="themeplate_selfie_food_07">Selfie đồ ăn 7</string>
     <string name="themeplate_selfie_food_08">Selfie đồ ăn 8</string>
+    <string name="studio_objects_label">Đối tượng</string>
+    <string name="studio_layer_text_label">Chữ</string>
+    <string name="studio_layer_image_label">Ảnh %1$d</string>
 </resources>
-

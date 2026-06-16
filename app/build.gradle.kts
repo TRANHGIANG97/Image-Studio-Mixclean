@@ -14,6 +14,12 @@ val localSigningProperties = Properties().apply {
     }
 }
 
+fun localProperty(name: String): String? {
+    return providers.gradleProperty(name).orNull
+        ?: localSigningProperties.getProperty(name)
+        ?: providers.environmentVariable(name).orNull
+}
+
 fun releaseSigningValue(name: String): String? {
     return providers.gradleProperty(name).orNull
         ?: localSigningProperties.getProperty(name)
@@ -48,6 +54,8 @@ android {
         targetSdk = 35
         versionCode = 206
         versionName = "2.0.6"
+        buildConfigField("String", "ADMIN_WEB_BASE_URL", "\"${localProperty("ADMIN_WEB_BASE_URL") ?: "http://10.0.2.2:3000"}\"")
+        buildConfigField("String", "CDN_BASE_URL", "\"${localProperty("CDN_BASE_URL") ?: ""}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -71,6 +79,11 @@ android {
         }
     }
     buildTypes {
+        debug {
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
+        }
         release {
             // Chuyển thành true để tối ưu dung lượng và bảo mật code (rất quan trọng khi lên Store)
             isMinifyEnabled = true
@@ -92,6 +105,7 @@ android {
         compose = true
         dataBinding = true
         viewBinding = true
+        buildConfig = true
     }
     externalNativeBuild {
         cmake {
@@ -164,6 +178,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
@@ -171,6 +186,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.datastore.preferences)
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.coil.svg)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.compose.material:material-icons-extended")
     implementation(libs.vision.common)

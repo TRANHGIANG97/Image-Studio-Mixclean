@@ -38,8 +38,6 @@
     <string name="licenses_title">Open Source Licenses</string>
     <string name="dark_mode_title">Dark Mode</string>
     <string name="dark_mode_description">Toggle the app\'s dark theme.</string>
-    <string name="home_preview_title">Show Home Preview</string>
-    <string name="home_preview_description">Show the before/after comparison box on the home screen.</string>
 
     <string name="home_remove_background_title">Remove Background</string>
     <string name="home_remove_background_subtitle">Select an image and remove its background with one tap.</string>
@@ -311,4 +309,14 @@
     <string name="pro_feature_expand">Smooth AI Expansion</string>
     <string name="pro_see_details">Details ></string>
     <string name="picker_sample_badge">Sample</string>
+    <string name="save_success_title">Saved!</string>
+    <string name="save_success_create_new">Create New</string>
+    <string name="save_success_try_other_tools">Try other tools</string>
+    <string name="save_success_share">Share</string>
+    <string name="save_success_back">Back</string>
+    <string name="save_success_home">Home</string>
+    <string name="save_success_saved_image">Saved image</string>
+    <string name="save_success_share_with">Share with…</string>
+    <string name="batch_remove_error_load_image">Cannot load this image.</string>
+    <string name="drafts_error_load">Error loading drafts: %1$s</string>
 </resources>

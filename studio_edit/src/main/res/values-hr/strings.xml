@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Studio za proizvode</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Sjena</string>
     <string name="studio_tool_transparency">Neprozirnost</string>
     <string name="studio_tool_crop">Izreži</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Naljepnica</string>
     <string name="studio_tool_rotateflip">Zakreni/Preokreni</string>
     <string name="studio_replace_hint">Dodirnite Zamijeni kako biste odabrali fotografiju proizvoda iz galerije</string>
     <string name="studio_layout_hint">Povucite za pomicanje · Uštipnite za zumiranje · Zakrenite s dva prsta</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Nema dostupnih predložaka</string>
     <string name="studio_gallery_coming_soon">Dolazi uskoro</string>
     <string name="studio_gallery_coming_soon_desc">Ova značajka je u razvoju i uskoro će biti dostupna!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Dizajnerski tim naporno radi na tome da uskoro doda još predložaka.</string>
     <string name="themeplate_gallery_title">Predlošci</string>
     <string name="studio_save_image_success">Slika je spremljena</string>
     <string name="studio_error_select_object">Odaberite objekt</string>

@@ -34,6 +34,7 @@ fun MainScreenLayout(
     ) {
         AppIconWithName(Modifier.padding(vertical = 64.dp))
         CosmeticsThemeplateSection(
+            templates = emptyList(),
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = 480.dp),

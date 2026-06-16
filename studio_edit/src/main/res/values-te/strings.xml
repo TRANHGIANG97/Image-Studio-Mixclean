@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI ప్రొడక్ట్ స్టూడియో</string>
     <string name="studio_category_electronics">ఎలక్ట్రానిక్స్</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">నీడ</string>
     <string name="studio_tool_transparency">అపారదర్శకత</string>
     <string name="studio_tool_crop">క్రాప్</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">స్టికర్</string>
     <string name="studio_tool_rotateflip">తిప్పండి/ఫ్లిప్ చేయండి</string>
     <string name="studio_replace_hint">మీ గ్యాలరీ నుండి ప్రొడక్ట్ ఫోటోను ఎంచుకోవడానికి \'మార్చు\' పై ట్యాప్ చేయండి</string>
     <string name="studio_layout_hint">తరలించడానికి లాగండి · జూమ్ చేయడానికి రెండు వేళ్లతో నొక్కండి · రెండు వేళ్లతో తిప్పండి</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">టెంప్లేట్‌లు ఏవీ అందుబాటులో లేవు</string>
     <string name="studio_gallery_coming_soon">త్వరలో వస్తుంది</string>
     <string name="studio_gallery_coming_soon_desc">ఈ ఫీచర్ అభివృద్ధిలో ఉంది మరియు త్వరలో అందుబాటులోకి వస్తుంది!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">డిజైన్ బృందం త్వరలో మరిన్ని టెంప్లేట్‌లను జోడించడానికి కష్టపడి పని చేస్తోంది.</string>
     <string name="themeplate_gallery_title">టెంప్లేట్లు</string>
     <string name="studio_save_image_success">చిత్రం సేవ్ చేయబడింది</string>
     <string name="studio_error_select_object">దయచేసి ఒక వస్తువును ఎంచుకోండి</string>

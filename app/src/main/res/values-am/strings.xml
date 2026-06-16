@@ -38,8 +38,6 @@
     <string name="licenses_title">የክፍት ምንጭ ፈቃዶች</string>
     <string name="dark_mode_title">ጨለማ ሁነታ</string>
     <string name="dark_mode_description">የመተግበሪያውን ጨለማ ገጽታ ቀይር።</string>
-    <string name="home_preview_title">የመነሻ ቅድመ-ዕይታ አሳይ</string>
-    <string name="home_preview_description">በመነሻ ማያ ገጽ ላይ ከማስተካከል በፊት/በኋላ ንፅፅር ሳጥኑን አሳይ።</string>
 
     <string name="home_remove_background_title">ዳራ አስወግድ</string>
     <string name="home_remove_background_subtitle">ምስል ይምረጡ እና በአንድ ንክኪ ዳራውን ያስወግዱ።</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">ለስላሳ የAI ማስፋፊያ</string>
     <string name="pro_see_details">ዝርዝሮች ></string>
     <string name="picker_sample_badge">ናሙና</string>
+    <string name="home_hero_subtitle_short">AI ፎቶ አርታዒ</string>
+    <string name="home_hero_title">የባለሙያ ምርቶች ፎቶዎችን ይፍጠሩ</string>
+    <string name="home_hero_subtitle">ዳራውን አስወግድ፣ backdrop ቀይር፣ አብነቶችን በሰከንዶች ውስጥ ጨምር</string>
+    <string name="home_hero_action">ፎቶ ይምረጡ</string>
+    <string name="review_app_button">ደረጃ ይስጡ</string>
+    <string name="review_prompt_title">በ%1$s እየተዝናኑ ነው?</string>
+    <string name="review_prompt_message">ጎግል ፕሌይ ላይ ደረጃ ለመስጠት ኮከብ ነካ አድርግ።</string>
+    <string name="review_prompt_rate_now">አስገባ</string>
+    <string name="review_prompt_later">ሰርዝ</string>
+    <string name="home_see_all">ሁሉንም ይመልከቱ</string>
+    <string name="save_success_title">ተቀምጧል!</string>
+    <string name="save_success_create_new">አዲስ ፍጠር</string>
+    <string name="save_success_try_other_tools">ሌሎች መሳሪያዎችን ይሞክሩ</string>
+    <string name="save_success_share">አጋራ</string>
+    <string name="save_success_back">ተመለስ</string>
+    <string name="save_success_home">ቤት</string>
+    <string name="save_success_saved_image">የተቀመጠ ምስል</string>
+    <string name="save_success_share_with">አጋራ ለ…</string>
+    <string name="batch_remove_error_load_image">ይህን ምስል መጫን አልተቻለም።</string>
+    <string name="drafts_error_load">ረቂቆችን መጫን ላይ ስህተት፦ %1$s_</string>
 </resources>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Open Source licencie</string>
     <string name="dark_mode_title">Tmavý režim</string>
     <string name="dark_mode_description">Prepnúť tému aplikácie do tmavého režimu.</string>
-    <string name="home_preview_title">Náhľad na domovskej obrazovke</string>
-    <string name="home_preview_description">Zobraziť porovnanie Pred/Po na domovskej obrazovke.</string>
 
     <string name="home_remove_background_title">Odstrániť pozadie</string>
     <string name="home_remove_background_subtitle">Vyberte fotografiu a odstráňte pozadie jedným kliknutím.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Prirodzené rozšírenie obrázka pomocou AI</string>
     <string name="pro_see_details">Zobraziť podrobnosti ></string>
     <string name="picker_sample_badge">Ukážka</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Vytvárajte profesionálne fotografie produktov</string>
+    <string name="home_hero_subtitle">Odstráňte pozadie, zmeňte pozadie, pridajte šablóny v priebehu niekoľkých sekúnd</string>
+    <string name="home_hero_action">Vyberte Foto</string>
+    <string name="review_app_button">ohodnotiť</string>
+    <string name="review_prompt_title">Páči sa vám %1$s?</string>
+    <string name="review_prompt_message">Klepnutím na hviezdičku ju ohodnotíte v službe Google Play.</string>
+    <string name="review_prompt_rate_now">Odoslať</string>
+    <string name="review_prompt_later">Zrušiť</string>
+    <string name="home_see_all">Zobraziť všetko</string>
+    <string name="save_success_title">Uložené!</string>
+    <string name="save_success_create_new">Vytvoriť nový</string>
+    <string name="save_success_try_other_tools">Vyskúšajte iné nástroje</string>
+    <string name="save_success_share">zdieľať</string>
+    <string name="save_success_back">Späť</string>
+    <string name="save_success_home">Domov</string>
+    <string name="save_success_saved_image">Uložený obrázok</string>
+    <string name="save_success_share_with">Zdieľať s…</string>
+    <string name="batch_remove_error_load_image">Tento obrázok sa nedá načítať.</string>
+    <string name="drafts_error_load">Chyba pri načítavaní konceptov: %1$s</string>
 </resources>

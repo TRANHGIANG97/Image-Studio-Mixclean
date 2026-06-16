@@ -5,12 +5,12 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 import com.thgiang.image.core.data.save.CachedImage
 import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.core.domain.AppError
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.core.util.processors.ProcessorUtils
+import com.thgiang.image.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +62,6 @@ class BatchRemoveViewModel @Inject constructor(
         )
 
         processJob = viewModelScope.launch(Dispatchers.Default) {
-            val portraitClassifier = QuickToolsPortraitClassifier()
             val mutableResults = _uiState.value.results.toMutableList()
             val total = pendingUris.size
             var processed = 0
@@ -76,16 +75,13 @@ class BatchRemoveViewModel @Inject constructor(
                 if (originalBitmap == null) {
                     _uiState.value = _uiState.value.copy(
                         isProcessing = false,
-                        snackbarEvent = BatchRemoveSnackbarEvent.Text("Không thể tải ảnh này."),
+                        snackbarEvent = BatchRemoveSnackbarEvent.Text(context.getString(R.string.batch_remove_error_load_image)),
                         results = mutableResults.toList(),
                         processedUriCount = processedUriCount,
                         batchCompleted = processed
                     )
                     return@launch
                 }
-
-                // 2. Perform face detection routing
-                val hasFace = portraitClassifier.hasDetectableFace(originalBitmap).getOrDefault(false)
 
                 // 3. Remove background with standalone ML Kit
                 val foregroundBitmap = mlKitRemover.getForegroundBitmap(originalBitmap).getOrNull()
@@ -98,7 +94,7 @@ class BatchRemoveViewModel @Inject constructor(
                 if (foregroundBitmap == null) {
                     _uiState.value = _uiState.value.copy(
                         isProcessing = false,
-                        snackbarEvent = BatchRemoveSnackbarEvent.Text("Xử lý xoá nền thất bại."),
+                        snackbarEvent = BatchRemoveSnackbarEvent.Text(context.getString(R.string.bg_removal_failed)),
                         results = mutableResults.toList(),
                         processedUriCount = processedUriCount,
                         batchCompleted = processed

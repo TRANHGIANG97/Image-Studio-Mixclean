@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI პროდუქტის სტუდია</string>
     <string name="studio_category_electronics">ელექტრონიკა</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">ჩრდილი</string>
     <string name="studio_tool_transparency">გაუმჭვირვალობა</string>
     <string name="studio_tool_crop">მოჭრა</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">სტიკერი</string>
     <string name="studio_tool_rotateflip">დატრიალება/ასახვა</string>
     <string name="studio_replace_hint">შეეხეთ \"შეცვლას\" გალერეიდან პროდუქტის ფოტოს ასარჩევად</string>
     <string name="studio_layout_hint">გადაათრიეთ გადასაადგილებლად · ჩამოწელეთ მასშტაბირებისთვის · დაატრიალეთ ორი თითით</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">შაბლონები არ არის ხელმისაწვდომი</string>
     <string name="studio_gallery_coming_soon">მალე მოვა</string>
     <string name="studio_gallery_coming_soon_desc">ეს ფუნქცია დამუშავების პროცესშია და მალე იქნება ხელმისაწვდომი!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">დიზაინის გუნდი ბევრს მუშაობს, რათა მალე მეტი შაბლონი დაამატოს.</string>
     <string name="themeplate_gallery_title">შაბლონები</string>
     <string name="studio_save_image_success">სურათი შენახულია</string>
     <string name="studio_error_select_object">გთხოვთ, აირჩიოთ ობიექტი</string>

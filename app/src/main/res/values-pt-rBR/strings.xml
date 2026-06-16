@@ -38,8 +38,6 @@
     <string name="licenses_title">Licenças de Código Aberto</string>
     <string name="dark_mode_title">Modo Escuro</string>
     <string name="dark_mode_description">Mudar o tema do aplicativo para o modo escuro.</string>
-    <string name="home_preview_title">Visualização na Tela Inicial</string>
-    <string name="home_preview_description">Mostrar a caixa de comparação Antes/Depois na tela inicial.</string>
 
     <string name="home_remove_background_title">Remover Fundo</string>
     <string name="home_remove_background_subtitle">Selecione uma imagem e remova o fundo com apenas um clique.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Expandir imagem naturalmente via IA</string>
     <string name="pro_see_details">Ver detalhes ></string>
     <string name="picker_sample_badge">Amostra</string>
+    <string name="home_hero_subtitle_short">Editor de fotos com IA</string>
+    <string name="home_hero_title">Crie fotos profissionais de produtos</string>
+    <string name="home_hero_subtitle">Remova o plano de fundo, altere o plano de fundo e adicione modelos em segundos</string>
+    <string name="home_hero_action">Escolha a foto</string>
+    <string name="review_app_button">Avaliar</string>
+    <string name="review_prompt_title">Gostando de %1$s?</string>
+    <string name="review_prompt_message">Toque em uma estrela para avaliá-la no Google Play.</string>
+    <string name="review_prompt_rate_now">Enviar</string>
+    <string name="review_prompt_later">Cancelar</string>
+    <string name="home_see_all">Ver tudo</string>
+    <string name="save_success_title">Salvo!</string>
+    <string name="save_success_create_new">Criar novo</string>
+    <string name="save_success_try_other_tools">Experimente outras ferramentas</string>
+    <string name="save_success_share">Compartilhar</string>
+    <string name="save_success_back">Voltar</string>
+    <string name="save_success_home">Lar</string>
+    <string name="save_success_saved_image">Imagem salva</string>
+    <string name="save_success_share_with">Compartilhe com…</string>
+    <string name="batch_remove_error_load_image">Não é possível carregar esta imagem.</string>
+    <string name="drafts_error_load">Erro ao carregar rascunhos: %1$s</string>
 </resources>

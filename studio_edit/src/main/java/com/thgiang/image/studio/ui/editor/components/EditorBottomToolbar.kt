@@ -70,6 +70,7 @@ fun EditorBottomToolbar(
                 val isSelected = when (tool) {
                     is EditorTool.Replace -> selectedTool is EditorTool.Replace
                     is EditorTool.Sticker -> selectedTool is EditorTool.Sticker
+                    is EditorTool.Label -> selectedTool is EditorTool.Label
                     is EditorTool.Rotate -> selectedTool is EditorTool.Rotate
                     is EditorTool.Shadow -> selectedTool is EditorTool.Shadow
                     is EditorTool.Transparency -> selectedTool is EditorTool.Transparency
@@ -77,7 +78,10 @@ fun EditorBottomToolbar(
                     is EditorTool.Duplicate, is EditorTool.Delete -> false // These are instant actions
                     else -> false
                 }
-                val isEnabled = tool is EditorTool.Replace || !toolsLocked
+                val isEnabled = tool is EditorTool.Replace ||
+                    tool is EditorTool.Sticker ||
+                    tool is EditorTool.Label ||
+                    !toolsLocked
                 ToolButton(
                     tool = tool,
                     isSelected = isSelected,
@@ -114,6 +118,7 @@ private fun ToolButton(
     val labelRes = when (tool) {
         is EditorTool.Replace      -> R.string.studio_tool_replace
         is EditorTool.Sticker      -> R.string.studio_tool_sticker
+        is EditorTool.Label        -> R.string.studio_tool_label
         is EditorTool.Layout       -> R.string.studio_tool_layout
         is EditorTool.Rotate       -> R.string.studio_tool_rotateflip
         is EditorTool.Shadow       -> R.string.studio_tool_shadow
@@ -128,6 +133,7 @@ private fun ToolButton(
     val iconRes = when (tool) {
         is EditorTool.Replace      -> R.drawable.ic_tool_replace_image
         is EditorTool.Sticker      -> R.drawable.ic_tool_sticker
+        is EditorTool.Label        -> R.drawable.ic_tool_sticker  // reuse sticker icon; replace with ic_tool_label if asset is added
         is EditorTool.Layout       -> R.drawable.ic_tool_layout
         is EditorTool.Rotate       -> R.drawable.ic_tool_rotate_flip
         is EditorTool.Shadow       -> R.drawable.ic_tool_shadow

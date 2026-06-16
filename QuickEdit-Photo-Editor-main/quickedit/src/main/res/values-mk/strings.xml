@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Ротирајте за 90 степени или превртете хоризонтално и вертикално за да ја поправите ориентацијата на сликата.</string>
     <string name="draft_label">Нацрт</string>
     <string name="draft_saved_successfully">Нацртот е успешно зачуван</string>
+    <string name="professional_section_title">Професионален</string>
+    <string name="themeplate_professional_watch">Гледајте</string>
+    <string name="themeplate_professional_perfume">Парфем</string>
+    <string name="themeplate_professional_handbag">Рачна чанта</string>
+    <string name="home_see_all">Види ги сите</string>
 </resources>

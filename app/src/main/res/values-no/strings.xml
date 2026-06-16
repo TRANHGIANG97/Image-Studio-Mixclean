@@ -38,8 +38,6 @@
     <string name="licenses_title">Åpen kildekode-lisenser</string>
     <string name="dark_mode_title">Mørk modus</string>
     <string name="dark_mode_description">Bytt appens mørke tema.</string>
-    <string name="home_preview_title">Vis forhåndsvisning på startskjerm</string>
-    <string name="home_preview_description">Vis før/etter-sammenligningsboksen på startskjermen.</string>
 
     <string name="home_remove_background_title">Fjern bakgrunn</string>
     <string name="home_remove_background_subtitle">Velg et bilde og fjern bakgrunnen med ett trykk.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Glatt AI-utvidelse</string>
     <string name="pro_see_details">Detaljer ></string>
     <string name="picker_sample_badge">Eksempel</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Lag profesjonelle produktbilder</string>
+    <string name="home_hero_subtitle">Fjern bakgrunn, endre bakgrunn, legg til maler på sekunder</string>
+    <string name="home_hero_action">Velg Foto</string>
+    <string name="review_app_button">Sats</string>
+    <string name="review_prompt_title">Liker du _%1$s?</string>
+    <string name="review_prompt_message">Trykk på en stjerne for å rangere den på Google Play.</string>
+    <string name="review_prompt_rate_now">Send inn</string>
+    <string name="review_prompt_later">Kansellere</string>
+    <string name="home_see_all">Se alle</string>
+    <string name="save_success_title">Lagret!</string>
+    <string name="save_success_create_new">Opprett ny</string>
+    <string name="save_success_try_other_tools">Prøv andre verktøy</string>
+    <string name="save_success_share">Dele</string>
+    <string name="save_success_back">Tilbake</string>
+    <string name="save_success_home">Hjem</string>
+    <string name="save_success_saved_image">Lagret bilde</string>
+    <string name="save_success_share_with">Del med...</string>
+    <string name="batch_remove_error_load_image">Kan ikke laste dette bildet.</string>
+    <string name="drafts_error_load">Feil ved lasting av utkast: %1$s</string>
 </resources>

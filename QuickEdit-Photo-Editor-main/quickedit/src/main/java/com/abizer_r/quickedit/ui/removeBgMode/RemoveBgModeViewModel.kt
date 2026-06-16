@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.abizer_r.quickedit.R
-import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 
 @HiltViewModel
 class RemoveBgModeViewModel @Inject constructor(
@@ -26,21 +25,11 @@ class RemoveBgModeViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    enum class RemoveBgOption {
-        AUTO,
-        PORTRAIT,
-        OBJECT
-    }
-
     data class RemoveBgState(
         val originalBitmap: Bitmap? = null,
         val processedBitmap: Bitmap? = null,
-        val currentOption: RemoveBgOption = RemoveBgOption.AUTO,
         val isProcessing: Boolean = false,
-        val processingMessageRes: Int? = null,
         val error: String? = null,
-        val hasFace: Boolean? = null,
-        val warningMessageRes: Int? = null,
         val showOverlay: Boolean = false
     )
 
@@ -49,63 +38,35 @@ class RemoveBgModeViewModel @Inject constructor(
 
     private var processingJob: Job? = null
     private var overlayJob: Job? = null
-    private val portraitClassifier = QuickToolsPortraitClassifier()
 
-    // Caches to avoid re-processing if user clicks back and forth
-    private var cachedPortraitBitmap: Bitmap? = null
-    private var cachedObjectBitmap: Bitmap? = null
+    private var cachedBitmap: Bitmap? = null
 
     fun setInitialBitmap(bitmap: Bitmap) {
         _state.value = _state.value.copy(
             originalBitmap = bitmap,
             processedBitmap = bitmap
         )
-        // Automatically start processing with AUTO mode
-        applyOption(RemoveBgOption.AUTO)
+        processImage()
     }
 
-    fun applyOption(option: RemoveBgOption) {
+    private fun processImage() {
         val original = _state.value.originalBitmap ?: return
         
-        // If same option, do nothing unless we have an error
-        if (_state.value.currentOption == option && _state.value.processedBitmap != _state.value.originalBitmap && _state.value.error == null) {
+        if (_state.value.processedBitmap != _state.value.originalBitmap && _state.value.error == null) {
             return
         }
 
         processingJob?.cancel()
         
         _state.value = _state.value.copy(
-            currentOption = option,
             isProcessing = true,
-            error = null,
-            processingMessageRes = getProcessingMessageRes(option)
+            error = null
         )
 
         processingJob = viewModelScope.launch {
-            ensureFaceDetected(original)
-            
-            val warning = when (option) {
-                RemoveBgOption.PORTRAIT -> if (_state.value.hasFace == false) R.string.remove_bg_portrait_no_face_warning else null
-                RemoveBgOption.OBJECT -> if (_state.value.hasFace == true) R.string.remove_bg_object_has_face_warning else null
-                else -> null
-            }
-            
-            _state.value = _state.value.copy(warningMessageRes = warning)
-
             val result = withContext(Dispatchers.Default) {
                 runCatching {
-                    when (option) {
-                        RemoveBgOption.PORTRAIT -> getPortraitBgRemoved(original)
-                        RemoveBgOption.OBJECT -> getObjectBgRemoved(original)
-                        RemoveBgOption.AUTO -> {
-                            val hasFace = portraitClassifier.hasDetectableFace(original).getOrDefault(false)
-                            if (hasFace) {
-                                getPortraitBgRemoved(original) ?: getObjectBgRemoved(original) // fallback
-                            } else {
-                                getObjectBgRemoved(original)
-                            }
-                        }
-                    }
+                    getBgRemoved(original)
                 }
             }
 
@@ -122,7 +83,6 @@ class RemoveBgModeViewModel @Inject constructor(
                         _state.value = _state.value.copy(
                             processedBitmap = finalResult,
                             isProcessing = false,
-                            processingMessageRes = null,
                             showOverlay = true
                         )
 
@@ -135,7 +95,6 @@ class RemoveBgModeViewModel @Inject constructor(
                     } else {
                         _state.value = _state.value.copy(
                             isProcessing = false,
-                            processingMessageRes = null,
                             error = context.getString(R.string.error_apply_effect)
                         )
                     }
@@ -143,7 +102,6 @@ class RemoveBgModeViewModel @Inject constructor(
                 onFailure = {
                     _state.value = _state.value.copy(
                         isProcessing = false,
-                        processingMessageRes = null,
                         error = context.getString(R.string.error_apply_effect)
                     )
                 }
@@ -151,42 +109,20 @@ class RemoveBgModeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getPortraitBgRemoved(bitmap: Bitmap): Bitmap? {
-        if (cachedPortraitBitmap != null) return cachedPortraitBitmap
+    private suspend fun getBgRemoved(bitmap: Bitmap): Bitmap? {
+        if (cachedBitmap != null) return cachedBitmap
+        val startTime = System.currentTimeMillis()
         val result = mlKitRemover.getForegroundBitmap(bitmap).getOrNull()
+        val endTime = System.currentTimeMillis()
+        android.util.Log.d("MLKitBenchmark", "MLKit background removal took ${endTime - startTime} ms")
         if (result != null) {
-            cachedPortraitBitmap = result
+            cachedBitmap = result
         }
         return result
-    }
-
-    private suspend fun getObjectBgRemoved(bitmap: Bitmap): Bitmap? {
-        if (cachedObjectBitmap != null) return cachedObjectBitmap
-        val result = mlKitRemover.getForegroundBitmap(bitmap).getOrNull()
-        if (result != null) {
-            cachedObjectBitmap = result
-        }
-        return result
-    }
-
-    private suspend fun ensureFaceDetected(bitmap: Bitmap) {
-        if (_state.value.hasFace == null) {
-            val hasFace = portraitClassifier.hasDetectableFace(bitmap).getOrDefault(false)
-            _state.value = _state.value.copy(hasFace = hasFace)
-        }
-    }
-
-    private fun getProcessingMessageRes(option: RemoveBgOption): Int {
-        return when (option) {
-            RemoveBgOption.AUTO -> R.string.remove_bg_processing_auto
-            RemoveBgOption.PORTRAIT -> R.string.remove_bg_processing_portrait
-            RemoveBgOption.OBJECT -> R.string.remove_bg_processing_object
-        }
     }
 
     override fun onCleared() {
         super.onCleared()
-        cachedPortraitBitmap?.let { if (!it.isRecycled) it.recycle() }
-        cachedObjectBitmap?.let { if (!it.isRecycled) it.recycle() }
+        cachedBitmap?.let { if (!it.isRecycled) it.recycle() }
     }
 }

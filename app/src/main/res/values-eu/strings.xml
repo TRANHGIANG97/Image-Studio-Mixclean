@@ -38,8 +38,6 @@
     <string name="licenses_title">Kode irekiko lizentziak</string>
     <string name="dark_mode_title">Modu iluna</string>
     <string name="dark_mode_description">Aldatu aplikazioaren gai iluna.</string>
-    <string name="home_preview_title">Erakutsi hasierako aurrebista</string>
-    <string name="home_preview_description">Erakutsi aurretik/ondoren konparazio-koadroa hasierako pantailan.</string>
 
     <string name="home_remove_background_title">Kendu atzealdea</string>
     <string name="home_remove_background_subtitle">Hautatu irudi bat eta kendu haren atzealdea ukitu bakar batekin.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI Hedapen Leuna</string>
     <string name="pro_see_details">Xehetasunak ></string>
     <string name="picker_sample_badge">Lagina</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Sortu produktuen argazki profesionalak</string>
+    <string name="home_hero_subtitle">Kendu atzeko planoa, aldatu atzeko planoa, gehitu txantiloiak segundotan</string>
+    <string name="home_hero_action">Aukeratu Argazkia</string>
+    <string name="review_app_button">Tarifa</string>
+    <string name="review_prompt_title">%1$s gozatzen?</string>
+    <string name="review_prompt_message">Sakatu izar bat Google Play-n baloratzeko.</string>
+    <string name="review_prompt_rate_now">Bidali</string>
+    <string name="review_prompt_later">Utzi</string>
+    <string name="home_see_all">Ikusi guztiak</string>
+    <string name="save_success_title">Gorde!</string>
+    <string name="save_success_create_new">Sortu Berria</string>
+    <string name="save_success_try_other_tools">Saiatu beste tresna batzuk</string>
+    <string name="save_success_share">Partekatu</string>
+    <string name="save_success_back">Itzuli</string>
+    <string name="save_success_home">Hasiera</string>
+    <string name="save_success_saved_image">Gordetako irudia</string>
+    <string name="save_success_share_with">Partekatu…</string>
+    <string name="batch_remove_error_load_image">Ezin da irudi hau kargatu.</string>
+    <string name="drafts_error_load">Errore bat gertatu da zirriborroak kargatzean: %1$s</string>
 </resources>

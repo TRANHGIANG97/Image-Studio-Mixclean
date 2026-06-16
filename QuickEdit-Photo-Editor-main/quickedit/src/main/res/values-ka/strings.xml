@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">შემოატრიალეთ 90 გრადუსით ან აირეკლეთ ჰორიზონტალურად და ვერტიკალურად სურათის ორიენტაციის გასასწორებლად.</string>
     <string name="draft_label">დრაფტი</string>
     <string name="draft_saved_successfully">დრაფტი წარმატებით შეინახა</string>
+    <string name="professional_section_title">პროფესიონალი</string>
+    <string name="themeplate_professional_watch">უყურე</string>
+    <string name="themeplate_professional_perfume">სუნამო</string>
+    <string name="themeplate_professional_handbag">ხელჩანთა</string>
+    <string name="home_see_all">იხილეთ ყველა</string>
 </resources>

@@ -161,4 +161,9 @@
     <string name="save_draft_confirm_title">保存草稿？</string>
     <string name="solid_color">纯色</string>
     <string name="studio_effect_requires_background">此功能仅在主体有背景时可用</string>
+    <string name="professional_section_title">专业的</string>
+    <string name="themeplate_professional_watch">手表</string>
+    <string name="themeplate_professional_perfume">香水</string>
+    <string name="themeplate_professional_handbag">手提包</string>
+    <string name="home_see_all">查看全部</string>
 </resources>

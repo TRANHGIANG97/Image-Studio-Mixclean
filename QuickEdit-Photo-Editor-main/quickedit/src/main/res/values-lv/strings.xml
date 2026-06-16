@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Pagrieziet par 90 grādiem vai apgrieziet horizontāli un vertikāli, lai labotu attēla orientāciju.</string>
     <string name="draft_label">Melnraksts</string>
     <string name="draft_saved_successfully">Melnraksts sekmīgi saglabāts</string>
+    <string name="professional_section_title">Profesionāls</string>
+    <string name="themeplate_professional_watch">Skatīties</string>
+    <string name="themeplate_professional_perfume">Smaržas</string>
+    <string name="themeplate_professional_handbag">Rokassomiņa</string>
+    <string name="home_see_all">Skatīt visu</string>
 </resources>

@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Gire 90 graus ou inverta horizontal e verticalmente para corrigir a orientação da imagem.</string>
     <string name="draft_label">Rascunho</string>
     <string name="draft_saved_successfully">Rascunho salvo com sucesso</string>
+    <string name="professional_section_title">Profissional</string>
+    <string name="themeplate_professional_watch">Assistir</string>
+    <string name="themeplate_professional_perfume">Perfume</string>
+    <string name="themeplate_professional_handbag">Bolsa</string>
+    <string name="home_see_all">Ver tudo</string>
 </resources>

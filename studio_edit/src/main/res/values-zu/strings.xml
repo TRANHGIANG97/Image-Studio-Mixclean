@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">I-Studio yoMkhiqizo ye-AI</string>
     <string name="studio_category_electronics">Ezogesi</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Isithunzi</string>
     <string name="studio_tool_transparency">Ukucaca</string>
     <string name="studio_tool_crop">Nquma</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Isitika</string>
     <string name="studio_tool_rotateflip">Phendula/Yisa phezulu naphansi</string>
     <string name="studio_replace_hint">Thinta okuthi Buyisela ukuze ukhethe isithombe somkhiqizo kugalari yakho</string>
     <string name="studio_layout_hint">Donsa ukuze unyakaze · Nciza ukuze usondeze · Phendula ngeminwe emibili</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Azikho izifanekiso ezitholakalayo</string>
     <string name="studio_gallery_coming_soon">Kuyeza maduze</string>
     <string name="studio_gallery_coming_soon_desc">Lesi sici sisathuthukiswa futhi sizotholakala maduze!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Ithimba lokuklama lisebenza kanzima ukuze maduzane lengeze izifanekiso ezengeziwe.</string>
     <string name="themeplate_gallery_title">Izifanekiso</string>
     <string name="studio_save_image_success">Isithombe silondoloziwe</string>
     <string name="studio_error_select_object">Sicela ukhethe into</string>

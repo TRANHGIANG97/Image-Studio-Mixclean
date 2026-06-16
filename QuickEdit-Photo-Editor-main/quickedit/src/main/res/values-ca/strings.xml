@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Aquesta funció només està disponible si el subjecte té un fons</string>
     <string name="draft_label">Esborrany</string>
     <string name="draft_saved_successfully">Esborrany desat correctament</string>
+    <string name="professional_section_title">Professional</string>
+    <string name="themeplate_professional_watch">Mira</string>
+    <string name="themeplate_professional_perfume">Perfum</string>
+    <string name="themeplate_professional_handbag">Bossa de mà</string>
+    <string name="home_see_all">Veure-ho tot</string>
 </resources>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI उत्पादन स्टुडियो</string>
     <string name="studio_category_electronics">इलेक्ट्रोनिक्स</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">छाया</string>
     <string name="studio_tool_transparency">अपारदर्शिता</string>
     <string name="studio_tool_crop">क्रप गर्नुहोस्</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">स्टिकर</string>
     <string name="studio_tool_rotateflip">घुमाउनुहोस्/उल्टाउनुहोस्</string>
     <string name="studio_replace_hint">आफ्नो ग्यालरीबाट उत्पादनको फोटो छान्न \'बदल्नुहोस्\' मा ट्याप गर्नुहोस्</string>
     <string name="studio_layout_hint">सार्नका लागि ड्र्याग गर्नुहोस् · जुम गर्न औंलाहरू खुम्च्याउनुहोस् · दुई औंलाले घुमाउनुहोस्</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">कुनै टेम्प्लेटहरू उपलब्ध छैनन्</string>
     <string name="studio_gallery_coming_soon">चाँडै आउँदैछ</string>
     <string name="studio_gallery_coming_soon_desc">यो सुविधा विकास अन्तर्गत छ र चाँडै उपलब्ध हुनेछ!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">डिजाइन टोलीले चाँडै थप टेम्प्लेटहरू थप्न कडा मेहनत गरिरहेको छ।</string>
     <string name="themeplate_gallery_title">टेम्प्लेटहरू</string>
     <string name="studio_save_image_success">छवि सुरक्षित गरियो</string>
     <string name="studio_error_select_object">कृपया एउटा वस्तु चयन गर्नुहोस्</string>

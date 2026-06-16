@@ -38,8 +38,6 @@
     <string name="licenses_title">Atvirojo kodo licencijos</string>
     <string name="dark_mode_title">Tamsusis režimas</string>
     <string name="dark_mode_description">Perjungti programėlės tamsiąją temą.</string>
-    <string name="home_preview_title">Rodyti pradžios peržiūrą</string>
-    <string name="home_preview_description">Pradiniame ekrane rodyti palyginimo „prieš / po“ laukelį.</string>
 
     <string name="home_remove_background_title">Pašalinti foną</string>
     <string name="home_remove_background_subtitle">Pasirinkite nuotrauką ir vienu paspaudimu pašalinkite jos foną.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Sklandus AI išplėtimas</string>
     <string name="pro_see_details">Detalės ></string>
     <string name="picker_sample_badge">Pavyzdys</string>
+    <string name="home_hero_subtitle_short">AI nuotraukų redaktorius</string>
+    <string name="home_hero_title">Kurkite profesionalias produktų nuotraukas</string>
+    <string name="home_hero_subtitle">Pašalinkite foną, pakeiskite foną, pridėkite šablonų per kelias sekundes</string>
+    <string name="home_hero_action">Pasirinkite nuotrauką</string>
+    <string name="review_app_button">Įvertink</string>
+    <string name="review_prompt_title">Mėgaukitės %1$s?</string>
+    <string name="review_prompt_message">Palieskite žvaigždutę, kad įvertintumėte ją sistemoje „Google Play“.</string>
+    <string name="review_prompt_rate_now">Pateikti</string>
+    <string name="review_prompt_later">Atšaukti</string>
+    <string name="home_see_all">Žiūrėti viską</string>
+    <string name="save_success_title">Išsaugota!</string>
+    <string name="save_success_create_new">Sukurti naują</string>
+    <string name="save_success_try_other_tools">Išbandykite kitus įrankius</string>
+    <string name="save_success_share">Dalintis</string>
+    <string name="save_success_back">Atgal</string>
+    <string name="save_success_home">Pradžia</string>
+    <string name="save_success_saved_image">Išsaugotas vaizdas</string>
+    <string name="save_success_share_with">Bendrinti su…</string>
+    <string name="batch_remove_error_load_image">Nepavyko įkelti šio vaizdo.</string>
+    <string name="drafts_error_load">Klaida įkeliant juodraščius: %1$s</string>
 </resources>

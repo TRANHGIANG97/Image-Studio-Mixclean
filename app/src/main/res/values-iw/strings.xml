@@ -38,8 +38,6 @@
     <string name="licenses_title">רישיונות קוד פתוח</string>
     <string name="dark_mode_title">מצב כהה</string>
     <string name="dark_mode_description">החלף את ערכת הנושא הכהה של האפליקציה.</string>
-    <string name="home_preview_title">הצג תצוגה מקדימה בבית</string>
-    <string name="home_preview_description">הצג תיבת השוואה לפני / אחרי במסך הבית.</string>
 
     <string name="home_remove_background_title">הסרת רקע</string>
     <string name="home_remove_background_subtitle">בחר תמונה והסר את הרקע שלה בלחיצה אחת.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">הרחבת AI חלקה</string>
     <string name="pro_see_details">פרטים ></string>
     <string name="picker_sample_badge">דוגמה</string>
+    <string name="home_hero_subtitle_short">עורך תמונות AI</string>
+    <string name="home_hero_title">צור תמונות מוצר מקצועיות</string>
+    <string name="home_hero_subtitle">הסר רקע, שנה רקע, הוסף תבניות בשניות</string>
+    <string name="home_hero_action">בחר תמונה</string>
+    <string name="review_app_button">קֶצֶב</string>
+    <string name="review_prompt_title">נהנה מ%1$s?</string>
+    <string name="review_prompt_message">הקש על כוכב כדי לדרג אותו ב-Google Play.</string>
+    <string name="review_prompt_rate_now">לְהַגִישׁ</string>
+    <string name="review_prompt_later">לְבַטֵל</string>
+    <string name="home_see_all">ראה הכל</string>
+    <string name="save_success_title">נשמר!</string>
+    <string name="save_success_create_new">צור חדש</string>
+    <string name="save_success_try_other_tools">נסה כלים אחרים</string>
+    <string name="save_success_share">לַחֲלוֹק</string>
+    <string name="save_success_back">בְּחֲזָרָה</string>
+    <string name="save_success_home">בַּיִת</string>
+    <string name="save_success_saved_image">תמונה נשמרה</string>
+    <string name="save_success_share_with">שתף עם…</string>
+    <string name="batch_remove_error_load_image">לא ניתן לטעון את התמונה הזו.</string>
+    <string name="drafts_error_load">שגיאה בטעינת טיוטות: %1$s</string>
 </resources>

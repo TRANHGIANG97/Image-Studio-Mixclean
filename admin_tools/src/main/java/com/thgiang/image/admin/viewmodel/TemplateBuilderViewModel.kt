@@ -223,7 +223,9 @@ class TemplateBuilderViewModel @Inject constructor(
             EditorEvent.Redo -> redo()
             EditorEvent.MoveLayerUp -> moveLayer(up = true)
             EditorEvent.MoveLayerDown -> moveLayer(up = false)
+            EditorEvent.SaveDraft -> Unit
             is EditorEvent.Export -> export(event.templateAssetPath)
+            else -> Unit // Ignore new shape text events for now
         }
     }
 

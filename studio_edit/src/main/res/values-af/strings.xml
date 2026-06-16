@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI-produkstudio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Skaduwee</string>
     <string name="studio_tool_transparency">Deursigtigheid</string>
     <string name="studio_tool_crop">Knip</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Plakker</string>
     <string name="studio_tool_rotateflip">Draai/Spieël</string>
     <string name="studio_replace_hint">Tik op Vervang om \'n produkfoto uit jou galery te kies</string>
     <string name="studio_layout_hint">Sleep om te skuif · Knyp om te zoem · Draai met twee vingers</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Geen sjablone beskikbaar nie</string>
     <string name="studio_gallery_coming_soon">Binnekort beskikbaar</string>
     <string name="studio_gallery_coming_soon_desc">Hierdie kenmerk is onder ontwikkeling en sal binnekort beskikbaar wees!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Die ontwerp span werk hard daaraan om binnekort meer sjablone by te voeg.</string>
     <string name="themeplate_gallery_title">Sjablone</string>
     <string name="studio_save_image_success">Prent is gestoor</string>
     <string name="studio_error_select_object">Kies asseblief \'n voorwerp</string>

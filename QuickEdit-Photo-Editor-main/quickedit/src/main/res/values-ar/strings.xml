@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">هذه الوظيفة متاحة فقط عندما يحتوي العنصر الأساسي على خلفية</string>
     <string name="draft_label">مسودة</string>
     <string name="draft_saved_successfully">تم حفظ المسودة بنجاح</string>
+    <string name="professional_section_title">احترافي</string>
+    <string name="themeplate_professional_watch">يشاهد</string>
+    <string name="themeplate_professional_perfume">عطر</string>
+    <string name="themeplate_professional_handbag">حقيبة يد</string>
+    <string name="home_see_all">رؤية الكل</string>
 </resources>

@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">برای اصلاح جهت تصویر، آن را ۹۰ درجه بچرخانید یا به صورت افقی و عمودی قرینهسازی کنید.</string>
     <string name="draft_label">پیش‌نویس</string>
     <string name="draft_saved_successfully">پیش‌نویس با موفقیت ذخیره شد</string>
+    <string name="professional_section_title">حرفه ای</string>
+    <string name="themeplate_professional_watch">تماشا کنید</string>
+    <string name="themeplate_professional_perfume">عطر</string>
+    <string name="themeplate_professional_handbag">کیف دستی</string>
+    <string name="home_see_all">مشاهده همه</string>
 </resources>

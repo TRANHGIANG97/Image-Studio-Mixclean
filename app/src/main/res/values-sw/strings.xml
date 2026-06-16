@@ -38,8 +38,6 @@
     <string name="licenses_title">Leseni za Chanzo Wazi</string>
     <string name="dark_mode_title">Hali ya Giza</string>
     <string name="dark_mode_description">Badilisha mandhari ya programu kuwa hali ya giza.</string>
-    <string name="home_preview_title">Uhakiki wa Skrini ya Nyumbani</string>
-    <string name="home_preview_description">Onyesha kisanduku cha kulinganisha Kabla/Baada kwenye skrini ya nyumbani.</string>
 
     <string name="home_remove_background_title">Ondoa Mandharinyuma</string>
     <string name="home_remove_background_subtitle">Chagua picha na uondoe mandharinyuma kwa mbofyo mmoja tu.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Panua picha kwa kawaida kupitia AI</string>
     <string name="pro_see_details">Tazama maelezo ></string>
     <string name="picker_sample_badge">Mfano</string>
+    <string name="home_hero_subtitle_short">Mhariri wa Picha wa AI</string>
+    <string name="home_hero_title">Unda Picha za Bidhaa za Kitaalam</string>
+    <string name="home_hero_subtitle">Ondoa mandharinyuma, badilisha mandhari, ongeza violezo kwa sekunde</string>
+    <string name="home_hero_action">Chagua Picha</string>
+    <string name="review_app_button">Kiwango</string>
+    <string name="review_prompt_title">Je, unafurahia %1$s?</string>
+    <string name="review_prompt_message">Gusa nyota ili kuikadiria kwenye Google Play.</string>
+    <string name="review_prompt_rate_now">Wasilisha</string>
+    <string name="review_prompt_later">Ghairi</string>
+    <string name="home_see_all">Tazama Yote</string>
+    <string name="save_success_title">Imehifadhiwa!</string>
+    <string name="save_success_create_new">Unda Mpya</string>
+    <string name="save_success_try_other_tools">Jaribu zana zingine</string>
+    <string name="save_success_share">Shiriki</string>
+    <string name="save_success_back">Nyuma</string>
+    <string name="save_success_home">Nyumbani</string>
+    <string name="save_success_saved_image">Picha iliyohifadhiwa</string>
+    <string name="save_success_share_with">Shiriki na...</string>
+    <string name="batch_remove_error_load_image">Haiwezi kupakia picha hii.</string>
+    <string name="drafts_error_load">Hitilafu katika kupakia rasimu: %1$s</string>
 </resources>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Лиценце отвореног кода</string>
     <string name="dark_mode_title">Тамни режим</string>
     <string name="dark_mode_description">Промените тамну тему апликације.</string>
-    <string name="home_preview_title">Прикажи преглед на почетној</string>
-    <string name="home_preview_description">Прикажи оквир за поређење Пре / После на почетном екрану.</string>
 
     <string name="home_remove_background_title">Уклони позадину</string>
     <string name="home_remove_background_subtitle">Изаберите слику и уклоните њену позадину једним додиром.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Глатко ИИ проширење</string>
     <string name="pro_see_details">Детаљи ></string>
     <string name="picker_sample_badge">Узорак</string>
+    <string name="home_hero_subtitle_short">АИ Пхото Едитор</string>
+    <string name="home_hero_title">Направите професионалне фотографије производа</string>
+    <string name="home_hero_subtitle">Уклоните позадину, промените позадину, додајте шаблоне за неколико секунди</string>
+    <string name="home_hero_action">Изаберите Фотографија</string>
+    <string name="review_app_button">Рате</string>
+    <string name="review_prompt_title">Уживате у ___ПХ0___?</string>
+    <string name="review_prompt_message">Додирните звездицу да бисте је оценили на Гоогле Плаи-у.</string>
+    <string name="review_prompt_rate_now">Субмит</string>
+    <string name="review_prompt_later">Откажи</string>
+    <string name="home_see_all">Види све</string>
+    <string name="save_success_title">Сачувано!</string>
+    <string name="save_success_create_new">Цреате Нев</string>
+    <string name="save_success_try_other_tools">Пробајте друге алате</string>
+    <string name="save_success_share">Схаре</string>
+    <string name="save_success_back">Назад</string>
+    <string name="save_success_home">Хоме</string>
+    <string name="save_success_saved_image">Сачувана слика</string>
+    <string name="save_success_share_with">Подели са…</string>
+    <string name="batch_remove_error_load_image">Није могуће учитати ову слику.</string>
+    <string name="drafts_error_load">Грешка при учитавању радних верзија: ___ПХ0___</string>
 </resources>

@@ -2,6 +2,7 @@ package com.thgiang.image.app.navigation
 
 import android.app.Activity
 import android.content.Context
+import com.google.firebase.analytics.FirebaseAnalytics
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -62,6 +63,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -112,13 +114,19 @@ private enum class ReviewPromptSource {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppRoot(
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    initialRoute: String? = null
 ) {
     val appState by appViewModel.uiState.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
 
     val navController = rememberNavController()
+    LaunchedEffect(initialRoute) {
+        initialRoute?.let { route ->
+            navController.navigate(route)
+        }
+    }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -547,6 +555,11 @@ fun AppRoot(
                     
                     SingleImagePickerScreen(
                         onImageSelected = { uri ->
+                            try {
+                                FirebaseAnalytics.getInstance(context).logEvent("select_image", null)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
                             if (isPresetModeForPicker) {
                                 navController.previousBackStackEntry?.savedStateHandle?.set("picked_uri", uri)
                                 navController.popBackStack()
@@ -621,10 +634,6 @@ fun AppRoot(
                         onDarkModeChange = appViewModel::setDarkMode,
                         selectedLanguage = appState.selectedLanguage,
                         onLanguageChange = appViewModel::setLanguage,
-                        preferredRemovalQuality = appState.preferredRemovalQuality,
-                        onPreferredRemovalQualityChange = appViewModel::setPreferredRemovalQuality,
-                        isHomePreviewEnabled = appState.isHomePreviewEnabled,
-                        onHomePreviewEnabledChange = appViewModel::setHomePreviewEnabled,
                         isPremium = appState.isPremium,
                         onOpenPro = { showPremiumScreen = true },
                         modifier = Modifier
@@ -635,11 +644,16 @@ fun AppRoot(
                 composable(Screen.Drafts.route) {
                     com.thgiang.image.feature.drafts.ui.DraftsScreen(
                         onBack = { navController.popBackStack() },
-                        onSelectDraft = { draftId ->
+                        onSelectDraft = { draft ->
                             navController.popBackStack(Screen.Home.route, inclusive = false)
-                            activity?.startActivity(
-                                QuickEditActivity.createIntent(context, draftId = draftId)
-                            )
+                            if (draft.isTemplate) {
+                                // For templates, we pass a dummy themeplateId ("draft") since the viewModel will load from draftId
+                                navController.navigate(Screen.StudioEditor.createRoute("draft", draft.id))
+                            } else {
+                                activity?.startActivity(
+                                    QuickEditActivity.createIntent(context, draftId = draft.id)
+                                )
+                            }
                         }
                     )
                 }
@@ -648,12 +662,23 @@ fun AppRoot(
                     arguments = listOf(
                         navArgument("themeplateId") {
                             type = NavType.StringType
+                        },
+                        navArgument("draftId") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
                         }
                     )
                 ) {
                     val themeplateId = it.arguments?.getString("themeplateId") ?: ""
-                    val themeplate = StudioThemeplates.findById(themeplateId)
-                    if (themeplate != null) {
+                    val draftId = it.arguments?.getString("draftId")
+                    val themeplate = StudioThemeplates.findById(themeplateId) ?: StudioThemeplate(
+                        id = "draft", 
+                        titleResId = com.thgiang.image.R.string.home_draft, 
+                        assetPath = "",
+                        accentColor = androidx.compose.ui.graphics.Color.Transparent
+                    )
+                    if (true) {
                         ThemeplateEditorScreen(
                             themeplate = themeplate,
                             onBack = { navController.popBackStack() },
@@ -686,8 +711,8 @@ fun AppRoot(
                     ThemeplateGalleryScreen(
                         initialTabIndex = initialTab,
                         onBack = { navController.popBackStack() },
-                        onThemeplateSelected = { themeplate ->
-                            navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
+                        onThemeplateSelected = { themeplateId ->
+                            navController.navigate(Screen.StudioEditor.createRoute(themeplateId))
                         }
                     )
                 }

@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Tasvir yo‘nalishini to‘g‘rilash uchun 90 darajaga buring yoki gorizontal va vertikal ravishda ag‘daring.</string>
     <string name="draft_label">Qoralama</string>
     <string name="draft_saved_successfully">Qoralama muvaffaqiyatli saqlandi</string>
+    <string name="professional_section_title">Professional</string>
+    <string name="themeplate_professional_watch">Tomosha qiling</string>
+    <string name="themeplate_professional_perfume">Parfyumeriya</string>
+    <string name="themeplate_professional_handbag">Qo\'l sumkasi</string>
+    <string name="home_see_all">Hammasini koʻrish</string>
 </resources>

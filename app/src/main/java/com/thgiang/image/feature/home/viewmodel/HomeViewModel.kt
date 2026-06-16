@@ -25,6 +25,16 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.thgiang.image.studio.model.StudioThemeplate
+import com.thgiang.image.studio.model.StudioThemeplateSection
+import com.thgiang.image.studio.model.StudioThemeplates
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.update
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -35,13 +45,6 @@ class HomeViewModel @Inject constructor(
     private val draftManager: com.thgiang.image.feature.editor.model.DraftManager,
     private val appOpenAdManager: com.thgiang.image.core.ad.AppOpenAdManager
 ) : ViewModel() {
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            draftManager.migrateOldProject()
-        }
-    }
-
 
     @Volatile
     private var useProQualityForRemoval: Boolean = false
@@ -56,6 +59,13 @@ class HomeViewModel @Inject constructor(
 
     private val _messages = MutableSharedFlow<String>()
     val messages: SharedFlow<String> = _messages.asSharedFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            draftManager.migrateOldProject()
+        }
+        loadCloudTemplates()
+    }
 
     fun onPresetSelected(style: PresetStyle) {
         _uiState.value = _uiState.value.copy(
@@ -210,6 +220,111 @@ class HomeViewModel @Inject constructor(
     private fun emitMessage(message: String) {
         viewModelScope.launch {
             _messages.emit(message)
+        }
+    }
+
+    fun refreshTemplates() {
+        loadCloudTemplates()
+    }
+
+    private fun loadCloudTemplates() {
+        _uiState.update { it.copy(isLoadingTemplates = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val cosmeticsJob = async { fetchTemplatesForCategory("cosmetics") }
+                val professionalJob = async { fetchTemplatesForCategory("professional") }
+                val digitalLifeJob = async { fetchTemplatesForCategory("digital_life") }
+                val selfieFoodJob = async { fetchTemplatesForCategory("selfie_food") }
+
+                val cosmetics = cosmeticsJob.await()
+                val professional = professionalJob.await()
+                val digitalLife = digitalLifeJob.await()
+                val selfieFood = selfieFoodJob.await()
+
+                _uiState.update {
+                    it.copy(
+                        cosmeticsTemplates = cosmetics,
+                        professionalTemplates = professional,
+                        digitalLifeTemplates = digitalLife,
+                        selfieFoodTemplates = selfieFood,
+                        isLoadingTemplates = false
+                    )
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("HomeVM", "Failed to load cloud templates", e)
+                _uiState.update { it.copy(isLoadingTemplates = false) }
+            }
+        }
+    }
+
+    private fun fetchTemplatesForCategory(categoryId: String): List<StudioThemeplate> {
+        val baseUrl = com.thgiang.image.BuildConfig.ADMIN_WEB_BASE_URL
+        if (baseUrl.isBlank()) return emptyList()
+
+        val env = if (com.thgiang.image.BuildConfig.DEBUG) "debug" else "release"
+        val connection = (URL("$baseUrl/api/v1/templates?categoryId=$categoryId&limit=20&env=$env").openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            connectTimeout = 5000
+            readTimeout = 5000
+            setRequestProperty("Accept", "application/json")
+        }
+
+        try {
+            val body = if (connection.responseCode in 200..299) {
+                connection.inputStream.bufferedReader().use { it.readText() }
+            } else {
+                connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+            }
+
+            if (body.isBlank()) return emptyList()
+
+            val root = JSONObject(body)
+            if (!root.optBoolean("success", false)) return emptyList()
+
+            val templatesArray = root.optJSONArray("templates") ?: return emptyList()
+            return buildList {
+                for (index in 0 until templatesArray.length()) {
+                    val item = templatesArray.optJSONObject(index) ?: continue
+                    val id = item.optString("template_id").ifBlank { item.optString("id") }
+                    val title = item.optString("title")
+                    val thumbnailUrl = item.optString("thumbnail_url")
+                    
+                    var objectSourceAssetPath: String? = null
+                    val canvasData = item.optJSONObject("canvas_data")
+                    if (canvasData != null) {
+                        val layersArray = canvasData.optJSONArray("layers")
+                        if (layersArray != null) {
+                            for (lIndex in 0 until layersArray.length()) {
+                                val layer = layersArray.optJSONObject(lIndex) ?: continue
+                                if (layer.optString("type") == "PLACEHOLDER_OBJECT") {
+                                    val payload = layer.optJSONObject("payload")
+                                    objectSourceAssetPath = payload?.optString("imageUrl") 
+                                        ?: payload?.optString("defaultImageUrl")
+                                    break
+                                }
+                            }
+                        }
+                    }
+
+                    add(
+                        StudioThemeplate(
+                            id = id,
+                            titleResId = com.thgiang.image.studio.R.string.themeplate_professional_watch,
+                            assetPath = thumbnailUrl,
+                            backgroundAssetPath = thumbnailUrl,
+                            objectSourceAssetPath = objectSourceAssetPath,
+                            accentColor = androidx.compose.ui.graphics.Color(0xFF7C4DFF),
+                            category = categoryId,
+                            titleString = title
+                        )
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("HomeVM", "fetchTemplatesForCategory failed for $categoryId", e)
+            return emptyList()
+        } finally {
+            connection.disconnect()
         }
     }
 }

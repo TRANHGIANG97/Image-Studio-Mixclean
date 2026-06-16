@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">तस्बिरको अभिमुखीकरण मिलाउन ९० डिग्री घुमाउनुहोस् वा तेर्सो र ठाडो रूपमा फ्लिप गर्नुहोस्।</string>
     <string name="draft_label">मस्यौदा</string>
     <string name="draft_saved_successfully">मस्यौदा सफलतापूर्वक सुरक्षित गरियो</string>
+    <string name="professional_section_title">व्यावसायिक</string>
+    <string name="themeplate_professional_watch">हेर्नुहोस्</string>
+    <string name="themeplate_professional_perfume">अत्तर</string>
+    <string name="themeplate_professional_handbag">ह्यान्डब्याग</string>
+    <string name="home_see_all">सबै हेर्नुहोस्</string>
 </resources>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Студио за продукти</string>
     <string name="studio_category_electronics">Електроника</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Сянка</string>
     <string name="studio_tool_transparency">Непрозрачност</string>
     <string name="studio_tool_crop">Изрязване</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Стикер</string>
     <string name="studio_tool_rotateflip">Завъртане/Обръщане</string>
     <string name="studio_replace_hint">Докоснете „Замяна“, за да изберете снимка на продукт от галерията</string>
     <string name="studio_layout_hint">Плъзнете за преместване · Щипнете за мащабиране · Завъртете с два пръста</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Няма налични шаблони</string>
     <string name="studio_gallery_coming_soon">Очаквайте скоро</string>
     <string name="studio_gallery_coming_soon_desc">Тази функция е в процес на разработка и скоро ще бъде налична!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Екипът по дизайн работи усърдно, за да добави скоро още шаблони.</string>
     <string name="themeplate_gallery_title">Шаблони</string>
     <string name="studio_save_image_success">Изображението е запазено</string>
     <string name="studio_error_select_object">Моля, изберете обект</string>

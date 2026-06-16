@@ -38,8 +38,6 @@
     <string name="licenses_title">Лицензи с отворен код</string>
     <string name="dark_mode_title">Тъмен режим</string>
     <string name="dark_mode_description">Превключване на тъмната тема на приложението.</string>
-    <string name="home_preview_title">Показване на преглед на началния екран</string>
-    <string name="home_preview_description">Показване на поле за сравнение Преди / След на началния екран.</string>
 
     <string name="home_remove_background_title">Премахване на фон</string>
     <string name="home_remove_background_subtitle">Изберете изображение и премахнете фона му с едно докосване.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Плавно AI разширяване</string>
     <string name="pro_see_details">Детайли ></string>
     <string name="picker_sample_badge">Мостра</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Създавайте професионални снимки на продукти</string>
+    <string name="home_hero_subtitle">Премахнете фона, сменете фона, добавете шаблони за секунди</string>
+    <string name="home_hero_action">Изберете Снимка</string>
+    <string name="review_app_button">Оценете</string>
+    <string name="review_prompt_title">Харесвате ли %1$s?</string>
+    <string name="review_prompt_message">Докоснете звезда, за да го оцените в Google Play.</string>
+    <string name="review_prompt_rate_now">Изпратете</string>
+    <string name="review_prompt_later">Отказ</string>
+    <string name="home_see_all">Вижте всички</string>
+    <string name="save_success_title">Запазено!</string>
+    <string name="save_success_create_new">Създаване на нов</string>
+    <string name="save_success_try_other_tools">Опитайте други инструменти</string>
+    <string name="save_success_share">Споделете</string>
+    <string name="save_success_back">Назад</string>
+    <string name="save_success_home">Начало</string>
+    <string name="save_success_saved_image">Запазено изображение</string>
+    <string name="save_success_share_with">Споделете с...</string>
+    <string name="batch_remove_error_load_image">Това изображение не може да се зареди.</string>
+    <string name="drafts_error_load">Грешка при зареждане на чернови: %1$s</string>
 </resources>

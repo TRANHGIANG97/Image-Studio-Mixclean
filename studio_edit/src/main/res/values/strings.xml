@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Electronics</string>
@@ -110,5 +110,32 @@
     <string name="studio_error_save_image">Failed to save image</string>
     <string name="studio_error_render_failed">Render failed: %1$s</string>
     <string name="studio_error_unknown">Unknown error</string>
+    <string name="studio_confirm_exit_title">Discard changes?</string>
+    <string name="studio_confirm_exit_message">You have unsaved changes. Do you want to exit without saving?</string>
+    <string name="studio_confirm_exit_action">Discard</string>
+    <string name="studio_confirm_exit_cancel">Keep editing</string>
+    <string name="studio_share">Share</string>
+    <string name="studio_save_draft">Save draft</string>
+    <string name="studio_save_draft_dialog_title">Save current work?</string>
+    <string name="studio_save_draft_dialog_message">Save this design as a draft to continue later?</string>
+    <string name="studio_save_draft_confirm">Save draft</string>
+    <string name="studio_draft_saved">Draft saved</string>
+    <string name="studio_reset_zoom">Reset</string>
+    <!-- Shape &amp; Text Label tool -->
+    <string name="studio_tool_label">Label</string>
+    <string name="studio_label_add_text">Add text</string>
+    <string name="studio_label_add_shape">Add Label</string>
+    <string name="studio_label_shape_pill">Pill</string>
+    <string name="studio_label_shape_card">Card</string>
+    <string name="studio_label_shape_teardrop">Bubble</string>
+    <string name="studio_label_edit_text">Text</string>
+    <string name="studio_label_fill_color">Fill Color</string>
+    <string name="studio_label_text_color">Text Color</string>
+    <string name="studio_label_text_size">Text Size</string>
+    <string name="studio_label_font_family">Font</string>
+    <string name="studio_label_shape_type">Shape</string>
+    <string name="studio_objects_label">Objects</string>
+    <string name="studio_layer_text_label">Text</string>
+    <string name="studio_layer_image_label">Image %1$d</string>
 </resources>
 

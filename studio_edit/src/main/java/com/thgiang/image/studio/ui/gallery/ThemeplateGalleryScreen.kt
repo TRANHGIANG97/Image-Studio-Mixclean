@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,10 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.model.StudioThemeplate
-import com.thgiang.image.studio.model.StudioThemeplates
-import com.thgiang.image.studio.ui.list.ThemeplateCardV2
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.thgiang.image.core.domain.model.template.CloudCategory
 
@@ -33,16 +33,24 @@ import com.thgiang.image.core.domain.model.template.CloudCategory
 fun ThemeplateGalleryScreen(
     initialTabIndex: Int,
     onBack: () -> Unit,
-    onThemeplateSelected: (StudioThemeplate) -> Unit,
+    onThemeplateSelected: (String) -> Unit,
     viewModel: ThemeplateGalleryViewModel = hiltViewModel()
 ) {
     val categories by viewModel.categories.collectAsState()
+    val remoteTemplates by viewModel.remoteTemplates.collectAsState()
+    val loadingRemoteTemplates by viewModel.loadingRemoteTemplates.collectAsState()
     
     var selectedTabIndex by remember { mutableStateOf(initialTabIndex) }
 
     LaunchedEffect(categories) {
         if (categories.isNotEmpty() && selectedTabIndex >= categories.size) {
             selectedTabIndex = 0
+        }
+    }
+
+    LaunchedEffect(categories, selectedTabIndex) {
+        if (categories.isNotEmpty() && selectedTabIndex < categories.size) {
+            viewModel.loadTemplatesForCategory(categories[selectedTabIndex].id)
         }
     }
 
@@ -88,7 +96,10 @@ fun ThemeplateGalleryScreen(
                     val selected = selectedTabIndex == index
                     Tab(
                         selected = selected,
-                        onClick = { selectedTabIndex = index },
+                        onClick = {
+                            selectedTabIndex = index
+                            viewModel.loadTemplatesForCategory(category.id)
+                        },
                         modifier = Modifier
                             .padding(vertical = 8.dp, horizontal = 4.dp)
                             .clip(RoundedCornerShape(20.dp))
@@ -121,26 +132,11 @@ fun ThemeplateGalleryScreen(
                     .weight(1f)
             ) {
                 if (categories.isNotEmpty() && selectedTabIndex < categories.size) {
-                    val currentCategoryId = categories[selectedTabIndex].id
-                    when (currentCategoryId) {
-                        "professional" -> ThemeplateGrid(
-                            themeplates = StudioThemeplates.professional,
-                            onThemeplateSelected = onThemeplateSelected
-                        )
-                        "cosmetics" -> ThemeplateGrid(
-                            themeplates = StudioThemeplates.cosmetics,
-                            onThemeplateSelected = onThemeplateSelected
-                        )
-                        "digital_life" -> ThemeplateGrid(
-                            themeplates = StudioThemeplates.professionalSections.getOrNull(0)?.themeplates ?: emptyList(),
-                            onThemeplateSelected = onThemeplateSelected
-                        )
-                        "selfie_food" -> ThemeplateGrid(
-                            themeplates = StudioThemeplates.professionalSections.getOrNull(1)?.themeplates ?: emptyList(),
-                            onThemeplateSelected = onThemeplateSelected
-                        )
-                        else -> ComingSoonView()
-                    }
+                    RemoteThemeplateGrid(
+                        templates = remoteTemplates,
+                        isLoading = loadingRemoteTemplates,
+                        onTemplateSelected = onThemeplateSelected
+                    )
                 }
             }
         }
@@ -148,13 +144,21 @@ fun ThemeplateGalleryScreen(
 }
 
 @Composable
-private fun ThemeplateGrid(
-    themeplates: List<StudioThemeplate>,
-    onThemeplateSelected: (StudioThemeplate) -> Unit
+private fun RemoteThemeplateGrid(
+    templates: List<RemoteThemeplateItem>,
+    isLoading: Boolean,
+    onTemplateSelected: (String) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            if (themeplates.isEmpty()) {
+            if (isLoading && templates.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFFFF2D55))
+                }
+            } else if (templates.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -167,19 +171,19 @@ private fun ThemeplateGrid(
                 }
             } else {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    contentPadding = PaddingValues(start = 5.dp, top = 8.dp, end = 5.dp, bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(
-                        items = themeplates,
+                        items = templates,
                         key = { it.id }
-                    ) { themeplate ->
-                        ThemeplateCardV2(
-                            themeplate = themeplate,
-                            onClick = { onThemeplateSelected(themeplate) }
+                    ) { template ->
+                        RemoteThemeplateCard(
+                            template = template,
+                            onClick = { onTemplateSelected(template.id) }
                         )
                     }
                 }
@@ -202,6 +206,86 @@ private fun ThemeplateGrid(
             maxLines = 3
         )
         Spacer(modifier = Modifier.height(4.dp))
+    }
+}
+
+@Composable
+private fun RemoteThemeplateCard(
+    template: RemoteThemeplateItem,
+    onClick: () -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        tonalElevation = 5.dp,
+        shadowElevation = 5.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(0.92f)
+                .background(Color(0xFFF5F5F5))
+        ) {
+            com.thgiang.image.studio.util.CloudFirstSubcomposeAsyncImage(
+                sourcePath = template.thumbnailUrl,
+                contentDescription = template.title,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                loading = {
+                    com.thgiang.image.studio.ui.list.ShimmerBox(Modifier.matchParentSize())
+                },
+                error = {
+                    Box(
+                        Modifier.matchParentSize().background(Color(0xFFEEEEEE)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Error,
+                            contentDescription = "Error",
+                            tint = Color.Gray.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+            )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(10.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.Black.copy(alpha = 0.35f))
+                    .padding(horizontal = 8.dp, vertical = 5.dp)
+            ) {
+                Text(
+                    text = template.title,
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2
+                )
+            }
+
+            if (template.status != "published") {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(999.dp))
+                        .background(Color.Black.copy(alpha = 0.35f))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = template.status,
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
     }
 }
 

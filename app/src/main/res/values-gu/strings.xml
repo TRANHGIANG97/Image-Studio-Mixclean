@@ -38,8 +38,6 @@
     <string name="licenses_title">ઓપન સોર્સ લાઇસન્સ</string>
     <string name="dark_mode_title">ડાર્ક મોડ</string>
     <string name="dark_mode_description">એપ્લિકેશનની થીમ ડાર્ક મોડમાં બદલો.</string>
-    <string name="home_preview_title">હોમ સ્ક્રીન પર પ્રિવ્યૂ જુઓ</string>
-    <string name="home_preview_description">હોમ સ્ક્રીન પર પહેલાં/પછીનું (Before/After) સરખામણી બોક્સ બતાવો.</string>
 
     <string name="home_remove_background_title">બેકગ્રાઉન્ડ હટાવો</string>
     <string name="home_remove_background_subtitle">એક ફોટો પસંદ કરો અને માત્ર એક ટેપમાં તેનું બેકગ્રાઉન્ડ હટાવો.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI સ્મૂધ ઇમેજ એક્સપાન્ડ</string>
     <string name="pro_see_details">વિગતો જુઓ ></string>
     <string name="picker_sample_badge">નમૂનો</string>
+    <string name="home_hero_subtitle_short">એઆઈ ફોટો એડિટર</string>
+    <string name="home_hero_title">વ્યવસાયિક ઉત્પાદન ફોટા બનાવો</string>
+    <string name="home_hero_subtitle">પૃષ્ઠભૂમિ દૂર કરો, પૃષ્ઠભૂમિ બદલો, સેકન્ડોમાં નમૂનાઓ ઉમેરો</string>
+    <string name="home_hero_action">ફોટો પસંદ કરો</string>
+    <string name="review_app_button">દર</string>
+    <string name="review_prompt_title">%1$s માણી રહ્યાં છો?</string>
+    <string name="review_prompt_message">તેને Google Play પર રેટ કરવા માટે તારા પર ટૅપ કરો.</string>
+    <string name="review_prompt_rate_now">સબમિટ કરો</string>
+    <string name="review_prompt_later">રદ કરો</string>
+    <string name="home_see_all">બધા જુઓ</string>
+    <string name="save_success_title">સાચવ્યું!</string>
+    <string name="save_success_create_new">નવું બનાવો</string>
+    <string name="save_success_try_other_tools">અન્ય સાધનો અજમાવી જુઓ</string>
+    <string name="save_success_share">શેર કરો</string>
+    <string name="save_success_back">પાછળ</string>
+    <string name="save_success_home">ઘર</string>
+    <string name="save_success_saved_image">સાચવેલી છબી</string>
+    <string name="save_success_share_with">આની સાથે શેર કરો...</string>
+    <string name="batch_remove_error_load_image">આ છબી લોડ કરી શકાતી નથી.</string>
+    <string name="drafts_error_load">ડ્રાફ્ટ લોડ કરવામાં ભૂલ: %1$s</string>
 </resources>

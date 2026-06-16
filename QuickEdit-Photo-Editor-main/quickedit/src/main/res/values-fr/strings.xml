@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Faites pivoter de 90 degrés ou retournez horizontalement et verticalement pour corriger l\'orientation de l\'image.</string>
     <string name="draft_label">Brouillon</string>
     <string name="draft_saved_successfully">Brouillon enregistré avec succès</string>
+    <string name="professional_section_title">Professionnel</string>
+    <string name="themeplate_professional_watch">Montre</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Sac à main</string>
+    <string name="home_see_all">Tout afficher</string>
 </resources>

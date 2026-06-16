@@ -11,7 +11,10 @@ data class DraftMetadata(
     val name: String,
     val createdAt: Long,
     val updatedAt: Long,
-    val thumbnailPath: String? = null
+    val thumbnailPath: String? = null,
+    val isTemplate: Boolean = false,
+    val templateAssetPath: String? = null,
+    val templateObjectAssetPath: String? = null
 )
 
 /**
@@ -46,6 +49,14 @@ data class LayerSnapshot(
     val backgroundType: String? = null,  // chỉ dùng cho BACKGROUND
     val textConfigJson: String? = null,  // chỉ dùng cho TEXT
     val bitmapWidth: Int = 0,            // chỉ dùng cho TEXT
-    val bitmapHeight: Int = 0            // chỉ dùng cho TEXT
+    val bitmapHeight: Int = 0,           // chỉ dùng cho TEXT
+    // Thuộc tính ShapeTextLayer
+    val shapeType: String? = null,
+    val shapeColorArgb: Int? = null,
+    val textColorArgb: Int? = null,
+    val textSizeSp: Float? = null,
+    val text: String? = null,
+    val outlineEnabled: Boolean? = null,
+    val outlineColorArgb: Int? = null
 )
 

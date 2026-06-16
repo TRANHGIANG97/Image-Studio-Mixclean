@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">تصویر کی سمت درست کرنے کے لیے 90 ڈگری گھمائیں یا افقی اور عمودی طور پر الٹیں۔</string>
     <string name="draft_label">ڈرافٹ</string>
     <string name="draft_saved_successfully">مسودہ کامیابی سے محفوظ ہو گیا</string>
+    <string name="professional_section_title">پیشہ ورانہ</string>
+    <string name="themeplate_professional_watch">دیکھو</string>
+    <string name="themeplate_professional_perfume">پرفیوم</string>
+    <string name="themeplate_professional_handbag">ہینڈ بیگ</string>
+    <string name="home_see_all">سب دیکھیں</string>
 </resources>

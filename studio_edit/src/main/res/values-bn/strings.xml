@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">এআই প্রোডাক্ট স্টুডিও</string>
     <string name="studio_category_electronics">ইলেকট্রনিক্স</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">ছায়া</string>
     <string name="studio_tool_transparency">অস্বচ্ছতা</string>
     <string name="studio_tool_crop">ক্রপ</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">স্টিকার</string>
     <string name="studio_tool_rotateflip">ঘোরান/উল্টান</string>
     <string name="studio_replace_hint">গ্যালারি থেকে পণ্যের ছবি বেছে নিতে \'পরিবর্তন\' এ ট্যাপ করুন</string>
     <string name="studio_layout_hint">সরানোর জন্য ড্র্যাগ করুন · জুম করতে পিঞ্চ করুন · দুই আঙুলে ঘোরান</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">কোন টেমপ্লেট উপলব্ধ</string>
     <string name="studio_gallery_coming_soon">শীঘ্রই আসছে</string>
     <string name="studio_gallery_coming_soon_desc">এই বৈশিষ্ট্যটি বিকাশাধীন এবং শীঘ্রই উপলব্ধ হবে!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">ডিজাইন টিম শিগগিরই আরও টেমপ্লেট যোগ করতে কঠোর পরিশ্রম করছে।</string>
     <string name="themeplate_gallery_title">টেমপ্লেট</string>
     <string name="studio_save_image_success">ছবি সংরক্ষিত</string>
     <string name="studio_error_select_object">একটি বস্তু নির্বাচন করুন</string>

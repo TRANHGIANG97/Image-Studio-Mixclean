@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Putar 90 darjah eller balikkan secara mendatar dan menegak untuk membetulkan orientasi imej.</string>
     <string name="draft_label">Draf</string>
     <string name="draft_saved_successfully">Draf berjaya disimpan</string>
+    <string name="professional_section_title">Profesional</string>
+    <string name="themeplate_professional_watch">Tonton</string>
+    <string name="themeplate_professional_perfume">Minyak wangi</string>
+    <string name="themeplate_professional_handbag">Beg tangan</string>
+    <string name="home_see_all">Lihat Semua</string>
 </resources>

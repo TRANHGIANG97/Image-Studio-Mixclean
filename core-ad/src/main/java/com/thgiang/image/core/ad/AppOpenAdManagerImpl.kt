@@ -39,83 +39,20 @@ class AppOpenAdManagerImpl @Inject constructor(
     }
 
     override fun showAdIfAvailable(activity: Activity) {
-        if (isPremiumUser) return
-        if (isShowingAd) {
-            adLogger.d(TAG, "Ad is already showing")
-            return
-        }
-        if (!isAdAvailable()) {
-            adLogger.d(TAG, "Ad is not available, loading a new one")
-            loadAd()
-            return
-        }
-
-        val currentTime = Date().time
-        if (currentTime - lastShowTime < adConfig.appOpenCooldownMs) {
-            val remaining = (adConfig.appOpenCooldownMs - (currentTime - lastShowTime)) / 1000
-            adLogger.d(TAG, "App Open Ad cooldown. Remaining: ${remaining}s")
-            return
-        }
-
-        adLogger.d(TAG, "Showing App Open Ad")
-        appOpenAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdDismissedFullScreenContent() {
-                adLogger.d(TAG, "App Open Ad dismissed")
-                appOpenAd = null
-                isShowingAd = false
-                lastShowTime = Date().time
-                loadAd()
-            }
-
-            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                adLogger.w(TAG, "App Open Ad failed to show: ${adError.message}")
-                appOpenAd = null
-                isShowingAd = false
-                loadAd()
-            }
-
-            override fun onAdShowedFullScreenContent() {
-                adLogger.d(TAG, "App Open Ad showed")
-                isShowingAd = true
-            }
-        }
-        isShowingAd = true
-        appOpenAd?.show(activity)
+        // Open App Ads disabled
+        return
     }
 
     override fun wasAdDismissedRecently(): Boolean {
-        return Date().time - lastShowTime < 1000 // 1 second buffer
+        return false
     }
 
     private fun loadAd() {
-        if (isPremiumUser || isLoadingAd || isAdAvailable()) return
-        isLoadingAd = true
-        adLogger.d(TAG, "Loading App Open Ad...")
-
-        val request = AdRequest.Builder().build()
-        AppOpenAd.load(
-            appContext,
-            adConfig.appOpenAdUnitId,
-            request,
-            object : AppOpenAd.AppOpenAdLoadCallback() {
-                override fun onAdLoaded(ad: AppOpenAd) {
-                    adLogger.d(TAG, "App Open Ad loaded successfully")
-                    appOpenAd = ad
-                    isLoadingAd = false
-                    loadTime = Date().time
-                    currentActivity?.let { showAdIfAvailable(it) }
-                }
-
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    adLogger.w(TAG, "App Open Ad failed: ${loadAdError.message}")
-                    isLoadingAd = false
-                }
-            }
-        )
+        // Open App Ads disabled
+        return
     }
 
-    private fun isAdAvailable(): Boolean =
-        appOpenAd != null && wasLoadTimeLessThanNHoursAgo(4)
+    private fun isAdAvailable(): Boolean = false
 
     private fun wasLoadTimeLessThanNHoursAgo(numHours: Long): Boolean {
         val diff = Date().time - loadTime

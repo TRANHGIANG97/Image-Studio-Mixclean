@@ -141,7 +141,7 @@ object EditorConfig {
     const val SNAP_EDGE_FACTOR = 0.8f
 
     // Padding (px) quanh bounding box hien thi — box khong sat mep anh
-    const val BB_PADDING_PX = 10f
+    const val BB_PADDING_PX = 0f
 
     // V6.1: Pinch smoothing config
     const val PINCH_SCALE_THRESHOLD = 0.02f      // 2% scale change mới update
@@ -198,9 +198,9 @@ fun BoundingBoxOverlayV6(
     onBoundingBoxVisible: (Boolean) -> Unit = {},
     isLocked: Boolean = false
 ) {
-    require(contentWidth > 0f) { "contentWidth must be > 0" }
-    require(contentHeight > 0f) { "contentHeight must be > 0" }
-    require(displayScale > 0f) { "displayScale must be > 0" }
+    if (contentWidth <= 0f || contentHeight <= 0f || displayScale <= 0f) {
+        return
+    }
 
     val density = LocalDensity.current
     val haptic = LocalHapticFeedback.current
@@ -245,325 +245,328 @@ fun BoundingBoxOverlayV6(
 
     var lastHapticTime by remember { mutableLongStateOf(0L) }
 
+    val gestureModifier = if (showBoundingBox && !isLocked) {
+        Modifier.pointerInput(contentWidth, contentHeight, displayScale, lockAspectRatio) {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                val center = Offset(size.width / 2f, size.height / 2f)
+
+                val screenW = contentWidth * currentViewport.scale * displayScale + 2 * EditorConfig.BB_PADDING_PX
+                val screenH = contentHeight * currentViewport.scale * displayScale + 2 * EditorConfig.BB_PADDING_PX
+
+                activeHandle = detectHandleRotated(
+                    touch = down.position,
+                    center = center,
+                    screenW = screenW,
+                    screenH = screenH,
+                    rotation = currentViewport.rotation,
+                    handleRadius = dimensions.touchRadiusPx,
+                    rotateOffset = dimensions.rotateLinePx,
+                    rotateTouchRadius = dimensions.rotateTouchRadiusPx,
+                    rotateHandleOffset = dimensions.rotateHandleOffsetPx
+                )
+
+                gestureMode = when (activeHandle) {
+                    HandleZone.Body -> GestureMode.DRAG
+                    HandleZone.Rotate -> GestureMode.ROTATE
+                    is HandleZone.Corner -> GestureMode.SCALE_CORNER
+                    HandleZone.None -> GestureMode.IDLE
+                }
+
+                if (gestureMode != GestureMode.IDLE && !showBoundingBox) {
+                    onBoundingBoxVisible(true)
+                }
+
+                if (gestureMode == GestureMode.IDLE) return@awaitEachGesture
+
+                performDebouncedHaptic(haptic, lastHapticTime) { lastHapticTime = it }
+
+                // ── LOCAL VARIABLES ──
+                var localStartTransform = currentViewport
+                var localStartTouch = down.position
+                var localLastTouch = down.position
+                var localLastSnappedAngle = Float.NaN
+
+                // Pinch-specific locals
+                var localPinchId1: PointerId? = null
+                var localPinchId2: PointerId? = null
+                var localPinchStartDist = 1f
+                var localPinchStartAngle = 0f
+                var localPinchStartScale = 1f
+                var localPinchStartRotation = 0f
+                var localPinchStartCentroid = Offset.Zero
+
+                // V6.1: Smoothed centroid
+                var localSmoothedCentroid = Offset.Zero
+                var localLastRawCentroid = Offset.Zero
+
+                // Rotation-specific locals
+                var localRotateStartAngleRad = 0f
+                var localRotateStartRotation = 0f
+
+                // Scale-specific locals
+                var localScaleStartScale = 1f
+                var localScaleHandle: HandleZone.Corner? = null
+
+                when (gestureMode) {
+                    GestureMode.ROTATE -> {
+                        localRotateStartAngleRad = atan2(
+                            down.position.y - center.y,
+                            down.position.x - center.x
+                        )
+                        localRotateStartRotation = currentViewport.rotation
+                    }
+                    GestureMode.SCALE_CORNER -> {
+                        localScaleStartScale = currentViewport.scale
+                        localScaleHandle = activeHandle as? HandleZone.Corner
+                    }
+                    else -> {}
+                }
+
+                var hasMoved = false
+
+                // ── MAIN GESTURE LOOP ──
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val pressed = event.changes.filter { it.pressed }
+
+                    if (pressed.isEmpty()) break
+
+                    // Detect pinch: 2+ fingers
+                    if (pressed.size >= 2 && gestureMode != GestureMode.PINCH) {
+                        val p1 = pressed[0]
+                        val p2 = pressed[1]
+                        localPinchId1 = p1.id
+                        localPinchId2 = p2.id
+                        localPinchStartDist = distance(p1.position, p2.position).coerceAtLeast(1f)
+                        localPinchStartAngle = angleBetween(p1.position, p2.position)
+                        localPinchStartScale = currentViewport.scale
+                        localPinchStartRotation = currentViewport.rotation
+
+                        val initialCentroid = (p1.position + p2.position) / 2f
+                        localPinchStartCentroid = initialCentroid
+                        localSmoothedCentroid = initialCentroid
+                        localLastRawCentroid = initialCentroid
+
+                        gestureMode = GestureMode.PINCH
+                        performDebouncedHaptic(haptic, lastHapticTime) { lastHapticTime = it }
+                        continue
+                    }
+
+                    // Drop to 1 finger from pinch
+                    if (pressed.size == 1 && gestureMode == GestureMode.PINCH) {
+                        val remaining = pressed.first()
+                        if (hasMoved) {
+                            showSnap = false
+                            snapLines = emptyList()
+                            onGestureEnd()
+                        }
+                        gestureMode = GestureMode.IDLE
+                        activeHandle = HandleZone.None
+                        localStartTouch = remaining.position
+                        localLastTouch = remaining.position
+                        localStartTransform = currentViewport
+                        continue
+                    }
+
+                    when (gestureMode) {
+                        GestureMode.PINCH -> {
+                            val c1 = event.changes.find { it.id == localPinchId1 } ?: continue
+                            val c2 = event.changes.find { it.id == localPinchId2 } ?: continue
+                            if (!c1.positionChanged() && !c2.positionChanged()) continue
+
+                            val p1 = c1.position
+                            val p2 = c2.position
+
+                            // ── V6.1: SCALE với threshold ──
+                            val currentDist = distance(p1, p2).coerceAtLeast(1f)
+                            val rawScaleFactor = currentDist / localPinchStartDist
+
+                            // Chỉ update scale nếu thay đổi đủ lớn
+                            val clampedScaleFactor = if (abs(rawScaleFactor - 1f) < EditorConfig.PINCH_SCALE_THRESHOLD) {
+                                1f
+                            } else {
+                                rawScaleFactor
+                            }
+
+                            val newScale = if (lockAspectRatio) {
+                                (localPinchStartScale * clampedScaleFactor)
+                                    .coerceIn(EditorConfig.MIN_SCALE, EditorConfig.MAX_SCALE)
+                            } else {
+                                (localPinchStartScale * clampedScaleFactor)
+                                    .coerceIn(EditorConfig.MIN_SCALE, EditorConfig.MAX_SCALE)
+                            }
+
+                            // ── V6.1: ROTATION với threshold ──
+                            val currentAngle = angleBetween(p1, p2)
+                            val rawRotationDelta = normalizeAngleDelta(
+                                Math.toDegrees((currentAngle - localPinchStartAngle).toDouble()).toFloat()
+                            )
+
+                            // Chỉ update rotation nếu thay đổi đủ lớn
+                            val clampedRotationDelta = if (abs(rawRotationDelta) < EditorConfig.PINCH_ROTATION_THRESHOLD) {
+                                0f
+                            } else {
+                                rawRotationDelta
+                            }
+
+                            val rawRotation = (localPinchStartRotation + clampedRotationDelta) % 360f
+                            val snappedRotation = snapAngle(rawRotation, SNAP_ANGLES, EditorConfig.SNAP_ANGLE_THRESHOLD)
+
+                            // ── V6.1: CENTROID SMOOTHING ──
+                            val rawCentroid = (p1 + p2) / 2f
+                            val centroidDelta = rawCentroid - localLastRawCentroid
+
+                            // Bỏ qua movement nhỏ (deadzone)
+                            val filteredDelta = if (centroidDelta.getDistance() < EditorConfig.PINCH_DEADZONE_PX) {
+                                Offset.Zero
+                            } else {
+                                centroidDelta
+                            }
+
+                            // Exponential moving average
+                            localSmoothedCentroid = Offset(
+                                localSmoothedCentroid.x + EditorConfig.PINCH_CENTROID_SMOOTHING * filteredDelta.x,
+                                localSmoothedCentroid.y + EditorConfig.PINCH_CENTROID_SMOOTHING * filteredDelta.y
+                            )
+
+                            val screenCentroidDelta = localSmoothedCentroid - localPinchStartCentroid
+                            val templateCentroidDelta = Offset(
+                                screenCentroidDelta.x / displayScale,
+                                screenCentroidDelta.y / displayScale
+                            )
+
+                            // Haptic
+                            if (snappedRotation != rawRotation &&
+                                (localLastSnappedAngle.isNaN() || abs(snappedRotation - localLastSnappedAngle) > 0.5f)
+                            ) {
+                                performDebouncedHaptic(haptic, lastHapticTime, HapticFeedbackType.LongPress) {
+                                    lastHapticTime = it
+                                }
+                                localLastSnappedAngle = snappedRotation
+                            }
+
+                            c1.consume()
+                            c2.consume()
+                            localLastRawCentroid = rawCentroid
+                            hasMoved = true
+
+                            onGesture(GestureDelta(
+                                pan = templateCentroidDelta,
+                                scale = newScale / currentViewport.scale,
+                                rotation = snappedRotation - currentViewport.rotation
+                            ))
+                        }
+
+                        GestureMode.DRAG -> {
+                            val change = pressed.firstOrNull() ?: continue
+                            if (!change.positionChanged()) continue
+
+                            val screenDelta = change.position - change.previousPosition
+                            val localDragDelta = screenDelta
+                            val templateDelta = Offset(
+                                localDragDelta.x / displayScale,
+                                localDragDelta.y / displayScale
+                            )
+
+                            val tentativeOffset = currentViewport.offset + templateDelta
+                            val scaledContentSize = IntSize(
+                                (contentWidth * currentViewport.scale).toInt(),
+                                (contentHeight * currentViewport.scale).toInt()
+                            )
+
+                            val (snappedOffset, lines) = calculateSnap(
+                                offset = tentativeOffset,
+                                contentSize = scaledContentSize,
+                                templateSize = templateSize
+                            )
+
+                            showSnap = lines.isNotEmpty()
+                            snapLines = lines
+
+                            change.consume()
+                            hasMoved = true
+
+                            onGesture(GestureDelta(
+                                pan = snappedOffset - currentViewport.offset
+                            ))
+                        }
+
+                        GestureMode.ROTATE -> {
+                            val change = pressed.firstOrNull() ?: continue
+                            if (!change.positionChanged()) continue
+
+                            val currentAngleRad = atan2(
+                                change.position.y - center.y,
+                                change.position.x - center.x
+                            )
+                            val rawDeltaRad = normalizeAngleDeltaRad(currentAngleRad - localRotateStartAngleRad)
+                            val rawDeltaDeg = Math.toDegrees(rawDeltaRad.toDouble()).toFloat()
+                            val rawRotation = (localRotateStartRotation + rawDeltaDeg) % 360f
+                            val snappedRotation = snapAngle(rawRotation, SNAP_ANGLES, EditorConfig.SNAP_ANGLE_THRESHOLD)
+
+                            if (snappedRotation != rawRotation &&
+                                (localLastSnappedAngle.isNaN() || abs(snappedRotation - localLastSnappedAngle) > 0.5f)
+                            ) {
+                                performDebouncedHaptic(haptic, lastHapticTime, HapticFeedbackType.LongPress) {
+                                    lastHapticTime = it
+                                }
+                                localLastSnappedAngle = snappedRotation
+                            }
+
+                            change.consume()
+                            hasMoved = true
+
+                            onGesture(GestureDelta(
+                                rotation = snappedRotation - currentViewport.rotation
+                            ))
+                        }
+
+                        GestureMode.SCALE_CORNER -> {
+                            val change = pressed.firstOrNull() ?: continue
+                            if (!change.positionChanged()) continue
+
+                            val handle = localScaleHandle ?: continue
+                            val newScale = calculateRotatedScale(
+                                handle = handle,
+                                center = center,
+                                startTouch = localStartTouch,
+                                currentTouch = change.position,
+                                startScale = localScaleStartScale,
+                                rotation = currentViewport.rotation,
+                                screenW = screenW,
+                                screenH = screenH
+                            )
+
+                            change.consume()
+                            hasMoved = true
+
+                            onGesture(GestureDelta(
+                                scale = newScale / currentViewport.scale
+                            ))
+                        }
+
+                        GestureMode.IDLE -> { }
+                    }
+                }
+
+                if (hasMoved) {
+                    showSnap = false
+                    snapLines = emptyList()
+                    onGestureEnd()
+                }
+                gestureMode = GestureMode.IDLE
+                activeHandle = HandleZone.None
+            }
+        }
+    } else {
+        Modifier
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(contentWidth, contentHeight, displayScale, lockAspectRatio, showBoundingBox, isLocked) {
-                if (!showBoundingBox || isLocked) return@pointerInput
-
-                
-                awaitEachGesture {
-                    val down = awaitFirstDown()
-                    val center = Offset(size.width / 2f, size.height / 2f)
-
-                    val screenW = contentWidth * currentViewport.scale * displayScale + 2 * EditorConfig.BB_PADDING_PX
-                    val screenH = contentHeight * currentViewport.scale * displayScale + 2 * EditorConfig.BB_PADDING_PX
-
-                    activeHandle = detectHandleRotated(
-                        touch = down.position,
-                        center = center,
-                        screenW = screenW,
-                        screenH = screenH,
-                        rotation = currentViewport.rotation,
-                        handleRadius = dimensions.touchRadiusPx,
-                        rotateOffset = dimensions.rotateLinePx,
-                        rotateTouchRadius = dimensions.rotateTouchRadiusPx,
-                        rotateHandleOffset = dimensions.rotateHandleOffsetPx
-                    )
-
-                    gestureMode = when (activeHandle) {
-                        HandleZone.Body -> GestureMode.DRAG
-                        HandleZone.Rotate -> GestureMode.ROTATE
-                        is HandleZone.Corner -> GestureMode.SCALE_CORNER
-                        HandleZone.None -> GestureMode.IDLE
-                    }
-
-                    if (gestureMode != GestureMode.IDLE && !showBoundingBox) {
-                        onBoundingBoxVisible(true)
-                    }
-
-                    if (gestureMode == GestureMode.IDLE) return@awaitEachGesture
-
-                    performDebouncedHaptic(haptic, lastHapticTime) { lastHapticTime = it }
-
-                    // ── LOCAL VARIABLES ──
-                    var localStartTransform = currentViewport
-                    var localStartTouch = down.position
-                    var localLastTouch = down.position
-                    var localLastSnappedAngle = Float.NaN
-
-                    // Pinch-specific locals
-                    var localPinchId1: PointerId? = null
-                    var localPinchId2: PointerId? = null
-                    var localPinchStartDist = 1f
-                    var localPinchStartAngle = 0f
-                    var localPinchStartScale = 1f
-                    var localPinchStartRotation = 0f
-                    var localPinchStartCentroid = Offset.Zero
-
-                    // V6.1: Smoothed centroid
-                    var localSmoothedCentroid = Offset.Zero
-                    var localLastRawCentroid = Offset.Zero
-
-                    // Rotation-specific locals
-                    var localRotateStartAngleRad = 0f
-                    var localRotateStartRotation = 0f
-
-                    // Scale-specific locals
-                    var localScaleStartScale = 1f
-                    var localScaleHandle: HandleZone.Corner? = null
-
-                    when (gestureMode) {
-                        GestureMode.ROTATE -> {
-                            localRotateStartAngleRad = atan2(
-                                down.position.y - center.y,
-                                down.position.x - center.x
-                            )
-                            localRotateStartRotation = currentViewport.rotation
-                        }
-                        GestureMode.SCALE_CORNER -> {
-                            localScaleStartScale = currentViewport.scale
-                            localScaleHandle = activeHandle as? HandleZone.Corner
-                        }
-                        else -> {}
-                    }
-
-                    var hasMoved = false
-
-                    // ── MAIN GESTURE LOOP ──
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        val pressed = event.changes.filter { it.pressed }
-
-                        if (pressed.isEmpty()) break
-
-                        // Detect pinch: 2+ fingers
-                        if (pressed.size >= 2 && gestureMode != GestureMode.PINCH) {
-                            val p1 = pressed[0]
-                            val p2 = pressed[1]
-                            localPinchId1 = p1.id
-                            localPinchId2 = p2.id
-                            localPinchStartDist = distance(p1.position, p2.position).coerceAtLeast(1f)
-                            localPinchStartAngle = angleBetween(p1.position, p2.position)
-                            localPinchStartScale = currentViewport.scale
-                            localPinchStartRotation = currentViewport.rotation
-
-                            val initialCentroid = (p1.position + p2.position) / 2f
-                            localPinchStartCentroid = initialCentroid
-                            localSmoothedCentroid = initialCentroid
-                            localLastRawCentroid = initialCentroid
-
-                            gestureMode = GestureMode.PINCH
-                            performDebouncedHaptic(haptic, lastHapticTime) { lastHapticTime = it }
-                            continue
-                        }
-
-                        // Drop to 1 finger from pinch
-                        if (pressed.size == 1 && gestureMode == GestureMode.PINCH) {
-                            val remaining = pressed.first()
-                            if (hasMoved) {
-                                showSnap = false
-                                snapLines = emptyList()
-                                onGestureEnd()
-                            }
-                            gestureMode = GestureMode.IDLE
-                            activeHandle = HandleZone.None
-                            localStartTouch = remaining.position
-                            localLastTouch = remaining.position
-                            localStartTransform = currentViewport
-                            continue
-                        }
-
-                        when (gestureMode) {
-                            GestureMode.PINCH -> {
-                                val c1 = event.changes.find { it.id == localPinchId1 } ?: continue
-                                val c2 = event.changes.find { it.id == localPinchId2 } ?: continue
-                                if (!c1.positionChanged() && !c2.positionChanged()) continue
-
-                                val p1 = c1.position
-                                val p2 = c2.position
-
-                                // ── V6.1: SCALE với threshold ──
-                                val currentDist = distance(p1, p2).coerceAtLeast(1f)
-                                val rawScaleFactor = currentDist / localPinchStartDist
-
-                                // Chỉ update scale nếu thay đổi đủ lớn
-                                val clampedScaleFactor = if (abs(rawScaleFactor - 1f) < EditorConfig.PINCH_SCALE_THRESHOLD) {
-                                    1f
-                                } else {
-                                    rawScaleFactor
-                                }
-
-                                val newScale = if (lockAspectRatio) {
-                                    (localPinchStartScale * clampedScaleFactor)
-                                        .coerceIn(EditorConfig.MIN_SCALE, EditorConfig.MAX_SCALE)
-                                } else {
-                                    (localPinchStartScale * clampedScaleFactor)
-                                        .coerceIn(EditorConfig.MIN_SCALE, EditorConfig.MAX_SCALE)
-                                }
-
-                                // ── V6.1: ROTATION với threshold ──
-                                val currentAngle = angleBetween(p1, p2)
-                                val rawRotationDelta = normalizeAngleDelta(
-                                    Math.toDegrees((currentAngle - localPinchStartAngle).toDouble()).toFloat()
-                                )
-
-                                // Chỉ update rotation nếu thay đổi đủ lớn
-                                val clampedRotationDelta = if (abs(rawRotationDelta) < EditorConfig.PINCH_ROTATION_THRESHOLD) {
-                                    0f
-                                } else {
-                                    rawRotationDelta
-                                }
-
-                                val rawRotation = (localPinchStartRotation + clampedRotationDelta) % 360f
-                                val snappedRotation = snapAngle(rawRotation, SNAP_ANGLES, EditorConfig.SNAP_ANGLE_THRESHOLD)
-
-                                // ── V6.1: CENTROID SMOOTHING ──
-                                val rawCentroid = (p1 + p2) / 2f
-                                val centroidDelta = rawCentroid - localLastRawCentroid
-
-                                // Bỏ qua movement nhỏ (deadzone)
-                                val filteredDelta = if (centroidDelta.getDistance() < EditorConfig.PINCH_DEADZONE_PX) {
-                                    Offset.Zero
-                                } else {
-                                    centroidDelta
-                                }
-
-                                // Exponential moving average
-                                localSmoothedCentroid = Offset(
-                                    localSmoothedCentroid.x + EditorConfig.PINCH_CENTROID_SMOOTHING * filteredDelta.x,
-                                    localSmoothedCentroid.y + EditorConfig.PINCH_CENTROID_SMOOTHING * filteredDelta.y
-                                )
-
-                                val screenCentroidDelta = localSmoothedCentroid - localPinchStartCentroid
-                                val templateCentroidDelta = Offset(
-                                    screenCentroidDelta.x / displayScale,
-                                    screenCentroidDelta.y / displayScale
-                                )
-
-                                // Haptic
-                                if (snappedRotation != rawRotation &&
-                                    (localLastSnappedAngle.isNaN() || abs(snappedRotation - localLastSnappedAngle) > 0.5f)
-                                ) {
-                                    performDebouncedHaptic(haptic, lastHapticTime, HapticFeedbackType.LongPress) {
-                                        lastHapticTime = it
-                                    }
-                                    localLastSnappedAngle = snappedRotation
-                                }
-
-                                c1.consume()
-                                c2.consume()
-                                localLastRawCentroid = rawCentroid
-                                hasMoved = true
-
-                                onGesture(GestureDelta(
-                                    pan = templateCentroidDelta,
-                                    scale = newScale / currentViewport.scale,
-                                    rotation = snappedRotation - currentViewport.rotation
-                                ))
-                            }
-
-                            GestureMode.DRAG -> {
-                                val change = pressed.firstOrNull() ?: continue
-                                if (!change.positionChanged()) continue
-
-                                val screenDelta = change.position - change.previousPosition
-                                val localDragDelta = screenDelta
-                                val templateDelta = Offset(
-                                    localDragDelta.x / displayScale,
-                                    localDragDelta.y / displayScale
-                                )
-
-                                val tentativeOffset = currentViewport.offset + templateDelta
-                                val scaledContentSize = IntSize(
-                                    (contentWidth * currentViewport.scale).toInt(),
-                                    (contentHeight * currentViewport.scale).toInt()
-                                )
-
-                                val (snappedOffset, lines) = calculateSnap(
-                                    offset = tentativeOffset,
-                                    contentSize = scaledContentSize,
-                                    templateSize = templateSize
-                                )
-
-                                showSnap = lines.isNotEmpty()
-                                snapLines = lines
-
-                                change.consume()
-                                hasMoved = true
-
-                                onGesture(GestureDelta(
-                                    pan = snappedOffset - currentViewport.offset
-                                ))
-                            }
-
-                            GestureMode.ROTATE -> {
-                                val change = pressed.firstOrNull() ?: continue
-                                if (!change.positionChanged()) continue
-
-                                val currentAngleRad = atan2(
-                                    change.position.y - center.y,
-                                    change.position.x - center.x
-                                )
-                                val rawDeltaRad = normalizeAngleDeltaRad(currentAngleRad - localRotateStartAngleRad)
-                                val rawDeltaDeg = Math.toDegrees(rawDeltaRad.toDouble()).toFloat()
-                                val rawRotation = (localRotateStartRotation + rawDeltaDeg) % 360f
-                                val snappedRotation = snapAngle(rawRotation, SNAP_ANGLES, EditorConfig.SNAP_ANGLE_THRESHOLD)
-
-                                if (snappedRotation != rawRotation &&
-                                    (localLastSnappedAngle.isNaN() || abs(snappedRotation - localLastSnappedAngle) > 0.5f)
-                                ) {
-                                    performDebouncedHaptic(haptic, lastHapticTime, HapticFeedbackType.LongPress) {
-                                        lastHapticTime = it
-                                    }
-                                    localLastSnappedAngle = snappedRotation
-                                }
-
-                                change.consume()
-                                hasMoved = true
-
-                                onGesture(GestureDelta(
-                                    rotation = snappedRotation - currentViewport.rotation
-                                ))
-                            }
-
-                            GestureMode.SCALE_CORNER -> {
-                                val change = pressed.firstOrNull() ?: continue
-                                if (!change.positionChanged()) continue
-
-                                val handle = localScaleHandle ?: continue
-                                val newScale = calculateRotatedScale(
-                                    handle = handle,
-                                    center = center,
-                                    startTouch = localStartTouch,
-                                    currentTouch = change.position,
-                                    startScale = localScaleStartScale,
-                                    rotation = currentViewport.rotation,
-                                    screenW = screenW,
-                                    screenH = screenH
-                                )
-
-                                change.consume()
-                                hasMoved = true
-
-                                onGesture(GestureDelta(
-                                    scale = newScale / currentViewport.scale
-                                ))
-                            }
-
-                            GestureMode.IDLE -> { }
-                        }
-                    }
-
-                    if (hasMoved) {
-                        showSnap = false
-                        snapLines = emptyList()
-                        onGestureEnd()
-                    }
-                    gestureMode = GestureMode.IDLE
-                    activeHandle = HandleZone.None
-                }
-            }
+            .then(gestureModifier)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val center = Offset(size.width / 2f, size.height / 2f)

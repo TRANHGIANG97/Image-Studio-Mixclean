@@ -84,13 +84,13 @@ fun StudioModeScreen(
     } }
 
     val onCheckClickedLambda = remember { {
-        if (state.currentEffect == StudioEffect.PORTRAIT || state.currentEffect == StudioEffect.BLUR_SUBJECT) {
-            scope.launch {
-                val finalBmp = viewModel.renderFinalForExport()
-                if (finalBmp != null) onCheckClicked?.invoke(finalBmp)
+        scope.launch {
+            val finalBmp = viewModel.renderFinalForExport()
+            if (finalBmp != null) {
+                onCheckClicked?.invoke(finalBmp)
+            } else {
+                state.processedBitmap?.let { onCheckClicked?.invoke(it) }
             }
-        } else {
-            state.processedBitmap?.let { onCheckClicked?.invoke(it) }
         }
         Unit
     } }
@@ -100,13 +100,13 @@ fun StudioModeScreen(
     }
 
     val onDoneClickedLambda = remember { {
-        if (state.currentEffect == StudioEffect.PORTRAIT || state.currentEffect == StudioEffect.BLUR_SUBJECT) {
-            scope.launch {
-                val finalBmp = viewModel.renderFinalForExport()
-                if (finalBmp != null) onDoneClicked(finalBmp)
+        scope.launch {
+            val finalBmp = viewModel.renderFinalForExport()
+            if (finalBmp != null) {
+                onDoneClicked(finalBmp)
+            } else {
+                state.processedBitmap?.let { onDoneClicked(it) }
             }
-        } else {
-            state.processedBitmap?.let { onDoneClicked(it) }
         }
         Unit
     } }
@@ -179,7 +179,9 @@ fun StudioModeScreen(
         }
 
     val currentBitmap = state.processedBitmap ?: immutableBitmap.bitmap
-    val hasForegroundBackground = !ProcessorUtils.hasMeaningfulTransparency(currentBitmap)
+    val hasForegroundBackground = remember(immutableBitmap) {
+        !ProcessorUtils.hasMeaningfulTransparency(immutableBitmap.bitmap)
+    }
     val aspectRatio = currentBitmap.width.toFloat() / currentBitmap.height.toFloat()
 
         Box(

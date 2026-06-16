@@ -38,8 +38,6 @@
     <string name="licenses_title">Atklātā pirmkoda licences</string>
     <string name="dark_mode_title">Tumšais režīms</string>
     <string name="dark_mode_description">Pārslēgt lietotnes tumšo motīvu.</string>
-    <string name="home_preview_title">Rādīt sākuma priekšskatījumu</string>
-    <string name="home_preview_description">Sākuma ekrānā rādīt salīdzināšanas lodziņu Pirms / Pēc.</string>
 
     <string name="home_remove_background_title">Noņemt fonu</string>
     <string name="home_remove_background_subtitle">Izvēlieties attēlu un noņemiet tā fonu ar vienu pieskārienu.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Vienmērīga AI paplašināšana</string>
     <string name="pro_see_details">Detaļas ></string>
     <string name="picker_sample_badge">Paraugs</string>
+    <string name="home_hero_subtitle_short">AI fotoattēlu redaktors</string>
+    <string name="home_hero_title">Izveidojiet profesionālus produktu fotoattēlus</string>
+    <string name="home_hero_subtitle">Noņemiet fonu, mainiet fona kolāžu, pievienojiet veidnes dažu sekunžu laikā</string>
+    <string name="home_hero_action">Izvēlieties Fotoattēlu</string>
+    <string name="review_app_button">Likme</string>
+    <string name="review_prompt_title">Vai jums patīk %1$s?</string>
+    <string name="review_prompt_message">Pieskarieties zvaigznītei, lai novērtētu to pakalpojumā Google Play.</string>
+    <string name="review_prompt_rate_now">Iesniegt</string>
+    <string name="review_prompt_later">Atcelt</string>
+    <string name="home_see_all">Skatīt visu</string>
+    <string name="save_success_title">Saglabāts!</string>
+    <string name="save_success_create_new">Izveidot jaunu</string>
+    <string name="save_success_try_other_tools">Izmēģiniet citus rīkus</string>
+    <string name="save_success_share">Dalīties</string>
+    <string name="save_success_back">Atpakaļ</string>
+    <string name="save_success_home">Sākums</string>
+    <string name="save_success_saved_image">Saglabāts attēls</string>
+    <string name="save_success_share_with">Kopīgot ar…</string>
+    <string name="batch_remove_error_load_image">Nevar ielādēt šo attēlu.</string>
+    <string name="drafts_error_load">Kļūda, ielādējot melnrakstus: %1$s</string>
 </resources>

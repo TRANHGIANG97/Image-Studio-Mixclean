@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Diese Funktion ist nur verfügbar, wenn das Motiv einen Hintergrund hat</string>
     <string name="draft_label">Entwurf</string>
     <string name="draft_saved_successfully">Entwurf erfolgreich gespeichert</string>
+    <string name="professional_section_title">Professional</string>
+    <string name="themeplate_professional_watch">Betrachten</string>
+    <string name="themeplate_professional_perfume">Parfüm</string>
+    <string name="themeplate_professional_handbag">Handtasche</string>
+    <string name="home_see_all">Alle anzeigen</string>
 </resources>

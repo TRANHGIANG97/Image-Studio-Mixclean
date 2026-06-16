@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Termékstúdió</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Árnyék</string>
     <string name="studio_tool_transparency">Átlátszatlanság</string>
     <string name="studio_tool_crop">Kivágás</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Matrica</string>
     <string name="studio_tool_rotateflip">Forgatás/Tükrözés</string>
     <string name="studio_replace_hint">Koppintson a Csere gombra egy termékfotó kiválasztásához a galériából</string>
     <string name="studio_layout_hint">Húzza a mozgatáshoz · Csippentse a nagyításhoz · Forgassa két ujjal</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Nem állnak rendelkezésre sablonok</string>
     <string name="studio_gallery_coming_soon">Hamarosan</string>
     <string name="studio_gallery_coming_soon_desc">Ez a funkció fejlesztés alatt áll, és hamarosan elérhető lesz!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">A tervezőcsapat keményen dolgozik, hogy hamarosan több sablont adhasson hozzá.</string>
     <string name="themeplate_gallery_title">Sablonok</string>
     <string name="studio_save_image_success">Kép mentve</string>
     <string name="studio_error_select_object">Kérjük, válasszon egy objektumot</string>

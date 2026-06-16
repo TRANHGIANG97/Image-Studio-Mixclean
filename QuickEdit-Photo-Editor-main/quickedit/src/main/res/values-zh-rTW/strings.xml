@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">旋轉90度或水平、垂直翻轉以修正圖片方向。</string>
     <string name="draft_label">草稿</string>
     <string name="draft_saved_successfully">草稿已成功儲存</string>
+    <string name="professional_section_title">專業的</string>
+    <string name="themeplate_professional_watch">手錶</string>
+    <string name="themeplate_professional_perfume">香水</string>
+    <string name="themeplate_professional_handbag">手提包</string>
+    <string name="home_see_all">看全部</string>
 </resources>

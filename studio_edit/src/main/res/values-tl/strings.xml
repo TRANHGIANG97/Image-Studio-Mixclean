@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Studio ng Produkto</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Walang magagamit na mga template</string>
     <string name="studio_gallery_coming_soon">Malapit na</string>
     <string name="studio_gallery_coming_soon_desc">Ang tampok na ito ay nasa ilalim ng pagbuo at magiging available sa lalong madaling panahon!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Masipag na nagtatrabaho ang design team para makadagdag pa ng mas maraming template sa lalong madaling panahon.</string>
     <string name="themeplate_gallery_title">Mga template</string>
     <string name="studio_save_image_success">Na-save ang larawan</string>
     <string name="studio_error_select_object">Mangyaring pumili ng isang bagay</string>

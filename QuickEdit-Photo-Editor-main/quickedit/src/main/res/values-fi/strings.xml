@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Kierrä 90 astetta tai käännä vaaka- ja pystysuunnassa korjataksesi kuvan suunnan.</string>
     <string name="draft_label">Luonnos</string>
     <string name="draft_saved_successfully">Luonnos tallennettu onnistuneesti</string>
+    <string name="professional_section_title">Ammattilainen</string>
+    <string name="themeplate_professional_watch">Katsella</string>
+    <string name="themeplate_professional_perfume">Hajuvesi</string>
+    <string name="themeplate_professional_handbag">Käsilaukku</string>
+    <string name="home_see_all">Katso kaikki</string>
 </resources>

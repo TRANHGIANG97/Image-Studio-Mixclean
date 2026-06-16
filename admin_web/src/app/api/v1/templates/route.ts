@@ -1,0 +1,209 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createSupabaseAdmin } from '@/lib/supabase';
+
+export const dynamic = 'force-dynamic';
+
+function colorToArgbInt(colorString: string): number | null {
+  if (!colorString) return null;
+  let r = 255;
+  let g = 255;
+  let b = 255;
+  let a = 1;
+
+  if (colorString.startsWith('rgba') || colorString.startsWith('rgb')) {
+    const match = colorString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (!match) return null;
+    r = Number(match[1]);
+    g = Number(match[2]);
+    b = Number(match[3]);
+    a = match[4] !== undefined ? Number(match[4]) : 1;
+  } else if (colorString.startsWith('#')) {
+    const hex = colorString.replace('#', '');
+    if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+    } else if (hex.length === 6 || hex.length === 8) {
+      r = parseInt(hex.slice(0, 2), 16);
+      g = parseInt(hex.slice(2, 4), 16);
+      b = parseInt(hex.slice(4, 6), 16);
+      if (hex.length === 8) a = parseInt(hex.slice(6, 8), 16) / 255;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+
+  return ((Math.round(a * 255) << 24) | (r << 16) | (g << 8) | b);
+}
+
+function extractBackgroundColorArgb(fabricState: any): number | null {
+  const bg = fabricState?.backgroundColor || fabricState?.background;
+  if (!bg) return null;
+  if (typeof bg === 'string') return colorToArgbInt(bg);
+  const firstStop = bg.colorStops?.[0]?.color;
+  return typeof firstStop === 'string' ? colorToArgbInt(firstStop) : null;
+}
+
+function enrichCanvasDataFromFabricState(row: any) {
+  const canvasData = row?.canvas_data;
+  if (!canvasData?.canvas) {
+    console.warn(`[TPL_BG_DEBUG] no canvas_data.canvas templateId=${row?.template_id || row?.id}`);
+    return row;
+  }
+  if (canvasData.canvas.backgroundColorArgb !== undefined && canvasData.canvas.backgroundColorArgb !== null) {
+    console.log(
+      `[TPL_BG_DEBUG] keep canvas templateId=${row?.template_id || row?.id} backgroundUrl=${canvasData.canvas.backgroundUrl || 'null'} backgroundColorArgb=${canvasData.canvas.backgroundColorArgb}`
+    );
+    return row;
+  }
+
+  const backgroundColorArgb = extractBackgroundColorArgb(row.fabric_state);
+  if (backgroundColorArgb === null) {
+    console.warn(
+      `[TPL_BG_DEBUG] no backgroundColorArgb templateId=${row?.template_id || row?.id} backgroundUrl=${canvasData.canvas.backgroundUrl || 'null'} hasFabricState=${Boolean(row.fabric_state)}`
+    );
+    return row;
+  }
+  console.log(
+    `[TPL_BG_DEBUG] enrich color templateId=${row?.template_id || row?.id} backgroundUrl=${canvasData.canvas.backgroundUrl || 'null'} backgroundColorArgb=${backgroundColorArgb}`
+  );
+
+  return {
+    ...row,
+    canvas_data: {
+      ...canvasData,
+      canvas: {
+        ...canvasData.canvas,
+        backgroundColorArgb,
+      },
+    },
+  };
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get('search')?.trim() || '';
+    const categoryId = searchParams.get('categoryId')?.trim() || '';
+    const templateId = searchParams.get('templateId')?.trim() || '';
+    const env = searchParams.get('env')?.trim() || '';
+    const limitParam = Number(searchParams.get('limit') || '100');
+    const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 200) : 100;
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryId);
+    const selectQuery = categoryId && !isUuid
+      ? 'id, template_id, category_id, title, status, environment, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories!inner(id, name)'
+      : 'id, template_id, category_id, title, status, environment, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories(id, name)';
+
+    const supabase = createSupabaseAdmin();
+    let query = supabase
+      .from('templates')
+      .select(selectQuery);
+
+    if (templateId) {
+      const isTemplateIdUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(templateId);
+      if (isTemplateIdUuid) {
+        query = query.or(`id.eq.${templateId},template_id.eq.${templateId}`);
+      } else {
+        query = query.eq('template_id', templateId);
+      }
+    } else {
+      query = query.eq('status', 'published');
+
+      if (env) {
+        query = query.in('environment', [env, 'all']);
+      }
+
+      if (search) {
+        query = query.ilike('title', `%${search}%`);
+      }
+
+      if (categoryId) {
+        if (isUuid) {
+          query = query.eq('category_id', categoryId);
+        } else {
+          const slugMap: Record<string, string> = {
+            'professional': 'Chuyên nghiệp',
+            'cosmetics': 'Mỹ Phẩm',
+            'digital_life': 'Đời sống số',
+            'selfie_food': 'Mê ăn uống'
+          };
+          const dbCategoryName = slugMap[categoryId.toLowerCase()] || categoryId;
+          query = query.eq('categories.name', dbCategoryName);
+        }
+      }
+    }
+
+    let { data, error } = await query
+      .order('updated_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      if (error.code === '42703') {
+        console.warn('Fallback: environment column does not exist in DB yet. Retrying without environment filter.');
+        const fallbackSelectQuery = categoryId && !isUuid
+          ? 'id, template_id, category_id, title, status, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories!inner(id, name)'
+          : 'id, template_id, category_id, title, status, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories(id, name)';
+
+        let fallbackQuery = supabase
+          .from('templates')
+          .select(fallbackSelectQuery);
+
+        if (templateId) {
+          const isTemplateIdUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(templateId);
+          if (isTemplateIdUuid) {
+            fallbackQuery = fallbackQuery.or(`id.eq.${templateId},template_id.eq.${templateId}`);
+          } else {
+            fallbackQuery = fallbackQuery.eq('template_id', templateId);
+          }
+        } else {
+          fallbackQuery = fallbackQuery.eq('status', 'published');
+          if (search) {
+            fallbackQuery = fallbackQuery.ilike('title', `%${search}%`);
+          }
+          if (categoryId) {
+            if (isUuid) {
+              fallbackQuery = fallbackQuery.eq('category_id', categoryId);
+            } else {
+              const slugMap: Record<string, string> = {
+                'professional': 'Chuyên nghiệp',
+                'cosmetics': 'Mỹ Phẩm',
+                'digital_life': 'Đời sống số',
+                'selfie_food': 'Mê ăn uống'
+              };
+              const dbCategoryName = slugMap[categoryId.toLowerCase()] || categoryId;
+              fallbackQuery = fallbackQuery.eq('categories.name', dbCategoryName);
+            }
+          }
+        }
+
+        const fallbackResult = await fallbackQuery
+          .order('updated_at', { ascending: false })
+          .limit(limit);
+
+        if (fallbackResult.error) throw fallbackResult.error;
+        data = fallbackResult.data as any;
+      } else {
+        throw error;
+      }
+    }
+
+    const templates = (data || []).map(enrichCanvasDataFromFabricState);
+    templates.forEach((row: any) => {
+      console.log(
+        `[TPL_BG_DEBUG] response templateId=${row.template_id || row.id} backgroundUrl=${row.canvas_data?.canvas?.backgroundUrl || 'null'} backgroundColorArgb=${row.canvas_data?.canvas?.backgroundColorArgb ?? 'null'} thumbnail=${row.thumbnail_url || 'null'}`
+      );
+    });
+
+    return NextResponse.json(
+      { success: true, templates },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
+  } catch (error: unknown) {
+    console.error('Error fetching public templates:', error);
+    const message = error instanceof Error ? error.message : 'Failed to fetch public templates';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

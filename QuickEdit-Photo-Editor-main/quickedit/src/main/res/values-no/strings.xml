@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Roter 90 grader eller vend horisontalt og vertikalt for å korrigere bilderetningen.</string>
     <string name="draft_label">Kladd</string>
     <string name="draft_saved_successfully">Kladden ble lagret sėk herlig</string>
+    <string name="professional_section_title">Profesjonell</string>
+    <string name="themeplate_professional_watch">Klokke</string>
+    <string name="themeplate_professional_perfume">Parfyme</string>
+    <string name="themeplate_professional_handbag">Håndveske</string>
+    <string name="home_see_all">Se alle</string>
 </resources>

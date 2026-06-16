@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">इमेजची दिशा योग्य करण्यासाठी ९० अंश फिरवा किंवा आडवे आणि उभे फ्लिप करा.</string>
     <string name="draft_label">ड्राफ्ट</string>
     <string name="draft_saved_successfully">ड्राफ्ट यशस्वीरित्या सेव्ह झाला</string>
+    <string name="professional_section_title">व्यावसायिक</string>
+    <string name="themeplate_professional_watch">पहा</string>
+    <string name="themeplate_professional_perfume">परफ्यूम</string>
+    <string name="themeplate_professional_handbag">हँडबॅग</string>
+    <string name="home_see_all">सर्व पहा</string>
 </resources>

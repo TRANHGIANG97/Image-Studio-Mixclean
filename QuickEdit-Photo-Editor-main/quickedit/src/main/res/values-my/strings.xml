@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">ပုံ၏တည်နေရာအထားအမှန်ဖြစ်စေရန် ၉၀ ဒီဂရီလှည့်ပါ သို့မဟုတ် အလျားလိုက်နှင့် ဒေါင်လိုက်လှန်ပါ။</string>
     <string name="draft_label">မူကြမ်း</string>
     <string name="draft_saved_successfully">မူကြမ်းကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ</string>
+    <string name="professional_section_title">အတတ်ပညာ</string>
+    <string name="themeplate_professional_watch">ကင်း</string>
+    <string name="themeplate_professional_perfume">ရေမွှေး</string>
+    <string name="themeplate_professional_handbag">လက်ကိုင်အိတ်</string>
+    <string name="home_see_all">အားလုံးကြည့်ပါ။</string>
 </resources>

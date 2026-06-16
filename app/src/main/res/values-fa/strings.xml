@@ -38,8 +38,6 @@
     <string name="licenses_title">مجوزهای متن‌باز</string>
     <string name="dark_mode_title">حالت تاریک</string>
     <string name="dark_mode_description">تغییر تم برنامه به حالت تاریک.</string>
-    <string name="home_preview_title">نمایش پیش‌نمایش در خانه</string>
-    <string name="home_preview_description">نمایش کادر مقایسه قبل/بعد در صفحه اصلی.</string>
 
     <string name="home_remove_background_title">پاک کردن پس‌زمینه</string>
     <string name="home_remove_background_subtitle">یک تصویر انتخاب کنید و با یک ضربه پس‌زمینه آن را پاک کنید.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">گسترش نرم تصویر با هوش مصنوعی</string>
     <string name="pro_see_details">مشاهده جزئیات ></string>
     <string name="picker_sample_badge">نمونه</string>
+    <string name="home_hero_subtitle_short">ویرایشگر عکس هوش مصنوعی</string>
+    <string name="home_hero_title">عکس های محصول حرفه ای ایجاد کنید</string>
+    <string name="home_hero_subtitle">پس‌زمینه را حذف کنید، پس‌زمینه را تغییر دهید، قالب‌ها را در چند ثانیه اضافه کنید</string>
+    <string name="home_hero_action">عکس را انتخاب کنید</string>
+    <string name="review_app_button">امتیاز دهید</string>
+    <string name="review_prompt_title">از %1$s لذت می برید؟</string>
+    <string name="review_prompt_message">برای امتیاز دادن به آن در Google Play روی یک ستاره ضربه بزنید.</string>
+    <string name="review_prompt_rate_now">ارسال کنید</string>
+    <string name="review_prompt_later">لغو کنید</string>
+    <string name="home_see_all">مشاهده همه</string>
+    <string name="save_success_title">ذخیره شد!</string>
+    <string name="save_success_create_new">ایجاد جدید</string>
+    <string name="save_success_try_other_tools">ابزارهای دیگر را امتحان کنید</string>
+    <string name="save_success_share">به اشتراک بگذارید</string>
+    <string name="save_success_back">برگشت</string>
+    <string name="save_success_home">صفحه اصلی</string>
+    <string name="save_success_saved_image">تصویر ذخیره شده</string>
+    <string name="save_success_share_with">اشتراک گذاری با…</string>
+    <string name="batch_remove_error_load_image">این تصویر بارگیری نمی شود.</string>
+    <string name="drafts_error_load">خطا در بارگیری پیش‌نویس‌ها: %1$s</string>
 </resources>

@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">หมุน 90 องศา หรือพลิกแนวนอนและแนวตั้งเพื่อแก้ไขทิศทางของรูปภาพให้ถูกต้อง</string>
     <string name="draft_label">แบบร่าง</string>
     <string name="draft_saved_successfully">บันทึกแบบร่างสำเร็จแล้ว</string>
+    <string name="professional_section_title">มืออาชีพ</string>
+    <string name="themeplate_professional_watch">ดู</string>
+    <string name="themeplate_professional_perfume">น้ำหอม</string>
+    <string name="themeplate_professional_handbag">กระเป๋าถือ</string>
+    <string name="home_see_all">ดูทั้งหมด</string>
 </resources>

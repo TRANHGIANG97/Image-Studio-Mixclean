@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Zasukajte za 90 stopinj ali obrnite vodoravno in navpično, da popravite usmerjenost slike.</string>
     <string name="draft_label">Osnutek</string>
     <string name="draft_saved_successfully">Osnutek uspešno shranjen</string>
+    <string name="professional_section_title">Profesionalno</string>
+    <string name="themeplate_professional_watch">Pazi</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Ročna torbica</string>
+    <string name="home_see_all">Poglej vse</string>
 </resources>

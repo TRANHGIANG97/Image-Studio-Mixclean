@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.abizer_r.quickedit.R
 import com.thgiang.image.studio.model.StudioThemeplate
-import com.thgiang.image.studio.model.StudioThemeplates
+import com.thgiang.image.studio.model.StudioThemeplateSection
 import com.thgiang.image.studio.ui.editor.SampleObjectCacheManager
 import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
 import dagger.hilt.EntryPoint
@@ -63,15 +63,17 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.thgiang.image.studio.util.CloudFirstSubcomposeAsyncImage
 
 @Composable
 fun ProfessionalThemeplateSection(
+    templates: List<StudioThemeplate>,
+    sections: List<StudioThemeplateSection>,
     modifier: Modifier = Modifier,
     onOpenGallery: (tabIndex: Int) -> Unit = {},
     onThemeplateSelected: (StudioThemeplate) -> Unit
 ) {
-    val templates = remember { StudioThemeplates.professional }
-    val sections = remember { StudioThemeplates.professionalSections }
+    if (templates.isEmpty() && sections.isEmpty()) return
 
     Column(modifier = modifier.padding(horizontal = 11.dp)) {
         ProfessionalThemeplateGroup(
@@ -157,37 +159,6 @@ private fun ProfessionalThemeplateCard(
     themeplate: StudioThemeplate,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val cacheManager = remember(context) {
-        EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            SampleObjectEntryPoint::class.java
-        ).sampleObjectCacheManager()
-    }
-
-    val bgBitmapState = produceState<Bitmap?>(initialValue = null, key1 = themeplate.assetPath) {
-        value = withContext(Dispatchers.IO) {
-            loadProfessionalAssetBitmap(context, themeplate.assetPath)
-        }
-    }
-
-    val fgBitmapState = produceState<Bitmap?>(initialValue = null, key1 = themeplate.objectSourceAssetPath) {
-        themeplate.objectSourceAssetPath?.let { objSrcPath ->
-            value = withContext(Dispatchers.IO) {
-                val uri = cacheManager.getOrExtract(objSrcPath)
-                if (uri != null) {
-                    runCatching {
-                        context.contentResolver.openInputStream(uri).use { input ->
-                            BitmapFactory.decodeStream(input)
-                        }
-                    }.getOrNull()
-                } else {
-                    null
-                }
-            }
-        }
-    }
-
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -216,37 +187,37 @@ private fun ProfessionalThemeplateCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            bgBitmapState.value?.let { bgBitmap ->
-                Image(
-                    bitmap = bgBitmap.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } ?: Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(EditorColorPalette.PanelElevated),
-                contentAlignment = Alignment.Center
-            ) {
-            }
+            CloudFirstSubcomposeAsyncImage(
+                sourcePath = themeplate.assetPath,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                loading = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(EditorColorPalette.PanelElevated)
+                    )
+                },
+                error = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(EditorColorPalette.PanelElevated)
+                    )
+                }
+            )
 
-            fgBitmapState.value?.let { fgBitmap ->
-                Image(
-                    bitmap = fgBitmap.asImageBitmap(),
-                    contentDescription = stringResource(themeplate.titleResId),
+            themeplate.objectSourceAssetPath?.let { objSrcPath ->
+                CloudFirstSubcomposeAsyncImage(
+                    sourcePath = objSrcPath,
+                    contentDescription = themeplate.titleString ?: stringResource(themeplate.titleResId),
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Fit,
+                    loading = {},
+                    error = {}
                 )
             }
         }
     }
-}
-
-private fun loadProfessionalAssetBitmap(context: Context, assetPath: String): Bitmap? {
-    return runCatching {
-        context.assets.open(assetPath).use { input ->
-            BitmapFactory.decodeStream(input)
-        }
-    }.getOrNull()
 }

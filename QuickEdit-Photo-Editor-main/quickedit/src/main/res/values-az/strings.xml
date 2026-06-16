@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Bu funksiya yalnız obyektin arxa fonu olduqda mümkündür</string>
     <string name="draft_label">Qaralama</string>
     <string name="draft_saved_successfully">Qaralama uğurla yadda saxlanıldı</string>
+    <string name="professional_section_title">Peşəkar</string>
+    <string name="themeplate_professional_watch">Bax</string>
+    <string name="themeplate_professional_perfume">Ətir</string>
+    <string name="themeplate_professional_handbag">Əl çantası</string>
+    <string name="home_see_all">Hamısına Bax</string>
 </resources>

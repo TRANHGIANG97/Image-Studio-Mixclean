@@ -55,6 +55,33 @@ class DraftManager(private val context: Context) {
         return id
     }
 
+    /** Tạo một template draft mới. */
+    fun createTemplateDraft(
+        name: String, 
+        snapshot: ProjectSnapshot,
+        templateAssetPath: String,
+        templateObjectAssetPath: String?
+    ): String {
+        val id = UUID.randomUUID().toString()
+        val draftDir = getDraftDir(id)
+        draftDir.mkdirs()
+
+        val now = System.currentTimeMillis()
+        val meta = DraftMetadata(
+            id = id,
+            name = name,
+            createdAt = now,
+            updatedAt = now,
+            isTemplate = true,
+            templateAssetPath = templateAssetPath,
+            templateObjectAssetPath = templateObjectAssetPath
+        )
+
+        serializer.saveMetadata(draftDir, meta)
+        serializer.save(draftDir, snapshot)
+        return id
+    }
+
     /** Cập nhật snapshot cho một draft hiện có. */
     fun updateDraft(id: String, snapshot: ProjectSnapshot) {
         val draftDir = getDraftDir(id)

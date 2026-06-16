@@ -38,8 +38,6 @@
     <string name="licenses_title">ओपन सोर्स लाइसेंस</string>
     <string name="dark_mode_title">डार्क मोड</string>
     <string name="dark_mode_description">ऐप की थीम को डार्क मोड में बदलें।</string>
-    <string name="home_preview_title">होम स्क्रीन पर प्रिव्यू दिखाएं</string>
-    <string name="home_preview_description">होम स्क्रीन पर पहले/बाद (Before/After) का तुलना बॉक्स दिखाएं।</string>
 
     <string name="home_remove_background_title">बैकग्राउंड हटाएं</string>
     <string name="home_remove_background_subtitle">एक छवि चुनें और सिर्फ एक टैप में उसका बैकग्राउंड हटाएं।</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI स्मूथ इमेज एक्सपैंड</string>
     <string name="pro_see_details">विवरण देखें ></string>
     <string name="picker_sample_badge">नमूना</string>
+    <string name="home_hero_subtitle_short">एआई फोटो संपादक</string>
+    <string name="home_hero_title">व्यावसायिक उत्पाद फ़ोटो बनाएँ</string>
+    <string name="home_hero_subtitle">पृष्ठभूमि हटाएं, पृष्ठभूमि बदलें, सेकंडों में टेम्पलेट जोड़ें</string>
+    <string name="home_hero_action">तस्विर का चयन करो</string>
+    <string name="review_app_button">दर</string>
+    <string name="review_prompt_title">%1$s का आनंद ले रहे हैं?</string>
+    <string name="review_prompt_message">Google Play पर किसी स्टार को रेट करने के लिए उस पर टैप करें।</string>
+    <string name="review_prompt_rate_now">जमा करना</string>
+    <string name="review_prompt_later">रद्द करना</string>
+    <string name="home_see_all">सभी देखें</string>
+    <string name="save_success_title">सहेजा गया!</string>
+    <string name="save_success_create_new">नया निर्माण</string>
+    <string name="save_success_try_other_tools">अन्य उपकरण आज़माएँ</string>
+    <string name="save_success_share">शेयर करना</string>
+    <string name="save_success_back">पीछे</string>
+    <string name="save_success_home">घर</string>
+    <string name="save_success_saved_image">छवि सहेजी गई</string>
+    <string name="save_success_share_with">के साथ शेयर करें…</string>
+    <string name="batch_remove_error_load_image">इस छवि को लोड नहीं किया जा सकता.</string>
+    <string name="drafts_error_load">ड्राफ्ट लोड करने में त्रुटि: %1$s</string>
 </resources>

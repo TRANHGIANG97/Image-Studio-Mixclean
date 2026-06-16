@@ -15,6 +15,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmentation
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmenter
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmenterOptions
+import java.nio.FloatBuffer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
@@ -59,6 +60,28 @@ class MlKitBackgroundRemoverRepository(
         SubjectSegmentation.getClient(options)
     }
 
+    private fun isX86Emulator(): Boolean {
+        val isEmulator = (android.os.Build.BRAND.startsWith("generic") && android.os.Build.DEVICE.startsWith("generic"))
+                || android.os.Build.FINGERPRINT.startsWith("generic")
+                || android.os.Build.FINGERPRINT.startsWith("unknown")
+                || android.os.Build.HARDWARE.contains("goldfish")
+                || android.os.Build.HARDWARE.contains("ranchu")
+                || android.os.Build.MODEL.contains("google_sdk")
+                || android.os.Build.MODEL.contains("Emulator")
+                || android.os.Build.MODEL.contains("Android SDK built for x86")
+                || android.os.Build.MANUFACTURER.contains("Genymotion")
+                || android.os.Build.PRODUCT.contains("sdk_google")
+                || android.os.Build.PRODUCT.contains("google_sdk")
+                || android.os.Build.PRODUCT.contains("sdk")
+                || android.os.Build.PRODUCT.contains("sdk_x86")
+                || android.os.Build.PRODUCT.contains("vbox86p")
+                || android.os.Build.PRODUCT.contains("emulator")
+                || android.os.Build.PRODUCT.contains("simulator")
+
+        val isX86 = android.os.Build.SUPPORTED_ABIS.any { it.contains("x86") }
+        return isEmulator && isX86
+    }
+
     override suspend fun removeBackground(imageUri: Uri): Result<BackgroundRemovalOutput> = runCatching {
         selfieFallbackUsedInLastOperation = false
         Log.d(TAG, "removeBackground: start uri=$imageUri")
@@ -101,9 +124,21 @@ class MlKitBackgroundRemoverRepository(
             val input = InputImage.fromBitmap(bitmap, 0)
 
             val buffer = withContext(Dispatchers.Default) {
-                val result = processSafely(input)
-                result.foregroundConfidenceMask
-            } ?: error("Foreground confidence mask not available")
+                if (isX86Emulator() && SelfieFallbackSegmenter.isSupported) {
+                    runCatching {
+                        val result = processSafely(input)
+                        result.foregroundConfidenceMask ?: error("Foreground confidence mask not available")
+                    }.getOrElse { e ->
+                        Log.w(TAG, "getPortraitConfidenceMask: SubjectSegmenter failed on x86 emulator; falling back to SelfieSegmenter", e)
+                        selfieFallbackUsedInLastOperation = true
+                        val buffer = SelfieFallbackSegmenter.process(input)
+                        buffer.asFloatBuffer()
+                    }
+                } else {
+                    val result = processSafely(input)
+                    result.foregroundConfidenceMask ?: error("Foreground confidence mask not available")
+                }
+            }
 
             buffer.rewind()
             val count = buffer.remaining()
@@ -126,6 +161,7 @@ class MlKitBackgroundRemoverRepository(
 
     override fun close() {
         runCatching { segmenter.close() }
+        runCatching { SelfieFallbackSegmenter.close() }
     }
 
     override fun consumeSelfieFallbackWarning(): Boolean {
@@ -154,12 +190,31 @@ class MlKitBackgroundRemoverRepository(
         val input = InputImage.fromBitmap(processedBitmap, 0)
 
         val mask = run {
-            Log.d(TAG, "getForegroundBitmapInternal: using SubjectSegmenter for mask")
-            val mlStart = System.currentTimeMillis()
-            val result = processSafely(input)
-            Log.d(TAG, "getForegroundBitmapInternal: ML Kit Segmenter took ${System.currentTimeMillis() - mlStart}ms")
-            val buffer = result.foregroundConfidenceMask ?: error("Foreground confidence mask failed")
-            readMask(buffer, processedBitmap.width, processedBitmap.height)
+            if (isX86Emulator() && SelfieFallbackSegmenter.isSupported) {
+                runCatching {
+                    Log.d(TAG, "getForegroundBitmapInternal: attempting SubjectSegmenter on x86 emulator")
+                    val mlStart = System.currentTimeMillis()
+                    val result = processSafely(input)
+                    Log.d(TAG, "getForegroundBitmapInternal: ML Kit Subject Segmenter took ${System.currentTimeMillis() - mlStart}ms")
+                    val buffer = result.foregroundConfidenceMask ?: error("Foreground confidence mask failed")
+                    readMask(buffer, processedBitmap.width, processedBitmap.height)
+                }.getOrElse { e ->
+                    Log.w(TAG, "SubjectSegmenter failed on x86 emulator; falling back to SelfieSegmenter", e)
+                    selfieFallbackUsedInLastOperation = true
+                    val mlStart = System.currentTimeMillis()
+                    val resultBuffer = SelfieFallbackSegmenter.process(input)
+                    Log.d(TAG, "getForegroundBitmapInternal: ML Kit Selfie Segmenter took ${System.currentTimeMillis() - mlStart}ms")
+                    val buffer = resultBuffer.asFloatBuffer()
+                    readMask(buffer, processedBitmap.width, processedBitmap.height)
+                }
+            } else {
+                Log.d(TAG, "getForegroundBitmapInternal: using SubjectSegmenter for mask")
+                val mlStart = System.currentTimeMillis()
+                val result = processSafely(input)
+                Log.d(TAG, "getForegroundBitmapInternal: ML Kit Segmenter took ${System.currentTimeMillis() - mlStart}ms")
+                val buffer = result.foregroundConfidenceMask ?: error("Foreground confidence mask failed")
+                readMask(buffer, processedBitmap.width, processedBitmap.height)
+            }
         }
 
         try {

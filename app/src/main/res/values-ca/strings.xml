@@ -38,8 +38,6 @@
     <string name="licenses_title">Llicències de codi obert</string>
     <string name="dark_mode_title">Mode fosc</string>
     <string name="dark_mode_description">Canvia el tema fosc de l\'aplicació.</string>
-    <string name="home_preview_title">Mostra la vista prèvia a l\'inici</string>
-    <string name="home_preview_description">Mostra la caixa de comparació abans/després a la pantalla d\'inici.</string>
 
     <string name="home_remove_background_title">Eliminar fons</string>
     <string name="home_remove_background_subtitle">Seleccioneu una imatge i elimineu-ne el fons amb un sol toc.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Expansió IA suau</string>
     <string name="pro_see_details">Detalls ></string>
     <string name="picker_sample_badge">Mostra</string>
+    <string name="home_hero_subtitle_short">Editor de fotos AI</string>
+    <string name="home_hero_title">Creeu fotos de productes professionals</string>
+    <string name="home_hero_subtitle">Elimina el fons, canvia el fons, afegeix plantilles en segons</string>
+    <string name="home_hero_action">Trieu Foto</string>
+    <string name="review_app_button">Taxa</string>
+    <string name="review_prompt_title">Gaudeix de %1$s?</string>
+    <string name="review_prompt_message">Toca una estrella per puntuar-la a Google Play.</string>
+    <string name="review_prompt_rate_now">Envia</string>
+    <string name="review_prompt_later">Cancel·la</string>
+    <string name="home_see_all">Veure-ho tot</string>
+    <string name="save_success_title">Salvat!</string>
+    <string name="save_success_create_new">Crea nou</string>
+    <string name="save_success_try_other_tools">Proveu altres eines</string>
+    <string name="save_success_share">Comparteix</string>
+    <string name="save_success_back">Enrere</string>
+    <string name="save_success_home">Casa</string>
+    <string name="save_success_saved_image">Imatge desada</string>
+    <string name="save_success_share_with">Comparteix amb…</string>
+    <string name="batch_remove_error_load_image">No es pot carregar aquesta imatge.</string>
+    <string name="drafts_error_load">S\'ha produït un error en carregar els esborranys: %1$s</string>
 </resources>

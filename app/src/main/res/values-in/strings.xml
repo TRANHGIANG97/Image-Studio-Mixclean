@@ -38,8 +38,6 @@
     <string name="licenses_title">Lisensi Open Source</string>
     <string name="dark_mode_title">Mode Gelap</string>
     <string name="dark_mode_description">Ubah tema aplikasi ke mode gelap.</string>
-    <string name="home_preview_title">Tampilkan Pratinjau di Beranda</string>
-    <string name="home_preview_description">Tampilkan kotak perbandingan Sebelum/Sesudah di layar beranda.</string>
 
     <string name="home_remove_background_title">Hapus Latar Belakang</string>
     <string name="home_remove_background_subtitle">Pilih foto dan hapus latar belakangnya hanya dengan satu ketukan.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Perluasan Gambar Mulus AI</string>
     <string name="pro_see_details">Lihat Detail ></string>
     <string name="picker_sample_badge">Contoh</string>
+    <string name="home_hero_subtitle_short">Editor Foto AI</string>
+    <string name="home_hero_title">Buat Foto Produk Profesional</string>
+    <string name="home_hero_subtitle">Hapus latar belakang, ubah latar belakang, tambahkan templat dalam hitungan detik</string>
+    <string name="home_hero_action">Pilih Foto</string>
+    <string name="review_app_button">Kecepatan</string>
+    <string name="review_prompt_title">Menikmati _%1$s?</string>
+    <string name="review_prompt_message">Ketuk bintang untuk memberi peringkat di Google Play.</string>
+    <string name="review_prompt_rate_now">Kirim</string>
+    <string name="review_prompt_later">Membatalkan</string>
+    <string name="home_see_all">Lihat Semua</string>
+    <string name="save_success_title">Disimpan!</string>
+    <string name="save_success_create_new">Buat Baru</string>
+    <string name="save_success_try_other_tools">Coba alat lain</string>
+    <string name="save_success_share">Membagikan</string>
+    <string name="save_success_back">Kembali</string>
+    <string name="save_success_home">Rumah</string>
+    <string name="save_success_saved_image">Gambar yang disimpan</string>
+    <string name="save_success_share_with">Bagikan dengan…</string>
+    <string name="batch_remove_error_load_image">Tidak dapat memuat gambar ini.</string>
+    <string name="drafts_error_load">Kesalahan saat memuat draf: %1$s</string>
 </resources>

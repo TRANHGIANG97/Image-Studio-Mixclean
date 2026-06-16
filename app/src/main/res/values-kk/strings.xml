@@ -38,8 +38,6 @@
     <string name="licenses_title">Ашық кодты лицензиялар</string>
     <string name="dark_mode_title">Қараңғы режим</string>
     <string name="dark_mode_description">Қолданба интерфейсін қараңғы режимге ауыстыру.</string>
-    <string name="home_preview_title">Басты бетте алдын ала қарау</string>
-    <string name="home_preview_description">Басты экранда «Дейін/Кейін» салыстыру блогын көрсету.</string>
 
     <string name="home_remove_background_title">Фонды өшіру</string>
     <string name="home_remove_background_subtitle">Фотосуретті таңдап, бір түрту арқылы фонды өшіріңіз.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Суретті AI арқылы жіксіз кеңეйту</string>
     <string name="pro_see_details">Толығырақ ></string>
     <string name="picker_sample_badge">Үлгі</string>
+    <string name="home_hero_subtitle_short">AI фото редакторы</string>
+    <string name="home_hero_title">Кәсіби өнім фотосуреттерін жасаңыз</string>
+    <string name="home_hero_subtitle">Фонды алып тастаңыз, фонды өзгертіңіз, секундтарда үлгілерді қосыңыз</string>
+    <string name="home_hero_action">Фотосуретті таңдаңыз</string>
+    <string name="review_app_button">Бағалау</string>
+    <string name="review_prompt_title">%1$s ұнай ма?</string>
+    <string name="review_prompt_message">Google Play дүкенінде бағалау үшін жұлдызшаны түртіңіз.</string>
+    <string name="review_prompt_rate_now">Жіберу</string>
+    <string name="review_prompt_later">Болдырмау</string>
+    <string name="home_see_all">Барлығын көру</string>
+    <string name="save_success_title">Сақталды!</string>
+    <string name="save_success_create_new">Жаңа жасау</string>
+    <string name="save_success_try_other_tools">Басқа құралдарды қолданып көріңіз</string>
+    <string name="save_success_share">Бөлісу</string>
+    <string name="save_success_back">Артқа</string>
+    <string name="save_success_home">Үй</string>
+    <string name="save_success_saved_image">Сақталған сурет</string>
+    <string name="save_success_share_with">Бөлісу…</string>
+    <string name="batch_remove_error_load_image">Бұл суретті жүктеу мүмкін емес.</string>
+    <string name="drafts_error_load">Нобайларды жүктеу қатесі: %1$s</string>
 </resources>

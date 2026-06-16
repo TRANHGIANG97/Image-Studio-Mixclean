@@ -38,8 +38,6 @@
     <string name="licenses_title">Licențe Open Source</string>
     <string name="dark_mode_title">Mod Întunecat</string>
     <string name="dark_mode_description">Schimbă tema aplicației la modul întunecat.</string>
-    <string name="home_preview_title">Previzualizare pe Ecranul de Pornire</string>
-    <string name="home_preview_description">Afișează caseta de comparație Înainte/După pe ecranul de pornire.</string>
 
     <string name="home_remove_background_title">Elimină Fundalul</string>
     <string name="home_remove_background_subtitle">Selectați o fotografie și eliminați fundalul cu un singur clic.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Extindeți imaginea în mod natural prin AI</string>
     <string name="pro_see_details">Vezi detalii ></string>
     <string name="picker_sample_badge">Mostră</string>
+    <string name="home_hero_subtitle_short">Editor foto AI</string>
+    <string name="home_hero_title">Creați fotografii profesionale ale produselor</string>
+    <string name="home_hero_subtitle">Eliminați fundalul, schimbați fundalul, adăugați șabloane în câteva secunde</string>
+    <string name="home_hero_action">Alegeți Fotografie</string>
+    <string name="review_app_button">Rata</string>
+    <string name="review_prompt_title">Vă bucurați de %1$s?</string>
+    <string name="review_prompt_message">Atingeți o stea pentru a o evalua pe Google Play.</string>
+    <string name="review_prompt_rate_now">Trimiteți</string>
+    <string name="review_prompt_later">Anula</string>
+    <string name="home_see_all">Vezi toate</string>
+    <string name="save_success_title">Salvat!</string>
+    <string name="save_success_create_new">Creați nou</string>
+    <string name="save_success_try_other_tools">Încercați alte instrumente</string>
+    <string name="save_success_share">Distribuie</string>
+    <string name="save_success_back">Spate</string>
+    <string name="save_success_home">Acasă</string>
+    <string name="save_success_saved_image">Imagine salvată</string>
+    <string name="save_success_share_with">Distribuie cu...</string>
+    <string name="batch_remove_error_load_image">Nu se poate încărca această imagine.</string>
+    <string name="drafts_error_load">Eroare la încărcarea schițelor: %1$s</string>
 </resources>

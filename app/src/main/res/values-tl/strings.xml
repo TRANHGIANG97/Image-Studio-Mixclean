@@ -38,8 +38,6 @@
     <string name="licenses_title">Mga Lisensya ng Open Source</string>
     <string name="dark_mode_title">Dark Mode</string>
     <string name="dark_mode_description">Ibahahin ang tema ng app sa dark mode.</string>
-    <string name="home_preview_title">Preview sa Home Screen</string>
-    <string name="home_preview_description">Ipakita ang kahon ng paghahambing ng Bago/Pagkatapos sa home screen.</string>
 
     <string name="home_remove_background_title">Alisin ang Background</string>
     <string name="home_remove_background_subtitle">Pumili ng larawan at alisin ang background sa isang click lang.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Palawakin ang larawan nang natural gamit ang AI</string>
     <string name="pro_see_details">Tingnan ang mga detalye ></string>
     <string name="picker_sample_badge">Sample</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Gumawa ng Mga Propesyonal na Larawan ng Produkto</string>
+    <string name="home_hero_subtitle">Alisin ang background, baguhin ang backdrop, magdagdag ng mga template sa ilang segundo</string>
+    <string name="home_hero_action">Pumili ng Larawan</string>
+    <string name="review_app_button">Rate</string>
+    <string name="review_prompt_title">Nag-e-enjoy sa %1$s?</string>
+    <string name="review_prompt_message">Mag-tap ng star para i-rate ito sa Google Play.</string>
+    <string name="review_prompt_rate_now">Isumite</string>
+    <string name="review_prompt_later">Kanselahin</string>
+    <string name="home_see_all">Tingnan Lahat</string>
+    <string name="save_success_title">Na-save!</string>
+    <string name="save_success_create_new">Lumikha ng Bago</string>
+    <string name="save_success_try_other_tools">Subukan ang iba pang mga tool</string>
+    <string name="save_success_share">Ibahagi</string>
+    <string name="save_success_back">Bumalik</string>
+    <string name="save_success_home">Bahay</string>
+    <string name="save_success_saved_image">Naka-save na larawan</string>
+    <string name="save_success_share_with">Ibahagi sa…</string>
+    <string name="batch_remove_error_load_image">Hindi ma-load ang larawang ito.</string>
+    <string name="drafts_error_load">Error sa paglo-load ng mga draft: %1$s</string>
 </resources>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Licencje open source</string>
     <string name="dark_mode_title">Tryb ciemny</string>
     <string name="dark_mode_description">Przełącz ciemny motyw aplikacji.</string>
-    <string name="home_preview_title">Pokaż podgląd na ekranie głównym</string>
-    <string name="home_preview_description">Pokaż pole porównania przed / po na ekranie głównym.</string>
 
     <string name="home_remove_background_title">Usuń tło</string>
     <string name="home_remove_background_subtitle">Wybierz obraz i usuń jego tło jednym dotknięciem.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Płynne rozszerzanie AI</string>
     <string name="pro_see_details">Szczegóły ></string>
     <string name="picker_sample_badge">Próbka</string>
+    <string name="home_hero_subtitle_short">Edytor zdjęć AI</string>
+    <string name="home_hero_title">Twórz profesjonalne zdjęcia produktów</string>
+    <string name="home_hero_subtitle">Usuń tło, zmień tło, dodaj szablony w ciągu kilku sekund</string>
+    <string name="home_hero_action">Wybierz Zdjęcie</string>
+    <string name="review_app_button">Wskaźnik</string>
+    <string name="review_prompt_title">Podoba Ci się _%1$s?</string>
+    <string name="review_prompt_message">Kliknij gwiazdkę, aby ocenić ją w Google Play.</string>
+    <string name="review_prompt_rate_now">Składać</string>
+    <string name="review_prompt_later">Anulować</string>
+    <string name="home_see_all">Zobacz wszystko</string>
+    <string name="save_success_title">Zapisano!</string>
+    <string name="save_success_create_new">Utwórz nowy</string>
+    <string name="save_success_try_other_tools">Wypróbuj inne narzędzia</string>
+    <string name="save_success_share">Udział</string>
+    <string name="save_success_back">Z powrotem</string>
+    <string name="save_success_home">Dom</string>
+    <string name="save_success_saved_image">Zapisany obraz</string>
+    <string name="save_success_share_with">Podziel się z…</string>
+    <string name="batch_remove_error_load_image">Nie można załadować tego obrazu.</string>
+    <string name="drafts_error_load">Błąd podczas ładowania wersji roboczych: %1$s</string>
 </resources>

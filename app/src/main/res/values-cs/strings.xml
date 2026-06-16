@@ -38,8 +38,6 @@
     <string name="licenses_title">Licence open source</string>
     <string name="dark_mode_title">Tmavý režim</string>
     <string name="dark_mode_description">Přepnout tmavý motiv aplikace.</string>
-    <string name="home_preview_title">Zobrazit náhled na ploše</string>
-    <string name="home_preview_description">Zobrazit srovnávací pole Před / Po na domovské obrazovce.</string>
 
     <string name="home_remove_background_title">Odstranit pozadí</string>
     <string name="home_remove_background_subtitle">Vyberte obrázek a odstraňte jeho pozadí jedním klepnutím.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Plynulé rozšíření AI</string>
     <string name="pro_see_details">Podrobnosti ></string>
     <string name="picker_sample_badge">Ukázka</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Vytvářejte profesionální fotografie produktů</string>
+    <string name="home_hero_subtitle">Odstraňte pozadí, změňte pozadí, přidejte šablony během několika sekund</string>
+    <string name="home_hero_action">Vyberte Foto</string>
+    <string name="review_app_button">Hodnotit</string>
+    <string name="review_prompt_title">Líbí se vám %1$s?</string>
+    <string name="review_prompt_message">Klepnutím na hvězdičku ji ohodnotíte na Google Play.</string>
+    <string name="review_prompt_rate_now">Předložit</string>
+    <string name="review_prompt_later">Zrušit</string>
+    <string name="home_see_all">Zobrazit vše</string>
+    <string name="save_success_title">Uloženo!</string>
+    <string name="save_success_create_new">Vytvořit nový</string>
+    <string name="save_success_try_other_tools">Vyzkoušejte jiné nástroje</string>
+    <string name="save_success_share">Podíl</string>
+    <string name="save_success_back">Zadní</string>
+    <string name="save_success_home">Domov</string>
+    <string name="save_success_saved_image">Uložený obrázek</string>
+    <string name="save_success_share_with">Sdílet s…</string>
+    <string name="batch_remove_error_load_image">Tento obrázek nelze načíst.</string>
+    <string name="drafts_error_load">Chyba při načítání konceptů: %1$s</string>
 </resources>

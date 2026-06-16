@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import com.thgiang.image.studio.R
+import com.thgiang.image.studio.util.CloudFirstSubcomposeAsyncImage
 
 data class StudioCategory(
     val id: String,
@@ -157,8 +158,8 @@ private fun StudioCategoryCard(
             )
     ) {
         if (hasAsset) {
-            SubcomposeAsyncImage(
-                model = "file:///android_asset/${category.assetPath}",
+            CloudFirstSubcomposeAsyncImage(
+                sourcePath = category.assetPath,
                 contentDescription = null,
                 modifier = Modifier.matchParentSize(),
                 contentScale = ContentScale.Crop,

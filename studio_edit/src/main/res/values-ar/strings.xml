@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">استوديو المنتجات بالذكاء الاصطناعي</string>
     <string name="studio_category_electronics">إلكترونيات</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">ظل</string>
     <string name="studio_tool_transparency">شفافية</string>
     <string name="studio_tool_crop">قص</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">ملصق</string>
     <string name="studio_tool_rotateflip">تدوير/عكس</string>
     <string name="studio_replace_hint">اضغط على استبدال لاختيار صورة منتج من معرض الصور</string>
     <string name="studio_layout_hint">اسحب للتحريك · اضغط بإصبعين للتكبير · تدوير بإصبعين</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">لا توجد قوالب متاحة</string>
     <string name="studio_gallery_coming_soon">قريباً</string>
     <string name="studio_gallery_coming_soon_desc">هذه الميزة قيد التطوير وستكون متاحة قريبًا!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">يعمل فريق التصميم بجد لإضافة المزيد من القوالب قريبًا.</string>
     <string name="themeplate_gallery_title">قوالب</string>
     <string name="studio_save_image_success">تم حفظ الصورة</string>
     <string name="studio_error_select_object">الرجاء تحديد كائن</string>

@@ -38,8 +38,6 @@
     <string name="licenses_title">ഓപ്പൺ സോഴ്സ് ലൈസൻസുകൾ</string>
     <string name="dark_mode_title">ഡാർക്ക് മോഡ്</string>
     <string name="dark_mode_description">ആപ്പിന്റെ ഡാർക്ക് തീം മാറ്റുക.</string>
-    <string name="home_preview_title">ഹോം പ്രിവ്യൂ കാണിക്കുക</string>
-    <string name="home_preview_description">ഹോം സ്‌ക്രീനിൽ മുൻപ്/പിൻപ് താരതമ്യ ബോക്‌സ് കാണിക്കുക.</string>
 
     <string name="home_remove_background_title">ബാക്ക്ഗ്രൗണ്ട് മാറ്റുക</string>
     <string name="home_remove_background_subtitle">ഒരു ചിത്രം തിരഞ്ഞെടുത്ത് ഒരു ടാപ്പിലൂടെ അതിന്റെ ബാക്ക്ഗ്രൗണ്ട് മാറ്റുക.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">സ്മൂത്ത് AI എക്സ്പാൻഷൻ</string>
     <string name="pro_see_details">വിശദാംശങ്ങൾ ></string>
     <string name="picker_sample_badge">സാമ്പിൾ</string>
+    <string name="home_hero_subtitle_short">AI ഫോട്ടോ എഡിറ്റർ</string>
+    <string name="home_hero_title">പ്രൊഫഷണൽ ഉൽപ്പന്ന ഫോട്ടോകൾ സൃഷ്ടിക്കുക</string>
+    <string name="home_hero_subtitle">പശ്ചാത്തലം നീക്കം ചെയ്യുക, ബാക്ക്‌ഡ്രോപ്പ് മാറ്റുക, നിമിഷങ്ങൾക്കുള്ളിൽ ടെംപ്ലേറ്റുകൾ ചേർക്കുക</string>
+    <string name="home_hero_action">ഫോട്ടോ തിരഞ്ഞെടുക്കുക</string>
+    <string name="review_app_button">നിരക്ക്</string>
+    <string name="review_prompt_title">%1$s ആസ്വദിക്കുകയാണോ?</string>
+    <string name="review_prompt_message">Google Play-യിൽ റേറ്റുചെയ്യാൻ ഒരു നക്ഷത്രം ടാപ്പുചെയ്യുക.</string>
+    <string name="review_prompt_rate_now">സമർപ്പിക്കുക</string>
+    <string name="review_prompt_later">റദ്ദാക്കുക</string>
+    <string name="home_see_all">എല്ലാം കാണുക</string>
+    <string name="save_success_title">സംരക്ഷിച്ചു!</string>
+    <string name="save_success_create_new">പുതിയത് സൃഷ്ടിക്കുക</string>
+    <string name="save_success_try_other_tools">മറ്റ് ഉപകരണങ്ങൾ പരീക്ഷിക്കുക</string>
+    <string name="save_success_share">പങ്കിടുക</string>
+    <string name="save_success_back">തിരികെ</string>
+    <string name="save_success_home">വീട്</string>
+    <string name="save_success_saved_image">സംരക്ഷിച്ച ചിത്രം</string>
+    <string name="save_success_share_with">ഇവരുമായി പങ്കിടുക...</string>
+    <string name="batch_remove_error_load_image">ഈ ചിത്രം ലോഡ് ചെയ്യാൻ കഴിയില്ല.</string>
+    <string name="drafts_error_load">ഡ്രാഫ്റ്റുകൾ ലോഡ് ചെയ്യുന്നതിൽ പിശക്: %1$s</string>
 </resources>

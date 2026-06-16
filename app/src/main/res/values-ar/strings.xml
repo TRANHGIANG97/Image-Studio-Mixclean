@@ -38,8 +38,6 @@
     <string name="licenses_title">تراخيص البرمجيات مفتوحة المصدر</string>
     <string name="dark_mode_title">الوضع الداكن</string>
     <string name="dark_mode_description">تبديل المظهر الداكن للتطبيق.</string>
-    <string name="home_preview_title">عرض معاينة الشاشة الرئيسية</string>
-    <string name="home_preview_description">عرض صندوق المقارنة قبل / بعد على الشاشة الرئيسية.</string>
 
     <string name="home_remove_background_title">إزالة الخلفية</string>
     <string name="home_remove_background_subtitle">اختر صورة وأزل خلفيتها بنقرة واحدة.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">توسيع ذكي سلس</string>
     <string name="pro_see_details">التفاصيل ></string>
     <string name="picker_sample_badge">عينة</string>
+    <string name="home_hero_subtitle_short">محرر الصور بالذكاء الاصطناعي</string>
+    <string name="home_hero_title">إنشاء صور احترافية للمنتج</string>
+    <string name="home_hero_subtitle">قم بإزالة الخلفية وتغيير الخلفية وإضافة القوالب في ثوانٍ</string>
+    <string name="home_hero_action">اختر صورة</string>
+    <string name="review_app_button">معدل</string>
+    <string name="review_prompt_title">تتمتع __PH1____؟</string>
+    <string name="review_prompt_message">اضغط على النجمة لتقييمها على Google Play.</string>
+    <string name="review_prompt_rate_now">يُقدِّم</string>
+    <string name="review_prompt_later">يلغي</string>
+    <string name="home_see_all">رؤية الكل</string>
+    <string name="save_success_title">أنقذ!</string>
+    <string name="save_success_create_new">إنشاء جديد</string>
+    <string name="save_success_try_other_tools">جرب أدوات أخرى</string>
+    <string name="save_success_share">يشارك</string>
+    <string name="save_success_back">خلف</string>
+    <string name="save_success_home">بيت</string>
+    <string name="save_success_saved_image">الصورة المحفوظة</string>
+    <string name="save_success_share_with">شارك مع…</string>
+    <string name="batch_remove_error_load_image">لا يمكن تحميل هذه الصورة.</string>
+    <string name="drafts_error_load">حدث خطأ أثناء تحميل المسودات: __PH1____</string>
 </resources>

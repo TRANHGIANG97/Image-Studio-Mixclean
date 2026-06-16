@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">ചിത്രത്തിന്റെ ദിശ ശരിയാക്കാൻ 90 ഡിഗ്രി തിരിക്കുക അല്ലെങ്കിൽ തിരശ്ചീനമായും ലംബമായും ഫ്ലിപ്പ് ചെയ്യുക.</string>
     <string name="draft_label">ഡ്രാഫ്റ്റ്</string>
     <string name="draft_saved_successfully">ഡ്രാഫ്റ്റ് വിജയകരമായി സേവ് ചെയ്തു</string>
+    <string name="professional_section_title">പ്രൊഫഷണൽ</string>
+    <string name="themeplate_professional_watch">കാണുക</string>
+    <string name="themeplate_professional_perfume">പെർഫ്യൂം</string>
+    <string name="themeplate_professional_handbag">ഹാൻഡ്ബാഗ്</string>
+    <string name="home_see_all">എല്ലാം കാണുക</string>
 </resources>

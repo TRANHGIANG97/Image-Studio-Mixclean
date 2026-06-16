@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">ស្ទូឌីយោផលិតផល AI</string>
     <string name="studio_category_electronics">គ្រឿងអេឡិចត្រូនិច</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">ស្រមោល</string>
     <string name="studio_tool_transparency">ភាពស្រអាប់</string>
     <string name="studio_tool_crop">កាត់តម្រឹម</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">ស្ទីគ័រ</string>
     <string name="studio_tool_rotateflip">បង្វិល/ផ្ដាប់</string>
     <string name="studio_replace_hint">ប៉ះ ផ្លាស់ប្ដូរ ដើម្បីជ្រើសរើសរូបថតផលិតផលពីវិចិត្រសាលរបស់អ្នក</string>
     <string name="studio_layout_hint">អូសដើម្បីផ្លាស់ទី · ពង្រីកដោយប្រើម្រាមដៃពីរ · បង្វិលដោយប្រើម្រាមដៃពីរ</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">មិនមានគំរូដែលអាចប្រើបានទេ។</string>
     <string name="studio_gallery_coming_soon">មកដល់ឆាប់ៗនេះ</string>
     <string name="studio_gallery_coming_soon_desc">មុខងារនេះស្ថិតក្រោមការអភិវឌ្ឍន៍ ហើយនឹងមានក្នុងពេលឆាប់ៗនេះ!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">ក្រុមរចនាកំពុងខិតខំធ្វើការ ដើម្បីបន្ថែមគំរូបន្ថែមទៀតឆាប់ៗនេះ។</string>
     <string name="themeplate_gallery_title">គំរូ</string>
     <string name="studio_save_image_success">រូបភាពត្រូវបានរក្សាទុក</string>
     <string name="studio_error_select_object">សូមជ្រើសរើសវត្ថុមួយ។</string>

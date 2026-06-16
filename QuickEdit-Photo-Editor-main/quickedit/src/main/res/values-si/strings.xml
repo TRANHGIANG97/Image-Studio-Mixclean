@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">ඡායාරූපයේ දිශානතිය නිවැရදි කිරීමට අංශක 90ක් කරකවන්න හෝ තිරස්ව සහ සිරස්ව පෙරළන්න.</string>
     <string name="draft_label">කෙටුම්පත</string>
     <string name="draft_saved_successfully">Osnutek je bil uspešno shranjen</string>
+    <string name="professional_section_title">වෘත්තීය</string>
+    <string name="themeplate_professional_watch">නරඹන්න</string>
+    <string name="themeplate_professional_perfume">සුවඳ විලවුන්</string>
+    <string name="themeplate_professional_handbag">අත්බෑගය</string>
+    <string name="home_see_all">සියල්ල බලන්න</string>
 </resources>

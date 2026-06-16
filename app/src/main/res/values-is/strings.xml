@@ -38,8 +38,6 @@
     <string name="licenses_title">Opinn hugbúnaðarleyfi</string>
     <string name="dark_mode_title">Dökk stilling</string>
     <string name="dark_mode_description">Breyta útliti appsins í dökka stillingu.</string>
-    <string name="home_preview_title">Sýna forskoðun á heimaskjá</string>
-    <string name="home_preview_description">Sýna Fyrir/Eftir samanburðarkassa á heimaskjánum.</string>
 
     <string name="home_remove_background_title">Fjarlægja bakgrunn</string>
     <string name="home_remove_background_subtitle">Veldu mynd og fjarlægðu bakgrunninn með aðeins einni snertingu.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI Óaðfinnanleg myndastækkun</string>
     <string name="pro_see_details">Sjá nánar ></string>
     <string name="picker_sample_badge">Sýnishorn</string>
+    <string name="home_hero_subtitle_short">AI ljósmyndaritill</string>
+    <string name="home_hero_title">Búðu til faglegar vörumyndir</string>
+    <string name="home_hero_subtitle">Fjarlægðu bakgrunn, breyttu bakgrunni, bættu við sniðmátum á nokkrum sekúndum</string>
+    <string name="home_hero_action">Veldu mynd</string>
+    <string name="review_app_button">Gefa</string>
+    <string name="review_prompt_title">Hefurðu gaman af %1$s?</string>
+    <string name="review_prompt_message">Ýttu á stjörnu til að gefa henni einkunn á Google Play.</string>
+    <string name="review_prompt_rate_now">Sendu inn</string>
+    <string name="review_prompt_later">Hætta við</string>
+    <string name="home_see_all">Sjá allt</string>
+    <string name="save_success_title">Vistað!</string>
+    <string name="save_success_create_new">Búa til nýtt</string>
+    <string name="save_success_try_other_tools">Prófaðu önnur verkfæri</string>
+    <string name="save_success_share">Deila</string>
+    <string name="save_success_back">Til baka</string>
+    <string name="save_success_home">Heim</string>
+    <string name="save_success_saved_image">Vistað mynd</string>
+    <string name="save_success_share_with">Deildu með…</string>
+    <string name="batch_remove_error_load_image">Ekki er hægt að hlaða þessari mynd.</string>
+    <string name="drafts_error_load">Villa við að hlaða drög: %1$s</string>
 </resources>

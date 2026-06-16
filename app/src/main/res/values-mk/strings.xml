@@ -38,8 +38,6 @@
     <string name="licenses_title">Лиценци со отворен код</string>
     <string name="dark_mode_title">Темен режим</string>
     <string name="dark_mode_description">Префрлете ја темната тема на апликацијата.</string>
-    <string name="home_preview_title">Прикажи преглед на почетна</string>
-    <string name="home_preview_description">Прикажи го полето за споредба Пред / После на почетниот екран.</string>
 
     <string name="home_remove_background_title">Отстрани позадина</string>
     <string name="home_remove_background_subtitle">Изберете слика и отстранете ја нејзината позадина со еден допир.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Мазна AI екстензија</string>
     <string name="pro_see_details">Детали ></string>
     <string name="picker_sample_badge">Примерок</string>
+    <string name="home_hero_subtitle_short">AI фото уредник</string>
+    <string name="home_hero_title">Креирајте професионални фотографии на производи</string>
+    <string name="home_hero_subtitle">Отстранете ја позадината, сменете ја заднината, додајте шаблони за неколку секунди</string>
+    <string name="home_hero_action">Изберете Фотографија</string>
+    <string name="review_app_button">Оцени</string>
+    <string name="review_prompt_title">Уживате во %1$s?</string>
+    <string name="review_prompt_message">Допрете ѕвезда за да ја оцените на Google Play.</string>
+    <string name="review_prompt_rate_now">Поднесете</string>
+    <string name="review_prompt_later">Откажи</string>
+    <string name="home_see_all">Види ги сите</string>
+    <string name="save_success_title">Зачувано!</string>
+    <string name="save_success_create_new">Креирај ново</string>
+    <string name="save_success_try_other_tools">Пробајте други алатки</string>
+    <string name="save_success_share">Споделете</string>
+    <string name="save_success_back">Назад</string>
+    <string name="save_success_home">Дома</string>
+    <string name="save_success_saved_image">Зачувана слика</string>
+    <string name="save_success_share_with">Споделете со…</string>
+    <string name="batch_remove_error_load_image">Не може да се вчита оваа слика.</string>
+    <string name="drafts_error_load">Грешка при вчитување нацрти: %1$s</string>
 </resources>

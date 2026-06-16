@@ -1,0 +1,10 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="26" stdDeviation="26" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="1080" height="1920" fill="none"/>
+  <rect x="95" y="22" width="890" height="1876" rx="2" fill="#FDFDFB" filter="url(#shadow)"/>
+  <rect x="95" y="22" width="890" height="1876" rx="2" fill="white" fill-opacity="0.94"/>
+</svg>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Giấy phép mã nguồn mở</string>
     <string name="dark_mode_title">Giao diện tối</string>
     <string name="dark_mode_description">Chuyển đổi giao diện ứng dụng sang chế độ tối.</string>
-    <string name="home_preview_title">Xem trước ở trang chủ</string>
-    <string name="home_preview_description">Hiển thị hộp so sánh Trước / Sau trên màn hình chính.</string>
 
     <string name="home_remove_background_title">Xóa nền ảnh</string>
     <string name="home_remove_background_subtitle">Chọn một bức ảnh và tách nền chỉ với một cú nhấp chuột.</string>
@@ -311,4 +309,14 @@
     <string name="pro_feature_expand">Mở rộng hình ảnh tự nhiên bằng AI</string>
     <string name="pro_see_details">Xem chi tiết ></string>
     <string name="picker_sample_badge">Mẫu</string>
+    <string name="save_success_title">Đã lưu!</string>
+    <string name="save_success_create_new">Tạo mới</string>
+    <string name="save_success_try_other_tools">Thử các công cụ khác</string>
+    <string name="save_success_share">Chia sẻ</string>
+    <string name="save_success_back">Quay lại</string>
+    <string name="save_success_home">Trang chủ</string>
+    <string name="save_success_saved_image">Ảnh đã lưu</string>
+    <string name="save_success_share_with">Chia sẻ với…</string>
+    <string name="batch_remove_error_load_image">Không thể tải ảnh này.</string>
+    <string name="drafts_error_load">Lỗi khi tải bản nháp: %1$s</string>
 </resources>

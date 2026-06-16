@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">I-rotate nang 90 digri o i-flip nang pahalang at patayo upang ayusin ang oryentasyon ng imahe.</string>
     <string name="draft_label">Draft</string>
     <string name="draft_saved_successfully">Matagumpay na na-save ang draft</string>
+    <string name="professional_section_title">Propesyonal</string>
+    <string name="themeplate_professional_watch">Panoorin</string>
+    <string name="themeplate_professional_perfume">Pabango</string>
+    <string name="themeplate_professional_handbag">Handbag</string>
+    <string name="home_see_all">Tingnan Lahat</string>
 </resources>

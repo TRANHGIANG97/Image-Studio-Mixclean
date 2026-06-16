@@ -38,8 +38,6 @@
     <string name="licenses_title">开源许可</string>
     <string name="dark_mode_title">深色模式</string>
     <string name="dark_mode_description">切换应用的深色主题。</string>
-    <string name="home_preview_title">显示首页预览</string>
-    <string name="home_preview_description">在首页上显示编辑前后对比框。</string>
 
     <string name="home_remove_background_title">抠图</string>
     <string name="home_remove_background_subtitle">选择图片，一键轻松抠除背景。</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Smooth AI 智能扩图</string>
     <string name="pro_see_details">详情 ></string>
     <string name="picker_sample_badge">示例</string>
+    <string name="home_hero_subtitle_short">人工智能照片编辑器</string>
+    <string name="home_hero_title">创建专业的产品照片</string>
+    <string name="home_hero_subtitle">在几秒钟内删除背景、更改背景、添加模板</string>
+    <string name="home_hero_action">选择照片</string>
+    <string name="review_app_button">速度</string>
+    <string name="review_prompt_title">享受 %1$s？</string>
+    <string name="review_prompt_message">点击一颗星即可在 Google Play 上对其进行评分。</string>
+    <string name="review_prompt_rate_now">提交</string>
+    <string name="review_prompt_later">取消</string>
+    <string name="home_see_all">查看全部</string>
+    <string name="save_success_title">得救了！</string>
+    <string name="save_success_create_new">新建</string>
+    <string name="save_success_try_other_tools">尝试其他工具</string>
+    <string name="save_success_share">分享</string>
+    <string name="save_success_back">后退</string>
+    <string name="save_success_home">家</string>
+    <string name="save_success_saved_image">保存的图像</string>
+    <string name="save_success_share_with">与…分享</string>
+    <string name="batch_remove_error_load_image">无法加载该图像。</string>
+    <string name="drafts_error_load">加载草稿时出错：%1$s</string>
 </resources>

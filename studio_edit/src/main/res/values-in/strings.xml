@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio Produk AI</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Bayangan</string>
     <string name="studio_tool_transparency">Opasitas</string>
     <string name="studio_tool_crop">Potong</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Stiker</string>
     <string name="studio_tool_rotateflip">Putar/Balik</string>
     <string name="studio_replace_hint">Ketuk Ganti untuk memilih foto produk dari galeri Anda</string>
     <string name="studio_layout_hint">Seret untuk memindahkan · Jepit untuk memperbesar · Putar dengan dua jari</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Tidak ada templat yang tersedia</string>
     <string name="studio_gallery_coming_soon">Segera hadir</string>
     <string name="studio_gallery_coming_soon_desc">Fitur ini sedang dalam pengembangan dan akan segera tersedia!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Tim desain sedang bekerja keras untuk segera menambahkan lebih banyak template.</string>
     <string name="themeplate_gallery_title">Templat</string>
     <string name="studio_save_image_success">Gambar disimpan</string>
     <string name="studio_error_select_object">Silakan pilih objek</string>

@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">ໝູນ 90 ອົງສາ ຫຼື ພິກແນวนອນແລະແນວຕັ້ງ ເພື່ອແກ້ໄຂທິດທາງຂອງຮູບພາບ。</string>
     <string name="draft_label">ຮ່າງ</string>
     <string name="draft_saved_successfully">ບັນທຶກສະໝຸດຮ່າງສຳເລັດແລ້ວ</string>
+    <string name="professional_section_title">ມືອາຊີບ</string>
+    <string name="themeplate_professional_watch">ສັງເກດເບິ່ງ</string>
+    <string name="themeplate_professional_perfume">ນໍ້າຫອມ</string>
+    <string name="themeplate_professional_handbag">ກະເປົາຖື</string>
+    <string name="home_see_all">ເບິ່ງທັງໝົດ</string>
 </resources>

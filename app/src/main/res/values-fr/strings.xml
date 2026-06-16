@@ -38,8 +38,6 @@
     <string name="licenses_title">Licences open source</string>
     <string name="dark_mode_title">Mode sombre</string>
     <string name="dark_mode_description">Activer ou désactiver le thème sombre de l\'application.</string>
-    <string name="home_preview_title">Afficher l\'aperçu d\'accueil</string>
-    <string name="home_preview_description">Afficher la boîte de comparaison avant/après sur l\'écran d\'accueil.</string>
 
     <string name="home_remove_background_title">Effacer l\'arrière-plan</string>
     <string name="home_remove_background_subtitle">Sélectionnez une image et supprimez son arrière-plan en un seul geste.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Extension IA fluide</string>
     <string name="pro_see_details">Détails ></string>
     <string name="picker_sample_badge">Exemple</string>
+    <string name="home_hero_subtitle_short">Éditeur de photos IA</string>
+    <string name="home_hero_title">Créez des photos de produits professionnelles</string>
+    <string name="home_hero_subtitle">Supprimez l\'arrière-plan, changez l\'arrière-plan, ajoutez des modèles en quelques secondes</string>
+    <string name="home_hero_action">Choisissez une photo</string>
+    <string name="review_app_button">Taux</string>
+    <string name="review_prompt_title">Vous appréciez %1$s ?</string>
+    <string name="review_prompt_message">Appuyez sur une étoile pour l\'évaluer sur Google Play.</string>
+    <string name="review_prompt_rate_now">Soumettre</string>
+    <string name="review_prompt_later">Annuler</string>
+    <string name="home_see_all">Tout afficher</string>
+    <string name="save_success_title">Sauvé !</string>
+    <string name="save_success_create_new">Créer nouveau</string>
+    <string name="save_success_try_other_tools">Essayez d\'autres outils</string>
+    <string name="save_success_share">Partager</string>
+    <string name="save_success_back">Dos</string>
+    <string name="save_success_home">Maison</string>
+    <string name="save_success_saved_image">Image enregistrée</string>
+    <string name="save_success_share_with">Partager avec…</string>
+    <string name="batch_remove_error_load_image">Impossible de charger cette image.</string>
+    <string name="drafts_error_load">Erreur lors du chargement des brouillons : %1$s</string>
 </resources>

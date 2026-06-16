@@ -38,8 +38,6 @@
     <string name="licenses_title">Açık Kaynak Lisansları</string>
     <string name="dark_mode_title">Karanlık Mod</string>
     <string name="dark_mode_description">Uygulama temasını karanlık moda geçirir.</string>
-    <string name="home_preview_title">Ana Sayfa Önizlemesi</string>
-    <string name="home_preview_description">Ana sayfada Önce/Sonra karşılaştırma kutusunu gösterir.</string>
 
     <string name="home_remove_background_title">Arka Planı Kaldır</string>
     <string name="home_remove_background_subtitle">Bir fotoğraf seçin ve tek tıkla arka planı kaldırın.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Fotoğrafı AI ile doğal bir şekilde genişletin</string>
     <string name="pro_see_details">Detayları gör ></string>
     <string name="picker_sample_badge">Örnek</string>
+    <string name="home_hero_subtitle_short">Yapay Zeka Fotoğraf Düzenleyici</string>
+    <string name="home_hero_title">Profesyonel Ürün Fotoğrafları Oluşturun</string>
+    <string name="home_hero_subtitle">Arka planı kaldırın, arka planı değiştirin, saniyeler içinde şablon ekleyin</string>
+    <string name="home_hero_action">Fotoğraf Seç</string>
+    <string name="review_app_button">Oran</string>
+    <string name="review_prompt_title">%1$s hoşunuza mı gidiyor?</string>
+    <string name="review_prompt_message">Google Play\'de derecelendirmek için bir yıldıza dokunun.</string>
+    <string name="review_prompt_rate_now">Göndermek</string>
+    <string name="review_prompt_later">İptal etmek</string>
+    <string name="home_see_all">Tümünü Gör</string>
+    <string name="save_success_title">Kaydedildi!</string>
+    <string name="save_success_create_new">Yeni Oluştur</string>
+    <string name="save_success_try_other_tools">Diğer araçları deneyin</string>
+    <string name="save_success_share">Paylaşmak</string>
+    <string name="save_success_back">Geri</string>
+    <string name="save_success_home">Ev</string>
+    <string name="save_success_saved_image">Kayıtlı resim</string>
+    <string name="save_success_share_with">Şununla paylaş:</string>
+    <string name="batch_remove_error_load_image">Bu resim yüklenemiyor.</string>
+    <string name="drafts_error_load">Taslaklar yüklenirken hata oluştu: %1$s</string>
 </resources>

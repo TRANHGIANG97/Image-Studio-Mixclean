@@ -38,8 +38,6 @@
     <string name="licenses_title">អាជ្ញាប័ណ្ណប្រភពកូដចំហ</string>
     <string name="dark_mode_title">មុខងារងងឹត</string>
     <string name="dark_mode_description">បិទ/បើកស្បែកងងឹតរបស់កម្មវិធី។</string>
-    <string name="home_preview_title">បង្ហាញការមើលជាមុននៅលើទំព័រដើម</string>
-    <string name="home_preview_description">បង្ហាញប្រអប់ប្រៀបធៀប មុន / ក្រោយ នៅលើអេក្រង់ដើម។</string>
 
     <string name="home_remove_background_title">លុបផ្ទៃខាងក្រោយ</string>
     <string name="home_remove_background_subtitle">ជ្រើសរើសរូបភាព ហើយលុបផ្ទៃខាងក្រោយរបស់វាដោយចុចតែម្តង។</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">ការបន្ថែមពង្រីកដោយ AI រលូន</string>
     <string name="pro_see_details">ព័ត៌មានលម្អិត ></string>
     <string name="picker_sample_badge">គំរូ</string>
+    <string name="home_hero_subtitle_short">កម្មវិធីកែរូបថត AI</string>
+    <string name="home_hero_title">បង្កើតរូបថតផលិតផលដែលមានជំនាញវិជ្ជាជីវៈ</string>
+    <string name="home_hero_subtitle">លុបផ្ទៃខាងក្រោយ ផ្លាស់ប្តូរផ្ទាំងខាងក្រោយ បន្ថែមគំរូក្នុងរយៈពេលប៉ុន្មានវិនាទី</string>
+    <string name="home_hero_action">ជ្រើសរើសរូបថត</string>
+    <string name="review_app_button">អត្រា</string>
+    <string name="review_prompt_title">រីករាយជាមួយ %1$s?</string>
+    <string name="review_prompt_message">ប៉ះផ្កាយដើម្បីវាយតម្លៃវានៅលើ Google Play ។</string>
+    <string name="review_prompt_rate_now">ដាក់ស្នើ</string>
+    <string name="review_prompt_later">បោះបង់</string>
+    <string name="home_see_all">មើលទាំងអស់។</string>
+    <string name="save_success_title">រក្សាទុក!</string>
+    <string name="save_success_create_new">បង្កើតថ្មី។</string>
+    <string name="save_success_try_other_tools">សាកល្បងឧបករណ៍ផ្សេងទៀត។</string>
+    <string name="save_success_share">ចែករំលែក</string>
+    <string name="save_success_back">ត្រឡប់មកវិញ</string>
+    <string name="save_success_home">ផ្ទះ</string>
+    <string name="save_success_saved_image">រូបភាពដែលបានរក្សាទុក</string>
+    <string name="save_success_share_with">ចែករំលែកជាមួយ…</string>
+    <string name="batch_remove_error_load_image">មិនអាចផ្ទុករូបភាពនេះបានទេ។</string>
+    <string name="drafts_error_load">កំហុសក្នុងការផ្ទុកសេចក្តីព្រាង៖ %1$s</string>
 </resources>

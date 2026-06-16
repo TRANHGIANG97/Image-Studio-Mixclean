@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Кескін бағытын түзету үшін 90 градусқа бұрыңыз немесе көлденең және тігінен аударыңыз.</string>
     <string name="draft_label">Жоба</string>
     <string name="draft_saved_successfully">Жоба сәтті сақталды</string>
+    <string name="professional_section_title">Кәсіби</string>
+    <string name="themeplate_professional_watch">Қарау</string>
+    <string name="themeplate_professional_perfume">Парфюмерия</string>
+    <string name="themeplate_professional_handbag">Қол сөмке</string>
+    <string name="home_see_all">Барлығын көру</string>
 </resources>

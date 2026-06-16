@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">এই ফিচারটি শুধুমাত্র তখনই উপলব্ধ হবে যখন সাবজেক্টের একটি ব্যাকগ্রাউন্ড থাকবে</string>
     <string name="draft_label">ড্রাফট</string>
     <string name="draft_saved_successfully">ড্রাফট সফলভাবে সেভ হয়েছে</string>
+    <string name="professional_section_title">প্রফেশনাল</string>
+    <string name="themeplate_professional_watch">ঘড়ি</string>
+    <string name="themeplate_professional_perfume">পারফিউম</string>
+    <string name="themeplate_professional_handbag">হ্যান্ডব্যাগ</string>
+    <string name="home_see_all">সব দেখুন</string>
 </resources>

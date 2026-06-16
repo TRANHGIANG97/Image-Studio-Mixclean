@@ -30,16 +30,13 @@ class StudioModeViewModel @Inject constructor(
 
     private var processingJob: Job? = null
     private var intensityDebounceJob: Job? = null
-    private var blurCacheJob: Job? = null
-    private var subjectBlurCacheJob: Job? = null
 
     /** Monotonically increasing generation — each new render path increments it.
      *  Jobs check at completion: if their captured gen != current, result is stale. */
     private var currentRenderGen = 0L
 
     companion object {
-        private const val MAX_LEVELS = 100
-        private const val PREVIEW_PIXELS = 500_000 // ~0.5MP → 100×0.5MP×4 ≈ 200MB cache
+        private const val PREVIEW_PIXELS = 500_000
     }
 
     enum class StudioEffect {
@@ -56,8 +53,11 @@ class StudioModeViewModel @Inject constructor(
         val currentEffect: StudioEffect = StudioEffect.NONE,
         val isProcessing: Boolean = false,
         val error: String? = null,
-        val intensity: Float = 0.5f
-    )
+        val intensities: Map<StudioEffect, Float> = emptyMap()
+    ) {
+        val intensity: Float
+            get() = intensities[currentEffect] ?: 0f
+    }
 
     data class StudioOption(
         val effect: StudioEffect,
@@ -72,23 +72,9 @@ class StudioModeViewModel @Inject constructor(
     private var originalBitmap: Bitmap? = null
     private var foregroundBitmap: Bitmap? = null
 
-    // Preview-resolution for instant cache
+    // Preview-resolution
     private var previewBitmap: Bitmap? = null
     private var previewForeground: Bitmap? = null
-
-    private var lastAppliedEffect: StudioEffect? = null
-    private var lastAppliedIntensity: Float = -1f
-
-    // 100-level background blur cache at preview resolution
-    private var blurCache: Array<Bitmap?> = arrayOfNulls(MAX_LEVELS)
-    private val blurLevels = IntArray(MAX_LEVELS) { i ->
-        ((i * 25f / (MAX_LEVELS - 1).toFloat()) + 0.5f).toInt().coerceAtMost(25)
-    }
-    private var cacheReadyFor: Bitmap? = null
-
-    // 100-level subject blur cache at preview resolution
-    private var subjectBlurCache: Array<Bitmap?> = arrayOfNulls(MAX_LEVELS)
-    private var subjectCacheReadyFor: Bitmap? = null
 
     private fun computePreviewSize(bitmap: Bitmap): Pair<Int, Int> {
         val pixels = bitmap.width.toLong() * bitmap.height
@@ -98,32 +84,10 @@ class StudioModeViewModel @Inject constructor(
                     (bitmap.height * scale).toInt().coerceAtLeast(1))
     }
 
-    private fun releaseBlurCache() {
-        blurCacheJob?.cancel()
-        blurCacheJob = null
-        for (i in blurCache.indices) {
-            blurCache[i]?.let { if (!it.isRecycled) it.recycle() }
-            blurCache[i] = null
-        }
-        cacheReadyFor = null
-        releaseSubjectBlurCache()
-    }
-
-    private fun releaseSubjectBlurCache() {
-        subjectBlurCacheJob?.cancel()
-        subjectBlurCacheJob = null
-        for (i in subjectBlurCache.indices) {
-            subjectBlurCache[i]?.let { if (!it.isRecycled) it.recycle() }
-            subjectBlurCache[i] = null
-        }
-        subjectCacheReadyFor = null
-    }
-
     fun setInitialBitmap(bitmap: Bitmap) {
-        releaseBlurCache()
         originalBitmap = bitmap
 
-        // Downscale to ~0.5MP for preview cache
+        // Downscale to ~0.5MP for preview
         val (pw, ph) = computePreviewSize(bitmap)
         previewBitmap = if (pw == bitmap.width && ph == bitmap.height) {
             bitmap
@@ -149,112 +113,46 @@ class StudioModeViewModel @Inject constructor(
                     previewForeground = fg
                 }
             }
-            // Build cache if a cacheable effect was already selected when foreground arrives
+            // Trigger a render if an effect was already selected when foreground arrives
             val currentEffect = _state.value.currentEffect
-            if (foregroundBitmap != null) {
-                when (currentEffect) {
-                    StudioEffect.PORTRAIT, StudioEffect.BLUR -> buildBlurCache()
-                    StudioEffect.BLUR_SUBJECT -> buildSubjectBlurCache()
-                    else -> {}
-                }
+            if (currentEffect != StudioEffect.NONE) {
+                applyEffect(currentEffect)
             }
         }
     }
 
     fun updateIntensity(value: Float) {
         val effect = _state.value.currentEffect
-        val canUseBgCache = cacheReadyFor != null &&
-                (effect == StudioEffect.PORTRAIT || effect == StudioEffect.BLUR)
-        val canUseSubjectCache = subjectCacheReadyFor != null && effect == StudioEffect.BLUR_SUBJECT
-        val canUseCache = canUseBgCache || canUseSubjectCache
+        if (effect == StudioEffect.NONE) return
 
-        val effectiveValue = if (canUseCache) {
-            intensityToLevel(value) / (MAX_LEVELS - 1).toFloat()
-        } else {
-            value
+        val clamped = value.coerceIn(0f, 1f)
+        val updatedMap = _state.value.intensities.toMutableMap().apply {
+            put(effect, clamped)
         }
-        val clamped = effectiveValue.coerceIn(0f, 1f)
-        _state.value = _state.value.copy(intensity = clamped)
+        _state.value = _state.value.copy(intensities = updatedMap)
 
-        if (clamped == lastAppliedIntensity && lastAppliedEffect == effect) return
-        lastAppliedIntensity = clamped
-        lastAppliedEffect = effect
-
-        // ── Fast path: use cached preview results ──────────────────────────────
-        if (canUseCache) {
-            intensityDebounceJob?.cancel()
-            processingJob?.cancel()
-            currentRenderGen++
-            val myGen = currentRenderGen
-            processingJob = viewModelScope.launch {
-                val t0 = System.nanoTime()
-                val result = withContext(Dispatchers.Default) {
-                    when (effect) {
-                        StudioEffect.PORTRAIT -> {
-                            val bg = blurCache[intensityToLevel(clamped)] ?: return@withContext null
-                            val pf = previewForeground ?: return@withContext null
-                            ImageEffectProcessor.applyPortraitCached(
-                                bg, pf, blurRadius = 0f, darkenAlpha = 0f, vignette = false
-                            )
-                        }
-                        StudioEffect.BLUR -> {
-                            val bg = blurCache[intensityToLevel(clamped)] ?: return@withContext null
-                            bg.copy(Bitmap.Config.ARGB_8888, false)
-                        }
-                        StudioEffect.BLUR_SUBJECT -> {
-                            val blurredFg = subjectBlurCache[intensityToLevel(clamped)] ?: return@withContext null
-                            val bg = previewBitmap ?: return@withContext null
-                            ImageEffectProcessor.applyPortraitCached(
-                                bg, blurredFg, blurRadius = 0f, darkenAlpha = 0f, vignette = false
-                            )
-                        }
-                        else -> null
-                    }
-                }
-                // Discard if a newer generation already superseded this
-                if (myGen != currentRenderGen) {
-                    result?.let { if (!it.isRecycled) it.recycle() }
-                    return@launch
-                }
-                val elapsedMs = (System.nanoTime() - t0) / 1_000_000f
-                Log.d("StudioBenchmark", "${effect} ${(clamped * 100).toInt()}% cache: ${"%.2f".format(elapsedMs)}ms")
-                _state.value = _state.value.copy(
-                    processedBitmap = result ?: previewBitmap,
-                    isProcessing = false
-                )
-            }
-            return
-        }
-
-        // ── Debounce path: effects without cache ──────────────────────────────
         intensityDebounceJob?.cancel()
         intensityDebounceJob = viewModelScope.launch {
             delay(80)
             intensityDebounceJob = null
-            val effect = _state.value.currentEffect
-            val original = originalBitmap ?: return@launch
-            if (effect == StudioEffect.NONE) return@launch
-            if (effect != lastAppliedEffect || clamped != lastAppliedIntensity) {
-                lastAppliedEffect = effect
-                lastAppliedIntensity = clamped
-            }
-            _state.value = _state.value.copy(isProcessing = false)
 
             processingJob?.cancel()
             currentRenderGen++
             val myGen = currentRenderGen
             processingJob = viewModelScope.launch {
                 val t0 = System.nanoTime()
+                val original = originalBitmap ?: return@launch
                 val fg = foregroundBitmap
+                val currentMap = _state.value.intensities
                 val result = withContext(Dispatchers.Default) {
-                    computeEffect(effect, original, fg, clamped)
+                    computeCumulativeEffect(previewBitmap ?: original, previewForeground ?: fg, currentMap)
                 }
                 if (myGen != currentRenderGen) {
-                    result?.let { if (!it.isRecycled) it.recycle() }
+                    result?.let { if (it !== previewBitmap && it !== original && !it.isRecycled) it.recycle() }
                     return@launch
                 }
                 val elapsedMs = (System.nanoTime() - t0) / 1_000_000f
-                Log.d("StudioBenchmark", "${effect} ${(clamped * 100).toInt()}% debounce: ${"%.2f".format(elapsedMs)}ms")
+                Log.d("StudioBenchmark", "Cumulative effects update: ${"%.2f".format(elapsedMs)}ms")
                 _state.value = _state.value.copy(
                     processedBitmap = result ?: previewBitmap ?: original,
                     isProcessing = false
@@ -264,56 +162,26 @@ class StudioModeViewModel @Inject constructor(
     }
 
     fun applyEffect(effect: StudioEffect) {
-        applyEffect(effect, _state.value.intensity, isIntensityUpdate = false)
-    }
-
-    private fun applyEffect(effect: StudioEffect, intensity: Float, isIntensityUpdate: Boolean) {
         intensityDebounceJob?.cancel()
         val original = originalBitmap ?: return
-        if (effect == lastAppliedEffect && intensity == lastAppliedIntensity) return
 
-        // Release cache when leaving a cached effect for a non-cached one
-        val leavingCached = lastAppliedEffect == StudioEffect.PORTRAIT ||
-                lastAppliedEffect == StudioEffect.BLUR ||
-                lastAppliedEffect == StudioEffect.BLUR_SUBJECT
-        val enteringCached = effect == StudioEffect.PORTRAIT ||
-                effect == StudioEffect.BLUR ||
-                effect == StudioEffect.BLUR_SUBJECT
-        if (leavingCached && !enteringCached) {
-            releaseBlurCache()
-        }
+        _state.value = _state.value.copy(
+            currentEffect = effect
+        )
 
         if (effect == StudioEffect.NONE) {
             processingJob?.cancel()
-            lastAppliedEffect = effect
-            lastAppliedIntensity = intensity
             _state.value = _state.value.copy(
-                processedBitmap = original,
-                currentEffect = effect,
+                processedBitmap = previewBitmap ?: original,
                 isProcessing = false
             )
             return
         }
 
-        lastAppliedEffect = effect
-        lastAppliedIntensity = intensity
-
-        val shouldShowLoader = !isIntensityUpdate && foregroundBitmap == null
+        val shouldShowLoader = foregroundBitmap == null
         _state.value = _state.value.copy(
-            isProcessing = shouldShowLoader,
-            currentEffect = effect
+            isProcessing = shouldShowLoader
         )
-
-        // Trigger cache build for effects that use it
-        when (effect) {
-            StudioEffect.PORTRAIT, StudioEffect.BLUR -> {
-                if (cacheReadyFor !== previewBitmap) buildBlurCache()
-            }
-            StudioEffect.BLUR_SUBJECT -> {
-                if (subjectCacheReadyFor !== previewForeground) buildSubjectBlurCache()
-            }
-            else -> {}
-        }
 
         processingJob?.cancel()
         currentRenderGen++
@@ -321,10 +189,10 @@ class StudioModeViewModel @Inject constructor(
         processingJob = viewModelScope.launch {
             val fg = foregroundBitmap
             val result = withContext(Dispatchers.Default) {
-                computeEffect(effect, original, fg, intensity)
+                computeCumulativeEffect(previewBitmap ?: original, previewForeground ?: fg, _state.value.intensities)
             }
             if (myGen != currentRenderGen) {
-                result?.let { if (!it.isRecycled) it.recycle() }
+                result?.let { if (it !== previewBitmap && it !== original && !it.isRecycled) it.recycle() }
                 return@launch
             }
             if (result != null) {
@@ -339,144 +207,169 @@ class StudioModeViewModel @Inject constructor(
     }
 
     /**
-     * Compute effect at preview resolution for display.
-     * All fallbacks use previewBitmap/previewForeground to keep rendering fast
-     * and avoid size inconsistency with the cache path.
+     * Compute cumulative effect combining all non-zero active effects in the defined pipeline order.
      */
-    private suspend fun computeEffect(
-        effect: StudioEffect,
-        original: Bitmap,
+    private suspend fun computeCumulativeEffect(
+        src: Bitmap,
         foreground: Bitmap?,
-        intensity: Float
+        intensities: Map<StudioEffect, Float>
     ): Bitmap? {
-        val mappedBlurRadius = (intensity * 25f).coerceIn(0f, 25f)
-        val src = previewBitmap ?: original
-        val pf = previewForeground ?: foreground
+        val cleanIntensity = intensities[StudioEffect.CLEAN] ?: 0f
+        val portraitIntensity = intensities[StudioEffect.PORTRAIT] ?: 0f
+        val darkenIntensity = intensities[StudioEffect.DARKEN] ?: 0f
+        val subjectBlurIntensity = intensities[StudioEffect.BLUR_SUBJECT] ?: 0f
+        val blurIntensity = intensities[StudioEffect.BLUR] ?: 0f
 
-        return if (foreground != null && pf != null) {
-            when (effect) {
-                StudioEffect.BLUR -> {
-                    val cacheIdx = intensityToLevel(intensity)
-                    val bg = blurCache[cacheIdx]
-                    if (bg != null && cacheReadyFor === previewBitmap) {
-                        bg.copy(Bitmap.Config.ARGB_8888, false)
-                    } else {
-                        ImageEffectProcessor.applyBlur(src, intensity * 25f)
+        val activeFg = foreground
+        var current = src
+        var isCurrentNew = false
+
+        if (activeFg != null) {
+            // ── Background Effects ──
+            // 1. Clean background
+            if (cleanIntensity > 0f) {
+                val next = ImageEffectProcessor.applyCleanCached(current, activeFg, cleanIntensity)
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
                     }
+                    current = next
+                    isCurrentNew = true
                 }
-                StudioEffect.PORTRAIT -> {
-                    val cacheIdx = intensityToLevel(intensity)
-                    val bg = blurCache[cacheIdx]
-                    if (bg != null && cacheReadyFor === previewBitmap) {
-                        ImageEffectProcessor.applyPortraitCached(
-                            bg, pf, blurRadius = 0f, darkenAlpha = 0f, vignette = false
-                        )
-                    } else {
-                        ImageEffectProcessor.applyPortraitCached(
-                            src, pf, blurRadius = mappedBlurRadius, darkenAlpha = 0f, vignette = false
-                        )
-                    }
-                }
-                StudioEffect.BLUR_SUBJECT -> {
-                    val blurredFg = ImageEffectProcessor.applySubjectBlur(pf, mappedBlurRadius)
-                    if (blurredFg != null) {
-                        ImageEffectProcessor.applyPortraitCached(
-                            src, blurredFg, blurRadius = 0f, darkenAlpha = 0f, vignette = false
-                        ).also { if (!blurredFg.isRecycled) blurredFg.recycle() }
-                    } else {
-                        src
-                    }
-                }
-                StudioEffect.CLEAN -> ImageEffectProcessor.applyCleanCached(src, pf, intensity)
-                StudioEffect.DARKEN -> ImageEffectProcessor.applyDarkenCached(src, pf, intensity, vignette = true)
-                StudioEffect.NONE -> src
             }
-        } else {
-            when (effect) {
-                StudioEffect.BLUR -> {
-                    val cacheIdx = intensityToLevel(intensity)
-                    val bg = blurCache[cacheIdx]
-                    if (bg != null && cacheReadyFor === previewBitmap) {
-                        bg.copy(Bitmap.Config.ARGB_8888, false)
-                    } else {
-                        ImageEffectProcessor.applyBlur(src, intensity * 25f)
-                    }
-                }
-                StudioEffect.BLUR_SUBJECT -> ImageEffectProcessor.applyBlur(src, mappedBlurRadius)
-                StudioEffect.PORTRAIT -> ImageEffectProcessor.applyPortrait(
-                    context, src, mappedBlurRadius, 0f, false, backgroundRemoverRepository
+
+            // 2. Portrait (Background Blur)
+            if (portraitIntensity > 0f) {
+                val next = ImageEffectProcessor.applyPortraitCached(
+                    current, activeFg, blurRadius = portraitIntensity * 25f, darkenAlpha = 0f, vignette = false
                 )
-                StudioEffect.CLEAN -> ImageEffectProcessor.applyClean(context, src, intensity, backgroundRemoverRepository)
-                StudioEffect.DARKEN -> ImageEffectProcessor.applyDarken(context, src, intensity, true, backgroundRemoverRepository)
-                StudioEffect.NONE -> src
-            }
-        }
-    }
-
-    private fun intensityToLevel(value: Float): Int {
-        return (value * (MAX_LEVELS - 1) + 0.5f).toInt().coerceIn(0, MAX_LEVELS - 1)
-    }
-
-    private fun buildBlurCache() {
-        val src = previewBitmap ?: return
-        if (cacheReadyFor === src) return
-        releaseBlurCache()
-
-        blurCacheJob = viewModelScope.launch {
-            withContext(Dispatchers.Default) {
-                for (i in blurLevels.indices) {
-                    if (!isActive) break
-                    blurCache[i] = ImageEffectProcessor.applyBlur(src, blurLevels[i].toFloat())
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
+                    }
+                    current = next
+                    isCurrentNew = true
                 }
             }
-            cacheReadyFor = if (isActive) src else null
-        }
-    }
 
-    private fun buildSubjectBlurCache() {
-        val src = previewForeground ?: return
-        if (subjectCacheReadyFor === src) return
-        releaseSubjectBlurCache()
-
-        subjectBlurCacheJob = viewModelScope.launch {
-            withContext(Dispatchers.Default) {
-                for (i in blurLevels.indices) {
-                    if (!isActive) break
-                    subjectBlurCache[i] = ImageEffectProcessor.applySubjectBlur(src, blurLevels[i].toFloat())
+            // 3. Darken background
+            if (darkenIntensity > 0f) {
+                val next = ImageEffectProcessor.applyDarkenCached(current, activeFg, darkenIntensity, vignette = true)
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
+                    }
+                    current = next
+                    isCurrentNew = true
                 }
             }
-            subjectCacheReadyFor = if (isActive) src else null
+
+            // ── Foreground / Subject Effects ──
+            // 4. Blur subject (foreground)
+            if (subjectBlurIntensity > 0f) {
+                val blurredFg = ImageEffectProcessor.applySubjectBlur(activeFg, subjectBlurIntensity * 25f)
+                if (blurredFg != null) {
+                    val next = ImageEffectProcessor.applyPortraitCached(
+                        current, blurredFg, blurRadius = 0f, darkenAlpha = 0f, vignette = false
+                    )
+                    if (!blurredFg.isRecycled) blurredFg.recycle()
+                    if (next != null && next !== current) {
+                        if (isCurrentNew && !current.isRecycled && current !== src) {
+                            current.recycle()
+                        }
+                        current = next
+                        isCurrentNew = true
+                    }
+                }
+            }
+
+            // ── Whole Image Effects ──
+            // 5. Blur whole image
+            if (blurIntensity > 0f) {
+                val next = ImageEffectProcessor.applyBlur(current, blurIntensity * 25f)
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
+                    }
+                    current = next
+                    isCurrentNew = true
+                }
+            }
+
+        } else {
+            // Fallback path when foreground is null (no segmentation mask)
+            if (cleanIntensity > 0f) {
+                val next = ImageEffectProcessor.applyClean(context, current, cleanIntensity, backgroundRemoverRepository)
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
+                    }
+                    current = next
+                    isCurrentNew = true
+                }
+            }
+
+            if (portraitIntensity > 0f) {
+                val next = ImageEffectProcessor.applyPortrait(
+                    context, current, portraitIntensity * 25f, 0f, false, backgroundRemoverRepository
+                )
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
+                    }
+                    current = next
+                    isCurrentNew = true
+                }
+            }
+
+            if (darkenIntensity > 0f) {
+                val next = ImageEffectProcessor.applyDarken(context, current, darkenIntensity, true, backgroundRemoverRepository)
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
+                    }
+                    current = next
+                    isCurrentNew = true
+                }
+            }
+
+            if (subjectBlurIntensity > 0f) {
+                val next = ImageEffectProcessor.applyBlur(current, subjectBlurIntensity * 25f)
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
+                    }
+                    current = next
+                    isCurrentNew = true
+                }
+            }
+
+            if (blurIntensity > 0f) {
+                val next = ImageEffectProcessor.applyBlur(current, blurIntensity * 25f)
+                if (next != null && next !== current) {
+                    if (isCurrentNew && !current.isRecycled && current !== src) {
+                        current.recycle()
+                    }
+                    current = next
+                    isCurrentNew = true
+                }
+            }
         }
+
+        return current
     }
 
     /** Render final full-resolution result when user taps Check/Done. */
     suspend fun renderFinalForExport(): Bitmap? = withContext(Dispatchers.Default) {
         val original = originalBitmap ?: return@withContext null
-        val fg = foregroundBitmap ?: return@withContext null
-        val intensity = _state.value.intensity.coerceIn(0f, 1f)
-        when (_state.value.currentEffect) {
-            StudioEffect.PORTRAIT -> ImageEffectProcessor.applyPortraitCached(
-                original, fg, blurRadius = intensity * 25f, darkenAlpha = 0f, vignette = false
-            )
-            StudioEffect.BLUR -> ImageEffectProcessor.applyBlur(original, intensity * 25f)
-            StudioEffect.BLUR_SUBJECT -> {
-                val blurredFg = ImageEffectProcessor.applySubjectBlur(fg, intensity * 25f)
-                if (blurredFg != null) {
-                    ImageEffectProcessor.applyPortraitCached(
-                        original, blurredFg, blurRadius = 0f, darkenAlpha = 0f, vignette = false
-                    ).also { if (!blurredFg.isRecycled) blurredFg.recycle() }
-                } else null
-            }
-            StudioEffect.CLEAN -> ImageEffectProcessor.applyCleanCached(original, fg, intensity)
-            StudioEffect.DARKEN -> ImageEffectProcessor.applyDarkenCached(original, fg, intensity, vignette = true)
-            StudioEffect.NONE -> original
-        }
+        val fg = foregroundBitmap
+        computeCumulativeEffect(original, fg, _state.value.intensities)
     }
 
     override fun onCleared() {
         super.onCleared()
-        releaseBlurCache()
-        releaseSubjectBlurCache()
+        processingJob?.cancel()
+        intensityDebounceJob?.cancel()
         previewBitmap?.let { if (it !== originalBitmap && !it.isRecycled) it.recycle() }
         previewForeground?.let { if (it !== foregroundBitmap && !it.isRecycled) it.recycle() }
         originalBitmap = null

@@ -38,8 +38,6 @@
     <string name="licenses_title">Licenser för öppen källkod</string>
     <string name="dark_mode_title">Mörkt läge</string>
     <string name="dark_mode_description">Växla appens mörka tema.</string>
-    <string name="home_preview_title">Visa hemförhandsvisning</string>
-    <string name="home_preview_description">Visa före/efter-jämförenderutan på startskärmen.</string>
 
     <string name="home_remove_background_title">Ta bort bakgrund</string>
     <string name="home_remove_background_subtitle">Välj en bild och ta bort dess bakgrund med ett tryck.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Smidig AI-utökning</string>
     <string name="pro_see_details">Detaljer ></string>
     <string name="picker_sample_badge">Prov</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Skapa professionella produktfoton</string>
+    <string name="home_hero_subtitle">Ta bort bakgrund, ändra bakgrund, lägg till mallar på några sekunder</string>
+    <string name="home_hero_action">Välj Foto</string>
+    <string name="review_app_button">Hastighet</string>
+    <string name="review_prompt_title">Gillar du %1$s?</string>
+    <string name="review_prompt_message">Tryck på en stjärna för att betygsätta den på Google Play.</string>
+    <string name="review_prompt_rate_now">Överlämna</string>
+    <string name="review_prompt_later">Avboka</string>
+    <string name="home_see_all">Se alla</string>
+    <string name="save_success_title">Sparad!</string>
+    <string name="save_success_create_new">Skapa nytt</string>
+    <string name="save_success_try_other_tools">Prova andra verktyg</string>
+    <string name="save_success_share">Dela</string>
+    <string name="save_success_back">Tillbaka</string>
+    <string name="save_success_home">Hem</string>
+    <string name="save_success_saved_image">Sparad bild</string>
+    <string name="save_success_share_with">Dela med...</string>
+    <string name="batch_remove_error_load_image">Det går inte att ladda den här bilden.</string>
+    <string name="drafts_error_load">Det gick inte att läsa in utkast: %1$s</string>
 </resources>

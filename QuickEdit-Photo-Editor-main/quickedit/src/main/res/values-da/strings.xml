@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Denne funktion er kun tilgængelig, hvis motivet har en baggrund</string>
     <string name="draft_label">Kladde</string>
     <string name="draft_saved_successfully">Kladdet blev gemt korrekt</string>
+    <string name="professional_section_title">Professionel</string>
+    <string name="themeplate_professional_watch">Ur</string>
+    <string name="themeplate_professional_perfume">Parfume</string>
+    <string name="themeplate_professional_handbag">Håndtaske</string>
+    <string name="home_see_all">Se alle</string>
 </resources>

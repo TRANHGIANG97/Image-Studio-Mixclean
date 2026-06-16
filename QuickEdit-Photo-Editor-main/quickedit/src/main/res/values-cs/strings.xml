@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Tato funkce je dostupná pouze v případě, že má objekt pozadí</string>
     <string name="draft_label">Koncept</string>
     <string name="draft_saved_successfully">Koncept byl úspěšně uložen</string>
+    <string name="professional_section_title">Profesionální</string>
+    <string name="themeplate_professional_watch">Hodinky</string>
+    <string name="themeplate_professional_perfume">Parfém</string>
+    <string name="themeplate_professional_handbag">Kabelka</string>
+    <string name="home_see_all">Zobrazit vše</string>
 </resources>

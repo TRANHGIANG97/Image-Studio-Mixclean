@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Forgassa el 90 fokkal, vagy tükrözze vízszintesen és függőlegesen a kép tájolásának javításához.</string>
     <string name="draft_label">Piszkozat</string>
     <string name="draft_saved_successfully">A piszkozat sikeresen elmentve</string>
+    <string name="professional_section_title">Szakmai</string>
+    <string name="themeplate_professional_watch">Óra</string>
+    <string name="themeplate_professional_perfume">Parfüm</string>
+    <string name="themeplate_professional_handbag">Kézitáska</string>
+    <string name="home_see_all">Összes megtekintése</string>
 </resources>

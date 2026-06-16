@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Resim yönünü düzeltmek için 90 derece döndürün veya yatay ve dikey olarak çevirin.</string>
     <string name="draft_label">Taslak</string>
     <string name="draft_saved_successfully">Taslak başarıyla kaydedildi</string>
+    <string name="professional_section_title">Profesyonel</string>
+    <string name="themeplate_professional_watch">Kol saati</string>
+    <string name="themeplate_professional_perfume">Parfüm</string>
+    <string name="themeplate_professional_handbag">Çanta</string>
+    <string name="home_see_all">Tümünü Gör</string>
 </resources>

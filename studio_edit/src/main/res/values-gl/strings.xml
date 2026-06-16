@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Estudio de produtos IA</string>
     <string name="studio_category_electronics">Electrónica</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Sombra</string>
     <string name="studio_tool_transparency">Opacidade</string>
     <string name="studio_tool_crop">Recortar</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Adhesivo</string>
     <string name="studio_tool_rotateflip">Xirar/Voltear</string>
     <string name="studio_replace_hint">Toca en Substituír para escoller unha foto de produto da túa galería</string>
     <string name="studio_layout_hint">Arrastra para mover · Belisca para facer zoom · Xira con dous dedos</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Non hai modelos dispoñibles</string>
     <string name="studio_gallery_coming_soon">Próximamente</string>
     <string name="studio_gallery_coming_soon_desc">Esta función está en desenvolvemento e estará dispoñible en breve!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">O equipo de deseño está traballando duro para engadir máis modelos axiña.</string>
     <string name="themeplate_gallery_title">Modelos</string>
     <string name="studio_save_image_success">Gardouse a imaxe</string>
     <string name="studio_error_select_object">Selecciona un obxecto</string>

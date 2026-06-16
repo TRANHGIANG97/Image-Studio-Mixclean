@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Rotiți la 90 de grade sau întoarceți pe orizontală și verticală pentru a corecta orientarea imaginii.</string>
     <string name="draft_label">Ciornă</string>
     <string name="draft_saved_successfully">Ciornă salvată cu succes</string>
+    <string name="professional_section_title">Profesional</string>
+    <string name="themeplate_professional_watch">Ceas</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Geantă de mână</string>
+    <string name="home_see_all">Vezi toate</string>
 </resources>

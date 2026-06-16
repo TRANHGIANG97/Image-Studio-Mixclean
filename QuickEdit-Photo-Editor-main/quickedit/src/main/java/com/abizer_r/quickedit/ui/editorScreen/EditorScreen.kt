@@ -106,6 +106,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.UUID
+
+private fun createExportImageFile(context: android.content.Context, extension: String): File {
+    return File(context.filesDir, "edited_image_${UUID.randomUUID()}.$extension")
+}
 
 @Composable
 fun EditorScreen(
@@ -127,7 +132,7 @@ fun EditorScreen(
     isPremium: Boolean = false,
     onSaveDraftClicked: (Bitmap) -> Unit = {},
     onRequireSaveAd: ((() -> Unit) -> Unit)? = null,
-    onSaveSuccess: () -> Unit = {}
+    onSaveSuccess: (android.net.Uri?, java.io.File?) -> Unit = { _, _ -> }
 ) {
     if (initialEditorScreenState.bitmapStack.isEmpty()) {
         throw Exception("EmptyStackException: The bitmapStack of initial state should contain at least one bitmap")
@@ -237,7 +242,7 @@ private fun EditorScreenLayout(
     isPremium: Boolean = false,
     onSaveDraftClicked: (Bitmap) -> Unit = {},
     onRequireSaveAd: ((() -> Unit) -> Unit)? = null,
-    onSaveSuccess: () -> Unit = {},
+    onSaveSuccess: (android.net.Uri?, java.io.File?) -> Unit = { _, _ -> },
     showOverlay: Boolean = false
 ) {
 
@@ -312,14 +317,14 @@ private fun EditorScreenLayout(
             val extension = if (hasTransparency) "png" else "jpg"
             val format = if (hasTransparency) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
 
-            val imgFile = File(context.filesDir, "edited_image.$extension")
+            val imgFile = createExportImageFile(context, extension)
             BitmapUtils.saveBitmap(currentBitmap, imgFile, format = format)
             FileUtils.saveFileToAppFolder(
                 context = context,
                 file = imgFile,
                 onSuccess = {
-                    context.toast(R.string.image_saved_successfully)
-                    onSaveSuccess()
+                    val savedUri = FileUtils.getUriForFile(context, imgFile)
+                    onSaveSuccess(savedUri, imgFile)
                 },
                 onFailure = { context.toast(R.string.failed_to_save_image) },
             )
@@ -333,7 +338,7 @@ private fun EditorScreenLayout(
         val format = if (hasTransparency) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
         val mimeType = if (hasTransparency) "image/png" else "image/jpeg"
 
-        val imgFile = File(context.filesDir, "edited_image.$extension")
+        val imgFile = createExportImageFile(context, extension)
         BitmapUtils.saveBitmap(currentBitmap, imgFile, format = format)
         FileUtils.saveFileToAppFolder(
             context = context,

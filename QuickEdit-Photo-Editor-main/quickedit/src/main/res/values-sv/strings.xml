@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Rotera 90 grader eller vänd horisontellt och vertikalt för att korrigera bildens orientering.</string>
     <string name="draft_label">Utkast</string>
     <string name="draft_saved_successfully">Utkast sparades framgångsrikt</string>
+    <string name="professional_section_title">Professionell</string>
+    <string name="themeplate_professional_watch">Titta</string>
+    <string name="themeplate_professional_perfume">Parfym</string>
+    <string name="themeplate_professional_handbag">Handväska</string>
+    <string name="home_see_all">Se alla</string>
 </resources>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI ಪ್ರಾಡಕ್ಟ್ ಸ್ಟುಡಿಯೋ</string>
     <string name="studio_category_electronics">ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">ನೆರಳು</string>
     <string name="studio_tool_transparency">ಅಪಾರದರ್ಶಕತೆ</string>
     <string name="studio_tool_crop">ಕ್ರಾಪ್</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">ಸ್ಟಿಕ್ಕರ್</string>
     <string name="studio_tool_rotateflip">ತಿರುಗಿಸಿ/ಫ್ಲಿಪ್ ಮಾಡಿ</string>
     <string name="studio_replace_hint">ನಿಮ್ಮ ಗ್ಯಾಲರಿಯಿಂದ ಉತ್ಪನ್ನದ ಫೋಟೋವನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಬದಲಾಯಿಸಿ ಎಂಬುದನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
     <string name="studio_layout_hint">ಸರಿಸಲು ಎಳೆಯಿರಿ · ಜೂಮ್ ಮಾಡಲು ಪಿಂಚ್ ಮಾಡಿ · ಎರಡು ಬೆರಳುಗಳಿಂದ ತಿರುಗಿಸಿ</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">ಯಾವುದೇ ಟೆಂಪ್ಲೇಟ್‌ಗಳು ಲಭ್ಯವಿಲ್ಲ</string>
     <string name="studio_gallery_coming_soon">ಶೀಘ್ರದಲ್ಲೇ ಬರಲಿದೆ</string>
     <string name="studio_gallery_coming_soon_desc">ಈ ವೈಶಿಷ್ಟ್ಯವು ಅಭಿವೃದ್ಧಿ ಹಂತದಲ್ಲಿದೆ ಮತ್ತು ಶೀಘ್ರದಲ್ಲೇ ಲಭ್ಯವಿರುತ್ತದೆ!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">ಡಿಸೈನ್ ತಂಡವು ಶೀಘ್ರದಲ್ಲೇ ಇನ್ನಷ್ಟು ಟೆಂಪ್ಲೇಟ್‌ಗಳನ್ನು ಸೇರಿಸಲು ಕಠಿಣವಾಗಿ ಕೆಲಸ ಮಾಡುತ್ತಿದೆ.</string>
     <string name="themeplate_gallery_title">ಟೆಂಪ್ಲೇಟ್‌ಗಳು</string>
     <string name="studio_save_image_success">ಚಿತ್ರವನ್ನು ಉಳಿಸಲಾಗಿದೆ</string>
     <string name="studio_error_select_object">ದಯವಿಟ್ಟು ವಸ್ತುವನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>

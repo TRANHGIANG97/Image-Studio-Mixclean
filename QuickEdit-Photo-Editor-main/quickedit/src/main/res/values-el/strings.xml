@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Αυτή η λειτουργία είναι διαθέσιμη μόνο όταν το θέμα έχει φόντο</string>
     <string name="draft_label">Προσχέδιο</string>
     <string name="draft_saved_successfully">Το προσχέδιο αποθηκεύτηκε επιτυχώς</string>
+    <string name="professional_section_title">Επαγγελματίας</string>
+    <string name="themeplate_professional_watch">Ρολόι</string>
+    <string name="themeplate_professional_perfume">Αρωμα</string>
+    <string name="themeplate_professional_handbag">Τσάντα</string>
+    <string name="home_see_all">Δείτε όλα</string>
 </resources>

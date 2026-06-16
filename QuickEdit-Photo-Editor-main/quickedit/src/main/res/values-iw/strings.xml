@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">סובב ב-90 מעלות או הפוך אופקית ואנכית כדי לתקן את כיוון התמונה.</string>
     <string name="draft_label">טיוטה</string>
     <string name="draft_saved_successfully">הטיוטה נשמרה בהצלحة</string>
+    <string name="professional_section_title">מִקצוֹעִי</string>
+    <string name="themeplate_professional_watch">לִצְפּוֹת</string>
+    <string name="themeplate_professional_perfume">נִיחוֹחַ</string>
+    <string name="themeplate_professional_handbag">אַרְנָק</string>
+    <string name="home_see_all">ראה הכל</string>
 </resources>

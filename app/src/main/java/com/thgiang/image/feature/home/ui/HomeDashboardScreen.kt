@@ -34,7 +34,10 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,6 +45,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -64,7 +68,9 @@ import com.thgiang.image.feature.home.viewmodel.HomeViewModel
 import com.abizer_r.quickedit.ui.mainScreen.CosmeticsThemeplateSection
 import com.abizer_r.quickedit.ui.mainScreen.ProfessionalThemeplateSection
 import com.thgiang.image.studio.model.StudioThemeplate
+import com.thgiang.image.studio.model.StudioThemeplateSection
 import com.thgiang.image.studio.model.StudioThemeplates
+import com.thgiang.image.studio.util.toAssetModel
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPreset
 import com.abizer_r.quickedit.utils.BorderGradientPreset
 import androidx.lifecycle.Lifecycle
@@ -85,6 +91,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.runtime.getValue
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeDashboardScreen(
     onOpenRemoveBgEditor: () -> Unit = {},
@@ -137,6 +144,18 @@ fun HomeDashboardScreen(
             draftCount = withContext(Dispatchers.IO) {
                 draftManager.getAllDrafts().size
             }
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                homeViewModel.refreshTemplates()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
     val editImageLauncher = rememberLauncherForActivityResult(
@@ -205,14 +224,20 @@ fun HomeDashboardScreen(
             ) {
                 val previewHeight = maxHeight * 0.45f
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                PullToRefreshBox(
+                    isRefreshing = uiState.isLoadingTemplates,
+                    onRefresh = { homeViewModel.refreshTemplates() },
+                    modifier = Modifier.fillMaxSize()
                 ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
                     Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
 
                     HomeThemeplateSlider(
+                        templates = uiState.professionalTemplates,
                         onThemeplateSelected = onThemeplateSelected
                     )
 
@@ -263,7 +288,25 @@ fun HomeDashboardScreen(
 
                     Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
 
+                    val cosmeticsTemplates = uiState.cosmeticsTemplates
+                    val professionalTemplates = uiState.professionalTemplates
+                    val sections = remember(uiState.digitalLifeTemplates, uiState.selfieFoodTemplates) {
+                        listOf(
+                            StudioThemeplateSection(
+                                id = "digital_life",
+                                titleResId = com.thgiang.image.studio.R.string.themeplate_professional_digital_life,
+                                themeplates = uiState.digitalLifeTemplates
+                            ),
+                            StudioThemeplateSection(
+                                id = "selfie_food",
+                                titleResId = com.thgiang.image.studio.R.string.themeplate_professional_food_selfie,
+                                themeplates = uiState.selfieFoodTemplates
+                            )
+                        )
+                    }
+
                     CosmeticsThemeplateSection(
+                        templates = cosmeticsTemplates,
                         modifier = Modifier.fillMaxWidth(),
                         onOpenGallery = { onOpenThemeplateGallery(1) },
                         onThemeplateSelected = onThemeplateSelected
@@ -272,6 +315,8 @@ fun HomeDashboardScreen(
                     Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
 
                     ProfessionalThemeplateSection(
+                        templates = professionalTemplates,
+                        sections = sections,
                         modifier = Modifier.fillMaxWidth(),
                         onOpenGallery = onOpenThemeplateGallery,
                         onThemeplateSelected = onThemeplateSelected
@@ -302,6 +347,7 @@ fun HomeDashboardScreen(
                     Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
                 }
             }
+        }
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier
@@ -322,18 +368,18 @@ fun HomeDashboardScreen(
 
 @Composable
 private fun HomeThemeplateSlider(
+    templates: List<StudioThemeplate>,
     onThemeplateSelected: (StudioThemeplate) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val templates = remember { StudioThemeplates.professional.shuffled() }
     if (templates.isEmpty()) return
 
-    val pageCount = StudioThemeplates.professional.size
+    val pageCount = templates.size
     val pagerState = rememberPagerState(pageCount = { pageCount })
 
     val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
-    LaunchedEffect(isDragged) {
-        if (!isDragged) {
+    LaunchedEffect(isDragged, templates) {
+        if (!isDragged && templates.isNotEmpty()) {
             while (true) {
                 delay(10000)
                 val nextPage = (pagerState.currentPage + 1) % templates.size
@@ -361,7 +407,7 @@ private fun HomeThemeplateSlider(
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
-                model = "file:///android_asset/${template.backgroundAssetPath ?: template.assetPath}",
+                model = (template.backgroundAssetPath ?: template.assetPath).toAssetModel(),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
@@ -376,7 +422,7 @@ private fun HomeThemeplateSlider(
 
             Box(modifier = Modifier.wrapContentSize()) {
                 AsyncImage(
-                    model = "file:///android_asset/${template.assetPath}",
+                    model = template.assetPath.toAssetModel(),
                     contentDescription = null,
                     modifier = Modifier.fillMaxHeight(),
                     contentScale = ContentScale.Fit
@@ -384,7 +430,7 @@ private fun HomeThemeplateSlider(
                 
                 template.objectSourceAssetPath?.let { objPath ->
                     AsyncImage(
-                        model = "file:///android_asset/$objPath",
+                        model = objPath.toAssetModel(),
                         contentDescription = null,
                         modifier = Modifier.matchParentSize(),
                         contentScale = ContentScale.Fit

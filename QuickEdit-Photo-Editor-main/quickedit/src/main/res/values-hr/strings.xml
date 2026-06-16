@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Zakrenite za 90 stupnjeva tai preokrenite vodoravno i okomito kako biste ispravili orijentaciju slike.</string>
     <string name="draft_label">Skica</string>
     <string name="draft_saved_successfully">Skica je uspješno spremljena</string>
+    <string name="professional_section_title">Profesionalni</string>
+    <string name="themeplate_professional_watch">Gledati</string>
+    <string name="themeplate_professional_perfume">Parfem</string>
+    <string name="themeplate_professional_handbag">ručna torbica</string>
+    <string name="home_see_all">Vidi sve</string>
 </resources>

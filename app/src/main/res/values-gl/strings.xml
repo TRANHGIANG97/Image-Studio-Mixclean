@@ -38,8 +38,6 @@
     <string name="licenses_title">Licenzas de código aberto</string>
     <string name="dark_mode_title">Modo escuro</string>
     <string name="dark_mode_description">Cambiar o tema escuro da aplicación.</string>
-    <string name="home_preview_title">Mostrar vista previa no inicio</string>
-    <string name="home_preview_description">Mostrar a caixa de comparación antes/despois na pantalla de inicio.</string>
 
     <string name="home_remove_background_title">Eliminar fondo</string>
     <string name="home_remove_background_subtitle">Seleccione unha imaxe e elimine o seu fondo cun só toque.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Expansión IA suave</string>
     <string name="pro_see_details">Detalles ></string>
     <string name="picker_sample_badge">Mostra</string>
+    <string name="home_hero_subtitle_short">Editor de fotos AI</string>
+    <string name="home_hero_title">Crea fotos profesionais de produtos</string>
+    <string name="home_hero_subtitle">Elimina o fondo, cambia o fondo, engade modelos en segundos</string>
+    <string name="home_hero_action">Escolle Foto</string>
+    <string name="review_app_button">Valora</string>
+    <string name="review_prompt_title">Gozando de %1$s?</string>
+    <string name="review_prompt_message">Toca unha estrela para valorala en Google Play.</string>
+    <string name="review_prompt_rate_now">Enviar</string>
+    <string name="review_prompt_later">Cancelar</string>
+    <string name="home_see_all">Ver Todo</string>
+    <string name="save_success_title">Gardado!</string>
+    <string name="save_success_create_new">Crear novo</string>
+    <string name="save_success_try_other_tools">Proba outras ferramentas</string>
+    <string name="save_success_share">Compartir</string>
+    <string name="save_success_back">De volta</string>
+    <string name="save_success_home">Casa</string>
+    <string name="save_success_saved_image">Imaxe gardada</string>
+    <string name="save_success_share_with">Compartir con…</string>
+    <string name="batch_remove_error_load_image">Non se pode cargar esta imaxe.</string>
+    <string name="drafts_error_load">Erro ao cargar os borradores: %1$s</string>
 </resources>

@@ -161,4 +161,9 @@
     <string name="studio_effect_requires_background">Esta función solo está disponible cuando el sujeto tiene un fondo</string>
     <string name="draft_label">Borrador</string>
     <string name="draft_saved_successfully">Borrador guardado correctamente</string>
+    <string name="professional_section_title">Profesional</string>
+    <string name="themeplate_professional_watch">Mirar</string>
+    <string name="themeplate_professional_perfume">Perfume</string>
+    <string name="themeplate_professional_handbag">Bolso</string>
+    <string name="home_see_all">Ver todo</string>
 </resources>

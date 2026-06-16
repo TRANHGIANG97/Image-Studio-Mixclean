@@ -38,8 +38,6 @@
     <string name="licenses_title">Нээлттэй эхийн зөвшөөрөл</string>
     <string name="dark_mode_title">Харанхуй горим</string>
     <string name="dark_mode_description">Аппликейшныг харанхуй загварт шилжүүлэх.</string>
-    <string name="home_preview_title">Нүүр хуудсанд урьдчилж харах</string>
-    <string name="home_preview_description">Нүүр хуудсанд Өмнөх/Дараах харьцуулалтыг харуулах.</string>
 
     <string name="home_remove_background_title">Фон устгах</string>
     <string name="home_remove_background_subtitle">Зургаа сонгоод ганц товшилтоор фоныг устгаарай.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI Зургийг уусгалттай сунгах</string>
     <string name="pro_see_details">Дэлгэрэнгүй үзэх ></string>
     <string name="picker_sample_badge">Жишээ</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Мэргэжлийн бүтээгдэхүүний зураг үүсгэх</string>
+    <string name="home_hero_subtitle">Арын дэвсгэрийг арилгах, арын дэвсгэрийг өөрчлөх, загвар нэмэх</string>
+    <string name="home_hero_action">Зураг сонгоно уу</string>
+    <string name="review_app_button">Үнэлгээ</string>
+    <string name="review_prompt_title">%1$s таалагдаж байна уу?</string>
+    <string name="review_prompt_message">Google Play дээр үнэлгээ өгөхийн тулд одоор товш.</string>
+    <string name="review_prompt_rate_now">Илгээх</string>
+    <string name="review_prompt_later">Цуцлах</string>
+    <string name="home_see_all">Бүгдийг харах</string>
+    <string name="save_success_title">Хадгалсан!</string>
+    <string name="save_success_create_new">Шинэ үүсгэх</string>
+    <string name="save_success_try_other_tools">Бусад хэрэгслийг туршиж үзээрэй</string>
+    <string name="save_success_share">Хуваалцах</string>
+    <string name="save_success_back">Буцах</string>
+    <string name="save_success_home">Гэр</string>
+    <string name="save_success_saved_image">Хадгалсан зураг</string>
+    <string name="save_success_share_with">Хуваалцах...</string>
+    <string name="batch_remove_error_load_image">Энэ зургийг ачаалах боломжгүй.</string>
+    <string name="drafts_error_load">Ноорог ачаалахад алдаа гарсан: %1$s</string>
 </resources>

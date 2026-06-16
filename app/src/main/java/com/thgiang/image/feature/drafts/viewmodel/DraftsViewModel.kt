@@ -1,10 +1,13 @@
 package com.thgiang.image.feature.drafts.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thgiang.image.R
 import com.thgiang.image.feature.editor.model.DraftManager
 import com.thgiang.image.feature.editor.model.DraftMetadata
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +24,8 @@ data class DraftsUiState(
 
 @HiltViewModel
 class DraftsViewModel @Inject constructor(
-    private val draftManager: DraftManager
+    private val draftManager: DraftManager,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DraftsUiState())
@@ -39,7 +43,7 @@ class DraftsViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(drafts = drafts, isLoading = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    error = "Lỗi khi tải bản nháp: ${e.message}",
+                    error = context.getString(R.string.drafts_error_load, e.message ?: ""),
                     isLoading = false
                 )
             }

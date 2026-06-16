@@ -38,8 +38,6 @@
     <string name="licenses_title">ওপেন সোর্স লাইসেন্সসমূহ</string>
     <string name="dark_mode_title">ডার্ক মোড</string>
     <string name="dark_mode_description">অ্যাপের ডার্ক থিম পরিবর্তন করুন।</string>
-    <string name="home_preview_title">হোম প্রিভিউ দেখান</string>
-    <string name="home_preview_description">হোম স্ক্রিনে আগের/পরের তুলনামূলক বক্সটি দেখান।</string>
 
     <string name="home_remove_background_title">ব্যাকগ্রাউন্ড রিমুভ</string>
     <string name="home_remove_background_subtitle">একটি ছবি নির্বাচন করুন এবং এক ট্যাপে এর ব্যাকগ্রাউন্ড মুছে ফেলুন।</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">স্মুথ AI এক্সপেনশন</string>
     <string name="pro_see_details">ডিটেইলস ></string>
     <string name="picker_sample_badge">নমুনা</string>
+    <string name="home_hero_subtitle_short">এআই ফটো এডিটর</string>
+    <string name="home_hero_title">পেশাদার পণ্য ফটো তৈরি করুন</string>
+    <string name="home_hero_subtitle">পটভূমি সরান, পটভূমি পরিবর্তন করুন, সেকেন্ডের মধ্যে টেমপ্লেট যোগ করুন</string>
+    <string name="home_hero_action">ফটো নির্বাচন করুন</string>
+    <string name="review_app_button">হার</string>
+    <string name="review_prompt_title">%1$s উপভোগ করছেন?</string>
+    <string name="review_prompt_message">Google Play-তে রেট দিতে একটি তারা ট্যাপ করুন।</string>
+    <string name="review_prompt_rate_now">জমা দিন</string>
+    <string name="review_prompt_later">বাতিল করুন</string>
+    <string name="home_see_all">সব দেখুন</string>
+    <string name="save_success_title">সংরক্ষিত !</string>
+    <string name="save_success_create_new">নতুন তৈরি করুন</string>
+    <string name="save_success_try_other_tools">অন্যান্য সরঞ্জাম চেষ্টা করুন</string>
+    <string name="save_success_share">শেয়ার করুন</string>
+    <string name="save_success_back">ফিরে</string>
+    <string name="save_success_home">বাড়ি</string>
+    <string name="save_success_saved_image">সংরক্ষিত ছবি</string>
+    <string name="save_success_share_with">এর সাথে শেয়ার করুন...</string>
+    <string name="batch_remove_error_load_image">এই ছবি লোড করা যাবে না.</string>
+    <string name="drafts_error_load">খসড়া লোড করার সময় ত্রুটি: %1$s</string>
 </resources>

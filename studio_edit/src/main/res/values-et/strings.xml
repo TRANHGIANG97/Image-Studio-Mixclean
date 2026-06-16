@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Tootestuudio</string>
     <string name="studio_category_electronics">Elektroonika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Vari</string>
     <string name="studio_tool_transparency">Opatsiteet</string>
     <string name="studio_tool_crop">Kärbi</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Kleebis</string>
     <string name="studio_tool_rotateflip">Pööra/Peegelda</string>
     <string name="studio_replace_hint">Puuduta Asenda, et valida toote foto oma galeriist</string>
     <string name="studio_layout_hint">Lohista liigutamiseks · Suumi kokku-lahku tõmmates · Pööra kahe sõrmega</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Malle pole saadaval</string>
     <string name="studio_gallery_coming_soon">Varsti tulemas</string>
     <string name="studio_gallery_coming_soon_desc">Seda funktsiooni arendatakse ja see on peagi saadaval!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Disainimeeskond töötab kõvasti, et peagi lisada veel rohkem malle.</string>
     <string name="themeplate_gallery_title">Mallid</string>
     <string name="studio_save_image_success">Pilt salvestatud</string>
     <string name="studio_error_select_object">Valige objekt</string>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio produktów AI</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Cień</string>
     <string name="studio_tool_transparency">Nieprzezroczystość</string>
     <string name="studio_tool_crop">Przytnij</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Naklejka</string>
     <string name="studio_tool_rotateflip">Obróć/Odbij</string>
     <string name="studio_replace_hint">Dotknij Zmień, aby wybrać zdjęcie produktu z galerii</string>
     <string name="studio_layout_hint">Przeciągnij, aby przesunąć · Uszczypnij, aby przybliżyć · Obróć dwoma palcami</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Brak dostępnych szablonów</string>
     <string name="studio_gallery_coming_soon">Już wkrótce</string>
     <string name="studio_gallery_coming_soon_desc">Ta funkcja jest w fazie rozwoju i będzie dostępna wkrótce!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Zespół projektowy ciężko pracuje nad dodaniem wkrótce większej liczby szablonów.</string>
     <string name="themeplate_gallery_title">Szablony</string>
     <string name="studio_save_image_success">Obraz został zapisany</string>
     <string name="studio_error_select_object">Proszę wybrać obiekt</string>

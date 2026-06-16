@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Pasukite 90 laipsnių kampu arba apverskite horizontaliai ir vertikaliai, kad ištaisytumėte vaizdo orientaciją.</string>
     <string name="draft_label">Juodraštis</string>
     <string name="draft_saved_successfully">Juodraštis sėkmingai išsaugotas</string>
+    <string name="professional_section_title">Profesionalus</string>
+    <string name="themeplate_professional_watch">Žiūrėti</string>
+    <string name="themeplate_professional_perfume">Kvepalai</string>
+    <string name="themeplate_professional_handbag">Rankinė</string>
+    <string name="home_see_all">Žiūrėti viską</string>
 </resources>

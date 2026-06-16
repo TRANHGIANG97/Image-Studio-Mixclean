@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import com.abizer_r.quickedit.utils.background.GradientBackgroundRenderer
-import com.abizer_r.quickedit.utils.other.QuickToolsPortraitClassifier
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,7 +27,6 @@ class BackgroundModeViewModel @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
-    private val portraitClassifier = QuickToolsPortraitClassifier()
     private var overlayJob: Job? = null
     private var backgroundRenderJob: Job? = null
     private var backgroundRenderGeneration: Long = 0L
@@ -199,14 +197,6 @@ class BackgroundModeViewModel @Inject constructor(
                 foregroundFlippedV = false
             )
             viewModelScope.launch(Dispatchers.Default) {
-                val hasFace = runCatching {
-                    withTimeout(10000L) {
-                        portraitClassifier.hasDetectableFace(bitmap).getOrThrow()
-                    }
-                }.onFailure {
-                    android.util.Log.e("BackgroundModeVM", "Face detection failed", it)
-                }.getOrDefault(false)
-
                 var result = runCatching {
                     withTimeout(45000L) {
                         android.util.Log.d("BackgroundModeVM", "Using ML Kit Subject Segmentation")

@@ -38,8 +38,6 @@
     <string name="licenses_title">ໃບອະນຸຍາດໂອເພນຊອດ</string>
     <string name="dark_mode_title">ໂໝດມືດ</string>
     <string name="dark_mode_description">ປ່ຽນຮູບແບບແອັບຯເປັນໂໝດມືດ.</string>
-    <string name="home_preview_title">ສະແດງຕົວຢ່າງຢູ່ໜ້າທຳອິດ</string>
-    <string name="home_preview_description">ສະແດງກ່ອງປຽບທຽບ ກ່ອນ/ຫຼັງ ຢູ່ໜ້າຈໍຫຼັກ.</string>
 
     <string name="home_remove_background_title">ລຶບພື້ນຫຼັງ</string>
     <string name="home_remove_background_subtitle">ເລືອກຮູບພາບ ແລະ ລຶບພື້ນຫຼັງດ້ວຍການກົດເທື່ອດຽວ.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI ຂະຫຍາຍຮູບພາບຢ່າງກົມກືນ</string>
     <string name="pro_see_details">ເບິ່ງລາຍລະອຽດ ></string>
     <string name="picker_sample_badge">ຕົວຢ່າງ</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">ສ້າງຮູບພາບຜະລິດຕະພັນເປັນມືອາຊີບ</string>
+    <string name="home_hero_subtitle">ລຶບພື້ນຫຼັງ, ປ່ຽນສາກຫຼັງ, ເພີ່ມແມ່ແບບໃນວິນາທີ</string>
+    <string name="home_hero_action">ເລືອກຮູບ</string>
+    <string name="review_app_button">ອັດຕາ</string>
+    <string name="review_prompt_title">ເພີດເພີນໄປກັບ %1$s ບໍ?</string>
+    <string name="review_prompt_message">ແຕະດາວເພື່ອຈັດອັນດັບມັນຢູ່ໃນ Google Play.</string>
+    <string name="review_prompt_rate_now">ສົ່ງ</string>
+    <string name="review_prompt_later">ຍົກເລີກ</string>
+    <string name="home_see_all">ເບິ່ງທັງໝົດ</string>
+    <string name="save_success_title">ບັນທຶກແລ້ວ!</string>
+    <string name="save_success_create_new">ສ້າງໃໝ່</string>
+    <string name="save_success_try_other_tools">ລອງໃຊ້ເຄື່ອງມືອື່ນໆ</string>
+    <string name="save_success_share">ແບ່ງປັນ</string>
+    <string name="save_success_back">ກັບຄືນໄປບ່ອນ</string>
+    <string name="save_success_home">ບ້ານ</string>
+    <string name="save_success_saved_image">ຮູບພາບທີ່ບັນທຶກໄວ້</string>
+    <string name="save_success_share_with">ແບ່ງປັນກັບ…</string>
+    <string name="batch_remove_error_load_image">ບໍ່ສາມາດໂຫຼດຮູບນີ້ໄດ້.</string>
+    <string name="drafts_error_load">ເກີດຄວາມຜິດພາດໃນການໂຫຼດສະບັບຮ່າງ: %1$s</string>
 </resources>

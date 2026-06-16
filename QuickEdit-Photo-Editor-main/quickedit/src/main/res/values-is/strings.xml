@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Snúðu um 90 gráður eða veltu lárétt og lóðrétt til að lagfæra stefnu myndarinnar.</string>
     <string name="draft_label">Uppkast</string>
     <string name="draft_saved_successfully">Uppkast vistaðist farsællega</string>
+    <string name="professional_section_title">Fagmaður</string>
+    <string name="themeplate_professional_watch">Horfðu á</string>
+    <string name="themeplate_professional_perfume">Ilmvatn</string>
+    <string name="themeplate_professional_handbag">Handtaska</string>
+    <string name="home_see_all">Sjá allt</string>
 </resources>

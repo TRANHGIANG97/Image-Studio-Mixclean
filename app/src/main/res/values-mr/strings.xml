@@ -38,8 +38,6 @@
     <string name="licenses_title">ओपन सोर्स लायसन्स</string>
     <string name="dark_mode_title">डार्क मोड</string>
     <string name="dark_mode_description">अॅपची थीम डार्क मोडमध्ये बदला.</string>
-    <string name="home_preview_title">होम स्क्रीनवर प्रिव्ह्यू दाखवा</string>
-    <string name="home_preview_description">होम स्क्रीनवर आधी/नंतर (Before/After) तुलना बॉक्स दाखवा.</string>
 
     <string name="home_remove_background_title">बॅकग्राउंड काढा</string>
     <string name="home_remove_background_subtitle">फोटो निवडा आणि एका क्लिकवर बॅकग्राउंड काढा.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">AI द्वारे फोटो नैसर्गिकरित्या वाढवा</string>
     <string name="pro_see_details">तपशील पहा ></string>
     <string name="picker_sample_badge">नमुना</string>
+    <string name="home_hero_subtitle_short">एआय फोटो संपादक</string>
+    <string name="home_hero_title">व्यावसायिक उत्पादनाचे फोटो तयार करा</string>
+    <string name="home_hero_subtitle">पार्श्वभूमी काढा, पार्श्वभूमी बदला, काही सेकंदात टेम्पलेट्स जोडा</string>
+    <string name="home_hero_action">फोटो निवडा</string>
+    <string name="review_app_button">रेट करा</string>
+    <string name="review_prompt_title">%1$s चा आनंद घेत आहात?</string>
+    <string name="review_prompt_message">Google Play वर रेट करण्यासाठी तारेवर टॅप करा.</string>
+    <string name="review_prompt_rate_now">सबमिट करा</string>
+    <string name="review_prompt_later">रद्द करा</string>
+    <string name="home_see_all">सर्व पहा</string>
+    <string name="save_success_title">जतन केले!</string>
+    <string name="save_success_create_new">नवीन तयार करा</string>
+    <string name="save_success_try_other_tools">इतर साधने वापरून पहा</string>
+    <string name="save_success_share">शेअर करा</string>
+    <string name="save_success_back">मागे</string>
+    <string name="save_success_home">घर</string>
+    <string name="save_success_saved_image">जतन केलेली प्रतिमा</string>
+    <string name="save_success_share_with">यासह शेअर करा...</string>
+    <string name="batch_remove_error_load_image">ही प्रतिमा लोड करू शकत नाही.</string>
+    <string name="drafts_error_load">मसुदे लोड करताना त्रुटी: %1$s</string>
 </resources>

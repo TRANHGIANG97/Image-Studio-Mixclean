@@ -38,8 +38,6 @@
     <string name="licenses_title">ღია კოდის ლიცენზიები</string>
     <string name="dark_mode_title">ბნელი რეჟიმი</string>
     <string name="dark_mode_description">აპლიკაციის იერსახის შეცვლა ბნელ რეჟიმში.</string>
-    <string name="home_preview_title">მთავარ გვერდზე წინასწარი ნახვა</string>
-    <string name="home_preview_description">მთავარ ეკრანზე შედარების „მანამდე/შემდეგ“ ბლოკის ჩვენება.</string>
 
     <string name="home_remove_background_title">ფონის მოშორება</string>
     <string name="home_remove_background_subtitle">აირჩიეთ ფოტო და მოაშორეთ ფონი მხოლოდ ერთი შეხებით.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">სურათის უნაკლო AI გაფართოება</string>
     <string name="pro_see_details">დეტალების ნახვა ></string>
     <string name="picker_sample_badge">ნიმუში</string>
+    <string name="home_hero_subtitle_short">AI ფოტო რედაქტორი</string>
+    <string name="home_hero_title">შექმენით პროფესიონალური პროდუქტის ფოტოები</string>
+    <string name="home_hero_subtitle">წაშალეთ ფონი, შეცვალეთ ფონი, დაამატეთ შაბლონები წამებში</string>
+    <string name="home_hero_action">აირჩიეთ ფოტო</string>
+    <string name="review_app_button">შეფასება</string>
+    <string name="review_prompt_title">მოგწონთ %1$s?</string>
+    <string name="review_prompt_message">შეეხეთ ვარსკვლავს Google Play-ზე შესაფასებლად.</string>
+    <string name="review_prompt_rate_now">გაგზავნა</string>
+    <string name="review_prompt_later">გაუქმება</string>
+    <string name="home_see_all">იხილეთ ყველა</string>
+    <string name="save_success_title">შენახულია!</string>
+    <string name="save_success_create_new">შექმენით ახალი</string>
+    <string name="save_success_try_other_tools">სცადეთ სხვა ინსტრუმენტები</string>
+    <string name="save_success_share">გააზიარეთ</string>
+    <string name="save_success_back">უკან</string>
+    <string name="save_success_home">მთავარი</string>
+    <string name="save_success_saved_image">შენახული სურათი</string>
+    <string name="save_success_share_with">გააზიარეთ…</string>
+    <string name="batch_remove_error_load_image">ამ სურათის ჩატვირთვა შეუძლებელია.</string>
+    <string name="drafts_error_load">შეცდომა მონახაზების ჩატვირთვისას: %1$s</string>
 </resources>

@@ -38,8 +38,6 @@
     <string name="licenses_title">Licencias de código abierto</string>
     <string name="dark_mode_title">Modo oscuro</string>
     <string name="dark_mode_description">Alternar el tema oscuro de la aplicación.</string>
-    <string name="home_preview_title">Mostrar vista previa en inicio</string>
-    <string name="home_preview_description">Muestra el cuadro de comparación antes/después en la pantalla de inicio.</string>
 
     <string name="home_remove_background_title">Eliminar fondo</string>
     <string name="home_remove_background_subtitle">Seleccione una imagen y elimine el fondo con un solo toque.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Expansión suave por IA</string>
     <string name="pro_see_details">Ver detalles ></string>
     <string name="picker_sample_badge">Muestra</string>
+    <string name="home_hero_subtitle_short">Editor de fotos con IA</string>
+    <string name="home_hero_title">Cree fotografías de productos profesionales</string>
+    <string name="home_hero_subtitle">Elimine el fondo, cambie el fondo, agregue plantillas en segundos</string>
+    <string name="home_hero_action">Elige foto</string>
+    <string name="review_app_button">Tasa</string>
+    <string name="review_prompt_title">¿Estás disfrutando de %1$s?</string>
+    <string name="review_prompt_message">Toca una estrella para calificarla en Google Play.</string>
+    <string name="review_prompt_rate_now">Entregar</string>
+    <string name="review_prompt_later">Cancelar</string>
+    <string name="home_see_all">Ver todo</string>
+    <string name="save_success_title">¡Salvado!</string>
+    <string name="save_success_create_new">Crear nuevo</string>
+    <string name="save_success_try_other_tools">Prueba otras herramientas</string>
+    <string name="save_success_share">Compartir</string>
+    <string name="save_success_back">Atrás</string>
+    <string name="save_success_home">Hogar</string>
+    <string name="save_success_saved_image">Imagen guardada</string>
+    <string name="save_success_share_with">Comparte con…</string>
+    <string name="batch_remove_error_load_image">No se puede cargar esta imagen.</string>
+    <string name="drafts_error_load">Error al cargar borradores: %1$s</string>
 </resources>

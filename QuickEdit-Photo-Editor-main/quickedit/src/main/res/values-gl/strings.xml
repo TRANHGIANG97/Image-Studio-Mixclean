@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Xira 90 graos ou voltea horizontal e verticalmente para corrixir a orientación da imaxe.</string>
     <string name="draft_label">Borrador</string>
     <string name="draft_saved_successfully">Borrador gardado correctamente</string>
+    <string name="professional_section_title">Profesional</string>
+    <string name="themeplate_professional_watch">Mira</string>
+    <string name="themeplate_professional_perfume">Perfume</string>
+    <string name="themeplate_professional_handbag">Bolso de man</string>
+    <string name="home_see_all">Ver Todo</string>
 </resources>

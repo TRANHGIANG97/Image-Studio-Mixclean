@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktų studija</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Šešėlis</string>
     <string name="studio_tool_transparency">Neskaidrumas</string>
     <string name="studio_tool_crop">Apkarpyti</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Lipdukas</string>
     <string name="studio_tool_rotateflip">Pasukti/Apversti</string>
     <string name="studio_replace_hint">Bakstelėkite Pakeisti, kad pasirinktumėte produkto nuotrauką iš galerijos</string>
     <string name="studio_layout_hint">Vilkite, kad perkeltumėte · Suglauskite, kad priartintumėte · Sukite dviem pirštais</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Nėra jokių šablonų</string>
     <string name="studio_gallery_coming_soon">Netrukus</string>
     <string name="studio_gallery_coming_soon_desc">Ši funkcija kuriama ir netrukus bus pasiekiama!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Dizaino komanda sunkiai dirba, kad netrukus pridėtų daugiau šablonų.</string>
     <string name="themeplate_gallery_title">Šablonai</string>
     <string name="studio_save_image_success">Vaizdas išsaugotas</string>
     <string name="studio_error_select_object">Pasirinkite objektą</string>

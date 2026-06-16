@@ -38,8 +38,6 @@
     <string name="licenses_title">Open-Source-Lizenzen</string>
     <string name="dark_mode_title">Dunkelmodus</string>
     <string name="dark_mode_description">Schalten Sie das dunkle Design der App um.</string>
-    <string name="home_preview_title">Vorschau auf Startseite anzeigen</string>
-    <string name="home_preview_description">Zeigt die Vorher/Nachher-Vergleichsbox auf dem Startbildschirm an.</string>
 
     <string name="home_remove_background_title">Hintergrund entfernen</string>
     <string name="home_remove_background_subtitle">Wählen Sie ein Bild aus und entfernen Sie den Hintergrund mit einem Fingertipp.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Nahtlose KI-Erweiterung</string>
     <string name="pro_see_details">Details ></string>
     <string name="picker_sample_badge">Muster</string>
+    <string name="home_hero_subtitle_short">AI-Fotoeditor</string>
+    <string name="home_hero_title">Erstellen Sie professionelle Produktfotos</string>
+    <string name="home_hero_subtitle">Entfernen Sie den Hintergrund, ändern Sie den Hintergrund und fügen Sie Vorlagen in Sekundenschnelle hinzu</string>
+    <string name="home_hero_action">Wählen Sie Foto</string>
+    <string name="review_app_button">Rate</string>
+    <string name="review_prompt_title">Genießen Sie %1$s?</string>
+    <string name="review_prompt_message">Tippen Sie auf einen Stern, um ihn bei Google Play zu bewerten.</string>
+    <string name="review_prompt_rate_now">Einreichen</string>
+    <string name="review_prompt_later">Stornieren</string>
+    <string name="home_see_all">Alle anzeigen</string>
+    <string name="save_success_title">Gespeichert!</string>
+    <string name="save_success_create_new">Neu erstellen</string>
+    <string name="save_success_try_other_tools">Probieren Sie andere Tools aus</string>
+    <string name="save_success_share">Aktie</string>
+    <string name="save_success_back">Zurück</string>
+    <string name="save_success_home">Heim</string>
+    <string name="save_success_saved_image">Gespeichertes Bild</string>
+    <string name="save_success_share_with">Teilen mit…</string>
+    <string name="batch_remove_error_load_image">Dieses Bild kann nicht geladen werden.</string>
+    <string name="drafts_error_load">Fehler beim Laden von Entwürfen: %1$s</string>
 </resources>

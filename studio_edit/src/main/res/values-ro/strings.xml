@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio de produse IA</string>
     <string name="studio_category_electronics">Electronice</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Nu există șabloane disponibile</string>
     <string name="studio_gallery_coming_soon">În curând</string>
     <string name="studio_gallery_coming_soon_desc">Această funcție este în curs de dezvoltare și va fi disponibilă în curând!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Echipa de design lucrează din greu pentru a adăuga în curând mai multe șabloane.</string>
     <string name="themeplate_gallery_title">Șabloane</string>
     <string name="studio_save_image_success">Imaginea salvată</string>
     <string name="studio_error_select_object">Vă rugăm să selectați un obiect</string>

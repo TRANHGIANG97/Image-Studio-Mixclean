@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Ротирајте за 90 степени или преокрените хоризонтално и вертикално да бисте исправили оријентацију слике.</string>
     <string name="draft_label">Нацрт</string>
     <string name="draft_saved_successfully">Скица је успешно сачувана</string>
+    <string name="professional_section_title">Професионални</string>
+    <string name="themeplate_professional_watch">Гледај</string>
+    <string name="themeplate_professional_perfume">Парфем</string>
+    <string name="themeplate_professional_handbag">Хандбаг</string>
+    <string name="home_see_all">Види све</string>
 </resources>

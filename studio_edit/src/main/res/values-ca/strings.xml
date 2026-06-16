@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Estudi de productes IA</string>
     <string name="studio_category_electronics">Electrònica</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Ombra</string>
     <string name="studio_tool_transparency">Opacitat</string>
     <string name="studio_tool_crop">Retalla</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Adhesiu</string>
     <string name="studio_tool_rotateflip">Gira/Vola</string>
     <string name="studio_replace_hint">Toca Substitueix per triar una foto de producte de la teva galeria</string>
     <string name="studio_layout_hint">Arrossega per moure · Plica els dits per fer zoom · Gira amb dos dits</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">No hi ha plantilles disponibles</string>
     <string name="studio_gallery_coming_soon">Aviat</string>
     <string name="studio_gallery_coming_soon_desc">Aquesta funció està en desenvolupament i estarà disponible aviat!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">L’equip de disseny treballa intensament per afegir més plantilles aviat.</string>
     <string name="themeplate_gallery_title">Plantilles</string>
     <string name="studio_save_image_success">S\'ha guardat la imatge</string>
     <string name="studio_error_select_object">Seleccioneu un objecte</string>

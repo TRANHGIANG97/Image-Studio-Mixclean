@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Məhsul Studiyası</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Kölgə</string>
     <string name="studio_tool_transparency">Şəffaflıq</string>
     <string name="studio_tool_crop">Kəs</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Stiker</string>
     <string name="studio_tool_rotateflip">Döndər/Çevir</string>
     <string name="studio_replace_hint">Qalereyadan məhsul şəkli seçmək üçün Dəyişdir düyməsinə toxunun</string>
     <string name="studio_layout_hint">Köçürmək üçün sürükləyin · Yaxınlaşdırmaq üçün sıxın · İki barmaqla döndərin</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Əlçatan şablon yoxdur</string>
     <string name="studio_gallery_coming_soon">Tezliklə</string>
     <string name="studio_gallery_coming_soon_desc">Bu funksiya inkişaf mərhələsindədir və tezliklə istifadəyə veriləcək!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Dizayn komandası tezliklə daha çox şablon əlavə etmək üçün çox çalışır.</string>
     <string name="themeplate_gallery_title">Şablonlar</string>
     <string name="studio_save_image_success">Şəkil yadda saxlanıldı</string>
     <string name="studio_error_select_object">Zəhmət olmasa obyekt seçin</string>

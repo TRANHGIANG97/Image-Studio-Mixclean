@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Зургийн чиглэлийг засахын тулд 90 градус эргүүлэх эсвэл хэвтээ болон босоо байдлаар хөрвүүлнэ үү.</string>
     <string name="draft_label">Ноорог</string>
     <string name="draft_saved_successfully">Ноорог амжилттай хадгалагдлаа</string>
+    <string name="professional_section_title">Мэргэжлийн</string>
+    <string name="themeplate_professional_watch">үзэх</string>
+    <string name="themeplate_professional_perfume">Үнэртэй ус</string>
+    <string name="themeplate_professional_handbag">Гар цүнх</string>
+    <string name="home_see_all">Бүгдийг харах</string>
 </resources>

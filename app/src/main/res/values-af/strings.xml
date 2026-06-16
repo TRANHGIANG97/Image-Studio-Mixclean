@@ -38,8 +38,6 @@
     <string name="licenses_title">Oopbronlisensies</string>
     <string name="dark_mode_title">Donker Modus</string>
     <string name="dark_mode_description">Wissel die toepassing se donker tema aan/af.</string>
-    <string name="home_preview_title">Wys Tuis-voorskou</string>
-    <string name="home_preview_description">Wys die voor/na-vergelykingskassie op die tuisskerm.</string>
 
     <string name="home_remove_background_title">Verwyder Agtergrond</string>
     <string name="home_remove_background_subtitle">Kies \'n beeld en verwyder die agtergrond met een tik.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Glade AI-uitbreiding</string>
     <string name="pro_see_details">Besonderhede ></string>
     <string name="picker_sample_badge">Monster</string>
+    <string name="home_hero_subtitle_short">AI-fotoredigeerder</string>
+    <string name="home_hero_title">Skep professionele produkfoto\'s</string>
+    <string name="home_hero_subtitle">Verwyder agtergrond, verander agtergrond, voeg sjablone binne sekondes by</string>
+    <string name="home_hero_action">Kies Foto</string>
+    <string name="review_app_button">Beoordeel</string>
+    <string name="review_prompt_title">Geniet jy _%1$s_?</string>
+    <string name="review_prompt_message">Tik \'n ster om dit op Google Play te gradeer.</string>
+    <string name="review_prompt_rate_now">Dien in</string>
+    <string name="review_prompt_later">Kanselleer</string>
+    <string name="home_see_all">Sien Alles</string>
+    <string name="save_success_title">Gestoor!</string>
+    <string name="save_success_create_new">Skep nuwe</string>
+    <string name="save_success_try_other_tools">Probeer ander gereedskap</string>
+    <string name="save_success_share">Deel</string>
+    <string name="save_success_back">Terug</string>
+    <string name="save_success_home">Tuis</string>
+    <string name="save_success_saved_image">Gestoorde prent</string>
+    <string name="save_success_share_with">Deel met...</string>
+    <string name="batch_remove_error_load_image">Kan nie hierdie prent laai nie.</string>
+    <string name="drafts_error_load">Kon nie konsepte laai nie: %1$s</string>
 </resources>

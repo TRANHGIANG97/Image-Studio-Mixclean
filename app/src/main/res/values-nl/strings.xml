@@ -38,8 +38,6 @@
     <string name="licenses_title">Open-sourcelicenties</string>
     <string name="dark_mode_title">Donkere modus</string>
     <string name="dark_mode_description">Schakel over naar het donkere thema.</string>
-    <string name="home_preview_title">Voorbeeld op startscherm</string>
-    <string name="home_preview_description">Toon de Voor/Na vergelijking op het startscherm.</string>
 
     <string name="home_remove_background_title">Achtergrond verwijderen</string>
     <string name="home_remove_background_subtitle">Selecteer een afbeelding en verwijder de achtergrond met één klik.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Breid afbeelding natuurlijk uit via AI</string>
     <string name="pro_see_details">Bekijk details ></string>
     <string name="picker_sample_badge">Voorbeeld</string>
+    <string name="home_hero_subtitle_short">AI-foto-editor</string>
+    <string name="home_hero_title">Maak professionele productfoto\'s</string>
+    <string name="home_hero_subtitle">Achtergrond verwijderen, achtergrond wijzigen, sjablonen toevoegen in enkele seconden</string>
+    <string name="home_hero_action">Kies Foto</string>
+    <string name="review_app_button">Tarief</string>
+    <string name="review_prompt_title">Genieten van %1$s?</string>
+    <string name="review_prompt_message">Tik op een ster om deze te beoordelen op Google Play.</string>
+    <string name="review_prompt_rate_now">Indienen</string>
+    <string name="review_prompt_later">Annuleren</string>
+    <string name="home_see_all">Bekijk alles</string>
+    <string name="save_success_title">Opgeslagen!</string>
+    <string name="save_success_create_new">Nieuw maken</string>
+    <string name="save_success_try_other_tools">Probeer andere hulpmiddelen</string>
+    <string name="save_success_share">Deel</string>
+    <string name="save_success_back">Rug</string>
+    <string name="save_success_home">Thuis</string>
+    <string name="save_success_saved_image">Opgeslagen afbeelding</string>
+    <string name="save_success_share_with">Deel met…</string>
+    <string name="batch_remove_error_load_image">Kan deze afbeelding niet laden.</string>
+    <string name="drafts_error_load">Fout bij laden van concepten: %1$s</string>
 </resources>

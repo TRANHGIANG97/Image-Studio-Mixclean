@@ -38,8 +38,6 @@
     <string name="licenses_title">Avatud lähtekoodi litsentsid</string>
     <string name="dark_mode_title">Tume režiim</string>
     <string name="dark_mode_description">Lülita rakenduse tumedat teemat.</string>
-    <string name="home_preview_title">Näita avalehe eelvaadet</string>
-    <string name="home_preview_description">Näita enne/pärast võrdluskasti avalehel.</string>
 
     <string name="home_remove_background_title">Eemalda taust</string>
     <string name="home_remove_background_subtitle">Valige pilt ja eemaldage selle taust ühe puudutusega.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Sujuv AI laiendamine</string>
     <string name="pro_see_details">Üksikasjad ></string>
     <string name="picker_sample_badge">Näidis</string>
+    <string name="home_hero_subtitle_short">AI fotoredaktor</string>
+    <string name="home_hero_title">Looge professionaalseid tootefotosid</string>
+    <string name="home_hero_subtitle">Eemaldage taust, muutke tausta, lisage malle sekunditega</string>
+    <string name="home_hero_action">Valige Foto</string>
+    <string name="review_app_button">Hinda</string>
+    <string name="review_prompt_title">Kas teile meeldib %1$s?</string>
+    <string name="review_prompt_message">Puudutage tärni, et seda teenuses Google Play hinnata.</string>
+    <string name="review_prompt_rate_now">Esita</string>
+    <string name="review_prompt_later">Tühista</string>
+    <string name="home_see_all">Vaata kõiki</string>
+    <string name="save_success_title">Salvestatud!</string>
+    <string name="save_success_create_new">Loo uus</string>
+    <string name="save_success_try_other_tools">Proovige teisi tööriistu</string>
+    <string name="save_success_share">Jaga</string>
+    <string name="save_success_back">Tagasi</string>
+    <string name="save_success_home">Kodu</string>
+    <string name="save_success_saved_image">Salvestatud pilt</string>
+    <string name="save_success_share_with">Jaga…</string>
+    <string name="batch_remove_error_load_image">Seda pilti ei saa laadida.</string>
+    <string name="drafts_error_load">Viga mustandite laadimisel: %1$s</string>
 </resources>

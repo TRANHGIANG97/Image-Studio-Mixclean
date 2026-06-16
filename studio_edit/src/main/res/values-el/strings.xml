@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Στούντιο προϊόντων</string>
     <string name="studio_category_electronics">Ηλεκτρονικά</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Σκιά</string>
     <string name="studio_tool_transparency">Αδιαφάνεια</string>
     <string name="studio_tool_crop">Περικοπή</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Αυτοκόλλητο</string>
     <string name="studio_tool_rotateflip">Περιστροφή/Αναστροφή</string>
     <string name="studio_replace_hint">Πατήστε Αντικατάσταση για να επιλέξετε μια φωτογραφία προϊόντος από τη συλλογή σας</string>
     <string name="studio_layout_hint">Σύρετε για μετακίνηση · Τσιμπήστε για ζουμ · Περιστροφή με δύο δάχτυλα</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Δεν υπάρχουν διαθέσιμα πρότυπα</string>
     <string name="studio_gallery_coming_soon">Προσεχώς</string>
     <string name="studio_gallery_coming_soon_desc">Αυτή η δυνατότητα είναι υπό ανάπτυξη και θα είναι διαθέσιμη σύντομα!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Η ομάδα σχεδιασμού εργάζεται σκληρά για να προσθέσει σύντομα περισσότερα πρότυπα.</string>
     <string name="themeplate_gallery_title">Πρότυπα</string>
     <string name="studio_save_image_success">Η εικόνα αποθηκεύτηκε</string>
     <string name="studio_error_select_object">Επιλέξτε ένα αντικείμενο</string>

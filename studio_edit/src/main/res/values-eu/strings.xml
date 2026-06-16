@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">IA Produktu Studioa</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Itzala</string>
     <string name="studio_tool_transparency">Opakutasuna</string>
     <string name="studio_tool_crop">Moztu</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Eranskailua</string>
     <string name="studio_tool_rotateflip">Biratu/Irauli</string>
     <string name="studio_replace_hint">Sakatu Ordezkatu zure galeriako produktu baten argazkia aukeratzeko</string>
     <string name="studio_layout_hint">Arrastatu mugitzeko · Atximurkatu zooma egiteko · Biratu bi sormerekin</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Ez dago txantiloirik eskuragarri</string>
     <string name="studio_gallery_coming_soon">Laster</string>
     <string name="studio_gallery_coming_soon_desc">Ezaugarri hau garatzen ari da eta laster egongo da eskuragarri!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">Diseinu-taldea gogor ari da lanean laster txantiloi gehiago gehitzeko.</string>
     <string name="themeplate_gallery_title">Txantiloiak</string>
     <string name="studio_save_image_success">Irudia gorde da</string>
     <string name="studio_error_select_object">Mesedez, hautatu objektu bat</string>

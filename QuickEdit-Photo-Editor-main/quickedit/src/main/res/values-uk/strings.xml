@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Поверніть на 90 градусів або відобразіть по горизонталі й вертикалі, щоб виправити орієнтацію зображення.</string>
     <string name="draft_label">Чернетка</string>
     <string name="draft_saved_successfully">Чернетку успішно збережено</string>
+    <string name="professional_section_title">професійний</string>
+    <string name="themeplate_professional_watch">Дивитися</string>
+    <string name="themeplate_professional_perfume">духи</string>
+    <string name="themeplate_professional_handbag">Сумочка</string>
+    <string name="home_see_all">Переглянути всі</string>
 </resources>

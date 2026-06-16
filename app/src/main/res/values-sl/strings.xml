@@ -38,8 +38,6 @@
     <string name="licenses_title">Odprtokodne licence</string>
     <string name="dark_mode_title">Temni način</string>
     <string name="dark_mode_description">Preklopi temo aplikacije v temni način.</string>
-    <string name="home_preview_title">Predogled na domačem zaslonu</string>
-    <string name="home_preview_description">Prikaži primerjavo Pred/Potem na domačem zaslonu.</string>
 
     <string name="home_remove_background_title">Odstrani ozadje</string>
     <string name="home_remove_background_subtitle">Izberite fotografijo in odstranite ozadje z enim klikom.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">Naravno razširi sliko s pomočjo AI</string>
     <string name="pro_see_details">Prikaži podrobnosti ></string>
     <string name="picker_sample_badge">Vzorec</string>
+    <string name="home_hero_subtitle_short">AI Photo Editor</string>
+    <string name="home_hero_title">Ustvarite profesionalne fotografije izdelkov</string>
+    <string name="home_hero_subtitle">Odstranite ozadje, spremenite ozadje, dodajte predloge v nekaj sekundah</string>
+    <string name="home_hero_action">Izberite fotografijo</string>
+    <string name="review_app_button">Ocenite</string>
+    <string name="review_prompt_title">Uživate v %1$s?</string>
+    <string name="review_prompt_message">Dotaknite se zvezdice, da ga ocenite v Googlu Play.</string>
+    <string name="review_prompt_rate_now">Predloži</string>
+    <string name="review_prompt_later">Prekliči</string>
+    <string name="home_see_all">Poglej vse</string>
+    <string name="save_success_title">Shranjeno!</string>
+    <string name="save_success_create_new">Ustvari novo</string>
+    <string name="save_success_try_other_tools">Poskusite z drugimi orodji</string>
+    <string name="save_success_share">Delite</string>
+    <string name="save_success_back">Nazaj</string>
+    <string name="save_success_home">domov</string>
+    <string name="save_success_saved_image">Shranjena slika</string>
+    <string name="save_success_share_with">Delite z...</string>
+    <string name="batch_remove_error_load_image">Te slike ni mogoče naložiti.</string>
+    <string name="drafts_error_load">Napaka pri nalaganju osnutkov: %1$s</string>
 </resources>

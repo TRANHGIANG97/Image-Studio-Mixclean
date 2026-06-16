@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">ສະຕູດິໂອຜະລິດຕະພັນ AI</string>
     <string name="studio_category_electronics">ເຄື່ອງເອເລັກໂຕຣນິກ</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">ເງົາ</string>
     <string name="studio_tool_transparency">ຄວາມໂປ່ງແສງ</string>
     <string name="studio_tool_crop">ຕັດຂະໜາດ</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">ສະຕິກເກີ</string>
     <string name="studio_tool_rotateflip">ໝູນ/ພິກ</string>
     <string name="studio_replace_hint">ແຕະ ປ່ຽນແທນ ເພື່ອເລືອກຮູບຜະລິດຕະພັນຈາກຄັງຮູບຂອງທ່ານ</string>
     <string name="studio_layout_hint">ລາກເພື່ອຍ້າຍ · ຈີບນິ້ວເພື່ອຊູມ · ໝູນດ້ວຍສອງນິ້ວ</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">ບໍ່ມີແມ່ແບບທີ່ມີຢູ່</string>
     <string name="studio_gallery_coming_soon">ໄວໆນີ້</string>
     <string name="studio_gallery_coming_soon_desc">ຄຸນສົມບັດນີ້ຢູ່ໃນລະຫວ່າງການພັດທະນາ ແລະຈະສາມາດໃຊ້ໄດ້ໃນໄວໆນີ້!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">ທີມອອກແບບກຳລັງເຮັດວຽກຢ່າງຫນັກເພື່ອເພີ່ມແມ່ແບບຫຼາຍຂຶ້ນໃນໄວໆນີ້.</string>
     <string name="themeplate_gallery_title">ແມ່ແບບ</string>
     <string name="studio_save_image_success">ບັນທຶກຮູບພາບແລ້ວ</string>
     <string name="studio_error_select_object">ກະລຸນາເລືອກວັດຖຸ</string>

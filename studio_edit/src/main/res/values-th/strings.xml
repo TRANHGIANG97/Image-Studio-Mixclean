@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">สตูดิโอสินค้า AI</string>
     <string name="studio_category_electronics">เครื่องใช้ไฟฟ้า</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">เงา</string>
     <string name="studio_tool_transparency">ความโปร่งแสง</string>
     <string name="studio_tool_crop">ครอบตัด</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">สติกเกอร์</string>
     <string name="studio_tool_rotateflip">หมุน/พลิก</string>
     <string name="studio_replace_hint">แตะเปลี่ยนรูปเพื่อเลือกภาพสินค้าจากแกลเลอรีของคุณ</string>
     <string name="studio_layout_hint">ลากเพื่อย้าย · หนีบนิ้วเพื่อซูม · หมุนด้วยสองนิ้ว</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">ไม่มีเทมเพลต</string>
     <string name="studio_gallery_coming_soon">เร็วๆ นี้</string>
     <string name="studio_gallery_coming_soon_desc">ฟีเจอร์นี้อยู่ระหว่างการพัฒนาและจะพร้อมใช้งานเร็วๆ นี้!</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">ทีมออกแบบกำลังทำงานอย่างหนักเพื่อเพิ่มเทมเพลตใหม่ๆ อีกเร็วๆ นี้</string>
     <string name="themeplate_gallery_title">เทมเพลต</string>
     <string name="studio_save_image_success">บันทึกรูปภาพแล้ว</string>
     <string name="studio_error_select_object">โปรดเลือกวัตถุ</string>

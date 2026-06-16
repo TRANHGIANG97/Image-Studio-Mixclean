@@ -3,8 +3,12 @@ package com.thgiang.image.studio.ui.editor.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,21 +16,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import coil.compose.AsyncImage
+import kotlin.math.roundToInt
+import android.graphics.BitmapFactory
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -35,10 +52,16 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.*
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.util.openAssetSourceInputStream
+import com.thgiang.image.studio.util.toAssetModel
+import coil.compose.SubcomposeAsyncImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun EditorCanvasV2(
     templateAssetPath: String,
+    templateBackgroundColor: Color = Color.White,
     templateSize: IntSize = IntSize(1000, 1000),
     layers: List<EditorLayer>,
     selectedLayerId: String?,
@@ -50,8 +73,20 @@ fun EditorCanvasV2(
     viewportPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val density = LocalDensity.current
     val tokens = LocalEditorTokens.current
+
+    // ── Canvas-level pinch-to-zoom + pan ──────────────────
+    var canvasScale by remember { mutableFloatStateOf(1f) }
+    var canvasOffset by remember { mutableStateOf(Offset.Zero) }
+    val isZoomedOrPanned by remember {
+        derivedStateOf { canvasScale != 1f || canvasOffset != Offset.Zero }
+    }
+    val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
+        canvasScale = (canvasScale * zoomChange).coerceIn(0.2f, 5f)
+        canvasOffset += panChange
+    }
 
     BoxWithConstraints(
         modifier = modifier
@@ -76,6 +111,8 @@ fun EditorCanvasV2(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                // Canvas-level multi-touch zoom/pan trên outer box
+                .transformable(transformableState)
                 .pointerInput(layers, selectedLayerId, templateSize) {
                     detectTapGestures(onTap = { tap ->
                         var hitId: String? = null
@@ -84,12 +121,26 @@ fun EditorCanvasV2(
                         val templateLeftPx  = (size.width  - displayWidthPx)  / 2f
                         val templateTopPx   = (size.height - displayHeightPx) / 2f
 
-                        // Hit-test từ layer trên cùng xuống dưới cùng
+                        // Hit-test from top-most layer downward (both IMAGE and SHAPE_TEXT)
                         for (layer in layers.reversed()) {
-                            if (!layer.product.isBackgroundRemoved || layer.product.foregroundUri == null) continue
-                            val croppedSize     = layer.cropRatio.calculateSize(layer.product.baseSize.width.toFloat(), layer.product.baseSize.height.toFloat())
-                            val objectWidthPx   = (croppedSize.width  * layer.viewport.scale * calculatedScale) + (EditorConfig.BB_PADDING_PX * 2f)
-                            val objectHeightPx  = (croppedSize.height * layer.viewport.scale * calculatedScale) + (EditorConfig.BB_PADDING_PX * 2f)
+                            val objectWidthPx: Float
+                            val objectHeightPx: Float
+                            when (layer.type) {
+                                LayerType.SHAPE_TEXT -> {
+                                    objectWidthPx  = layer.shapeWidthPx  * layer.viewport.scale * calculatedScale
+                                    objectHeightPx = layer.shapeHeightPx * layer.viewport.scale * calculatedScale
+                                }
+                                LayerType.IMAGE -> {
+                                    if (!layer.product.isBackgroundRemoved || layer.product.foregroundUri == null) continue
+                                    val croppedSize = layer.cropRatio.calculateSize(layer.product.baseSize.width.toFloat(), layer.product.baseSize.height.toFloat())
+                                    objectWidthPx  = (croppedSize.width  * layer.viewport.scale * calculatedScale) + (EditorConfig.BB_PADDING_PX * 2f)
+                                    objectHeightPx = (croppedSize.height * layer.viewport.scale * calculatedScale) + (EditorConfig.BB_PADDING_PX * 2f)
+                                }
+                                LayerType.SHADOW_REGION -> {
+                                    objectWidthPx  = layer.product.baseSize.width.toFloat() * layer.viewport.scale * calculatedScale
+                                    objectHeightPx = layer.product.baseSize.height.toFloat() * layer.viewport.scale * calculatedScale
+                                }
+                            }
                             val objectCenterX   = templateLeftPx + displayWidthPx  / 2f + (layer.viewport.offset.x * calculatedScale)
                             val objectCenterY   = templateTopPx  + displayHeightPx / 2f + (layer.viewport.offset.y * calculatedScale)
                             val dx = tap.x - objectCenterX
@@ -110,12 +161,18 @@ fun EditorCanvasV2(
                 }
         ) {
 
-
             // ── Artboard card — template on white card with soft shadow ──
             Box(
                 modifier = Modifier
                     .size(displayWidth, displayHeight)
                     .align(Alignment.Center)
+                    // Apply canvas-level zoom/pan transform trên artboard
+                    .graphicsLayer(
+                        scaleX = canvasScale,
+                        scaleY = canvasScale,
+                        translationX = canvasOffset.x,
+                        translationY = canvasOffset.y
+                    )
                     .shadow(
                         elevation = 16.dp,
                         shape = RoundedCornerShape(16.dp),
@@ -126,23 +183,53 @@ fun EditorCanvasV2(
                     .background(tokens.artboard),
                 contentAlignment = Alignment.Center
             ) {
-                // Template image fills the artboard
-                val backgroundModel = remember(templateAssetPath) {
-                    if (templateAssetPath.startsWith("http://") || 
-                        templateAssetPath.startsWith("https://") || 
-                        templateAssetPath.startsWith("content://") || 
-                        templateAssetPath.startsWith("file://")) {
-                        templateAssetPath
-                    } else {
-                        "file:///android_asset/$templateAssetPath"
+                val isBlankBackground = templateAssetPath.isBlank()
+                val model = remember(templateAssetPath) { templateAssetPath.toAssetModel() }
+
+                when {
+                    !isBlankBackground && templateAssetPath != "null" -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(templateBackgroundColor)
+                        ) {
+                            SubcomposeAsyncImage(
+                                model = model,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Fit,
+                                loading = {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        StudioLottieLoader(modifier = Modifier.size(96.dp))
+                                    }
+                                },
+                                error = {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Error,
+                                            contentDescription = "Asset load error",
+                                            tint = Color(0xFFEF4444)
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    isBlankBackground || templateAssetPath == "null" -> {
+                        // Clean solid white background for blank templates
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(templateBackgroundColor)
+                        )
                     }
                 }
-                AsyncImage(
-                    model = backgroundModel,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
-                )
 
                 if (layers.isEmpty()) {
                     PickImagePlaceholder(
@@ -151,40 +238,109 @@ fun EditorCanvasV2(
                     )
                 } else {
                     layers.forEach { layer ->
-                        if (layer.product.isBackgroundRemoved && layer.product.foregroundUri != null) {
-                            ProductLayerV2(
-                                product = layer.product,
-                                viewport = layer.viewport,
-                                appearance = layer.appearance,
-                                cropRatio = layer.cropRatio,
-                                displayScale = calculatedScale,
-                                templateSize = templateSize,
-                                onGesture = { delta -> 
-                                    if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
-                                },
-                                onGestureEnd = {
-                                    if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
-                                },
-                                showOverlay = showOverlay,
-                                showBoundingBox = layer.id == selectedLayerId,
-                                isLocked = layer.isLocked,
-                                onBoundingBoxVisible = { /* Not used */ },
-                                onPickImage = onPickImage
-                            )
-                        } else if (layer.product.processing) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.White.copy(alpha = 0.75f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                StudioLottieLoader(modifier = Modifier.size(120.dp))
+                        when (layer.type) {
+                            LayerType.SHAPE_TEXT -> {
+                                ShapeTextLayer(
+                                    layer         = layer,
+                                    displayScale  = calculatedScale,
+                                    templateSize  = templateSize,
+                                    onGesture     = { delta ->
+                                        if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
+                                    },
+                                    onGestureEnd  = {
+                                        if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
+                                    },
+                                    showBoundingBox = layer.id == selectedLayerId,
+                                    isLocked      = layer.isLocked,
+                                    modifier      = Modifier.align(Alignment.Center)
+                                )
+                            }
+                            LayerType.IMAGE -> {
+                                if (layer.product.isBackgroundRemoved && layer.product.foregroundUri != null) {
+                                    ProductLayerV2(
+                                        product = layer.product,
+                                        viewport = layer.viewport,
+                                        appearance = layer.appearance,
+                                        cropRatio = layer.cropRatio,
+                                        displayScale = calculatedScale,
+                                        templateSize = templateSize,
+                                        onGesture = { delta ->
+                                            if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
+                                        },
+                                        onGestureEnd = {
+                                            if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
+                                        },
+                                        showOverlay = showOverlay,
+                                        showBoundingBox = layer.id == selectedLayerId,
+                                        isLocked = layer.isLocked,
+                                        onBoundingBoxVisible = { /* Not used */ },
+                                        onPickImage = onPickImage
+                                    )
+                                } else if (layer.product.processing) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.White.copy(alpha = 0.75f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        StudioLottieLoader(modifier = Modifier.size(120.dp))
+                                    }
+                                }
+                            }
+                            LayerType.SHADOW_REGION -> {
+                                ShadowRegionLayer(
+                                    layer = layer,
+                                    displayScale = calculatedScale,
+                                    onGesture = { delta ->
+                                        if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
+                                    },
+                                    onGestureEnd = {
+                                        if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
+                                    },
+                                    showBoundingBox = layer.id == selectedLayerId,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
                             }
                         }
                     }
                 }
+
             }
 
+        }
+
+        // ── Reset Zoom button — floating bottom-left ──────
+        if (isZoomedOrPanned) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 16.dp, bottom = 92.dp)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Color.White.copy(alpha = 0.92f))
+                    .clickable {
+                        canvasScale = 1f
+                        canvasOffset = Offset.Zero
+                    }
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.RestartAlt,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = tokens.textPrimary
+                    )
+                    Text(
+                        text = stringResource(R.string.studio_reset_zoom),
+                        fontSize = 11.sp,
+                        color = tokens.textPrimary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         }
     }
 }
@@ -204,4 +360,78 @@ fun StudioLottieLoader(modifier: Modifier = Modifier) {
         progress = { progress },
         modifier = modifier
     )
+}
+
+/**
+ * Checkerboard brush for transparent backgrounds.
+ * Copy từ QuickEdit — dùng làm nền dưới layer đã xóa nền.
+ */
+@Composable
+fun rememberCheckerboardBrush(): ShaderBrush {
+    val density = LocalDensity.current
+    val tilePx = with(density) { 8.dp.toPx().toInt().coerceAtLeast(1) }
+    val size = tilePx * 2
+
+    val bmp = remember(tilePx) {
+        val bitmap = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        val paint = android.graphics.Paint().apply { isAntiAlias = false }
+
+        paint.color = android.graphics.Color.parseColor("#F2F2F2")
+        canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paint)
+
+        paint.color = android.graphics.Color.parseColor("#E1E1E1")
+        canvas.drawRect(0f, 0f, tilePx.toFloat(), tilePx.toFloat(), paint)
+        canvas.drawRect(tilePx.toFloat(), tilePx.toFloat(), size.toFloat(), size.toFloat(), paint)
+        bitmap
+    }
+
+    return remember(bmp) {
+        ShaderBrush(ImageShader(bmp.asImageBitmap(), TileMode.Repeated, TileMode.Repeated))
+    }
+}
+
+@Composable
+fun ShadowRegionLayer(
+    layer: EditorLayer,
+    displayScale: Float,
+    onGesture: (GestureDelta) -> Unit,
+    onGestureEnd: () -> Unit,
+    showBoundingBox: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    val widthDp = with(density) { (layer.product.baseSize.width * layer.viewport.scale * displayScale).toInt().coerceAtLeast(1).toDp() }
+    val heightDp = with(density) { (layer.product.baseSize.height * layer.viewport.scale * displayScale).toInt().coerceAtLeast(1).toDp() }
+    val displayOffset = remember(layer.viewport.offset, displayScale) {
+        IntOffset(
+            (layer.viewport.offset.x * displayScale).roundToInt(),
+            (layer.viewport.offset.y * displayScale).roundToInt()
+        )
+    }
+    val color = Color(layer.appearance.shadowColorArgb)
+    val alpha = (layer.appearance.alpha * shadowOpacityFromIntensity(layer.appearance.shadowIntensity)).coerceIn(0f, 1f)
+
+    Box(
+        modifier = modifier
+            .requiredSize(widthDp, heightDp)
+            .offset { displayOffset }
+            .graphicsLayer { rotationZ = layer.viewport.rotation }
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val radiusX = size.width * 0.52f
+            val radiusY = size.height * 0.92f
+            drawOval(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        color.copy(alpha = alpha * 0.95f),
+                        color.copy(alpha = alpha * 0.35f),
+                        color.copy(alpha = 0f)
+                    ),
+                    center = Offset(size.width / 2f, size.height * 0.55f),
+                    radius = maxOf(radiusX, radiusY)
+                )
+            )
+        }
+    }
 }

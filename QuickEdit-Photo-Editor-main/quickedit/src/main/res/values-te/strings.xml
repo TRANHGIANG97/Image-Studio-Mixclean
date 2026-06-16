@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">చిత్రం యొక్క దిశను సరిచేయడానికి 90 డిగ్రీలు తిప్పండి లేదా అడ్డంగా మరియు నిలువుగా ఫ్లిప్ చేయండి.</string>
     <string name="draft_label">డ్రాఫ్ట్</string>
     <string name="draft_saved_successfully">డ్రాఫ్ట్ విజయవంతంగా సేవ్ చేయబడింది</string>
+    <string name="professional_section_title">వృత్తిపరమైన</string>
+    <string name="themeplate_professional_watch">చూడండి</string>
+    <string name="themeplate_professional_perfume">పెర్ఫ్యూమ్</string>
+    <string name="themeplate_professional_handbag">హ్యాండ్ బ్యాగ్</string>
+    <string name="home_see_all">అన్నీ చూడండి</string>
 </resources>

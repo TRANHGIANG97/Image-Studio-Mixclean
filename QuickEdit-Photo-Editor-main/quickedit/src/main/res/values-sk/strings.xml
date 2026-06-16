@@ -162,4 +162,9 @@
     <string name="rotate_hint_desc">Otočte o 90 stupňov alebo preklopte vodorovne a zvisle na opravu orientácie obrázka.</string>
     <string name="draft_label">Koncept</string>
     <string name="draft_saved_successfully">Koncept bol úspešne uložený</string>
+    <string name="professional_section_title">Profesionálny</string>
+    <string name="themeplate_professional_watch">Sledujte</string>
+    <string name="themeplate_professional_perfume">Parfum</string>
+    <string name="themeplate_professional_handbag">Kabelka</string>
+    <string name="home_see_all">Zobraziť všetko</string>
 </resources>

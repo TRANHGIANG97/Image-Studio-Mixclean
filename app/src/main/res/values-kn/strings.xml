@@ -38,8 +38,6 @@
     <string name="licenses_title">ಓಪನ್ ಸೋರ್ಸ್ ಪರವಾನಗಿಗಳು</string>
     <string name="dark_mode_title">ಡಾರ್ಕ್ ಮೋಡ್</string>
     <string name="dark_mode_description">ಅಪ್ಲಿಕೇಶನ್‌ನ ಡಾರ್ಕ್ ಥೀಮ್ ಅನ್ನು ಬದಲಾಯಿಸಿ.</string>
-    <string name="home_preview_title">ಮುಖಪುಟ ಮುನ್ನೋಟವನ್ನು ತೋರಿಸಿ</string>
-    <string name="home_preview_description">ಮುಖಪುಟ ಪರದೆಯಲ್ಲಿ ಮೊದಲು / ನಂತರದ ಹೋಲಿಕೆ ಬಾಕ್ಸ್ ಅನ್ನು ತೋರಿಸಿ.</string>
 
     <string name="home_remove_background_title">ಹಿನ್ನೆಲೆ ತೆಗೆದುಹಾಕಿ</string>
     <string name="home_remove_background_subtitle">ಚಿತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ ಮತ್ತು ಒಂದೇ ಟ್ಯಾಪ್‌ನಲ್ಲಿ ಅದರ ಹಿನ್ನೆಲೆಯನ್ನು ಅಳಿಸಿ.</string>
@@ -300,4 +298,24 @@
     <string name="pro_feature_expand">ಸ್ಮೂತ್ AI ವಿಸ್ತರಣೆ</string>
     <string name="pro_see_details">ವಿವರಗಳು ></string>
     <string name="picker_sample_badge">ಮಾದರಿ</string>
+    <string name="home_hero_subtitle_short">AI ಫೋಟೋ ಸಂಪಾದಕ</string>
+    <string name="home_hero_title">ವೃತ್ತಿಪರ ಉತ್ಪನ್ನ ಫೋಟೋಗಳನ್ನು ರಚಿಸಿ</string>
+    <string name="home_hero_subtitle">ಹಿನ್ನೆಲೆ ತೆಗೆದುಹಾಕಿ, ಬ್ಯಾಕ್‌ಡ್ರಾಪ್ ಬದಲಾಯಿಸಿ, ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಟೆಂಪ್ಲೇಟ್‌ಗಳನ್ನು ಸೇರಿಸಿ</string>
+    <string name="home_hero_action">ಫೋಟೋ ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="review_app_button">ದರ</string>
+    <string name="review_prompt_title">%1$s ಅನ್ನು ಆನಂದಿಸುತ್ತಿರುವಿರಾ?</string>
+    <string name="review_prompt_message">Google Play ನಲ್ಲಿ ಅದನ್ನು ರೇಟ್ ಮಾಡಲು ನಕ್ಷತ್ರವನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
+    <string name="review_prompt_rate_now">ಸಲ್ಲಿಸಿ</string>
+    <string name="review_prompt_later">ರದ್ದುಮಾಡಿ</string>
+    <string name="home_see_all">ಎಲ್ಲವನ್ನೂ ನೋಡಿ</string>
+    <string name="save_success_title">ಉಳಿಸಲಾಗಿದೆ!</string>
+    <string name="save_success_create_new">ಹೊಸದನ್ನು ರಚಿಸಿ</string>
+    <string name="save_success_try_other_tools">ಇತರ ಪರಿಕರಗಳನ್ನು ಪ್ರಯತ್ನಿಸಿ</string>
+    <string name="save_success_share">ಹಂಚಿಕೊಳ್ಳಿ</string>
+    <string name="save_success_back">ಹಿಂದೆ</string>
+    <string name="save_success_home">ಮುಖಪುಟ</string>
+    <string name="save_success_saved_image">ಚಿತ್ರವನ್ನು ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="save_success_share_with">ಇವರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಿ...</string>
+    <string name="batch_remove_error_load_image">ಈ ಚಿತ್ರವನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ.</string>
+    <string name="drafts_error_load">ಡ್ರಾಫ್ಟ್‌ಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ: %1$s</string>
 </resources>

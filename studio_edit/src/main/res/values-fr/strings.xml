@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio produit IA</string>
     <string name="studio_category_electronics">Électronique</string>
@@ -24,7 +24,7 @@
     <string name="studio_tool_shadow">Ombre</string>
     <string name="studio_tool_transparency">Opacité</string>
     <string name="studio_tool_crop">Recadrer</string>
-    <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_sticker">Autocollant</string>
     <string name="studio_tool_rotateflip">Pivoter/Retourner</string>
     <string name="studio_replace_hint">Appuyez sur Remplacer pour choisir une photo de produit dans votre galerie</string>
     <string name="studio_layout_hint">Faites glisser pour déplacer · Pincez pour zoomer · Pivotez à deux doigts</string>
@@ -98,7 +98,7 @@
     <string name="studio_gallery_no_templates">Aucun modèle disponible</string>
     <string name="studio_gallery_coming_soon">À venir</string>
     <string name="studio_gallery_coming_soon_desc">Cette fonctionnalité est en cours de développement et sera bientôt disponible !</string>
-    <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
+    <string name="studio_gallery_design_note">L’équipe de design travaille dur pour ajouter bientôt davantage de modèles.</string>
     <string name="themeplate_gallery_title">Modèles</string>
     <string name="studio_save_image_success">Image enregistrée</string>
     <string name="studio_error_select_object">Veuillez sélectionner un objet</string>
