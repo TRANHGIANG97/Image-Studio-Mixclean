@@ -183,7 +183,7 @@ export default function MiniMap() {
     return (
       <button
         onClick={() => setIsVisible(true)}
-        className="absolute bottom-4 right-4 z-20 w-9 h-9 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-400 hover:text-white hover:border-indigo-500/50 flex items-center justify-center backdrop-blur-sm cursor-pointer shadow-xl transition-all hover:scale-105"
+        className="absolute bottom-4 right-4 z-20 w-9 h-9 rounded-xl bg-white/90 border border-slate-200 text-slate-400 hover:text-slate-700 hover:border-indigo-500/50 flex items-center justify-center backdrop-blur-sm cursor-pointer shadow-lg transition-all hover:scale-105"
         title="Hiện Minimap"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -206,21 +206,21 @@ export default function MiniMap() {
     >
       {/* Card container */}
       <div
-        className="rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl bg-slate-950 cursor-pointer transition-all duration-200"
+        className="rounded-2xl overflow-hidden border border-slate-200/60 shadow-xl bg-white cursor-pointer transition-all duration-200"
         style={{
           width: MINI_W + 2,  // +2 for border
           opacity: isHovered ? 1 : 0.75,
           transform: isHovered ? 'scale(1.04)' : 'scale(1)',
           boxShadow: isHovered
-            ? '0 0 0 1px rgba(99,102,241,0.4), 0 20px 40px rgba(0,0,0,0.5)'
-            : '0 8px 24px rgba(0,0,0,0.4)',
+            ? '0 0 0 1px rgba(99,102,241,0.4), 0 12px 28px rgba(0,0,0,0.08)'
+            : '0 4px 16px rgba(0,0,0,0.06)',
         }}
         onClick={handleClick}
         title="Click để cuộn canvas đến vị trí này"
       >
         {/* Preview image */}
         <div
-          className="relative bg-slate-900"
+          className="relative bg-slate-100"
           style={{ width: MINI_W, height: MINI_H }}
         >
           {previewUrl ? (
@@ -232,7 +232,7 @@ export default function MiniMap() {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-slate-700 border-t-indigo-500 rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-slate-200 border-t-indigo-500 rounded-full animate-spin" />
             </div>
           )}
 
@@ -252,14 +252,14 @@ export default function MiniMap() {
           )}
 
           {/* "MAP" label */}
-          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-sm border border-slate-700/60">
-            <span className="text-[8px] font-black text-slate-400 tracking-widest uppercase">Map</span>
+          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-slate-100/80 backdrop-blur-sm border border-slate-200/60">
+            <span className="text-[8px] font-black text-slate-500 tracking-widest uppercase">Map</span>
           </div>
         </div>
 
         {/* Bottom info bar */}
-        <div className="px-2 py-1.5 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between">
-          <span className="text-[8px] text-slate-500 font-mono">
+        <div className="px-2 py-1.5 bg-slate-50/80 border-t border-slate-200 flex items-center justify-between">
+          <span className="text-[8px] text-slate-400 font-mono">
             {canvas ? `${canvas.width || 1080}×${canvas.height || 1920}` : '—'}
           </span>
           <span className="text-[8px] text-indigo-400 font-semibold">
@@ -271,7 +271,7 @@ export default function MiniMap() {
       {/* Close button */}
       <button
         onClick={(e) => { e.stopPropagation(); setIsVisible(false); }}
-        className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700 text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-lg"
+        className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-lg"
         title="Ẩn Minimap"
       >
         ×

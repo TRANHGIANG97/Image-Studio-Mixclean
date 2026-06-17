@@ -21,7 +21,7 @@ export function TemplateGrid({
 }: TemplateGridProps) {
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 gap-3 text-slate-500 bg-slate-900/50 rounded-3xl border border-slate-800">
+      <div className="flex flex-col items-center justify-center py-32 gap-3 text-slate-400 bg-white/50 rounded-3xl border border-slate-200">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
         <p className="text-sm">Đang tải danh sách templates...</p>
       </div>
@@ -30,10 +30,10 @@ export function TemplateGrid({
 
   if (templates.length === 0) {
     return (
-      <div className="text-center py-28 bg-slate-900 border border-slate-800 rounded-3xl">
+      <div className="text-center py-28 bg-white border border-slate-200 rounded-3xl">
         <Layers className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-        <p className="text-slate-300 font-semibold">Không tìm thấy Template nào</p>
-        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        <p className="text-slate-600 font-semibold">Không tìm thấy Template nào</p>
+        <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
           Hãy bắt đầu thiết kế bằng cách tạo template mới hoặc nhập file ZIP.
         </p>
       </div>

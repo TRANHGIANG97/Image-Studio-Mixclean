@@ -80,10 +80,10 @@ EXECUTE PROCEDURE update_updated_at_column();
 -- STORAGE BUCKETS CONFIGURATION (Supabase Storage)
 -- ========================================================
 
--- Create the public bucket 'assets' if it does not exist
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('assets', 'assets', true)
-ON CONFLICT (id) DO NOTHING;
+-- Create the public bucket 'assets' if it does not exist with 100MB size limit
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('assets', 'assets', true, 104857600)
+ON CONFLICT (id) DO UPDATE SET file_size_limit = 104857600;
 
 -- Enable public select access policy on storage.objects for anonymous users
 -- First drop to prevent conflict on re-runs
@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS fonts (
   name TEXT NOT NULL,
   family_slug TEXT UNIQUE NOT NULL,
   font_url TEXT NOT NULL,
+  style TEXT DEFAULT 'Quảng cáo',
   created_at TIMESTAMPTZ DEFAULT now()
 );
 

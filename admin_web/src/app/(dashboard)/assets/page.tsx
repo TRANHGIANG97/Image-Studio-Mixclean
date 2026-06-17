@@ -34,9 +34,9 @@ export default function AssetsPage() {
         <div>
           <div className="flex items-center gap-2">
             <ImageIcon className="w-6 h-6 text-indigo-400" />
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">Media Library</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Media Library</h1>
           </div>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-500 text-sm mt-1">
             Quản lý backgrounds, stickers, fonts và tài nguyên hình ảnh dùng cho Templates.
           </p>
         </div>
@@ -45,7 +45,7 @@ export default function AssetsPage() {
           <Button
             onClick={() => setIsFontUploaderOpen(true)}
             variant="outline"
-            className="border-indigo-500/20 bg-indigo-500/10 text-indigo-300 hover:text-white hover:bg-indigo-500/20 rounded-xl flex items-center gap-2 px-5"
+            className="border-indigo-500/20 bg-indigo-500/10 text-indigo-300 hover:text-slate-800 hover:bg-indigo-500/20 rounded-xl flex items-center gap-2 px-5"
           >
             <UploadCloud className="w-4 h-4" /> Tải lên Font
           </Button>
@@ -86,7 +86,7 @@ export default function AssetsPage() {
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
             variant="outline"
-            className="rounded-xl border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
+            className="rounded-xl border-slate-300 text-slate-600 hover:text-slate-800 hover:bg-slate-100"
           >
             {isFetchingNextPage ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Đang tải thêm...</>

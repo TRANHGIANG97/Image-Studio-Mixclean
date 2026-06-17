@@ -71,6 +71,51 @@ const getHexagonPoints = (size = 100): { x: number; y: number }[] => {
 
 const arrowPath = "M -100 -20 L 20 -20 L 20 -60 L 100 0 L 20 60 L 20 20 L -100 20 Z";
 
+const getCompositeOperation = (blendMode?: string | null): GlobalCompositeOperation => {
+  if (!blendMode) return 'source-over';
+  const mode = blendMode.toLowerCase();
+  switch (mode) {
+    case 'normal':
+      return 'source-over';
+    case 'multiply':
+      return 'multiply';
+    case 'screen':
+      return 'screen';
+    case 'overlay':
+      return 'overlay';
+    case 'darken':
+      return 'darken';
+    case 'lighten':
+      return 'lighten';
+    case 'color-dodge':
+      return 'color-dodge';
+    case 'color-burn':
+      return 'color-burn';
+    case 'hard-light':
+      return 'hard-light';
+    case 'soft-light':
+      return 'soft-light';
+    case 'difference':
+      return 'difference';
+    case 'exclusion':
+      return 'exclusion';
+    case 'hue':
+      return 'hue';
+    case 'saturation':
+      return 'saturation';
+    case 'color':
+      return 'color';
+    case 'luminosity':
+      return 'luminosity';
+    case 'linear-dodge':
+      return 'lighter';
+    case 'linear-burn':
+      return 'multiply';
+    default:
+      return 'source-over';
+  }
+};
+
 // Customize active selection bounding box styling globally (Canva-like style)
 FabricObject.ownDefaults.borderColor = '#6366f1';
 FabricObject.ownDefaults.borderScaleFactor = 2.5; // Viền dày vừa phải giúp thiết kế thanh thoát hơn
@@ -156,7 +201,9 @@ import {
   ChevronUp,
   ChevronDown,
   Lock,
-  Unlock
+  Unlock,
+  FlipHorizontal,
+  FlipVertical
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/store/editor.store';
@@ -175,6 +222,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import CropImageModal from './properties/CropImageModal';
+import { ensureFontLoaded } from '@/lib/font-loader';
+import Ruler from './Ruler';
+
 
 interface DroppedAsset {
   id?: string;
@@ -229,7 +279,12 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
   const [loadingLayers, setLoadingLayers] = useState(true);
 
   // Keyboard shortcuts (Ctrl+S, Ctrl+Z, Delete, arrows, etc.)
-  useKeyboardShortcuts({ onSave, setIsDirty });
+  useKeyboardShortcuts({
+    onSave,
+    setIsDirty,
+    onZoomFit: calculateFitZoom,
+    onZoom100: () => setZoom(1),
+  });
 
   // States for snapping, grid, image dialog, dropdown, and custom context menu
   const [guideX, setGuideX] = useState<number | null>(null);
@@ -240,6 +295,134 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
   const [imageUrl, setImageUrl] = useState('');
   const [isShapeDropdownOpen, setIsShapeDropdownOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; visible: boolean } | null>(null);
+
+  // New States: Guides and Floating Toolbar
+  const [guides, setGuides] = useState<{ type: 'h' | 'v'; position: number }[]>([]);
+  const [toolbarPosition, setToolbarPosition] = useState<{ left: number; top: number; visible: boolean } | null>(null);
+
+  const guidesRef = useRef(guides);
+  useEffect(() => {
+    guidesRef.current = guides;
+  }, [guides]);
+
+  const addGuide = (type: 'h' | 'v', position: number) => {
+    setGuides((prev) => {
+      if (prev.some((g) => g.type === type && g.position === position)) return prev;
+      return [...prev, { type, position }];
+    });
+  };
+
+  const removeGuide = (index: number) => {
+    setGuides((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateFloatingToolbar = (canvasInstance: any) => {
+    if (!canvasInstance) return;
+    const activeObj = canvasInstance.getActiveObject();
+    if (!activeObj || activeObj._isBackground) {
+      setToolbarPosition(null);
+      return;
+    }
+    const rect = activeObj.getBoundingRect();
+    const top = Math.max(10, rect.top - 52);
+    const left = rect.left + rect.width / 2;
+    setToolbarPosition({ left, top, visible: true });
+  };
+
+  // Space drag panning states
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const isSpacePressedRef = useRef(false);
+  const isDraggingViewportRef = useRef(false);
+  const startDragCoordsRef = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        const activeEl = document.activeElement;
+        const isTyping =
+          activeEl?.tagName === 'INPUT' ||
+          activeEl?.tagName === 'TEXTAREA' ||
+          (activeEl as any)?.isContentEditable ||
+          fabricCanvasRef.current?.getActiveObject()?.isEditing;
+
+        if (isTyping) return;
+        
+        e.preventDefault();
+        if (!isSpacePressedRef.current) {
+          isSpacePressedRef.current = true;
+          setIsSpacePressed(true);
+          if (workspaceRef.current) {
+            workspaceRef.current.style.cursor = 'grab';
+          }
+        }
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        isSpacePressedRef.current = false;
+        setIsSpacePressed(false);
+        if (workspaceRef.current) {
+          workspaceRef.current.style.cursor = '';
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // Sync canvas object selection state when space pressed
+  useEffect(() => {
+    const canvasInstance = fabricCanvasRef.current;
+    if (!canvasInstance) return;
+    if (isSpacePressed) {
+      canvasInstance.selection = false;
+      canvasInstance.forEachObject((obj: any) => {
+        obj.evented = false;
+      });
+    } else {
+      canvasInstance.selection = true;
+      canvasInstance.forEachObject((obj: any) => {
+        const isLocked = obj.lockMovementX === true;
+        obj.evented = !isLocked;
+      });
+    }
+    canvasInstance.renderAll();
+  }, [isSpacePressed]);
+
+  const handleViewportMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isSpacePressedRef.current || !workspaceRef.current) return;
+    isDraggingViewportRef.current = true;
+    workspaceRef.current.style.cursor = 'grabbing';
+    startDragCoordsRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      scrollLeft: workspaceRef.current.scrollLeft,
+      scrollTop: workspaceRef.current.scrollTop
+    };
+  };
+
+  const handleViewportMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingViewportRef.current || !workspaceRef.current) return;
+    const dx = e.clientX - startDragCoordsRef.current.x;
+    const dy = e.clientY - startDragCoordsRef.current.y;
+    workspaceRef.current.scrollLeft = startDragCoordsRef.current.scrollLeft - dx;
+    workspaceRef.current.scrollTop = startDragCoordsRef.current.scrollTop - dy;
+  };
+
+  const handleViewportMouseUp = () => {
+    if (isDraggingViewportRef.current) {
+      isDraggingViewportRef.current = false;
+      if (workspaceRef.current) {
+        workspaceRef.current.style.cursor = isSpacePressedRef.current ? 'grab' : '';
+      }
+    }
+  };
 
   // Determine if there is an image layer or background image as crop target
   const hasImageTarget = !!(activeObjectProps?.layerType === 'IMAGE' || activeObjectProps?.layerType === 'image'
@@ -318,7 +501,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
   };
 
   // Zoom manipulation calculations
-  const calculateFitZoom = () => {
+  function calculateFitZoom() {
     if (!workspaceRef.current) return;
     const containerHeight = workspaceRef.current.clientHeight - 48; // padding offset
     const containerWidth = workspaceRef.current.clientWidth - 48;
@@ -329,7 +512,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     const fitZoom = Math.min(fitZoomH, fitZoomW); // Fit inside both dimensions
     
     setZoom(parseFloat(Math.max(0.01, fitZoom).toFixed(2)));
-  };
+  }
 
   const createLayerId = () => {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -570,9 +753,11 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         if (typeof document !== 'undefined') {
           canvasInstance.getObjects().forEach((obj: any) => {
             if ((obj.type === 'i-text' || obj.layerType === 'TEXT') && obj.fontFamily) {
-              document.fonts.load(`12px "${obj.fontFamily}"`).then(() => {
-                canvasInstance.renderAll();
-              }).catch(() => {});
+              ensureFontLoaded(obj.fontFamily).then(() => {
+                document.fonts.load(`12px "${obj.fontFamily}"`).then(() => {
+                  canvasInstance.renderAll();
+                }).catch(() => {});
+              });
             }
           });
         }
@@ -679,6 +864,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
             stroke: payload.stroke || null,
             strokeWidth: payload.strokeWidth || 0,
             strokeDashArray: payload.strokeDashArray || null,
+            globalCompositeOperation: getCompositeOperation(payload.blendMode),
           });
 
           (textObj as any).layerId = layer.layerId;
@@ -686,14 +872,17 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
           (textObj as any).layerName = layer.name || 'Text';
           (textObj as any).groupPath = payload.groupPath || null;
           (textObj as any).sourceKind = payload.sourceKind || null;
+          (textObj as any).blendMode = payload.blendMode || 'normal';
           
           applyShadowIfPresent(textObj, payload);
           canvasInstance.add(textObj);
 
           if (payload.font && typeof document !== 'undefined') {
-            document.fonts.load(`12px "${payload.font}"`).then(() => {
-              canvasInstance.renderAll();
-            }).catch(() => {});
+            ensureFontLoaded(payload.font).then(() => {
+              document.fonts.load(`12px "${payload.font}"`).then(() => {
+                canvasInstance.renderAll();
+              }).catch(() => {});
+            });
           }
         } else {
           // Check if it's a vector shape first
@@ -719,6 +908,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                 stroke: payload.stroke || null,
                 strokeWidth: payload.strokeWidth || 0,
                 strokeDashArray: payload.strokeDashArray || null,
+                globalCompositeOperation: getCompositeOperation(payload.blendMode),
               };
 
               if (shapeType === 'rect') {
@@ -779,6 +969,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                 shapeObj.shapeSubtype = shapeType;
                 shapeObj.groupPath = payload.groupPath || null;
                 shapeObj.sourceKind = payload.sourceKind || null;
+                (shapeObj as any).blendMode = payload.blendMode || 'normal';
                 applyShadowIfPresent(shapeObj, payload);
                 canvasInstance.add(shapeObj);
                 continue;
@@ -817,6 +1008,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                   stroke: payload.stroke || null,
                   strokeWidth: payload.strokeWidth || 0,
                   strokeDashArray: payload.strokeDashArray || null,
+                  globalCompositeOperation: getCompositeOperation(payload.blendMode),
                 });
 
               (imgObj as any).layerId = layer.layerId;
@@ -827,6 +1019,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
               (imgObj as any).cropRatio = payload.cropRatio || null;
               (imgObj as any).groupPath = payload.groupPath || null;
               (imgObj as any).sourceKind = payload.sourceKind || null;
+              (imgObj as any).blendMode = payload.blendMode || 'normal';
 
               // Apply shadow if present
               applyShadowIfPresent(imgObj, payload);
@@ -889,12 +1082,68 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     }
   };
 
+  const syncActiveObjectProps = (activeObj: any) => {
+    if (!activeObj) {
+      setActiveObjectProps(null);
+      return;
+    }
+    const props = {
+      left: Math.round(activeObj.left),
+      top: Math.round(activeObj.top),
+      scaleX: activeObj.scaleX,
+      scaleY: activeObj.scaleY,
+      angle: activeObj.angle,
+      opacity: activeObj.opacity,
+      flipX: activeObj.flipX,
+      flipY: activeObj.flipY,
+      layerId: activeObj.layerId,
+      layerType: activeObj.layerType,
+      layerName: activeObj.layerName,
+      text: activeObj.text,
+      fontFamily: activeObj.fontFamily,
+      src: activeObj.src,
+      defaultImageUrl: activeObj.defaultImageUrl,
+      cropRatio: activeObj.cropRatio || null,
+      fill: activeObj.fill || null,
+      fontSize: activeObj.fontSize || null,
+      fontWeight: activeObj.fontWeight || 'normal',
+      fontStyle: activeObj.fontStyle || 'normal',
+      underline: activeObj.underline || false,
+      textAlign: activeObj.textAlign || 'left',
+      lineHeight: activeObj.lineHeight || 1.16,
+      charSpacing: activeObj.charSpacing || 0,
+      rx: activeObj.rx || 0,
+      ry: activeObj.ry || 0,
+      stroke: activeObj.stroke || null,
+      strokeWidth: activeObj.strokeWidth || 0,
+      strokeDashArray: activeObj.strokeDashArray || null,
+      imageFilters: activeObj.imageFilters || {},
+      textBackgroundColor: activeObj.textBackgroundColor || null,
+      linethrough: activeObj.linethrough || false,
+      textTransform: activeObj.textTransform || 'none',
+      _originalText: activeObj._originalText || activeObj.text || '',
+      blendMode: activeObj.blendMode || 'normal',
+      globalCompositeOperation: activeObj.globalCompositeOperation || 'source-over',
+      shadow: activeObj.shadow ? {
+        color: activeObj.shadow.color,
+        blur: activeObj.shadow.blur,
+        offsetX: activeObj.shadow.offsetX,
+        offsetY: activeObj.shadow.offsetY
+      } : null
+    };
+    setActiveObjectProps(props);
+  };
+
   // 1. Initialize Fabric.js Canvas
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
 
     let fabricCanvas: any = null;
     let isAborted = false;
+
+    const handleUpdateToolbar = () => {
+      updateFloatingToolbar(fabricCanvas || fabricCanvasRef.current);
+    };
 
     // Bind Event Listeners
     const onSelect = (e: any) => {
@@ -905,51 +1154,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
 
       const objAny = selectedObj as any;
       setActiveObjectId(objAny.layerId || null);
-
-      // Map Fabric properties to store state
-      const props = {
-        left: Math.round(objAny.left),
-        top: Math.round(objAny.top),
-        scaleX: objAny.scaleX,
-        scaleY: objAny.scaleY,
-        angle: objAny.angle,
-        opacity: objAny.opacity,
-        flipX: objAny.flipX,
-        flipY: objAny.flipY,
-        layerId: objAny.layerId,
-        layerType: objAny.layerType,
-        layerName: objAny.layerName,
-        text: objAny.text,
-        fontFamily: objAny.fontFamily,
-        src: objAny.src,
-        defaultImageUrl: objAny.defaultImageUrl,
-        cropRatio: objAny.cropRatio || null,
-        fill: objAny.fill || null,
-        fontSize: objAny.fontSize || null,
-        fontWeight: objAny.fontWeight || 'normal',
-        fontStyle: objAny.fontStyle || 'normal',
-        underline: objAny.underline || false,
-        textAlign: objAny.textAlign || 'left',
-        lineHeight: objAny.lineHeight || 1.16,
-        charSpacing: objAny.charSpacing || 0,
-        rx: objAny.rx || 0,
-        ry: objAny.ry || 0,
-        stroke: objAny.stroke || null,
-        strokeWidth: objAny.strokeWidth || 0,
-        strokeDashArray: objAny.strokeDashArray || null,
-        imageFilters: objAny.imageFilters || {},
-        textBackgroundColor: objAny.textBackgroundColor || null,
-        linethrough: objAny.linethrough || false,
-        textTransform: objAny.textTransform || 'none',
-        _originalText: objAny._originalText || objAny.text || '',
-        shadow: objAny.shadow ? {
-          color: objAny.shadow.color,
-          blur: objAny.shadow.blur,
-          offsetX: objAny.shadow.offsetX,
-          offsetY: objAny.shadow.offsetY
-        } : null
-      };
-      setActiveObjectProps(props);
+      syncActiveObjectProps(selectedObj);
     };
 
     const onClear = () => {
@@ -965,59 +1170,47 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         syncLayersList(currentCanvas);
         const activeObj = currentCanvas.getActiveObject();
         if (activeObj) {
-          const objAny = activeObj as any;
-          const props = {
-            left: Math.round(objAny.left),
-            top: Math.round(objAny.top),
-            scaleX: objAny.scaleX,
-            scaleY: objAny.scaleY,
-            angle: objAny.angle,
-            opacity: objAny.opacity,
-            flipX: objAny.flipX,
-            flipY: objAny.flipY,
-            layerId: objAny.layerId,
-            layerType: objAny.layerType,
-            layerName: objAny.layerName,
-            text: objAny.text,
-            fontFamily: objAny.fontFamily,
-            src: objAny.src,
-            defaultImageUrl: objAny.defaultImageUrl,
-            cropRatio: objAny.cropRatio || null,
-            fill: objAny.fill || null,
-            fontSize: objAny.fontSize || null,
-            fontWeight: objAny.fontWeight || 'normal',
-            fontStyle: objAny.fontStyle || 'normal',
-            underline: objAny.underline || false,
-            textAlign: objAny.textAlign || 'left',
-            lineHeight: objAny.lineHeight || 1.16,
-            charSpacing: objAny.charSpacing || 0,
-            rx: objAny.rx || 0,
-            ry: objAny.ry || 0,
-            stroke: objAny.stroke || null,
-            strokeWidth: objAny.strokeWidth || 0,
-            strokeDashArray: objAny.strokeDashArray || null,
-            imageFilters: objAny.imageFilters || {},
-            textBackgroundColor: objAny.textBackgroundColor || null,
-            linethrough: objAny.linethrough || false,
-            textTransform: objAny.textTransform || 'none',
-            _originalText: objAny._originalText || objAny.text || '',
-            shadow: objAny.shadow ? {
-              color: objAny.shadow.color,
-              blur: objAny.shadow.blur,
-              offsetX: objAny.shadow.offsetX,
-              offsetY: objAny.shadow.offsetY
-            } : null
-          };
-          setActiveObjectProps(props);
+          syncActiveObjectProps(activeObj);
         }
       }
     };
 
-    const onTextEditingEntered = () => {
+    const onTextEditingEntered = (e: any) => {
+      const obj = e.target;
+      if (obj && obj.hiddenTextarea) {
+        try {
+          obj.hiddenTextarea.style.position = 'fixed';
+          obj.hiddenTextarea.style.top = '20px';
+          obj.hiddenTextarea.style.left = '20px';
+          obj.hiddenTextarea.style.width = '1px';
+          obj.hiddenTextarea.style.height = '1px';
+          obj.hiddenTextarea.style.opacity = '0';
+          obj.hiddenTextarea.style.pointerEvents = 'none';
+
+          const originalFocus = obj.hiddenTextarea.focus;
+          if (originalFocus && !(originalFocus as any)._isOverridden) {
+            const fn = function(this: any, options: any) {
+              originalFocus.call(this, { ...options, preventScroll: true });
+            };
+            (fn as any)._isOverridden = true;
+            obj.hiddenTextarea.focus = fn;
+          }
+        } catch (err) {
+          console.warn('Failed to configure hiddenTextarea:', err);
+        }
+      }
+
       const scrollX = window.scrollX || window.pageXOffset;
       const scrollY = window.scrollY || window.pageYOffset;
+      const viewport = workspaceRef.current;
+      const vScrollLeft = viewport ? viewport.scrollLeft : 0;
+      const vScrollTop = viewport ? viewport.scrollTop : 0;
       setTimeout(() => {
         window.scrollTo(scrollX, scrollY);
+        if (viewport) {
+          viewport.scrollLeft = vScrollLeft;
+          viewport.scrollTop = vScrollTop;
+        }
       }, 0);
     };
 
@@ -1076,6 +1269,41 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         }
       }
 
+      // Snap to user guides
+      const currentGuides = guidesRef.current || [];
+      currentGuides.forEach((guide) => {
+        const curCenter = obj.getCenterPoint();
+        if (guide.type === 'v') {
+          const curLeft = curCenter.x - objWidth / 2;
+          const curRight = curCenter.x + objWidth / 2;
+          
+          if (Math.abs(curCenter.x - guide.position) < tolerance) {
+            snapX = guide.position;
+            obj.setPositionByOrigin({ x: guide.position, y: curCenter.y }, 'center', 'center');
+          } else if (Math.abs(curLeft - guide.position) < tolerance) {
+            snapX = guide.position;
+            obj.setPositionByOrigin({ x: guide.position + objWidth / 2, y: curCenter.y }, 'center', 'center');
+          } else if (Math.abs(curRight - guide.position) < tolerance) {
+            snapX = guide.position;
+            obj.setPositionByOrigin({ x: guide.position - objWidth / 2, y: curCenter.y }, 'center', 'center');
+          }
+        } else if (guide.type === 'h') {
+          const curTop = curCenter.y - objHeight / 2;
+          const curBottom = curCenter.y + objHeight / 2;
+
+          if (Math.abs(curCenter.y - guide.position) < tolerance) {
+            snapY = guide.position;
+            obj.setPositionByOrigin({ x: curCenter.x, y: guide.position }, 'center', 'center');
+          } else if (Math.abs(curTop - guide.position) < tolerance) {
+            snapY = guide.position;
+            obj.setPositionByOrigin({ x: curCenter.x, y: guide.position + objHeight / 2 }, 'center', 'center');
+          } else if (Math.abs(curBottom - guide.position) < tolerance) {
+            snapY = guide.position;
+            obj.setPositionByOrigin({ x: curCenter.x, y: guide.position - objHeight / 2 }, 'center', 'center');
+          }
+        }
+      });
+
       setGuideX(snapX);
       setGuideY(snapY);
     };
@@ -1088,13 +1316,30 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     const onTextChanged = (e: any) => {
       const obj = e.target;
       const currentCanvas = fabricCanvas || fabricCanvasRef.current;
-      if (obj && obj.textTransform === 'uppercase' && currentCanvas) {
+      if (!obj || !currentCanvas) return;
+
+      if (obj.textTransform === 'uppercase') {
         const upper = obj.text.toUpperCase();
         if (obj.text !== upper) {
           obj.set('text', upper);
           currentCanvas.renderAll();
         }
         obj._originalText = upper;
+      }
+
+      // Auto-fit font size if text wraps and height exceeds maxHeight
+      if (obj.autoFit && obj.maxHeight) {
+        let step = 0;
+        while (obj.height > obj.maxHeight && obj.fontSize > 8 && step < 100) {
+          obj.set('fontSize', obj.fontSize - 1);
+          if (obj.type === 'textbox') {
+            obj.initDimensions();
+          }
+          step++;
+        }
+        currentCanvas.renderAll();
+        syncActiveObjectProps(obj);
+        updateFloatingToolbar(currentCanvas);
       }
     };
 
@@ -1135,6 +1380,14 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       newCanvas.on('mouse:up', clearGuides);
       newCanvas.on('selection:cleared', clearGuides);
 
+      newCanvas.on('selection:created', handleUpdateToolbar);
+      newCanvas.on('selection:updated', handleUpdateToolbar);
+      newCanvas.on('selection:cleared', handleUpdateToolbar);
+      newCanvas.on('object:moving', handleUpdateToolbar);
+      newCanvas.on('object:scaling', handleUpdateToolbar);
+      newCanvas.on('object:rotating', handleUpdateToolbar);
+      newCanvas.on('object:modified', handleUpdateToolbar);
+
       // Initial Zoom
       calculateFitZoom();
 
@@ -1158,6 +1411,14 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       canvasInstance.off('object:modified', clearGuides);
       canvasInstance.off('mouse:up', clearGuides);
       canvasInstance.off('selection:cleared', clearGuides);
+
+      canvasInstance.off('selection:created', handleUpdateToolbar);
+      canvasInstance.off('selection:updated', handleUpdateToolbar);
+      canvasInstance.off('selection:cleared', handleUpdateToolbar);
+      canvasInstance.off('object:moving', handleUpdateToolbar);
+      canvasInstance.off('object:scaling', handleUpdateToolbar);
+      canvasInstance.off('object:rotating', handleUpdateToolbar);
+      canvasInstance.off('object:modified', handleUpdateToolbar);
 
       activeDisposalPromise = canvasInstance.dispose();
       (canvasInstance as any).disposed = true;
@@ -1411,11 +1672,66 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     const x = ((event.clientX - rect.left) / rect.width) * canvasWidth;
     const y = ((event.clientY - rect.top) / rect.height) * canvasHeight;
 
+    // Detect if we dropped over an existing image layer
+    const pointer = new Point(x, y);
+    const objects = fabricCanvas.getObjects();
+    let targetImageObj: any = null;
+
+    for (let i = objects.length - 1; i >= 0; i--) {
+      const obj = objects[i];
+      if (obj._isBackground) continue;
+      if (obj.type === 'image' || (obj as any).layerType === 'IMAGE') {
+        if (obj.containsPoint(pointer)) {
+          targetImageObj = obj;
+          break;
+        }
+      }
+    }
+
+    if (targetImageObj) {
+      const url = asset.file_url || asset.fileUrl;
+      if (url) {
+        let loadingToast: any = null;
+        try {
+          loadingToast = toast.loading('Đang thay thế hình ảnh layer...');
+          const newImg = await FabricImage.fromURL(url, { crossOrigin: 'anonymous' });
+          targetImageObj.setElement(newImg._element || newImg.getElement());
+          targetImageObj.set({
+            src: url,
+            defaultImageUrl: url,
+          });
+          targetImageObj.applyFilters();
+          fabricCanvas.renderAll();
+
+          // Sync active properties if this is the active object
+          const activeObjId = useLayersStore.getState().activeObjectId;
+          if (targetImageObj.layerId === activeObjId) {
+            useLayersStore.getState().updateActiveObject({
+              src: url,
+              defaultImageUrl: url,
+            });
+          }
+
+          pushState();
+          setIsDirty(true);
+          syncLayersList(fabricCanvas);
+          toast.dismiss(loadingToast);
+          toast.success('Đã thay thế ảnh layer thành công!');
+          return;
+        } catch (err) {
+          console.error(err);
+          if (loadingToast) toast.dismiss(loadingToast);
+          toast.error('Lỗi khi thay thế ảnh layer.');
+          return;
+        }
+      }
+    }
+
     await addDroppedImageToCanvas(asset, x, y);
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 overflow-hidden relative" ref={containerRef}>
+    <div className="flex flex-col h-full bg-slate-100 overflow-hidden relative" ref={containerRef}>
       
       {/* Toolbar Component */}
       <EditorToolbar
@@ -1439,9 +1755,9 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
 
       {/* Loading Overlay */}
       {loadingLayers && (
-        <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-20">
+        <div className="absolute inset-0 bg-slate-100/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-20">
           <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-          <p className="text-xs text-slate-400">Đang khởi tạo các layers...</p>
+          <p className="text-xs text-slate-500">Đang khởi tạo các layers...</p>
         </div>
       )}
 
@@ -1466,9 +1782,9 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       <div
         data-canvas-viewport
         ref={workspaceRef}
-        className="flex-1 min-h-0 overflow-auto flex items-center justify-center bg-slate-950 relative"
+        className="flex-1 min-h-0 overflow-auto flex items-center justify-center bg-slate-100 relative"
         style={{ 
-          padding: '24px',
+          padding: '48px', // Increased padding to fit rulers nicely
           backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(99, 102, 241, 0.1) 1px, transparent 0)',
           backgroundSize: '24px 24px',
         }}
@@ -1476,29 +1792,55 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         onDrop={handleCanvasDrop}
         onContextMenu={handleContextMenu}
         onClick={() => { if (contextMenu?.visible) setContextMenu(null); }}
+        onMouseDown={handleViewportMouseDown}
+        onMouseMove={handleViewportMouseMove}
+        onMouseUp={handleViewportMouseUp}
+        onMouseLeave={handleViewportMouseUp}
       >
-        {/* Outer box: sized to the scaled canvas so scrollbars appear correctly */}
+        {/* Outer box: sized to the scaled canvas + rulers so scrollbars appear correctly */}
         <div
           style={{
-            width: `${baseWidth * zoom}px`,
-            height: `${baseHeight * zoom}px`,
+            width: `${baseWidth * zoom + 20}px`,
+            height: `${baseHeight * zoom + 20}px`,
             flexShrink: 0,
             position: 'relative',
           }}
         >
+          {/* Corner Spacer */}
+          <div 
+            style={{ width: '20px', height: '20px' }}
+            className="absolute top-0 left-0 bg-slate-100 border-r border-b border-slate-200/80 z-35" 
+          />
+
+          {/* Horizontal Ruler */}
+          <div 
+            style={{ left: '20px', top: 0, width: `${baseWidth * zoom}px`, height: '20px' }} 
+            className="absolute z-35 overflow-hidden"
+          >
+            <Ruler type="horizontal" zoom={zoom} baseSize={baseWidth} onAddGuide={(pos) => addGuide('v', pos)} />
+          </div>
+
+          {/* Vertical Ruler */}
+          <div 
+            style={{ left: 0, top: '20px', width: '20px', height: `${baseHeight * zoom}px` }} 
+            className="absolute z-35 overflow-hidden"
+          >
+            <Ruler type="vertical" zoom={zoom} baseSize={baseHeight} onAddGuide={(pos) => addGuide('h', pos)} />
+          </div>
+
           {/* Inner box: native canvas size, scaled via CSS transform */}
           <div
             style={{
               width:  `${baseWidth}px`,
               height: `${baseHeight}px`,
               position: 'absolute',
-              top: 0,
-              left: 0,
+              top: '20px',
+              left: '20px',
               transformOrigin: 'top left',
               transform: `scale(${zoom})`,
               transition: 'transform 0.15s ease-out',
             }}
-            className="shadow-2xl ring-1 ring-slate-700/60 bg-white"
+            className="shadow-xl ring-1 ring-slate-300 bg-white"
           >
             {/* Fabric.js canvas element */}
             <canvas ref={canvasRef} id="fabric-canvas" />
@@ -1522,6 +1864,244 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                 <line x1={0} y1={guideY} x2={baseWidth} y2={guideY} stroke="#6366f1" strokeWidth={1.5} strokeDasharray="5,5" />
               )}
             </svg>
+
+            {/* User guides */}
+            {guides.map((guide, idx) => (
+              <div
+                key={idx}
+                style={{
+                  position: 'absolute',
+                  left: guide.type === 'v' ? `${guide.position}px` : 0,
+                  top: guide.type === 'h' ? `${guide.position}px` : 0,
+                  width: guide.type === 'v' ? '6px' : '100%',
+                  height: guide.type === 'h' ? '6px' : '100%',
+                  marginLeft: guide.type === 'v' ? '-3px' : 0,
+                  marginTop: guide.type === 'h' ? '-3px' : 0,
+                  cursor: guide.type === 'v' ? 'ew-resize' : 'ns-resize',
+                  zIndex: 35,
+                }}
+                onDoubleClick={() => removeGuide(idx)}
+                title="Nhấp đúp chuột để xóa đường gióng"
+                className="group flex items-center justify-center pointer-events-auto"
+              >
+                <div 
+                  className="w-full h-full bg-blue-500/10 group-hover:bg-blue-500/30 transition-colors flex items-center justify-center"
+                  style={{
+                    borderStyle: 'dashed',
+                    borderWidth: guide.type === 'v' ? '0 0 0 1px' : '1px 0 0 0',
+                    borderColor: '#3b82f6',
+                  }}
+                />
+              </div>
+            ))}
+
+            {/* Quick Action Contextual Floating Toolbar */}
+            {toolbarPosition?.visible && (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: `${toolbarPosition.left}px`,
+                  top: `${toolbarPosition.top}px`,
+                  transform: 'translateX(-50%)',
+                  zIndex: 40,
+                }}
+                className="flex items-center gap-1 p-1 bg-white/95 border border-slate-200/90 rounded-2xl shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-top-1 duration-150 pointer-events-auto"
+              >
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    const canvasInstance = fabricCanvasRef.current;
+                    const activeObj = canvasInstance?.getActiveObject();
+                    if (activeObj) {
+                      activeObj.clone().then((cloned: any) => {
+                        canvasInstance.discardActiveObject();
+                        cloned.set({
+                          left: activeObj.left + 30,
+                          top: activeObj.top + 30,
+                          layerId: `layer_${Date.now()}`,
+                          layerName: `${activeObj.layerName || 'Layer'} Copy`,
+                          selectable: true,
+                        });
+                        canvasInstance.add(cloned);
+                        canvasInstance.setActiveObject(cloned);
+                        canvasInstance.renderAll();
+                        pushState();
+                        setIsDirty(true);
+                        syncLayersList(canvasInstance);
+                        updateFloatingToolbar(canvasInstance);
+                        toast.success('Đã nhân đôi đối tượng!');
+                      });
+                    }
+                  }}
+                  className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+                  title="Nhân đôi (Ctrl+D)"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </Button>
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    copyToClipboard();
+                  }}
+                  className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+                  title="Sao chép (Ctrl+C)"
+                >
+                  <Clipboard className="w-3.5 h-3.5" />
+                </Button>
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    const canvasInstance = fabricCanvasRef.current;
+                    const activeObj = canvasInstance?.getActiveObject();
+                    if (activeObj) {
+                      canvasInstance.bringForward(activeObj);
+                      canvasInstance.renderAll();
+                      pushState();
+                      setIsDirty(true);
+                      syncLayersList(canvasInstance);
+                      toast.success('Đã đưa lên 1 lớp!');
+                    }
+                  }}
+                  className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+                  title="Đưa lên 1 lớp"
+                >
+                  <ChevronUp className="w-3.5 h-3.5" />
+                </Button>
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    const canvasInstance = fabricCanvasRef.current;
+                    const activeObj = canvasInstance?.getActiveObject();
+                    if (activeObj) {
+                      const objects = canvasInstance.getObjects();
+                      const bgObj = objects.find((o: any) => o._isBackground);
+                      const activeIndex = objects.indexOf(activeObj);
+                      if (bgObj && activeIndex <= objects.indexOf(bgObj) + 1) {
+                        toast.warning('Đối tượng đã ở dưới cùng sát ảnh nền.');
+                      } else {
+                        canvasInstance.sendBackwards(activeObj);
+                        canvasInstance.renderAll();
+                        pushState();
+                        setIsDirty(true);
+                        syncLayersList(canvasInstance);
+                        toast.success('Đã giảm xuống 1 lớp!');
+                      }
+                    }
+                  }}
+                  className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+                  title="Đưa xuống 1 lớp"
+                >
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </Button>
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    const canvasInstance = fabricCanvasRef.current;
+                    const activeObj = canvasInstance?.getActiveObject();
+                    if (activeObj) {
+                      activeObj.set({ flipX: !activeObj.flipX });
+                      canvasInstance.renderAll();
+                      pushState();
+                      setIsDirty(true);
+                      syncActiveObjectProps(activeObj);
+                      toast.success('Đã lật ngang đối tượng!');
+                    }
+                  }}
+                  className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+                  title="Lật ngang"
+                >
+                  <FlipHorizontal className="w-3.5 h-3.5" />
+                </Button>
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    const canvasInstance = fabricCanvasRef.current;
+                    const activeObj = canvasInstance?.getActiveObject();
+                    if (activeObj) {
+                      activeObj.set({ flipY: !activeObj.flipY });
+                      canvasInstance.renderAll();
+                      pushState();
+                      setIsDirty(true);
+                      syncActiveObjectProps(activeObj);
+                      toast.success('Đã lật dọc đối tượng!');
+                    }
+                  }}
+                  className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+                  title="Lật dọc"
+                >
+                  <FlipVertical className="w-3.5 h-3.5" />
+                </Button>
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    const canvasInstance = fabricCanvasRef.current;
+                    const activeObj = canvasInstance?.getActiveObject();
+                    if (activeObj) {
+                      const isLocked = activeObj.lockMovementX === true;
+                      activeObj.set({
+                        lockMovementX: !isLocked,
+                        lockMovementY: !isLocked,
+                        lockScalingX: !isLocked,
+                        lockScalingY: !isLocked,
+                        lockRotation: !isLocked,
+                        hasControls: isLocked,
+                      });
+                      canvasInstance.renderAll();
+                      pushState();
+                      setIsDirty(true);
+                      syncActiveObjectProps(activeObj);
+                      syncLayersList(canvasInstance);
+                      toast.success(isLocked ? 'Đã mở khóa đối tượng!' : 'Đã khóa đối tượng!');
+                    }
+                  }}
+                  className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+                  title={fabricCanvasRef.current?.getActiveObject()?.lockMovementX === true ? 'Mở khóa' : 'Khóa'}
+                >
+                  {fabricCanvasRef.current?.getActiveObject()?.lockMovementX === true ? (
+                    <Lock className="w-3.5 h-3.5 text-amber-500" />
+                  ) : (
+                    <Unlock className="w-3.5 h-3.5" />
+                  )}
+                </Button>
+
+                <div className="w-px h-4 bg-slate-100 mx-0.5" />
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    const canvasInstance = fabricCanvasRef.current;
+                    const activeObj = canvasInstance?.getActiveObject();
+                    if (activeObj) {
+                      canvasInstance.remove(activeObj);
+                      canvasInstance.discardActiveObject();
+                      canvasInstance.renderAll();
+                      pushState();
+                      setIsDirty(true);
+                      syncLayersList(canvasInstance);
+                      toast.success('Đã xóa đối tượng!');
+                    }
+                  }}
+                  className="w-7 h-7 hover:bg-rose-500/20 text-rose-400 rounded-xl transition-all"
+                  title="Xóa đối tượng (Delete)"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1535,7 +2115,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
             top: `${contextMenu.y}px`,
             zIndex: 100
           }}
-          className="w-56 p-1.5 bg-slate-950/90 backdrop-blur-md border border-slate-800/80 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col select-none text-slate-300"
+          className="w-56 p-1.5 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl shadow-xl animate-in fade-in zoom-in-95 duration-100 flex flex-col select-none text-slate-400"
           onClick={(e) => e.stopPropagation()} // Tránh đóng menu ngay khi bấm bên trong
         >
           {/* Nếu click trúng hoặc đang chọn một đối tượng (không phải background) */}
@@ -1551,7 +2131,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                 <span className="flex items-center gap-2">
                   <Copy className="w-3.5 h-3.5" /> Sao chép
                 </span>
-                <span className="text-[10px] text-slate-550 font-mono">Ctrl+C</span>
+                <span className="text-[10px] text-slate-500 font-mono">Ctrl+C</span>
               </button>
               
               <button
@@ -1584,7 +2164,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                 <span className="flex items-center gap-2">
                   <Copy className="w-3.5 h-3.5" /> Nhân đôi
                 </span>
-                <span className="text-[10px] text-slate-550 font-mono">Ctrl+D</span>
+                <span className="text-[10px] text-slate-500 font-mono">Ctrl+D</span>
               </button>
 
               <button
@@ -1623,7 +2203,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                   <span className="flex items-center gap-2">
                     <Layers className="w-3.5 h-3.5" /> Nhóm lại (Group)
                   </span>
-                  <span className="text-[10px] text-slate-550 font-mono">Ctrl+G</span>
+                  <span className="text-[10px] text-slate-500 font-mono">Ctrl+G</span>
                 </button>
               )}
 
@@ -1639,11 +2219,11 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                   <span className="flex items-center gap-2">
                     <Layers className="w-3.5 h-3.5" /> Rã nhóm (Ungroup)
                   </span>
-                  <span className="text-[10px] text-slate-550 font-mono">Ctrl+Shift+G</span>
+                  <span className="text-[10px] text-slate-500 font-mono">Ctrl+Shift+G</span>
                 </button>
               )}
 
-              <div className="my-1 border-t border-slate-800/60" />
+              <div className="my-1 border-t border-slate-200/60" />
 
               {/* Sắp xếp thứ tự các layer */}
               <button
@@ -1749,10 +2329,10 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                 <span className="flex items-center gap-2">
                   <Clipboard className="w-3.5 h-3.5" /> Dán đối tượng
                 </span>
-                <span className="text-[10px] text-slate-550 font-mono">Ctrl+V</span>
+                <span className="text-[10px] text-slate-500 font-mono">Ctrl+V</span>
               </button>
 
-              <div className="my-1 border-t border-slate-800/60" />
+              <div className="my-1 border-t border-slate-200/60" />
 
               <button
                 onClick={() => {
@@ -1800,15 +2380,15 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
 
       {/* Dialog Chèn Ảnh từ URL */}
       <Dialog open={isImageUrlOpen} onOpenChange={setIsImageUrlOpen}>
-        <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl sm:max-w-md">
+        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-slate-100 flex items-center gap-2">
+            <DialogTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <Link className="w-5 h-5 text-indigo-400" />
               Chèn ảnh từ URL
             </DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-3">
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Nhập liên kết hình ảnh (PNG, JPG, WEBP, SVG) trực tuyến để thêm vào mẫu thiết kế:
             </p>
             <Input
@@ -1816,14 +2396,14 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
               placeholder="https://example.com/image.png"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="bg-slate-950 border-slate-800 text-slate-100 rounded-xl focus:ring-indigo-500"
+              className="bg-slate-100 border-slate-200 text-slate-800 rounded-xl focus:ring-indigo-500"
             />
           </div>
           <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => { setIsImageUrlOpen(false); setImageUrl(''); }}
-              className="border-slate-800 hover:bg-slate-800 hover:text-white rounded-xl text-slate-300"
+              className="border-slate-200 hover:bg-slate-100 hover:text-slate-800 rounded-xl text-slate-400"
             >
               Hủy
             </Button>

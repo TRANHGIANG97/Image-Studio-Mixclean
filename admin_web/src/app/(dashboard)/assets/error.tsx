@@ -21,8 +21,8 @@ export default function Error({
         <AlertTriangle className="w-8 h-8 text-rose-400" />
       </div>
       <div className="text-center">
-        <h2 className="text-lg font-bold text-slate-100 mb-2">Không thể tải Media Library</h2>
-        <p className="text-sm text-slate-400 max-w-sm">
+        <h2 className="text-lg font-bold text-slate-800 mb-2">Không thể tải Media Library</h2>
+        <p className="text-sm text-slate-500 max-w-sm">
           {error.message || 'Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.'}
         </p>
       </div>

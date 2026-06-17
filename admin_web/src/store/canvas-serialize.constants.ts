@@ -37,4 +37,8 @@ export const CANVAS_SERIALIZE_PROPS = [
   'isShadowRegion',
   'crossOrigin',
   'shadow',
+  'globalCompositeOperation',
+  'blendMode',
+  'clipPath',
+  'clipShape',
 ];

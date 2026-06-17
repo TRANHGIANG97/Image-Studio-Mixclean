@@ -256,13 +256,34 @@ export function useImportTemplate() {
 export function useImportPsdTemplate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { file: File; categoryId?: string; templateId?: string; title?: string }) => {
-      const formData = new FormData();
-      formData.append('file', payload.file);
-      if (payload.categoryId) formData.append('categoryId', payload.categoryId);
-      if (payload.templateId) formData.append('templateId', payload.templateId);
-      if (payload.title) formData.append('title', payload.title);
-      return apiClient.upload('/api/templates/import-psd', formData);
+    mutationFn: async (payload: { file: File; categoryId?: string; templateId?: string; title?: string }) => {
+      // 1. Get signed upload URL from backend
+      const { signedUrl, storagePath } = await apiClient.get<{ signedUrl: string; storagePath: string }>(
+        `/api/templates/import-psd?fileName=${encodeURIComponent(payload.file.name)}`
+      );
+
+      // 2. Upload file directly to Supabase storage signed URL using standard PUT fetch
+      // We use standard fetch here to avoid apiClient's 30s timeout for potentially large files.
+      const uploadRes = await fetch(signedUrl, {
+        method: 'PUT',
+        body: payload.file,
+        headers: {
+          'Content-Type': payload.file.type || 'application/octet-stream',
+        },
+      });
+
+      if (!uploadRes.ok) {
+        const errorText = await uploadRes.text().catch(() => '');
+        throw new Error(`Upload to storage failed (${uploadRes.status}): ${errorText || uploadRes.statusText}`);
+      }
+
+      // 3. Request route API to process the imported PSD file from storage
+      return apiClient.post('/api/templates/import-psd', {
+        storagePath,
+        categoryId: payload.categoryId,
+        templateId: payload.templateId,
+        title: payload.title,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] });

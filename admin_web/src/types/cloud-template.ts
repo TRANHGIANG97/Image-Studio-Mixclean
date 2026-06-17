@@ -62,6 +62,7 @@ export interface CloudPayload {
   fillColor?: string | null;
   rx?: number | null;
   ry?: number | null;
+  blendMode?: string | null;
 }
 
 export interface CloudLayer {

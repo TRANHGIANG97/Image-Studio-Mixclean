@@ -37,9 +37,12 @@ interface EditorState {
   redoStack: string[];
   /** Clipboard for copy-paste operations. */
   clipboard: any | null;
+  /** Format Painter (Copy/Paste Style) storage. */
+  copiedStyle: any | null;
 
   setCanvas: (canvas: any) => void;
   setClipboard: (clipboard: any) => void;
+  setCopiedStyle: (copiedStyle: any | null) => void;
 
   /** Push current canvas state onto undo stack (max 50). */
   pushState: () => void;
@@ -58,6 +61,10 @@ interface EditorState {
   groupSelection: () => void;
   /** Ungroup active group. */
   ungroupSelection: () => void;
+  /** Copy formatting style of active object. */
+  copyStyle: () => void;
+  /** Paste formatting style to active object. */
+  pasteStyle: () => void;
 }
 
 function snapshotCanvas(canvas: any): string {
@@ -282,5 +289,123 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       useLayersStore.getState().syncLayersFromCanvas(canvas);
       toast.success('Đã rã nhóm đối tượng!');
     }
+  },
+
+  copiedStyle: null,
+  setCopiedStyle: (copiedStyle) => set({ copiedStyle }),
+
+  copyStyle: () => {
+    const { canvas } = get();
+    if (!canvas) return;
+    const activeObj = canvas.getActiveObject();
+    if (!activeObj || (activeObj as any)._isBackground) {
+      toast.warning('Hãy chọn một đối tượng khác Background để sao chép định dạng!');
+      return;
+    }
+
+    const style: any = {
+      type: activeObj.type,
+      opacity: activeObj.opacity,
+      blendMode: activeObj.blendMode || 'normal',
+      globalCompositeOperation: activeObj.globalCompositeOperation || 'source-over',
+      shadow: activeObj.shadow ? {
+        color: activeObj.shadow.color,
+        blur: activeObj.shadow.blur,
+        offsetX: activeObj.shadow.offsetX,
+        offsetY: activeObj.shadow.offsetY,
+        distance: (activeObj.shadow as any).distance,
+        angle: (activeObj.shadow as any).angle
+      } : null,
+      stroke: activeObj.stroke,
+      strokeWidth: activeObj.strokeWidth,
+      fill: activeObj.fill,
+    };
+
+    const isText = activeObj.type === 'text' || activeObj.type === 'i-text' || activeObj.type === 'textbox';
+    if (isText) {
+      style.fontFamily = activeObj.fontFamily;
+      style.fontSize = activeObj.fontSize;
+      style.lineHeight = activeObj.lineHeight;
+      style.charSpacing = activeObj.charSpacing;
+      style.fontWeight = activeObj.fontWeight;
+      style.fontStyle = activeObj.fontStyle;
+      style.underline = activeObj.underline;
+      style.linethrough = activeObj.linethrough;
+      style.textAlign = activeObj.textAlign;
+      style.textBackgroundColor = activeObj.textBackgroundColor;
+    }
+
+    set({ copiedStyle: style });
+    toast.success('Đã sao chép định dạng của đối tượng!');
+  },
+
+  pasteStyle: () => {
+    const { canvas, copiedStyle, pushState } = get();
+    if (!canvas) return;
+    if (!copiedStyle) {
+      toast.warning('Chưa có định dạng nào được sao chép!');
+      return;
+    }
+    const activeObj = canvas.getActiveObject();
+    if (!activeObj || (activeObj as any)._isBackground) {
+      toast.warning('Hãy chọn một đối tượng để dán định dạng!');
+      return;
+    }
+
+    activeObj.set({
+      opacity: copiedStyle.opacity,
+      blendMode: copiedStyle.blendMode,
+      globalCompositeOperation: copiedStyle.globalCompositeOperation,
+      stroke: copiedStyle.stroke,
+      strokeWidth: copiedStyle.strokeWidth,
+    });
+
+    if (copiedStyle.shadow) {
+      import('fabric').then(({ Shadow }) => {
+        activeObj.set({
+          shadow: new Shadow({
+            color: copiedStyle.shadow.color,
+            blur: copiedStyle.shadow.blur,
+            offsetX: copiedStyle.shadow.offsetX,
+            offsetY: copiedStyle.shadow.offsetY,
+          })
+        });
+        (activeObj.shadow as any).distance = copiedStyle.shadow.distance;
+        (activeObj.shadow as any).angle = copiedStyle.shadow.angle;
+        canvas.renderAll();
+      });
+    } else {
+      activeObj.set({ shadow: null });
+    }
+
+    const activeIsText = activeObj.type === 'text' || activeObj.type === 'i-text' || activeObj.type === 'textbox';
+    const copiedIsText = copiedStyle.type === 'text' || copiedStyle.type === 'i-text' || copiedStyle.type === 'textbox';
+
+    if (activeIsText && copiedIsText) {
+      activeObj.set({
+        fill: copiedStyle.fill,
+        fontFamily: copiedStyle.fontFamily,
+        fontSize: copiedStyle.fontSize,
+        lineHeight: copiedStyle.lineHeight,
+        charSpacing: copiedStyle.charSpacing,
+        fontWeight: copiedStyle.fontWeight,
+        fontStyle: copiedStyle.fontStyle,
+        underline: copiedStyle.underline,
+        linethrough: copiedStyle.linethrough,
+        textAlign: copiedStyle.textAlign,
+        textBackgroundColor: copiedStyle.textBackgroundColor,
+      });
+    } else if (!activeIsText && !copiedIsText) {
+      if (activeObj.type !== 'image') {
+        activeObj.set({ fill: copiedStyle.fill });
+      }
+    } else if (activeIsText && !copiedIsText) {
+      activeObj.set({ fill: copiedStyle.fill });
+    }
+
+    canvas.renderAll();
+    pushState();
+    useLayersStore.getState().syncLayersFromCanvas(canvas);
+    toast.success('Đã áp dụng định dạng thành công!');
   },
 }));

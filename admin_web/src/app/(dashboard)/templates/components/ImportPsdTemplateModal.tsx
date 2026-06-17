@@ -84,36 +84,36 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
         onClose();
       }
     }}>
-      <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl sm:max-w-md">
+      <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-100 flex items-center gap-2">
+          <DialogTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <FileImage className="w-5 h-5 text-indigo-400" /> Nhập Template từ PSD
           </DialogTitle>
-          <DialogDescription className="text-xs text-slate-400">
+          <DialogDescription className="text-xs text-slate-500">
             Import file .psd hoặc .psb nhiều layer để giữ từng layer có thể chỉnh sửa trong trình thiết kế.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">ID Template</label>
+            <label className="text-xs font-semibold text-slate-600">ID Template</label>
             <Input
               {...form.register('templateId')}
-              className="bg-slate-950 border-slate-800 text-slate-200 focus-visible:ring-indigo-600 rounded-xl"
+              className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">Tiêu đề template</label>
+            <label className="text-xs font-semibold text-slate-600">Tiêu đề template</label>
             <Input
               {...form.register('title')}
               placeholder="Tên lấy từ file PSD"
-              className="bg-slate-950 border-slate-800 text-slate-200 focus-visible:ring-indigo-600 rounded-xl"
+              className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">Danh mục</label>
+            <label className="text-xs font-semibold text-slate-600">Danh mục</label>
             <select
               {...form.register('categoryId')}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-600"
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-indigo-600"
             >
               <option value="" disabled>Chọn danh mục</option>
               {categories.map((cat) => (
@@ -124,18 +124,18 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">Chọn file PSD/PSB</label>
+            <label className="text-xs font-semibold text-slate-600">Chọn file PSD/PSB</label>
             <Input
               type="file"
               accept=".psd,.psb"
               onChange={(e) => handleFileChange(e.target.files ? e.target.files[0] : null)}
-              className="bg-slate-950 border-slate-800 text-slate-400 file:text-xs file:font-semibold file:text-indigo-400 file:bg-indigo-600/10 file:border-0 file:rounded-lg file:px-3 file:py-1 cursor-pointer rounded-xl"
+              className="bg-white border-slate-200 text-slate-500 file:text-xs file:font-semibold file:text-indigo-400 file:bg-indigo-600/10 file:border-0 file:rounded-lg file:px-3 file:py-1 cursor-pointer rounded-xl"
               required
             />
           </div>
 
           <DialogFooter className="mt-6">
-            <Button type="button" variant="ghost" onClick={onClose} className="text-slate-400 hover:text-white rounded-xl">
+            <Button type="button" variant="ghost" onClick={onClose} className="text-slate-500 hover:text-slate-800 rounded-xl">
               Hủy
             </Button>
             <Button type="submit" disabled={importMutation.isPending || !psdFile} className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white">

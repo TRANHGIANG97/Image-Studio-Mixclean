@@ -84,10 +84,10 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
         onClose();
       }
     }}>
-      <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl sm:max-w-lg">
+      <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Tải lên tài nguyên mới</DialogTitle>
-          <DialogDescription className="text-sm text-slate-400">
+          <DialogDescription className="text-sm text-slate-500">
             Thư mục đích: <span className="font-mono text-indigo-400">{currentDestFolder}</span>
           </DialogDescription>
         </DialogHeader>
@@ -95,20 +95,20 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
         <div 
           {...getRootProps()} 
           className={`border-2 border-dashed rounded-2xl p-8 text-center transition-colors cursor-pointer ${
-            isDragActive ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-700 hover:border-indigo-400 hover:bg-slate-800/50'
+            isDragActive ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-100/50'
           }`}
         >
           <input {...getInputProps()} />
           <UploadCloud className="w-10 h-10 mx-auto text-indigo-400 mb-4" />
-          <p className="text-sm font-medium text-slate-300">
+          <p className="text-sm font-medium text-slate-600">
             {isDragActive ? 'Thả file vào đây...' : 'Kéo thả file vào đây, hoặc click để chọn'}
           </p>
-          <p className="text-xs text-slate-500 mt-2">Hỗ trợ: PNG, JPG, WEBP, SVG, TTF, OTF</p>
+          <p className="text-xs text-slate-400 mt-2">Hỗ trợ: PNG, JPG, WEBP, SVG, TTF, OTF</p>
         </div>
 
         {/* Folder Selector / Creator */}
         <div className="grid gap-2 mt-4">
-          <label className="text-xs font-medium text-slate-400 flex items-center gap-2">
+          <label className="text-xs font-medium text-slate-500 flex items-center gap-2">
             <FolderOpen className="w-4 h-4 text-indigo-400" />
             Thư mục lưu trữ
           </label>
@@ -122,7 +122,7 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
                 setSelectedFolder(e.target.value);
               }
             }}
-            className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500"
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-500"
           >
             {folders.map((f) => (
               <option key={f} value={f}>
@@ -140,14 +140,14 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
               value={customFolder}
               onChange={(e) => setCustomFolder(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
               placeholder="Nhập tên thư mục mới (viết liền không dấu, vd: frames)..."
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500 animate-in slide-in-from-top-1 duration-200"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-500 animate-in slide-in-from-top-1 duration-200"
             />
           )}
         </div>
 
         {/* Category Classification */}
         <div className="grid gap-2 mt-4">
-          <label className="text-xs font-medium text-slate-400 flex items-center gap-2">
+          <label className="text-xs font-medium text-slate-500 flex items-center gap-2">
             <FolderOpen className="w-4 h-4 text-indigo-400" />
             Phân loại tài nguyên
           </label>
@@ -155,7 +155,7 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             disabled={categoriesLoading}
-            className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500 disabled:opacity-60"
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-500 disabled:opacity-60"
           >
             <option value="">Chưa phân loại</option>
             {categories.map((category) => (
@@ -169,12 +169,12 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
         {files.length > 0 && (
           <div className="mt-4 max-h-48 overflow-y-auto space-y-2 pr-2">
             {files.map((file, idx) => (
-              <div key={idx} className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div key={idx} className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
                 <div className="flex flex-col truncate pr-4">
-                  <span className="text-sm font-medium text-slate-200 truncate">{file.name}</span>
-                  <span className="text-xs text-slate-500">{(file.size / 1024).toFixed(1)} KB</span>
+                  <span className="text-sm font-medium text-slate-700 truncate">{file.name}</span>
+                  <span className="text-xs text-slate-400">{(file.size / 1024).toFixed(1)} KB</span>
                 </div>
-                <button onClick={() => removeFile(idx)} className="text-slate-500 hover:text-rose-400">
+                <button onClick={() => removeFile(idx)} className="text-slate-400 hover:text-rose-400">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -183,7 +183,7 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
         )}
 
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="ghost" onClick={onClose} disabled={uploadMutation.isPending} className="text-slate-400">
+          <Button variant="ghost" onClick={onClose} disabled={uploadMutation.isPending} className="text-slate-500">
             Hủy
           </Button>
           <Button 

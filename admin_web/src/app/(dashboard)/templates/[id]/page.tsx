@@ -156,7 +156,7 @@ export default function TemplateDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-40 gap-3 text-slate-500">
+      <div className="flex flex-col items-center justify-center py-40 gap-3 text-slate-400">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
         <p className="text-sm">Đang tải chi tiết template...</p>
       </div>
@@ -166,7 +166,7 @@ export default function TemplateDetailPage() {
   if (error && !template) {
     return (
       <div className="space-y-6">
-        <Link href="/templates" className="flex items-center gap-1 text-xs text-slate-400 hover:text-white">
+        <Link href="/templates" className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800">
           <ArrowLeft className="w-4 h-4" /> Quay lại Templates
         </Link>
         <div className="p-6 rounded-3xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-start gap-3">
@@ -187,12 +187,12 @@ export default function TemplateDetailPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Back button */}
-      <Link href="/templates" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-indigo-400 transition-colors">
+      <Link href="/templates" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-400 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Quay lại danh sách Templates
       </Link>
 
       {/* Top Banner Info */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-800 pb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-200 pb-6">
         <div>
           <div className="flex items-center gap-3">
             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
@@ -200,7 +200,7 @@ export default function TemplateDetailPage() {
                 ? template.canvas_data?.metadata?.environment === 'debug'
                   ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                   : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                : 'bg-slate-800 border border-slate-700 text-slate-400'
+                : 'bg-slate-100 border border-slate-300 text-slate-500'
             }`}>
               {template.status === 'published'
                 ? template.canvas_data?.metadata?.environment === 'debug'
@@ -208,9 +208,9 @@ export default function TemplateDetailPage() {
                   : 'PUBLISHED'
                 : template.status}
             </span>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">{template.title}</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">{template.title}</h1>
           </div>
-          <p className="text-slate-500 text-xs mt-1 font-mono">UUID: {template.id} | Template ID: {template.template_id}</p>
+          <p className="text-slate-400 text-xs mt-1 font-mono">UUID: {template.id} | Template ID: {template.template_id}</p>
         </div>
 
         {/* Toolbar actions */}
@@ -218,7 +218,7 @@ export default function TemplateDetailPage() {
           <Button 
             onClick={handleExportZip}
             variant="outline"
-            className="border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl flex items-center gap-2 px-4"
+            className="border-slate-200 bg-white text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl flex items-center gap-2 px-4"
           >
             <FileArchive className="w-4 h-4 text-emerald-400" /> Xuất ZIP Bundle
           </Button>
@@ -230,7 +230,7 @@ export default function TemplateDetailPage() {
           <Button 
             onClick={() => setIsDeleteOpen(true)}
             variant="ghost"
-            className="text-slate-400 hover:text-rose-500 hover:bg-slate-800 rounded-xl"
+            className="text-slate-500 hover:text-rose-500 hover:bg-slate-100 rounded-xl"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -243,8 +243,8 @@ export default function TemplateDetailPage() {
         {/* Left Side: Thumbnail Preview & Settings Form */}
         <div className="space-y-6 lg:col-span-1">
           {/* Thumbnail */}
-          <Card className="bg-slate-900 border-slate-800 overflow-hidden rounded-3xl shadow-md">
-            <div className="aspect-[9/16] w-full max-h-[300px] bg-slate-950 flex items-center justify-center relative border-b border-slate-850">
+          <Card className="bg-white border-slate-200 overflow-hidden rounded-3xl shadow-md">
+            <div className="aspect-[9/16] w-full max-h-[300px] bg-white flex items-center justify-center relative border-b border-slate-850">
               {template.thumbnail_url ? (
                 <img 
                   src={template.thumbnail_url} 
@@ -260,41 +260,41 @@ export default function TemplateDetailPage() {
             </div>
             
             {/* Quick Stats Grid */}
-            <CardContent className="p-4 grid grid-cols-2 gap-3 text-center bg-slate-900/50">
-              <div className="p-2 rounded-xl bg-slate-950/50 border border-slate-800">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Tổng số Layers</p>
-                <p className="text-xl font-extrabold text-slate-200 mt-0.5">{layersCount}</p>
+            <CardContent className="p-4 grid grid-cols-2 gap-3 text-center bg-white/50">
+              <div className="p-2 rounded-xl bg-white/50 border border-slate-200">
+                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Tổng số Layers</p>
+                <p className="text-xl font-extrabold text-slate-700 mt-0.5">{layersCount}</p>
               </div>
-              <div className="p-2 rounded-xl bg-slate-950/50 border border-slate-800">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Placeholders</p>
+              <div className="p-2 rounded-xl bg-white/50 border border-slate-200">
+                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Placeholders</p>
                 <p className="text-xl font-extrabold text-indigo-400 mt-0.5">{placeholderCount}</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Form Settings */}
-          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-md space-y-4">
-            <h3 className="font-bold text-slate-200 flex items-center gap-2">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md space-y-4">
+            <h3 className="font-bold text-slate-700 flex items-center gap-2">
               <Edit3 className="w-4 h-4 text-indigo-400" /> Cấu hình Thuộc tính
             </h3>
             
             <form onSubmit={handleSaveSettings} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-400">Tiêu đề template</label>
+                <label className="text-xs font-semibold text-slate-500">Tiêu đề template</label>
                 <Input 
                   value={title} 
                   onChange={(e) => setTitle(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-slate-200 focus-visible:ring-indigo-600 rounded-xl"
+                  className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-400">Danh mục</label>
+                <label className="text-xs font-semibold text-slate-500">Danh mục</label>
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-indigo-600"
                   required
                 >
                   <option value="" disabled>Chọn danh mục</option>
@@ -305,11 +305,11 @@ export default function TemplateDetailPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-400">Trạng thái phát hành</label>
+                <label className="text-xs font-semibold text-slate-500">Trạng thái phát hành</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as any)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-indigo-600"
                   required
                 >
                   <option value="draft">Bản nháp (Draft)</option>
@@ -318,11 +318,11 @@ export default function TemplateDetailPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-400">Môi trường hiển thị</label>
+                <label className="text-xs font-semibold text-slate-500">Môi trường hiển thị</label>
                 <select
                   value={environment}
                   onChange={(e) => setEnvironment(e.target.value as any)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-indigo-600"
                   required
                 >
                   <option value="all">Tất cả (All)</option>
@@ -350,19 +350,19 @@ export default function TemplateDetailPage() {
 
         {/* Right Side: JSON Schema Inspector */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-md flex flex-col h-[580px]">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/80">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md flex flex-col h-[580px]">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200/80">
               <div className="flex items-center gap-2">
                 <FileCode2 className="w-5 h-5 text-indigo-400" />
-                <h3 className="font-bold text-slate-200">Giám sát JSON CloudTemplate</h3>
+                <h3 className="font-bold text-slate-700">Giám sát JSON CloudTemplate</h3>
               </div>
-              <span className="text-[10px] text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 flex items-center gap-1 font-mono">
+              <span className="text-[10px] text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200 flex items-center gap-1 font-mono">
                 <Info className="w-3 h-3" /> SCHEMA VERSION: {canvasData.metadata?.schemaVersion || 1}
               </span>
             </div>
 
             {/* Scrollable JSON Display */}
-            <div className="flex-1 bg-slate-950 rounded-2xl p-4 overflow-y-auto font-mono text-xs text-indigo-300 border border-slate-850 scrollbar-thin scrollbar-thumb-slate-800">
+            <div className="flex-1 bg-white rounded-2xl p-4 overflow-y-auto font-mono text-xs text-indigo-300 border border-slate-850 scrollbar-thin scrollbar-thumb-slate-300">
               <pre className="whitespace-pre-wrap">
                 {JSON.stringify(canvasData, null, 2)}
               </pre>
@@ -374,12 +374,12 @@ export default function TemplateDetailPage() {
 
       {/* CONFIRM DELETE DIALOG */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl sm:max-w-md">
+        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-rose-500 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" /> Xác nhận xóa Template?
             </DialogTitle>
-            <DialogDescription className="text-xs text-slate-400 mt-2">
+            <DialogDescription className="text-xs text-slate-500 mt-2">
               Bạn có chắc muốn xóa template này? Hành động này sẽ xóa vĩnh viễn cấu hình thiết kế này khỏi DB Supabase.
             </DialogDescription>
           </DialogHeader>
@@ -388,7 +388,7 @@ export default function TemplateDetailPage() {
               type="button" 
               variant="ghost" 
               onClick={() => setIsDeleteOpen(false)}
-              className="text-slate-400 hover:text-white rounded-xl"
+              className="text-slate-500 hover:text-slate-800 rounded-xl"
             >
               Hủy
             </Button>

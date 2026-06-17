@@ -317,7 +317,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
     if (layer.type === 'TEXT') return <Text className="w-3.5 h-3.5 text-pink-400" />;
     if (thumbnail) {
       return (
-        <div className="w-6 h-6 rounded-md overflow-hidden bg-slate-950 border border-slate-800">
+        <div className="w-6 h-6 rounded-md overflow-hidden bg-white border border-slate-200">
           <img src={thumbnail} className="w-full h-full object-cover" alt="" />
         </div>
       );
@@ -331,7 +331,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
   if (compact) {
     return (
       <div className="flex flex-col items-center gap-0.5 w-full h-full min-h-0">
-        <div className="mb-2 text-[10px] font-bold text-slate-500 flex flex-col items-center gap-0.5">
+        <div className="mb-2 text-[10px] font-bold text-slate-400 flex flex-col items-center gap-0.5">
           <Layers className="w-4 h-4 text-indigo-400" />
           <span className="text-[8px]">{layers.length}</span>
         </div>
@@ -340,7 +340,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
           <div className="mb-2 flex flex-col items-center gap-1 w-full px-1">
             <button
               onClick={(e) => handleMoveToTop(activeObjectId, e)}
-              className="w-8 h-8 rounded-lg bg-slate-800/70 border border-slate-700/60 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-lg bg-slate-100/70 border border-slate-300/60 text-slate-400 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
               title="Lên đầu"
             >
               <ChevronsUp className="w-3.5 h-3.5" />
@@ -348,14 +348,14 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
             <div className="flex items-center gap-1">
               <button
                 onClick={(e) => handleMoveUp(activeObjectId, e)}
-                className="w-8 h-8 rounded-lg bg-slate-800/70 border border-slate-700/60 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-slate-100/70 border border-slate-300/60 text-slate-400 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
                 title="Lên trên"
               >
                 <ChevronUp className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={(e) => handleMoveDown(activeObjectId, e)}
-                className="w-8 h-8 rounded-lg bg-slate-800/70 border border-slate-700/60 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-slate-100/70 border border-slate-300/60 text-slate-400 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
                 title="Xuống"
               >
                 <ChevronDown className="w-3.5 h-3.5" />
@@ -363,7 +363,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
             </div>
             <button
               onClick={(e) => handleMoveToBottom(activeObjectId, e)}
-              className="w-8 h-8 rounded-lg bg-slate-800/70 border border-slate-700/60 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-lg bg-slate-100/70 border border-slate-300/60 text-slate-400 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
               title="Xuống đáy"
             >
               <ChevronsDown className="w-3.5 h-3.5" />
@@ -371,9 +371,9 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
           </div>
         )}
 
-        <div className="flex-1 min-h-0 flex flex-col items-center gap-1 w-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 py-1">
+        <div className="flex-1 min-h-0 flex flex-col items-center gap-1 w-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 py-1">
           {reversedLayers.length === 0 ? (
-            <p className="text-[8px] text-slate-600 text-center mt-8 leading-tight">Chưa có layer</p>
+            <p className="text-[8px] text-slate-400 text-center mt-8 leading-tight">Chưa có layer</p>
           ) : (
             reversedLayers.map((layer) => {
               const isActive = activeObjectId === layer.id;
@@ -386,12 +386,12 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
                   className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all group border ${
                     isActive
                       ? 'bg-indigo-600/20 border-indigo-500/60 ring-1 ring-indigo-500/30'
-                      : 'bg-slate-800/50 border-transparent hover:border-slate-700 hover:bg-slate-800'
+                      : 'bg-slate-100/50 border-transparent hover:border-slate-300 hover:bg-slate-100'
                   }`}
                   title={`${layer.name} (${layer.type})`}
                 >
                   {thumbnail ? (
-                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-950 border border-slate-800/50">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-white border border-slate-200/50">
                       <img src={thumbnail} className="w-full h-full object-cover" alt="" />
                     </div>
                   ) : (
@@ -401,10 +401,10 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
                   {/* Visibility/Lock indicators */}
                   <div className="absolute -top-1 -right-1 flex gap-0">
                     {!layer.visible && (
-                      <span className="w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700 text-[6px] flex items-center justify-center text-slate-500">👁</span>
+                      <span className="w-3.5 h-3.5 rounded-full bg-slate-100 border border-slate-300 text-[6px] flex items-center justify-center text-slate-400">👁</span>
                     )}
                     {layer.locked && (
-                      <span className="w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700 text-[6px] flex items-center justify-center text-amber-500">🔒</span>
+                      <span className="w-3.5 h-3.5 rounded-full bg-slate-100 border border-slate-300 text-[6px] flex items-center justify-center text-amber-500">🔒</span>
                     )}
                   </div>
                 </button>
@@ -416,7 +416,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
         {/* Quick actions at bottom */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-2 w-8 h-8 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+          className="mt-2 w-8 h-8 rounded-lg bg-slate-100/50 border border-slate-300/50 text-slate-500 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           title="Mở rộng Layers"
         >
           <ChevronUp className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-0' : 'rotate-180'}`} />
@@ -426,19 +426,19 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
         {expanded && (
           <>
             <div className="fixed inset-0 z-30" onClick={() => setExpanded(false)} />
-            <div className="absolute left-14 bottom-0 z-40 w-64 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-3 animate-in slide-in-from-left-2 duration-200 max-h-80 overflow-y-auto">
-              <h4 className="text-xs font-bold text-slate-200 mb-2">Layers ({layers.length})</h4>
+            <div className="absolute left-14 bottom-0 z-40 w-64 bg-white border border-slate-300 rounded-2xl shadow-xl p-3 animate-in slide-in-from-left-2 duration-200 max-h-80 overflow-y-auto">
+              <h4 className="text-xs font-bold text-slate-400 mb-2">Layers ({layers.length})</h4>
               <div className="space-y-1">
                 {reversedLayers.map((layer) => (
                   <div key={layer.id}
                     onClick={() => { handleSelectLayer(layer.id); setExpanded(false); }}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs transition-colors ${
-                      activeObjectId === layer.id ? 'bg-indigo-600/20 text-indigo-300' : 'hover:bg-slate-800 text-slate-400'
+                      activeObjectId === layer.id ? 'bg-indigo-600/20 text-indigo-300' : 'hover:bg-slate-100 text-slate-500'
                     }`}
                   >
                     {renderLayerPreview(layer)}
                     <span className="truncate flex-1">{layer.name}</span>
-                    <span className="text-[9px] text-slate-600">{layer.type}</span>
+                    <span className="text-[9px] text-slate-400">{layer.type}</span>
                   </div>
                 ))}
               </div>
@@ -454,33 +454,33 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
     <div className="flex flex-col h-full space-y-4">
       <div className="flex items-center gap-1.5 px-1">
         <Layers className="w-4 h-4 text-indigo-400" />
-        <h3 className="font-bold text-sm text-slate-200">Layers Tree</h3>
-        <span className="ml-auto text-[10px] text-slate-500">{layers.length}</span>
+        <h3 className="font-bold text-sm text-slate-400">Layers Tree</h3>
+        <span className="ml-auto text-[10px] text-slate-400">{layers.length}</span>
       </div>
 
       {activeObjectId && (
         <div className="flex flex-wrap items-center gap-2 px-1">
-          <Button size="sm" variant="outline" onClick={(e) => handleMoveToTop(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">
+          <Button size="sm" variant="outline" onClick={(e) => handleMoveToTop(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-300 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg">
             <ChevronsUp className="w-3.5 h-3.5 mr-1" /> Lên đầu
           </Button>
-          <Button size="sm" variant="outline" onClick={(e) => handleMoveUp(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">
+          <Button size="sm" variant="outline" onClick={(e) => handleMoveUp(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-300 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg">
             <ChevronUp className="w-3.5 h-3.5 mr-1" /> Lên trên
           </Button>
-          <Button size="sm" variant="outline" onClick={(e) => handleMoveDown(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">
+          <Button size="sm" variant="outline" onClick={(e) => handleMoveDown(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-300 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg">
             <ChevronDown className="w-3.5 h-3.5 mr-1" /> Xuống
           </Button>
-          <Button size="sm" variant="outline" onClick={(e) => handleMoveToBottom(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">
+          <Button size="sm" variant="outline" onClick={(e) => handleMoveToBottom(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-300 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg">
             <ChevronsDown className="w-3.5 h-3.5 mr-1" /> Xuống đáy
           </Button>
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800 space-y-2 select-none">
+      <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300 space-y-2 select-none">
         {reversedLayers.length === 0 ? (
           <div className="text-center py-20 text-slate-655">
-            <Layers className="w-8 h-8 mx-auto text-slate-700 mb-2" />
+            <Layers className="w-8 h-8 mx-auto text-slate-400 mb-2" />
             <p className="text-[11px] font-medium">Chưa có Layer nào</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Mở Assets để thêm ảnh</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Mở Assets để thêm ảnh</p>
           </div>
         ) : (
           reversedLayers.map((layer) => {

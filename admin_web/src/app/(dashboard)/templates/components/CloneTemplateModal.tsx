@@ -45,35 +45,35 @@ export function CloneTemplateModal({ isOpen, onClose, sourceTemplate }: CloneTem
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl sm:max-w-md">
+      <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-100">Nhân bản Template</DialogTitle>
-          <DialogDescription className="text-xs text-slate-400">
+          <DialogTitle className="text-lg font-bold text-slate-800">Nhân bản Template</DialogTitle>
+          <DialogDescription className="text-xs text-slate-500">
             Tạo một bản sao độc lập của template hiện tại.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">ID Template Mới</label>
+            <label className="text-xs font-semibold text-slate-600">ID Template Mới</label>
             <Input
               {...form.register('newTemplateId')}
-              className="bg-slate-950 border-slate-800 text-slate-200 focus-visible:ring-indigo-600 rounded-xl"
+              className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
             {form.formState.errors.newTemplateId && <p className="text-xs text-rose-500">{form.formState.errors.newTemplateId.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">Tiêu đề bản sao</label>
+            <label className="text-xs font-semibold text-slate-600">Tiêu đề bản sao</label>
             <Input
               {...form.register('newTitle')}
-              className="bg-slate-950 border-slate-800 text-slate-200 focus-visible:ring-indigo-600 rounded-xl"
+              className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
             {form.formState.errors.newTitle && <p className="text-xs text-rose-500">{form.formState.errors.newTitle.message}</p>}
           </div>
 
           <DialogFooter className="mt-6">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={cloneMutation.isPending} className="text-slate-400 hover:text-white rounded-xl">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={cloneMutation.isPending} className="text-slate-500 hover:text-slate-800 rounded-xl">
               Hủy
             </Button>
             <Button type="submit" disabled={cloneMutation.isPending} className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white">

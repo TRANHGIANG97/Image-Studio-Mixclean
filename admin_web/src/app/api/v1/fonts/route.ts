@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null;
     const name = formData.get('name') as string | null;
     const familySlug = formData.get('family_slug') as string | null;
+    const style = formData.get('style') as string | null;
 
     if (!file || !name || !familySlug) {
       return NextResponse.json(
@@ -33,7 +34,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const font = await uploadFont({ file, name, family_slug: familySlug });
+    const font = await uploadFont({ 
+      file, 
+      name, 
+      family_slug: familySlug, 
+      style: style || undefined 
+    });
     return NextResponse.json({ success: true, font });
   } catch (error: any) {
     console.error('Fonts upload error:', error);

@@ -6,10 +6,25 @@ const DB = () => createSupabaseAdmin();
  * List all fonts.
  */
 export async function listFonts() {
-  const { data, error } = await DB()
+  let { data, error } = await DB()
     .from('fonts')
-    .select('id, name, family_slug, font_url, created_at')
+    .select('id, name, family_slug, font_url, style, created_at')
     .order('name', { ascending: true });
+
+  if (error && error.code === '42703') { // undefined_column fallback
+    const fallback = await DB()
+      .from('fonts')
+      .select('id, name, family_slug, font_url, created_at')
+      .order('name', { ascending: true });
+    
+    if (fallback.error) {
+      if (fallback.error.code === 'PGRST205') return [];
+      if (fallback.error.code === '42501') return [];
+      throw fallback.error;
+    }
+    
+    return (fallback.data || []).map(f => ({ ...f, style: 'Chưa phân loại' }));
+  }
 
   if (error) {
     if (error.code === 'PGRST205') {
@@ -30,6 +45,7 @@ export interface UploadFontInput {
   file: File;
   name: string;
   family_slug: string;
+  style?: string;
 }
 
 /**
@@ -60,13 +76,19 @@ export async function uploadFont(input: UploadFontInput) {
   const { data: { publicUrl } } = supabaseAdmin.storage.from('fonts').getPublicUrl(uniqueKey);
 
   // 3. Insert metadata
+  const insertPayload: any = {
+    name: input.name,
+    family_slug: input.family_slug.toLowerCase().trim(),
+    font_url: publicUrl,
+  };
+  
+  if (input.style) {
+    insertPayload.style = input.style;
+  }
+
   const { data, error: dbError } = await supabaseAdmin
     .from('fonts')
-    .insert({
-      name: input.name,
-      family_slug: input.family_slug.toLowerCase().trim(),
-      font_url: publicUrl,
-    })
+    .insert(insertPayload)
     .select()
     .single();
 

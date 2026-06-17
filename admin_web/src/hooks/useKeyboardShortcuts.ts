@@ -7,6 +7,8 @@ import { useLayersStore } from '@/store/layers.store';
 interface KeyboardShortcutOptions {
   onSave?: () => void;
   setIsDirty?: (dirty: boolean) => void;
+  onZoomFit?: () => void;
+  onZoom100?: () => void;
 }
 
 /**
@@ -19,9 +21,9 @@ interface KeyboardShortcutOptions {
  * - Escape: Deselect
  * - Arrow keys: Nudge selected object
  */
-export function useKeyboardShortcuts({ onSave, setIsDirty }: KeyboardShortcutOptions = {}) {
-  const optsRef = useRef({ onSave, setIsDirty });
-  optsRef.current = { onSave, setIsDirty };
+export function useKeyboardShortcuts({ onSave, setIsDirty, onZoomFit, onZoom100 }: KeyboardShortcutOptions = {}) {
+  const optsRef = useRef({ onSave, setIsDirty, onZoomFit, onZoom100 });
+  optsRef.current = { onSave, setIsDirty, onZoomFit, onZoom100 };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -40,7 +42,21 @@ export function useKeyboardShortcuts({ onSave, setIsDirty }: KeyboardShortcutOpt
       if (isTyping) return;
 
       const activeObj = canvas.getActiveObject();
-      const { onSave: save, setIsDirty: dirty } = optsRef.current;
+      const { onSave: save, setIsDirty: dirty, onZoomFit, onZoom100 } = optsRef.current;
+
+      // Ctrl+0: Zoom to Fit
+      if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+        e.preventDefault();
+        onZoomFit?.();
+        return;
+      }
+
+      // Ctrl+1: Zoom to 100%
+      if ((e.ctrlKey || e.metaKey) && e.key === '1') {
+        e.preventDefault();
+        onZoom100?.();
+        return;
+      }
 
       // Ctrl+S: Save
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -71,22 +87,35 @@ export function useKeyboardShortcuts({ onSave, setIsDirty }: KeyboardShortcutOpt
         return;
       }
 
-      // Ctrl+C: Copy
+      // Ctrl+Shift+C: Copy Style | Ctrl+C: Copy Object
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
         if (activeObj && !(activeObj as any)._isBackground) {
           e.preventDefault();
-          const { copyToClipboard } = useEditorStore.getState();
-          copyToClipboard();
+          if (e.shiftKey) {
+            const { copyStyle } = useEditorStore.getState();
+            copyStyle();
+          } else {
+            const { copyToClipboard } = useEditorStore.getState();
+            copyToClipboard();
+          }
         }
         return;
       }
 
-      // Ctrl+V: Paste
+      // Ctrl+Shift+V: Paste Style | Ctrl+V: Paste Object
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
         e.preventDefault();
-        const { pasteFromClipboard } = useEditorStore.getState();
-        pasteFromClipboard();
-        dirty?.(true);
+        if (e.shiftKey) {
+          if (activeObj && !(activeObj as any)._isBackground) {
+            const { pasteStyle } = useEditorStore.getState();
+            pasteStyle();
+            dirty?.(true);
+          }
+        } else {
+          const { pasteFromClipboard } = useEditorStore.getState();
+          pasteFromClipboard();
+          dirty?.(true);
+        }
         return;
       }
 

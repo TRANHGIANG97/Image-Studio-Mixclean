@@ -451,7 +451,7 @@ export default function TemplateEditPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-40 gap-3 text-slate-500">
+      <div className="flex flex-col items-center justify-center py-40 gap-3 text-slate-400">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
         <p className="text-sm">Đang tải cấu hình thiết kế...</p>
       </div>
@@ -461,7 +461,7 @@ export default function TemplateEditPage() {
   if (error && !template) {
     return (
       <div className="space-y-6">
-        <Link href={`/templates/${id}`} className="flex items-center gap-1 text-xs text-slate-400 hover:text-white">
+        <Link href={`/templates/${id}`} className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800">
           <ArrowLeft className="w-4 h-4" /> Quay lại Template
         </Link>
         <div className="p-6 rounded-3xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-start gap-3">
@@ -476,12 +476,12 @@ export default function TemplateEditPage() {
   }
 
   return (
-    <div className={`h-screen max-h-screen overflow-hidden flex flex-col bg-slate-950 text-slate-200 animate-in fade-in duration-300 ${resizing ? 'select-none' : ''}`}>
+    <div className={`h-screen max-h-screen overflow-hidden flex flex-col bg-white text-slate-400 animate-in fade-in duration-300 ${resizing ? 'select-none' : ''}`}>
 
       {/* Top navbar */}
-      <div className="flex items-center justify-between border-b border-slate-800/60 px-4 py-2.5 shrink-0 bg-slate-950/80 backdrop-blur-xl z-30 shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-200/60 px-4 py-2.5 shrink-0 bg-white/80 backdrop-blur-xl z-30 shadow-sm">
         <div className="flex items-center gap-3">
-          <Link href={`/templates/${id}`} className="text-slate-400 hover:text-white transition-colors cursor-pointer">
+          <Link href={`/templates/${id}`} className="text-slate-500 hover:text-slate-800 transition-colors cursor-pointer">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex items-center gap-2">
@@ -489,21 +489,21 @@ export default function TemplateEditPage() {
               size="icon"
               variant="ghost"
               onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
-              className="text-slate-400 hover:text-white rounded-lg h-8 w-8"
+              className="text-slate-500 hover:text-slate-800 rounded-lg h-8 w-8"
               title={isLeftCollapsed ? 'Hiện cột trái' : 'Ẩn cột trái'}
             >
               {isLeftCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
             </Button>
             <div>
-              <h1 className="text-base font-bold text-slate-100 leading-tight">{template.title}</h1>
-              <span className="text-[10px] text-slate-500 font-mono tracking-wider uppercase">
+              <h1 className="text-base font-bold text-slate-800 leading-tight">{template.title}</h1>
+              <span className="text-[10px] text-slate-400 font-mono tracking-wider uppercase">
                 {template.category?.name || 'Chưa phân loại'}
               </span>
             </div>
           </div>
 
           {/* Asset drawer toggle */}
-          <div className="h-6 w-px bg-slate-800 mx-1" />
+          <div className="h-6 w-px bg-slate-100 mx-1" />
           <Button
             size="sm"
             variant={isAssetDrawerOpen ? 'default' : 'outline'}
@@ -511,7 +511,7 @@ export default function TemplateEditPage() {
             className={`rounded-xl h-8 text-xs font-bold px-3 flex items-center gap-1.5 transition-all cursor-pointer ${
               isAssetDrawerOpen
                 ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
-                : 'border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800'
+                : 'border-slate-200 bg-white text-slate-400 hover:text-slate-800 hover:bg-slate-100'
             }`}
           >
             <PackageOpen className="w-3.5 h-3.5" />
@@ -530,7 +530,7 @@ export default function TemplateEditPage() {
             size="sm"
             variant="outline"
             onClick={handleExportPNG}
-            className="border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl h-8 text-xs font-bold px-3 flex items-center gap-1"
+            className="border-slate-200 bg-white text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl h-8 text-xs font-bold px-3 flex items-center gap-1"
           >
             <Download className="w-3 h-3" /> PNG
           </Button>
@@ -538,7 +538,7 @@ export default function TemplateEditPage() {
             size="sm"
             variant="outline"
             onClick={handleExportWEBP}
-            className="border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl h-8 text-xs font-bold px-3 flex items-center gap-1"
+            className="border-slate-200 bg-white text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl h-8 text-xs font-bold px-3 flex items-center gap-1"
           >
             <Download className="w-3 h-3" /> WEBP
           </Button>
@@ -546,7 +546,7 @@ export default function TemplateEditPage() {
             size="sm"
             variant="outline"
             onClick={() => setIsPreviewOpen(true)}
-            className="border-indigo-500/20 bg-indigo-500/10 text-indigo-200 hover:text-white hover:bg-indigo-500/20 rounded-xl h-8 text-xs font-bold px-3"
+            className="border-indigo-500/20 bg-indigo-500/10 text-indigo-200 hover:text-slate-800 hover:bg-indigo-500/20 rounded-xl h-8 text-xs font-bold px-3"
           >
             QR App
           </Button>
@@ -567,7 +567,7 @@ export default function TemplateEditPage() {
                   onClick={() => setIsActionsOpen(false)}
                 />
                 <div
-                  className="absolute right-0 mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 rounded-2xl shadow-2xl z-50 flex flex-col p-1.5 animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl border border-slate-300/80 rounded-2xl shadow-xl z-50 flex flex-col p-1.5 animate-in fade-in slide-in-from-top-2 duration-200"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
@@ -575,18 +575,18 @@ export default function TemplateEditPage() {
                       setIsActionsOpen(false);
                       await handleSave();
                     }}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer"
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-100 transition-colors cursor-pointer"
                   >
                     <Check className="w-4 h-4 text-indigo-400" /> Lưu Thiết kế (Ctrl+S)
                   </button>
 
                   <Link href={`/templates/${id}`} className="w-full">
-                    <button className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors cursor-pointer">
-                      <Settings className="w-4 h-4 text-slate-400" /> Chi tiết & Cấu hình
+                    <button className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-100 transition-colors cursor-pointer">
+                      <Settings className="w-4 h-4 text-slate-500" /> Chi tiết & Cấu hình
                     </button>
                   </Link>
 
-                  <div className="h-px bg-slate-800/60 my-1 mx-2" />
+                  <div className="h-px bg-slate-200/60 my-1 mx-2" />
 
                   <button
                     onClick={async () => {
@@ -611,12 +611,12 @@ export default function TemplateEditPage() {
                       setIsActionsOpen(false);
                       await handleSave(false, 'draft', 'all');
                     }}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-slate-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
                   >
                     <Ban className="w-4 h-4" /> Thu hồi về Nháp (Draft)
                   </button>
 
-                  <div className="h-px bg-slate-800/60 my-1 mx-2" />
+                  <div className="h-px bg-slate-200/60 my-1 mx-2" />
 
                   <button
                     onClick={async () => {
@@ -634,14 +634,14 @@ export default function TemplateEditPage() {
             )}
           </div>
 
-          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-indigo-400 hidden sm:inline">
+          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-indigo-400 hidden sm:inline">
             Editor
           </span>
           <Button
             size="icon"
             variant="ghost"
             onClick={() => setIsRightCollapsed(!isRightCollapsed)}
-            className="text-slate-400 hover:text-white rounded-lg h-8 w-8 ml-1"
+            className="text-slate-500 hover:text-slate-800 rounded-lg h-8 w-8 ml-1"
             title={isRightCollapsed ? 'Hiện cột phải' : 'Ẩn cột phải'}
           >
             {isRightCollapsed ? <PanelRightOpen className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
@@ -654,7 +654,7 @@ export default function TemplateEditPage() {
 
         {/* Layer Icon Strip (always visible when not collapsed) */}
         {!isLeftCollapsed && (
-          <div className="shrink-0 bg-slate-950/80 backdrop-blur-xl border-r border-slate-800/60 flex flex-col items-center py-3 gap-1 w-14 z-10 shadow-lg">
+          <div className="shrink-0 bg-white/80 backdrop-blur-xl border-r border-slate-200/60 flex flex-col items-center py-3 gap-1 w-14 z-10 shadow-lg">
             <LayerPanel compact />
           </div>
         )}
@@ -667,10 +667,10 @@ export default function TemplateEditPage() {
         {/* Asset Drawer (slides over content) */}
         {isAssetDrawerOpen && (
           <div className="absolute top-0 bottom-0 z-20 animate-in slide-in-from-left-3 duration-200 flex" style={{ width: leftPanelW, left: isLeftCollapsed ? 0 : 56 }}>
-            <div className="flex-1 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800/60 shadow-2xl flex flex-col h-full">
+            <div className="flex-1 bg-white/95 backdrop-blur-xl border-r border-slate-200/60 shadow-xl flex flex-col h-full">
               {/* Drawer Header */}
-              <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-800 shrink-0">
-                <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+              <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200 shrink-0">
+                <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
                   <PackageOpen className="w-3.5 h-3.5 text-indigo-400" /> Thư viện
                 </span>
                 <div className="flex items-center gap-1">
@@ -678,7 +678,7 @@ export default function TemplateEditPage() {
                     size="icon"
                     variant="ghost"
                     onClick={() => setIsAssetPinned(!isAssetPinned)}
-                    className={`w-6 h-6 rounded-md cursor-pointer ${isAssetPinned ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-500 hover:text-white'}`}
+                    className={`w-6 h-6 rounded-md cursor-pointer ${isAssetPinned ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400 hover:text-slate-800'}`}
                     title={isAssetPinned ? 'Bỏ ghim' : 'Ghim drawer'}
                   >
                     {isAssetPinned ? <Pin className="w-3 h-3" /> : <PinOff className="w-3 h-3" />}
@@ -687,7 +687,7 @@ export default function TemplateEditPage() {
                     size="icon"
                     variant="ghost"
                     onClick={() => setIsAssetDrawerOpen(false)}
-                    className="w-6 h-6 rounded-md text-slate-500 hover:text-white cursor-pointer"
+                    className="w-6 h-6 rounded-md text-slate-400 hover:text-slate-800 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </Button>
@@ -737,7 +737,7 @@ export default function TemplateEditPage() {
 
         {/* Right: Properties Panel */}
         {!isRightCollapsed && (
-          <div className="shrink-0 bg-slate-900/95 backdrop-blur-xl border-l border-slate-800/60 h-full min-h-0 shadow-2xl z-10 flex flex-col" style={{ width: rightPanelW }}>
+          <div className="shrink-0 bg-white/95 backdrop-blur-xl border-l border-slate-200/60 h-full min-h-0 shadow-xl z-10 flex flex-col" style={{ width: rightPanelW }}>
             <div className="flex-1 min-h-0 overflow-hidden p-4">
               <PropertiesPanel />
             </div>
@@ -746,21 +746,21 @@ export default function TemplateEditPage() {
       </div>
 
       {/* Enhanced Status Bar */}
-      <div className="h-7 bg-slate-950/80 backdrop-blur-xl border-t border-slate-800/60 px-3 flex items-center justify-between text-[10px] text-slate-500 shrink-0 z-10 select-none shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+      <div className="h-7 bg-white/80 backdrop-blur-xl border-t border-slate-200/60 px-3 flex items-center justify-between text-[10px] text-slate-400 shrink-0 z-10 select-none shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <span className="text-slate-600">Canvas:</span>
-            <span className="font-mono text-slate-400">{baseWidth}×{baseHeight}</span>
+            <span className="text-slate-400">Canvas:</span>
+            <span className="font-mono text-slate-500">{baseWidth}×{baseHeight}</span>
           </span>
-          <span className="text-slate-700">|</span>
+          <span className="text-slate-400">|</span>
           <span className="flex items-center gap-1">
-            <MousePointer2 className="w-3 h-3 text-slate-600" />
-            <span className="font-mono text-slate-400">X:{cursorPos.x} Y:{cursorPos.y}</span>
+            <MousePointer2 className="w-3 h-3 text-slate-400" />
+            <span className="font-mono text-slate-500">X:{cursorPos.x} Y:{cursorPos.y}</span>
           </span>
-          <span className="text-slate-700">|</span>
+          <span className="text-slate-400">|</span>
           <span className="flex items-center gap-1">
-            <Layers className="w-3 h-3 text-slate-600" />
-            <span className="text-slate-400">{layers.length} layers</span>
+            <Layers className="w-3 h-3 text-slate-400" />
+            <span className="text-slate-500">{layers.length} layers</span>
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -780,10 +780,10 @@ export default function TemplateEditPage() {
               Đã lưu mọi thay đổi
             </span>
           )}
-          <span className="text-slate-700">|</span>
+          <span className="text-slate-400">|</span>
           <button
             onClick={() => setShortcutOpen(!shortcutOpen)}
-            className="flex items-center gap-1 hover:text-slate-300 transition-colors cursor-pointer"
+            className="flex items-center gap-1 hover:text-slate-400 transition-colors cursor-pointer"
           >
             <Keyboard className="w-3 h-3" />
             Shortcuts
@@ -795,8 +795,8 @@ export default function TemplateEditPage() {
       {shortcutOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShortcutOpen(false)} />
-          <div className="absolute bottom-8 right-4 z-50 w-64 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-4 animate-in slide-in-from-bottom-2 duration-200">
-            <h4 className="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
+          <div className="absolute bottom-8 right-4 z-50 w-64 bg-white border border-slate-300 rounded-2xl shadow-xl p-4 animate-in slide-in-from-bottom-2 duration-200">
+            <h4 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1.5">
               <Keyboard className="w-3.5 h-3.5 text-indigo-400" /> Phím tắt
             </h4>
             <div className="space-y-1.5">
@@ -815,8 +815,8 @@ export default function TemplateEditPage() {
                 ['Esc', 'Bỏ chọn'],
               ].map(([key, desc]) => (
                 <div key={key} className="flex items-center justify-between text-[10px]">
-                  <kbd className="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-mono text-[9px] border border-slate-700">{key}</kbd>
-                  <span className="text-slate-400">{desc}</span>
+                  <kbd className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-400 font-mono text-[9px] border border-slate-300">{key}</kbd>
+                  <span className="text-slate-500">{desc}</span>
                 </div>
               ))}
             </div>
@@ -826,10 +826,10 @@ export default function TemplateEditPage() {
 
       {/* QR Code Preview Dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl sm:max-w-sm">
+        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-slate-100 text-center">Quét QR Code để xem thử</DialogTitle>
-            <DialogDescription className="text-xs text-slate-400 text-center">
+            <DialogTitle className="text-lg font-bold text-slate-800 text-center">Quét QR Code để xem thử</DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 text-center">
               Mở camera trên thiết bị Android hoặc ứng dụng quét mã QR để bắt đầu xem thử trực tiếp mẫu thiết kế này.
             </DialogDescription>
           </DialogHeader>
@@ -842,8 +842,8 @@ export default function TemplateEditPage() {
               />
             </div>
             <div className="text-center">
-              <p className="text-xs font-bold text-slate-300">Deep Link URL:</p>
-              <p className="text-[10px] font-mono text-slate-550 select-all mt-1 bg-slate-950 px-3 py-1.5 rounded-lg break-all">
+              <p className="text-xs font-bold text-slate-400">Deep Link URL:</p>
+              <p className="text-[10px] font-mono text-slate-500 select-all mt-1 bg-white px-3 py-1.5 rounded-lg break-all">
                 quickedit://preview?templateId={template?.template_id || template?.id}
               </p>
             </div>

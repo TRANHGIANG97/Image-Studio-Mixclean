@@ -570,16 +570,16 @@ export default function CropImageModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         fullScreen
-        className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-screen h-screen max-w-none max-h-none rounded-none border-none p-6 flex flex-col gap-4 bg-slate-950/98 backdrop-blur-md focus:outline-none"
+        className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-screen h-screen max-w-none max-h-none rounded-none border-none p-6 flex flex-col gap-4 bg-white/98 backdrop-blur-md focus:outline-none"
         style={{ top: 0, left: 0, transform: 'none' }}
       >
-        <DialogHeader className="shrink-0 pb-3 border-b border-slate-800 flex flex-row items-center justify-between">
+        <DialogHeader className="shrink-0 pb-3 border-b border-slate-200 flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <CropIcon className="w-5 h-5 text-indigo-400" />
-            <DialogTitle className="text-lg font-bold text-slate-100">Cắt trích xuất Layer mới</DialogTitle>
+            <CropIcon className="w-5 h-5 text-indigo-600" />
+            <DialogTitle className="text-lg font-bold text-slate-800">Cắt trích xuất Layer mới</DialogTitle>
           </div>
           {isBusy && (
-            <div className="flex items-center gap-2 text-xs text-indigo-300 animate-pulse">
+            <div className="flex items-center gap-2 text-xs text-indigo-600 animate-pulse">
               <Loader2 className="w-4 h-4 animate-spin" />
               {loadingLabel}
             </div>
@@ -588,10 +588,10 @@ export default function CropImageModal({
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6 min-h-0 py-2">
           {/* Main Cropper viewport */}
-          <div className="relative overflow-hidden bg-slate-900 rounded-2xl flex items-center justify-center select-none h-full border border-slate-800 p-6">
+          <div className="relative overflow-hidden bg-white rounded-2xl flex items-center justify-center select-none h-full border border-slate-200 p-6">
             {!imgLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
                 <span className="text-xs">Đang tải ảnh...</span>
               </div>
             )}
@@ -614,10 +614,10 @@ export default function CropImageModal({
               {imgLoaded && cropMode === 'RECT' && (
                 <>
                   {/* Dark mask overlays */}
-                  <div className="absolute bg-black/60 pointer-events-none" style={{ top: 0, left: 0, right: 0, height: maskTop }} />
-                  <div className="absolute bg-black/60 pointer-events-none" style={{ top: crop.y + crop.height, left: 0, right: 0, bottom: 0 }} />
-                  <div className="absolute bg-black/60 pointer-events-none" style={{ top: crop.y, bottom: maskBottom, left: 0, width: maskLeft }} />
-                  <div className="absolute bg-black/60 pointer-events-none" style={{ top: crop.y, bottom: maskBottom, left: crop.x + crop.width, right: 0 }} />
+                  <div className="absolute bg-black/40 pointer-events-none" style={{ top: 0, left: 0, right: 0, height: maskTop }} />
+                  <div className="absolute bg-black/40 pointer-events-none" style={{ top: crop.y + crop.height, left: 0, right: 0, bottom: 0 }} />
+                  <div className="absolute bg-black/40 pointer-events-none" style={{ top: crop.y, bottom: maskBottom, left: 0, width: maskLeft }} />
+                  <div className="absolute bg-black/40 pointer-events-none" style={{ top: crop.y, bottom: maskBottom, left: crop.x + crop.width, right: 0 }} />
 
                   {/* Crop Box */}
                   <div
@@ -680,14 +680,14 @@ export default function CropImageModal({
           </div>
 
           {/* Right sidebar */}
-          <div className="flex flex-col space-y-4 shrink-0 overflow-y-auto pr-1 pb-4 scrollbar-thin scrollbar-thumb-slate-800">
+          <div className="flex flex-col space-y-4 shrink-0 overflow-y-auto pr-1 pb-4 scrollbar-thin scrollbar-thumb-slate-300">
             {/* Crop Mode Toggle */}
             <div>
-              <label className="text-xs font-semibold text-slate-400 block mb-2">Chế độ cắt</label>
-              <div className="flex p-0.5 bg-slate-950 border border-slate-800 rounded-xl mb-4">
+              <label className="text-xs font-semibold text-slate-500 block mb-2">Chế độ cắt</label>
+              <div className="flex p-0.5 bg-white border border-slate-200 rounded-xl mb-4">
                 {(['RECT', 'POLYGON'] as const).map((m) => (
                   <button key={m} type="button" onClick={() => { setCropMode(m); setPoints([]); setIsPolygonClosed(false); }}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${cropMode === m ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${cropMode === m ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-600'}`}>
                     {m === 'RECT' ? 'Khung tỷ lệ' : 'Tự vẽ vùng cắt'}
                   </button>
                 ))}
@@ -697,8 +697,8 @@ export default function CropImageModal({
             {/* Live Preview (RECT only) */}
             {cropMode === 'RECT' && previewUrl && (
               <div>
-                <label className="text-xs font-semibold text-slate-400 block mb-2">Xem trước vùng cắt</label>
-                <div className="flex items-center justify-center bg-slate-950 rounded-2xl border border-slate-800 p-2" style={{ minHeight: 80 }}>
+                <label className="text-xs font-semibold text-slate-500 block mb-2">Xem trước vùng cắt</label>
+                <div className="flex items-center justify-center bg-white rounded-2xl border border-slate-200 p-2" style={{ minHeight: 80 }}>
                   <img src={previewUrl} alt="Live Preview" className="max-w-full max-h-[120px] object-contain rounded-lg" />
                 </div>
               </div>
@@ -707,11 +707,11 @@ export default function CropImageModal({
             {/* Ratio / Polygon Instructions */}
             {cropMode === 'RECT' ? (
               <div>
-                <label className="text-xs font-semibold text-slate-400 block mb-2">Tỷ lệ cắt ảnh</label>
-                <div className="space-y-1.5 max-h-[200px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800 mb-3">
+                <label className="text-xs font-semibold text-slate-500 block mb-2">Tỷ lệ cắt ảnh</label>
+                <div className="space-y-1.5 max-h-[200px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300 mb-3">
                   {CROP_RATIOS.map((ratio) => (
                     <button key={ratio.value} onClick={() => handleRatioChange(ratio.value)}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${selectedRatio === ratio.value ? 'bg-indigo-600 text-white shadow-lg' : 'bg-slate-950 border border-slate-800 text-slate-300 hover:bg-slate-900 hover:text-white'}`}>
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${selectedRatio === ratio.value ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-600 hover:bg-white hover:text-slate-800'}`}>
                       {ratio.label}
                     </button>
                   ))}
@@ -730,11 +730,11 @@ export default function CropImageModal({
                         initCropBox(imgDimensions.width, imgDimensions.height, naturalRatio, undefined);
                       }}
                       placeholder="Vd: 4:3 hoặc 16:9"
-                      className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-200 outline-none focus:border-indigo-500"
+                      className="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-700 outline-none focus:border-indigo-500"
                     />
                     <button
                       onClick={() => handleRatioChange('CUSTOM')}
-                      className="text-xs text-indigo-400 hover:text-white px-2 py-2 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 transition-all"
+                      className="text-xs text-indigo-600 hover:text-slate-800 px-2 py-2 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 transition-all"
                     >
                       Áp dụng
                     </button>
@@ -743,7 +743,7 @@ export default function CropImageModal({
 
                 {/* Manual X/Y/W/H inputs */}
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 block mb-2">Nhập tọa độ chính xác (px)</label>
+                  <label className="text-xs font-semibold text-slate-500 block mb-2">Nhập tọa độ chính xác (px)</label>
                   <div className="grid grid-cols-2 gap-2 mb-2">
                     {[
                       { label: 'X', value: manualX, setter: setManualX },
@@ -751,7 +751,7 @@ export default function CropImageModal({
                       { label: 'W', value: manualW, setter: setManualW },
                       { label: 'H', value: manualH, setter: setManualH },
                     ].map(({ label, value, setter }) => (
-                      <div key={label} className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2 py-1">
+                      <div key={label} className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2 py-1">
                         <span className="text-[10px] font-mono text-slate-500 w-3">{label}</span>
                         <input
                           type="number"
@@ -759,29 +759,29 @@ export default function CropImageModal({
                           onChange={(e) => setter(e.target.value)}
                           onBlur={applyManualInputs}
                           onKeyDown={(e) => e.key === 'Enter' && applyManualInputs()}
-                          className="flex-1 bg-transparent text-xs text-slate-200 outline-none min-w-0"
+                          className="flex-1 bg-transparent text-xs text-slate-700 outline-none min-w-0"
                         />
                       </div>
                     ))}
                   </div>
-                  <button onClick={applyManualInputs} className="w-full text-xs text-slate-400 hover:text-white py-1.5 rounded-xl border border-slate-800 hover:border-slate-600 transition-all">
+                  <button onClick={applyManualInputs} className="w-full text-xs text-slate-500 hover:text-slate-800 py-1.5 rounded-xl border border-slate-200 hover:border-slate-600 transition-all">
                     Áp dụng tọa độ
                   </button>
                 </div>
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="rounded-xl bg-slate-950 border border-slate-800 p-3">
-                  <h4 className="text-xs font-bold text-slate-200 mb-1">Hướng dẫn vẽ:</h4>
-                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                <div className="rounded-xl bg-white border border-slate-200 p-3">
+                  <h4 className="text-xs font-bold text-slate-700 mb-1">Hướng dẫn vẽ:</h4>
+                  <p className="text-[10px] text-slate-500 leading-relaxed">
                     1. Click trực tiếp lên ảnh để thêm các điểm góc.<br />
                     2. Nối ít nhất 3 điểm.<br />
                     3. Click vào điểm đầu tiên màu xanh để đóng kín vùng chọn.<br />
                     4. Kéo các điểm để chỉnh sửa tùy ý.
                   </p>
                 </div>
-                <div className="rounded-xl bg-indigo-950/30 border border-indigo-800/30 p-2">
-                  <p className="text-[9px] text-indigo-300">✓ Vùng cắt đa giác xuất ra PNG trong suốt (không có nền trắng)</p>
+                <div className="rounded-xl bg-indigo-50 border border-indigo-200 p-2">
+                  <p className="text-[9px] text-indigo-600">✓ Vùng cắt đa giác xuất ra PNG trong suốt (không có nền trắng)</p>
                 </div>
 
                 {points.length > 0 && (
@@ -791,7 +791,7 @@ export default function CropImageModal({
                   </Button>
                 )}
 
-                <div className="text-[10px] text-slate-400 leading-normal">
+                <div className="text-[10px] text-slate-500 leading-normal">
                   {points.length === 0 ? 'Chưa vẽ điểm nào. Hãy click vào ảnh.'
                     : isPolygonClosed ? 'Đã khép kín vùng chọn. Bạn có thể bấm Áp dụng cắt.'
                       : `Đang vẽ: ${points.length} điểm. ${points.length >= 3 ? 'Click điểm đầu tiên để khép kín.' : 'Cần ít nhất 3 điểm.'}`}
@@ -801,9 +801,9 @@ export default function CropImageModal({
           </div>
         </div>
 
-        <DialogFooter className="shrink-0 mt-auto border-t border-slate-800 pt-4 flex flex-wrap gap-2 justify-end">
+        <DialogFooter className="shrink-0 mt-auto border-t border-slate-200 pt-4 flex flex-wrap gap-2 justify-end">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isBusy}
-            className="text-slate-400 hover:text-white rounded-xl hover:bg-slate-800">
+            className="text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100">
             Hủy
           </Button>
 
@@ -812,7 +812,7 @@ export default function CropImageModal({
             <Button type="button" onClick={() => renderAndUpload('replace')}
               disabled={!imgLoaded || isBusy || (cropMode === 'POLYGON' && points.length < 3)}
               variant="outline"
-              className="border-amber-600/30 text-amber-400 hover:text-white hover:bg-amber-600/20 rounded-xl px-5">
+              className="border-amber-600/30 text-amber-400 hover:text-slate-800 hover:bg-amber-600/20 rounded-xl px-5">
               {isBusy ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Replace className="w-4 h-4 mr-2" />}
               Thay thế ảnh gốc
             </Button>

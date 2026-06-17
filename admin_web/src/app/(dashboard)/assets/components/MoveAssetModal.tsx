@@ -57,17 +57,17 @@ export function MoveAssetModal({ isOpen, onClose, assetIds, onSuccess }: MoveAss
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl sm:max-w-md">
+      <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Di chuyển tài nguyên</DialogTitle>
-          <DialogDescription className="text-sm text-slate-400">
-            Di chuyển <span className="font-semibold text-slate-200">{assetIds.length}</span> tài nguyên đã chọn sang thư mục khác.
+          <DialogDescription className="text-sm text-slate-500">
+            Di chuyển <span className="font-semibold text-slate-700">{assetIds.length}</span> tài nguyên đã chọn sang thư mục khác.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <label className="text-xs font-medium text-slate-400 flex items-center gap-2">
+            <label className="text-xs font-medium text-slate-500 flex items-center gap-2">
               <FolderOpen className="w-4 h-4 text-indigo-400" />
               Thư mục đích
             </label>
@@ -81,7 +81,7 @@ export function MoveAssetModal({ isOpen, onClose, assetIds, onSuccess }: MoveAss
                   setSelectedFolder(e.target.value);
                 }
               }}
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-500"
             >
               {folders.map((f) => (
                 <option key={f} value={f}>
@@ -99,14 +99,14 @@ export function MoveAssetModal({ isOpen, onClose, assetIds, onSuccess }: MoveAss
                 value={customFolder}
                 onChange={(e) => setCustomFolder(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
                 placeholder="Nhập tên thư mục mới (viết liền không dấu)..."
-                className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500 animate-in slide-in-from-top-1 duration-200"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-500 animate-in slide-in-from-top-1 duration-200"
               />
             )}
           </div>
         </div>
 
         <div className="flex justify-end gap-3 mt-4">
-          <Button variant="ghost" onClick={onClose} disabled={updateFolderMutation.isPending} className="text-slate-400 animate-none">
+          <Button variant="ghost" onClick={onClose} disabled={updateFolderMutation.isPending} className="text-slate-500 animate-none">
             Hủy
           </Button>
           <Button

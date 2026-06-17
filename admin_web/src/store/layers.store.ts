@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { ensureFontLoaded } from '@/lib/font-loader';
+
 
 /**
  * Layer state derived from Fabric canvas objects.
@@ -90,16 +92,23 @@ export const useLayersStore = create<LayersState>((set, get) => ({
       delete props.shadow;
     }
 
-    activeObject.set(props);
+    const isText = activeObject.type === 'i-text' || activeObject.type === 'textbox' || activeObject.type === 'text';
+    if (isText && activeObject.isEditing && activeObject.selectionStart !== activeObject.selectionEnd) {
+      activeObject.setSelectionStyles(props);
+    } else {
+      activeObject.set(props);
+    }
     canvas.renderAll();
 
     // If fontFamily is updated, wait for font to load and trigger renderAll again
     if (props.fontFamily && typeof document !== 'undefined') {
       const fontName = props.fontFamily;
-      document.fonts.load(`12px "${fontName}"`).then(() => {
-        canvas.renderAll();
-      }).catch((err) => {
-        console.warn(`Failed to load font "${fontName}":`, err);
+      ensureFontLoaded(fontName).then(() => {
+        document.fonts.load(`12px "${fontName}"`).then(() => {
+          canvas.renderAll();
+        }).catch((err) => {
+          console.warn(`Failed to load font "${fontName}":`, err);
+        });
       });
     }
 

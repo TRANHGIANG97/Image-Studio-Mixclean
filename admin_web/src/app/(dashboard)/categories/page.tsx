@@ -34,9 +34,9 @@ export default function CategoriesPage() {
         <div>
           <div className="flex items-center gap-2">
             <FolderOpen className="w-6 h-6 text-indigo-400" />
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">Quản lý Danh mục</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Quản lý Danh mục</h1>
           </div>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-500 text-sm mt-1">
             Thiết lập danh mục để phân loại templates.
           </p>
         </div>

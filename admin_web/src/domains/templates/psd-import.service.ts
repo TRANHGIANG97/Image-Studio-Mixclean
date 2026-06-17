@@ -24,6 +24,57 @@ function sanitizeLabel(input: string, fallback: string) {
   return cleaned || fallback;
 }
 
+function mapPsdBlendMode(psdBlend: string | undefined | null): string {
+  if (!psdBlend) return 'normal';
+  const cleaned = psdBlend.trim().toLowerCase();
+  switch (cleaned) {
+    case 'norm':
+    case 'pass':
+      return 'normal';
+    case 'mul':
+    case 'mul ':
+      return 'multiply';
+    case 'scrn':
+      return 'screen';
+    case 'over':
+      return 'overlay';
+    case 'dark':
+      return 'darken';
+    case 'lite':
+      return 'lighten';
+    case 'div':
+    case 'div ':
+      return 'color-dodge';
+    case 'idiv':
+      return 'color-burn';
+    case 'hlit':
+      return 'hard-light';
+    case 'slit':
+      return 'soft-light';
+    case 'diff':
+      return 'difference';
+    case 'smud':
+      return 'exclusion';
+    case 'hue':
+    case 'hue ':
+      return 'hue';
+    case 'sat':
+    case 'sat ':
+      return 'saturation';
+    case 'colr':
+      return 'color';
+    case 'lum':
+    case 'lum ':
+      return 'luminosity';
+    case 'lddg':
+      return 'linear-dodge';
+    case 'lbrn':
+      return 'linear-burn';
+    default:
+      return 'normal';
+  }
+}
+
 function toArgb(r: number, g: number, b: number, a = 255) {
   return ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
 }
@@ -72,6 +123,59 @@ function inferTextColor(rgba: Uint8ClampedArray | Buffer) {
     rgba[bestIndex + 3] ?? 255
   );
 }
+
+function tryExtractTextScale(node: any): number {
+  try {
+    const tySh = node.additionalLayerProperties?.TySh;
+    if (tySh) {
+      const xx = typeof tySh.transformXX === 'number' ? tySh.transformXX : 1;
+      const xy = typeof tySh.transformXY === 'number' ? tySh.transformXY : 0;
+      const scale = Math.sqrt(xx * xx + xy * xy);
+      if (scale > 0) return scale;
+    }
+  } catch (e) {
+    console.warn('[PSD_IMPORT_DEBUG] failed to parse text scale:', e);
+  }
+  return 1;
+}
+
+function tryExtractFontSize(node: any): number | null {
+  try {
+    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const runs = textProps?.EngineDict?.StyleRun?.RunArray;
+    if (Array.isArray(runs) && runs.length > 0) {
+      const fontSize = runs[0]?.StyleSheet?.StyleSheetData?.FontSize;
+      if (typeof fontSize === 'number' && fontSize > 0) {
+        const scale = tryExtractTextScale(node);
+        return Math.round(fontSize * scale);
+      }
+    }
+  } catch (e) {
+    console.warn('[PSD_IMPORT_DEBUG] failed to parse font size from EngineDict:', e);
+  }
+  return null;
+}
+
+function tryExtractFontFamily(node: any): string | null {
+  try {
+    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const fontSet = textProps?.DocumentResources?.FontSet;
+    const runs = textProps?.EngineDict?.StyleRun?.RunArray;
+    if (Array.isArray(fontSet) && Array.isArray(runs) && runs.length > 0) {
+      const fontIndex = runs[0]?.StyleSheet?.StyleSheetData?.Font;
+      if (typeof fontIndex === 'number' && fontSet[fontIndex]) {
+        const fontName = fontSet[fontIndex]?.Name || fontSet[fontIndex]?.FamilyName;
+        if (typeof fontName === 'string') {
+          return fontName.split('-')[0].trim(); // clean e.g. Montserrat-Bold -> Montserrat
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[PSD_IMPORT_DEBUG] failed to parse font family from EngineDict:', e);
+  }
+  return null;
+}
+
 
 async function uploadImageBuffer({
   buffer,
@@ -132,6 +236,95 @@ async function layerToAssetUrl(layer: any, slug: string, index: number) {
   return publicUrl;
 }
 
+function tryExtractTextAlign(node: any): string | null {
+  try {
+    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const runs = textProps?.EngineDict?.ParagraphRun?.RunArray;
+    if (Array.isArray(runs) && runs.length > 0) {
+      const justification = runs[0]?.ParagraphSheet?.Properties?.Justification;
+      if (typeof justification === 'number') {
+        switch (justification) {
+          case 0: return 'left';
+          case 1: return 'right';
+          case 2: return 'center';
+          default: return 'left';
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[PSD_IMPORT_DEBUG] failed to parse text align:', e);
+  }
+  return null;
+}
+
+function tryExtractTextStyles(node: any) {
+  const styles = {
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    underline: false,
+    linethrough: false,
+  };
+  try {
+    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const runs = textProps?.EngineDict?.StyleRun?.RunArray;
+    if (Array.isArray(runs) && runs.length > 0) {
+      const sheetData = runs[0]?.StyleSheet?.StyleSheetData;
+      if (sheetData) {
+        if (sheetData.FauxBold === true || sheetData.FauxBold === 1) {
+          styles.fontWeight = 'bold';
+        }
+        if (sheetData.FauxItalic === true || sheetData.FauxItalic === 1) {
+          styles.fontStyle = 'italic';
+        }
+        if (sheetData.Underline === true || sheetData.Underline === 1) {
+          styles.underline = true;
+        }
+        if (sheetData.Strikethrough === true || sheetData.Strikethrough === 1) {
+          styles.linethrough = true;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[PSD_IMPORT_DEBUG] failed to parse text styles:', e);
+  }
+  return styles;
+}
+
+function tryExtractCharSpacing(node: any): number | null {
+  try {
+    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const runs = textProps?.EngineDict?.StyleRun?.RunArray;
+    if (Array.isArray(runs) && runs.length > 0) {
+      const tracking = runs[0]?.StyleSheet?.StyleSheetData?.Tracking;
+      if (typeof tracking === 'number') {
+        return tracking;
+      }
+    }
+  } catch (e) {
+    console.warn('[PSD_IMPORT_DEBUG] failed to parse tracking:', e);
+  }
+  return null;
+}
+
+function tryExtractLineHeight(node: any): number | null {
+  try {
+    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const runs = textProps?.EngineDict?.StyleRun?.RunArray;
+    if (Array.isArray(runs) && runs.length > 0) {
+      const sheetData = runs[0]?.StyleSheet?.StyleSheetData;
+      if (sheetData) {
+        const fontSize = sheetData.FontSize;
+        if (sheetData.AutoLeading === false && typeof sheetData.Leading === 'number' && typeof fontSize === 'number' && fontSize > 0) {
+          return parseFloat((sheetData.Leading / fontSize).toFixed(3));
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[PSD_IMPORT_DEBUG] failed to parse line height:', e);
+  }
+  return null;
+}
+
 function buildCloudLayer({
   layer,
   index,
@@ -140,6 +333,7 @@ function buildCloudLayer({
   imageUrl,
   textColorArgb,
   textSize,
+  fontFamily,
   groupPath,
 }: {
   layer: any;
@@ -149,6 +343,7 @@ function buildCloudLayer({
   imageUrl?: string | null;
   textColorArgb?: number;
   textSize?: number;
+  fontFamily?: string;
   groupPath: string[];
 }): CloudLayer {
   const width = Math.max(1, Math.round(layer.width || 1));
@@ -159,6 +354,10 @@ function buildCloudLayer({
   const centerY = top + height / 2;
   const isText = typeof layer.text === 'string' && layer.text.trim().length > 0;
   const opacity = normalizeOpacity(layer.composedOpacity ?? layer.opacity);
+  
+  const rawBlendMode = (layer as any).layerFrame?.layerProperties?.blendMode || (layer as any).layerProperties?.blendMode;
+  const blendMode = mapPsdBlendMode(rawBlendMode);
+  console.log(`[PSD_IMPORT_DEBUG] Layer name="${layer.name}" rawBlendMode="${rawBlendMode}" mapped="${blendMode}" isText=${isText}`);
 
   const payload: any = {
     alpha: opacity,
@@ -174,21 +373,28 @@ function buildCloudLayer({
     stroke: null,
     strokeWidth: 0,
     strokeDashArray: null,
+    blendMode,
   };
 
   if (isText) {
+    const textStyles = tryExtractTextStyles(layer);
+    const textAlign = tryExtractTextAlign(layer) || 'left';
+    const charSpacing = tryExtractCharSpacing(layer) || 0;
+    const extractedFontSize = textSize || Math.max(12, Math.round(height * 0.8));
+    const lineHeight = tryExtractLineHeight(layer) || 1.1;
+
     payload.text = layer.text || '';
-    payload.font = 'Outfit';
-    payload.fontSize = textSize || Math.max(12, Math.round(height * 0.8));
+    payload.font = fontFamily || 'Outfit';
+    payload.fontSize = extractedFontSize;
     payload.textColorArgb = textColorArgb || toArgb(0, 0, 0, 255);
-    payload.fontWeight = 'normal';
-    payload.fontStyle = 'normal';
-    payload.underline = false;
-    payload.textAlign = 'left';
-    payload.lineHeight = 1.1;
-    payload.charSpacing = 0;
+    payload.fontWeight = textStyles.fontWeight;
+    payload.fontStyle = textStyles.fontStyle;
+    payload.underline = textStyles.underline;
+    payload.linethrough = textStyles.linethrough;
+    payload.textAlign = textAlign;
+    payload.lineHeight = lineHeight;
+    payload.charSpacing = charSpacing;
     payload.textBackgroundColor = null;
-    payload.linethrough = false;
     payload.textTransform = 'none';
     payload._originalText = payload.text;
   } else {
@@ -326,7 +532,10 @@ export async function importTemplatePsd(input: ImportPsdInput) {
       }
 
       const textColorArgb = textPixels ? inferTextColor(textPixels) : toArgb(0, 0, 0, 255);
-      const textSize = Math.max(12, Math.round((node.height || 48) * 0.8));
+      const extractedSize = tryExtractFontSize(node);
+      const textSize = extractedSize || Math.max(12, Math.round((node.height || 48) * 0.8));
+      const fontFamily = tryExtractFontFamily(node) || undefined;
+
       layers.push(
         buildCloudLayer({
           layer: node,
@@ -335,6 +544,7 @@ export async function importTemplatePsd(input: ImportPsdInput) {
           canvasHeight,
           textColorArgb,
           textSize,
+          fontFamily,
           groupPath: layerPath.slice(0, -1),
         })
       );

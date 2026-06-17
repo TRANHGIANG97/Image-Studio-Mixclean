@@ -107,25 +107,25 @@ export default function TemplatesPage() {
         <div>
           <div className="flex items-center gap-2">
             <Layers className="w-6 h-6 text-indigo-400" />
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">Quản lý Templates</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Quản lý Templates</h1>
           </div>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-500 text-sm mt-1">
             Thiết kế, nhập hoặc xuất các file ZIP template đồng bộ với ứng dụng Android.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* View mode toggle */}
-          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1">
+          <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1">
             <button
               onClick={() => setTemplateViewMode('grid')}
-              className={`p-1.5 rounded-lg transition-colors ${templateViewMode === 'grid' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`p-1.5 rounded-lg transition-colors ${templateViewMode === 'grid' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700'}`}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setTemplateViewMode('list')}
-              className={`p-1.5 rounded-lg transition-colors ${templateViewMode === 'list' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`p-1.5 rounded-lg transition-colors ${templateViewMode === 'list' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700'}`}
             >
               <List className="w-4 h-4" />
             </button>
@@ -145,7 +145,7 @@ export default function TemplatesPage() {
             onClick={handleCreateDemoCollage}
             disabled={isCreatingDemo}
             variant="outline"
-            className="border-amber-500/20 bg-amber-500/10 text-amber-200 hover:text-white hover:bg-amber-500/20 rounded-xl flex items-center gap-2 px-4"
+            className="border-amber-500/20 bg-amber-500/10 text-amber-200 hover:text-slate-800 hover:bg-amber-500/20 rounded-xl flex items-center gap-2 px-4"
           >
             {isCreatingDemo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 text-amber-300" />}
             Tạo collage mẫu
@@ -153,14 +153,14 @@ export default function TemplatesPage() {
           <Button
             onClick={() => setIsImportOpen(true)}
             variant="outline"
-            className="border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl flex items-center gap-2 px-4"
+            className="border-slate-200 bg-white text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl flex items-center gap-2 px-4"
           >
             <FileArchive className="w-4 h-4 text-indigo-400" /> Import ZIP
           </Button>
           <Button
             onClick={() => setIsImportPsdOpen(true)}
             variant="outline"
-            className="border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl flex items-center gap-2 px-4"
+            className="border-slate-200 bg-white text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl flex items-center gap-2 px-4"
           >
             <FileImage className="w-4 h-4 text-indigo-400" /> Import PSD
           </Button>
@@ -206,7 +206,7 @@ export default function TemplatesPage() {
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
             variant="outline"
-            className="rounded-xl border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
+            className="rounded-xl border-slate-300 text-slate-600 hover:text-slate-800 hover:bg-slate-100"
           >
             {isFetchingNextPage ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Đang tải thêm...</>
@@ -226,15 +226,15 @@ export default function TemplatesPage() {
 
       {/* Bulk Delete Confirm */}
       <Dialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
-        <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl">
+        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-rose-500 flex items-center gap-2">Xóa hàng loạt</DialogTitle>
-            <DialogDescription className="text-slate-300">
+            <DialogDescription className="text-slate-600">
               Bạn sắp xóa vĩnh viễn {selectedTemplateIds.length} template đã chọn. Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsBulkDeleteOpen(false)} className="text-slate-400 hover:text-white">
+            <Button variant="ghost" onClick={() => setIsBulkDeleteOpen(false)} className="text-slate-500 hover:text-slate-800">
               Hủy
             </Button>
             <Button onClick={handleBulkDelete} disabled={bulkDeleteMutation.isPending} className="bg-rose-600 hover:bg-rose-500 text-white">

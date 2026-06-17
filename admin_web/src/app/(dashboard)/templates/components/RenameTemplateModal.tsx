@@ -51,26 +51,26 @@ export function RenameTemplateModal({ isOpen, onClose, template }: RenameTemplat
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl sm:max-w-md">
+      <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-100">Đổi tên Template</DialogTitle>
-          <DialogDescription className="text-xs text-slate-400">
+          <DialogTitle className="text-lg font-bold text-slate-800">Đổi tên Template</DialogTitle>
+          <DialogDescription className="text-xs text-slate-500">
             Cập nhật tên hiển thị cho template này.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">Tên template</label>
+            <label className="text-xs font-semibold text-slate-600">Tên template</label>
             <Input
               {...form.register('title')}
-              className="bg-slate-950 border-slate-800 text-slate-200 focus-visible:ring-indigo-600 rounded-xl"
+              className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
             {form.formState.errors.title && <p className="text-xs text-rose-500">{form.formState.errors.title.message}</p>}
           </div>
 
           <DialogFooter className="mt-6">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={updateMutation.isPending} className="text-slate-400 hover:text-white rounded-xl">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={updateMutation.isPending} className="text-slate-500 hover:text-slate-800 rounded-xl">
               Hủy
             </Button>
             <Button type="submit" disabled={updateMutation.isPending} className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white">

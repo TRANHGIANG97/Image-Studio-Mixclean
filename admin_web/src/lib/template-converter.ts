@@ -81,6 +81,48 @@ function fabricImageUrl(image: any): string | null {
   return typeof elementSrc === 'string' && elementSrc.trim() ? elementSrc : null;
 }
 
+function getBlendModeFromComposite(gco?: string | null): string {
+  if (!gco) return 'normal';
+  switch (gco) {
+    case 'source-over':
+      return 'normal';
+    case 'multiply':
+      return 'multiply';
+    case 'screen':
+      return 'screen';
+    case 'overlay':
+      return 'overlay';
+    case 'darken':
+      return 'darken';
+    case 'lighten':
+      return 'lighten';
+    case 'color-dodge':
+      return 'color-dodge';
+    case 'color-burn':
+      return 'color-burn';
+    case 'hard-light':
+      return 'hard-light';
+    case 'soft-light':
+      return 'soft-light';
+    case 'difference':
+      return 'difference';
+    case 'exclusion':
+      return 'exclusion';
+    case 'hue':
+      return 'hue';
+    case 'saturation':
+      return 'saturation';
+    case 'color':
+      return 'color';
+    case 'luminosity':
+      return 'luminosity';
+    case 'lighter':
+      return 'linear-dodge';
+    default:
+      return 'normal';
+  }
+}
+
 /**
  * Converts a Fabric.js Canvas state into the standard CloudTemplate JSON structure.
  */
@@ -201,6 +243,7 @@ export function fabricToCloudTemplate(
         stroke: strokeColorStr,
         strokeWidth: obj.strokeWidth || 0,
         strokeDashArray: obj.strokeDashArray || null,
+        blendMode: obj.blendMode || getBlendModeFromComposite(obj.globalCompositeOperation),
       };
 
       if (layerType === 'TEXT') {

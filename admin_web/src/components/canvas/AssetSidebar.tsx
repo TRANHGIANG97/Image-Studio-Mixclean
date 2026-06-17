@@ -512,11 +512,11 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
   return (
     <div className="flex flex-col h-full space-y-4">
       {/* Tab bar header */}
-      <div className="grid grid-cols-5 gap-1 p-1 bg-slate-950 border border-slate-850 rounded-xl shrink-0">
+      <div className="grid grid-cols-5 gap-1 p-1 bg-white border border-slate-200 rounded-xl shrink-0">
         <button
           onClick={() => setActiveTab('local')}
           className={`flex flex-col items-center gap-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-            activeTab === 'local' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'local' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-400'
           }`}
           title="Vật liệu của bạn"
         >
@@ -526,7 +526,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         <button
           onClick={() => setActiveTab('shapes')}
           className={`flex flex-col items-center gap-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-            activeTab === 'shapes' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'shapes' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-400'
           }`}
           title="Hình khối"
         >
@@ -536,7 +536,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         <button
           onClick={() => setActiveTab('stickers')}
           className={`flex flex-col items-center gap-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-            activeTab === 'stickers' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'stickers' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-400'
           }`}
           title="Vectơ Emojis"
         >
@@ -546,7 +546,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         <button
           onClick={() => setActiveTab('unsplash')}
           className={`flex flex-col items-center gap-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-            activeTab === 'unsplash' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'unsplash' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-400'
           }`}
           title="Hình nền cao cấp"
         >
@@ -556,7 +556,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         <button
           onClick={() => setActiveTab('text')}
           className={`flex flex-col items-center gap-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-            activeTab === 'text' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'text' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-400'
           }`}
           title="Văn bản"
         >
@@ -574,35 +574,35 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
             {/* Search */}
             <div className="space-y-1.5 shrink-0">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                 <Input 
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Tìm vật liệu..."
-                  className="pl-9 bg-slate-950 border-slate-800 text-xs text-slate-200 placeholder:text-slate-600 rounded-xl w-full focus-visible:ring-indigo-600"
+                  className="pl-9 bg-white border-slate-200 text-xs text-slate-400 placeholder:text-slate-400 rounded-xl w-full focus-visible:ring-indigo-600"
                 />
               </div>
               {categoryId && (
-                <div className="flex items-center justify-between px-2.5 py-1 bg-slate-950/60 border border-slate-850/80 rounded-xl text-[9px] text-slate-400 select-none">
+                <div className="flex items-center justify-between px-2.5 py-1 bg-white/60 border border-slate-200/80 rounded-xl text-[9px] text-slate-500 select-none">
                   <span>Chỉ hiện tài nguyên cùng danh mục mẫu</span>
                   <input
                     type="checkbox"
                     checked={filterByCategory}
                     onChange={(e) => setFilterByCategory(e.target.checked)}
-                    className="rounded text-indigo-650 focus:ring-indigo-600 bg-slate-900 border-slate-800 h-3 w-3 cursor-pointer"
+                    className="rounded text-indigo-650 focus:ring-indigo-600 bg-white border-slate-200 h-3 w-3 cursor-pointer"
                   />
                 </div>
               )}
             </div>
 
             {/* Folder selector */}
-            <div className="flex gap-1 overflow-x-auto py-1 no-scrollbar shrink-0 border-b border-slate-800/50 pb-2">
+            <div className="flex gap-1 overflow-x-auto py-1 no-scrollbar shrink-0 border-b border-slate-200/50 pb-2">
               {folders.map(f => (
                 <button
                   key={f.id}
                   onClick={() => setActiveFolder(f.id)}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shrink-0 transition-all ${
-                    activeFolder === f.id ? 'bg-indigo-600 text-white' : 'bg-slate-950 text-slate-500 hover:text-slate-300'
+                    activeFolder === f.id ? 'bg-indigo-600 text-white' : 'bg-white text-slate-400 hover:text-slate-400'
                   }`}
                 >
                   {f.label}
@@ -611,11 +611,11 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
             </div>
 
             {/* Grid */}
-            <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+            <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300">
               {hoveredAsset && (
-                <div className="mb-3 rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-lg shadow-black/20">
+                <div className="mb-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-black/20">
                   <div className="flex items-center gap-3">
-                    <div className="w-20 h-20 shrink-0 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden">
+                    <div className="w-20 h-20 shrink-0 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden">
                       <img
                         src={hoveredAsset.file_url}
                         alt={hoveredAsset.name}
@@ -624,22 +624,22 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                       />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-100 truncate">{hoveredAsset.name}</p>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">{hoveredAsset.folder || 'uncategorized'}</p>
-                      <p className="text-[10px] text-slate-600 mt-1">Rê chuột để xem trước, click hoặc kéo để chèn vào canvas</p>
+                      <p className="text-sm font-semibold text-slate-800 truncate">{hoveredAsset.name}</p>
+                      <p className="text-[10px] uppercase tracking-wider text-slate-400 mt-1">{hoveredAsset.folder || 'uncategorized'}</p>
+                      <p className="text-[10px] text-slate-400 mt-1">Rê chuột để xem trước, click hoặc kéo để chèn vào canvas</p>
                     </div>
                   </div>
                 </div>
               )}
 
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-500">
+                <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">
                   <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
                   <p className="text-xs">Đang tải...</p>
                 </div>
               ) : assets.length === 0 ? (
                 <div className="text-center py-16 text-slate-650 space-y-1">
-                  <FolderOpen className="w-8 h-8 mx-auto text-slate-700" />
+                  <FolderOpen className="w-8 h-8 mx-auto text-slate-400" />
                   <p className="text-[11px] font-medium">Thư mục trống</p>
                 </div>
               ) : (
@@ -652,7 +652,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                         onMouseEnter={() => setHoveredAsset(asset)}
                         onMouseLeave={() => setHoveredAsset((current) => (current?.id === asset.id ? null : current))}
                         onClick={() => !addingId && addImageToCanvas(asset)}
-                        className="group relative aspect-square bg-slate-950 rounded-xl overflow-hidden border border-slate-850 hover:border-indigo-500/50 cursor-grab active:cursor-grabbing transition-all p-1 flex items-center justify-center"
+                        className="group relative aspect-square bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-indigo-400/50 cursor-grab active:cursor-grabbing transition-all p-1 flex items-center justify-center"
                       >
                         <img 
                           src={asset.file_url} 
@@ -660,7 +660,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                           className="max-w-full max-h-full object-contain rounded-lg group-hover:scale-105 transition-transform duration-200"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <div className="absolute inset-0 bg-slate-100/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                           <div className="p-1 rounded-lg bg-indigo-600 text-white shadow-lg">
                             {addingId === asset.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -670,7 +670,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                           </div>
                         </div>
                       </div>
-                      <span className="text-[9px] text-slate-400 text-center truncate px-0.5" title={asset.name}>
+                      <span className="text-[9px] text-slate-500 text-center truncate px-0.5" title={asset.name}>
                         {asset.name}
                       </span>
                     </div>
@@ -685,7 +685,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                           setPage(nextPage);
                           fetchAssets(nextPage, true);
                         }}
-                        className="px-3 py-2 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-[10px] font-bold rounded-xl text-slate-400 hover:text-white transition-all w-full flex items-center justify-center gap-1.5"
+                        className="px-3 py-2 bg-white hover:bg-white border border-slate-200 text-[10px] font-bold rounded-xl text-slate-500 hover:text-slate-800 transition-all w-full flex items-center justify-center gap-1.5"
                       >
                         Tải thêm vật liệu
                       </button>
@@ -700,16 +700,16 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         {/* TAB 2: SHAPES */}
         {activeTab === 'shapes' && (
           <div className="flex-1 overflow-y-auto pr-1 space-y-4">
-            <p className="text-[10px] text-slate-500 px-1">Nhấp để chèn hình khối vector cơ bản:</p>
+            <p className="text-[10px] text-slate-400 px-1">Nhấp để chèn hình khối vector cơ bản:</p>
             <div className="grid grid-cols-2 gap-3">
               {shapesList.map((shape) => (
                 <button
                   key={shape.type}
                   onClick={() => addShapeToCanvas(shape.type)}
-                  className="h-24 bg-slate-950 border border-slate-850 hover:border-indigo-500/50 rounded-2xl flex flex-col items-center justify-center gap-1.5 hover:bg-slate-900/45 transition-all group"
+                  className="h-24 bg-white border border-slate-200 hover:border-indigo-400/50 rounded-2xl flex flex-col items-center justify-center gap-1.5 hover:bg-slate-100/45 transition-all group"
                 >
                   <span className="text-3xl text-indigo-400 group-hover:scale-110 transition-transform">{shape.icon}</span>
-                  <span className="text-[10px] font-bold text-slate-400">{shape.name}</span>
+                  <span className="text-[10px] font-bold text-slate-500">{shape.name}</span>
                 </button>
               ))}
             </div>
@@ -720,11 +720,11 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         {activeTab === 'stickers' && (
           <div className="flex-1 flex flex-col space-y-3 min-h-0">
             {/* Toggle Mode */}
-            <div className="flex p-1 bg-slate-950 border border-slate-850 rounded-xl shrink-0">
+            <div className="flex p-1 bg-white border border-slate-200 rounded-xl shrink-0">
               <button
                 onClick={() => setStickerMode('online')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                  stickerMode === 'online' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'
+                  stickerMode === 'online' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-400'
                 }`}
               >
                 Nhãn dán Online
@@ -732,7 +732,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
               <button
                 onClick={() => setStickerMode('emoji')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                  stickerMode === 'emoji' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'
+                  stickerMode === 'emoji' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-400'
                 }`}
               >
                 Vector Emojis
@@ -741,17 +741,17 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
 
             {stickerMode === 'online' ? (
               /* ONLINE STICKERS GRID */
-              <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+              <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300">
                 {loadingStickers ? (
-                  <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-500">
+                  <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">
                     <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
                     <p className="text-xs">Đang tải...</p>
                   </div>
                 ) : onlineStickers.length === 0 ? (
                   <div className="text-center py-16 text-slate-650 space-y-1 select-none">
                     <Smile className="w-8 h-8 mx-auto text-slate-800" />
-                    <p className="text-[11px] font-medium text-slate-400">Không có sticker online nào</p>
-                    <p className="text-[9px] text-slate-600">Tải ảnh lên thư mục 'stickers' để cập nhật</p>
+                    <p className="text-[11px] font-medium text-slate-500">Không có sticker online nào</p>
+                    <p className="text-[9px] text-slate-400">Tải ảnh lên thư mục 'stickers' để cập nhật</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-3 gap-2">
@@ -765,7 +765,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                           e.dataTransfer.setData('text/plain', sticker.file_url);
                         }}
                         onClick={() => !addingId && addStickerToCanvas(sticker)}
-                        className="group relative aspect-square bg-slate-950 rounded-xl overflow-hidden border border-slate-850 hover:border-indigo-500/50 cursor-grab active:cursor-grabbing transition-all p-1 flex items-center justify-center"
+                        className="group relative aspect-square bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-indigo-400/50 cursor-grab active:cursor-grabbing transition-all p-1 flex items-center justify-center"
                       >
                         <img 
                           src={sticker.file_url} 
@@ -773,7 +773,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                           className="max-w-full max-h-full object-contain rounded-lg group-hover:scale-105 transition-transform duration-200"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <div className="absolute inset-0 bg-slate-100/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                           <div className="p-1 rounded-lg bg-indigo-600 text-white shadow-lg">
                             {addingId === sticker.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -791,13 +791,13 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
               /* ORIGINAL OPENMOJI STICKERS GRID */
               <div className="flex-1 flex flex-col space-y-3 min-h-0">
                 {/* Category tabs */}
-                <div className="flex gap-1 overflow-x-auto py-1 no-scrollbar shrink-0 border-b border-slate-800/50 pb-2">
+                <div className="flex gap-1 overflow-x-auto py-1 no-scrollbar shrink-0 border-b border-slate-200/50 pb-2">
                   {emojiCategories.map(cat => (
                     <button
                       key={cat.name}
                       onClick={() => setActiveStickerCategory(cat.name)}
                       className={`px-2 py-0.5 rounded-md text-[10px] font-bold shrink-0 transition-all ${
-                        activeStickerCategory === cat.name ? 'bg-indigo-600 text-white' : 'bg-slate-950 text-slate-500 hover:text-slate-300'
+                        activeStickerCategory === cat.name ? 'bg-indigo-600 text-white' : 'bg-white text-slate-400 hover:text-slate-400'
                       }`}
                     >
                       {cat.name}
@@ -806,7 +806,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                 </div>
 
                 {/* Grid */}
-                <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+                <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300">
                   <div className="grid grid-cols-4 gap-2">
                     {emojiCategories
                       .find(c => c.name === activeStickerCategory)
@@ -818,7 +818,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                             key={emoji}
                             onClick={() => !addingId && addEmojiSticker(emoji)}
                             disabled={addingId !== null}
-                            className="aspect-square bg-slate-950 hover:bg-slate-900 border border-slate-850 hover:border-indigo-500/50 rounded-xl flex items-center justify-center relative p-1 group disabled:opacity-50"
+                            className="aspect-square bg-white hover:bg-white border border-slate-200 hover:border-indigo-400/50 rounded-xl flex items-center justify-center relative p-1 group disabled:opacity-50"
                           >
                             {addingId === emoji ? (
                               <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
@@ -843,14 +843,14 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         {/* TAB 4: UNSPLASH BACKGROUNDS */}
         {activeTab === 'unsplash' && (
           <div className="flex-1 flex flex-col space-y-3 min-h-0">
-            <p className="text-[10px] text-slate-500 px-1">Chèn hình nền hoạ tiết từ kho Unsplash CDN:</p>
-            <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+            <p className="text-[10px] text-slate-400 px-1">Chèn hình nền hoạ tiết từ kho Unsplash CDN:</p>
+            <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300">
               <div className="grid grid-cols-2 gap-2">
                 {unsplashBackgrounds.map((bg) => (
                   <div
                     key={bg.id}
                     onClick={() => !addingId && addBackgroundPhoto(bg.id, bg.name)}
-                    className="group relative aspect-video bg-slate-950 rounded-xl overflow-hidden border border-slate-850 hover:border-indigo-500/50 cursor-pointer transition-all flex items-center justify-center"
+                    className="group relative aspect-video bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-indigo-400/50 cursor-pointer transition-all flex items-center justify-center"
                   >
                     <img 
                       src={`https://images.unsplash.com/${bg.id}?w=200&auto=format&fit=crop&q=80`} 
@@ -858,10 +858,10 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                       loading="lazy"
                     />
-                    <div className="absolute inset-x-0 bottom-0 bg-slate-950/70 py-1 px-2 text-center">
-                      <p className="text-[9px] font-bold text-slate-300 truncate">{bg.name}</p>
+                    <div className="absolute inset-x-0 bottom-0 bg-slate-100/70 py-1 px-2 text-center">
+                      <p className="text-[9px] font-bold text-slate-400 truncate">{bg.name}</p>
                     </div>
-                    <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <div className="absolute inset-0 bg-slate-100/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                       <div className="p-1 rounded-lg bg-indigo-600 text-white shadow-lg">
                         {addingId === bg.id ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -880,19 +880,19 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         {/* TAB 5: TEXT & TYPOGRAPHY PRESETS */}
         {activeTab === 'text' && (
           <div className="flex-1 flex flex-col space-y-4 min-h-0">
-            <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800 space-y-6">
+            <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300 space-y-6">
               
               {/* Basic Texts */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-1">Cơ bản</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Cơ bản</p>
                 <div className="flex flex-col gap-2">
                   {TYPOGRAPHY_PRESETS.filter(p => p.type === 'basic').map((preset) => (
                     <button
                       key={preset.id}
                       onClick={() => addTextToCanvas(preset)}
-                      className="bg-slate-950 border border-slate-850 hover:border-indigo-500/50 hover:bg-indigo-500/10 rounded-xl p-3 flex items-center justify-center transition-all group cursor-pointer"
+                      className="bg-white border border-slate-200 hover:border-indigo-400/50 hover:bg-indigo-50 rounded-xl p-3 flex items-center justify-center transition-all group cursor-pointer"
                     >
-                      <span className="font-bold text-slate-200 group-hover:text-indigo-400 transition-colors" style={{ fontSize: preset.config.fontSize ? preset.config.fontSize / 5 : 16 }}>
+                      <span className="font-bold text-slate-400 group-hover:text-indigo-400 transition-colors" style={{ fontSize: preset.config.fontSize ? preset.config.fontSize / 5 : 16 }}>
                         {preset.preview}
                       </span>
                     </button>
@@ -908,7 +908,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                     <button
                       key={preset.id}
                       onClick={() => addTextToCanvas(preset)}
-                      className="bg-slate-950 border border-slate-850 hover:border-rose-500/50 hover:bg-rose-500/10 rounded-xl h-20 flex items-center justify-center transition-all group cursor-pointer overflow-hidden"
+                      className="bg-white border border-slate-200 hover:border-rose-500/50 hover:bg-rose-500/10 rounded-xl h-20 flex items-center justify-center transition-all group cursor-pointer overflow-hidden"
                     >
                       <span 
                         className="font-black italic tracking-tight"
@@ -934,7 +934,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
                     <button
                       key={preset.id}
                       onClick={() => addTextToCanvas(preset)}
-                      className="bg-slate-950 border border-slate-850 hover:border-sky-500/50 hover:bg-sky-500/10 rounded-xl h-20 flex items-center justify-center transition-all group cursor-pointer overflow-hidden"
+                      className="bg-white border border-slate-200 hover:border-sky-500/50 hover:bg-sky-500/10 rounded-xl h-20 flex items-center justify-center transition-all group cursor-pointer overflow-hidden"
                     >
                       <span 
                         className="font-bold tracking-tight"
