@@ -3,6 +3,7 @@ package com.thgiang.image.studio.ui.editor
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 
+import com.thgiang.image.core.domain.model.template.CloudGradient
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 
 sealed class EditorEvent {
@@ -29,6 +30,25 @@ sealed class EditorEvent {
     data class UpdateTextFontFamily(val fontFamily: String?) : EditorEvent()
     /** Change the shape type of the selected SHAPE_TEXT layer */
     data class UpdateShapeType(val shapeType: ShapeType) : EditorEvent()
+
+    data class UpdateTextBold(val bold: Boolean) : EditorEvent()
+    data class UpdateTextItalic(val italic: Boolean) : EditorEvent()
+    data class UpdateTextUnderline(val underline: Boolean) : EditorEvent()
+    data class UpdateTextLinethrough(val linethrough: Boolean) : EditorEvent()
+    data class UpdateTextAlign(val align: String) : EditorEvent()
+    data class UpdateLineHeight(val multiplier: Float) : EditorEvent()
+    data class UpdateCharSpacing(val spacing: Float) : EditorEvent()
+    data class UpdateTextTransform(val transform: String?) : EditorEvent()
+    data class UpdateFillGradient(val gradient: CloudGradient?) : EditorEvent()
+    data class UpdateTextColorGradient(val gradient: CloudGradient?) : EditorEvent()
+    data class ApplyLabelTypographyPreset(
+        val fontWeight: String,
+        val textSizeSp: Float,
+        val textTransform: String?,
+    ) : EditorEvent()
+    data class UpdateStrokeColor(val argb: Int) : EditorEvent()
+    data class UpdateStrokeWidth(val widthPx: Float) : EditorEvent()
+    data class UpdateCornerRadius(val radiusPx: Float) : EditorEvent()
 
     data class UpdateGesture(val delta: GestureDelta) : EditorEvent()
     data class UpdateOffset(val delta: Offset) : EditorEvent()

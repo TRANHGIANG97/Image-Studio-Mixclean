@@ -16,4 +16,7 @@ kotlin {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.json:json:20240303")
+
+    testImplementation(libs.junit)
 }

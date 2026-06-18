@@ -20,7 +20,27 @@ export function getLayerIcon(type: string) {
 
 /** Render a small preview for the layer. */
 export function renderLayerPreview(layer: LayerState, thumbnail?: string | null) {
-  if (layer.type === 'TEXT') return <Text className="w-3.5 h-3.5 text-pink-400" />;
+  if (layer.type === 'TEXT') {
+    const preview = layer.textPreview || 'Aa';
+    const short = preview.length > 10 ? `${preview.slice(0, 9)}…` : preview;
+    const color = typeof layer.fill === 'string' ? layer.fill : '#475569';
+    return (
+      <div
+        className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center overflow-hidden px-0.5"
+        title={preview}
+      >
+        <span
+          className="text-[7px] leading-[1.05] text-center line-clamp-2 max-w-full font-semibold"
+          style={{
+            fontFamily: layer.fontFamily ? `${layer.fontFamily}, sans-serif` : 'Outfit, sans-serif',
+            color,
+          }}
+        >
+          {short}
+        </span>
+      </div>
+    );
+  }
   if (thumbnail) {
     return (
       <div className="w-6 h-6 rounded-md overflow-hidden bg-slate-50 border border-slate-200">
@@ -101,12 +121,19 @@ export function LayerItem({
             <p
               onDoubleClick={(e) => { e.stopPropagation(); onStartRename(); }}
               className={`text-xs font-semibold truncate transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-700'}`}
-              title="Double click để đổi tên"
+              title={layer.type === 'TEXT' && layer.textPreview ? layer.textPreview : 'Double click để đổi tên'}
             >
               {layer.name}
             </p>
           )}
-          <p className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mt-0.5">{layer.type}</p>
+          <p className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mt-0.5">
+            {layer.type}
+            {layer.type === 'TEXT' && layer.textPreview && layer.name !== layer.textPreview && (
+              <span className="normal-case font-medium text-slate-500 ml-1 truncate">
+                · {layer.textPreview.length > 20 ? `${layer.textPreview.slice(0, 20)}…` : layer.textPreview}
+              </span>
+            )}
+          </p>
         </div>
       </div>
 

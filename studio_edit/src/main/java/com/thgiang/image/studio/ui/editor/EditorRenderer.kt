@@ -13,14 +13,11 @@ import com.thgiang.image.studio.util.openAssetSourceInputStream
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * Render Engine v2 - Reusable shadow cache, downsampled template, inBitmap reuse
  */
-class EditorRenderer @Inject constructor(
+class EditorRenderer(
     @ApplicationContext private val context: Context,
     private val bitmapPool: EditorBitmapPool
 ) {
@@ -36,6 +33,7 @@ class EditorRenderer @Inject constructor(
     private data class ShadowCache(
         val sourceUri: Uri,
         val intensity: Float,
+        val blurRadius: Float,
         val shadowBitmap: Bitmap,
         val timestamp: Long = System.currentTimeMillis()
     )
@@ -90,42 +88,41 @@ class EditorRenderer @Inject constructor(
                         val drawX = centerX + state.offset.x
                         val drawY = centerY + state.offset.y
 
-                        if (layer.appearance.shadowIntensity > 0.05f) {
-                            renderShadowCached(
-                                canvas = canvas,
-                                foreground = foreground,
-                                state = state,
-                                cropRatio = layer.cropRatio,
-                                baseW = baseW,
-                                baseH = baseH,
-                                drawX = drawX,
-                                drawY = drawY,
-                                intensity = layer.appearance.shadowIntensity,
-                                shadowAngle = layer.appearance.shadowAngle,
-                                shadowDistance = layer.appearance.shadowDistance,
-                                shadowColorArgb = layer.appearance.shadowColorArgb,
-                                sourceUri = fgUri
-                            )
-                        }
+                        canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
+                            if (layer.appearance.shadowIntensity > 0.05f) {
+                                renderShadowCached(
+                                    canvas = this,
+                                    foreground = foreground,
+                                    state = state,
+                                    cropRatio = layer.cropRatio,
+                                    baseW = baseW,
+                                    baseH = baseH,
+                                    drawX = drawX,
+                                    drawY = drawY,
+                                    appearance = layer.appearance,
+                                    sourceUri = fgUri,
+                                )
+                            }
 
-                        paint.alpha = (layer.appearance.alpha * 255).toInt().coerceIn(0, 255)
+                            paint.alpha = 255
 
-                        val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
-                        val scaleY = (baseH / foreground.height) * state.scale * (if (state.flippedV) -1f else 1f)
+                            val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
+                            val scaleY = (baseH / foreground.height) * state.scale * (if (state.flippedV) -1f else 1f)
 
-                        canvas.withSave {
-                            translate(drawX, drawY)
-                            scale(scaleX, scaleY)
-                            rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
+                            withSave {
+                                translate(drawX, drawY)
+                                scale(scaleX, scaleY)
+                                rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
 
-                            val croppedSize = layer.cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
-                            val left = (foreground.width - croppedSize.width) / 2f
-                            val top = (foreground.height - croppedSize.height) / 2f
-                            clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
+                                val croppedSize = layer.cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
+                                val left = (foreground.width - croppedSize.width) / 2f
+                                val top = (foreground.height - croppedSize.height) / 2f
+                                clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
 
-                            val fgX = if (state.flippedH) -foreground.width.toFloat() else 0f
-                            val fgY = if (state.flippedV) -foreground.height.toFloat() else 0f
-                            drawBitmap(foreground, fgX, fgY, paint)
+                                val fgX = if (state.flippedH) -foreground.width.toFloat() else 0f
+                                val fgY = if (state.flippedV) -foreground.height.toFloat() else 0f
+                                drawBitmap(foreground, fgX, fgY, paint)
+                            }
                         }
 
                         foreground.recycle()
@@ -147,69 +144,67 @@ class EditorRenderer @Inject constructor(
         baseH: Float,
         drawX: Float,
         drawY: Float,
-        intensity: Float,
-        shadowAngle: Float,
-        shadowDistance: Float,
-        shadowColorArgb: Int,
+        appearance: EditorAppearance,
         sourceUri: Uri
     ) {
+        val blurRadius = appearance.resolvedShadowBlurRadius()
         // Check cache validity
         val cached = synchronized(shadowCacheLock) {
             val current = shadowCache
-            if (current != null && 
-                current.sourceUri == sourceUri && 
-                current.intensity == intensity &&
+            if (current != null &&
+                current.sourceUri == sourceUri &&
+                current.intensity == appearance.shadowIntensity &&
+                current.blurRadius == blurRadius &&
                 System.currentTimeMillis() - current.timestamp < maxShadowCacheAgeMs) {
                 current.shadowBitmap
             } else {
                 null
             }
         }
-        
+
         val shadow = cached ?: run {
             // Generate new shadow
             val newShadow = PortraitProcessor.applyBlurOnly(
                 foreground,
-                shadowBlurRadiusFromIntensity(intensity)
+                blurRadius
             )
                 ?: return
-            
+
             synchronized(shadowCacheLock) {
                 // Evict old cache
-                shadowCache?.shadowBitmap?.let { 
-                    if (!it.isRecycled) bitmapPool.recycle(it) 
+                shadowCache?.shadowBitmap?.let {
+                    if (!it.isRecycled) bitmapPool.recycle(it)
                 }
-                shadowCache = ShadowCache(sourceUri, intensity, newShadow)
+                shadowCache = ShadowCache(sourceUri, appearance.shadowIntensity, blurRadius, newShadow)
             }
             newShadow
         }
-        
+
         if (shadow.isRecycled) return
-        
+
         val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
-            alpha = (shadowOpacityFromIntensity(intensity) * 255f).toInt().coerceIn(0, 255)
-            colorFilter = PorterDuffColorFilter(shadowColorArgb, PorterDuff.Mode.SRC_ATOP)
+            alpha = (shadowOpacityFromIntensity(appearance.shadowIntensity) * appearance.alpha * 255f)
+                .toInt().coerceIn(0, 255)
+            colorFilter = PorterDuffColorFilter(appearance.shadowColorArgb, PorterDuff.Mode.SRC_ATOP)
         }
-        
+
         val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
         val scaleY = (baseH / foreground.height) * state.scale * (if (state.flippedV) -1f else 1f)
-        
+
         // Calculate dynamic shadow offsets using trigonometry
-        val angleRad = Math.toRadians(shadowAngle.toDouble())
-        val dx = (shadowDistance * cos(angleRad)).toFloat()
-        val dy = (shadowDistance * sin(angleRad)).toFloat()
-        
+        val (dx, dy) = shadowOffset(appearance.shadowAngle, appearance.shadowDistance)
+
         canvas.withSave {
             translate(drawX + dx, drawY + dy)
             scale(scaleX, scaleY)
             rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
-            
+
             // Crop clipping (local coordinates)
             val croppedSize = cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
             val left = (foreground.width - croppedSize.width) / 2f
             val top = (foreground.height - croppedSize.height) / 2f
             clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
-            
+
             val sdX = if (state.flippedH) -foreground.width.toFloat() else 0f
             val sdY = if (state.flippedV) -foreground.height.toFloat() else 0f
             drawBitmap(shadow, sdX, sdY, shadowPaint)
@@ -352,165 +347,209 @@ class EditorRenderer @Inject constructor(
         canvas: Canvas,
         layer: EditorLayer,
         templateWidth: Int,
-        templateHeight: Int
+        templateHeight: Int,
     ) {
-        val state  = layer.viewport
-        val shapeW = layer.shapeWidthPx  * state.scale
+        val state = layer.viewport
+        val shapeW = layer.shapeWidthPx * state.scale
         val shapeH = layer.shapeHeightPx * state.scale
+        val left = (templateWidth - shapeW) / 2f + state.offset.x
+        val top = (templateHeight - shapeH) / 2f + state.offset.y
 
-        // Position the shape centered at the canvas center + layer offset
-        val left = (templateWidth  - shapeW) / 2f + state.offset.x
-        val top  = (templateHeight - shapeH) / 2f + state.offset.y
+        canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
+            withSave {
+                rotate(state.rotation, left + shapeW / 2f, top + shapeH / 2f)
 
-        canvas.withSave {
-            // Apply rotation around shape centre
-            rotate(state.rotation, left + shapeW / 2f, top + shapeH / 2f)
-
-            // Global opacity
-            val alpha = (layer.appearance.alpha * 255).toInt().coerceIn(0, 255)
-
-            // ── Shape fill ───────────────────────────────────────────────
-            val shapeAlpha = (layer.shapeColorArgb ushr 24) and 0xFF
-            if (shapeAlpha > 0) {
-                val shapePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    style      = Paint.Style.FILL
-                    color      = layer.shapeColorArgb
-                    this.alpha = ((shapeAlpha / 255f) * alpha).toInt().coerceIn(0, 255)
+                if (layer.appearance.shadowIntensity > 0.05f) {
+                    val (shadowDx, shadowDy) = shadowOffset(
+                        layer.appearance.shadowAngle,
+                        layer.appearance.shadowDistance,
+                    )
+                    val shadowPaint = EditorShadowMapper.configureDropShadowPaint(layer.appearance)
+                    drawShapeGeometry(
+                        shapeType = layer.shapeType,
+                        left = left + shadowDx,
+                        top = top + shadowDy,
+                        shapeW = shapeW,
+                        shapeH = shapeH,
+                        cornerRadiusX = layer.cornerRadiusX,
+                        cornerRadiusY = layer.cornerRadiusY,
+                        paint = shadowPaint,
+                        pathData = layer.pathData,
+                        polygonPoints = layer.polygonPoints,
+                    )
                 }
 
-                when (layer.shapeType) {
-                    ShapeType.PILL -> {
-                        val rx = shapeH / 2f
-                        canvas.drawRoundRect(left, top, left + shapeW, top + shapeH, rx, rx, shapePaint)
+                val alpha = (layer.appearance.alpha * 255).toInt().coerceIn(0, 255)
+                val shapeAlpha = (layer.shapeColorArgb ushr 24) and 0xFF
+                val hasShapeFill = EditorShapeGeometry.isFilledShape(
+                    layer.shapeType,
+                    shapeAlpha,
+                    layer.fillGradient != null,
+                )
+                if (hasShapeFill) {
+                    val shapePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        style = Paint.Style.FILL
+                        color = layer.shapeColorArgb
+                        this.alpha = if (shapeAlpha > 0) {
+                            ((shapeAlpha / 255f) * alpha).toInt().coerceIn(0, 255)
+                        } else {
+                            alpha
+                        }
+                        EditorGradientMapper.toAndroidShader(
+                            layer.fillGradient,
+                            left,
+                            top,
+                            shapeW,
+                            shapeH,
+                            layer.shapeColorArgb,
+                        )?.let { shader = it }
                     }
-                    ShapeType.CARD -> {
-                        val rx = shapeH * 0.16f
-                        canvas.drawRoundRect(left, top, left + shapeW, top + shapeH, rx, rx, shapePaint)
-                    }
-                    ShapeType.TEARDROP -> {
-                        canvas.drawPath(buildTeardropExportPath(left, top, shapeW, shapeH), shapePaint)
-                    }
-                    ShapeType.CIRCLE -> {
-                        canvas.drawOval(left, top, left + shapeW, top + shapeH, shapePaint)
-                    }
-                    ShapeType.STAR -> {
-                        canvas.drawPath(buildStarExportPath(left, top, shapeW, shapeH), shapePaint)
-                    }
-                    ShapeType.HEXAGON -> {
-                        canvas.drawPath(buildHexagonExportPath(left, top, shapeW, shapeH), shapePaint)
-                    }
+                    drawShapeGeometry(
+                        shapeType = layer.shapeType,
+                        left = left,
+                        top = top,
+                        shapeW = shapeW,
+                        shapeH = shapeH,
+                        cornerRadiusX = layer.cornerRadiusX,
+                        cornerRadiusY = layer.cornerRadiusY,
+                        paint = shapePaint,
+                        pathData = layer.pathData,
+                        polygonPoints = layer.polygonPoints,
+                    )
                 }
-            }
 
-            // ── Text ──────────────────────────────────────────────────────
-            val textSizePx = layer.textSizeSp * context.resources.displayMetrics.scaledDensity * state.scale
-
-            val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-                color      = layer.textColorArgb
-                this.alpha = alpha
-                textSize   = textSizePx
-                textAlign  = Align.CENTER
-                isFakeBoldText = true
-                layer.fontFamily?.let { familyName ->
-                    val customTf = kotlinx.coroutines.runBlocking {
-                        com.thgiang.image.studio.util.FontDownloader.getTypeface(context, familyName)
+                if (layer.hasStroke) {
+                    val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        EditorStrokeMapper.configureStrokePaint(
+                            paint = this,
+                            strokeColorArgb = layer.resolveStrokeColorArgb()!!,
+                            strokeWidthPx = layer.resolveStrokeWidthPx() * state.scale,
+                            strokeDashArray = layer.strokeDashArray,
+                            alpha = alpha,
+                        )
                     }
-                    if (customTf != null) {
-                        typeface = customTf
-                    }
+                    drawShapeGeometry(
+                        shapeType = layer.shapeType,
+                        left = left,
+                        top = top,
+                        shapeW = shapeW,
+                        shapeH = shapeH,
+                        cornerRadiusX = layer.cornerRadiusX,
+                        cornerRadiusY = layer.cornerRadiusY,
+                        paint = strokePaint,
+                        pathData = layer.pathData,
+                        polygonPoints = layer.polygonPoints,
+                    )
                 }
-            }
 
-            val paddingH  = shapeW * 0.08f
-            val textWidth = (shapeW - paddingH * 2).toInt().coerceAtLeast(1)
-
-            @Suppress("DEPRECATION")
-            val staticLayout = StaticLayout(
-                layer.text,
-                textPaint,
-                textWidth,
-                android.text.Layout.Alignment.ALIGN_CENTER,
-                1f, 0f, true
-            )
-
-            // Vertically centre the text block inside the shape
-            val textBlockH = staticLayout.height.toFloat()
-            val textTop    = top + (shapeH - textBlockH) / 2f
-
-            canvas.withSave {
-                translate(left + paddingH + textWidth / 2f, textTop)
-                staticLayout.draw(this)
+                if (layer.text.isNotBlank()) {
+                    drawShapeTextContent(canvas, layer, state, left, top, shapeW, shapeH, alpha)
+                }
             }
         }
     }
 
-    /** Build the teardrop android.graphics.Path for the export canvas */
-    private fun buildTeardropExportPath(
+    private fun drawShapeTextContent(
+        canvas: Canvas,
+        layer: EditorLayer,
+        state: EditorViewport,
         left: Float,
         top: Float,
-        w: Float,
-        h: Float
-    ): android.graphics.Path {
-        val r   = minOf(w, h) * 0.38f
-        val ptr = h * 0.22f
+        shapeW: Float,
+        shapeH: Float,
+        alpha: Int,
+    ) {
+        val textSizePx = layer.textSizeSp * context.resources.displayMetrics.scaledDensity * state.scale
 
-        return android.graphics.Path().apply {
-            moveTo(left + r, top)
-            lineTo(left + w - r, top)
-            cubicTo(left + w, top, left + w, top + r, left + w, top + r)
-            lineTo(left + w, top + h - r - ptr)
-            cubicTo(left + w, top + h - ptr, left + w - r, top + h - ptr, left + w - r, top + h - ptr)
-            lineTo(left + r * 0.5f, top + h - ptr)
-            cubicTo(left, top + h - ptr, left, top + h, left, top + h)
-            lineTo(left, top + h - ptr - r)
-            cubicTo(left, top + r, left + r, top, left + r, top)
-            close()
-        }
-    }
-
-    private fun buildStarExportPath(
-        left: Float, top: Float, w: Float, h: Float
-    ): android.graphics.Path {
-        val centerX = left + w / 2f
-        val centerY = top + h / 2f
-        val outerRadius = minOf(w, h) / 2f
-        val innerRadius = outerRadius * 0.4f
-        
-        return android.graphics.Path().apply {
-            var angle = -Math.PI / 2.0
-            val angleStep = Math.PI / 5.0
-            
-            moveTo(
-                centerX + (outerRadius * Math.cos(angle)).toFloat(),
-                centerY + (outerRadius * Math.sin(angle)).toFloat()
-            )
-            for (i in 1..10) {
-                angle += angleStep
-                val radius = if (i % 2 == 0) outerRadius else innerRadius
-                lineTo(
-                    centerX + (radius * Math.cos(angle)).toFloat(),
-                    centerY + (radius * Math.sin(angle)).toFloat()
+        fun buildTextPaint(style: Paint.Style): TextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (style == Paint.Style.STROKE) layer.strokeColorArgb ?: layer.textColorArgb else layer.textColorArgb
+            this.alpha = alpha
+            textSize = textSizePx
+            this.style = style
+            if (style == Paint.Style.STROKE) {
+                strokeWidth = layer.strokeWidthPx * state.scale
+            }
+            if (style == Paint.Style.FILL) {
+                EditorGradientMapper.toAndroidShader(
+                    layer.textColorGradient,
+                    left,
+                    top,
+                    shapeW,
+                    shapeH,
+                    layer.textColorArgb,
+                )?.let { shader = it }
+            }
+            textAlign = when (EditorTextStyleMapper.resolveLayoutAlignment(layer.textAlign)) {
+                android.text.Layout.Alignment.ALIGN_NORMAL -> Align.LEFT
+                android.text.Layout.Alignment.ALIGN_OPPOSITE -> Align.RIGHT
+                else -> Align.CENTER
+            }
+            layer.fontFamily?.let { familyName ->
+                val customTf = kotlinx.coroutines.runBlocking {
+                    com.thgiang.image.studio.util.FontDownloader.getTypeface(context, familyName)
+                }
+                EditorTextStyleMapper.configureTextPaint(
+                    paint = this,
+                    fontWeight = layer.fontWeight,
+                    fontStyle = layer.fontStyle,
+                    underline = layer.underline,
+                    linethrough = layer.linethrough,
+                    baseTypeface = customTf,
                 )
-            }
-            close()
+            } ?: EditorTextStyleMapper.configureTextPaint(
+                paint = this,
+                fontWeight = layer.fontWeight,
+                fontStyle = layer.fontStyle,
+                underline = layer.underline,
+                linethrough = layer.linethrough,
+            )
+            letterSpacing = EditorTextStyleMapper.resolveLetterSpacingEm(layer.charSpacing, textSizePx)
         }
-    }
 
-    private fun buildHexagonExportPath(
-        left: Float, top: Float, w: Float, h: Float
-    ): android.graphics.Path {
-        val r = minOf(w, h) / 2f
-        val centerX = left + w / 2f
-        val centerY = top + h / 2f
-        
-        return android.graphics.Path().apply {
-            for (i in 0..5) {
-                val angle = Math.PI / 3.0 * i
-                val px = centerX + (r * Math.cos(angle)).toFloat()
-                val py = centerY + (r * Math.sin(angle)).toFloat()
-                if (i == 0) moveTo(px, py) else lineTo(px, py)
+        val paddingH = shapeW * 0.08f
+        val textWidth = (shapeW - paddingH * 2).toInt().coerceAtLeast(1)
+        val lineSpacing = EditorTextStyleMapper.resolveLineSpacingMultiplier(layer.lineHeight)
+        val alignment = EditorTextStyleMapper.resolveLayoutAlignment(layer.textAlign)
+        val translateX = when (alignment) {
+            android.text.Layout.Alignment.ALIGN_NORMAL -> left + paddingH
+            android.text.Layout.Alignment.ALIGN_OPPOSITE -> left + paddingH + textWidth
+            else -> left + paddingH + textWidth / 2f
+        }
+
+        val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
+
+        if (layer.hasStroke) {
+            @Suppress("DEPRECATION")
+            val strokeLayout = StaticLayout(
+                displayText,
+                buildTextPaint(Paint.Style.STROKE),
+                textWidth,
+                alignment,
+                lineSpacing,
+                0f,
+                true,
+            )
+            val textTop = top + (shapeH - strokeLayout.height.toFloat()) / 2f
+            canvas.withSave {
+                translate(translateX, textTop)
+                strokeLayout.draw(this)
             }
-            close()
+        }
+
+        @Suppress("DEPRECATION")
+        val fillLayout = StaticLayout(
+            displayText,
+            buildTextPaint(Paint.Style.FILL),
+            textWidth,
+            alignment,
+            lineSpacing,
+            0f,
+            true,
+        )
+        val textTop = top + (shapeH - fillLayout.height.toFloat()) / 2f
+        canvas.withSave {
+            translate(translateX, textTop)
+            fillLayout.draw(this)
         }
     }
 }

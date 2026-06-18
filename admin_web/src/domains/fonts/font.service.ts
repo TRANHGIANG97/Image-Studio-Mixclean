@@ -1,29 +1,50 @@
+import {
+  BUILTIN_FONT_CATALOG,
+  FONT_MANIFEST_SCHEMA_VERSION,
+  SYSTEM_FONT_SLUGS,
+} from '@/domains/fonts/font.catalog';
+import { mergeFontManifest } from '@/domains/fonts/font.manifest-utils';
+import type { FontManifestEntry, FontRecord, FontsManifestResponse } from '@/domains/fonts/font.types';
 import { createSupabaseAdmin } from '@/lib/supabase';
 
 const DB = () => createSupabaseAdmin();
 
+function dbRowToManifestEntry(row: FontRecord): FontManifestEntry {
+  return {
+    id: row.id,
+    name: row.name,
+    family_slug: row.family_slug,
+    style: row.style || 'Chưa phân loại',
+    source: 'upload',
+    font_url: row.font_url,
+    weights: ['400'],
+    aliases: [row.name, row.family_slug, row.name.replace(/\s+/g, '')],
+    created_at: row.created_at,
+  };
+}
+
 /**
- * List all fonts.
+ * List all fonts (legacy — returns upload rows only).
  */
-export async function listFonts() {
+export async function listFonts(): Promise<FontRecord[]> {
   let { data, error } = await DB()
     .from('fonts')
     .select('id, name, family_slug, font_url, style, created_at')
     .order('name', { ascending: true });
 
-  if (error && error.code === '42703') { // undefined_column fallback
+  if (error && error.code === '42703') {
     const fallback = await DB()
       .from('fonts')
       .select('id, name, family_slug, font_url, created_at')
       .order('name', { ascending: true });
-    
+
     if (fallback.error) {
       if (fallback.error.code === 'PGRST205') return [];
       if (fallback.error.code === '42501') return [];
       throw fallback.error;
     }
-    
-    return (fallback.data || []).map(f => ({ ...f, style: 'Chưa phân loại' }));
+
+    return (fallback.data || []).map((f) => ({ ...f, style: 'Chưa phân loại' }));
   }
 
   if (error) {
@@ -32,13 +53,30 @@ export async function listFonts() {
       return [];
     }
     if (error.code === '42501') {
-      console.warn("Current Supabase role cannot read public.fonts. Returning no cloud fonts until SELECT is granted.");
+      console.warn(
+        'Current Supabase role cannot read public.fonts. Returning no cloud fonts until SELECT is granted.',
+      );
       return [];
     }
     throw error;
   }
 
   return data || [];
+}
+
+/**
+ * Full editor font manifest — single source of truth for admin_web + studio_edit.
+ */
+export async function getFontsManifest(): Promise<FontsManifestResponse> {
+  const uploaded = (await listFonts()).map(dbRowToManifestEntry);
+  const fonts = mergeFontManifest(BUILTIN_FONT_CATALOG, uploaded);
+
+  return {
+    success: true,
+    schema_version: FONT_MANIFEST_SCHEMA_VERSION,
+    system_fonts: [...SYSTEM_FONT_SLUGS],
+    fonts,
+  };
 }
 
 export interface UploadFontInput {
@@ -60,7 +98,6 @@ export async function uploadFont(input: UploadFontInput) {
 
   const supabaseAdmin = DB();
 
-  // 1. Upload to Storage
   const { error: uploadError } = await supabaseAdmin.storage
     .from('fonts')
     .upload(uniqueKey, buffer, { contentType: 'font/ttf', upsert: true });
@@ -68,20 +105,20 @@ export async function uploadFont(input: UploadFontInput) {
   if (uploadError) {
     throw Object.assign(
       new Error(`Storage upload failed: ${uploadError.message}. Ensure the 'fonts' bucket exists.`),
-      { statusCode: 500 }
+      { statusCode: 500 },
     );
   }
 
-  // 2. Get public URL
-  const { data: { publicUrl } } = supabaseAdmin.storage.from('fonts').getPublicUrl(uniqueKey);
+  const {
+    data: { publicUrl },
+  } = supabaseAdmin.storage.from('fonts').getPublicUrl(uniqueKey);
 
-  // 3. Insert metadata
-  const insertPayload: any = {
+  const insertPayload: Record<string, string> = {
     name: input.name,
     family_slug: input.family_slug.toLowerCase().trim(),
     font_url: publicUrl,
   };
-  
+
   if (input.style) {
     insertPayload.style = input.style;
   }

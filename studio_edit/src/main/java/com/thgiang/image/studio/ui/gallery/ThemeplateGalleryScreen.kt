@@ -24,7 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.thgiang.image.studio.R
-import com.thgiang.image.studio.model.StudioThemeplate
+import com.thgiang.image.studio.data.RemoteTemplateRow
+import com.thgiang.image.studio.ui.components.ShimmerBox
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.thgiang.image.core.domain.model.template.CloudCategory
 
@@ -145,7 +146,7 @@ fun ThemeplateGalleryScreen(
 
 @Composable
 private fun RemoteThemeplateGrid(
-    templates: List<RemoteThemeplateItem>,
+    templates: List<RemoteTemplateRow>,
     isLoading: Boolean,
     onTemplateSelected: (String) -> Unit
 ) {
@@ -211,7 +212,7 @@ private fun RemoteThemeplateGrid(
 
 @Composable
 private fun RemoteThemeplateCard(
-    template: RemoteThemeplateItem,
+    template: RemoteTemplateRow,
     onClick: () -> Unit
 ) {
     Surface(
@@ -235,7 +236,7 @@ private fun RemoteThemeplateCard(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 loading = {
-                    com.thgiang.image.studio.ui.list.ShimmerBox(Modifier.matchParentSize())
+                    ShimmerBox(Modifier.matchParentSize())
                 },
                 error = {
                     Box(

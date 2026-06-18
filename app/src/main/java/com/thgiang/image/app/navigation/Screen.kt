@@ -10,7 +10,6 @@ sealed class Screen(val route: String) {
     data object Drafts : Screen("drafts")
 
     // Studio module
-    data object StudioThemeplateList : Screen("studio_themeplate_list")
     data object StudioEditor : Screen("studio_editor/{themeplateId}?draftId={draftId}") {
         fun createRoute(themeplateId: String, draftId: String? = null): String {
             return if (draftId != null) "studio_editor/$themeplateId?draftId=$draftId"

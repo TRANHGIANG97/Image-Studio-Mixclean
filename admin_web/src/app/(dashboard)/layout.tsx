@@ -32,6 +32,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const isEditorRoute = pathname.endsWith('/edit');
 
   const handleSignOut = async () => {
     const supabase = createClientSideSupabase();
@@ -42,7 +43,8 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-white text-slate-800 font-sans overflow-hidden">
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar — hidden in template editor for max canvas space */}
+      {!isEditorRoute && (
       <aside className="hidden md:flex md:w-64 md:flex-col fixed md:inset-y-0 z-20 bg-white/85 backdrop-blur-xl border-r border-slate-200/80 shadow-lg">
         <div className="flex items-center gap-2 px-6 h-16 border-b border-slate-200/80">
           <div className="p-1.5 rounded-lg bg-indigo-600 text-white">
@@ -88,10 +90,12 @@ export default function DashboardLayout({
           <p className="text-xs text-center text-slate-400 font-medium">Solo Dev Admin v1.0.0</p>
         </div>
       </aside>
+      )}
 
       {/* Mobile Sidebar & Header */}
-      <div className="flex flex-col flex-1 md:pl-64 h-full overflow-hidden">
-        {/* Mobile Header */}
+      <div className={`flex flex-col flex-1 h-full overflow-hidden ${isEditorRoute ? '' : 'md:pl-64'}`}>
+        {/* Mobile Header — hidden in editor (editor has its own toolbar) */}
+        {!isEditorRoute && (
         <header className="flex items-center justify-between h-16 px-4 border-b border-slate-200 bg-white/85 backdrop-blur-md sticky top-0 z-10 md:hidden">
           <div className="flex items-center gap-2">
             <div className="p-1 rounded-md bg-indigo-600 text-white">
@@ -110,6 +114,7 @@ export default function DashboardLayout({
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </Button>
         </header>
+        )}
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (

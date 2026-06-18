@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Layers,
   Eye,
@@ -13,47 +13,49 @@ import {
   ChevronsUp,
   ChevronsDown,
   Copy,
-  Text,
-  Image as ImageIcon,
-  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore, LayerState } from '@/store/layers.store';
 import { toast } from 'sonner';
 import { LayerItem, renderLayerPreview, getLayerIcon } from './layers/LayerItem';
+import { recordCanvasHistory } from '@/lib/canvas-commands';
+import { extractActiveObjectProps } from '@/lib/canvas-object-props';
+
+const LAYER_PANEL_EXPANDED_KEY = 'editor_layer_panel_expanded';
 
 interface LayerPanelProps {
   compact?: boolean;
+  onDirty?: () => void;
 }
 
-export default function LayerPanel({ compact = false }: LayerPanelProps) {
-  const { canvas, pushState } = useEditorStore();
-  const { layers, activeObjectId, setLayers, setActiveObjectId, setActiveObjectProps } = useLayersStore();
+export default function LayerPanel({ compact = false, onDirty }: LayerPanelProps) {
+  const { canvas } = useEditorStore();
+  const { layers, activeObjectId, setActiveObjectId, setActiveObjectProps, syncLayersFromCanvas } = useLayersStore();
   const [draggedLayerId, setDraggedLayerId] = useState<string | null>(null);
   const [dropTargetLayerId, setDropTargetLayerId] = useState<string | null>(null);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LAYER_PANEL_EXPANDED_KEY);
+      if (saved !== null) setExpanded(saved === 'true');
+    } catch {}
+  }, []);
+
+  const toggleExpanded = () => {
+    setExpanded((prev) => {
+      const next = !prev;
+      try { localStorage.setItem(LAYER_PANEL_EXPANDED_KEY, String(next)); } catch {}
+      return next;
+    });
+  };
 
   const syncStoreLayers = () => {
     if (!canvas) return;
-    const objects = canvas.getObjects();
-    const updatedLayers = objects
-      .filter((obj: any) => obj._isBackground !== true)
-      .map((obj: any) => {
-        if (!obj.layerId) {
-          obj.layerId = `layer_${Math.random().toString(36).substring(2, 11)}`;
-        }
-        return {
-          id: obj.layerId,
-          name: obj.layerName || 'Layer',
-          type: obj.layerType || (obj.type === 'image' ? 'IMAGE' : obj.type === 'i-text' ? 'TEXT' : 'DECORATION'),
-          visible: obj.visible !== false,
-          locked: obj.lockMovementX === true
-        };
-      });
-    setLayers(updatedLayers);
+    syncLayersFromCanvas(canvas);
   };
 
   const getFabricObject = (layerId: string) => {
@@ -68,48 +70,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
       canvas.setActiveObject(obj);
       canvas.renderAll();
       setActiveObjectId(layerId);
-      const props = {
-        left: Math.round(obj.left),
-        top: Math.round(obj.top),
-        scaleX: obj.scaleX,
-        scaleY: obj.scaleY,
-        angle: obj.angle,
-        opacity: obj.opacity,
-        flipX: obj.flipX,
-        flipY: obj.flipY,
-        layerId: obj.layerId,
-        layerType: obj.layerType || (obj.type === 'image' ? 'IMAGE' : obj.type === 'i-text' ? 'TEXT' : 'DECORATION'),
-        layerName: obj.layerName,
-        text: (obj as any).text,
-        fontFamily: (obj as any).fontFamily,
-        src: (obj as any).src,
-        defaultImageUrl: (obj as any).defaultImageUrl,
-        fontWeight: (obj as any).fontWeight || 'normal',
-        fontStyle: (obj as any).fontStyle || 'normal',
-        underline: (obj as any).underline || false,
-        textAlign: (obj as any).textAlign || 'left',
-        lineHeight: (obj as any).lineHeight || 1.16,
-        charSpacing: (obj as any).charSpacing || 0,
-        fill: obj.fill || null,
-        fontSize: (obj as any).fontSize || null,
-        rx: (obj as any).rx || 0,
-        ry: (obj as any).ry || 0,
-        stroke: obj.stroke || null,
-        strokeWidth: obj.strokeWidth || 0,
-        strokeDashArray: obj.strokeDashArray || null,
-        imageFilters: (obj as any).imageFilters || {},
-        textBackgroundColor: (obj as any).textBackgroundColor || null,
-        linethrough: (obj as any).linethrough || false,
-        textTransform: (obj as any).textTransform || 'none',
-        _originalText: (obj as any)._originalText || (obj as any).text || '',
-        shadow: obj.shadow ? {
-          color: obj.shadow.color,
-          blur: obj.shadow.blur,
-          offsetX: obj.shadow.offsetX,
-          offsetY: obj.shadow.offsetY
-        } : null
-      };
-      setActiveObjectProps(props);
+      setActiveObjectProps(extractActiveObjectProps(obj));
     }
   };
 
@@ -121,7 +82,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
       obj.set('visible', !obj.visible);
       if (!obj.visible && canvas.getActiveObject() === obj) canvas.discardActiveObject();
       canvas.renderAll();
-      pushState();
+      recordCanvasHistory(onDirty);
       syncStoreLayers();
       toast.info(`Đã ${obj.visible ? 'hiện' : 'ẩn'} layer`);
     }
@@ -140,7 +101,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
       });
       if (isLocked && canvas.getActiveObject() === obj) canvas.discardActiveObject();
       canvas.renderAll();
-      pushState();
+      recordCanvasHistory(onDirty);
       syncStoreLayers();
       toast.info(isLocked ? 'Đã khóa layer' : 'Đã mở khóa layer');
     }
@@ -154,7 +115,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
       canvas.remove(obj);
       canvas.discardActiveObject();
       canvas.renderAll();
-      pushState();
+      recordCanvasHistory(onDirty);
       syncStoreLayers();
       if (activeObjectId === layerId) {
         setActiveObjectId(null);
@@ -182,7 +143,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
         canvas.add(cloned);
         canvas.setActiveObject(cloned);
         canvas.renderAll();
-        pushState();
+        recordCanvasHistory(onDirty);
         syncStoreLayers();
         toast.success('Đã nhân đôi layer');
       });
@@ -205,7 +166,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
         }
       }
       canvas.renderAll();
-      pushState();
+      recordCanvasHistory(onDirty);
       syncStoreLayers();
     }
   };
@@ -223,7 +184,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
         canvas.moveObjectTo(obj, Math.max(layerIndex - 1, minIndex));
       }
       canvas.renderAll();
-      pushState();
+      recordCanvasHistory(onDirty);
       syncStoreLayers();
     }
   };
@@ -236,7 +197,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
       const objects = canvas.getObjects();
       canvas.moveObjectTo(obj, objects.length - 1);
       canvas.renderAll();
-      pushState();
+      recordCanvasHistory(onDirty);
       syncStoreLayers();
     }
   };
@@ -251,7 +212,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
       const targetIndex = bgIndex !== -1 ? bgIndex + 1 : 0;
       canvas.moveObjectTo(obj, targetIndex);
       canvas.renderAll();
-      pushState();
+      recordCanvasHistory(onDirty);
       syncStoreLayers();
     }
   };
@@ -262,7 +223,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
     if (obj) {
       obj.set('layerName', newName);
       canvas.renderAll();
-      pushState();
+      recordCanvasHistory(onDirty);
       syncStoreLayers();
     }
   };
@@ -299,30 +260,15 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
     if (!sourceObj || !targetObj) { setDraggedLayerId(null); setDropTargetLayerId(null); return; }
     canvas.moveObjectTo(sourceObj, objects.indexOf(targetObj));
     canvas.renderAll();
-    pushState();
+    recordCanvasHistory(onDirty);
     syncStoreLayers();
     setDraggedLayerId(null); setDropTargetLayerId(null);
   };
 
-  const getLayerIcon = (type: string) => {
-    switch (type) {
-      case 'TEXT': return <Text className="w-3.5 h-3.5 text-pink-400" />;
-      case 'IMAGE': return <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />;
-      default: return <Sparkles className="w-3.5 h-3.5 text-amber-400" />;
-    }
-  };
+  const getLayerIconLocal = (type: string) => getLayerIcon(type);
 
-  const renderLayerPreview = (layer: LayerState) => {
-    const thumbnail = getLayerThumbnail(layer.id);
-    if (layer.type === 'TEXT') return <Text className="w-3.5 h-3.5 text-pink-400" />;
-    if (thumbnail) {
-      return (
-        <div className="w-6 h-6 rounded-md overflow-hidden bg-white border border-slate-200">
-          <img src={thumbnail} className="w-full h-full object-cover" alt="" />
-        </div>
-      );
-    }
-    return getLayerIcon(layer.type);
+  const renderLayerPreviewLocal = (layer: LayerState) => {
+    return renderLayerPreview(layer, getLayerThumbnail(layer.id));
   };
 
   const reversedLayers = [...layers].reverse();
@@ -394,8 +340,10 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
                     <div className="w-8 h-8 rounded-lg overflow-hidden bg-white border border-slate-200/50">
                       <img src={thumbnail} className="w-full h-full object-cover" alt="" />
                     </div>
+                  ) : layer.type === 'TEXT' ? (
+                    renderLayerPreview(layer)
                   ) : (
-                    getLayerIcon(layer.type)
+                    getLayerIconLocal(layer.type)
                   )}
 
                   {/* Visibility/Lock indicators */}
@@ -415,7 +363,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
 
         {/* Quick actions at bottom */}
         <button
-          onClick={() => setExpanded(!expanded)}
+          onClick={toggleExpanded}
           className="mt-2 w-8 h-8 rounded-lg bg-slate-100/50 border border-slate-300/50 text-slate-500 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           title="Mở rộng Layers"
         >
@@ -436,7 +384,7 @@ export default function LayerPanel({ compact = false }: LayerPanelProps) {
                       activeObjectId === layer.id ? 'bg-indigo-600/20 text-indigo-300' : 'hover:bg-slate-100 text-slate-500'
                     }`}
                   >
-                    {renderLayerPreview(layer)}
+                    {renderLayerPreviewLocal(layer)}
                     <span className="truncate flex-1">{layer.name}</span>
                     <span className="text-[9px] text-slate-400">{layer.type}</span>
                   </div>

@@ -1,6 +1,7 @@
 package com.thgiang.image.studio.ui.editor
 
 import android.net.Uri
+import com.thgiang.image.core.domain.model.template.CloudGradient
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
 
@@ -65,7 +66,9 @@ data class EditorAppearance(
     val alpha: Float = 1f,
     val shadowAngle: Float = 45f,
     val shadowDistance: Float = 12f,
-    val shadowColorArgb: Int = 0xFF000000.toInt()
+    val shadowColorArgb: Int = 0xFF000000.toInt(),
+    /** When set, overrides [shadowBlurRadiusFromIntensity] (from admin_web shadowBlur). */
+    val shadowBlur: Float? = null,
 ) : java.io.Serializable {
     init {
         require(shadowIntensity in 0f..1f) { "Shadow intensity must be in 0..1" }
@@ -79,6 +82,14 @@ fun shadowOpacityFromIntensity(intensity: Float): Float {
 
 fun shadowBlurRadiusFromIntensity(intensity: Float): Float {
     return (18f - (intensity.coerceIn(0f, 1f) * 12f)).coerceAtLeast(4f)
+}
+
+fun EditorAppearance.resolvedShadowBlurRadius(): Float =
+    shadowBlur?.coerceAtLeast(0f) ?: shadowBlurRadiusFromIntensity(shadowIntensity)
+
+fun shadowOffset(angle: Float, distance: Float): Pair<Float, Float> {
+    val rad = Math.toRadians(angle.toDouble())
+    return (distance * kotlin.math.cos(rad)).toFloat() to (distance * kotlin.math.sin(rad)).toFloat()
 }
 
 data class EditorTemplate(
@@ -125,7 +136,19 @@ enum class ShapeType : java.io.Serializable {
     /** 5-pointed star */
     STAR,
     /** Flat-topped regular hexagon */
-    HEXAGON
+    HEXAGON,
+    /** Equilateral triangle pointing up */
+    TRIANGLE,
+    /** Horizontal line (stroke only) */
+    LINE,
+    /** Rhombus / diamond */
+    DIAMOND,
+    /** Arrow from Fabric path */
+    ARROW,
+    /** Arbitrary SVG path */
+    PATH,
+    /** Polygon from exported point list */
+    POLYGON,
 }
 
 // ============ Core Layer ============
@@ -155,6 +178,26 @@ data class EditorLayer(
     val shapeHeightPx: Float = 100f,
     /** Custom font family name */
     val fontFamily: String? = null,
+    val fontWeight: String? = null,
+    val fontStyle: String? = null,
+    val textAlign: String? = null,
+    val underline: Boolean = false,
+    val linethrough: Boolean = false,
+    val lineHeight: Float? = null,
+    val charSpacing: Float = 0f,
+    val textBackgroundColorArgb: Int? = null,
+    val textTransform: String? = null,
+    /** Corner radius in template pixels (from cloud rx/ry) */
+    val cornerRadiusX: Float? = null,
+    val cornerRadiusY: Float? = null,
+    val blendMode: String? = null,
+    val strokeColorArgb: Int? = null,
+    val strokeWidthPx: Float = 0f,
+    val strokeDashArray: List<Float> = emptyList(),
+    val fillGradient: CloudGradient? = null,
+    val textColorGradient: CloudGradient? = null,
+    val pathData: String? = null,
+    val polygonPoints: List<Float> = emptyList(),
 
     // ── Common transform & appearance ───────────────────────
     val viewport: EditorViewport = EditorViewport(),

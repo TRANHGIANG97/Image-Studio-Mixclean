@@ -1,4 +1,5 @@
 import { CloudTemplate, CloudLayer } from '@/types/cloud-template';
+import { arrowPath } from '@/lib/fabric-shape-utils';
 
 // Helper to calculate GCD for aspect ratio
 const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
@@ -60,6 +61,31 @@ export function argbIntToRgba(argb: number, opacityOverride?: number): { rgba: s
     rgba: `rgba(${r}, ${g}, ${b}, ${finalAlpha.toFixed(2)})`,
     alpha: a
   };
+}
+
+function fabricPathToSvg(path: unknown): string | null {
+  if (typeof path === 'string' && path.trim()) return path;
+  if (!Array.isArray(path)) return null;
+  return path
+    .map((segment) => {
+      if (!Array.isArray(segment) || segment.length === 0) return '';
+      const [command, ...coords] = segment;
+      return `${command} ${coords.join(' ')}`.trim();
+    })
+    .filter(Boolean)
+    .join(' ');
+}
+
+function fabricPointsToFlat(points: unknown): number[] | null {
+  if (!Array.isArray(points) || points.length === 0) return null;
+  const flat: number[] = [];
+  for (const point of points) {
+    if (point && typeof point === 'object' && 'x' in point && 'y' in point) {
+      flat.push(Number((point as { x: number; y: number }).x));
+      flat.push(Number((point as { x: number; y: number }).y));
+    }
+  }
+  return flat.length >= 6 ? flat : null;
 }
 
 function fabricBackgroundColorToArgb(backgroundColor: any): number | null {
@@ -142,9 +168,6 @@ export function fabricToCloudTemplate(
   // Get background URL from background image
   const backgroundUrl = fabricImageUrl(fabricCanvas.backgroundImage);
   const backgroundColorArgb = fabricBackgroundColorToArgb(fabricCanvas.backgroundColor);
-  console.log(
-    `[TPL_BG_DEBUG] converter backgroundUrl=${backgroundUrl || 'null'} hasBackgroundImage=${Boolean(fabricCanvas.backgroundImage)} backgroundColorArgb=${backgroundColorArgb ?? 'null'}`
-  );
   const divisor = gcd(canvasBaseWidth, canvasBaseHeight);
   const aspectRatio = `${canvasBaseWidth / divisor}:${canvasBaseHeight / divisor}`;
 
@@ -292,13 +315,18 @@ export function fabricToCloudTemplate(
         // Support vector shapes serialization
         const isShape = ['rect', 'circle', 'triangle', 'line', 'polygon', 'path'].includes(obj.type) || obj.shapeSubtype;
         if (isShape) {
-          payload.shapeType = obj.shapeSubtype || obj.type;
+          const shapeType = obj.shapeSubtype || obj.type;
+          payload.shapeType = shapeType;
           
           let fillColorStr = '#6366f1';
           if (typeof obj.fill === 'string') {
             fillColorStr = obj.fill;
           } else if (obj.fill && typeof obj.fill === 'object' && obj.fill.colorStops?.[0]?.color) {
             fillColorStr = obj.fill.colorStops[0].color;
+          }
+          if (shapeType === 'line') {
+            fillColorStr = typeof obj.stroke === 'string' ? obj.stroke : fillColorStr;
+            payload.strokeWidth = obj.strokeWidth ?? 6;
           }
           payload.fillColor = fillColorStr;
           
@@ -308,6 +336,13 @@ export function fabricToCloudTemplate(
               colorStops: obj.fill.colorStops,
               coords: obj.fill.coords,
             };
+          }
+
+          if (shapeType === 'arrow' || obj.type === 'path') {
+            payload.pathData = fabricPathToSvg(obj.path) ?? (shapeType === 'arrow' ? arrowPath : null);
+          }
+          if (obj.type === 'polygon' || shapeType === 'polygon') {
+            payload.polygonPoints = fabricPointsToFlat(obj.points);
           }
           
           if (obj.type === 'rect' || obj.shapeSubtype === 'rect') {

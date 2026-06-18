@@ -1,34 +1,24 @@
 package com.thgiang.image.studio.ui.editor
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
-import com.thgiang.image.core.data.save.ImageSaveRepository
-import com.thgiang.image.core.util.processors.ProcessorUtils
+import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.studio.R
+import com.thgiang.image.studio.data.TemplateDraftRepository
+import com.thgiang.image.studio.ui.editor.export.EditorExportCoordinator
+import com.thgiang.image.studio.ui.editor.export.ExportOutcome
+import com.thgiang.image.studio.ui.editor.export.SaveDraftOutcome
+import com.thgiang.image.studio.ui.editor.load.EditorTemplateLoader
+import com.thgiang.image.studio.ui.editor.product.EditorProductWorkflow
+import com.thgiang.image.studio.ui.editor.product.ProductImageResult
+import com.thgiang.image.studio.ui.editor.product.SampleObjectResult
+import com.thgiang.image.studio.ui.editor.product.StickerResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import com.thgiang.image.studio.BuildConfig
-import com.thgiang.image.studio.model.StudioThemeplates
-import com.thgiang.image.core.domain.model.template.CloudCategory
-import com.thgiang.image.core.domain.model.template.CloudLayer
-import com.thgiang.image.core.domain.model.template.CloudPayload
-import com.thgiang.image.core.domain.model.template.CloudTemplate
-import com.thgiang.image.core.domain.model.template.CloudTransform
-import com.thgiang.image.core.domain.model.template.TemplateCanvas
-import com.thgiang.image.core.domain.model.template.TemplateMetadata
-import org.json.JSONArray
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
-import com.thgiang.image.studio.data.TemplateDraftRepository
-import com.thgiang.image.studio.util.openAssetSourceInputStream
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -37,12 +27,12 @@ import kotlin.math.abs
 @HiltViewModel
 class ThemeplateEditorViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val backgroundRemoverRepository: BackgroundRemoverRepository,
-    private val imageSaveRepository: ImageSaveRepository,
+    private val templateLoader: EditorTemplateLoader,
+    private val exportCoordinator: EditorExportCoordinator,
     private val templateDraftRepository: TemplateDraftRepository,
-    private val renderer: EditorRenderer,
     private val historyManager: EditorHistoryManager,
-    private val sampleObjectCacheManager: SampleObjectCacheManager,
+    private val productWorkflow: EditorProductWorkflow,
+    private val layerFactory: EditorLayerFactory,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -119,12 +109,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             val tId = themeplateId
             if (!tId.isNullOrEmpty() && tId != "draft") {
                 if (!_state.value.template.loaded) {
-                    val localTemplate = StudioThemeplates.findById(tId)
-                    if (localTemplate != null) {
-                        loadTemplate(localTemplate.backgroundAssetPath ?: localTemplate.assetPath, localTemplate.objectSourceAssetPath)
-                    } else {
-                        loadCloudTemplateById(tId)
-                    }
+                    loadCloudTemplateById(tId)
                 }
             }
         }
@@ -154,11 +139,11 @@ class ThemeplateEditorViewModel @Inject constructor(
                 requestHistoryPush()
             }
             is EditorEvent.UpdateShapeColor -> {
-                updateActiveLayer { it.copy(shapeColorArgb = event.argb) }
+                updateActiveLayer { it.copy(shapeColorArgb = event.argb, fillGradient = null) }
                 requestHistoryPush()
             }
             is EditorEvent.UpdateTextColor -> {
-                updateActiveLayer { it.copy(textColorArgb = event.argb) }
+                updateActiveLayer { it.copy(textColorArgb = event.argb, textColorGradient = null) }
                 requestHistoryPush()
             }
             is EditorEvent.UpdateTextSize -> {
@@ -171,6 +156,77 @@ class ThemeplateEditorViewModel @Inject constructor(
             }
             is EditorEvent.UpdateShapeType -> {
                 updateActiveLayer { it.copy(shapeType = event.shapeType) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextBold -> {
+                updateActiveLayer {
+                    it.copy(fontWeight = if (event.bold) "bold" else "normal")
+                }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextItalic -> {
+                updateActiveLayer {
+                    it.copy(fontStyle = if (event.italic) "italic" else "normal")
+                }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextUnderline -> {
+                updateActiveLayer { it.copy(underline = event.underline) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextLinethrough -> {
+                updateActiveLayer { it.copy(linethrough = event.linethrough) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextAlign -> {
+                updateActiveLayer { it.copy(textAlign = event.align) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateLineHeight -> {
+                updateActiveLayer {
+                    it.copy(lineHeight = event.multiplier.coerceIn(0.5f, 3f))
+                }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateCharSpacing -> {
+                updateActiveLayer { it.copy(charSpacing = event.spacing.coerceIn(-20f, 80f)) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextTransform -> {
+                updateActiveLayer { it.copy(textTransform = event.transform) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateFillGradient -> {
+                updateActiveLayer { it.copy(fillGradient = event.gradient) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateTextColorGradient -> {
+                updateActiveLayer { it.copy(textColorGradient = event.gradient) }
+                requestHistoryPush()
+            }
+            is EditorEvent.ApplyLabelTypographyPreset -> {
+                updateActiveLayer {
+                    it.copy(
+                        fontWeight = event.fontWeight,
+                        textSizeSp = event.textSizeSp.coerceIn(8f, 72f),
+                        textTransform = event.textTransform,
+                    )
+                }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateStrokeColor -> {
+                updateActiveLayer { it.copy(strokeColorArgb = event.argb) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateStrokeWidth -> {
+                updateActiveLayer { it.copy(strokeWidthPx = event.widthPx.coerceIn(0f, 20f)) }
+                requestHistoryPush()
+            }
+            is EditorEvent.UpdateCornerRadius -> {
+                updateActiveLayer {
+                    val radius = event.radiusPx.coerceAtLeast(0f)
+                    it.copy(cornerRadiusX = radius, cornerRadiusY = radius)
+                }
                 requestHistoryPush()
             }
             is EditorEvent.UpdateGesture -> {
@@ -226,9 +282,17 @@ class ThemeplateEditorViewModel @Inject constructor(
                 // Not used anymore as bounding box depends on selectedLayerId
             }
             is EditorEvent.SelectTool -> {
-                _state.update {
-                    val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) null else event.tool
-                    it.copy(selectedTool = nextTool)
+                val requiresLayer = event.tool is EditorTool.Rotate ||
+                        event.tool is EditorTool.Shadow ||
+                        event.tool is EditorTool.Transparency
+                
+                if (requiresLayer && _state.value.selectedLayerId == null) {
+                    _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
+                } else {
+                    _state.update {
+                        val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) null else event.tool
+                        it.copy(selectedTool = nextTool)
+                    }
                 }
             }
             is EditorEvent.SelectCropRatio -> {
@@ -266,6 +330,8 @@ class ThemeplateEditorViewModel @Inject constructor(
                         ) 
                     }
                     pushHistory()
+                } else {
+                    _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
                 }
             }
             EditorEvent.CommitTransform -> pushHistory()
@@ -297,25 +363,8 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private fun addShapeTextLayer(shapeType: ShapeType) {
-        val tw = _state.value.template.originalSize.width.toFloat()
-        // Default shape size: ~40% of template width, proportional height
-        val defaultW = (if (tw > 0f) tw * 0.40f else 240f).coerceIn(120f, 600f)
-        val defaultH = (defaultW * 0.42f).coerceIn(60f, 220f)
-
-        val layerId = java.util.UUID.randomUUID().toString()
-        val layer = EditorLayer(
-            id            = layerId,
-            type          = LayerType.SHAPE_TEXT,
-            text          = "Label",
-            textColorArgb = 0xFFFFFFFF.toInt(),
-            textSizeSp    = 16f,
-            shapeType     = shapeType,
-            shapeColorArgb = 0xFFE53935.toInt(),
-            shapeWidthPx  = defaultW,
-            shapeHeightPx = defaultH,
-            viewport      = EditorViewport(scale = 1f),
-            appearance    = EditorAppearance(shadowIntensity = 0f, alpha = 1f)
-        )
+        val layer = layerFactory.createShapeTextLayer(_state.value.template.originalSize.width.toFloat(), shapeType)
+        val layerId = layer.id
         _state.update {
             it.copy(
                 layers = it.layers + layer,
@@ -327,24 +376,8 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private fun addTextLayer() {
-        val tw = _state.value.template.originalSize.width.toFloat()
-        val defaultW = (if (tw > 0f) tw * 0.58f else 360f).coerceIn(180f, 760f)
-        val defaultH = (defaultW * 0.24f).coerceIn(72f, 220f)
-        val layerId = java.util.UUID.randomUUID().toString()
-        val layer = EditorLayer(
-            id = layerId,
-            type = LayerType.SHAPE_TEXT,
-            text = "Nhập chữ...",
-            textColorArgb = 0xFF5B21B6.toInt(),
-            textSizeSp = 28f,
-            shapeType = ShapeType.CARD,
-            shapeColorArgb = 0x00FFFFFF,
-            shapeWidthPx = defaultW,
-            shapeHeightPx = defaultH,
-            fontFamily = "sans-serif",
-            viewport = EditorViewport(scale = 1f),
-            appearance = EditorAppearance(shadowIntensity = 0f, alpha = 1f)
-        )
+        val layer = layerFactory.createTextLayer(_state.value.template.originalSize.width.toFloat())
+        val layerId = layer.id
         _state.update {
             it.copy(
                 layers = it.layers + layer,
@@ -355,165 +388,40 @@ class ThemeplateEditorViewModel @Inject constructor(
         pushHistory()
     }
 
-    private fun getInputStreamForPath(path: String): java.io.InputStream? {
-        return context.openAssetSourceInputStream(path)
+    private fun applyLoadedTemplate(loaded: com.thgiang.image.studio.ui.editor.load.LoadedEditorTemplate) {
+        _state.update {
+            it.copy(
+                template = loaded.template,
+                layers = loaded.layers.ifEmpty { it.layers },
+                selectedLayerId = loaded.selectedLayerId ?: it.selectedLayerId,
+                errorMessage = null,
+            )
+        }
     }
 
-    private fun com.thgiang.image.core.domain.model.template.CloudLayer.resolvedImageUrl(): String? {
-        return payload.imageUrl ?: payload.defaultImageUrl
-    }
-
-    private fun com.thgiang.image.core.domain.model.template.CloudLayer.resolvedCropRatio(): CropRatio {
-        return payload.cropRatio
-            ?.let { value -> runCatching { CropRatio.valueOf(value) }.getOrNull() }
-            ?: CropRatio.ORIGINAL
-    }
-
-    private fun com.thgiang.image.core.domain.model.template.CloudLayer.isShadowRegion(): Boolean {
-        return type.equals("DECORATION", ignoreCase = true) &&
-            payload.sourceKind.equals("shadow-region", ignoreCase = true)
-    }
-
-    private fun loadCloudTemplate(cloudTemplate: com.thgiang.image.core.domain.model.template.CloudTemplate) {
-        val backgroundUrl = cloudTemplate.canvas.backgroundUrl
-        val assetPath = backgroundUrl ?: ""
+    private fun loadCloudTemplate(cloudTemplate: CloudTemplate) {
+        val assetPath = cloudTemplate.canvas.backgroundUrl.orEmpty()
         android.util.Log.d(
             BG_DEBUG_TAG,
-            "load parsed templateId=${cloudTemplate.templateId} backgroundUrl=${backgroundUrl?.take(160)} backgroundColorArgb=${cloudTemplate.canvas.backgroundColorArgb} canvas=${cloudTemplate.canvas.baseWidth}x${cloudTemplate.canvas.baseHeight} layers=${cloudTemplate.layers.size}"
+            "load parsed templateId=${cloudTemplate.templateId} backgroundUrl=${assetPath.take(160)} layers=${cloudTemplate.layers.size}"
         )
-        
+
         savedStateHandle["template_path"] = assetPath
-        
         templateLoadJob?.cancel()
         templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val tw = cloudTemplate.canvas.baseWidth
-                val th = cloudTemplate.canvas.baseHeight
-
-                if (backgroundUrl == null || backgroundUrl.isBlank() || backgroundUrl == "null") {
-                    android.util.Log.w(
-                        BG_DEBUG_TAG,
-                        "missing backgroundUrl templateId=${cloudTemplate.templateId}; using color=${cloudTemplate.canvas.backgroundColorArgb ?: 0xFFFFFFFF.toInt()}"
-                    )
-                } else {
-                    android.util.Log.d(
-                        BG_DEBUG_TAG,
-                        "use canvas size templateId=${cloudTemplate.templateId} canvas=${tw}x${th} backgroundUrl=${backgroundUrl.take(160)}"
-                    )
-                }
-                
-                val editorLayers = cloudTemplate.layers.sortedBy { it.zIndex }.mapNotNull { cloudLayer ->
-                    val isText = cloudLayer.type == "TEXT" || cloudLayer.type == "SHAPE_TEXT"
-                    val isShadowRegion = cloudLayer.isShadowRegion()
-                    val anchorX = cloudLayer.transform.anchorX
-                    val anchorY = cloudLayer.transform.anchorY
-                    
-                    val offsetX = (anchorX - 0.5f) * tw.toFloat()
-                    val offsetY = (anchorY - 0.5f) * th.toFloat()
-                    
-                    if (isText) {
-                        val density = context.resources.displayMetrics.scaledDensity.coerceAtLeast(1f)
-                        EditorLayer(
-                            id = cloudLayer.layerId.ifEmpty { java.util.UUID.randomUUID().toString() },
-                            type = LayerType.SHAPE_TEXT,
-                            text = cloudLayer.payload.text ?: "Label",
-                            textColorArgb = cloudLayer.payload.textColorArgb ?: 0xFFFFFFFF.toInt(),
-                            textSizeSp = ((cloudLayer.payload.fontSize ?: 60f) / density).coerceIn(8f, 72f),
-                            shapeType = ShapeType.PILL,
-                            shapeColorArgb = 0x00FFFFFF.toInt(), // transparent shape color
-                            shapeWidthPx = 350f,
-                            shapeHeightPx = 140f,
-                            fontFamily = cloudLayer.payload.font,
-                            viewport = EditorViewport(
-                                offsetX = offsetX,
-                                offsetY = offsetY,
-                                scale = cloudLayer.transform.scale,
-                                rotation = cloudLayer.transform.rotation
-                            ),
-                            appearance = EditorAppearance(
-                                shadowIntensity = cloudLayer.payload.shadowIntensity ?: 0f,
-                                alpha = cloudLayer.payload.alpha ?: 1f,
-                                shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
-                                shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
-                                shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt()
-                            )
-                        )
-                    } else if (isShadowRegion) {
-                        EditorLayer(
-                            id = cloudLayer.layerId.ifEmpty { java.util.UUID.randomUUID().toString() },
-                            type = LayerType.SHADOW_REGION,
-                            product = EditorProduct(
-                                baseWidth = cloudLayer.payload.baseWidth ?: 0,
-                                baseHeight = cloudLayer.payload.baseHeight ?: 0
-                            ),
-                            viewport = EditorViewport(
-                                offsetX = offsetX,
-                                offsetY = offsetY,
-                                scale = cloudLayer.transform.scale,
-                                rotation = cloudLayer.transform.rotation
-                            ),
-                            appearance = EditorAppearance(
-                                shadowIntensity = cloudLayer.payload.shadowIntensity ?: 0f,
-                                alpha = cloudLayer.payload.alpha ?: 1f,
-                                shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
-                                shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
-                                shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt()
-                            )
-                        )
-                    } else {
-                        val imageUrl = cloudLayer.resolvedImageUrl() ?: return@mapNotNull null
-                        EditorLayer(
-                            id = cloudLayer.layerId.ifEmpty { java.util.UUID.randomUUID().toString() },
-                            type = LayerType.IMAGE,
-                            product = EditorProduct(
-                                originalUriString = imageUrl,
-                                foregroundUriString = imageUrl,
-                                isBackgroundRemoved = true,
-                                baseWidth = cloudLayer.payload.baseWidth ?: 0,
-                                baseHeight = cloudLayer.payload.baseHeight ?: 0,
-                                isSample = cloudLayer.type == "PLACEHOLDER_OBJECT"
-                            ),
-                            viewport = EditorViewport(
-                                offsetX = offsetX,
-                                offsetY = offsetY,
-                                scale = cloudLayer.transform.scale,
-                                rotation = cloudLayer.transform.rotation,
-                                flippedH = cloudLayer.payload.flippedH ?: false,
-                                flippedV = cloudLayer.payload.flippedV ?: false
-                            ),
-                            appearance = EditorAppearance(
-                                shadowIntensity = cloudLayer.payload.shadowIntensity ?: 0f,
-                                alpha = cloudLayer.payload.alpha ?: 1f,
-                                shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
-                                shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
-                                shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt()
-                            ),
-                            cropRatio = cloudLayer.resolvedCropRatio()
-                        )
-                    }
-                }
-                
-                _state.update {
-                    it.copy(
-                        template = EditorTemplate(
-                            assetPath = assetPath,
-                            originalWidth = tw,
-                            originalHeight = th,
-                            backgroundColorArgb = cloudTemplate.canvas.backgroundColorArgb ?: 0xFFFFFFFF.toInt(),
-                            loaded = true
-                        ),
-                        layers = editorLayers,
-                        selectedLayerId = editorLayers.firstOrNull { layer -> layer.product.isSample }?.id,
-                        errorMessage = null
-                    )
-                }
+            runCatching {
+                templateLoader.buildFromCloud(cloudTemplate)
+            }.onSuccess { loaded ->
+                applyLoadedTemplate(loaded)
                 android.util.Log.d(
                     BG_DEBUG_TAG,
-                    "state applied templateId=${cloudTemplate.templateId} assetPath=${assetPath.take(160)} bgColor=${cloudTemplate.canvas.backgroundColorArgb ?: 0xFFFFFFFF.toInt()} finalSize=${tw}x${th} editorLayers=${editorLayers.size}"
+                    "state applied templateId=${cloudTemplate.templateId} editorLayers=${loaded.layers.size}"
                 )
-            } catch (e: Exception) {
-                android.util.Log.e(TAG, "loadCloudTemplate failed to load template: $assetPath", e)
-                _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_load_cloud_template, e.message ?: "")) }
+            }.onFailure { e ->
+                android.util.Log.e(TAG, "loadCloudTemplate failed: $assetPath", e)
+                _state.update {
+                    it.copy(errorMessage = context.getString(R.string.studio_error_load_cloud_template, e.message ?: ""))
+                }
             }
         }
     }
@@ -527,38 +435,25 @@ class ThemeplateEditorViewModel @Inject constructor(
             }
             return
         }
-        
+
         savedStateHandle["template_path"] = assetPath
-        
         templateLoadJob?.cancel()
         templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            try {
-                android.util.Log.d(TAG, "Opening input stream for: $assetPath")
-                getInputStreamForPath(assetPath)?.use { input ->
-                    val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                    BitmapFactory.decodeStream(input, null, opts)
-                    android.util.Log.d(TAG, "Decoded template original bounds: ${opts.outWidth} x ${opts.outHeight}")
-                    
-                    _state.update {
-                        it.copy(
-                            template = EditorTemplate(
-                                assetPath = assetPath,
-                                originalWidth = opts.outWidth,
-                                originalHeight = opts.outHeight,
-                                loaded = true
-                            ),
-                            errorMessage = null
-                        )
-                    }
-                    android.util.Log.d(TAG, "Successfully loaded template state")
-                    
-                    if (objectSourceAssetPath != null) {
-                        loadSampleObject(objectSourceAssetPath)
-                    }
-                } ?: throw Exception("Failed to open stream")
-            } catch (e: Exception) {
+            runCatching {
+                templateLoader.probeLocalAsset(assetPath)
+            }.onSuccess { loaded ->
+                _state.update {
+                    it.copy(template = loaded.template, errorMessage = null)
+                }
+                android.util.Log.d(TAG, "Successfully loaded template state")
+                if (objectSourceAssetPath != null) {
+                    loadSampleObject(objectSourceAssetPath)
+                }
+            }.onFailure { e ->
                 android.util.Log.e(TAG, "loadTemplate failed to load template: $assetPath", e)
-                _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_load_template, e.message ?: "")) }
+                _state.update {
+                    it.copy(errorMessage = context.getString(R.string.studio_error_load_template, e.message ?: ""))
+                }
             }
         }
     }
@@ -567,132 +462,65 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     private fun loadSampleObject(assetPath: String) {
         sampleObjectLoadJob?.cancel()
-        val processingId = java.util.UUID.randomUUID().toString()
+        val processingId = productWorkflow.newProcessingId()
         _state.update {
             it.copy(
-                layers = it.layers + EditorLayer(id = processingId, product = EditorProduct(processing = true, isSample = true)),
-                selectedLayerId = processingId
+                layers = it.layers + productWorkflow.buildSampleProcessingLayer(processingId),
+                selectedLayerId = processingId,
             )
         }
         sampleObjectLoadJob = viewModelScope.launch {
             try {
                 android.util.Log.d(TAG, "loadSampleObject: extracting $assetPath")
-                val cachedUri = sampleObjectCacheManager.getOrExtract(assetPath)
-                if (cachedUri != null) {
-                    val tw = _state.value.template.originalSize.width
-                    val th = _state.value.template.originalSize.height
-                    
-                    val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                    withContext(Dispatchers.IO) {
-                        context.contentResolver.openInputStream(cachedUri).use { input ->
-                            BitmapFactory.decodeStream(input, null, options)
+                when (val result = productWorkflow.loadSampleObject(assetPath)) {
+                    is SampleObjectResult.Ready -> {
+                        _state.update { state ->
+                            val updatedLayers = state.layers.map {
+                                if (it.id == processingId) {
+                                    it.copy(product = result.product, viewport = EditorViewport(scale = 1f))
+                                } else {
+                                    it
+                                }
+                            }
+                            state.copy(layers = updatedLayers, showBoundingBox = true)
                         }
+                        triggerOverlay()
+                        pushHistory()
                     }
-                    
-                    val w = options.outWidth
-                    val h = options.outHeight
-                    android.util.Log.d(TAG, "loadSampleObject: cached bounds $w x $h")
-                    
-                    val baseSize = IntSize(w.coerceAtLeast(0), h.coerceAtLeast(0))
-                    
-                    _state.update { state ->
-                        val newProduct = EditorProduct(
-                            originalUriString = cachedUri.toString(),
-                            foregroundUriString = cachedUri.toString(),
-                            isBackgroundRemoved = true,
-                            baseWidth = baseSize.width,
-                            baseHeight = baseSize.height,
-                            processing = false,
-                            isSample = true
-                        )
-                        val updatedLayers = state.layers.map {
-                            if (it.id == processingId) it.copy(product = newProduct, viewport = EditorViewport(scale = 1f)) else it
-                        }
-                        state.copy(
-                            layers = updatedLayers,
-                            showBoundingBox = true
-                        )
-                    }
-                    triggerOverlay()
-                    pushHistory()
-                } else {
-                    _state.update { state -> 
-                        state.copy(layers = state.layers.filterNot { it.id == processingId }, selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId) 
-                    }
+                    SampleObjectResult.NotFound -> removeProcessingLayer(processingId)
+                    is SampleObjectResult.Failed -> removeProcessingLayer(processingId, result.message)
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "Failed to load sample object: $assetPath", e)
-                _state.update { state ->
-                    state.copy(
-                        layers = state.layers.filterNot { it.id == processingId },
-                        selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId,
-                        errorMessage = context.getString(R.string.studio_error_load_sample_product)
-                    )
-                }
+                removeProcessingLayer(
+                    processingId,
+                    context.getString(R.string.studio_error_load_sample_product),
+                )
             }
         }
     }
 
     private fun addSticker(assetPath: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
-                val templateSize = _state.value.template.originalSize
-                val stickerPath = if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
-                    assetPath
-                } else {
-                    "file:///android_asset/$assetPath"
+                when (val result = productWorkflow.buildStickerLayer(assetPath, _state.value.template.originalSize)) {
+                    is StickerResult.Ready -> {
+                        _state.update { state ->
+                            state.copy(
+                                layers = state.layers + result.layer,
+                                selectedLayerId = result.layer.id,
+                                showBoundingBox = true,
+                                errorMessage = null,
+                            )
+                        }
+                        pushHistory()
+                    }
+                    is StickerResult.Failure -> {
+                        _state.update { it.copy(errorMessage = result.message) }
+                    }
                 }
-
-                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                val decoded = getInputStreamForPath(stickerPath)?.use { input ->
-                    BitmapFactory.decodeStream(input, null, options)
-                    options.outWidth > 0 && options.outHeight > 0
-                } == true
-
-                val stickerWidth = if (decoded) options.outWidth.coerceAtLeast(1) else 512
-                val stickerHeight = if (decoded) options.outHeight.coerceAtLeast(1) else 512
-                val maxStickerDim = maxOf(stickerWidth, stickerHeight).toFloat()
-                val targetSize = if (templateSize.width > 0 && templateSize.height > 0) {
-                    minOf(templateSize.width, templateSize.height) * 0.28f
-                } else {
-                    maxStickerDim * 0.35f
-                }
-                val initialScale = (targetSize / maxStickerDim).coerceIn(0.15f, 1.4f)
-
-                val layerId = java.util.UUID.randomUUID().toString()
-                val stickerLayer = EditorLayer(
-                    id = layerId,
-                    product = EditorProduct(
-                        originalUriString = stickerPath,
-                        foregroundUriString = stickerPath,
-                        isBackgroundRemoved = true,
-                        baseWidth = stickerWidth,
-                        baseHeight = stickerHeight,
-                        processing = false,
-                        isSample = false
-                    ),
-                    viewport = EditorViewport(scale = initialScale),
-                    appearance = EditorAppearance(
-                        shadowIntensity = 0f,
-                        alpha = 1f,
-                        shadowAngle = 45f,
-                        shadowDistance = 12f,
-                        shadowColorArgb = 0xFF000000.toInt()
-                    ),
-                    cropRatio = CropRatio.ORIGINAL
-                )
-
-                _state.update { state ->
-                    state.copy(
-                        layers = state.layers + stickerLayer,
-                        selectedLayerId = layerId,
-                        showBoundingBox = true,
-                        errorMessage = null
-                    )
-                }
-                pushHistory()
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "addSticker failed for: $assetPath", e)
                 _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_unknown)) }
@@ -704,100 +532,58 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     private fun setProductImage(uri: Uri, replaceLayerId: String?) {
         bgRemoveJob?.cancel()
-        
-        val processingId = replaceLayerId ?: java.util.UUID.randomUUID().toString()
-        _state.update { state ->
-            val newLayerTemplate = EditorLayer(id = processingId, product = EditorProduct(originalUriString = uri.toString(), processing = true))
-            val newLayers = if (replaceLayerId != null && state.layers.any { it.id == replaceLayerId }) {
-                state.layers.map { if (it.id == replaceLayerId) newLayerTemplate.copy(viewport = it.viewport) else it }
-            } else {
-                state.layers + newLayerTemplate
-            }
-            state.copy(
-                layers = newLayers,
-                selectedLayerId = processingId,
+
+        val update = productWorkflow.buildProcessingLayerUpdate(uri, replaceLayerId, _state.value.layers)
+        _state.update {
+            it.copy(
+                layers = update.layers,
+                selectedLayerId = update.processingId,
                 exportResult = null,
                 errorMessage = null,
-                showBoundingBox = false
+                showBoundingBox = false,
             )
         }
         historyManager.clear()
-        
+
         bgRemoveJob = viewModelScope.launch {
             try {
-                // Step 1: Decode (CPU-bound → Default dispatcher)
-                val decoded = withContext(Dispatchers.Default) {
-                    ProcessorUtils.decodeBitmapFromUri(context, uri)
-                }
-                
-                if (decoded == null) {
-                    _state.update { state -> state.copy(layers = state.layers.filterNot { it.id == processingId }) }
-                    return@launch
-                }
-
-                // Step 2: Background removal (ML inference → Default/ML dispatcher)
-                val foreground = withContext(Dispatchers.Default) {
-                    backgroundRemoverRepository.getForegroundBitmap(decoded).getOrNull()
-                }
-
-                if (foreground == null) {
-                    decoded.recycle()
-                    _state.update { state -> state.copy(layers = state.layers.filterNot { it.id == processingId }) }
-                    return@launch
-                }
-
-                // Step 3: Cache result (IO-bound)
-                val cachedUri = withContext(Dispatchers.IO) {
-                    imageSaveRepository.cacheBitmap(foreground).getOrNull()
-                }
-
-                if (cachedUri != null) {
-                    val tw = _state.value.template.originalSize.width
-                    val th = _state.value.template.originalSize.height
-                    
-                    val baseSize = IntSize(
-                        foreground.width.coerceAtLeast(0),
-                        foreground.height.coerceAtLeast(0)
-                    )
-
-                    _state.update { state ->
-                        val newProduct = EditorProduct(
-                                originalUriString = uri.toString(),
-                                foregroundUriString = cachedUri.toString(),
-                                isBackgroundRemoved = true,
-                                baseWidth = baseSize.width,
-                                baseHeight = baseSize.height,
-                                processing = false
-                            )
-                        val updatedLayers = state.layers.map {
-                            if (it.id == processingId) it.copy(product = newProduct) else it
+                when (val result = productWorkflow.processUserImage(uri)) {
+                    is ProductImageResult.Ready -> {
+                        _state.update { state ->
+                            val updatedLayers = state.layers.map {
+                                if (it.id == update.processingId) it.copy(product = result.product) else it
+                            }
+                            state.copy(layers = updatedLayers, showBoundingBox = true)
                         }
-                        state.copy(
-                            layers = updatedLayers,
-                            showBoundingBox = true
+                        triggerOverlay()
+                        pushHistory()
+                    }
+                    is ProductImageResult.Failed -> {
+                        removeProcessingLayer(
+                            update.processingId,
+                            result.message ?: context.getString(R.string.studio_error_process_image),
                         )
                     }
-                    triggerOverlay()
-                    pushHistory()
-                } else {
-                    _state.update { state -> state.copy(layers = state.layers.filterNot { it.id == processingId }) }
                 }
-                
-                // Cleanup bitmaps
-                foreground.recycle()
-                decoded.recycle()
-                
             } catch (e: CancellationException) {
-                throw e // Don't swallow cancellation
+                throw e
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "removeBackground failed", e)
-                _state.update { state ->
-                    state.copy(
-                        layers = state.layers.filterNot { it.id == processingId },
-                        errorMessage = e.message ?: context.getString(R.string.studio_error_process_image)
-                    ) 
-                }
+                removeProcessingLayer(
+                    update.processingId,
+                    e.message ?: context.getString(R.string.studio_error_process_image),
+                )
             }
+        }
+    }
+
+    private fun removeProcessingLayer(processingId: String, errorMessage: String? = null) {
+        _state.update { state ->
+            state.copy(
+                layers = state.layers.filterNot { it.id == processingId },
+                selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId,
+                errorMessage = errorMessage ?: state.errorMessage,
+            )
         }
     }
 
@@ -887,57 +673,32 @@ class ThemeplateEditorViewModel @Inject constructor(
     
     private fun export(templateAssetPath: String) {
         if (_state.value.isExporting || !_state.value.canExport) return
-        
+
         val currentState = _state.value
-        val templateSize = currentState.template.originalSize
-        
-        if (templateSize.width == 0 || templateSize.height == 0) return
+        if (currentState.template.originalSize.width == 0 || currentState.template.originalSize.height == 0) return
 
         exportJob?.cancel()
         exportJob = viewModelScope.launch {
             _state.update { it.copy(isExporting = true, errorMessage = null) }
-            
-            try {
-                // Prepare multiple RenderRequest (one per layer) or adapt EditorRenderer to handle list
-                val result = renderer.renderLayers(
-                    EditorRenderer.MultiLayerRenderRequest(
-                        templateAssetPath = templateAssetPath,
-                        templateSize = templateSize,
-                        layers = currentState.layers.filter {
-                            it.type == LayerType.SHAPE_TEXT ||
-                                it.type == LayerType.SHADOW_REGION ||
-                                it.product.foregroundUri != null
-                        },
-                        backgroundColorArgb = currentState.template.backgroundColorArgb
-                    )
-                )
 
-                result.fold(
-                    onSuccess = { bitmap ->
-                        val uri = withContext(Dispatchers.IO) {
-                            imageSaveRepository.saveBitmap(bitmap).getOrNull()
-                        }
-                        
-                        if (uri != null) {
-                            _state.update { it.copy(isExporting = false, exportResult = uri) }
-                        } else {
-                            _state.update { 
-                                it.copy(isExporting = false, errorMessage = context.getString(R.string.studio_error_save_image)) 
-                            }
-                        }
-                    },
-                    onFailure = { e ->
-                        _state.update { 
-                            it.copy(isExporting = false, errorMessage = context.getString(R.string.studio_error_render_failed, e.message ?: "")) 
-                        }
+            try {
+                when (val outcome = exportCoordinator.export(currentState, templateAssetPath)) {
+                    is ExportOutcome.Success -> {
+                        _state.update { it.copy(isExporting = false, exportResult = outcome.uri) }
                     }
-                )
+                    is ExportOutcome.Failure -> {
+                        _state.update { it.copy(isExporting = false, errorMessage = outcome.message) }
+                    }
+                }
             } catch (e: CancellationException) {
                 _state.update { it.copy(isExporting = false) }
                 throw e
             } catch (e: Exception) {
-                _state.update { 
-                    it.copy(isExporting = false, errorMessage = e.message ?: context.getString(R.string.studio_error_unknown)) 
+                _state.update {
+                    it.copy(
+                        isExporting = false,
+                        errorMessage = e.message ?: context.getString(R.string.studio_error_unknown),
+                    )
                 }
             }
         }
@@ -948,32 +709,18 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun saveDraft() {
         val currentState = _state.value
         val templateAssetPath = currentState.template.assetPath
-        val templateSize = currentState.template.originalSize
-        if (templateSize.width == 0 || templateSize.height == 0) return
+        if (currentState.template.originalSize.width == 0 || currentState.template.originalSize.height == 0) return
 
         saveDraftJob?.cancel()
-        saveDraftJob = viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Determine template draft name
-                val name = "Template_${System.currentTimeMillis()}"
-                
-                // Save state to draft repository
-                val newDraftId = templateDraftRepository.saveDraft(
-                    draftId = draftId,
-                    name = name,
-                    state = currentState,
-                    templateAssetPath = templateAssetPath,
-                    templateObjectAssetPath = null // Adjust if you keep object asset path
-                )
-                
-                // Update SavedStateHandle with new draft ID if it was created
-                if (draftId == null) {
-                    savedStateHandle["draftId"] = newDraftId
+        saveDraftJob = viewModelScope.launch {
+            when (val outcome = exportCoordinator.saveDraft(currentState, draftId, templateAssetPath)) {
+                is SaveDraftOutcome.Success -> {
+                    if (draftId == null) {
+                        savedStateHandle["draftId"] = outcome.draftId
+                    }
+                    _state.update { it.copy(draftSavedAt = outcome.savedAt) }
                 }
-                
-                _state.update { it.copy(draftSavedAt = System.currentTimeMillis()) }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                is SaveDraftOutcome.Failure -> outcome.error.printStackTrace()
             }
         }
     }
@@ -1009,145 +756,28 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private fun loadCloudTemplateById(templateId: String) {
-        val baseUrl = BuildConfig.ADMIN_WEB_BASE_URL
-        if (baseUrl.isBlank()) return
-
         templateLoadJob?.cancel()
         templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(errorMessage = null) }
-            val connection = (URL("$baseUrl/api/v1/templates?templateId=$templateId").openConnection() as HttpURLConnection).apply {
-                requestMethod = "GET"
-                connectTimeout = 5000
-                readTimeout = 5000
-                setRequestProperty("Accept", "application/json")
-            }
-
-            try {
-                val responseCode = connection.responseCode
-                val body = if (responseCode in 200..299) {
-                    connection.inputStream.bufferedReader().use { it.readText() }
-                } else {
-                    connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
-                }
+            runCatching {
+                templateLoader.fetchAndBuild(templateId)
+            }.onSuccess { loaded ->
+                savedStateHandle["template_path"] = loaded.template.assetPath
+                applyLoadedTemplate(loaded)
                 android.util.Log.d(
                     BG_DEBUG_TAG,
-                    "fetch templateId=$templateId status=$responseCode bodyChars=${body.length} baseUrl=$baseUrl"
+                    "loaded templateId=$templateId layers=${loaded.layers.size}"
                 )
-
-                if (body.isBlank()) throw Exception("Empty response from server")
-
-                val root = JSONObject(body)
-                if (!root.optBoolean("success", false)) throw Exception("API returned success=false")
-
-                val templatesArray = root.optJSONArray("templates") 
-                    ?: throw Exception("No templates field in response")
-                if (templatesArray.length() == 0) throw Exception("Template not found on server")
-
-                val item = templatesArray.optJSONObject(0) ?: throw Exception("Invalid template JSON")
-                val canvasData = item.optJSONObject("canvas_data") ?: throw Exception("Template missing canvas data")
-                val rawCanvas = canvasData.optJSONObject("canvas")
-                android.util.Log.d(
-                    BG_DEBUG_TAG,
-                    "raw templateId=$templateId rowTemplateId=${item.optString("template_id")} thumbnail=${item.optString("thumbnail_url").take(120)} canvasBackgroundUrl=${rawCanvas?.optString("backgroundUrl")} canvasBackgroundColorArgb=${rawCanvas?.optString("backgroundColorArgb")} layers=${canvasData.optJSONArray("layers")?.length() ?: -1}"
-                )
-
-                val parsedTemplate = parseCloudTemplate(
-                    templateId = item.optString("template_id").ifBlank { item.optString("id") },
-                    categoryId = item.optString("category_id"),
-                    canvasData = canvasData,
-                    title = item.optString("title"),
-                    thumbnailUrl = item.optString("thumbnail_url"),
-                    status = item.optString("status")
-                )
-
-                loadCloudTemplate(parsedTemplate)
-            } catch (e: Exception) {
-                android.util.Log.e("EditorVM", "Failed to load remote template $templateId", e)
-                _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_load_cloud_template, e.message ?: "")) }
-            } finally {
-                connection.disconnect()
-            }
-        }
-    }
-
-    private fun parseCloudTemplate(
-        templateId: String,
-        categoryId: String,
-        canvasData: JSONObject,
-        title: String,
-        thumbnailUrl: String,
-        status: String
-    ): CloudTemplate {
-        val metadataJson = canvasData.optJSONObject("metadata")
-        val canvasJson = canvasData.optJSONObject("canvas")
-
-        return CloudTemplate(
-            templateId = canvasData.optString("templateId", templateId).takeIf { it.isNotBlank() && it != "null" } ?: templateId,
-            categoryId = canvasData.optString("categoryId", categoryId).takeIf { it.isNotBlank() && it != "null" } ?: categoryId,
-            metadata = TemplateMetadata(
-                title = metadataJson?.optString("title")?.takeIf { it.isNotBlank() && it != "null" } ?: title,
-                thumbnailUrl = metadataJson?.optString("thumbnailUrl")?.takeIf { it.isNotBlank() && it != "null" } ?: thumbnailUrl.takeIf { it != "null" } ?: "",
-                status = metadataJson?.optString("status")?.takeIf { it.isNotBlank() && it != "null" } ?: status,
-                schemaVersion = metadataJson?.optInt("schemaVersion", 1) ?: 1,
-                createdAt = metadataJson?.optLong("createdAt", System.currentTimeMillis()) ?: System.currentTimeMillis(),
-                updatedAt = metadataJson?.optLong("updatedAt", System.currentTimeMillis()) ?: System.currentTimeMillis()
-            ),
-            canvas = TemplateCanvas(
-                baseWidth = canvasJson?.optInt("baseWidth", 1080) ?: 1080,
-                baseHeight = canvasJson?.optInt("baseHeight", 1920) ?: 1920,
-                aspectRatio = canvasJson?.optString("aspectRatio")?.takeIf { it.isNotBlank() && it != "null" } ?: "9:16",
-                backgroundUrl = canvasJson?.optString("backgroundUrl")?.takeIf { it.isNotBlank() && it != "null" },
-                backgroundColorArgb = canvasJson?.takeIf { it.has("backgroundColorArgb") }?.optInt("backgroundColorArgb")
-            ),
-            layers = parseLayers(canvasData.optJSONArray("layers"))
-        )
-    }
-
-    private fun parseLayers(layersArray: JSONArray?): List<CloudLayer> {
-        if (layersArray == null) return emptyList()
-
-        return buildList {
-            for (index in 0 until layersArray.length()) {
-                val item = layersArray.optJSONObject(index) ?: continue
-                val transformJson = item.optJSONObject("transform")
-                val payloadJson = item.optJSONObject("payload")
-
-                add(
-                    CloudLayer(
-                        layerId = item.optString("layerId").takeIf { it != "null" } ?: "",
-                        type = item.optString("type", "IMAGE").takeIf { it != "null" } ?: "IMAGE",
-                        zIndex = item.optInt("zIndex", index),
-                        transform = CloudTransform(
-                            anchorX = transformJson?.optDouble("anchorX", 0.5)?.toFloat() ?: 0.5f,
-                            anchorY = transformJson?.optDouble("anchorY", 0.5)?.toFloat() ?: 0.5f,
-                            scale = transformJson?.optDouble("scale", 1.0)?.toFloat() ?: 1.0f,
-                            rotation = transformJson?.optDouble("rotation", 0.0)?.toFloat() ?: 0.0f
-                        ),
-                        payload = CloudPayload(
-                            defaultImageUrl = payloadJson?.optString("defaultImageUrl")?.takeIf { it.isNotBlank() && it != "null" },
-                            imageUrl = payloadJson?.optString("imageUrl")?.takeIf { it.isNotBlank() && it != "null" },
-                            sourceKind = payloadJson?.optString("sourceKind")?.takeIf { it.isNotBlank() && it != "null" },
-                            shadowIntensity = payloadJson?.optDouble("shadowIntensity")?.toFloat()?.takeUnless { it.isNaN() },
-                            shadowAngle = payloadJson?.optDouble("shadowAngle")?.toFloat()?.takeUnless { it.isNaN() },
-                            shadowDistance = payloadJson?.optDouble("shadowDistance")?.toFloat()?.takeUnless { it.isNaN() },
-                            shadowBlur = payloadJson?.optDouble("shadowBlur")?.toFloat()?.takeUnless { it.isNaN() },
-                            alpha = payloadJson?.optDouble("alpha")?.toFloat()?.takeUnless { it.isNaN() },
-                            shadowColorArgb = payloadJson?.optInt("shadowColorArgb"),
-                            cropRatio = payloadJson?.optString("cropRatio")?.takeIf { it.isNotBlank() && it != "null" },
-                            flippedH = payloadJson?.optBoolean("flippedH"),
-                            flippedV = payloadJson?.optBoolean("flippedV"),
-                            baseWidth = payloadJson?.optInt("baseWidth"),
-                            baseHeight = payloadJson?.optInt("baseHeight"),
-                            text = payloadJson?.optString("text")?.takeIf { it.isNotBlank() && it != "null" },
-                            font = payloadJson?.optString("font")?.takeIf { it.isNotBlank() && it != "null" },
-                            textColorArgb = payloadJson?.takeIf { it.has("textColorArgb") }?.optInt("textColorArgb"),
-                            fontSize = payloadJson?.takeIf { it.has("fontSize") }?.optDouble("fontSize")?.toFloat()?.takeUnless { it.isNaN() },
-                            fontWeight = payloadJson?.optString("fontWeight")?.takeIf { it.isNotBlank() && it != "null" },
-                            fontStyle = payloadJson?.optString("fontStyle")?.takeIf { it.isNotBlank() && it != "null" },
-                            textAlign = payloadJson?.optString("textAlign")?.takeIf { it.isNotBlank() && it != "null" }
+            }.onFailure { e ->
+                android.util.Log.e(TAG, "Failed to load remote template $templateId", e)
+                _state.update {
+                    it.copy(
+                        errorMessage = context.getString(
+                            R.string.studio_error_load_cloud_template,
+                            e.message ?: ""
                         )
                     )
-                )
+                }
             }
         }
     }

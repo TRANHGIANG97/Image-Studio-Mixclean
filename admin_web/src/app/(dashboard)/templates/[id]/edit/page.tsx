@@ -32,6 +32,7 @@ import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore } from '@/store/layers.store';
 import { CANVAS_SERIALIZE_PROPS } from '@/store/canvas-serialize.constants';
 import { fabricToCloudTemplate } from '@/lib/template-converter';
+import { validateTemplateForPublish } from '@/lib/template-validate';
 import CanvasWorkspace from '@/components/canvas/CanvasWorkspace';
 import LayerPanel from '@/components/canvas/LayerPanel';
 import PropertiesPanel from '@/components/canvas/PropertiesPanel';
@@ -41,6 +42,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -52,6 +54,11 @@ const DEFAULT_LEFT_W = 288;
 const DEFAULT_RIGHT_W = 320;
 const MIN_PANEL_W = 200;
 const MAX_PANEL_W = 500;
+const AUTOSAVE_MS = 45000;
+
+function formatSavedTime(date: Date): string {
+  return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+}
 
 export default function TemplateEditPage() {
   const { id } = useParams();
@@ -64,6 +71,12 @@ export default function TemplateEditPage() {
   const [isDirty, setIsDirty] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+
+  const savingLockRef = useRef(false);
+  const handleSaveRef = useRef<(silent?: boolean, status?: 'draft' | 'published', env?: 'debug' | 'release' | 'all') => Promise<boolean>>(async () => false);
+  const fabricStateBootstrappedRef = useRef(false);
 
   // Panel visibility & sizing
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
@@ -203,6 +216,10 @@ export default function TemplateEditPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load template');
       setTemplate(data.template);
+      if (data.template?.updated_at) {
+        setLastSavedAt(new Date(data.template.updated_at));
+      }
+      fabricStateBootstrappedRef.current = Boolean(data.template?.fabric_state);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -240,7 +257,6 @@ export default function TemplateEditPage() {
 
   const uploadDataUrl = async (dataUrl: string, filename: string, folder: string): Promise<string | null> => {
     const blob = dataURLtoBlob(dataUrl);
-    console.log(`[TPL_BG_DEBUG] upload start filename=${filename} folder=${folder} bytes=${blob.size}`);
     const file = new File([blob], filename, { type: blob.type || 'image/webp' });
     const formData = new FormData();
     formData.append('file', file);
@@ -248,7 +264,6 @@ export default function TemplateEditPage() {
     formData.append('registerAsset', 'false');
     const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
     const uploadData = await uploadRes.json();
-    console.log(`[TPL_BG_DEBUG] upload done filename=${filename} ok=${uploadRes.ok} url=${uploadData.fileUrl || 'null'} error=${uploadData.error || 'null'}`);
     return uploadRes.ok ? uploadData.fileUrl : null;
   };
 
@@ -265,9 +280,6 @@ export default function TemplateEditPage() {
         obj.visible = false;
       }
     });
-    console.log(
-      `[TPL_BG_DEBUG] render background-only templateId=${template?.template_id} totalObjects=${canvas.getObjects().length} hiddenObjects=${hiddenObjects.length} backgroundImage=${Boolean(canvas.backgroundImage)} backgroundColor=${typeof canvas.backgroundColor === 'string' ? canvas.backgroundColor : '[object]'}`
-    );
     canvas.renderAll();
 
     const dataUrl = canvas.toDataURL({
@@ -288,8 +300,11 @@ export default function TemplateEditPage() {
     silent = false,
     statusOverride?: 'draft' | 'published',
     envOverride?: 'debug' | 'release' | 'all'
-  ) => {
-    if (!canvas || !template) return;
+  ): Promise<boolean> => {
+    if (!canvas || !template) return false;
+    if (savingLockRef.current) return false;
+
+    savingLockRef.current = true;
     setIsSaving(true);
     setError(null);
 
@@ -316,41 +331,42 @@ export default function TemplateEditPage() {
         canvas.renderAll();
       }
 
-      let thumbnailUrl = template.thumbnail_url;
-      try {
-        thumbnailUrl = await uploadDataUrl(dataUrl, `thumb_${template.template_id}.webp`, 'thumbnails') || thumbnailUrl;
-      } catch (uploadErr) {
-        console.warn('Thumbnail upload failed:', uploadErr);
-      }
-
       const serializedTemplate = fabricToCloudTemplate(
         canvas, baseWidth, baseHeight,
         template.template_id, template.category_id,
         template.title, newStatus
       );
 
-      // Explicitly update metadata status and environment
       if (serializedTemplate.metadata) {
         serializedTemplate.metadata.status = newStatus;
         serializedTemplate.metadata.environment = newEnv;
       }
 
-      console.log(
-        `[TPL_BG_DEBUG] serialized templateId=${template.template_id} backgroundUrl=${serializedTemplate.canvas.backgroundUrl || 'null'} backgroundColorArgb=${serializedTemplate.canvas.backgroundColorArgb ?? 'null'} layers=${serializedTemplate.layers.length}`
-      );
-
-      if (!serializedTemplate.canvas.backgroundUrl) {
-        try {
-          const backgroundDataUrl = renderBackgroundOnlyDataUrl();
-          const backgroundUrl = backgroundDataUrl
-            ? await uploadDataUrl(backgroundDataUrl, `bg_${template.template_id}.webp`, 'backgrounds')
-            : null;
-          if (backgroundUrl) serializedTemplate.canvas.backgroundUrl = backgroundUrl;
-          console.log(`[TPL_BG_DEBUG] background snapshot templateId=${template.template_id} uploadedUrl=${backgroundUrl || 'null'}`);
-        } catch (uploadErr) {
-          console.warn('Background snapshot upload failed:', uploadErr);
-          console.warn(`[TPL_BG_DEBUG] background snapshot failed templateId=${template.template_id}`, uploadErr);
+      if (newStatus === 'published') {
+        const validation = validateTemplateForPublish(canvas, serializedTemplate);
+        if (!validation.valid) {
+          if (!silent) {
+            toast.error(validation.errors[0] || 'Template không hợp lệ để publish.');
+          }
+          return false;
         }
+      }
+
+      const needsBackgroundUpload = !serializedTemplate.canvas.backgroundUrl;
+      const backgroundDataUrl = needsBackgroundUpload ? renderBackgroundOnlyDataUrl() : null;
+
+      let thumbnailUrl = template.thumbnail_url;
+      try {
+        const [uploadedThumb, uploadedBg] = await Promise.all([
+          uploadDataUrl(dataUrl, `thumb_${template.template_id}.webp`, 'thumbnails').catch(() => null),
+          backgroundDataUrl
+            ? uploadDataUrl(backgroundDataUrl, `bg_${template.template_id}.webp`, 'backgrounds').catch(() => null)
+            : Promise.resolve(null),
+        ]);
+        if (uploadedThumb) thumbnailUrl = uploadedThumb;
+        if (uploadedBg) serializedTemplate.canvas.backgroundUrl = uploadedBg;
+      } catch (uploadErr) {
+        console.warn('Asset upload failed:', uploadErr);
       }
 
       const fabricState = canvas.toJSON(CANVAS_SERIALIZE_PROPS);
@@ -374,6 +390,9 @@ export default function TemplateEditPage() {
 
       setTemplate(data.template);
       setIsDirty(false);
+      setLastSavedAt(new Date(data.template?.updated_at || Date.now()));
+      fabricStateBootstrappedRef.current = true;
+
       if (!silent) {
         toast.success(
           statusOverride || envOverride
@@ -381,14 +400,34 @@ export default function TemplateEditPage() {
             : 'Đã lưu thiết kế và cập nhật ảnh xem trước thành công!'
         );
       }
+      return true;
     } catch (err: any) {
       setError(err.message);
       if (!silent) {
         toast.error(`Lỗi lưu thiết kế: ${err.message}`);
       }
+      return false;
     } finally {
+      savingLockRef.current = false;
       setIsSaving(false);
     }
+  };
+
+  handleSaveRef.current = handleSave;
+
+  useEffect(() => {
+    if (!isDirty || isSaving || !canvas || !template) return;
+    const timer = setTimeout(() => {
+      void handleSaveRef.current(true);
+    }, AUTOSAVE_MS);
+    return () => clearTimeout(timer);
+  }, [isDirty, isSaving, canvas, template]);
+
+  const handleBootstrapFabricState = async () => {
+    if (fabricStateBootstrappedRef.current || isSaving) return;
+    fabricStateBootstrappedRef.current = true;
+    const ok = await handleSaveRef.current(true);
+    if (!ok) fabricStateBootstrappedRef.current = false;
   };
 
   const handleDeleteTemplate = async () => {
@@ -591,7 +630,8 @@ export default function TemplateEditPage() {
                   <button
                     onClick={async () => {
                       setIsActionsOpen(false);
-                      await handleSave(false, 'published', 'debug');
+                      const ok = await handleSave(false, 'published', 'debug');
+                      if (!ok) return;
                     }}
                     className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-amber-300 hover:bg-amber-500/10 transition-colors cursor-pointer"
                   >
@@ -600,7 +640,8 @@ export default function TemplateEditPage() {
                   <button
                     onClick={async () => {
                       setIsActionsOpen(false);
-                      await handleSave(false, 'published', 'release');
+                      const ok = await handleSave(false, 'published', 'release');
+                      if (!ok) return;
                     }}
                     className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
                   >
@@ -619,11 +660,9 @@ export default function TemplateEditPage() {
                   <div className="h-px bg-slate-200/60 my-1 mx-2" />
 
                   <button
-                    onClick={async () => {
+                    onClick={() => {
                       setIsActionsOpen(false);
-                      if (confirm('Bạn có chắc chắn muốn xóa template này? Hành động này không thể hoàn tác.')) {
-                        await handleDeleteTemplate();
-                      }
+                      setIsDeleteOpen(true);
                     }}
                     className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                   >
@@ -655,7 +694,7 @@ export default function TemplateEditPage() {
         {/* Layer Icon Strip (always visible when not collapsed) */}
         {!isLeftCollapsed && (
           <div className="shrink-0 bg-white/80 backdrop-blur-xl border-r border-slate-200/60 flex flex-col items-center py-3 gap-1 w-14 z-10 shadow-lg">
-            <LayerPanel compact />
+            <LayerPanel compact onDirty={() => setIsDirty(true)} />
           </div>
         )}
 
@@ -716,9 +755,10 @@ export default function TemplateEditPage() {
         <div className="flex-1 min-w-0 h-full relative transition-all duration-300">
           <CanvasWorkspace
             template={template}
-            onSave={handleSave}
+            onSave={() => { void handleSave(); }}
             isSaving={isSaving}
             setIsDirty={setIsDirty}
+            onLoadedWithoutFabricState={() => { void handleBootstrapFabricState(); }}
           />
           {/* MiniMap overlay */}
           <MiniMap />
@@ -739,7 +779,7 @@ export default function TemplateEditPage() {
         {!isRightCollapsed && (
           <div className="shrink-0 bg-white/95 backdrop-blur-xl border-l border-slate-200/60 h-full min-h-0 shadow-xl z-10 flex flex-col" style={{ width: rightPanelW }}>
             <div className="flex-1 min-h-0 overflow-hidden p-4">
-              <PropertiesPanel />
+              <PropertiesPanel onDirty={() => setIsDirty(true)} />
             </div>
           </div>
         )}
@@ -770,15 +810,21 @@ export default function TemplateEditPage() {
               Đang lưu...
             </span>
           ) : isDirty ? (
-            <span className="text-amber-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-              Chưa lưu
-            </span>
+            <>
+              <span className="text-amber-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                Chưa lưu
+              </span>
+              <span className="text-amber-500/80 hidden sm:inline">· Mobile: chưa cập nhật</span>
+            </>
           ) : (
-            <span className="text-emerald-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Đã lưu mọi thay đổi
-            </span>
+            <>
+              <span className="text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Đã lưu{lastSavedAt ? ` · ${formatSavedTime(lastSavedAt)}` : ''}
+              </span>
+              <span className="text-emerald-500/80 hidden sm:inline">· Mobile: đã sync</span>
+            </>
           )}
           <span className="text-slate-400">|</span>
           <button
@@ -804,8 +850,12 @@ export default function TemplateEditPage() {
                 ['Ctrl+S', 'Lưu'],
                 ['Ctrl+Z', 'Hoàn tác'],
                 ['Ctrl+Y', 'Làm lại'],
-                ['Ctrl+C', 'Sao chép'],
-                ['Ctrl+V', 'Dán'],
+                ['Ctrl+0', 'Zoom vừa khung'],
+                ['Ctrl+1', 'Zoom 100%'],
+                ['Ctrl+C', 'Sao chép layer'],
+                ['Ctrl+V', 'Dán layer'],
+                ['Ctrl+Shift+C', 'Sao chép kiểu'],
+                ['Ctrl+Shift+V', 'Dán kiểu'],
                 ['Ctrl+G', 'Nhóm (Group)'],
                 ['Ctrl+Shift+G', 'Rã nhóm'],
                 ['Ctrl+D', 'Nhân đôi'],
@@ -848,6 +898,32 @@ export default function TemplateEditPage() {
               </p>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-slate-800">Xóa template?</DialogTitle>
+            <DialogDescription className="text-xs text-slate-500">
+              Bạn có chắc chắn muốn xóa template này? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} disabled={isSaving}>
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={isSaving}
+              onClick={async () => {
+                await handleDeleteTemplate();
+                setIsDeleteOpen(false);
+              }}
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Xóa template'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

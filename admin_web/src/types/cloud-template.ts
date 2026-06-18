@@ -63,6 +63,8 @@ export interface CloudPayload {
   rx?: number | null;
   ry?: number | null;
   blendMode?: string | null;
+  pathData?: string | null;
+  polygonPoints?: number[] | null;
 }
 
 export interface CloudLayer {

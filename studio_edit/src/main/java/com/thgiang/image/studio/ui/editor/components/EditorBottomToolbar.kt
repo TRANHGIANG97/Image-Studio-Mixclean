@@ -45,7 +45,7 @@ fun EditorBottomToolbar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(72.dp)
+            .height(60.dp)
             // White background — premium clean
             .background(Color.White)
             .drawBehind {
@@ -63,7 +63,7 @@ fun EditorBottomToolbar(
                 .fillMaxSize()
                 .horizontalScroll(scrollState)
                 .padding(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             tools.forEach { tool ->
@@ -133,7 +133,7 @@ private fun ToolButton(
     val iconRes = when (tool) {
         is EditorTool.Replace      -> R.drawable.ic_tool_replace_image
         is EditorTool.Sticker      -> R.drawable.ic_tool_sticker
-        is EditorTool.Label        -> R.drawable.ic_tool_sticker  // reuse sticker icon; replace with ic_tool_label if asset is added
+        is EditorTool.Label        -> R.drawable.ic_tool_label
         is EditorTool.Layout       -> R.drawable.ic_tool_layout
         is EditorTool.Rotate       -> R.drawable.ic_tool_rotate_flip
         is EditorTool.Shadow       -> R.drawable.ic_tool_shadow
@@ -161,7 +161,7 @@ private fun ToolButton(
     // Pill-shaped container for selected state
     Box(
         modifier = Modifier
-            .widthIn(min = 64.dp)
+            .widthIn(min = 60.dp)
             .clickable(
                 enabled = enabled,
                 interactionSource = remember { MutableInteractionSource() },
@@ -193,7 +193,7 @@ private fun ToolButton(
             Text(
                 text = stringResource(labelRes),
                 style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                     textAlign = TextAlign.Center,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                 ),

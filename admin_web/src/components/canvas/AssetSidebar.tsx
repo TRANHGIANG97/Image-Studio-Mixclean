@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { FabricImage, Rect, Circle, Triangle, Path } from 'fabric';
 import { 
   Image as ImageIcon, 
   Search, 
@@ -13,12 +12,20 @@ import {
   ImagePlus,
   Type
 } from 'lucide-react';
-import { IText, Shadow } from 'fabric';
 import { TYPOGRAPHY_PRESETS, TypographyPreset } from '@/lib/typography-presets';
 import { Input } from '@/components/ui/input';
 import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore } from '@/store/layers.store';
+import { recordCanvasHistory } from '@/lib/canvas-commands';
 import { toast } from 'sonner';
+import {
+  type ShapeSubtype,
+  addAssetToCanvas,
+  addCenteredImageLayer,
+  addShapeToCanvas as factoryAddShape,
+  addTextPresetToCanvas,
+  setCanvasBackgroundFromUrl,
+} from '@/lib/canvas-factory';
 
 interface Asset {
   id: string;
@@ -26,13 +33,6 @@ interface Asset {
   folder: string;
   file_url: string;
 }
-
-const createLayerId = () => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return `layer_${crypto.randomUUID()}`;
-  }
-  return `layer_${Math.random().toString(36).substring(2, 15)}`;
-};
 
 const folders = [
   { id: 'all', label: 'Tất cả' },
@@ -102,7 +102,26 @@ interface AssetSidebarProps {
 }
 
 export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps) {
-  const { canvas, pushState } = useEditorStore();
+  const { canvas } = useEditorStore();
+  const { syncLayersFromCanvas } = useLayersStore();
+
+  const recordChange = () => recordCanvasHistory(onDirty);
+
+  const getCanvasSize = () => ({
+    baseWidth: canvas?.width || 1080,
+    baseHeight: canvas?.height || 1920,
+  });
+
+  const factoryHandlers = {
+    onCommit: (canvasInstance: any, activeObject?: any) => {
+      if (activeObject) {
+        canvasInstance.setActiveObject(activeObject);
+      }
+      canvasInstance.renderAll();
+      recordChange();
+      syncLayersFromCanvas(canvasInstance);
+    },
+  };
   
   // Tabs config
   const [activeTab, setActiveTab] = useState<'local' | 'shapes' | 'stickers' | 'unsplash' | 'text'>('local');
@@ -124,23 +143,37 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
   const [loadingStickers, setLoadingStickers] = useState(false);
   const [stickerMode, setStickerMode] = useState<'online' | 'emoji'>('online');
 
-  // Sync list of layers with Zustand store
-  const syncStoreLayers = () => {
+  // Add Online Sticker to Canvas
+  const addStickerToCanvas = async (sticker: Asset) => {
     if (!canvas) return;
-    const objects = canvas.getObjects();
-    const updatedLayers = objects
-      .filter((obj: any) => obj._isBackground !== true)
-      .map((obj: any) => ({
-        id: obj.layerId || '',
-        name: obj.layerName || 'Layer',
-        type: obj.layerType || 'DECORATION',
-        visible: obj.visible !== false,
-        locked: obj.lockMovementX === true
-      }));
-    useLayersStore.getState().setLayers(updatedLayers);
+    setAddingId(sticker.id);
+
+    try {
+      const { baseWidth, baseHeight } = getCanvasSize();
+      await addCenteredImageLayer(
+        canvas,
+        sticker.file_url,
+        { layerName: sticker.name, layerType: 'IMAGE' },
+        baseWidth,
+        baseHeight,
+        factoryHandlers,
+        { forceScaleToWidth: baseWidth * 0.3 }
+      );
+    } catch (err) {
+      console.error('Failed to add sticker to canvas:', err);
+      toast.error('Không thể chèn sticker vào canvas. Vui lòng thử lại.');
+    } finally {
+      setAddingId(null);
+    }
   };
 
-  // Fetch online stickers
+  // Add Text Preset to Canvas
+  const addTextToCanvas = (preset: TypographyPreset) => {
+    if (!canvas) return;
+    const { baseWidth, baseHeight } = getCanvasSize();
+    addTextPresetToCanvas(canvas, preset, baseWidth, baseHeight, factoryHandlers);
+  };
+
   useEffect(() => {
     if (activeTab === 'stickers') {
       const fetchOnlineStickers = async () => {
@@ -160,78 +193,6 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
       fetchOnlineStickers();
     }
   }, [activeTab]);
-
-  // Add Online Sticker to Canvas
-  const addStickerToCanvas = async (sticker: Asset) => {
-    if (!canvas) return;
-    setAddingId(sticker.id);
-
-    try {
-      const img = await FabricImage.fromURL(sticker.file_url, {
-        crossOrigin: 'anonymous'
-      });
-
-      const baseWidth = canvas.width || 1080;
-      const baseHeight = canvas.height || 1920;
-
-      img.set({
-        left: baseWidth / 2,
-        top: baseHeight / 2,
-        originX: 'center',
-        originY: 'center',
-      });
-
-      (img as any).layerId = createLayerId();
-      (img as any).layerType = 'IMAGE'; // Standard stickers are dynamic images
-      (img as any).layerName = sticker.name;
-      (img as any).src = sticker.file_url;
-      (img as any).defaultImageUrl = sticker.file_url;
-
-      img.scaleToWidth(baseWidth * 0.3);
-
-      canvas.add(img);
-      canvas.setActiveObject(img);
-      canvas.renderAll();
-      
-      pushState();
-      syncStoreLayers();
-    } catch (err) {
-      console.error('Failed to add sticker to canvas:', err);
-      alert('Không thể chèn sticker vào canvas. Vui lòng thử lại.');
-    } finally {
-      setAddingId(null);
-    }
-  };
-
-  // Add Text Preset to Canvas
-  const addTextToCanvas = (preset: TypographyPreset) => {
-    if (!canvas) return;
-    const baseWidth = canvas.width || 1080;
-    const baseHeight = canvas.height || 1920;
-
-    const { shadow, text, ...restConfig } = preset.config;
-
-    const textObj = new IText(text, {
-      left: baseWidth / 2,
-      top: baseHeight / 2,
-      originX: 'center',
-      originY: 'center',
-      ...(restConfig as any),
-      shadow: shadow ? new Shadow(shadow) : undefined,
-    });
-
-    (textObj as any).layerId = createLayerId();
-    (textObj as any).layerType = 'TEXT';
-    (textObj as any).layerName = preset.name;
-    (textObj as any)._originalText = preset.config.text;
-
-    canvas.add(textObj);
-    canvas.setActiveObject(textObj);
-    canvas.renderAll();
-    pushState();
-    syncStoreLayers();
-    onDirty?.();
-  };
 
   // 1. Local Database assets fetcher
   const fetchAssets = async (pageNum = 1, append = false) => {
@@ -266,77 +227,12 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
   const addImageToCanvas = async (asset: Asset) => {
     if (!canvas) return;
     setAddingId(asset.id);
-
     try {
-      const img = await FabricImage.fromURL(asset.file_url, {
-        crossOrigin: 'anonymous'
-      });
-
-      const baseWidth = canvas.width || 1080;
-      const baseHeight = canvas.height || 1920;
-
-      // Nếu là thư mục backgrounds, đặt làm ảnh nền canvas thay vì layer thường
-      if (asset.folder === 'backgrounds') {
-        const scaleX = baseWidth / (img.width || baseWidth);
-        const scaleY = baseHeight / (img.height || baseHeight);
-        const bgScale = Math.max(scaleX, scaleY);
-
-        img.set({
-          originX: 'left',
-          originY: 'top',
-          left: 0,
-          top: 0,
-          scaleX: bgScale,
-          scaleY: bgScale,
-          selectable: false,
-          evented: false,
-          hasControls: false,
-          hasBorders: false,
-        });
-
-        (img as any)._isBackground = true;
-        (img as any).layerId = 'background_layer';
-        (img as any).layerName = `BG: ${asset.name}`;
-        (img as any).src = asset.file_url;
-        (img as any).defaultImageUrl = asset.file_url;
-
-        canvas.backgroundImage = img;
-        canvas.renderAll();
-        pushState();
-        syncStoreLayers();
-        onDirty?.();
-        console.log(`[TPL_BG_DEBUG] asset background applied assetId=${asset.id} url=${asset.file_url} canvasBackgroundSrc=${(canvas.backgroundImage as any)?.src || 'null'}`);
-        toast?.success('Đã cập nhật ảnh nền canvas!');
-        setAddingId(null);
-        return;
-      }
-
-      img.set({
-        left: baseWidth / 2,
-        top: baseHeight / 2,
-        originX: 'center',
-        originY: 'center',
-      });
-
-      (img as any).layerId = createLayerId();
-      (img as any).layerType = 'IMAGE';
-      (img as any).layerName = asset.name;
-      (img as any).src = asset.file_url;
-      (img as any).defaultImageUrl = asset.file_url;
-
-      if (img.width && img.width > baseWidth * 0.5) {
-        img.scaleToWidth(baseWidth * 0.5);
-      }
-
-      canvas.add(img);
-      canvas.setActiveObject(img);
-      canvas.renderAll();
-      
-      pushState();
-      syncStoreLayers();
+      const { baseWidth, baseHeight } = getCanvasSize();
+      await addAssetToCanvas(canvas, asset, baseWidth, baseHeight, factoryHandlers);
     } catch (err) {
       console.error('Failed to add image to canvas:', err);
-      toast?.error('Không thể chèn ảnh vào canvas. Vui lòng thử lại.');
+      toast.error('Không thể chèn ảnh vào canvas. Vui lòng thử lại.');
     } finally {
       setAddingId(null);
     }
@@ -348,58 +244,10 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
     e.dataTransfer.setData('text/plain', asset.file_url);
   };
 
-  // 2. Add Vector Shape to Canvas
   const addShapeToCanvas = (type: 'rect' | 'circle' | 'triangle' | 'star') => {
     if (!canvas) return;
-    
-    let shape: any;
-    const baseWidth = canvas.width || 1080;
-    const baseHeight = canvas.height || 1920;
-    const commonProps = {
-      left: baseWidth / 2,
-      top: baseHeight / 2,
-      originX: 'center' as const,
-      originY: 'center' as const,
-      fill: '#6366f1',
-    };
-    
-    if (type === 'rect') {
-      shape = new Rect({
-        ...commonProps,
-        width: 200,
-        height: 200,
-      });
-    } else if (type === 'circle') {
-      shape = new Circle({
-        ...commonProps,
-        radius: 100,
-      });
-    } else if (type === 'triangle') {
-      shape = new Triangle({
-        ...commonProps,
-        width: 200,
-        height: 200,
-      });
-    } else if (type === 'star') {
-      const starPath = "M 100, 10 L 123, 67 L 186, 67 L 134, 104 L 154, 161 L 100, 125 L 46, 161 L 66, 104 L 14, 67 L 77, 67 Z";
-      shape = new Path(starPath, {
-        ...commonProps,
-        scaleX: 1.5,
-        scaleY: 1.5,
-      });
-    }
-    
-    if (shape) {
-      shape.layerId = createLayerId();
-      shape.layerType = 'DECORATION';
-      shape.layerName = `${type.toUpperCase()} Shape`;
-      
-      canvas.add(shape);
-      canvas.setActiveObject(shape);
-      canvas.renderAll();
-      pushState();
-      syncStoreLayers();
-    }
+    const { baseWidth, baseHeight } = getCanvasSize();
+    factoryAddShape(canvas, type as ShapeSubtype, baseWidth, baseHeight, factoryHandlers);
   };
 
   // Helper to map emoji characters to hex codes for OpenMoji
@@ -417,93 +265,46 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
   const addEmojiSticker = async (emoji: string) => {
     if (!canvas) return;
     setAddingId(emoji);
-    
+
     try {
       const hex = emojiToHex(emoji);
       const url = `https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@master/color/svg/${hex}.svg`;
-      
-      const img = await FabricImage.fromURL(url, {
-        crossOrigin: 'anonymous'
-      });
-      
-      const baseWidth = canvas.width || 1080;
-      const baseHeight = canvas.height || 1920;
-      
-      img.set({
-        left: baseWidth / 2,
-        top: baseHeight / 2,
-        originX: 'center',
-        originY: 'center',
-      });
-      
-      (img as any).layerId = createLayerId();
-      (img as any).layerType = 'IMAGE';
-      (img as any).layerName = `Sticker ${emoji}`;
-      (img as any).src = url;
-      (img as any).defaultImageUrl = url;
-      
-      img.scaleToWidth(baseWidth * 0.35);
-      
-      canvas.add(img);
-      canvas.setActiveObject(img);
-      canvas.renderAll();
-      pushState();
-      syncStoreLayers();
+      const { baseWidth, baseHeight } = getCanvasSize();
+      await addCenteredImageLayer(
+        canvas,
+        url,
+        { layerName: `Sticker ${emoji}`, layerType: 'IMAGE' },
+        baseWidth,
+        baseHeight,
+        factoryHandlers,
+        { forceScaleToWidth: baseWidth * 0.35 }
+      );
     } catch (err) {
       console.error('Failed to load emoji sticker:', err);
-      toast?.error('Không thể tải Sticker vector này. Vui lòng thử lại.');
+      toast.error('Không thể tải Sticker vector này. Vui lòng thử lại.');
     } finally {
       setAddingId(null);
     }
   };
 
-  // 4. Add CDN Background Photo from Unsplash
   const addBackgroundPhoto = async (photoId: string, name: string) => {
     if (!canvas) return;
     setAddingId(photoId);
-    
+
     try {
       const url = `https://images.unsplash.com/${photoId}?w=1200&auto=format&fit=crop&q=85`;
-      
-      const img = await FabricImage.fromURL(url, {
-        crossOrigin: 'anonymous'
-      });
-      
-      const baseWidth = canvas.width || 1080;
-      const baseHeight = canvas.height || 1920;
-      
-      const scaleX = baseWidth / (img.width || baseWidth);
-      const scaleY = baseHeight / (img.height || baseHeight);
-      const bgScale = Math.max(scaleX, scaleY);
-
-      img.set({
-        originX: 'left',
-        originY: 'top',
-        left: 0,
-        top: 0,
-        scaleX: bgScale,
-        scaleY: bgScale,
-        selectable: false,
-        evented: false,
-        hasControls: false,
-        hasBorders: false,
-      });
-
-      (img as any)._isBackground = true;
-      (img as any).layerId = 'background_layer';
-      (img as any).layerName = `Unsplash: ${name}`;
-      (img as any).src = url;
-      (img as any).defaultImageUrl = url;
-
-      await canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-      pushState();
-      syncStoreLayers();
-      onDirty?.();
-      console.log(`[TPL_BG_DEBUG] unsplash background applied photoId=${photoId} url=${url} canvasBackgroundSrc=${(canvas.backgroundImage as any)?.src || 'null'}`);
-      toast?.success('Đã cập nhật ảnh nền từ Unsplash!');
+      const { baseWidth, baseHeight } = getCanvasSize();
+      await setCanvasBackgroundFromUrl(
+        canvas,
+        url,
+        `Unsplash: ${name}`,
+        baseWidth,
+        baseHeight,
+        factoryHandlers
+      );
     } catch (err) {
       console.error('Failed to load background photo:', err);
-      toast?.error('Không thể tải hình nền. Vui lòng thử lại.');
+      toast.error('Không thể tải hình nền. Vui lòng thử lại.');
     } finally {
       setAddingId(null);
     }

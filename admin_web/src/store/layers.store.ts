@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { ensureFontLoaded } from '@/lib/font-loader';
+import { resolveLayerType } from '@/lib/canvas-object-props';
+import { getEditorCanvasRef } from './canvas-ref';
 
 
 /**
@@ -11,6 +13,9 @@ export interface LayerState {
   type: string;
   visible: boolean;
   locked: boolean;
+  textPreview?: string;
+  fontFamily?: string;
+  fill?: string;
 }
 
 interface LayersState {
@@ -41,17 +46,53 @@ interface LayersState {
   updateActiveObject: (props: Record<string, any>) => void;
 }
 
+function resolveTextPreview(obj: any, type: string): string | undefined {
+  if (type !== 'TEXT') return undefined;
+  const raw = String(obj.text ?? obj._originalText ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return raw || undefined;
+}
+
+function resolveLayerName(obj: any, type: string, textPreview?: string): string {
+  const customName = obj.layerName as string | undefined;
+  const isGeneric =
+    !customName ||
+    customName === 'Layer' ||
+    customName === 'Nhập chữ...' ||
+    customName === 'Text Layer';
+  if (type === 'TEXT' && textPreview && isGeneric) {
+    return textPreview.length > 32 ? `${textPreview.slice(0, 32)}…` : textPreview;
+  }
+  return customName || 'Layer';
+}
+
 function buildLayersFromCanvas(canvas: any): LayerState[] {
   if (!canvas) return [];
-  return canvas.getObjects()
-    .filter((obj: any) => obj.type !== 'image' || obj._isBackground !== true)
-    .map((obj: any) => ({
-      id: obj.layerId || `layer_${Math.random().toString(36).substring(2, 11)}`,
-      name: obj.layerName || 'Layer',
-      type: obj.layerType || 'DECORATION',
-      visible: obj.visible !== false,
-      locked: obj.lockMovementX === true,
-    }));
+  return canvas
+    .getObjects()
+    .filter((obj: any) => obj._isBackground !== true)
+    .map((obj: any) => {
+      if (!obj.layerId) {
+        obj.layerId = `layer_${Math.random().toString(36).substring(2, 11)}`;
+      }
+      const type = resolveLayerType(obj);
+      const textPreview = resolveTextPreview(obj, type);
+      const fill =
+        typeof obj.fill === 'string'
+          ? obj.fill
+          : obj.fill?.colorStops?.[0]?.color;
+      return {
+        id: obj.layerId,
+        name: resolveLayerName(obj, type, textPreview),
+        type,
+        visible: obj.visible !== false,
+        locked: obj.lockMovementX === true,
+        textPreview,
+        fontFamily: type === 'TEXT' ? obj.fontFamily : undefined,
+        fill: type === 'TEXT' ? fill : undefined,
+      };
+    });
 }
 
 export const useLayersStore = create<LayersState>((set, get) => ({
@@ -72,11 +113,7 @@ export const useLayersStore = create<LayersState>((set, get) => ({
   },
 
   updateActiveObject: (props) => {
-    // Lazy access to canvas to avoid circular dependency at module level
-    let canvas: any = null;
-    try {
-      canvas = require('./editor.store').useEditorStore.getState().canvas;
-    } catch { return; }
+    const canvas = getEditorCanvasRef();
     if (!canvas) return;
 
     const activeObject = canvas.getActiveObject();

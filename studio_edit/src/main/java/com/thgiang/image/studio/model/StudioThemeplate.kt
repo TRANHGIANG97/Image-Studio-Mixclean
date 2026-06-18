@@ -3,6 +3,7 @@ package com.thgiang.image.studio.model
 import androidx.compose.ui.graphics.Color
 import com.thgiang.image.studio.R
 
+/** Lightweight UI model for template cards; cloud templates use [id] as template_id from API. */
 data class StudioThemeplate(
     val id: String,
     val titleResId: Int,
@@ -20,23 +21,12 @@ data class StudioThemeplateSection(
     val themeplates: List<StudioThemeplate>
 )
 
+/** Legacy registry — bundled templates removed; gallery loads from cloud API. */
 object StudioThemeplates {
-
-    private val cosmeticsList = emptyList<StudioThemeplate>()
-    private val professionalList = emptyList<StudioThemeplate>()
-    private val digitalLifeList = emptyList<StudioThemeplate>()
-    private val selfieFoodTemplateList = emptyList<StudioThemeplate>()
-    private val professionalSectionList = emptyList<StudioThemeplateSection>()
-
-    private val professionalFlatList: List<StudioThemeplate> = emptyList()
-
     val all: List<StudioThemeplate> = emptyList()
-    val cosmetics: List<StudioThemeplate> get() = emptyList()
-    val professional: List<StudioThemeplate> get() = emptyList()
-    val professionalSections: List<StudioThemeplateSection> get() = emptyList()
+    val cosmetics: List<StudioThemeplate> = emptyList()
+    val professional: List<StudioThemeplate> = emptyList()
+    val professionalSections: List<StudioThemeplateSection> = emptyList()
 
     fun findById(id: String): StudioThemeplate? = null
 }
-
-
-

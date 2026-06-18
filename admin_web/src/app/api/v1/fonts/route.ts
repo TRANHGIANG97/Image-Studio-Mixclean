@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listFonts, uploadFont } from '@/domains/fonts/font.service';
+import { getFontsManifest, uploadFont } from '@/domains/fonts/font.service';
 
 export const dynamic = 'force-dynamic';
 
-// GET: Retrieve all fonts
+// GET: Full font manifest (builtin + uploaded)
 export async function GET() {
   try {
-    const fonts = await listFonts();
-    return NextResponse.json(
-      { success: true, fonts },
-      { headers: { 'Cache-Control': 'no-store' } }
-    );
+    const manifest = await getFontsManifest();
+    return NextResponse.json(manifest, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error: unknown) {
     console.error('Error fetching fonts:', error);
     const message = error instanceof Error ? error.message : 'Failed to fetch fonts';

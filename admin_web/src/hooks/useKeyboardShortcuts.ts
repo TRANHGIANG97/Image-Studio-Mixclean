@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore } from '@/store/layers.store';
+import { recordCanvasHistory } from '@/lib/canvas-commands';
 
 interface KeyboardShortcutOptions {
   onSave?: () => void;
@@ -24,11 +25,11 @@ interface KeyboardShortcutOptions {
 export function useKeyboardShortcuts({ onSave, setIsDirty, onZoomFit, onZoom100 }: KeyboardShortcutOptions = {}) {
   const optsRef = useRef({ onSave, setIsDirty, onZoomFit, onZoom100 });
   optsRef.current = { onSave, setIsDirty, onZoomFit, onZoom100 };
+  const nudgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Get fresh canvas ref from store
-      const { canvas, undo, redo, pushState } = useEditorStore.getState();
+      const { canvas, undo, redo } = useEditorStore.getState();
       const { syncLayersFromCanvas, setActiveObjectId, setActiveObjectProps } = useLayersStore.getState();
       if (!canvas) return;
 
@@ -43,6 +44,8 @@ export function useKeyboardShortcuts({ onSave, setIsDirty, onZoomFit, onZoom100 
 
       const activeObj = canvas.getActiveObject();
       const { onSave: save, setIsDirty: dirty, onZoomFit, onZoom100 } = optsRef.current;
+
+      const markDirty = () => dirty?.(true);
 
       // Ctrl+0: Zoom to Fit
       if ((e.ctrlKey || e.metaKey) && e.key === '0') {
@@ -109,12 +112,12 @@ export function useKeyboardShortcuts({ onSave, setIsDirty, onZoomFit, onZoom100 
           if (activeObj && !(activeObj as any)._isBackground) {
             const { pasteStyle } = useEditorStore.getState();
             pasteStyle();
-            dirty?.(true);
+            markDirty();
           }
         } else {
           const { pasteFromClipboard } = useEditorStore.getState();
           pasteFromClipboard();
-          dirty?.(true);
+          markDirty();
         }
         return;
       }
@@ -128,7 +131,7 @@ export function useKeyboardShortcuts({ onSave, setIsDirty, onZoomFit, onZoom100 
         } else {
           groupSelection();
         }
-        dirty?.(true);
+        markDirty();
         return;
       }
 
@@ -139,8 +142,7 @@ export function useKeyboardShortcuts({ onSave, setIsDirty, onZoomFit, onZoom100 
           canvas.remove(activeObj);
           canvas.discardActiveObject();
           canvas.renderAll();
-          pushState();
-          dirty?.(true);
+          recordCanvasHistory(markDirty);
           syncLayersFromCanvas(canvas);
           return;
         }
@@ -160,8 +162,7 @@ export function useKeyboardShortcuts({ onSave, setIsDirty, onZoomFit, onZoom100 
             canvas.add(cloned);
             canvas.setActiveObject(cloned);
             canvas.renderAll();
-            pushState();
-            dirty?.(true);
+            recordCanvasHistory(markDirty);
             syncLayersFromCanvas(canvas);
           });
           return;
@@ -169,36 +170,50 @@ export function useKeyboardShortcuts({ onSave, setIsDirty, onZoomFit, onZoom100 
 
         // Arrow keys: Nudge by 1px (or 10px with Shift)
         const step = e.shiftKey ? 10 : 1;
+        let nudged = false;
         switch (e.key) {
           case 'ArrowUp':
             e.preventDefault();
             activeObj.top = (activeObj.top || 0) - step;
             activeObj.setCoords();
-            canvas.renderAll();
+            nudged = true;
             break;
           case 'ArrowDown':
             e.preventDefault();
             activeObj.top = (activeObj.top || 0) + step;
             activeObj.setCoords();
-            canvas.renderAll();
+            nudged = true;
             break;
           case 'ArrowLeft':
             e.preventDefault();
             activeObj.left = (activeObj.left || 0) - step;
             activeObj.setCoords();
-            canvas.renderAll();
+            nudged = true;
             break;
           case 'ArrowRight':
             e.preventDefault();
             activeObj.left = (activeObj.left || 0) + step;
             activeObj.setCoords();
-            canvas.renderAll();
+            nudged = true;
             break;
+        }
+
+        if (nudged) {
+          canvas.renderAll();
+          syncLayersFromCanvas(canvas);
+          if (nudgeTimerRef.current) clearTimeout(nudgeTimerRef.current);
+          nudgeTimerRef.current = setTimeout(() => {
+            recordCanvasHistory(markDirty);
+            nudgeTimerRef.current = null;
+          }, 200);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (nudgeTimerRef.current) clearTimeout(nudgeTimerRef.current);
+    };
   }, []);
 }

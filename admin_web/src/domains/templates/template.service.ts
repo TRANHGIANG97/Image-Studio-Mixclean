@@ -1,7 +1,7 @@
 import { createSupabaseAdmin } from '@/lib/supabase';
 import { CloudTemplate } from '@/types/cloud-template';
 import JSZip from 'jszip';
-import { gcd, buildInitialFabricState } from './template.helpers';
+import { gcd, buildInitialFabricState, remapClonedTemplateIds } from './template.helpers';
 
 // ─── Types ────────────────────────────────────────────
 
@@ -205,8 +205,12 @@ export async function cloneTemplate(input: CloneTemplateInput) {
     throw Object.assign(new Error('Source template not found'), { statusCode: 404 });
   }
 
-  // 2. Clone canvas_data with new metadata
-  const clonedCanvasData = { ...source.canvas_data } as CloudTemplate;
+  // 2. Clone canvas_data + fabric_state with remapped layer IDs
+  const { canvasData: clonedCanvasData, fabricState: clonedFabricState } = remapClonedTemplateIds(
+    source.canvas_data as CloudTemplate,
+    source.fabric_state,
+    input.newTemplateId
+  );
   if (clonedCanvasData.metadata) {
     clonedCanvasData.metadata = {
       ...clonedCanvasData.metadata,
@@ -215,7 +219,6 @@ export async function cloneTemplate(input: CloneTemplateInput) {
       updatedAt: Date.now(),
     };
   }
-  clonedCanvasData.templateId = input.newTemplateId;
 
   // 3. Insert
   const { data, error } = await DB()
@@ -227,7 +230,7 @@ export async function cloneTemplate(input: CloneTemplateInput) {
       status: 'draft',
       thumbnail_url: source.thumbnail_url,
       canvas_data: clonedCanvasData,
-      fabric_state: source.fabric_state,
+      fabric_state: clonedFabricState,
     })
     .select()
     .single();
@@ -306,6 +309,15 @@ export async function exportTemplateZip(id: string): Promise<{ buffer: ArrayBuff
   }
 
   zip.file('template.json', JSON.stringify(exportTemplate, null, 2));
+
+  if (template.fabric_state) {
+    const fabricState =
+      typeof template.fabric_state === 'string'
+        ? template.fabric_state
+        : JSON.stringify(template.fabric_state, null, 2);
+    zip.file('fabric_state.json', fabricState);
+  }
+
   const buffer = await zip.generateAsync({ type: 'arraybuffer' });
 
   return { buffer, filename: `${templateId}.zip` };
@@ -331,6 +343,18 @@ export async function importTemplateZip(input: ImportZipInput) {
 
   const jsonText = await jsonFile.async('text');
   const cloudTemplate = JSON.parse(jsonText) as CloudTemplate;
+
+  let importedFabricState: unknown = buildInitialFabricState(cloudTemplate.canvas?.backgroundUrl || '');
+  const fabricStateFile = zip.file('fabric_state.json');
+  if (fabricStateFile) {
+    try {
+      const fabricStateText = await fabricStateFile.async('text');
+      importedFabricState = JSON.parse(fabricStateText);
+    } catch {
+      console.warn('Invalid fabric_state.json in ZIP — using initial fabric state');
+    }
+  }
+
   let categoryId = input.categoryId || cloudTemplate.categoryId;
   const supabaseAdmin = DB();
 
@@ -406,7 +430,7 @@ export async function importTemplateZip(input: ImportZipInput) {
         status,
         thumbnail_url: cloudTemplate.canvas?.backgroundUrl || cloudTemplate.metadata?.thumbnailUrl || null,
         canvas_data: cloudTemplate,
-        fabric_state: buildInitialFabricState(cloudTemplate.canvas?.backgroundUrl || ''),
+        fabric_state: importedFabricState,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'template_id' }

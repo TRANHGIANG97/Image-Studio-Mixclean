@@ -32,7 +32,7 @@ export function CollapsibleSection({
   }, [id]);
 
   return (
-    <div className="rounded-2xl bg-white border border-slate-200/80 overflow-hidden">
+    <div className="rounded-2xl bg-white border border-slate-200/80">
       <button onClick={toggle}
         className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50 transition-colors cursor-pointer text-left"
       >

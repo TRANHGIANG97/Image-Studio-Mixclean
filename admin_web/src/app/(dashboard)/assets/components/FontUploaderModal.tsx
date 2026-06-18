@@ -6,6 +6,7 @@ import { UploadCloud, X, Loader2, Type } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { invalidateFontsManifestCache } from '@/lib/fonts-manifest';
 
 interface FontUploaderModalProps {
   isOpen: boolean;
@@ -69,6 +70,7 @@ export function FontUploaderModal({ isOpen, onClose }: FontUploaderModalProps) {
       if (!res.ok) throw new Error(data.error || 'Upload failed');
 
       toast.success('Tải lên font chữ thành công!');
+      invalidateFontsManifestCache();
       setFile(null);
       setFontName('');
       setFamilySlug('');

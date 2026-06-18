@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { CANVAS_SERIALIZE_PROPS } from './canvas-serialize.constants';
 import { useLayersStore } from './layers.store';
+import { setEditorCanvasRef } from './canvas-ref';
 import { toast } from 'sonner';
 
 type BackgroundSnapshot = {
@@ -154,7 +155,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   redoStack: [],
   clipboard: null,
 
-  setCanvas: (canvas) => set({ canvas }),
+  setCanvas: (canvas) => {
+    setEditorCanvasRef(canvas);
+    set({ canvas });
+  },
   setClipboard: (clipboard) => set({ clipboard }),
 
   pushState: () => {
@@ -164,7 +168,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const stateJson = snapshotCanvas(canvas);
     if (undoStack[undoStack.length - 1] === stateJson) return;
     const newUndoStack = [...undoStack, stateJson];
-    if (newUndoStack.length > 50) newUndoStack.shift();
+    if (newUndoStack.length > 30) newUndoStack.shift();
 
     set({ undoStack: newUndoStack, redoStack: [] });
   },

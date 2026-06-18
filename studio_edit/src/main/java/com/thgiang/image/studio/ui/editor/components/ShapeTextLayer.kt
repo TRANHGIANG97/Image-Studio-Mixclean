@@ -1,35 +1,46 @@
 package com.thgiang.image.studio.ui.editor.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thgiang.image.studio.ui.editor.*
+import com.thgiang.image.studio.ui.editor.EditorShadowMapper.drawShapeDropShadow
 import kotlin.math.roundToInt
 
 /**
@@ -53,6 +64,9 @@ fun ShapeTextLayer(
     onGestureEnd: () -> Unit,
     showBoundingBox: Boolean,
     isLocked: Boolean,
+    isInlineEditing: Boolean = false,
+    onRequestInlineEdit: () -> Unit = {},
+    onCommitInlineEdit: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -76,23 +90,96 @@ fun ShapeTextLayer(
     val offsetXPx = layer.viewport.offset.x * displayScale
     val offsetYPx = layer.viewport.offset.y * displayScale
 
-    val shapeColor  = Color(layer.shapeColorArgb)
-    val isShapeVisible = shapeColor.alpha > 0.01f
-    val textColor   = Color(layer.textColorArgb)
-    val textSizeSp  = layer.textSizeSp
+    val shapeColor = Color(layer.shapeColorArgb)
+    val shapeWidthPx = layer.shapeWidthPx * layer.viewport.scale * displayScale
+    val shapeHeightPx = layer.shapeHeightPx * layer.viewport.scale * displayScale
+    val isShapeVisible = EditorShapeGeometry.isFilledShape(
+        layer.shapeType,
+        (layer.shapeColorArgb ushr 24) and 0xFF,
+        layer.fillGradient != null,
+    ) || (EditorShapeGeometry.isLineShape(layer.shapeType) && layer.resolveStrokeColorArgb() != null)
+    val textColor = Color(layer.textColorArgb)
+    val textSizeSp = layer.textSizeSp
+    val fillBrush = remember(layer.fillGradient, layer.shapeColorArgb, shapeWidthPx, shapeHeightPx) {
+        EditorGradientMapper.toComposeBrush(
+            gradient = layer.fillGradient,
+            width = shapeWidthPx,
+            height = shapeHeightPx,
+            fallbackColor = shapeColor,
+        )
+    }
+    val textBrush = remember(layer.textColorGradient, layer.textColorArgb, shapeWidthPx, shapeHeightPx) {
+        if (layer.textColorGradient != null) {
+            EditorGradientMapper.toComposeBrush(
+                gradient = layer.textColorGradient,
+                width = shapeWidthPx,
+                height = shapeHeightPx,
+                fallbackColor = textColor,
+            )
+        } else {
+            SolidColor(textColor)
+        }
+    }
+    val textStyle = TextStyle(
+        brush = textBrush,
+        fontSize = (textSizeSp * layer.viewport.scale * displayScale).sp,
+        fontWeight = EditorTextStyleMapper.resolveComposeFontWeight(layer.fontWeight),
+        fontStyle = EditorTextStyleMapper.resolveComposeFontStyle(layer.fontStyle),
+        fontFamily = composeFontFamily,
+        textAlign = EditorTextStyleMapper.resolveComposeTextAlign(layer.textAlign),
+        textDecoration = EditorTextStyleMapper.resolveTextDecoration(layer.underline, layer.linethrough),
+        lineHeight = layer.lineHeight?.let { (textSizeSp * it * layer.viewport.scale * displayScale).sp }
+            ?: TextUnit.Unspecified,
+        letterSpacing = EditorTextStyleMapper
+            .resolveLetterSpacingEm(layer.charSpacing, textSizeSp * layer.viewport.scale * displayScale)
+            .sp,
+    )
+    var inlineTextDraft by remember(layer.id) { mutableStateOf(layer.text) }
+    val focusRequester = remember { FocusRequester() }
+    var inlineEditHadFocus by remember(layer.id) { mutableStateOf(false) }
+    val radiusScale = layer.viewport.scale * displayScale
+
+    LaunchedEffect(isInlineEditing) {
+        if (isInlineEditing) {
+            inlineTextDraft = layer.text
+            inlineEditHadFocus = false
+            focusRequester.requestFocus()
+        }
+    }
+
+    val commitInlineEdit = {
+        onCommitInlineEdit(inlineTextDraft)
+    }
 
     Box(
         modifier = modifier
             .offset { IntOffset(offsetXPx.roundToInt(), offsetYPx.roundToInt()) }
             .size(displayW, displayH)
-            .graphicsLayer {
-                rotationZ  = layer.viewport.rotation
-                alpha      = layer.appearance.alpha
-                scaleX     = if (layer.viewport.flippedH) -1f else 1f
-                scaleY     = if (layer.viewport.flippedV) -1f else 1f
+            .drawBehind {
+                drawShapeDropShadow(
+                    shapeType = layer.shapeType,
+                    appearance = layer.appearance,
+                    scale = displayScale,
+                    cornerRadiusX = layer.cornerRadiusX,
+                    cornerRadiusY = layer.cornerRadiusY,
+                    pathData = layer.pathData,
+                    polygonPoints = layer.polygonPoints,
+                )
             }
-            .pointerInput(isLocked, layer.id) {
-                if (!isLocked) {
+            .graphicsLayer {
+                rotationZ = layer.viewport.rotation
+                alpha = layer.appearance.alpha
+                scaleX = if (layer.viewport.flippedH) -1f else 1f
+                scaleY = if (layer.viewport.flippedV) -1f else 1f
+                blendMode = EditorBlendModeMapper.toComposeBlendMode(layer.blendMode)
+                compositingStrategy = if (EditorBlendModeMapper.needsOffscreenCompositing(layer.blendMode)) {
+                    CompositingStrategy.Offscreen
+                } else {
+                    CompositingStrategy.Auto
+                }
+            }
+            .pointerInput(isLocked, layer.id, isInlineEditing) {
+                if (!isLocked && !isInlineEditing) {
                     detectTransformGestures { _, pan, zoom, rotation ->
                         onGesture(
                             GestureDelta(
@@ -103,32 +190,72 @@ fun ShapeTextLayer(
                         )
                     }
                 }
+            }
+            .pointerInput(isLocked, showBoundingBox, isInlineEditing) {
+                if (!isLocked && showBoundingBox && !isInlineEditing) {
+                    detectTapGestures(onDoubleTap = { onRequestInlineEdit() })
+                }
             },
         contentAlignment = Alignment.Center
     ) {
         // ── Shape background drawn by Compose Canvas ──────────────────────
         if (isShapeVisible) {
             ShapeBackground(
-                shapeType  = layer.shapeType,
-                fillColor  = shapeColor,
-                modifier   = Modifier.fillMaxSize()
+                shapeType = layer.shapeType,
+                fillBrush = fillBrush,
+                cornerRadiusX = layer.cornerRadiusX,
+                cornerRadiusY = layer.cornerRadiusY,
+                shapeHeightPx = layer.shapeHeightPx,
+                radiusScale = radiusScale,
+                strokeColorArgb = layer.resolveStrokeColorArgb(),
+                strokeWidthPx = layer.resolveStrokeWidthPx() * layer.viewport.scale * displayScale,
+                strokeDashArray = layer.strokeDashArray,
+                pathData = layer.pathData,
+                polygonPoints = layer.polygonPoints,
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
         // ── Text label ───────────────────────────────────────────────────
-        Text(
-            text       = layer.text,
-            color      = textColor,
-            fontSize   = (textSizeSp * layer.viewport.scale * displayScale).sp,
-            fontWeight = FontWeight.SemiBold,
-            fontFamily = composeFontFamily,
-            textAlign  = TextAlign.Center,
-            maxLines   = 3,
-            overflow   = TextOverflow.Ellipsis,
-            modifier   = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-        )
+        if (isInlineEditing) {
+            BasicTextField(
+                value = inlineTextDraft,
+                onValueChange = { inlineTextDraft = it },
+                textStyle = textStyle,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { commitInlineEdit() }),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            inlineEditHadFocus = true
+                        } else if (inlineEditHadFocus && isInlineEditing) {
+                            commitInlineEdit()
+                        }
+                    }
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+            )
+        } else if (layer.text.isNotBlank()) {
+            val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
+            Text(
+                text = displayText,
+                style = textStyle,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (layer.textBackgroundColorArgb != null) {
+                            Modifier.background(Color(layer.textBackgroundColorArgb))
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+            )
+        }
 
         // ── Selection ring ────────────────────────────────────────────────
         if (showBoundingBox) {
@@ -140,7 +267,12 @@ fun ShapeTextLayer(
                             drawShapeOutline(
                                 shapeType = layer.shapeType,
                                 strokeColor = android.graphics.Color.parseColor("#3B82F6"),
-                                strokeWidthPx = 3f * density.density
+                                strokeWidthPx = 3f * density.density,
+                                cornerRadiusX = layer.cornerRadiusX,
+                                cornerRadiusY = layer.cornerRadiusY,
+                                shapeHeightPx = layer.shapeHeightPx,
+                                pathData = layer.pathData,
+                                polygonPoints = layer.polygonPoints,
                             )
                         } else {
                             drawRect(
@@ -161,186 +293,126 @@ fun ShapeTextLayer(
 @Composable
 private fun ShapeBackground(
     shapeType: ShapeType,
-    fillColor: Color,
-    modifier: Modifier = Modifier
+    fillBrush: Brush,
+    cornerRadiusX: Float?,
+    cornerRadiusY: Float?,
+    shapeHeightPx: Float,
+    radiusScale: Float,
+    strokeColorArgb: Int?,
+    strokeWidthPx: Float,
+    strokeDashArray: List<Float>,
+    pathData: String?,
+    polygonPoints: List<Float>,
+    modifier: Modifier = Modifier,
 ) {
-    when (shapeType) {
-        ShapeType.PILL -> {
-            Box(
-                modifier = modifier
-                    .clip(RoundedCornerShape(percent = 50))
-                    .background(fillColor)
-            )
-        }
-        ShapeType.CARD -> {
-            Box(
-                modifier = modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(fillColor)
-            )
-        }
-        ShapeType.TEARDROP -> {
-            Box(
-                modifier = modifier.drawBehind {
-                    drawTeardropPath(fillColor)
-                }
-            )
-        }
-        ShapeType.CIRCLE -> {
-            Box(
-                modifier = modifier
-                    .clip(androidx.compose.foundation.shape.CircleShape)
-                    .background(fillColor)
-            )
-        }
-        ShapeType.STAR -> {
-            Box(
-                modifier = modifier.drawBehind {
-                    drawPath(buildStarPath(size), fillColor)
-                }
-            )
-        }
-        ShapeType.HEXAGON -> {
-            Box(
-                modifier = modifier.drawBehind {
-                    drawPath(buildHexagonPath(size), fillColor)
-                }
-            )
+    val density = LocalDensity.current
+    val cardRadius = with(density) {
+        (cornerRadiusX ?: cornerRadiusY ?: (shapeHeightPx * 0.16f)).toDp()
+    }
+    val pillRadius = with(density) {
+        (EditorShapeGeometry.resolvePillCornerRadius(shapeHeightPx, cornerRadiusX, cornerRadiusY) * radiusScale).toDp()
+    }
+    val hasStroke = strokeWidthPx > 0f && strokeColorArgb != null
+    val isLine = EditorShapeGeometry.isLineShape(shapeType)
+
+    Box(
+        modifier = modifier.drawBehind {
+            if (hasStroke && !isLine) {
+                drawShapeOutline(
+                    shapeType = shapeType,
+                    strokeColor = strokeColorArgb!!,
+                    strokeWidthPx = strokeWidthPx,
+                    cornerRadiusX = cornerRadiusX,
+                    cornerRadiusY = cornerRadiusY,
+                    shapeHeightPx = shapeHeightPx,
+                    pathData = pathData,
+                    polygonPoints = polygonPoints,
+                )
+            }
+        },
+    ) {
+        when {
+            isLine && strokeColorArgb != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .drawBehind {
+                            drawLine(
+                                color = Color(strokeColorArgb),
+                                start = Offset(0f, size.height / 2f),
+                                end = Offset(size.width, size.height / 2f),
+                                strokeWidth = strokeWidthPx,
+                            )
+                        },
+                )
+            }
+            shapeType == ShapeType.PILL -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(pillRadius))
+                        .background(fillBrush),
+                )
+            }
+            shapeType == ShapeType.CARD -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(cardRadius))
+                        .background(fillBrush),
+                )
+            }
+            else -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .drawBehind {
+                            val path = EditorShapeGeometry.composePath(
+                                shapeType = shapeType,
+                                size = size,
+                                cornerRadiusX = cornerRadiusX,
+                                cornerRadiusY = cornerRadiusY,
+                                pathData = pathData,
+                                polygonPoints = polygonPoints,
+                            )
+                            drawPath(path, fillBrush)
+                        },
+                )
+            }
         }
     }
 }
 
-/** Draw the shape outline for the selection ring */
 private fun DrawScope.drawShapeOutline(
     shapeType: ShapeType,
     strokeColor: Int,
-    strokeWidthPx: Float
+    strokeWidthPx: Float,
+    cornerRadiusX: Float? = null,
+    cornerRadiusY: Float? = null,
+    shapeHeightPx: Float = size.height,
+    pathData: String? = null,
+    polygonPoints: List<Float> = emptyList(),
 ) {
-    val strokeW = strokeWidthPx
-    val paint   = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeW)
-    val color   = Color(strokeColor)
+    val paint = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidthPx)
+    val color = Color(strokeColor)
 
-    when (shapeType) {
-        ShapeType.PILL -> {
-            drawRoundRect(
-                color        = color,
-                cornerRadius = CornerRadius(size.height / 2f),
-                style        = paint
-            )
-        }
-        ShapeType.CARD -> {
-            val r = 48f // ~16 dp in px
-            drawRoundRect(
-                color        = color,
-                cornerRadius = CornerRadius(r),
-                style        = paint
-            )
-        }
-        ShapeType.TEARDROP -> {
-            drawPath(
-                path  = buildTeardropPath(size),
-                color = color,
-                style = paint
-            )
-        }
-        ShapeType.CIRCLE -> {
-            drawOval(
-                color = color,
-                style = paint
-            )
-        }
-        ShapeType.STAR -> {
-            drawPath(
-                path  = buildStarPath(size),
-                color = color,
-                style = paint
-            )
-        }
-        ShapeType.HEXAGON -> {
-            drawPath(
-                path  = buildHexagonPath(size),
-                color = color,
-                style = paint
-            )
-        }
-    }
-}
-
-/** Filled teardrop path — rounded top/right/bottom-right, sharp corner bottom-left */
-private fun DrawScope.drawTeardropPath(fillColor: Color) {
-    drawPath(
-        path  = buildTeardropPath(size),
-        color = fillColor
-    )
-}
-
-private fun buildTeardropPath(size: Size): Path {
-    val w = size.width
-    val h = size.height
-    val r = minOf(w, h) * 0.38f  // corner radius for the 3 rounded corners
-    val ptr = h * 0.22f           // pointer depth
-
-    return Path().apply {
-        // Start from top-left rounded corner
-        moveTo(r, 0f)
-        // Top-right rounded corner
-        lineTo(w - r, 0f)
-        cubicTo(w, 0f, w, r, w, r)
-        // Bottom-right rounded corner
-        lineTo(w, h - r - ptr)
-        cubicTo(w, h - ptr, w - r, h - ptr, w - r, h - ptr)
-        // Bottom path curves to the sharp pointer at bottom-left
-        lineTo(r * 0.5f, h - ptr)
-        cubicTo(0f, h - ptr, 0f, h, 0f, h)
-        // Sharp pointer — just a point, back up along left edge
-        lineTo(0f, h - ptr - r)
-        cubicTo(0f, r, r, 0f, r, 0f)
-        close()
-    }
-}
-
-private fun buildStarPath(size: Size): Path {
-    val w = size.width
-    val h = size.height
-    val centerX = w / 2f
-    val centerY = h / 2f
-    val outerRadius = minOf(w, h) / 2f
-    val innerRadius = outerRadius * 0.4f
-    
-    return Path().apply {
-        var angle = -Math.PI / 2.0
-        val angleStep = Math.PI / 5.0
-        
-        moveTo(
-            centerX + (outerRadius * Math.cos(angle)).toFloat(),
-            centerY + (outerRadius * Math.sin(angle)).toFloat()
+    if (EditorShapeGeometry.isLineShape(shapeType)) {
+        drawLine(
+            color = color,
+            start = Offset(0f, size.height / 2f),
+            end = Offset(size.width, size.height / 2f),
+            strokeWidth = strokeWidthPx,
         )
-        for (i in 1..10) {
-            angle += angleStep
-            val radius = if (i % 2 == 0) outerRadius else innerRadius
-            lineTo(
-                centerX + (radius * Math.cos(angle)).toFloat(),
-                centerY + (radius * Math.sin(angle)).toFloat()
-            )
-        }
-        close()
+        return
     }
-}
 
-private fun buildHexagonPath(size: Size): Path {
-    val w = size.width
-    val h = size.height
-    val r = minOf(w, h) / 2f
-    val centerX = w / 2f
-    val centerY = h / 2f
-    
-    return Path().apply {
-        for (i in 0..5) {
-            val angle = Math.PI / 3.0 * i
-            val px = centerX + (r * Math.cos(angle)).toFloat()
-            val py = centerY + (r * Math.sin(angle)).toFloat()
-            if (i == 0) moveTo(px, py) else lineTo(px, py)
-        }
-        close()
-    }
+    val path = EditorShapeGeometry.composePath(
+        shapeType = shapeType,
+        size = size,
+        cornerRadiusX = cornerRadiusX,
+        cornerRadiusY = cornerRadiusY,
+        pathData = pathData,
+        polygonPoints = polygonPoints,
+    )
+    drawPath(path = path, color = color, style = paint)
 }

@@ -69,6 +69,7 @@ fun EditorCanvasV2(
     onGestureEnd: () -> Unit,
     onPickImage: () -> Unit,
     onSelectLayer: (String?) -> Unit,
+    onShapeTextCommit: (String) -> Unit = {},
     showOverlay: Boolean = false,
     viewportPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
@@ -86,6 +87,13 @@ fun EditorCanvasV2(
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         canvasScale = (canvasScale * zoomChange).coerceIn(0.2f, 5f)
         canvasOffset += panChange
+    }
+    var inlineEditingLayerId by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(selectedLayerId) {
+        if (inlineEditingLayerId != selectedLayerId) {
+            inlineEditingLayerId = null
+        }
     }
 
     BoxWithConstraints(
@@ -252,6 +260,12 @@ fun EditorCanvasV2(
                                     },
                                     showBoundingBox = layer.id == selectedLayerId,
                                     isLocked      = layer.isLocked,
+                                    isInlineEditing = layer.id == inlineEditingLayerId,
+                                    onRequestInlineEdit = { inlineEditingLayerId = layer.id },
+                                    onCommitInlineEdit = { text ->
+                                        onShapeTextCommit(text)
+                                        inlineEditingLayerId = null
+                                    },
                                     modifier      = Modifier.align(Alignment.Center)
                                 )
                             }
@@ -264,6 +278,7 @@ fun EditorCanvasV2(
                                         cropRatio = layer.cropRatio,
                                         displayScale = calculatedScale,
                                         templateSize = templateSize,
+                                        layerBlendMode = layer.blendMode,
                                         onGesture = { delta ->
                                             if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
                                         },

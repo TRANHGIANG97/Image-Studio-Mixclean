@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -52,6 +53,7 @@ fun ProductLayerV2(
     cropRatio: CropRatio,
     displayScale: Float,
     templateSize: IntSize,
+    layerBlendMode: String? = null,
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     showOverlay: Boolean = false,
@@ -83,7 +85,7 @@ fun ProductLayerV2(
     val graphicsSpec = remember(viewport, appearance) {
         val alpha = appearance.alpha
         val shadowAlpha = alpha * shadowOpacityFromIntensity(appearance.shadowIntensity)
-        val shadowElevation = appearance.shadowIntensity * 20f
+        val shadowElevation = appearance.resolvedShadowBlurRadius() * displayScale
         val shadowAngleRad = Math.toRadians(appearance.shadowAngle.toDouble())
         val shadowDx = (appearance.shadowDistance * kotlin.math.cos(shadowAngleRad)).toFloat()
         val shadowDy = (appearance.shadowDistance * kotlin.math.sin(shadowAngleRad)).toFloat()
@@ -173,6 +175,12 @@ fun ProductLayerV2(
                 .graphicsLayer {
                     alpha = graphicsSpec.alpha
                     rotationZ = graphicsSpec.rotation
+                    blendMode = EditorBlendModeMapper.toComposeBlendMode(layerBlendMode)
+                    compositingStrategy = if (EditorBlendModeMapper.needsOffscreenCompositing(layerBlendMode)) {
+                        CompositingStrategy.Offscreen
+                    } else {
+                        CompositingStrategy.Auto
+                    }
                 }
                 .clip(cropShape),
             contentScale = ContentScale.Fit,

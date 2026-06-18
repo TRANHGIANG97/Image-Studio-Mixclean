@@ -49,26 +49,16 @@ function extractBackgroundColorArgb(fabricState: any): number | null {
 function enrichCanvasDataFromFabricState(row: any) {
   const canvasData = row?.canvas_data;
   if (!canvasData?.canvas) {
-    console.warn(`[TPL_BG_DEBUG] no canvas_data.canvas templateId=${row?.template_id || row?.id}`);
     return row;
   }
   if (canvasData.canvas.backgroundColorArgb !== undefined && canvasData.canvas.backgroundColorArgb !== null) {
-    console.log(
-      `[TPL_BG_DEBUG] keep canvas templateId=${row?.template_id || row?.id} backgroundUrl=${canvasData.canvas.backgroundUrl || 'null'} backgroundColorArgb=${canvasData.canvas.backgroundColorArgb}`
-    );
     return row;
   }
 
   const backgroundColorArgb = extractBackgroundColorArgb(row.fabric_state);
   if (backgroundColorArgb === null) {
-    console.warn(
-      `[TPL_BG_DEBUG] no backgroundColorArgb templateId=${row?.template_id || row?.id} backgroundUrl=${canvasData.canvas.backgroundUrl || 'null'} hasFabricState=${Boolean(row.fabric_state)}`
-    );
     return row;
   }
-  console.log(
-    `[TPL_BG_DEBUG] enrich color templateId=${row?.template_id || row?.id} backgroundUrl=${canvasData.canvas.backgroundUrl || 'null'} backgroundColorArgb=${backgroundColorArgb}`
-  );
 
   return {
     ...row,
@@ -191,11 +181,6 @@ export async function GET(req: NextRequest) {
     }
 
     const templates = (data || []).map(enrichCanvasDataFromFabricState);
-    templates.forEach((row: any) => {
-      console.log(
-        `[TPL_BG_DEBUG] response templateId=${row.template_id || row.id} backgroundUrl=${row.canvas_data?.canvas?.backgroundUrl || 'null'} backgroundColorArgb=${row.canvas_data?.canvas?.backgroundColorArgb ?? 'null'} thumbnail=${row.thumbnail_url || 'null'}`
-      );
-    });
 
     return NextResponse.json(
       { success: true, templates },

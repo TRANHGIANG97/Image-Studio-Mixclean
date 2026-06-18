@@ -3,59 +3,48 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useEditorStore } from '@/store/editor.store';
 
+const THROTTLE_MS = 400;
+const MINI_W = 90;
+const MINI_H = 160;
+
+const CAPTURE_EVENTS = [
+  'object:modified',
+  'object:added',
+  'object:removed',
+  'selection:created',
+  'selection:updated',
+  'selection:cleared',
+] as const;
+
 /**
- * MiniMap v2 — Cải tiến toàn diện:
- * - Dùng Fabric canvas.toDataURL() để render ảnh thật thay vì box màu
- * - Tỷ lệ đúng với canvas (9:16 hoặc custom)
- * - Real-time update khi canvas thay đổi (event-driven, không interval)
- * - Click-to-pan: click vào minimap để scroll canvas tới vị trí đó
- * - Viewport indicator: hình chữ nhật indigo hiển thị vùng đang xem
- * - Nút thu/mở với animation mượt
+ * MiniMap — lightweight canvas overview with click-to-pan.
+ * Captures on structural changes only (not every frame during drag).
  */
 export default function MiniMap() {
   const { canvas } = useEditorStore();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
-  const rafRef = useRef<number | null>(null);
-  const lastRenderRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scheduleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMovingRef = useRef(false);
 
-  const THROTTLE_MS = 150; // min ms giữa 2 lần render
-
-  // Kích thước minimap — tỷ lệ 9:16 để match canvas dọc
-  const MINI_W = 90;
-  const MINI_H = 160;
-
-  // Capture canvas content dưới dạng DataURL
   const captureCanvas = useCallback(() => {
     if (!canvas || (canvas as any).disposed) return;
 
-    const now = Date.now();
-    if (now - lastRenderRef.current < THROTTLE_MS) {
-      // Throttle: lên lịch lại sau THROTTLE_MS
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => captureCanvas());
-      return;
-    }
-    lastRenderRef.current = now;
-
-    // Strategy 1: Export directly from Fabric canvas
     try {
       const dataUrl = canvas.toDataURL({
         format: 'webp',
-        quality: 0.6,
+        quality: 0.55,
         multiplier: MINI_W / (canvas.width || 1080),
-        backgroundColor: canvas.backgroundColor || 'rgba(0,0,0,0)'
+        backgroundColor: canvas.backgroundColor || 'rgba(0,0,0,0)',
       });
       setPreviewUrl(dataUrl);
       return;
-    } catch (err) {
-      // SecurityError: canvas is tainted by cross-origin images
-      // Fall through to fallback strategies
+    } catch {
+      // tainted canvas — fallback placeholders
     }
 
-    // Strategy 2: Render fallback with background color + layer placeholders
     try {
       const cw = canvas.width || 1080;
       const ch = canvas.height || 1920;
@@ -67,75 +56,75 @@ export default function MiniMap() {
       const ctx = offscreen.getContext('2d');
       if (!ctx) throw new Error('No 2D context');
 
-      // Background
       const bgColor = canvas.backgroundColor;
-      if (bgColor) {
+      if (bgColor && typeof bgColor === 'string') {
         ctx.fillStyle = bgColor;
         ctx.fillRect(0, 0, MINI_W, MINI_H);
-      } else {
-        ctx.clearRect(0, 0, MINI_W, MINI_H);
       }
 
-      // Render simplified placeholders for each object
-      const objects = canvas.getObjects();
       const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
       let colorIdx = 0;
 
-      for (const obj of objects) {
+      for (const obj of canvas.getObjects()) {
         if ((obj as any)._isBackground) continue;
         const bounds = obj.getBoundingRect();
-        if (!bounds) continue;
-
-        const x = bounds.left * scale;
-        const y = bounds.top * scale;
-        const w = bounds.width * scale;
-        const h = bounds.height * scale;
-
-        if (w < 0.5 || h < 0.5) continue;
+        if (!bounds || bounds.width < 0.5 || bounds.height < 0.5) continue;
 
         ctx.fillStyle = colors[colorIdx % colors.length] + '60';
-        ctx.fillRect(x, y, w, h);
-        ctx.strokeStyle = colors[colorIdx % colors.length] + '99';
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(x, y, w, h);
+        ctx.fillRect(bounds.left * scale, bounds.top * scale, bounds.width * scale, bounds.height * scale);
         colorIdx++;
       }
 
-      const fallbackUrl = offscreen.toDataURL('image/png');
-      setPreviewUrl(fallbackUrl);
-      return;
-    } catch (fallbackErr) {
-      // Both strategies failed — show empty placeholder
-      console.warn('MiniMap: both capture strategies failed', fallbackErr);
+      setPreviewUrl(offscreen.toDataURL('image/png'));
+    } catch {
       setPreviewUrl(null);
     }
   }, [canvas]);
 
-  // Subscribe vào Fabric events
+  const scheduleCapture = useCallback(() => {
+    if (isMovingRef.current) return;
+    if (scheduleRef.current) clearTimeout(scheduleRef.current);
+    scheduleRef.current = setTimeout(() => {
+      scheduleRef.current = null;
+      captureCanvas();
+    }, THROTTLE_MS);
+  }, [captureCanvas]);
+
   useEffect(() => {
     if (!canvas) {
       setPreviewUrl(null);
       return;
     }
 
-    // Chụp lần đầu ngay sau khi canvas render xong
-    const onAfterRender = () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => captureCanvas());
+    const onMoving = () => {
+      isMovingRef.current = true;
+    };
+    const onMoveEnd = () => {
+      isMovingRef.current = false;
+      scheduleCapture();
     };
 
-    canvas.on('after:render', onAfterRender);
+    CAPTURE_EVENTS.forEach((event) => canvas.on(event, scheduleCapture));
+    canvas.on('object:moving', onMoving);
+    canvas.on('object:scaling', onMoving);
+    canvas.on('object:rotating', onMoving);
+    canvas.on('object:modified', onMoveEnd);
+    canvas.on('mouse:up', onMoveEnd);
 
-    // Capture ngay lần đầu
-    setTimeout(captureCanvas, 200);
+    const initialTimer = setTimeout(scheduleCapture, 300);
 
     return () => {
-      canvas.off('after:render', onAfterRender);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      clearTimeout(initialTimer);
+      if (scheduleRef.current) clearTimeout(scheduleRef.current);
+      CAPTURE_EVENTS.forEach((event) => canvas.off(event, scheduleCapture));
+      canvas.off('object:moving', onMoving);
+      canvas.off('object:scaling', onMoving);
+      canvas.off('object:rotating', onMoving);
+      canvas.off('object:modified', onMoveEnd);
+      canvas.off('mouse:up', onMoveEnd);
     };
-  }, [canvas, captureCanvas]);
+  }, [canvas, scheduleCapture]);
 
-  // Click trên minimap → scroll canvas viewport tới vị trí tương ứng
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const canvasEl = document.getElementById('fabric-canvas');
     const containerEl = canvasEl?.closest('[data-canvas-viewport]');
@@ -144,9 +133,6 @@ export default function MiniMap() {
     const rect = e.currentTarget.getBoundingClientRect();
     const relX = (e.clientX - rect.left) / rect.width;
     const relY = (e.clientY - rect.top) / rect.height;
-
-    const baseWidth = canvas.width || 1080;
-    const baseHeight = canvas.height || 1920;
 
     const canvRect = canvasEl.getBoundingClientRect();
     const targetX = relX * canvRect.width - containerEl.clientWidth / 2;
@@ -159,7 +145,6 @@ export default function MiniMap() {
     });
   };
 
-  // Viewport indicator: tính vùng đang hiển thị
   const getViewportRect = () => {
     const canvasEl = document.getElementById('fabric-canvas');
     const containerEl = canvasEl?.closest('[data-canvas-viewport]');
@@ -204,11 +189,10 @@ export default function MiniMap() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Card container */}
       <div
         className="rounded-2xl overflow-hidden border border-slate-200/60 shadow-xl bg-white cursor-pointer transition-all duration-200"
         style={{
-          width: MINI_W + 2,  // +2 for border
+          width: MINI_W + 2,
           opacity: isHovered ? 1 : 0.75,
           transform: isHovered ? 'scale(1.04)' : 'scale(1)',
           boxShadow: isHovered
@@ -218,25 +202,15 @@ export default function MiniMap() {
         onClick={handleClick}
         title="Click để cuộn canvas đến vị trí này"
       >
-        {/* Preview image */}
-        <div
-          className="relative bg-slate-100"
-          style={{ width: MINI_W, height: MINI_H }}
-        >
+        <div className="relative bg-slate-100" style={{ width: MINI_W, height: MINI_H }}>
           {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="Canvas preview"
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
+            <img src={previewUrl} alt="Canvas preview" className="w-full h-full object-cover" draggable={false} />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div className="w-5 h-5 border-2 border-slate-200 border-t-indigo-500 rounded-full animate-spin" />
             </div>
           )}
 
-          {/* Viewport rect overlay */}
           {vpRect && (
             <div
               className="absolute pointer-events-none border-2 border-indigo-400/80 rounded-sm"
@@ -251,13 +225,11 @@ export default function MiniMap() {
             />
           )}
 
-          {/* "MAP" label */}
           <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-slate-100/80 backdrop-blur-sm border border-slate-200/60">
             <span className="text-[8px] font-black text-slate-500 tracking-widest uppercase">Map</span>
           </div>
         </div>
 
-        {/* Bottom info bar */}
         <div className="px-2 py-1.5 bg-slate-50/80 border-t border-slate-200 flex items-center justify-between">
           <span className="text-[8px] text-slate-400 font-mono">
             {canvas ? `${canvas.width || 1080}×${canvas.height || 1920}` : '—'}
@@ -268,9 +240,11 @@ export default function MiniMap() {
         </div>
       </div>
 
-      {/* Close button */}
       <button
-        onClick={(e) => { e.stopPropagation(); setIsVisible(false); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsVisible(false);
+        }}
         className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-lg"
         title="Ẩn Minimap"
       >
