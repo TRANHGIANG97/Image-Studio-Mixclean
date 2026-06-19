@@ -397,6 +397,8 @@ function buildCloudLayer({
     payload.textBackgroundColor = null;
     payload.textTransform = 'none';
     payload._originalText = payload.text;
+    payload.baseWidth = width;
+    payload.baseHeight = height;
   } else {
     payload.imageUrl = imageUrl || null;
     payload.defaultImageUrl = imageUrl || null;

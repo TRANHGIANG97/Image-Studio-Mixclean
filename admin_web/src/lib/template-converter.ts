@@ -292,6 +292,8 @@ export function fabricToCloudTemplate(
         payload.linethrough = obj.linethrough || false;
         payload.textTransform = obj.textTransform || 'none';
         payload._originalText = obj._originalText || obj.text || '';
+        payload.baseWidth = Math.round(obj.width * (obj.scaleX || 1));
+        payload.baseHeight = Math.round(obj.height * (obj.scaleY || 1));
         
         if (obj.fill && typeof obj.fill === 'object') {
           payload.textColorGradient = {
