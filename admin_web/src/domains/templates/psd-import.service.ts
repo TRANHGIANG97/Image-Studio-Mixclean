@@ -126,7 +126,7 @@ function inferTextColor(rgba: Uint8ClampedArray | Buffer) {
 
 function tryExtractTextScale(node: any): number {
   try {
-    const tySh = node.additionalLayerProperties?.TySh;
+    const tySh = node.additionalProperties?.TySh;
     if (tySh) {
       const xx = typeof tySh.transformXX === 'number' ? tySh.transformXX : 1;
       const xy = typeof tySh.transformXY === 'number' ? tySh.transformXY : 0;
@@ -141,7 +141,7 @@ function tryExtractTextScale(node: any): number {
 
 function tryExtractFontSize(node: any): number | null {
   try {
-    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const textProps = node.textProperties || node.additionalProperties?.TypeToolObject?.textProperties;
     const runs = textProps?.EngineDict?.StyleRun?.RunArray;
     if (Array.isArray(runs) && runs.length > 0) {
       const fontSize = runs[0]?.StyleSheet?.StyleSheetData?.FontSize;
@@ -158,7 +158,7 @@ function tryExtractFontSize(node: any): number | null {
 
 function tryExtractFontFamily(node: any): string | null {
   try {
-    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const textProps = node.textProperties || node.additionalProperties?.TypeToolObject?.textProperties;
     const fontSet = textProps?.DocumentResources?.FontSet;
     const runs = textProps?.EngineDict?.StyleRun?.RunArray;
     if (Array.isArray(fontSet) && Array.isArray(runs) && runs.length > 0) {
@@ -238,7 +238,7 @@ async function layerToAssetUrl(layer: any, slug: string, index: number) {
 
 function tryExtractTextAlign(node: any): string | null {
   try {
-    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const textProps = node.textProperties || node.additionalProperties?.TypeToolObject?.textProperties;
     const runs = textProps?.EngineDict?.ParagraphRun?.RunArray;
     if (Array.isArray(runs) && runs.length > 0) {
       const justification = runs[0]?.ParagraphSheet?.Properties?.Justification;
@@ -265,7 +265,7 @@ function tryExtractTextStyles(node: any) {
     linethrough: false,
   };
   try {
-    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const textProps = node.textProperties || node.additionalProperties?.TypeToolObject?.textProperties;
     const runs = textProps?.EngineDict?.StyleRun?.RunArray;
     if (Array.isArray(runs) && runs.length > 0) {
       const sheetData = runs[0]?.StyleSheet?.StyleSheetData;
@@ -292,7 +292,7 @@ function tryExtractTextStyles(node: any) {
 
 function tryExtractCharSpacing(node: any): number | null {
   try {
-    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const textProps = node.textProperties || node.additionalProperties?.TypeToolObject?.textProperties;
     const runs = textProps?.EngineDict?.StyleRun?.RunArray;
     if (Array.isArray(runs) && runs.length > 0) {
       const tracking = runs[0]?.StyleSheet?.StyleSheetData?.Tracking;
@@ -308,7 +308,7 @@ function tryExtractCharSpacing(node: any): number | null {
 
 function tryExtractLineHeight(node: any): number | null {
   try {
-    const textProps = node.textProperties || node.additionalLayerProperties?.TypeToolObject?.textProperties;
+    const textProps = node.textProperties || node.additionalProperties?.TypeToolObject?.textProperties;
     const runs = textProps?.EngineDict?.StyleRun?.RunArray;
     if (Array.isArray(runs) && runs.length > 0) {
       const sheetData = runs[0]?.StyleSheet?.StyleSheetData;

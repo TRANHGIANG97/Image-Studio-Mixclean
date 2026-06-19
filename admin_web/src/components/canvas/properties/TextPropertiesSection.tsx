@@ -399,10 +399,10 @@ export function TextPropertiesSection({
                     Không tìm thấy font nào
                   </div>
                 ) : (
-                  FONT_CATEGORIES.filter((cat) => groupedFonts[cat] && groupedFonts[cat].length > 0)
+                  (FONT_CATEGORIES.filter((cat) => groupedFonts[cat] && groupedFonts[cat].length > 0) as any[])
                     .concat(
                       Object.keys(groupedFonts).filter(
-                        (cat) => !FONT_CATEGORIES.includes(cat) && groupedFonts[cat].length > 0
+                        (cat) => !FONT_CATEGORIES.includes(cat as any) && groupedFonts[cat].length > 0
                       )
                     )
                     .map((category) => (
