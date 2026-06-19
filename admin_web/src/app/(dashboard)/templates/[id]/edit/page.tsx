@@ -700,12 +700,12 @@ export default function TemplateEditPage() {
 
         {/* Asset Drawer backdrop (click to close when not pinned) */}
         {isAssetDrawerOpen && !isAssetPinned && (
-          <div className="fixed inset-0 z-10" onClick={() => setIsAssetDrawerOpen(false)} />
+          <div className="fixed inset-0 z-40" onClick={() => setIsAssetDrawerOpen(false)} />
         )}
 
         {/* Asset Drawer (slides over content) */}
         {isAssetDrawerOpen && (
-          <div className="absolute top-0 bottom-0 z-20 animate-in slide-in-from-left-3 duration-200 flex" style={{ width: leftPanelW, left: isLeftCollapsed ? 0 : 56 }}>
+          <div className="absolute top-0 bottom-0 z-40 animate-in slide-in-from-left-3 duration-200 flex" style={{ width: leftPanelW, left: isLeftCollapsed ? 0 : 56 }}>
             <div className="flex-1 bg-white/95 backdrop-blur-xl border-r border-slate-200/60 shadow-xl flex flex-col h-full">
               {/* Drawer Header */}
               <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200 shrink-0">
