@@ -93,7 +93,7 @@ fun ThemeplateEditorScreen(
         }
     }
 
-    LaunchedEffect(themeplate) {
+    LaunchedEffect(themeplate.id) {
         if (themeplate.id != "draft") {
             val assetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
             if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {

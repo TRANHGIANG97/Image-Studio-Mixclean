@@ -756,6 +756,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private fun loadCloudTemplateById(templateId: String) {
+        if (_state.value.template.loaded) return
         templateLoadJob?.cancel()
         templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(errorMessage = null) }
