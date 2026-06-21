@@ -382,7 +382,7 @@ export function fabricToCloudTemplate(
         payload,
       };
     })
-    .filter((layer, index, layers) => {
+    .filter((layer: any, index: number) => {
       const obj = objects.filter((o: any) => o._isBackground !== true)[index];
       if (!obj) return true;
       if (layer.type === 'TEXT' || layer.type === 'SHADOW_REGION') return true;
