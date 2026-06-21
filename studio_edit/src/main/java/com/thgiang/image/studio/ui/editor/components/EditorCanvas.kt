@@ -199,7 +199,7 @@ fun EditorCanvasV2(
                                 model = model,
                                 contentDescription = null,
                                 modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Fit,
+                                contentScale = ContentScale.Crop,
                                 loading = {
                                     Box(
                                         modifier = Modifier.fillMaxSize(),

@@ -90,12 +90,14 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
               const scaleX = baseWidth / (bgImg.width || baseWidth);
               const scaleY = baseHeight / (bgImg.height || baseHeight);
               const bgScale = Math.max(scaleX, scaleY);
+              const scaledWidth = (bgImg.width || baseWidth) * bgScale;
+              const scaledHeight = (bgImg.height || baseHeight) * bgScale;
 
               bgImg.set({
                 originX: 'left',
                 originY: 'top',
-                left: 0,
-                top: 0,
+                left: (baseWidth - scaledWidth) / 2,
+                top: (baseHeight - scaledHeight) / 2,
                 scaleX: bgScale,
                 scaleY: bgScale,
                 selectable: false,
@@ -161,12 +163,14 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
           const scaleX = baseWidth  / (bgImg.width  || baseWidth);
           const scaleY = baseHeight / (bgImg.height || baseHeight);
           const bgScale = Math.max(scaleX, scaleY);
+          const scaledWidth = (bgImg.width || baseWidth) * bgScale;
+          const scaledHeight = (bgImg.height || baseHeight) * bgScale;
 
           bgImg.set({
             originX: 'left',
             originY: 'top',
-            left: 0,
-            top: 0,
+            left: (baseWidth - scaledWidth) / 2,
+            top: (baseHeight - scaledHeight) / 2,
             scaleX: bgScale,
             scaleY: bgScale,
             selectable: false,

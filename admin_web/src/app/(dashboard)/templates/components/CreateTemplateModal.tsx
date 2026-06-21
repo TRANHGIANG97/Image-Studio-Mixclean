@@ -11,6 +11,7 @@ import { Loader2 } from 'lucide-react';
 import { Category } from '@/hooks/useCategories';
 import { useCreateTemplate } from '@/hooks/useTemplates';
 import { useUploadAsset } from '@/hooks/useAssets';
+import { fileStem, readImageDimensions } from '@/lib/image-file-utils';
 
 interface CreateTemplateModalProps {
   isOpen: boolean;
@@ -18,8 +19,10 @@ interface CreateTemplateModalProps {
   categories: Category[];
 }
 
+type AspectRatioPreset = 'original' | '9_16' | '1_1' | '4_5' | 'custom';
+
 export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTemplateModalProps) {
-  const [aspectRatioPreset, setAspectRatioPreset] = useState<'9_16' | '1_1' | '4_5' | 'custom'>('1_1');
+  const [aspectRatioPreset, setAspectRatioPreset] = useState<AspectRatioPreset>('1_1');
   const [bgFile, setBgFile] = useState<File | null>(null);
 
   const createMutation = useCreateTemplate();
@@ -50,8 +53,37 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
     }
   }, [isOpen, categories, form]);
 
+  const applyOriginalDimensions = async (file: File) => {
+    try {
+      const { width, height } = await readImageDimensions(file);
+      form.setValue('baseWidth', width);
+      form.setValue('baseHeight', height);
+    } catch {
+      // Keep current dimensions if the browser cannot decode the image.
+    }
+  };
+
+  const handleBgFileChange = async (file: File | null) => {
+    setBgFile(file);
+    if (!file) return;
+
+    const stem = fileStem(file.name);
+    if (!form.getValues('title')?.trim()) {
+      form.setValue('title', stem);
+    }
+    if (aspectRatioPreset === 'original') {
+      await applyOriginalDimensions(file);
+    }
+  };
+
   const onSubmit = async (data: CreateTemplateInput) => {
     try {
+      const resolvedTitle = data.title?.trim() || (bgFile ? fileStem(bgFile.name) : '');
+      if (!resolvedTitle) {
+        form.setError('title', { message: 'Tiêu đề template không được để trống' });
+        return;
+      }
+
       let backgroundUrl = '';
       if (bgFile) {
         const uploadResult = await uploadMutation.mutateAsync({ file: bgFile, folder: 'backgrounds' }) as { fileUrl: string };
@@ -60,6 +92,7 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
       
       await createMutation.mutateAsync({
         ...data,
+        title: resolvedTitle,
         backgroundUrl,
       });
 
@@ -94,7 +127,7 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
             <label className="text-xs font-semibold text-slate-600">Tiêu đề template</label>
             <Input
               {...form.register('title')}
-              placeholder="ví dụ: Thời trang hè rực rỡ"
+              placeholder="Để trống sẽ lấy tên file ảnh nền"
               className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
             {form.formState.errors.title && <p className="text-xs text-rose-500">{form.formState.errors.title.message}</p>}
@@ -118,8 +151,8 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
             <label className="text-xs font-semibold text-slate-600">Tỷ lệ khung hình (Aspect Ratio)</label>
             <select
               value={aspectRatioPreset}
-              onChange={(e) => {
-                const val = e.target.value as '9_16' | '1_1' | '4_5' | 'custom';
+              onChange={async (e) => {
+                const val = e.target.value as AspectRatioPreset;
                 setAspectRatioPreset(val);
                 if (val === '9_16') {
                   form.setValue('baseWidth', 1080);
@@ -130,15 +163,21 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
                 } else if (val === '4_5') {
                   form.setValue('baseWidth', 1080);
                   form.setValue('baseHeight', 1350);
+                } else if (val === 'original' && bgFile) {
+                  await applyOriginalDimensions(bgFile);
                 }
               }}
               className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-indigo-600"
             >
+              <option value="original">Tỉ lệ gốc (từ file ảnh nền)</option>
               <option value="9_16">Màn hình dọc 9:16 (1080 x 1920)</option>
               <option value="1_1">Vuông 1:1 (1080 x 1080)</option>
               <option value="4_5">Chân dung 4:5 (1080 x 1350)</option>
               <option value="custom">Tùy chỉnh (Nhập kích thước)</option>
             </select>
+            {aspectRatioPreset === 'original' && !bgFile && (
+              <p className="text-[10px] text-slate-400">Chọn ảnh nền để áp dụng kích thước gốc của file.</p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -146,7 +185,8 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
               <Input
                 type="number"
                 {...form.register('baseWidth', { valueAsNumber: true })}
-                className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
+                disabled={aspectRatioPreset === 'original' && !!bgFile}
+                className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl disabled:opacity-60"
               />
             </div>
             <div className="space-y-2">
@@ -154,7 +194,8 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
               <Input
                 type="number"
                 {...form.register('baseHeight', { valueAsNumber: true })}
-                className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
+                disabled={aspectRatioPreset === 'original' && !!bgFile}
+                className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl disabled:opacity-60"
               />
             </div>
           </div>
@@ -163,7 +204,7 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
             <Input
               type="file"
               accept="image/*"
-              onChange={(e) => setBgFile(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) => { void handleBgFileChange(e.target.files ? e.target.files[0] : null); }}
               className="bg-white border-slate-200 text-slate-500 file:text-xs file:font-semibold file:text-indigo-400 file:bg-indigo-600/10 file:border-0 file:rounded-lg file:px-3 file:py-1 cursor-pointer rounded-xl"
             />
           </div>

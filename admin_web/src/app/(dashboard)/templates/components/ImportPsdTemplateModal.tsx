@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { FileImage, Loader2 } from 'lucide-react';
 import { Category } from '@/hooks/useCategories';
 import { useImportPsdTemplate } from '@/hooks/useTemplates';
+import { fileStem } from '@/lib/image-file-utils';
 
 interface ImportPsdTemplateModalProps {
   isOpen: boolean;
@@ -27,7 +28,7 @@ type FormValues = {
 
 const importPsdTemplateSchema = z.object({
   templateId: z.string().trim().min(1, 'ID template is required'),
-  title: z.string().trim().min(1, 'Tiêu đề template không được để trống'),
+  title: z.string().optional().default(''),
   categoryId: z.string().trim().min(1, 'Danh mục là bắt buộc'),
   exportLayers: z.boolean(),
   exportFolderName: z.string().optional(),
@@ -37,8 +38,8 @@ function buildTemplateId() {
   return `TPL_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 }
 
-function fileStem(fileName: string) {
-  return fileName.replace(/\.(psd|psb)$/i, '').replace(/[_-]+/g, ' ').trim();
+function psdFileStem(fileName: string) {
+  return fileStem(fileName, /\.(psd|psb)$/i);
 }
 
 export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPsdTemplateModalProps) {
@@ -75,8 +76,8 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
     setPsdFile(file);
     if (!file) return;
 
-    const stem = fileStem(file.name);
-    if (!form.getValues('title')) {
+    const stem = psdFileStem(file.name);
+    if (!form.getValues('title')?.trim()) {
       form.setValue('title', stem || 'Imported PSD Template');
     }
     form.setValue(
@@ -88,11 +89,13 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
   const handleSubmit = form.handleSubmit(async (values) => {
     if (!psdFile) return;
 
+    const resolvedTitle = values.title?.trim() || psdFileStem(psdFile.name) || 'Imported PSD Template';
+
     await importMutation.mutateAsync({
       file: psdFile,
       categoryId: values.categoryId.trim(),
       templateId: values.templateId.trim(),
-      title: values.title.trim(),
+      title: resolvedTitle,
       exportLayers: values.exportLayers,
       exportFolderName: values.exportFolderName,
     });
@@ -130,7 +133,7 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
             <label className="text-xs font-semibold text-slate-600">Tiêu đề template</label>
             <Input
               {...form.register('title')}
-              placeholder="Tên lấy từ file PSD"
+              placeholder="Để trống sẽ lấy tên file PSD"
               className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
             {form.formState.errors.title && <p className="text-xs text-rose-500">{form.formState.errors.title.message}</p>}
