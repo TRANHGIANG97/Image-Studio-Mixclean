@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const createTemplateSchema = z.object({
   templateId: z.string().min(1, 'templateId is required'),
   categoryId: z.string().min(1, 'categoryId is required'),
-  title: z.string().optional().default(''),
+  title: z.string(),
   baseWidth: z.number().positive().optional(),
   baseHeight: z.number().positive().optional(),
   backgroundUrl: z.string().url().optional().nullable(),

@@ -28,7 +28,7 @@ type FormValues = {
 
 const importPsdTemplateSchema = z.object({
   templateId: z.string().trim().min(1, 'ID template is required'),
-  title: z.string().optional().default(''),
+  title: z.string(),
   categoryId: z.string().trim().min(1, 'Danh mục là bắt buộc'),
   exportLayers: z.boolean(),
   exportFolderName: z.string().optional(),
