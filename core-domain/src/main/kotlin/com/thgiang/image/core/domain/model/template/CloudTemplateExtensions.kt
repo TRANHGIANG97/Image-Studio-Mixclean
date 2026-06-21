@@ -6,13 +6,20 @@ fun CloudLayer.resolvedImageUrl(): String? {
 }
 
 fun CloudLayer.isShadowRegionLayer(): Boolean {
-    return type.equals("DECORATION", ignoreCase = true) &&
-        payload.sourceKind.equals("shadow-region", ignoreCase = true)
+    if (!payload.text.isNullOrBlank()) return false
+    if (!resolvedImageUrl().isNullOrBlank()) return false
+    return payload.sourceKind.equals("shadow-region", ignoreCase = true) ||
+        type.equals("SHADOW_REGION", ignoreCase = true)
 }
 
 fun CloudLayer.isVisible(): Boolean = payload.visible != false
 
 fun CloudLayer.isLocked(): Boolean = payload.locked == true
+
+fun CloudLayer.isReplaceableLayer(): Boolean {
+    return type.equals("PLACEHOLDER_OBJECT", ignoreCase = true) ||
+        payload.replaceable == true
+}
 
 fun CloudPayload.resolvedTextColorArgb(): Int? {
     return textColorArgb ?: fill?.let(ColorArgbParser::parseOrNull)

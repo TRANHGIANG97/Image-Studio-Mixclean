@@ -102,3 +102,28 @@ export function filterFonts(
       (f.style || '').toLowerCase().includes(q),
   );
 }
+
+export async function checkGoogleFont(fontFamily: string): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  try {
+    const res = await fetch(`/api/v1/fonts/check?family=${encodeURIComponent(fontFamily)}`);
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.exists === true;
+  } catch (error) {
+    console.warn(`Failed to check Google Font "${fontFamily}" via API:`, error);
+    return false;
+  }
+}
+
+export function injectGoogleFont(fontFamily: string): void {
+  if (typeof document === 'undefined') return;
+  const linkId = `google-font-${fontFamily.toLowerCase().replace(/\s+/g, '-')}`;
+  if (document.getElementById(linkId)) return;
+
+  const link = document.createElement('link');
+  link.id = linkId;
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap`;
+  document.head.appendChild(link);
+}

@@ -20,7 +20,7 @@ class CloudTemplateParityTest {
         )
 
         val layers = CloudLayerToEditorMapper.mapLayers(template, scaledDensity = 3f)
-        assertEquals(5, layers.size)
+        assertEquals(6, layers.size)
 
         val gradientRect = layers.first { it.id == "shape_gradient_rect" }
         assertEquals(ShapeType.CARD, gradientRect.shapeType)
@@ -43,6 +43,24 @@ class CloudTemplateParityTest {
         val textGradient = layers.first { it.id == "text_gradient" }
         assertNotNull(textGradient.textColorGradient)
         assertEquals(18f, textGradient.appearance.shadowBlur)
+
+        val decorationText = layers.first { it.id == "decoration_text_fallback" }
+        assertEquals("Hello", decorationText.text)
+        assertEquals(LayerType.SHAPE_TEXT, decorationText.type)
+    }
+
+    @Test
+    fun `cloud tracking maps to app spacing in px`() {
+        val template = CloudTemplateParser.parse(
+            templateId = "tracking_tpl",
+            categoryId = "cat_text",
+            canvasData = JSONObject(TRACKING_FIXTURE),
+        )
+
+        val layers = CloudLayerToEditorMapper.mapLayers(template, scaledDensity = 3f)
+        val textLayer = layers.single { it.id == "tracking_text" }
+
+        assertEquals(24f, textLayer.charSpacing, 0.001f)
     }
 
     companion object {
@@ -141,6 +159,53 @@ class CloudTemplateParityTest {
                     "shadowIntensity": 0.5,
                     "shadowDistance": 10,
                     "shadowAngle": 90
+                  }
+                },
+                {
+                  "layerId": "decoration_text_fallback",
+                  "type": "DECORATION",
+                  "zIndex": 5,
+                  "transform": { "anchorX": 0.5, "anchorY": 0.9, "scale": 1, "rotation": 0 },
+                  "payload": {
+                    "text": "Hello",
+                    "fontSize": 48,
+                    "textColorArgb": -1,
+                    "baseWidth": 200,
+                    "baseHeight": 80
+                  }
+                },
+                {
+                  "layerId": "junk_1x1_image",
+                  "type": "DECORATION",
+                  "zIndex": 6,
+                  "transform": { "anchorX": 0.5, "anchorY": 0.95, "scale": 1, "rotation": 0 },
+                  "payload": {
+                    "imageUrl": "https://example.com/1x1.png",
+                    "baseWidth": 1,
+                    "baseHeight": 1
+                  }
+                }
+              ]
+            }
+        """.trimIndent()
+
+        private val TRACKING_FIXTURE = """
+            {
+              "templateId": "tracking_tpl",
+              "categoryId": "cat_text",
+              "canvas": { "baseWidth": 1000, "baseHeight": 1000, "aspectRatio": "1:1" },
+              "layers": [
+                {
+                  "layerId": "tracking_text",
+                  "type": "TEXT",
+                  "zIndex": 0,
+                  "transform": { "anchorX": 0.5, "anchorY": 0.5, "scale": 1, "rotation": 0 },
+                  "payload": {
+                    "text": "TEST",
+                    "fontSize": 120,
+                    "charSpacing": 200,
+                    "baseWidth": 400,
+                    "baseHeight": 120
                   }
                 }
               ]

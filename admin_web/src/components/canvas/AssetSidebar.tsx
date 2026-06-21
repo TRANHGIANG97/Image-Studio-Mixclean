@@ -18,6 +18,7 @@ import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore } from '@/store/layers.store';
 import { recordCanvasHistory } from '@/lib/canvas-commands';
 import { toast } from 'sonner';
+import { applyCDN } from '@/lib/cdn-rewriter';
 import {
   type ShapeSubtype,
   addAssetToCanvas,
@@ -137,6 +138,22 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   
+  // Dynamic Folders State (Initial fallback list)
+  const [dbFolders, setDbFolders] = useState<{ id: string; label: string }[]>([
+    { id: 'all', label: 'Tất cả' },
+    { id: 'backgrounds', label: 'Hình nền' },
+    { id: 'objects', label: 'Vật phẩm' },
+    { id: 'decorations', label: 'Trang trí' },
+    { id: 'stickers', label: 'Stickers' },
+    { id: 'borders', label: 'Khung viền' },
+    { id: 'anh_chuyen_nghiep', label: 'Chuyên nghiệp' },
+    { id: 'anh_my_pham', label: 'Mỹ phẩm' },
+    { id: 'selfie_dam_me_an_uong', label: 'Mê ăn uống' },
+    { id: 'doi_song_so', label: 'Đời sống số' },
+    { id: 'imported-psd', label: 'PSD Imports' },
+    { id: 'uncategorized', label: 'Khác' }
+  ]);
+  
   // Stickers state
   const [activeStickerCategory, setActiveStickerCategory] = useState(emojiCategories[0].name);
   const [onlineStickers, setOnlineStickers] = useState<Asset[]>([]);
@@ -180,8 +197,9 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
         try {
           setLoadingStickers(true);
           const res = await fetch('/api/assets?folder=stickers&limit=150');
-          const data = await res.json();
+          let data = await res.json();
           if (res.ok && data.success) {
+            data = applyCDN(data);
             setOnlineStickers(data.assets || []);
           }
         } catch (err) {
@@ -204,8 +222,9 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
       const res = await fetch(
         `/api/assets?folder=${folderParam}&search=${search}&categoryId=${categoryParam}&page=${pageNum}&limit=${limitVal}`
       );
-      const data = await res.json();
+      let data = await res.json();
       if (res.ok) {
+        data = applyCDN(data);
         setAssets((prev) => (append ? [...prev, ...(data.assets || [])] : (data.assets || [])));
         setHasMore(data.hasMore || false);
       }
@@ -222,6 +241,41 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
       fetchAssets(1, false);
     }
   }, [activeFolder, search, activeTab, filterByCategory, categoryId]);
+
+  // Fetch Folders Dynamically
+  useEffect(() => {
+    const fetchFolders = async () => {
+      try {
+        const res = await fetch('/api/assets/folders');
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const list = (data.folders || []).map((f: string) => {
+            let label = f;
+            switch (f) {
+              case 'backgrounds': label = 'Hình nền'; break;
+              case 'stickers': label = 'Stickers'; break;
+              case 'fonts': label = 'Phông chữ'; break;
+              case 'uncategorized': label = 'Khác'; break;
+              case 'objects': label = 'Vật phẩm'; break;
+              case 'decorations': label = 'Trang trí'; break;
+              case 'borders': label = 'Khung viền'; break;
+              case 'anh_chuyen_nghiep': label = 'Chuyên nghiệp'; break;
+              case 'anh_my_pham': label = 'Mỹ phẩm'; break;
+              case 'selfie_dam_me_an_uong': label = 'Mê ăn uống'; break;
+              case 'doi_song_so': label = 'Đời sống số'; break;
+              default: label = f.charAt(0).toUpperCase() + f.slice(1);
+            }
+            return { id: f, label };
+          });
+          
+          setDbFolders([{ id: 'all', label: 'Tất cả' }, ...list]);
+        }
+      } catch (err) {
+        console.error('Error loading folders in sidebar:', err);
+      }
+    };
+    fetchFolders();
+  }, []);
 
   // Add Local Image to Canvas
   const addImageToCanvas = async (asset: Asset) => {
@@ -398,7 +452,7 @@ export default function AssetSidebar({ categoryId, onDirty }: AssetSidebarProps)
 
             {/* Folder selector */}
             <div className="flex gap-1 overflow-x-auto py-1 no-scrollbar shrink-0 border-b border-slate-200/50 pb-2">
-              {folders.map(f => (
+              {dbFolders.map(f => (
                 <button
                   key={f.id}
                   onClick={() => setActiveFolder(f.id)}

@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-q
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/apiClient';
 import { CloudTemplate } from '@/types/cloud-template';
+import { parsePsdOnClient, ClientPsdImportResult } from '@/lib/psd-client-import';
 
 // Re-use existing strict CloudTemplate type instead of `any`
 export type Template = {
@@ -256,33 +257,114 @@ export function useImportTemplate() {
 export function useImportPsdTemplate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { file: File; categoryId?: string; templateId?: string; title?: string }) => {
-      // 1. Get signed upload URL from backend
-      const { signedUrl, storagePath } = await apiClient.get<{ signedUrl: string; storagePath: string }>(
-        `/api/templates/import-psd?fileName=${encodeURIComponent(payload.file.name)}`
+    mutationFn: async (payload: { 
+      file?: File; 
+      categoryId?: string; 
+      templateId?: string; 
+      title?: string;
+      exportLayers?: boolean;
+      exportFolderName?: string;
+      preParsedResult?: ClientPsdImportResult;
+    }) => {
+      // 1. Parse PSD on the client-side or use pre-parsed result
+      const importResult = payload.preParsedResult || await parsePsdOnClient(
+        payload.file!,
+        payload.categoryId,
+        payload.templateId,
+        payload.title
       );
 
-      // 2. Upload file directly to Supabase storage signed URL using standard PUT fetch
-      // We use standard fetch here to avoid apiClient's 30s timeout for potentially large files.
-      const uploadRes = await fetch(signedUrl, {
-        method: 'PUT',
-        body: payload.file,
-        headers: {
-          'Content-Type': payload.file.type || 'application/octet-stream',
-        },
-      });
-
-      if (!uploadRes.ok) {
-        const errorText = await uploadRes.text().catch(() => '');
-        throw new Error(`Upload to storage failed (${uploadRes.status}): ${errorText || uploadRes.statusText}`);
+      // 2. Upload composite thumbnail
+      let thumbnailUrl = '';
+      if (importResult.thumbnailBlob) {
+        const thumbFormData = new FormData();
+        const slug = importResult.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+        thumbFormData.append('file', new File([importResult.thumbnailBlob], `${slug}_thumbnail.webp`, { type: 'image/webp' }));
+        thumbFormData.append('folder', 'imported-psd');
+        thumbFormData.append('registerAsset', 'false'); // Don't show in gallery
+        const uploadThumbRes = await apiClient.upload<{ fileUrl: string }>('/api/upload', thumbFormData);
+        thumbnailUrl = uploadThumbRes.fileUrl;
       }
 
-      // 3. Request route API to process the imported PSD file from storage
-      return apiClient.post('/api/templates/import-psd', {
-        storagePath,
-        categoryId: payload.categoryId,
-        templateId: payload.templateId,
-        title: payload.title,
+      // 3. Upload background if it exists
+      let backgroundUrl = '';
+      if (importResult.backgroundBlob) {
+        const bgFormData = new FormData();
+        bgFormData.append('file', new File([importResult.backgroundBlob], `psd_background_${Date.now()}.webp`, { type: 'image/webp' }));
+        bgFormData.append('folder', 'imported-psd');
+        bgFormData.append('registerAsset', 'false');
+        const uploadBgRes = await apiClient.upload<{ fileUrl: string }>('/api/upload', bgFormData);
+        backgroundUrl = uploadBgRes.fileUrl;
+      }
+
+      // 4. Upload each image layer
+      const finalLayers = [];
+      const exportFolder = payload.exportLayers && payload.exportFolderName
+        ? payload.exportFolderName.trim().replace(/\//g, '_')
+        : '';
+
+      for (const layer of importResult.layers) {
+        if (layer.type === 'IMAGE' && layer.imageBlob) {
+          const layerFormData = new FormData();
+          layerFormData.append('file', new File([layer.imageBlob], layer.fileName || 'layer.webp', { type: 'image/webp' }));
+          
+          if (exportFolder) {
+            layerFormData.append('folder', exportFolder);
+            layerFormData.append('registerAsset', 'true'); // Register layer image in gallery so it can be re-used
+            if (payload.categoryId) {
+              layerFormData.append('categoryId', payload.categoryId);
+            }
+          } else {
+            layerFormData.append('folder', 'imported-psd-temp');
+            layerFormData.append('registerAsset', 'false');
+          }
+
+          try {
+            const uploadLayerRes = await apiClient.upload<{ fileUrl: string }>('/api/upload', layerFormData);
+            layer.payload.imageUrl = uploadLayerRes.fileUrl;
+            layer.payload.defaultImageUrl = uploadLayerRes.fileUrl;
+          } catch (uploadErr) {
+            console.error(`Failed to upload PSD layer image "${layer.name}":`, uploadErr);
+          }
+        }
+
+        // Remove Blobs/fileNames before saving to template database JSON
+        const { imageBlob, fileName, ...cleanLayer } = layer as any;
+        finalLayers.push(cleanLayer);
+      }
+
+      // 5. Construct final CloudTemplate canvas data
+      const canvasData = {
+        templateId: importResult.templateId,
+        categoryId: importResult.categoryId,
+        metadata: {
+          title: importResult.title,
+          thumbnailUrl: thumbnailUrl || null,
+          status: 'draft',
+          schemaVersion: 1,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        },
+        canvas: {
+          baseWidth: importResult.canvasWidth,
+          baseHeight: importResult.canvasHeight,
+          aspectRatio: importResult.aspectRatio,
+          backgroundUrl: backgroundUrl || null,
+          backgroundColorArgb: null,
+        },
+        layers: finalLayers,
+      };
+
+      // 6. Create the template database record via backend API
+      return apiClient.post('/api/templates', {
+        templateId: importResult.templateId,
+        categoryId: importResult.categoryId,
+        title: importResult.title,
+        baseWidth: importResult.canvasWidth,
+        baseHeight: importResult.canvasHeight,
+        backgroundUrl: backgroundUrl || null,
+        thumbnailUrl: thumbnailUrl || null,
+        canvasData,
       });
     },
     onSuccess: () => {

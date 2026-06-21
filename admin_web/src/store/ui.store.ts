@@ -6,15 +6,12 @@ interface UiState {
   rightPanelWidth: number;
   // Properties accordion state (persisted to localStorage)
   accordionState: Record<string, boolean>;
-  // MiniMap visibility
-  miniMapVisible: boolean;
   // Asset drawer open state
   assetDrawerOpen: boolean;
 
   setLeftPanelWidth: (width: number) => void;
   setRightPanelWidth: (width: number) => void;
   setAccordionState: (state: Record<string, boolean>) => void;
-  toggleMiniMap: () => void;
   setAssetDrawerOpen: (open: boolean) => void;
 }
 
@@ -42,7 +39,6 @@ export const useUiStore = create<UiState>((set) => ({
   leftPanelWidth: loadPersisted<number>('editor_left_panel_width', 280),
   rightPanelWidth: loadPersisted<number>('editor_right_panel_width', 320),
   accordionState: loadPersisted<Record<string, boolean>>('editor_props_accordion', {}),
-  miniMapVisible: true,
   assetDrawerOpen: false,
 
   setLeftPanelWidth: (width) => {
@@ -59,8 +55,6 @@ export const useUiStore = create<UiState>((set) => ({
     persist('editor_props_accordion', state);
     set({ accordionState: state });
   },
-
-  toggleMiniMap: () => set((s) => ({ miniMapVisible: !s.miniMapVisible })),
 
   setAssetDrawerOpen: (open) => set({ assetDrawerOpen: open }),
 }));

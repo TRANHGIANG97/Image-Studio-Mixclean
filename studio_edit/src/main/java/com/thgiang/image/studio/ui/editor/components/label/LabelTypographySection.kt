@@ -55,10 +55,10 @@ internal fun LabelTypographySection(
     val currentTransform = layer.textTransform?.lowercase()
 
     val presets = listOf(
-        TypographyPreset(R.string.studio_label_preset_title, "bold", 28f, null),
-        TypographyPreset(R.string.studio_label_preset_subtitle, "600", 20f, null),
-        TypographyPreset(R.string.studio_label_preset_caption, "normal", 14f, null),
-        TypographyPreset(R.string.studio_label_preset_uppercase, "bold", 18f, "uppercase"),
+        TypographyPreset(R.string.studio_label_preset_title, "bold", 80f, null),
+        TypographyPreset(R.string.studio_label_preset_subtitle, "600", 60f, null),
+        TypographyPreset(R.string.studio_label_preset_caption, "normal", 40f, null),
+        TypographyPreset(R.string.studio_label_preset_uppercase, "bold", 54f, "uppercase"),
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

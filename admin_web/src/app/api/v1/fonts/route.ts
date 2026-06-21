@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFontsManifest, uploadFont } from '@/domains/fonts/font.service';
+import { applyCDN } from '@/lib/cdn-rewriter';
 
 export const dynamic = 'force-dynamic';
 
 // GET: Full font manifest (builtin + uploaded)
 export async function GET() {
   try {
-    const manifest = await getFontsManifest();
+    const manifest = applyCDN(await getFontsManifest());
     return NextResponse.json(manifest, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error: unknown) {
     console.error('Error fetching fonts:', error);

@@ -65,6 +65,8 @@ export interface CloudPayload {
   blendMode?: string | null;
   pathData?: string | null;
   polygonPoints?: number[] | null;
+  /** When true, Android studio_edit shows the Replace button on this layer. */
+  replaceable?: boolean | null;
 }
 
 export interface CloudLayer {

@@ -5,7 +5,6 @@ import { Canvas } from 'fabric';
 import { initFabricEditorDefaults } from '@/lib/fabric-setup';
 import { loadTemplateIntoCanvas } from '@/lib/fabric-template-loader';
 import { CanvasContextMenu } from './CanvasContextMenu';
-import { FloatingObjectToolbar, computeFloatingToolbarPosition } from './FloatingObjectToolbar';
 import { useCanvasSnapping } from '@/hooks/useCanvasSnapping';
 import { useCanvasViewport } from '@/hooks/useCanvasViewport';
 import { extractActiveObjectProps } from '@/lib/canvas-object-props';
@@ -26,6 +25,7 @@ import {
   Link,
   Trash2,
   Layers,
+  ImagePlus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/store/editor.store';
@@ -54,6 +54,12 @@ import {
   addDroppedImageToCanvas as factoryAddDroppedImage,
   findImageLayerAtPoint,
   replaceDroppedImageOnLayer,
+  uploadCanvasImageFile,
+  getDroppedImageFiles,
+  ensureRemoteImageUrl,
+  uploadInlineImageUrl,
+  isInlineImageUrl,
+  canvasCoordsFromDropEvent,
 } from '@/lib/canvas-factory';
 import Ruler from './Ruler';
 
@@ -64,12 +70,13 @@ interface CanvasWorkspaceProps {
   setIsDirty: (dirty: boolean) => void;
   /** Fired once when template was loaded from canvas_data only (no fabric_state). */
   onLoadedWithoutFabricState?: () => void;
+  onLayerLoadError?: (error: string) => void;
 }
 
 // Module-level variable to serialize canvas initialization and disposal across strict mode double mounts
 let activeDisposalPromise: Promise<void> | null = null;
 
-export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty, onLoadedWithoutFabricState }: CanvasWorkspaceProps) {
+export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty, onLoadedWithoutFabricState, onLayerLoadError }: CanvasWorkspaceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<any>(null);
@@ -109,30 +116,37 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
 
   const {
     zoom,
-    setZoom,
+    zoomPercent,
+    exceedsFitHeight,
     calculateFitZoom,
+    resetZoomTo100,
     handleZoom,
     handleViewportMouseDown,
     handleViewportMouseMove,
     handleViewportMouseUp,
   } = useCanvasViewport(workspaceRef, fabricCanvasRef, baseWidth, baseHeight);
 
+  useEffect(() => {
+    if (!exceedsFitHeight && workspaceRef.current) {
+      workspaceRef.current.scrollTop = 0;
+    }
+  }, [exceedsFitHeight, zoom]);
+
   useKeyboardShortcuts({
     onSave,
     setIsDirty,
-    onZoomFit: calculateFitZoom,
-    onZoom100: () => setZoom(1),
+    onZoomFit: () => calculateFitZoom(true),
+    onZoom100: resetZoomTo100,
   });
 
   const [showGrid, setShowGrid] = useState(false);
   const [isImageUrlOpen, setIsImageUrlOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [isShapeDropdownOpen, setIsShapeDropdownOpen] = useState(false);
+  const [isFileDragOver, setIsFileDragOver] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; visible: boolean } | null>(null);
 
   const [guides, setGuides] = useState<{ type: 'h' | 'v'; position: number }[]>([]);
-  const [toolbarPosition, setToolbarPosition] = useState<{ left: number; top: number; visible: boolean } | null>(null);
-
   const guidesRef = useRef(guides);
   useEffect(() => {
     guidesRef.current = guides;
@@ -156,10 +170,6 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
 
   const removeGuide = (index: number) => {
     setGuides((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateFloatingToolbar = (canvasInstance: any) => {
-    setToolbarPosition(computeFloatingToolbarPosition(canvasInstance));
   };
 
   const syncActiveObjectProps = (activeObj: any) => {
@@ -306,11 +316,6 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     let fabricCanvas: any = null;
     let isAborted = false;
 
-    const handleUpdateToolbar = () => {
-      updateFloatingToolbar(fabricCanvas || fabricCanvasRef.current);
-    };
-
-    // Bind Event Listeners
     const onSelect = (e: any) => {
       const currentCanvas = fabricCanvas || fabricCanvasRef.current;
       if (!currentCanvas) return;
@@ -405,7 +410,6 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         }
         currentCanvas.renderAll();
         syncActiveObjectProps(obj);
-        updateFloatingToolbar(currentCanvas);
       }
 
       syncLayersFromCanvas(currentCanvas);
@@ -448,16 +452,8 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       newCanvas.on('mouse:up', clearGuides);
       newCanvas.on('selection:cleared', clearGuides);
 
-      newCanvas.on('selection:created', handleUpdateToolbar);
-      newCanvas.on('selection:updated', handleUpdateToolbar);
-      newCanvas.on('selection:cleared', handleUpdateToolbar);
-      newCanvas.on('object:moving', handleUpdateToolbar);
-      newCanvas.on('object:scaling', handleUpdateToolbar);
-      newCanvas.on('object:rotating', handleUpdateToolbar);
-      newCanvas.on('object:modified', handleUpdateToolbar);
-
-      // Initial Zoom
-      calculateFitZoom();
+      // Initial zoom (fit to viewport)
+      calculateFitZoom(true);
 
       // Load layers
       loadTemplateIntoCanvas({
@@ -468,6 +464,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         syncLayersFromCanvas,
         setLoadingLayers,
         onLoadedWithoutFabricState,
+        onLayerLoadError,
       });
 
       if (isAborted) {
@@ -487,14 +484,6 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       canvasInstance.off('object:modified', clearGuides);
       canvasInstance.off('mouse:up', clearGuides);
       canvasInstance.off('selection:cleared', clearGuides);
-
-      canvasInstance.off('selection:created', handleUpdateToolbar);
-      canvasInstance.off('selection:updated', handleUpdateToolbar);
-      canvasInstance.off('selection:cleared', handleUpdateToolbar);
-      canvasInstance.off('object:moving', handleUpdateToolbar);
-      canvasInstance.off('object:scaling', handleUpdateToolbar);
-      canvasInstance.off('object:rotating', handleUpdateToolbar);
-      canvasInstance.off('object:modified', handleUpdateToolbar);
 
       activeDisposalPromise = canvasInstance.dispose();
       (canvasInstance as any).disposed = true;
@@ -520,12 +509,69 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
 
   const handleCanvasDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    setIsFileDragOver(false);
 
     const fabricCanvas = fabricCanvasRef.current;
-    if (!fabricCanvas || !canvasRef.current) return;
+    if (!fabricCanvas || !canvasRef.current || loadingLayers) return;
+
+    const { x, y } = canvasCoordsFromDropEvent(
+      event,
+      canvasRef.current,
+      fabricCanvas,
+      baseWidth,
+      baseHeight,
+    );
+
+    const droppedFiles = getDroppedImageFiles(event.dataTransfer);
+    if (droppedFiles.length > 0) {
+      for (let i = 0; i < droppedFiles.length; i++) {
+        const file = droppedFiles[i];
+        const toastId = toast.loading(`Đang tải lên "${file.name}"...`);
+        try {
+          const url = await uploadCanvasImageFile(file);
+          if (!url) {
+            toast.error(`Không thể tải lên "${file.name}". Kiểm tra đăng nhập và thử lại.`, { id: toastId });
+            continue;
+          }
+          const layerName = file.name.replace(/\.[^.]+$/, '') || 'Ảnh';
+          await addDroppedImageToCanvas(
+            { file_url: url, name: layerName, folder: 'template-layers' },
+            x + i * 24,
+            y + i * 24,
+          );
+          toast.dismiss(toastId);
+        } catch (err) {
+          console.error('Failed to drop image file:', err);
+          toast.error(`Lỗi khi thêm "${file.name}"`, { id: toastId });
+        }
+      }
+      return;
+    }
 
     const raw = event.dataTransfer.getData('application/json') || event.dataTransfer.getData('text/plain');
     if (!raw) return;
+
+    // Some drag sources (browser image, screenshot tools) only provide a data URL string.
+    if (isInlineImageUrl(raw)) {
+      const toastId = toast.loading('Đang tải ảnh lên...');
+      try {
+        const uploaded = await uploadInlineImageUrl(raw, `drop_${Date.now()}.png`, 'template-layers');
+        if (!uploaded) {
+          toast.error('Không thể tải ảnh lên server.', { id: toastId });
+          return;
+        }
+        await addDroppedImageToCanvas(
+          { file_url: uploaded, name: 'Ảnh', folder: 'template-layers' },
+          x,
+          y,
+        );
+        toast.dismiss(toastId);
+      } catch (err) {
+        console.error('Failed to drop inline image:', err);
+        toast.error('Không thể thêm ảnh vào canvas.', { id: toastId });
+      }
+      return;
+    }
 
     let asset: DroppedAsset | null = null;
     try {
@@ -536,13 +582,19 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
 
     if (!asset) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-
-    const canvasWidth = fabricCanvas.getWidth() || baseWidth;
-    const canvasHeight = fabricCanvas.getHeight() || baseHeight;
-    const x = ((event.clientX - rect.left) / rect.width) * canvasWidth;
-    const y = ((event.clientY - rect.top) / rect.height) * canvasHeight;
+    const assetUrl = asset.file_url || asset.fileUrl;
+    if (assetUrl) {
+      const remoteUrl = await ensureRemoteImageUrl(
+        assetUrl,
+        `asset_${Date.now()}.png`,
+        asset.folder || 'template-layers',
+      );
+      if (!remoteUrl) {
+        toast.error('Không thể tải ảnh lên server.');
+        return;
+      }
+      asset = { ...asset, file_url: remoteUrl, fileUrl: remoteUrl };
+    }
 
     const targetImageObj = findImageLayerAtPoint(fabricCanvas, x, y);
     if (targetImageObj) {
@@ -569,12 +621,26 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     await addDroppedImageToCanvas(asset, x, y);
   };
 
+  const handleCanvasDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    if (Array.from(event.dataTransfer.types).includes('Files')) {
+      setIsFileDragOver(true);
+    }
+  };
+
+  const handleCanvasDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+      setIsFileDragOver(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-slate-100 overflow-hidden relative" ref={containerRef}>
       
       {/* Toolbar Component */}
       <EditorToolbar
-        zoom={zoom}
+        zoomPercent={zoomPercent}
         onZoomIn={() => handleZoom(1.1)}
         onZoomOut={() => handleZoom(0.9)}
         onUndo={undo}
@@ -600,6 +666,16 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         </div>
       )}
 
+      {isFileDragOver && !loadingLayers && (
+        <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center bg-indigo-500/10 border-2 border-dashed border-indigo-400/70 m-3 rounded-2xl">
+          <div className="flex flex-col items-center gap-2 px-6 py-4 bg-white/90 rounded-2xl shadow-lg border border-indigo-200/80">
+            <ImagePlus className="w-8 h-8 text-indigo-500" />
+            <p className="text-sm font-semibold text-slate-700">Thả ảnh để thêm layer</p>
+            <p className="text-[11px] text-slate-400">PNG, JPG, WebP, SVG...</p>
+          </div>
+        </div>
+      )}
+
       {cropRequest && (
         <CropImageModal
           isOpen={true}
@@ -621,13 +697,16 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       <div
         data-canvas-viewport
         ref={workspaceRef}
-        className="flex-1 min-h-0 overflow-auto flex items-center justify-center bg-slate-100 relative"
+        className={`flex-1 min-h-0 flex bg-slate-100 relative overflow-x-auto ${
+          exceedsFitHeight ? 'overflow-y-auto' : 'overflow-y-hidden'
+        }`}
         style={{ 
           padding: '48px', // Increased padding to fit rulers nicely
           backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(99, 102, 241, 0.1) 1px, transparent 0)',
           backgroundSize: '24px 24px',
         }}
-        onDragOver={(e) => e.preventDefault()}
+        onDragOver={handleCanvasDragOver}
+        onDragLeave={handleCanvasDragLeave}
         onDrop={handleCanvasDrop}
         onContextMenu={handleContextMenu}
         onClick={() => { if (contextMenu?.visible) setContextMenu(null); }}
@@ -643,6 +722,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
             height: `${baseHeight * zoom + 20}px`,
             flexShrink: 0,
             position: 'relative',
+            margin: 'auto',
           }}
         >
           {/* Corner Spacer */}
@@ -734,16 +814,6 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
               </div>
             ))}
 
-            <FloatingObjectToolbar
-              position={toolbarPosition}
-              fabricCanvasRef={fabricCanvasRef}
-              onCopy={copyToClipboard}
-              onDirty={() => setIsDirty(true)}
-              onPushState={pushState}
-              onSyncLayers={syncLayersFromCanvas}
-              onSyncProps={setActiveObjectProps}
-              onReposition={updateFloatingToolbar}
-            />
           </div>
         </div>
       </div>

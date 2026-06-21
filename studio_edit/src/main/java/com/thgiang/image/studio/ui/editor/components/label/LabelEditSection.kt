@@ -78,10 +78,10 @@ internal data class TypographyPreset(
 )
 
 private val presets = listOf(
-    TypographyPreset(R.string.studio_label_preset_title, "bold", 28f, null),
-    TypographyPreset(R.string.studio_label_preset_subtitle, "600", 20f, null),
-    TypographyPreset(R.string.studio_label_preset_caption, "normal", 14f, null),
-    TypographyPreset(R.string.studio_label_preset_uppercase, "bold", 18f, "uppercase"),
+    TypographyPreset(R.string.studio_label_preset_title, "bold", 80f, null),
+    TypographyPreset(R.string.studio_label_preset_subtitle, "600", 60f, null),
+    TypographyPreset(R.string.studio_label_preset_caption, "normal", 40f, null),
+    TypographyPreset(R.string.studio_label_preset_uppercase, "bold", 54f, "uppercase"),
 )
 
 internal enum class LabelEditTab {
@@ -517,9 +517,9 @@ private fun SizeControl(
         PrecisionSlider(
             label = "",
             value = value,
-            valueRange = 8f..72f,
+            valueRange = 1f..500f,
             onValueChange = onValueChange,
-            valueFormatter = { "${it.toInt()}sp" },
+            valueFormatter = { "${it.toInt()}px" },
             colors = sliderColors,
             modifier = Modifier.weight(1f),
         )

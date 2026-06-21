@@ -35,11 +35,19 @@ export function validateTemplateForPublish(
   }
 
   for (const layer of cloudTemplate.layers || []) {
-    if (layer.type === 'IMAGE') {
-      const url = layer.payload?.imageUrl || layer.payload?.defaultImageUrl;
-      if (url && !url.startsWith('http')) {
-        errors.push(`Layer ảnh có URL không hợp lệ (${layer.layerId}).`);
-      }
+    const url = layer.payload?.imageUrl || layer.payload?.defaultImageUrl;
+    if (!url) continue;
+    const isImageLike =
+      layer.type === 'IMAGE' ||
+      layer.type === 'PLACEHOLDER_OBJECT' ||
+      (layer.type === 'DECORATION' && Boolean(url));
+    if (!isImageLike) continue;
+    const isValid = url.startsWith('http') || url.startsWith('/');
+    if (!isValid) {
+      const preview = url.length > 48 ? `${url.slice(0, 48)}...` : url;
+      errors.push(
+        `Layer ảnh có URL không hợp lệ (${layer.layerId}): "${preview}". Hãy lưu lại template để upload ảnh lên server.`,
+      );
     }
   }
 

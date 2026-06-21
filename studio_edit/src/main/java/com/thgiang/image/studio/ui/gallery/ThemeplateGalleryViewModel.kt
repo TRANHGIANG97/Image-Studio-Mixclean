@@ -53,10 +53,10 @@ class ThemeplateGalleryViewModel @Inject constructor(
             runCatching {
                 cloudTemplateRepository.fetchCategories()
             }.onSuccess { remoteCategories ->
-                if (remoteCategories.isNotEmpty()) {
-                    val merged = mergeWithFallbackCategories(remoteCategories)
-                    _categories.value = merged
-                    loadTemplatesForCategory(merged.first().id)
+                val filtered = remoteCategories.filter { it.order > 0 }
+                if (filtered.isNotEmpty()) {
+                    _categories.value = filtered
+                    loadTemplatesForCategory(filtered.first().id)
                 } else {
                     loadFallbackData()
                 }

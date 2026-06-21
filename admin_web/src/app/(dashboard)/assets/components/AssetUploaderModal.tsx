@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useUploadAsset, useFolders } from '@/hooks/useAssets';
 import { useCategories } from '@/hooks/useCategories';
+import { toSlug } from '@/lib/utils';
 
 interface AssetUploaderModalProps {
   isOpen: boolean;
@@ -54,7 +55,7 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
   };
 
   const handleUploadAll = async () => {
-    const destFolder = isCustomFolder ? (customFolder.trim() || 'uncategorized') : selectedFolder;
+    const destFolder = isCustomFolder ? (toSlug(customFolder) || 'uncategorized') : selectedFolder;
     for (const file of files) {
       await uploadMutation.mutateAsync({ file, folder: destFolder, categoryId: categoryId || null });
     }
@@ -138,8 +139,8 @@ export function AssetUploaderModal({ isOpen, onClose, folder = 'uncategorized' }
             <input
               type="text"
               value={customFolder}
-              onChange={(e) => setCustomFolder(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-              placeholder="Nhập tên thư mục mới (viết liền không dấu, vd: frames)..."
+              onChange={(e) => setCustomFolder(e.target.value)}
+              placeholder="Nhập tên thư mục mới, ví dụ: Tết cổ truyền, Sticker Mùa Hè..."
               className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-500 animate-in slide-in-from-top-1 duration-200"
             />
           )}

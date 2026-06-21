@@ -298,17 +298,19 @@ private fun ObjectLayerCard(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
+                        val isShapeInvisible = layer.shapeColorArgb == 0 || (layer.shapeColorArgb and 0xFFFFFF) == 0xFFFFFF
                         ShapePreviewIcon(
                             shape = layer.shapeType,
-                            color = shapeColor,
+                            color = if (isShapeInvisible) Color(0xFF6B7280) else shapeColor,
                             modifier = Modifier.size(18.dp),
                         )
+                        val isTextInvisible = layer.textColorArgb == 0 || (layer.textColorArgb and 0xFFFFFF) == 0xFFFFFF
                         Text(
                             text = EditorTextStyleMapper
                                 .applyTextTransform(layer.text, layer.textTransform)
                                 .ifBlank { "…" }
                                 .take(10),
-                            color = textColor,
+                            color = if (isTextInvisible) Color(0xFF374151) else textColor,
                             fontSize = 8.sp,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,

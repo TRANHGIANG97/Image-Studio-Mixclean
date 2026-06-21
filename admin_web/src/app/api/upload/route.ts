@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       success: true,
       fileUrl: result.fileUrl,
       asset: result.asset,
+      isDuplicate: result.isDuplicate || false,
     });
   } catch (error: any) {
     console.error('Upload handler error:', error);

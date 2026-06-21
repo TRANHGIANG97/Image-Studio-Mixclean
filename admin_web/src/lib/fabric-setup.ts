@@ -23,6 +23,8 @@ export function initFabricEditorDefaults(): void {
   FabricObject.ownDefaults.cornerStyle = 'circle';
   FabricObject.ownDefaults.transparentCorners = false;
   FabricObject.ownDefaults.borderOpacityWhenMoving = 0.8;
+  (FabricObject.ownDefaults as any).perPixelTargetFind = true;
+  (FabricObject.ownDefaults as any).targetFindTolerance = 8;
 
   const rxPositionHandler = (dim: any, finalMatrix: any, fabricObject: any) => {
     const x = -dim.x / 2 + (fabricObject.rx || 0);

@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +21,17 @@ type FormValues = {
   templateId: string;
   title: string;
   categoryId: string;
+  exportLayers: boolean;
+  exportFolderName?: string;
 };
+
+const importPsdTemplateSchema = z.object({
+  templateId: z.string().trim().min(1, 'ID template is required'),
+  title: z.string().trim().min(1, 'Tiêu đề template không được để trống'),
+  categoryId: z.string().trim().min(1, 'Danh mục là bắt buộc'),
+  exportLayers: z.boolean(),
+  exportFolderName: z.string().optional(),
+});
 
 function buildTemplateId() {
   return `TPL_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -34,12 +46,17 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
   const importMutation = useImportPsdTemplate();
 
   const form = useForm<FormValues>({
+    resolver: zodResolver(importPsdTemplateSchema),
     defaultValues: {
       templateId: '',
       title: '',
       categoryId: '',
+      exportLayers: false,
+      exportFolderName: '',
     },
   });
+
+  const exportLayers = useWatch({ control: form.control, name: 'exportLayers' });
 
   useEffect(() => {
     if (isOpen) {
@@ -47,6 +64,8 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
         templateId: buildTemplateId(),
         title: '',
         categoryId: categories.length > 0 ? categories[0].id : '',
+        exportLayers: false,
+        exportFolderName: '',
       });
       setPsdFile(null);
     }
@@ -54,28 +73,33 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
 
   const handleFileChange = (file: File | null) => {
     setPsdFile(file);
-    if (file) {
-      const stem = fileStem(file.name);
-      if (!form.getValues('title')) {
-        form.setValue('title', stem || 'Imported PSD Template');
-      }
+    if (!file) return;
+
+    const stem = fileStem(file.name);
+    if (!form.getValues('title')) {
+      form.setValue('title', stem || 'Imported PSD Template');
     }
+    form.setValue(
+      'exportFolderName',
+      stem ? `psd-layer-${stem.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : 'psd-layers',
+    );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = form.handleSubmit(async (values) => {
     if (!psdFile) return;
 
     await importMutation.mutateAsync({
       file: psdFile,
-      categoryId: form.getValues('categoryId'),
-      templateId: form.getValues('templateId'),
-      title: form.getValues('title'),
+      categoryId: values.categoryId.trim(),
+      templateId: values.templateId.trim(),
+      title: values.title.trim(),
+      exportLayers: values.exportLayers,
+      exportFolderName: values.exportFolderName,
     });
 
     setPsdFile(null);
     onClose();
-  };
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
@@ -100,6 +124,7 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
               {...form.register('templateId')}
               className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
+            {form.formState.errors.templateId && <p className="text-xs text-rose-500">{form.formState.errors.templateId.message}</p>}
           </div>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-600">Tiêu đề template</label>
@@ -108,6 +133,7 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
               placeholder="Tên lấy từ file PSD"
               className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
             />
+            {form.formState.errors.title && <p className="text-xs text-rose-500">{form.formState.errors.title.message}</p>}
           </div>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-600">Danh mục</label>
@@ -122,6 +148,7 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
                 </option>
               ))}
             </select>
+            {form.formState.errors.categoryId && <p className="text-xs text-rose-500">{form.formState.errors.categoryId.message}</p>}
           </div>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-600">Chọn file PSD/PSB</label>
@@ -134,11 +161,42 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
             />
           </div>
 
+          <div className="flex items-center space-x-2 pt-2">
+            <input
+              type="checkbox"
+              id="exportLayers"
+              {...form.register('exportLayers')}
+              className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+            />
+            <label htmlFor="exportLayers" className="text-xs font-semibold text-slate-600 cursor-pointer select-none">
+              Xuất các layer ảnh vào Thư viện tài nguyên (Asset Library)
+            </label>
+          </div>
+
+          {exportLayers && (
+            <div className="space-y-2 pl-6 animate-in fade-in slide-in-from-top-1 duration-200">
+              <label className="text-xs font-semibold text-slate-600">Tên thư mục lưu trữ tài nguyên</label>
+              <Input
+                {...form.register('exportFolderName')}
+                placeholder="Ví dụ: psd-layer-summer"
+                className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
+                required
+              />
+              <p className="text-[10px] text-slate-400">
+                Các lớp ảnh con của file PSD sẽ được đăng ký vào thư mục này để bạn tái sử dụng ở các template khác.
+              </p>
+            </div>
+          )}
+
           <DialogFooter className="mt-6">
             <Button type="button" variant="ghost" onClick={onClose} className="text-slate-500 hover:text-slate-800 rounded-xl">
               Hủy
             </Button>
-            <Button type="submit" disabled={importMutation.isPending || !psdFile} className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white">
+            <Button
+              type="submit"
+              disabled={importMutation.isPending || !psdFile}
+              className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white"
+            >
               {importMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               Tiến hành Nhập
             </Button>

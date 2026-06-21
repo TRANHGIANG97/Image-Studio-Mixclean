@@ -25,12 +25,33 @@ export type ShapeSubtype =
   | 'diamond'
   | 'hexagon';
 
-export interface DroppedAsset {
-  id?: string;
-  name?: string;
-  folder?: string;
-  file_url?: string;
-  fileUrl?: string;
+export type { DroppedAsset } from '@/lib/canvas-upload';
+export {
+  isDroppableImageFile,
+  uploadCanvasImageFile,
+  ensureRemoteImageUrl,
+  getDroppedImageFiles,
+  uploadInlineImageUrl,
+  isInlineImageUrl,
+} from '@/lib/canvas-upload';
+
+export function canvasCoordsFromDropEvent(
+  event: { clientX: number; clientY: number },
+  canvasElement: HTMLCanvasElement,
+  fabricCanvas: any,
+  fallbackWidth: number,
+  fallbackHeight: number,
+): { x: number; y: number } {
+  const rect = canvasElement.getBoundingClientRect();
+  const canvasWidth = fabricCanvas.getWidth?.() || fallbackWidth;
+  const canvasHeight = fabricCanvas.getHeight?.() || fallbackHeight;
+  if (!rect.width || !rect.height) {
+    return { x: canvasWidth / 2, y: canvasHeight / 2 };
+  }
+  return {
+    x: ((event.clientX - rect.left) / rect.width) * canvasWidth,
+    y: ((event.clientY - rect.top) / rect.height) * canvasHeight,
+  };
 }
 
 export interface SidebarAsset {
@@ -322,6 +343,7 @@ export async function addDroppedImageToCanvas(
     );
     fitImageScale(img, baseWidth, baseHeight, 0.5);
     addObjectToCanvas(canvas, img, handlers);
+    toast.success(`Đã thêm layer "${asset.name || 'Ảnh'}"`);
   } catch (err) {
     console.error('Failed to add dropped asset:', err);
     toast.error('Không thể thả ảnh vào canvas. Vui lòng thử lại.');

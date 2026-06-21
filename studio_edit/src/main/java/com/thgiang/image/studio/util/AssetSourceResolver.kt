@@ -9,18 +9,49 @@ import java.nio.charset.StandardCharsets
 private const val ANDROID_ASSET_PREFIX = "file:///android_asset/"
 private const val BG_DEBUG_TAG = "TPL_BG_DEBUG"
 
-fun String.replaceLocalhostWithConfiguredHost(baseUrl: String = BuildConfig.ADMIN_WEB_BASE_URL): String {
-    if (!contains("localhost", ignoreCase = true) && !contains("127.0.0.1")) return this
-    val host = try {
-        val uri = java.net.URI(baseUrl)
-        val h = uri.host
-        if (h == null || h == "localhost" || h == "127.0.0.1") "10.0.2.2" else h
-    } catch (e: Exception) {
-        "10.0.2.2"
+/** Unwrap admin_web `/api/proxy?url=` wrappers to the direct CDN URL. */
+fun String.unwrapCdnProxyUrl(): String {
+    val match = Regex("^(?:https?://[^/]+)?/api/proxy\\?url=(.+)$", RegexOption.IGNORE_CASE).find(trim())
+        ?: return this
+    return try {
+        Uri.decode(match.groupValues[1])
+    } catch (_: Exception) {
+        this
     }
-    return this
-        .replace("localhost", host, ignoreCase = true)
-        .replace("127.0.0.1", host)
+}
+
+fun String.resolveRelativePath(baseUrl: String = BuildConfig.ADMIN_WEB_BASE_URL): String {
+    val clean = this.trim()
+    if (clean.startsWith("/") && !clean.startsWith("//") && baseUrl.isNotBlank()) {
+        return baseUrl.trimEnd('/') + "/" + clean.removePrefix("/")
+    }
+    return clean
+}
+
+fun String.replaceLocalhostWithConfiguredHost(baseUrl: String = BuildConfig.ADMIN_WEB_BASE_URL): String {
+    val resolvedRelative = this.resolveRelativePath(baseUrl)
+    val unwrapped = resolvedRelative.unwrapCdnProxyUrl()
+    
+    // Nếu chứa R2 dev domain và cấu hình web host không phải localhost, proxy qua web server để tránh bị nhà mạng tại VN chặn
+    if (unwrapped.contains(".r2.dev", ignoreCase = true)) {
+        if (baseUrl.isNotBlank() && !baseUrl.contains("localhost", ignoreCase = true) && !baseUrl.contains("127.0.0.1")) {
+            return try {
+                val encodedUrl = URLEncoder.encode(unwrapped, StandardCharsets.UTF_8.name())
+                "${baseUrl.trimEnd('/')}/api/proxy?url=$encodedUrl"
+            } catch (e: Exception) {
+                unwrapped
+            }
+        }
+    }
+
+    if (!unwrapped.contains("localhost", ignoreCase = true) && !unwrapped.contains("127.0.0.1")) return unwrapped
+    val targetBase = if (baseUrl.isBlank() || baseUrl.contains("localhost", ignoreCase = true) || baseUrl.contains("127.0.0.1")) {
+        "http://10.0.2.2:3000"
+    } else {
+        baseUrl.trimEnd('/')
+    }
+    val regex = "https?://(?:localhost|127\\.0\\.0\\.1)(?::\\d+)?".toRegex(RegexOption.IGNORE_CASE)
+    return unwrapped.replace(regex, targetBase)
 }
 
 fun String.isRemoteAssetSource(): Boolean =
@@ -29,35 +60,42 @@ fun String.isRemoteAssetSource(): Boolean =
 fun String.isAndroidAssetUri(): Boolean =
     startsWith(ANDROID_ASSET_PREFIX)
 
-fun String.toAssetModel(): Any = when {
-    isRemoteAssetSource() -> this.replaceLocalhostWithConfiguredHost()
-    startsWith("content://") || startsWith("file://") -> this
-    else -> toCloudResolvedAssetUrl()?.replaceLocalhostWithConfiguredHost() ?: this.replaceLocalhostWithConfiguredHost()
+fun String.toAssetModel(): Any {
+    val resolved = this.resolveRelativePath()
+    return when {
+        resolved.isRemoteAssetSource() -> resolved.replaceLocalhostWithConfiguredHost()
+        resolved.startsWith("content://") || resolved.startsWith("file://") -> resolved
+        else -> resolved.toCloudResolvedAssetUrl()?.replaceLocalhostWithConfiguredHost() ?: resolved.replaceLocalhostWithConfiguredHost()
+    }
 }
 
 fun String.toCloudResolvedAssetUrl(baseUrl: String = BuildConfig.ADMIN_WEB_BASE_URL): String? {
-    if (isRemoteAssetSource() || startsWith("content://") || startsWith("file://")) return this.replaceLocalhostWithConfiguredHost(baseUrl)
+    val resolved = this.resolveRelativePath(baseUrl)
+    if (resolved.isRemoteAssetSource() || resolved.startsWith("content://") || resolved.startsWith("file://")) return resolved.replaceLocalhostWithConfiguredHost(baseUrl)
     if (baseUrl.isBlank()) return null
 
     // Nếu cấu hình CDN trực tiếp, ghép chuỗi trả về luôn (Bypass Vercel)
     val cdnBaseUrl = BuildConfig.CDN_BASE_URL
     if (cdnBaseUrl.isNotBlank()) {
-        val cleanPath = this.removePrefix("/")
+        val cleanPath = resolved.removePrefix("/")
         val encodedPath = cleanPath.split("/").joinToString("/") { 
             URLEncoder.encode(it, StandardCharsets.UTF_8.name()) 
         }
         return "$cdnBaseUrl$encodedPath"
     }
 
-    val encoded = URLEncoder.encode(this, StandardCharsets.UTF_8.name())
+    val encoded = URLEncoder.encode(resolved, StandardCharsets.UTF_8.name())
     return "$baseUrl/api/v1/assets/resolve?sourcePath=$encoded".replaceLocalhostWithConfiguredHost(baseUrl)
 }
 
-fun String.toAssetInputUri(): String = when {
-    isAndroidAssetUri() -> this
-    startsWith("content://") || startsWith("file://") -> this
-    isRemoteAssetSource() -> this.replaceLocalhostWithConfiguredHost()
-    else -> toCloudResolvedAssetUrl()?.replaceLocalhostWithConfiguredHost() ?: this.replaceLocalhostWithConfiguredHost()
+fun String.toAssetInputUri(): String {
+    val resolved = this.resolveRelativePath()
+    return when {
+        resolved.isAndroidAssetUri() -> resolved
+        resolved.startsWith("content://") || resolved.startsWith("file://") -> resolved
+        resolved.isRemoteAssetSource() -> resolved.replaceLocalhostWithConfiguredHost()
+        else -> resolved.toCloudResolvedAssetUrl()?.replaceLocalhostWithConfiguredHost() ?: resolved.replaceLocalhostWithConfiguredHost()
+    }
 }
 
 fun Context.openAssetSourceInputStream(path: String): java.io.InputStream? {

@@ -90,13 +90,16 @@ class EditorProductWorkflow @Inject constructor(
                     imageSaveRepository.cacheBitmap(foreground).getOrNull()
                 } ?: return ProductImageResult.Failed(null)
 
+                // Keep the logical layer size tied to the original decoded image.
+                // The foreground bitmap can be tighter after background removal, which
+                // would otherwise make the layer render shorter than the template slot.
                 ProductImageResult.Ready(
                     EditorProduct(
                         originalUriString = uri.toString(),
                         foregroundUriString = cachedUri.toString(),
                         isBackgroundRemoved = true,
-                        baseWidth = foreground.width.coerceAtLeast(0),
-                        baseHeight = foreground.height.coerceAtLeast(0),
+                        baseWidth = decoded.width.coerceAtLeast(foreground.width).coerceAtLeast(0),
+                        baseHeight = decoded.height.coerceAtLeast(foreground.height).coerceAtLeast(0),
                         processing = false,
                     ),
                 )

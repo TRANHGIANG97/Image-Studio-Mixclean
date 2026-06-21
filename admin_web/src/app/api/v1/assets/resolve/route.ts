@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { applyCDN } from '@/lib/cdn-rewriter';
 
 export async function GET(req: NextRequest) {
   try {
@@ -27,8 +28,9 @@ export async function GET(req: NextRequest) {
 
     // Nếu đường dẫn đã bắt đầu bằng studio-edit, ta có thể redirect trực tiếp
     if (cleanPath.startsWith('studio-edit/')) {
-      console.log(`[resolve] Direct redirect (studio-edit): ${publicUrl}`);
-      return NextResponse.redirect(publicUrl, 307);
+      const cdnUrl = applyCDN(publicUrl);
+      console.log(`[resolve] Direct redirect (studio-edit): ${cdnUrl}`);
+      return NextResponse.redirect(cdnUrl, 307);
     }
 
     // Kiểm tra nhanh sự tồn tại bằng phương thức HEAD (chỉ lấy header, không tải file)
@@ -36,8 +38,9 @@ export async function GET(req: NextRequest) {
     let upstream = await fetch(publicUrl, { method: 'HEAD' });
     
     if (upstream.ok) {
-      console.log(`[resolve] Path verified. Redirecting to: ${publicUrl}`);
-      return NextResponse.redirect(publicUrl, 307);
+      const cdnUrl = applyCDN(publicUrl);
+      console.log(`[resolve] Path verified. Redirecting to: ${cdnUrl}`);
+      return NextResponse.redirect(cdnUrl, 307);
     }
 
     // Fallback thử thư mục studio-edit/
@@ -46,8 +49,9 @@ export async function GET(req: NextRequest) {
     const fallbackUpstream = await fetch(fallbackUrl, { method: 'HEAD' });
 
     if (fallbackUpstream.ok) {
-      console.log(`[resolve] Fallback path verified. Redirecting to: ${fallbackUrl}`);
-      return NextResponse.redirect(fallbackUrl, 307);
+      const cdnFallbackUrl = applyCDN(fallbackUrl);
+      console.log(`[resolve] Fallback path verified. Redirecting to: ${cdnFallbackUrl}`);
+      return NextResponse.redirect(cdnFallbackUrl, 307);
     }
 
     console.error(`[resolve] Asset not found: ${sourcePath}`);

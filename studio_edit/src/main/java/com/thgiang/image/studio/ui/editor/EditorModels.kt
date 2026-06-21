@@ -202,7 +202,8 @@ data class EditorLayer(
     // ── Common transform & appearance ───────────────────────
     val viewport: EditorViewport = EditorViewport(),
     val appearance: EditorAppearance = EditorAppearance(),
-    val isLocked: Boolean = false
+    val isLocked: Boolean = false,
+    val isVisible: Boolean = true
 ) : java.io.Serializable
 
 val EditorLayer.isShadowRegion: Boolean
@@ -292,6 +293,7 @@ data class TransformSnapshot(
             if (kotlin.math.abs(a.appearance.shadowIntensity - b.appearance.shadowIntensity) >= epsilon) return false
             if (kotlin.math.abs(a.appearance.alpha - b.appearance.alpha) >= epsilon) return false
             if (a.isLocked != b.isLocked) return false
+            if (a.isVisible != b.isVisible) return false
             // Shape-text specific
             if (a.type == LayerType.SHAPE_TEXT) {
                 if (a.text != b.text) return false

@@ -147,7 +147,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 requestHistoryPush()
             }
             is EditorEvent.UpdateTextSize -> {
-                updateActiveLayer { it.copy(textSizeSp = event.sizeSp.coerceIn(8f, 72f)) }
+                updateActiveLayer { it.copy(textSizeSp = event.sizeSp.coerceIn(1f, 500f)) }
                 requestHistoryPush()
             }
             is EditorEvent.UpdateTextFontFamily -> {
@@ -208,7 +208,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 updateActiveLayer {
                     it.copy(
                         fontWeight = event.fontWeight,
-                        textSizeSp = event.textSizeSp.coerceIn(8f, 72f),
+                        textSizeSp = event.textSizeSp.coerceIn(1f, 500f),
                         textTransform = event.textTransform,
                     )
                 }

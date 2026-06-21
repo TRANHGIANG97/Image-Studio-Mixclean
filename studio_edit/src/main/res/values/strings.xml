@@ -183,5 +183,9 @@
     <string name="studio_layer_text_label">Text</string>
     <string name="studio_layer_text_with_content">Text: %1$s</string>
     <string name="studio_layer_image_label">Image %1$d</string>
+    <string name="studio_layer_shadow_label">Shadow</string>
+    <string name="studio_layer_picker_title">Select layer</string>
+    <string name="studio_layer_picker_subtitle">%1$d layers at this point</string>
+    <string name="studio_layer_picker_topmost">Top layer</string>
 </resources>
 

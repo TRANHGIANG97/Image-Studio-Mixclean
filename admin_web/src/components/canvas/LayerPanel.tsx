@@ -18,7 +18,9 @@ import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore, LayerState } from '@/store/layers.store';
 import { toast } from 'sonner';
-import { LayerItem, renderLayerPreview, getLayerIcon } from './layers/LayerItem';
+import { LayerItem } from './layers/LayerItem';
+import { LayerPreview } from './layers/LayerPreview';
+import { LayerTypeBadge } from './layers/LayerTypeBadge';
 import { recordCanvasHistory } from '@/lib/canvas-commands';
 import { extractActiveObjectProps } from '@/lib/canvas-object-props';
 
@@ -265,12 +267,6 @@ export default function LayerPanel({ compact = false, onDirty }: LayerPanelProps
     setDraggedLayerId(null); setDropTargetLayerId(null);
   };
 
-  const getLayerIconLocal = (type: string) => getLayerIcon(type);
-
-  const renderLayerPreviewLocal = (layer: LayerState) => {
-    return renderLayerPreview(layer, getLayerThumbnail(layer.id));
-  };
-
   const reversedLayers = [...layers].reverse();
 
   // ==================== COMPACT MODE: Icon Strip ====================
@@ -336,15 +332,7 @@ export default function LayerPanel({ compact = false, onDirty }: LayerPanelProps
                   }`}
                   title={`${layer.name} (${layer.type})`}
                 >
-                  {thumbnail ? (
-                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-white border border-slate-200/50">
-                      <img src={thumbnail} className="w-full h-full object-cover" alt="" />
-                    </div>
-                  ) : layer.type === 'TEXT' ? (
-                    renderLayerPreview(layer)
-                  ) : (
-                    getLayerIconLocal(layer.type)
-                  )}
+                  <LayerPreview layer={layer} thumbnail={thumbnail} size={32} />
 
                   {/* Visibility/Lock indicators */}
                   <div className="absolute -top-1 -right-1 flex gap-0">
@@ -384,9 +372,9 @@ export default function LayerPanel({ compact = false, onDirty }: LayerPanelProps
                       activeObjectId === layer.id ? 'bg-indigo-600/20 text-indigo-300' : 'hover:bg-slate-100 text-slate-500'
                     }`}
                   >
-                    {renderLayerPreviewLocal(layer)}
+                    <LayerPreview layer={layer} thumbnail={getLayerThumbnail(layer.id)} size={40} />
                     <span className="truncate flex-1">{layer.name}</span>
-                    <span className="text-[9px] text-slate-400">{layer.type}</span>
+                    <LayerTypeBadge type={layer.type} />
                   </div>
                 ))}
               </div>
@@ -407,23 +395,23 @@ export default function LayerPanel({ compact = false, onDirty }: LayerPanelProps
       </div>
 
       {activeObjectId && (
-        <div className="flex flex-wrap items-center gap-2 px-1">
-          <Button size="sm" variant="outline" onClick={(e) => handleMoveToTop(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-300 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg">
-            <ChevronsUp className="w-3.5 h-3.5 mr-1" /> Lên đầu
+        <div className="grid grid-cols-2 gap-1.5 px-1">
+          <Button size="sm" variant="outline" onClick={(e) => handleMoveToTop(activeObjectId, e)} className="h-7 px-2 text-[10px] border-slate-300 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg justify-center">
+            <ChevronsUp className="w-3 h-3 mr-1 shrink-0" /> Lên đầu
           </Button>
-          <Button size="sm" variant="outline" onClick={(e) => handleMoveUp(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-300 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg">
-            <ChevronUp className="w-3.5 h-3.5 mr-1" /> Lên trên
+          <Button size="sm" variant="outline" onClick={(e) => handleMoveToBottom(activeObjectId, e)} className="h-7 px-2 text-[10px] border-slate-300 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg justify-center">
+            <ChevronsDown className="w-3 h-3 mr-1 shrink-0" /> Xuống đáy
           </Button>
-          <Button size="sm" variant="outline" onClick={(e) => handleMoveDown(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-300 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg">
-            <ChevronDown className="w-3.5 h-3.5 mr-1" /> Xuống
+          <Button size="sm" variant="outline" onClick={(e) => handleMoveUp(activeObjectId, e)} className="h-7 px-2 text-[10px] border-slate-300 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg justify-center">
+            <ChevronUp className="w-3 h-3 mr-1 shrink-0" /> Lên trên
           </Button>
-          <Button size="sm" variant="outline" onClick={(e) => handleMoveToBottom(activeObjectId, e)} className="h-8 px-2.5 text-[11px] border-slate-300 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg">
-            <ChevronsDown className="w-3.5 h-3.5 mr-1" /> Xuống đáy
+          <Button size="sm" variant="outline" onClick={(e) => handleMoveDown(activeObjectId, e)} className="h-7 px-2 text-[10px] border-slate-300 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg justify-center">
+            <ChevronDown className="w-3 h-3 mr-1 shrink-0" /> Xuống
           </Button>
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300 space-y-2 select-none">
+      <div className="flex-1 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-slate-300 space-y-2.5 select-none">
         {reversedLayers.length === 0 ? (
           <div className="text-center py-20 text-slate-655">
             <Layers className="w-8 h-8 mx-auto text-slate-400 mb-2" />

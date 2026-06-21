@@ -28,7 +28,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    if (!body.templateId || !body.categoryId || !body.title) {
+    const templateId = body.templateId ?? body.template_id;
+    const categoryId = body.categoryId ?? body.category_id;
+    const title = body.title;
+
+    if (!templateId || !categoryId || !title) {
       return NextResponse.json(
         { error: 'templateId, categoryId, and title are required' },
         { status: 400 }
@@ -36,12 +40,14 @@ export async function POST(req: NextRequest) {
     }
 
     const template = await createTemplate({
-      templateId: body.templateId,
-      categoryId: body.categoryId,
-      title: body.title,
+      templateId,
+      categoryId,
+      title,
       baseWidth: body.baseWidth ? Number(body.baseWidth) : undefined,
       baseHeight: body.baseHeight ? Number(body.baseHeight) : undefined,
-      backgroundUrl: body.backgroundUrl || null,
+      backgroundUrl: body.backgroundUrl ?? body.background_url ?? null,
+      thumbnailUrl: body.thumbnailUrl ?? body.thumbnail_url ?? null,
+      canvasData: body.canvasData ?? body.canvas_data,
     });
 
     return NextResponse.json({ success: true, template });

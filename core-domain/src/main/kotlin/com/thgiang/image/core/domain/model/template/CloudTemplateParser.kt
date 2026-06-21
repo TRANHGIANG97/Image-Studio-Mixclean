@@ -134,6 +134,7 @@ object CloudTemplateParser {
             textColorGradient = parseGradient(payloadJson.optJSONObject("textColorGradient")),
             pathData = payloadJson.optNonBlankString("pathData"),
             polygonPoints = payloadJson.optFloatListOrNull("polygonPoints"),
+            replaceable = payloadJson.optBooleanOrNull("replaceable"),
         )
     }
 

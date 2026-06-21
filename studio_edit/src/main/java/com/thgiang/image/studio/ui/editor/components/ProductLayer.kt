@@ -8,13 +8,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -60,7 +66,9 @@ fun ProductLayerV2(
     showBoundingBox: Boolean = false,
     onBoundingBoxVisible: (Boolean) -> Unit = {},
     onPickImage: () -> Unit = {},
-    isLocked: Boolean = false
+    isLocked: Boolean = false,
+    strokeColorArgb: Int? = null,
+    strokeWidthPx: Float = 0f,
 ) {
     val density = LocalDensity.current
     
@@ -108,6 +116,9 @@ fun ProductLayerV2(
 
     val originalWidth = with(density) { (actualSize.width * viewport.scale * displayScale).toInt().toDp() }
     val originalHeight = with(density) { (actualSize.height * viewport.scale * displayScale).toInt().toDp() }
+    val displayStrokeWidth = strokeWidthPx * viewport.scale * displayScale
+    val hasStroke = strokeWidthPx > 0f && strokeColorArgb != null
+    val blurRadius = appearance.resolvedShadowBlurRadius() * displayScale
 
     val cropShape = remember(actualSize) {
         object : androidx.compose.ui.graphics.Shape {
@@ -144,15 +155,19 @@ fun ProductLayerV2(
             SubcomposeAsyncImage(
                 model = product.foregroundUri,
                 contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    alpha = graphicsSpec.shadowAlpha
-                    rotationZ = graphicsSpec.rotation
-                    shadowElevation = graphicsSpec.shadowElevation
-                    ambientShadowColor = Color.Black
-                    spotShadowColor = Color.Black
-                }
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        alpha = graphicsSpec.shadowAlpha
+                        rotationZ = graphicsSpec.rotation
+                        if (blurRadius > 0.5f) {
+                            renderEffect = BlurEffect(
+                                radiusX = blurRadius,
+                                radiusY = blurRadius,
+                                edgeTreatment = TileMode.Decal,
+                            )
+                        }
+                    }
                     .clip(cropShape)
                     .offset {
                         IntOffset(
@@ -172,6 +187,24 @@ fun ProductLayerV2(
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
+                .then(
+                    if (hasStroke) {
+                        Modifier.drawBehind {
+                            val inset = displayStrokeWidth / 2f
+                            drawRect(
+                                color = Color(strokeColorArgb!!),
+                                topLeft = Offset(inset, inset),
+                                size = Size(
+                                    width = size.width - displayStrokeWidth,
+                                    height = size.height - displayStrokeWidth,
+                                ),
+                                style = Stroke(width = displayStrokeWidth),
+                            )
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
                 .graphicsLayer {
                     alpha = graphicsSpec.alpha
                     rotationZ = graphicsSpec.rotation
@@ -187,7 +220,12 @@ fun ProductLayerV2(
             loading = { 
                 Box(Modifier.fillMaxSize().background(Color.Transparent)) 
             },
-            error = {
+            error = { state ->
+                android.util.Log.e(
+                    "ProductLayer",
+                    "Failed to load foreground image. URL/Uri: ${product.foregroundUri}, error: ${state.result.throwable.message}",
+                    state.result.throwable
+                )
                 Box(
                     Modifier.fillMaxSize().background(Color.Red.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
@@ -242,35 +280,30 @@ fun ProductLayerV2(
             isLocked = isLocked
         )
 
-        // Pink "Replace" Button for sample object
+        // 2-directional horizontal arrow replace button, compact, transparent background
         if (product.isSample && !product.processing && !isLocked) {
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(72.dp)
-                    .background(Color(0xFFFF2D55), shape = CircleShape)
-                    .border(2.dp, Color.White, shape = CircleShape)
+                    .size(36.dp)
+                    .background(Color.Transparent)
                     .clickable { onPickImage() },
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = androidx.compose.ui.res.painterResource(id = com.thgiang.image.studio.R.drawable.ic_replace_product),
-                        contentDescription = stringResource(R.string.studio_action_replace),
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.studio_action_replace),
-                        color = Color.White,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                // Drop shadow for prominence
+                Icon(
+                    imageVector = Icons.Default.SwapHoriz,
+                    contentDescription = null,
+                    tint = Color.Black.copy(alpha = 0.6f),
+                    modifier = Modifier.size(30.dp).offset(y = 1.dp)
+                )
+                // Main icon
+                Icon(
+                    imageVector = Icons.Default.SwapHoriz,
+                    contentDescription = stringResource(R.string.studio_action_replace),
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
     }

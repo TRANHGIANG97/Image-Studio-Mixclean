@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { ensureFontLoaded } from '@/lib/font-loader';
-import { resolveLayerType } from '@/lib/canvas-object-props';
+import { resolveLayerType, isFabricShadowRegion } from '@/lib/canvas-object-props';
 import { getEditorCanvasRef } from './canvas-ref';
 
 
@@ -16,6 +16,7 @@ export interface LayerState {
   textPreview?: string;
   fontFamily?: string;
   fill?: string;
+  isShadowRegion?: boolean;
 }
 
 interface LayersState {
@@ -82,15 +83,17 @@ function buildLayersFromCanvas(canvas: any): LayerState[] {
         typeof obj.fill === 'string'
           ? obj.fill
           : obj.fill?.colorStops?.[0]?.color;
+      const isShadowRegion = isFabricShadowRegion(obj);
       return {
         id: obj.layerId,
         name: resolveLayerName(obj, type, textPreview),
-        type,
+        type: isShadowRegion ? 'SHADOW_REGION' : type,
         visible: obj.visible !== false,
         locked: obj.lockMovementX === true,
         textPreview,
         fontFamily: type === 'TEXT' ? obj.fontFamily : undefined,
         fill: type === 'TEXT' ? fill : undefined,
+        isShadowRegion,
       };
     });
 }
@@ -125,7 +128,11 @@ export const useLayersStore = create<LayersState>((set, get) => ({
     const shadowUpdate = props.shadow;
     if (shadowUpdate && typeof shadowUpdate === 'object') {
       const currentShadow = activeObject.shadow || {};
-      activeObject.set('shadow', { ...currentShadow, ...shadowUpdate });
+      const mergedShadow = { ...currentShadow, ...shadowUpdate };
+      import('fabric').then(({ Shadow }) => {
+        activeObject.set('shadow', new Shadow(mergedShadow));
+        canvas.renderAll();
+      });
       delete props.shadow;
     }
 

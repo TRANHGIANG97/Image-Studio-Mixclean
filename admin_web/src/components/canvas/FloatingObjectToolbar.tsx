@@ -91,20 +91,20 @@ export function FloatingObjectToolbar({
             }, 'Đã nhân đôi đối tượng!');
           });
         }}
-        className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+        className="w-9 h-9 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
         title="Nhân đôi (Ctrl+D)"
       >
-        <Copy className="w-3.5 h-3.5" />
+        <Copy className="w-4.5 h-4.5" />
       </Button>
 
       <Button
         size="icon"
         variant="ghost"
         onClick={onCopy}
-        className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+        className="w-9 h-9 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
         title="Sao chép (Ctrl+C)"
       >
-        <Clipboard className="w-3.5 h-3.5" />
+        <Clipboard className="w-4.5 h-4.5" />
       </Button>
 
       <Button
@@ -118,10 +118,10 @@ export function FloatingObjectToolbar({
             onSyncLayers(canvas);
           }, 'Đã đưa lên 1 lớp!');
         }}
-        className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+        className="w-9 h-9 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
         title="Đưa lên 1 lớp"
       >
-        <ChevronUp className="w-3.5 h-3.5" />
+        <ChevronUp className="w-4.5 h-4.5" />
       </Button>
 
       <Button
@@ -142,10 +142,10 @@ export function FloatingObjectToolbar({
             onSyncLayers(canvas);
           }, 'Đã giảm xuống 1 lớp!');
         }}
-        className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+        className="w-9 h-9 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
         title="Đưa xuống 1 lớp"
       >
-        <ChevronDown className="w-3.5 h-3.5" />
+        <ChevronDown className="w-4.5 h-4.5" />
       </Button>
 
       <Button
@@ -159,10 +159,10 @@ export function FloatingObjectToolbar({
             onSyncProps(extractActiveObjectProps(activeObj));
           }, 'Đã lật ngang đối tượng!');
         }}
-        className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+        className="w-9 h-9 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
         title="Lật ngang"
       >
-        <FlipHorizontal className="w-3.5 h-3.5" />
+        <FlipHorizontal className="w-4.5 h-4.5" />
       </Button>
 
       <Button
@@ -176,10 +176,10 @@ export function FloatingObjectToolbar({
             onSyncProps(extractActiveObjectProps(activeObj));
           }, 'Đã lật dọc đối tượng!');
         }}
-        className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+        className="w-9 h-9 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
         title="Lật dọc"
       >
-        <FlipVertical className="w-3.5 h-3.5" />
+        <FlipVertical className="w-4.5 h-4.5" />
       </Button>
 
       <Button
@@ -202,17 +202,17 @@ export function FloatingObjectToolbar({
             onSyncLayers(canvas);
           }, locked ? 'Đã mở khóa đối tượng!' : 'Đã khóa đối tượng!');
         }}
-        className="w-7 h-7 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
+        className="w-9 h-9 hover:bg-slate-100 hover:text-indigo-400 text-slate-400 rounded-xl transition-all"
         title={isLocked ? 'Mở khóa' : 'Khóa'}
       >
         {isLocked ? (
-          <Lock className="w-3.5 h-3.5 text-amber-500" />
+          <Lock className="w-4.5 h-4.5 text-amber-500" />
         ) : (
-          <Unlock className="w-3.5 h-3.5" />
+          <Unlock className="w-4.5 h-4.5" />
         )}
       </Button>
 
-      <div className="w-px h-4 bg-slate-100 mx-0.5" />
+      <div className="w-px h-6 bg-slate-150 mx-1" />
 
       <Button
         size="icon"
@@ -226,10 +226,10 @@ export function FloatingObjectToolbar({
             onSyncLayers(canvas);
           }, 'Đã xóa đối tượng!');
         }}
-        className="w-7 h-7 hover:bg-rose-500/20 text-rose-400 rounded-xl transition-all"
+        className="w-9 h-9 hover:bg-rose-500/20 text-rose-400 rounded-xl transition-all"
         title="Xóa đối tượng (Delete)"
       >
-        <Trash2 className="w-3.5 h-3.5" />
+        <Trash2 className="w-4.5 h-4.5" />
       </Button>
     </div>
   );
@@ -243,7 +243,7 @@ export function computeFloatingToolbarPosition(canvasInstance: any): ToolbarPosi
   const rect = activeObj.getBoundingRect();
   return {
     left: rect.left + rect.width / 2,
-    top: Math.max(10, rect.top - 52),
+    top: Math.max(10, rect.top - 85),
     visible: true,
   };
 }

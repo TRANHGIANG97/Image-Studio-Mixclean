@@ -111,4 +111,6 @@ data class CloudPayload(
     val pathData: String? = null,
     /** Flat x,y pairs in shape local space for Fabric `polygon` */
     val polygonPoints: List<Float>? = null,
+    /** When true, user can replace this image in studio_edit (Android). */
+    val replaceable: Boolean? = null,
 ) : java.io.Serializable

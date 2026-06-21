@@ -1,5 +1,7 @@
 import { CloudTemplate, CloudLayer } from '@/types/cloud-template';
 import { arrowPath } from '@/lib/fabric-shape-utils';
+import { removeCDN } from '@/lib/cdn-rewriter';
+import { isFabricTextObject } from '@/lib/canvas-object-props';
 
 // Helper to calculate GCD for aspect ratio
 const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
@@ -159,7 +161,8 @@ export function fabricToCloudTemplate(
   templateId: string,
   categoryId: string,
   title: string,
-  status: 'draft' | 'published' = 'draft'
+  status: 'draft' | 'published' = 'draft',
+  thumbnailUrl: string | null = null
 ): CloudTemplate {
   if (!fabricCanvas) {
     throw new Error('Fabric canvas is not initialized');
@@ -241,7 +244,18 @@ export function fabricToCloudTemplate(
       }
 
       const layerId = obj.layerId || `layer_${Date.now()}_${index}`;
-      const layerType = obj.layerType || 'DECORATION';
+      let layerType = obj.layerType || 'DECORATION';
+      const isReplaceable =
+        obj.isReplaceable === true || layerType === 'PLACEHOLDER_OBJECT';
+      const isShadowRegion =
+        obj.isShadowRegion === true ||
+        obj.sourceKind === 'shadow-region' ||
+        layerType === 'SHADOW_REGION';
+      if (isShadowRegion) {
+        layerType = 'SHADOW_REGION';
+      } else if (isFabricTextObject(obj)) {
+        layerType = 'TEXT';
+      }
 
       let strokeColorStr = null;
       if (typeof obj.stroke === 'string') {
@@ -257,7 +271,7 @@ export function fabricToCloudTemplate(
         visible: obj.visible !== false,
         locked: obj.lockMovementX === true || obj.lockMovementY === true || obj.selectable === false,
         groupPath: obj.groupPath || null,
-        sourceKind: obj.sourceKind || null,
+        sourceKind: isShadowRegion ? 'shadow-region' : (obj.sourceKind || null),
         shadowIntensity,
         shadowAngle,
         shadowDistance,
@@ -267,6 +281,7 @@ export function fabricToCloudTemplate(
         strokeWidth: obj.strokeWidth || 0,
         strokeDashArray: obj.strokeDashArray || null,
         blendMode: obj.blendMode || getBlendModeFromComposite(obj.globalCompositeOperation),
+        replaceable: isReplaceable ? true : undefined,
       };
 
       if (layerType === 'TEXT') {
@@ -315,9 +330,9 @@ export function fabricToCloudTemplate(
         }
         
         // Support vector shapes serialization
-        const isShape = ['rect', 'circle', 'triangle', 'line', 'polygon', 'path'].includes(obj.type) || obj.shapeSubtype;
-        if (isShape) {
-          const shapeType = obj.shapeSubtype || obj.type;
+        const isShape = ['rect', 'circle', 'triangle', 'line', 'polygon', 'path', 'ellipse'].includes(obj.type) || obj.shapeSubtype;
+        if (isShape || isShadowRegion) {
+          const shapeType = obj.shapeSubtype || (isShadowRegion ? 'ellipse' : obj.type);
           payload.shapeType = shapeType;
           
           let fillColorStr = '#6366f1';
@@ -366,14 +381,28 @@ export function fabricToCloudTemplate(
         },
         payload,
       };
+    })
+    .filter((layer, index, layers) => {
+      const obj = objects.filter((o: any) => o._isBackground !== true)[index];
+      if (!obj) return true;
+      if (layer.type === 'TEXT' || layer.type === 'SHADOW_REGION') return true;
+      const isShape =
+        ['rect', 'circle', 'triangle', 'line', 'polygon', 'path', 'ellipse'].includes(obj.type) ||
+        obj.shapeSubtype ||
+        layer.payload.shapeType;
+      if (isShape) return true;
+      if (layer.payload.imageUrl || layer.payload.defaultImageUrl) return true;
+      const w = Math.round(obj.width * (obj.scaleX || 1));
+      const h = Math.round(obj.height * (obj.scaleY || 1));
+      return !(w <= 1 && h <= 1);
     });
 
-  return {
+  return removeCDN({
     templateId,
     categoryId,
     metadata: {
       title,
-      thumbnailUrl: backgroundUrl || '',
+      thumbnailUrl: thumbnailUrl || backgroundUrl || '',
       status,
       schemaVersion: 1,
       createdAt: Date.now(), // Fallbacks
@@ -387,5 +416,5 @@ export function fabricToCloudTemplate(
       backgroundColorArgb,
     },
     layers,
-  };
+  }) as CloudTemplate;
 }

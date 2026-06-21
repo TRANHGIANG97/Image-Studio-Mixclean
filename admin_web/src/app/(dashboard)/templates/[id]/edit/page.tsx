@@ -9,6 +9,7 @@ import {
   Loader2,
   AlertTriangle,
   Download,
+  RefreshCw,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
@@ -33,11 +34,11 @@ import { useLayersStore } from '@/store/layers.store';
 import { CANVAS_SERIALIZE_PROPS } from '@/store/canvas-serialize.constants';
 import { fabricToCloudTemplate } from '@/lib/template-converter';
 import { validateTemplateForPublish } from '@/lib/template-validate';
+import { uploadInlineImageLayers, dataUrlToBlob } from '@/lib/canvas-upload';
 import CanvasWorkspace from '@/components/canvas/CanvasWorkspace';
 import LayerPanel from '@/components/canvas/LayerPanel';
 import PropertiesPanel from '@/components/canvas/PropertiesPanel';
 import AssetSidebar from '@/components/canvas/AssetSidebar';
-import MiniMap from '@/components/canvas/MiniMap';
 import {
   Dialog,
   DialogContent,
@@ -47,13 +48,18 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { fetchFontsManifest, injectFontFace, checkGoogleFont, injectGoogleFont } from '@/lib/fonts-manifest';
 
 const STORAGE_KEY_LEFT = 'editor_left_panel_width';
 const STORAGE_KEY_RIGHT = 'editor_right_panel_width';
+const STORAGE_KEY_LAYER = 'editor_layer_panel_width';
 const DEFAULT_LEFT_W = 288;
 const DEFAULT_RIGHT_W = 320;
+const DEFAULT_LAYER_W = 340;
 const MIN_PANEL_W = 200;
 const MAX_PANEL_W = 500;
+const MIN_LAYER_W = 280;
+const MAX_LAYER_W = 440;
 const AUTOSAVE_MS = 45000;
 
 function formatSavedTime(date: Date): string {
@@ -73,6 +79,8 @@ export default function TemplateEditPage() {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [missingFonts, setMissingFonts] = useState<string[]>([]);
+  const [layerErrors, setLayerErrors] = useState<string[]>([]);
 
   const savingLockRef = useRef(false);
   const handleSaveRef = useRef<(silent?: boolean, status?: 'draft' | 'published', env?: 'debug' | 'release' | 'all') => Promise<boolean>>(async () => false);
@@ -85,18 +93,21 @@ export default function TemplateEditPage() {
   const [isAssetPinned, setIsAssetPinned] = useState(false);
   const [leftPanelW, setLeftPanelW] = useState(DEFAULT_LEFT_W);
   const [rightPanelW, setRightPanelW] = useState(DEFAULT_RIGHT_W);
+  const [layerPanelW, setLayerPanelW] = useState(DEFAULT_LAYER_W);
 
   // Resize state — use refs to avoid stale closures
-  const [resizing, setResizing] = useState<'left' | 'right' | null>(null);
+  const [resizing, setResizing] = useState<'left' | 'right' | 'layer' | null>(null);
   const leftPanelRef = useRef(leftPanelW);
   const rightPanelRef = useRef(rightPanelW);
+  const layerPanelRef = useRef(layerPanelW);
   const resizeStartX = useRef(0);
   const resizeStartW = useRef(0);
-  const resizingRef = useRef<'left' | 'right' | null>(null);
+  const resizingRef = useRef<'left' | 'right' | 'layer' | null>(null);
 
   // Keep refs in sync with state
   useEffect(() => { leftPanelRef.current = leftPanelW; }, [leftPanelW]);
   useEffect(() => { rightPanelRef.current = rightPanelW; }, [rightPanelW]);
+  useEffect(() => { layerPanelRef.current = layerPanelW; }, [layerPanelW]);
   useEffect(() => { resizingRef.current = resizing; }, [resizing]);
 
   // Status bar state
@@ -111,18 +122,25 @@ export default function TemplateEditPage() {
     try {
       const savedL = localStorage.getItem(STORAGE_KEY_LEFT);
       const savedR = localStorage.getItem(STORAGE_KEY_RIGHT);
+      const savedLayer = localStorage.getItem(STORAGE_KEY_LAYER);
       if (savedL) setLeftPanelW(Math.max(MIN_PANEL_W, Math.min(MAX_PANEL_W, parseInt(savedL))));
       if (savedR) setRightPanelW(Math.max(MIN_PANEL_W, Math.min(MAX_PANEL_W, parseInt(savedR))));
+      if (savedLayer) setLayerPanelW(Math.max(MIN_LAYER_W, Math.min(MAX_LAYER_W, parseInt(savedLayer))));
     } catch {}
   }, []);
 
   // Resize handlers — uses refs to avoid stale closure issues
-  const handleResizeStart = (side: 'left' | 'right') => (e: React.MouseEvent) => {
+  const handleResizeStart = (side: 'left' | 'right' | 'layer') => (e: React.MouseEvent) => {
     e.preventDefault();
     setResizing(side);
     resizingRef.current = side;
     resizeStartX.current = e.clientX;
-    resizeStartW.current = side === 'left' ? leftPanelRef.current : rightPanelRef.current;
+    resizeStartW.current =
+      side === 'left'
+        ? leftPanelRef.current
+        : side === 'right'
+          ? rightPanelRef.current
+          : layerPanelRef.current;
   };
 
   useEffect(() => {
@@ -132,13 +150,22 @@ export default function TemplateEditPage() {
       const delta = e.clientX - resizeStartX.current;
       const side = resizingRef.current;
       if (!side) return;
-      const newW = Math.max(MIN_PANEL_W, Math.min(MAX_PANEL_W, resizeStartW.current + (side === 'left' ? delta : -delta)));
+      const newW = Math.max(
+        side === 'layer' ? MIN_LAYER_W : MIN_PANEL_W,
+        Math.min(
+          side === 'layer' ? MAX_LAYER_W : MAX_PANEL_W,
+          resizeStartW.current + (side === 'right' ? -delta : delta)
+        )
+      );
       if (side === 'left') {
         leftPanelRef.current = newW;
         setLeftPanelW(newW);
-      } else {
+      } else if (side === 'right') {
         rightPanelRef.current = newW;
         setRightPanelW(newW);
+      } else {
+        layerPanelRef.current = newW;
+        setLayerPanelW(newW);
       }
     };
 
@@ -148,6 +175,8 @@ export default function TemplateEditPage() {
         try { localStorage.setItem(STORAGE_KEY_LEFT, String(Math.max(MIN_PANEL_W, Math.min(MAX_PANEL_W, leftPanelRef.current)))); } catch {}
       } else if (side === 'right') {
         try { localStorage.setItem(STORAGE_KEY_RIGHT, String(Math.max(MIN_PANEL_W, Math.min(MAX_PANEL_W, rightPanelRef.current)))); } catch {}
+      } else if (side === 'layer') {
+        try { localStorage.setItem(STORAGE_KEY_LAYER, String(Math.max(MIN_LAYER_W, Math.min(MAX_LAYER_W, layerPanelRef.current)))); } catch {}
       }
       setResizing(null);
     };
@@ -161,17 +190,22 @@ export default function TemplateEditPage() {
   }, [resizing]);
 
   // Double-click resize handle to reset
-  const handleResizeDoubleClick = (side: 'left' | 'right') => () => {
+  const handleResizeDoubleClick = (side: 'left' | 'right' | 'layer') => () => {
     if (side === 'left') {
       const w = DEFAULT_LEFT_W;
       leftPanelRef.current = w;
       setLeftPanelW(w);
       try { localStorage.setItem(STORAGE_KEY_LEFT, String(w)); } catch {}
-    } else {
+    } else if (side === 'right') {
       const w = DEFAULT_RIGHT_W;
       rightPanelRef.current = w;
       setRightPanelW(w);
       try { localStorage.setItem(STORAGE_KEY_RIGHT, String(w)); } catch {}
+    } else {
+      const w = DEFAULT_LAYER_W;
+      layerPanelRef.current = w;
+      setLayerPanelW(w);
+      try { localStorage.setItem(STORAGE_KEY_LAYER, String(w)); } catch {}
     }
   };
 
@@ -212,6 +246,7 @@ export default function TemplateEditPage() {
     try {
       setLoading(true);
       setError(null);
+      setLayerErrors([]);
       const res = await fetch(`/api/templates/${id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load template');
@@ -232,6 +267,59 @@ export default function TemplateEditPage() {
   }, [id]);
 
   useEffect(() => {
+    if (!template || !template.canvas_data) return;
+
+    const checkAndLoadTemplateFonts = async () => {
+      try {
+        const layers = template.canvas_data.layers || [];
+        const textLayers = layers.filter((l: any) => l.type === 'TEXT');
+        const uniqueFonts = Array.from(new Set(textLayers.map((l: any) => l.payload?.font).filter(Boolean))) as string[];
+
+        if (uniqueFonts.length === 0) return;
+
+        const manifest = await fetchFontsManifest();
+        const systemFonts = (manifest.system_fonts || []).map(f => f.toLowerCase());
+        const customFonts = (manifest.fonts || []).map(f => f.family_slug.toLowerCase());
+        const customFontsNames = (manifest.fonts || []).map(f => f.name.toLowerCase());
+
+        const missing: string[] = [];
+
+        await Promise.all(uniqueFonts.map(async (fontName) => {
+          const normalized = fontName.trim().toLowerCase();
+          const isLocal = systemFonts.includes(normalized) || 
+                          customFonts.includes(normalized) || 
+                          customFontsNames.includes(normalized);
+
+          if (isLocal) {
+            const entry = manifest.fonts.find(f => f.family_slug.toLowerCase() === normalized || f.name.toLowerCase() === normalized);
+            if (entry) {
+              injectFontFace(entry);
+            }
+            return;
+          }
+
+          const isGoogle = await checkGoogleFont(fontName);
+          if (isGoogle) {
+            injectGoogleFont(fontName);
+            return;
+          }
+
+          missing.push(fontName);
+        }));
+
+        setMissingFonts(missing);
+        if (missing.length > 0) {
+          toast.warning(`Thiếu phông chữ: các font "${missing.join(', ')}" không được cài đặt trong hệ thống và Google Fonts. Chữ trên thiết kế có thể bị lệch.`);
+        }
+      } catch (err) {
+        console.error('Failed to analyze template fonts in editor:', err);
+      }
+    };
+
+    checkAndLoadTemplateFonts();
+  }, [template]);
+
+  useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isDirty) {
         e.preventDefault();
@@ -245,15 +333,7 @@ export default function TemplateEditPage() {
 
 
 
-  const dataURLtoBlob = (dataurl: string) => {
-    const arr = dataurl.split(',');
-    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/webp';
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) u8arr[n] = bstr.charCodeAt(n);
-    return new Blob([u8arr], { type: mime });
-  };
+  const dataURLtoBlob = (dataurl: string) => dataUrlToBlob(dataurl);
 
   const uploadDataUrl = async (dataUrl: string, filename: string, folder: string): Promise<string | null> => {
     const blob = dataURLtoBlob(dataUrl);
@@ -296,6 +376,16 @@ export default function TemplateEditPage() {
     return dataUrl;
   };
 
+  const renderThumbnailDataUrl = () => {
+    if (!canvas) return null;
+    return canvas.toDataURL({
+      format: 'webp',
+      quality: 0.8,
+      multiplier: 0.25,
+      backgroundColor: canvas.backgroundColor || '#ffffff'
+    });
+  };
+
   const handleSave = async (
     silent = false,
     statusOverride?: 'draft' | 'published',
@@ -303,6 +393,22 @@ export default function TemplateEditPage() {
   ): Promise<boolean> => {
     if (!canvas || !template) return false;
     if (savingLockRef.current) return false;
+
+    // Prevent saving if there are layer loading errors to avoid deleting original layers
+    if (layerErrors.length > 0) {
+      if (!silent) {
+        const confirmSave = window.confirm(
+          "CẢNH BÁO CỰC KỲ QUAN TRỌNG:\n" +
+          "Đang có lỗi xảy ra khi tải một số layer của template này.\n" +
+          "Nếu bạn tiếp tục lưu, các layer bị lỗi sẽ bị XÓA VĨNH VIỄN khỏi database!\n\n" +
+          "Bạn có chắc chắn muốn tiếp tục lưu hay không?"
+        );
+        if (!confirmSave) return false;
+      } else {
+        // Stop autosave to protect database template integrity
+        return false;
+      }
+    }
 
     savingLockRef.current = true;
     setIsSaving(true);
@@ -319,17 +425,17 @@ export default function TemplateEditPage() {
       canvas.discardActiveObject();
       canvas.renderAll();
 
-      const dataUrl = canvas.toDataURL({
-        format: 'webp',
-        quality: 0.8,
-        multiplier: 0.25,
-        backgroundColor: canvas.backgroundColor || '#ffffff'
-      });
+      const dataUrl = renderThumbnailDataUrl();
+      if (!dataUrl) {
+        throw new Error('Không thể tạo thumbnail cho template.');
+      }
 
       if (activeObject) {
         canvas.setActiveObject(activeObject);
         canvas.renderAll();
       }
+
+      await uploadInlineImageLayers(canvas, template.template_id);
 
       const serializedTemplate = fabricToCloudTemplate(
         canvas, baseWidth, baseHeight,
@@ -365,6 +471,9 @@ export default function TemplateEditPage() {
         ]);
         if (uploadedThumb) thumbnailUrl = uploadedThumb;
         if (uploadedBg) serializedTemplate.canvas.backgroundUrl = uploadedBg;
+        if (serializedTemplate.metadata) {
+          serializedTemplate.metadata.thumbnailUrl = thumbnailUrl;
+        }
       } catch (uploadErr) {
         console.warn('Asset upload failed:', uploadErr);
       }
@@ -446,6 +555,14 @@ export default function TemplateEditPage() {
       toast.error(`Lỗi xóa template: ${err.message}`);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleReloadThumbnail = async () => {
+    if (!canvas || !template || isSaving) return;
+    const ok = await handleSaveRef.current(true);
+    if (ok) {
+      toast.success('Đã tải lại thumbnail thành công!');
     }
   };
 
@@ -536,7 +653,7 @@ export default function TemplateEditPage() {
             <div>
               <h1 className="text-base font-bold text-slate-800 leading-tight">{template.title}</h1>
               <span className="text-[10px] text-slate-400 font-mono tracking-wider uppercase">
-                {template.category?.name || 'Chưa phân loại'}
+                {(template.categories as { name?: string } | null)?.name || template.category?.name || 'Chưa phân loại'}
               </span>
             </div>
           </div>
@@ -565,6 +682,15 @@ export default function TemplateEditPage() {
               Chưa lưu
             </span>
           )}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleReloadThumbnail}
+            disabled={isSaving}
+            className="border-slate-200 bg-white text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl h-8 text-xs font-bold px-3 flex items-center gap-1"
+          >
+            <RefreshCw className="w-3 h-3" /> Tải lại thumbnail
+          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -688,14 +814,78 @@ export default function TemplateEditPage() {
         </div>
       </div>
 
+      {/* Missing Fonts Warning Bar */}
+      {missingFonts.length > 0 && (
+        <div className="bg-amber-50 border-b border-amber-200/60 px-4 py-2 shrink-0 flex items-center justify-between z-20 text-amber-800 text-xs">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 animate-bounce" />
+            <span>
+              Cảnh báo: Thiết kế này sử dụng phông chữ chưa được hỗ trợ: <strong className="font-bold">{missingFonts.join(', ')}</strong>. Hãy đổi font hoặc thêm font vào hệ thống để tránh lỗi hiển thị trên thiết bị.
+            </span>
+          </div>
+          <button 
+            onClick={() => setMissingFonts([])} 
+            className="text-amber-500 hover:text-amber-700 font-bold px-1.5 py-0.5 hover:bg-amber-100 rounded transition-colors cursor-pointer"
+          >
+            Đóng
+          </button>
+        </div>
+      )}
+
+      {/* Layer Loading Errors Warning Bar */}
+      {layerErrors.length > 0 && (
+        <div className="bg-rose-50 border-b border-rose-200/60 px-4 py-2.5 shrink-0 flex items-center justify-between z-20 text-rose-800 text-xs">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5 animate-pulse" />
+            <div className="space-y-1">
+              <span className="font-bold text-rose-700 block">Lỗi tải tài nguyên Layer:</span>
+              <ul className="list-disc list-inside space-y-0.5 pl-1 text-[11px] text-rose-600">
+                {layerErrors.map((err, idx) => (
+                  <li key={idx}>{err}</li>
+                ))}
+              </ul>
+              <span className="text-[10px] text-rose-500 font-semibold block pt-1">
+                Lưu ý: Không nên lưu thiết kế lúc này để tránh làm mất các layer bị lỗi trên! Vui lòng F5 tải lại trang để thử lại.
+              </span>
+            </div>
+          </div>
+          <button 
+            onClick={() => setLayerErrors([])} 
+            className="text-rose-500 hover:text-rose-700 font-bold px-1.5 py-0.5 hover:bg-rose-100 rounded transition-colors cursor-pointer self-start"
+          >
+            Đóng
+          </button>
+        </div>
+      )}
+
       {/* Main editor area */}
       <div className="flex-1 flex min-h-0 w-full relative">
 
-        {/* Layer Icon Strip (always visible when not collapsed) */}
+        {/* Layer panel (resizable) */}
         {!isLeftCollapsed && (
-          <div className="shrink-0 bg-white/80 backdrop-blur-xl border-r border-slate-200/60 flex flex-col items-center py-3 gap-1 w-14 z-10 shadow-lg">
-            <LayerPanel compact onDirty={() => setIsDirty(true)} />
-          </div>
+          <>
+            <div
+              className="shrink-0 bg-white/80 backdrop-blur-xl border-r border-slate-200/60 flex flex-col min-h-0 z-10 shadow-lg"
+              style={{ width: layerPanelW }}
+            >
+              <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200/60 shrink-0">
+                <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-indigo-400" /> Layers
+                </span>
+                <span className="text-[10px] text-slate-400">{layers.length}</span>
+              </div>
+              <div className="flex-1 min-h-0 overflow-hidden p-3">
+                <LayerPanel onDirty={() => setIsDirty(true)} />
+              </div>
+            </div>
+            <div
+              className="w-1.5 cursor-col-resize hover:bg-indigo-500/50 active:bg-indigo-500 transition-colors shrink-0 relative group z-10"
+              onMouseDown={handleResizeStart('layer')}
+              onDoubleClick={handleResizeDoubleClick('layer')}
+            >
+              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-slate-300 group-hover:bg-indigo-500 transition-colors" />
+            </div>
+          </>
         )}
 
         {/* Asset Drawer backdrop (click to close when not pinned) */}
@@ -705,7 +895,7 @@ export default function TemplateEditPage() {
 
         {/* Asset Drawer (slides over content) */}
         {isAssetDrawerOpen && (
-          <div className="absolute top-0 bottom-0 z-40 animate-in slide-in-from-left-3 duration-200 flex" style={{ width: leftPanelW, left: isLeftCollapsed ? 0 : 56 }}>
+          <div className="absolute top-0 bottom-0 z-40 animate-in slide-in-from-left-3 duration-200 flex" style={{ width: leftPanelW, left: isLeftCollapsed ? 0 : layerPanelW + 6 }}>
             <div className="flex-1 bg-white/95 backdrop-blur-xl border-r border-slate-200/60 shadow-xl flex flex-col h-full">
               {/* Drawer Header */}
               <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200 shrink-0">
@@ -759,9 +949,13 @@ export default function TemplateEditPage() {
             isSaving={isSaving}
             setIsDirty={setIsDirty}
             onLoadedWithoutFabricState={() => { void handleBootstrapFabricState(); }}
+            onLayerLoadError={(err) => {
+              setLayerErrors(prev => {
+                if (prev.includes(err)) return prev;
+                return [...prev, err];
+              });
+            }}
           />
-          {/* MiniMap overlay */}
-          <MiniMap />
         </div>
 
         {/* Right Panel Resize Handle */}
@@ -850,8 +1044,8 @@ export default function TemplateEditPage() {
                 ['Ctrl+S', 'Lưu'],
                 ['Ctrl+Z', 'Hoàn tác'],
                 ['Ctrl+Y', 'Làm lại'],
-                ['Ctrl+0', 'Zoom vừa khung'],
-                ['Ctrl+1', 'Zoom 100%'],
+                ['Ctrl+0', 'Zoom 100% (cao vừa khung)'],
+                ['Ctrl+1', 'Zoom 100% (cao vừa khung)'],
                 ['Ctrl+C', 'Sao chép layer'],
                 ['Ctrl+V', 'Dán layer'],
                 ['Ctrl+Shift+C', 'Sao chép kiểu'],

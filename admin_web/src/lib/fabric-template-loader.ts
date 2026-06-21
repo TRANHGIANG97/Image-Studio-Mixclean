@@ -14,6 +14,7 @@ import { getCompositeOperation } from '@/lib/blend-mode-utils';
 import { arrowPath, getDiamondPoints, getHexagonPoints, getStarPoints } from '@/lib/fabric-shape-utils';
 import { ensureFontLoaded } from '@/lib/font-loader';
 import { useEditorStore } from '@/store/editor.store';
+import { hasRenderableFabricState } from '@/domains/templates/template.helpers';
 
 export interface LoadTemplateOptions {
   canvasInstance: any;
@@ -23,10 +24,11 @@ export interface LoadTemplateOptions {
   syncLayersFromCanvas: (canvas: any) => void;
   setLoadingLayers: (loading: boolean) => void;
   onLoadedWithoutFabricState?: () => void;
+  onLayerLoadError?: (error: string) => void;
 }
 
 export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
-  const { canvasInstance, template, baseWidth, baseHeight, syncLayersFromCanvas, setLoadingLayers, onLoadedWithoutFabricState } = options;
+  const { canvasInstance, template, baseWidth, baseHeight, syncLayersFromCanvas, setLoadingLayers, onLoadedWithoutFabricState, onLayerLoadError } = options;
     setLoadingLayers(true);
     let usedFabricState = false;
 
@@ -54,8 +56,8 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
       }
     };
 
-    // Check if fabric_state exists in template (from previous builder session)
-    if (template.fabric_state) {
+    // Use saved fabric_state only when it contains drawable objects.
+    if (hasRenderableFabricState(template.fabric_state)) {
       try {
         const state = typeof template.fabric_state === 'string'
           ? JSON.parse(template.fabric_state)
@@ -80,30 +82,35 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
         // Restore template background image if missing in fabric_state
         const canvasData = template.canvas_data;
         if (!canvasInstance.backgroundImage && canvasData?.canvas?.backgroundUrl) {
-          const bgImg = await FabricImage.fromURL(canvasData.canvas.backgroundUrl, {
-            crossOrigin: 'anonymous'
-          });
-          if (!canvasInstance.disposed) {
-            const scaleX = baseWidth / (bgImg.width || baseWidth);
-            const scaleY = baseHeight / (bgImg.height || baseHeight);
-            const bgScale = Math.max(scaleX, scaleY);
-
-            bgImg.set({
-              originX: 'left',
-              originY: 'top',
-              left: 0,
-              top: 0,
-              scaleX: bgScale,
-              scaleY: bgScale,
-              selectable: false,
-              evented: false,
-              hasControls: false,
-              hasBorders: false,
+          try {
+            const bgImg = await FabricImage.fromURL(canvasData.canvas.backgroundUrl, {
+              crossOrigin: 'anonymous'
             });
-            (bgImg as any)._isBackground = true;
-            (bgImg as any).layerId = 'background_layer';
-            (bgImg as any).layerName = 'Background';
-            canvasInstance.backgroundImage = bgImg;
+            if (!canvasInstance.disposed) {
+              const scaleX = baseWidth / (bgImg.width || baseWidth);
+              const scaleY = baseHeight / (bgImg.height || baseHeight);
+              const bgScale = Math.max(scaleX, scaleY);
+
+              bgImg.set({
+                originX: 'left',
+                originY: 'top',
+                left: 0,
+                top: 0,
+                scaleX: bgScale,
+                scaleY: bgScale,
+                selectable: false,
+                evented: false,
+                hasControls: false,
+                hasBorders: false,
+              });
+              (bgImg as any)._isBackground = true;
+              (bgImg as any).layerId = 'background_layer';
+              (bgImg as any).layerName = 'Background';
+              canvasInstance.backgroundImage = bgImg;
+            }
+          } catch (bgErr) {
+            console.error('Failed to load background image in fabric_state:', bgErr);
+            onLayerLoadError?.(`Không thể tải ảnh nền (từ fabric_state): ${canvasData.canvas.backgroundUrl}`);
           }
         }
 
@@ -144,35 +151,40 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
       // Load Background Image – use setBackgroundImage to avoid duplicate render
       if (canvasData.canvas?.backgroundUrl) {
         if (canvasInstance.disposed) return;
-        const bgImg = await FabricImage.fromURL(canvasData.canvas.backgroundUrl, {
-          crossOrigin: 'anonymous'
-        });
-        if (canvasInstance.disposed) return;
+        try {
+          const bgImg = await FabricImage.fromURL(canvasData.canvas.backgroundUrl, {
+            crossOrigin: 'anonymous'
+          });
+          if (canvasInstance.disposed) return;
 
-        // Scale to fill the full canvas area
-        const scaleX = baseWidth  / (bgImg.width  || baseWidth);
-        const scaleY = baseHeight / (bgImg.height || baseHeight);
-        const bgScale = Math.max(scaleX, scaleY);
+          // Scale to fill the full canvas area
+          const scaleX = baseWidth  / (bgImg.width  || baseWidth);
+          const scaleY = baseHeight / (bgImg.height || baseHeight);
+          const bgScale = Math.max(scaleX, scaleY);
 
-        bgImg.set({
-          originX: 'left',
-          originY: 'top',
-          left: 0,
-          top: 0,
-          scaleX: bgScale,
-          scaleY: bgScale,
-          selectable: false,
-          evented: false,
-          hasControls: false,
-          hasBorders: false,
-        });
-        (bgImg as any)._isBackground = true;
-        (bgImg as any).layerId = 'background_layer';
-        (bgImg as any).layerName = 'Background';
+          bgImg.set({
+            originX: 'left',
+            originY: 'top',
+            left: 0,
+            top: 0,
+            scaleX: bgScale,
+            scaleY: bgScale,
+            selectable: false,
+            evented: false,
+            hasControls: false,
+            hasBorders: false,
+          });
+          (bgImg as any)._isBackground = true;
+          (bgImg as any).layerId = 'background_layer';
+          (bgImg as any).layerName = 'Background';
 
-        // Fabric v7: set backgroundImage directly (setBackgroundImage removed in v7)
-        canvasInstance.backgroundImage = bgImg;
-        canvasInstance.renderAll();
+          // Fabric v7: set backgroundImage directly (setBackgroundImage removed in v7)
+          canvasInstance.backgroundImage = bgImg;
+          canvasInstance.renderAll();
+        } catch (bgErr) {
+          console.error('Failed to load canvasData background:', bgErr);
+          onLayerLoadError?.(`Không thể tải ảnh nền: ${canvasData.canvas.backgroundUrl}`);
+        }
       }
 
       // Load Layers in zIndex order
@@ -188,8 +200,11 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
         const rotation = transform.rotation;
         const isVisible = payload.visible !== false;
         const isLocked = payload.locked === true;
+        const isTextLayer =
+          layer.type === 'TEXT' ||
+          (typeof payload.text === 'string' && payload.text.trim().length > 0);
 
-        if (layer.type === 'TEXT') {
+        if (isTextLayer) {
           const textFill = payload.textColorArgb !== undefined && payload.textColorArgb !== null
             ? argbIntToRgba(payload.textColorArgb).rgba
             : (payload.fill || '#1e1b4b');
@@ -340,6 +355,11 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
 
           // Load Image / Decoration
           const imgUrl = payload.imageUrl || payload.defaultImageUrl;
+          const baseW = payload.baseWidth ?? 0;
+          const baseH = payload.baseHeight ?? 0;
+          if (baseW <= 1 && baseH <= 1) {
+            continue;
+          }
           if (imgUrl) {
             try {
               if (canvasInstance.disposed) return;
@@ -371,7 +391,10 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
                 });
 
               (imgObj as any).layerId = layer.layerId;
+              const isReplaceable =
+                layer.type === 'PLACEHOLDER_OBJECT' || payload.replaceable === true;
               (imgObj as any).layerType = layer.type || 'DECORATION';
+              (imgObj as any).isReplaceable = isReplaceable;
               (imgObj as any).layerName = layer.name || 'Image';
               (imgObj as any).src = payload.imageUrl;
               (imgObj as any).defaultImageUrl = payload.defaultImageUrl;
@@ -410,7 +433,7 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
                 }
                 if (filterState.toneColor) {
                   if (filterState.toneGrayscale) {
-                    imgObj.filters.push(new filters.Grayscale());
+                     imgObj.filters.push(new filters.Grayscale());
                   }
                   imgObj.filters.push(new filters.BlendColor({
                     color: filterState.toneColor,
@@ -425,7 +448,10 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
               canvasInstance.add(imgObj);
             } catch (imgLoadErr) {
               console.error(`Failed to load image layer: ${imgUrl}`, imgLoadErr);
+              onLayerLoadError?.(`Không thể tải layer "${layer.name || 'Ảnh'}" từ liên kết: ${imgUrl}`);
             }
+          } else {
+            onLayerLoadError?.(`Layer "${layer.name || 'Không tên'}" bị bỏ qua vì thiếu liên kết hình ảnh.`);
           }
         }
       }

@@ -1,38 +1,105 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 
+/** Workspace padding (matches CanvasWorkspace inline style). */
+const WORKSPACE_PADDING_PX = 48;
+/** Horizontal ruler height included in the scaled canvas frame. */
+const RULER_SIZE_PX = 20;
+
+/**
+ * Scale at which template height (+ ruler) fits the viewport — displayed as 100%.
+ * fitZoom = (clientHeight - verticalChrome) / baseHeight
+ */
+function computeHeightFitZoom(
+  workspaceEl: HTMLDivElement,
+  baseHeight: number
+): number | null {
+  const availableHeight = workspaceEl.clientHeight - WORKSPACE_PADDING_PX * 2;
+  if (availableHeight <= 0 || baseHeight <= 0) return null;
+  const fit = (availableHeight - RULER_SIZE_PX) / baseHeight;
+  return parseFloat(Math.max(0.05, Math.min(fit, 15)).toFixed(4));
+}
+
 export function useCanvasViewport(
   workspaceRef: RefObject<HTMLDivElement | null>,
   fabricCanvasRef: RefObject<any>,
   baseWidth: number,
   baseHeight: number
 ) {
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoomState] = useState(1);
+  const [fitZoom, setFitZoomState] = useState(1);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const fitZoomRef = useRef(1);
+  const zoomRef = useRef(1);
   const isSpacePressedRef = useRef(false);
   const isDraggingViewportRef = useRef(false);
   const startDragCoordsRef = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
-
-  const calculateFitZoom = useCallback(() => {
-    if (!workspaceRef.current) return;
-    const containerHeight = workspaceRef.current.clientHeight - 48;
-    const containerWidth = workspaceRef.current.clientWidth - 48;
-    if (containerHeight <= 0 || containerWidth <= 0) return;
-
-    const fitZoomH = containerHeight / baseHeight;
-    const fitZoomW = containerWidth / baseWidth;
-    const fitZoom = Math.min(fitZoomH, fitZoomW);
-
-    setZoom(parseFloat(Math.max(0.01, fitZoom).toFixed(2)));
-  }, [workspaceRef, baseWidth, baseHeight]);
+  /** When false, zoom tracks fitZoom on resize (stays at displayed 100%). */
+  const hasUserAdjustedZoomRef = useRef(false);
 
   useEffect(() => {
-    if (!workspaceRef.current) return;
-    const observer = new ResizeObserver(() => {
-      calculateFitZoom();
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  const syncFitZoom = useCallback(
+    (options?: { forceToFit?: boolean; preserveRelative?: boolean }) => {
+      const el = workspaceRef.current;
+      if (!el) return;
+      const nextFit = computeHeightFitZoom(el, baseHeight);
+      if (nextFit == null) return;
+
+      const prevFit = fitZoomRef.current;
+      fitZoomRef.current = nextFit;
+      setFitZoomState(nextFit);
+
+      if (options?.forceToFit) {
+        hasUserAdjustedZoomRef.current = false;
+        setZoomState(nextFit);
+        return;
+      }
+
+      if (!hasUserAdjustedZoomRef.current) {
+        setZoomState(nextFit);
+        return;
+      }
+
+      if (options?.preserveRelative && prevFit > 0) {
+        const ratio = zoomRef.current / prevFit;
+        setZoomState(parseFloat(Math.max(0.05, Math.min(ratio * nextFit, 15)).toFixed(4)));
+      }
+    },
+    [workspaceRef, baseHeight]
+  );
+
+  const calculateFitZoom = useCallback(
+    (force = false) => {
+      syncFitZoom({ forceToFit: force });
+    },
+    [syncFitZoom]
+  );
+
+  const setZoom = useCallback((value: number | ((prev: number) => number)) => {
+    hasUserAdjustedZoomRef.current = true;
+    setZoomState((prev) => {
+      const next = typeof value === 'function' ? value(prev) : value;
+      return parseFloat(Math.max(0.05, Math.min(next, 15)).toFixed(4));
     });
-    observer.observe(workspaceRef.current);
-    return () => observer.disconnect();
-  }, [workspaceRef, calculateFitZoom]);
+  }, []);
+
+  // Default: 100% = height fits container.
+  useEffect(() => {
+    syncFitZoom({ forceToFit: true });
+  }, [syncFitZoom]);
+
+  // Keep 100% aligned when the preview frame is resized.
+  useEffect(() => {
+    const el = workspaceRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      syncFitZoom({ preserveRelative: true });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [workspaceRef, syncFitZoom]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -121,16 +188,24 @@ export function useCanvasViewport(
   };
 
   const handleZoom = (factor: number) => {
-    setZoom((prev) => {
-      const val = parseFloat((prev * factor).toFixed(2));
-      return Math.max(0.1, Math.min(val, 3.0));
-    });
+    setZoom((prev) => parseFloat((prev * factor).toFixed(4)));
   };
+
+  const resetZoomTo100 = useCallback(() => {
+    syncFitZoom({ forceToFit: true });
+  }, [syncFitZoom]);
+
+  const zoomPercent = fitZoom > 0 ? Math.round((zoom / fitZoom) * 100) : 100;
+  const exceedsFitHeight = zoom > fitZoom + 0.0001;
 
   return {
     zoom,
+    fitZoom,
+    zoomPercent,
+    exceedsFitHeight,
     setZoom,
     calculateFitZoom,
+    resetZoomTo100,
     handleZoom,
     isSpacePressed,
     handleViewportMouseDown,

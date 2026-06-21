@@ -10,6 +10,7 @@ import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore } from '@/store/layers.store';
 import { useCropStore } from '@/store/crop.store';
 import { removeImageBackground } from '@/lib/background-remover';
+import { uploadInlineImageUrl } from '@/lib/canvas-upload';
 
 interface ImagePropertiesSectionProps {
   showContent: boolean;
@@ -48,18 +49,29 @@ export function ImagePropertiesSection({
     const loadingToast = toast.loading('Đang tách nền ảnh bằng AI...');
     try {
       const resultUrl = await removeImageBackground(imageUrl);
+      const layerId = (activeCanvasObject as any).layerId || `layer_${Date.now()}`;
+      const uploadedUrl = await uploadInlineImageUrl(
+        resultUrl,
+        `${layerId}_nobg.png`,
+        'template-layers',
+      );
+      if (!uploadedUrl) {
+        toast.dismiss(loadingToast);
+        toast.error('Tách nền thành công nhưng không thể tải ảnh lên server.');
+        return;
+      }
       const imgElement = new Image();
       imgElement.crossOrigin = 'anonymous';
-      imgElement.src = resultUrl;
+      imgElement.src = uploadedUrl;
       await new Promise((resolve, reject) => {
         imgElement.onload = resolve;
         imgElement.onerror = reject;
       });
       (activeCanvasObject as any).setElement(imgElement);
-      (activeCanvasObject as any).set({ src: resultUrl, defaultImageUrl: resultUrl });
+      (activeCanvasObject as any).set({ src: uploadedUrl, defaultImageUrl: uploadedUrl });
       (activeCanvasObject as any).applyFilters();
       canvas.renderAll();
-      updateActiveObject({ src: resultUrl, defaultImageUrl: resultUrl });
+      updateActiveObject({ src: uploadedUrl, defaultImageUrl: uploadedUrl });
       onRecordChange();
       toast.dismiss(loadingToast);
       toast.success('Xóa nền ảnh thành công!');
@@ -161,7 +173,7 @@ export function ImagePropertiesSection({
   ) => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject() as any;
-    if (!activeObject || (activeObject.type !== 'image' && activeObject.layerType !== 'IMAGE')) return;
+    if (!activeObject || (activeObject.type !== 'image' && activeObject.layerType !== 'IMAGE' && activeObject.layerType !== 'PLACEHOLDER_OBJECT')) return;
     const { filters } = await import('fabric');
     const newFilterList: any[] = [];
     let nextFilters: any = {
@@ -209,7 +221,7 @@ export function ImagePropertiesSection({
   const handleImageFilterChange = async (filterType: string, value: any) => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject() as any;
-    if (!activeObject || (activeObject.type !== 'image' && activeObject.layerType !== 'IMAGE')) return;
+    if (!activeObject || (activeObject.type !== 'image' && activeObject.layerType !== 'IMAGE' && activeObject.layerType !== 'PLACEHOLDER_OBJECT')) return;
     const { filters } = await import('fabric');
     const currentFilters = activeObjectProps.imageFilters || {};
     const nextFilters = { ...currentFilters, [filterType]: value };
@@ -250,7 +262,7 @@ export function ImagePropertiesSection({
   const applyTonePreset = async (toneColor: string | null, grayscale = true, toneAlpha = 1) => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject() as any;
-    if (!activeObject || (activeObject.type !== 'image' && activeObject.layerType !== 'IMAGE')) return;
+    if (!activeObject || (activeObject.type !== 'image' && activeObject.layerType !== 'IMAGE' && activeObject.layerType !== 'PLACEHOLDER_OBJECT')) return;
     const currentFilters = activeObjectProps.imageFilters || {};
     const nextFilters = { ...currentFilters, toneColor, toneGrayscale: grayscale, toneAlpha };
     const { filters } = await import('fabric');
@@ -492,6 +504,24 @@ export function ImagePropertiesSection({
       </CollapsibleSection>
 
       <CollapsibleSection id="placeholder" icon={<ImageIcon className="w-3 h-3" />} title="Placeholder">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold text-slate-600">Đối tượng có thể thay thế</p>
+            <p className="text-[8px] text-slate-400 leading-snug mt-0.5">
+              Hiển thị nút &quot;Thay thế&quot; trên app Android studio_edit.
+            </p>
+          </div>
+          <label className="relative inline-flex shrink-0 cursor-pointer items-center">
+            <input
+              type="checkbox"
+              checked={activeObjectProps.isReplaceable === true}
+              onChange={(e) => onPropChange('isReplaceable', e.target.checked)}
+              className="peer sr-only"
+            />
+            <span className="h-5 w-9 rounded-full bg-slate-200 transition-colors peer-checked:bg-pink-500" />
+            <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
+          </label>
+        </div>
         <div className="space-y-1">
           <span className="text-[9px] font-semibold text-slate-400">URL ảnh mặc định</span>
           <Input

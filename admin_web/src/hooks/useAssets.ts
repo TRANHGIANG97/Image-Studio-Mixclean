@@ -67,12 +67,16 @@ export function useUploadAsset() {
       formData.append('file', payload.file);
       if (payload.folder) formData.append('folder', payload.folder);
       if (payload.categoryId) formData.append('categoryId', payload.categoryId);
-      return apiClient.upload('/api/upload', formData);
+      return apiClient.upload<{ success: boolean; fileUrl: string; asset: Asset; isDuplicate: boolean }>('/api/upload', formData);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['assets'] });
       queryClient.invalidateQueries({ queryKey: ['folders'] });
-      toast.success('Upload tài nguyên thành công!');
+      if (data?.isDuplicate) {
+        toast.info('Tài nguyên đã tồn tại (không tạo bản sao trùng lặp)!');
+      } else {
+        toast.success('Upload tài nguyên thành công!');
+      }
     },
     onError: (error: any) => {
       toast.error(`Lỗi upload: ${error.message}`);
@@ -182,3 +186,56 @@ export function useUpdateAssetsFolder() {
     },
   });
 }
+
+export function useCreateFolder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { folderName: string }) =>
+      apiClient.post<{ success: boolean; folder: any }>('/api/assets/folders', payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+      toast.success('Tạo thư mục thành công!');
+    },
+    onError: (error: any) => {
+      toast.error(`Lỗi tạo thư mục: ${error.message}`);
+    },
+  });
+}
+
+export function useRenameFolder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { oldFolderName: string; newFolderName: string }) =>
+      apiClient.put<{ success: boolean }>('/api/assets/folders', payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assets'] });
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+      toast.success('Đổi tên thư mục thành công!');
+    },
+    onError: (error: any) => {
+      toast.error(`Lỗi đổi tên thư mục: ${error.message}`);
+    },
+  });
+}
+
+export function useDeleteFolder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { folderName: string; deleteFiles: boolean }) =>
+      apiClient.delete<{ success: boolean }>(
+        `/api/assets/folders?folderName=${encodeURIComponent(payload.folderName)}&deleteFiles=${payload.deleteFiles}`
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assets'] });
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+      toast.success('Xóa thư mục thành công!');
+    },
+    onError: (error: any) => {
+      toast.error(`Lỗi xóa thư mục: ${error.message}`);
+    },
+  });
+}
+

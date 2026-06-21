@@ -89,11 +89,25 @@ fun EditorCanvasV2(
         canvasOffset += panChange
     }
     var inlineEditingLayerId by remember { mutableStateOf<String?>(null) }
+    var layerPickerHits by remember { mutableStateOf<List<EditorLayer>?>(null) }
 
     LaunchedEffect(selectedLayerId) {
         if (inlineEditingLayerId != selectedLayerId) {
             inlineEditingLayerId = null
         }
+    }
+
+    if (layerPickerHits != null) {
+        LayerPickerSheet(
+            hitLayers = layerPickerHits!!,
+            allLayers = layers,
+            selectedLayerId = selectedLayerId,
+            onSelectLayer = { id ->
+                layerPickerHits = null
+                onSelectLayer(id)
+            },
+            onDismiss = { layerPickerHits = null },
+        )
     }
 
     BoxWithConstraints(
@@ -121,50 +135,30 @@ fun EditorCanvasV2(
                 .fillMaxSize()
                 // Canvas-level multi-touch zoom/pan trên outer box
                 .transformable(transformableState)
-                .pointerInput(layers, selectedLayerId, templateSize) {
+                .pointerInput(layers, selectedLayerId, templateSize, layerPickerHits) {
                     detectTapGestures(onTap = { tap ->
-                        var hitId: String? = null
-                        val displayWidthPx  = with(density) { displayWidth.toPx() }
+                        val displayWidthPx = with(density) { displayWidth.toPx() }
                         val displayHeightPx = with(density) { displayHeight.toPx() }
-                        val templateLeftPx  = (size.width  - displayWidthPx)  / 2f
-                        val templateTopPx   = (size.height - displayHeightPx) / 2f
+                        val selectionHitPaddingPx = with(density) { 24.dp.toPx() }
+                        val templateLeftPx = (size.width - displayWidthPx) / 2f
+                        val templateTopPx = (size.height - displayHeightPx) / 2f
 
-                        // Hit-test from top-most layer downward (both IMAGE and SHAPE_TEXT)
-                        for (layer in layers.reversed()) {
-                            val objectWidthPx: Float
-                            val objectHeightPx: Float
-                            when (layer.type) {
-                                LayerType.SHAPE_TEXT -> {
-                                    objectWidthPx  = layer.shapeWidthPx  * layer.viewport.scale * calculatedScale
-                                    objectHeightPx = layer.shapeHeightPx * layer.viewport.scale * calculatedScale
-                                }
-                                LayerType.IMAGE -> {
-                                    if (!layer.product.isBackgroundRemoved || layer.product.foregroundUri == null) continue
-                                    val croppedSize = layer.cropRatio.calculateSize(layer.product.baseSize.width.toFloat(), layer.product.baseSize.height.toFloat())
-                                    objectWidthPx  = (croppedSize.width  * layer.viewport.scale * calculatedScale) + (EditorConfig.BB_PADDING_PX * 2f)
-                                    objectHeightPx = (croppedSize.height * layer.viewport.scale * calculatedScale) + (EditorConfig.BB_PADDING_PX * 2f)
-                                }
-                                LayerType.SHADOW_REGION -> {
-                                    objectWidthPx  = layer.product.baseSize.width.toFloat() * layer.viewport.scale * calculatedScale
-                                    objectHeightPx = layer.product.baseSize.height.toFloat() * layer.viewport.scale * calculatedScale
-                                }
-                            }
-                            val objectCenterX   = templateLeftPx + displayWidthPx  / 2f + (layer.viewport.offset.x * calculatedScale)
-                            val objectCenterY   = templateTopPx  + displayHeightPx / 2f + (layer.viewport.offset.y * calculatedScale)
-                            val dx = tap.x - objectCenterX
-                            val dy = tap.y - objectCenterY
-                            val angleRad   = Math.toRadians(-layer.viewport.rotation.toDouble())
-                            val rotatedDx  = dx * kotlin.math.cos(angleRad) - dy * kotlin.math.sin(angleRad)
-                            val rotatedDy  = dx * kotlin.math.sin(angleRad) + dy * kotlin.math.cos(angleRad)
-                            val withinObject = kotlin.math.abs(rotatedDx) <= (objectWidthPx  / 2f) &&
-                                kotlin.math.abs(rotatedDy) <= (objectHeightPx / 2f)
-
-                            if (withinObject) {
-                                hitId = layer.id
-                                break
-                            }
+                        val hitContext = LayerHitTestContext(
+                            tapX = tap.x,
+                            tapY = tap.y,
+                            displayWidthPx = displayWidthPx,
+                            displayHeightPx = displayHeightPx,
+                            templateLeftPx = templateLeftPx,
+                            templateTopPx = templateTopPx,
+                            calculatedScale = calculatedScale,
+                            selectionHitPaddingPx = selectionHitPaddingPx,
+                        )
+                        val hits = LayerHitTest.hitLayersAtPoint(layers, hitContext)
+                        when {
+                            hits.isEmpty() -> onSelectLayer(null)
+                            hits.size == 1 -> onSelectLayer(hits.first().id)
+                            else -> layerPickerHits = hits
                         }
-                        onSelectLayer(hitId)
                     })
                 }
         ) {
@@ -214,18 +208,23 @@ fun EditorCanvasV2(
                                         StudioLottieLoader(modifier = Modifier.size(96.dp))
                                     }
                                 },
-                                error = {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Error,
-                                            contentDescription = "Asset load error",
-                                            tint = Color(0xFFEF4444)
-                                        )
-                                    }
-                                }
+                                error = { state ->
+                                     android.util.Log.e(
+                                         "EditorCanvas",
+                                         "Failed to load background template image. path: $templateAssetPath, resolvedModel: $model, error: ${state.result.throwable.message}",
+                                         state.result.throwable
+                                     )
+                                     Box(
+                                         modifier = Modifier.fillMaxSize(),
+                                         contentAlignment = Alignment.Center
+                                     ) {
+                                         Icon(
+                                             imageVector = Icons.Filled.Error,
+                                             contentDescription = "Asset load error",
+                                             tint = Color(0xFFEF4444)
+                                         )
+                                     }
+                                 }
                             )
                         }
                     }
@@ -246,6 +245,7 @@ fun EditorCanvasV2(
                     )
                 } else {
                     layers.forEach { layer ->
+                        if (!layer.isVisible) return@forEach
                         when (layer.type) {
                             LayerType.SHAPE_TEXT -> {
                                 ShapeTextLayer(
@@ -288,6 +288,8 @@ fun EditorCanvasV2(
                                         showOverlay = showOverlay,
                                         showBoundingBox = layer.id == selectedLayerId,
                                         isLocked = layer.isLocked,
+                                        strokeColorArgb = layer.resolveStrokeColorArgb(),
+                                        strokeWidthPx = layer.resolveStrokeWidthPx(),
                                         onBoundingBoxVisible = { /* Not used */ },
                                         onPickImage = onPickImage
                                     )
@@ -306,6 +308,7 @@ fun EditorCanvasV2(
                                 ShadowRegionLayer(
                                     layer = layer,
                                     displayScale = calculatedScale,
+                                    templateSize = templateSize,
                                     onGesture = { delta ->
                                         if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
                                     },
@@ -313,6 +316,7 @@ fun EditorCanvasV2(
                                         if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
                                     },
                                     showBoundingBox = layer.id == selectedLayerId,
+                                    isLocked = layer.isLocked,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             }
@@ -410,14 +414,19 @@ fun rememberCheckerboardBrush(): ShaderBrush {
 fun ShadowRegionLayer(
     layer: EditorLayer,
     displayScale: Float,
+    templateSize: IntSize,
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     showBoundingBox: Boolean = false,
+    isLocked: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
-    val widthDp = with(density) { (layer.product.baseSize.width * layer.viewport.scale * displayScale).toInt().coerceAtLeast(1).toDp() }
-    val heightDp = with(density) { (layer.product.baseSize.height * layer.viewport.scale * displayScale).toInt().coerceAtLeast(1).toDp() }
+    val baseW = layer.product.baseSize.width.toFloat()
+    val baseH = layer.product.baseSize.height.toFloat()
+
+    val widthDp = with(density) { (baseW * layer.viewport.scale * displayScale).toInt().coerceAtLeast(1).toDp() }
+    val heightDp = with(density) { (baseH * layer.viewport.scale * displayScale).toInt().coerceAtLeast(1).toDp() }
     val displayOffset = remember(layer.viewport.offset, displayScale) {
         IntOffset(
             (layer.viewport.offset.x * displayScale).roundToInt(),
@@ -425,22 +434,27 @@ fun ShadowRegionLayer(
         )
     }
     val color = Color(layer.appearance.shadowColorArgb)
-    val alpha = (layer.appearance.alpha * shadowOpacityFromIntensity(layer.appearance.shadowIntensity)).coerceIn(0f, 1f)
+    val rawIntensity = layer.appearance.shadowIntensity
+    val intensity = if (rawIntensity > 0f) rawIntensity else 0.70f
+    val alpha = (layer.appearance.alpha * intensity).coerceIn(0f, 1f)
 
     Box(
         modifier = modifier
             .requiredSize(widthDp, heightDp)
             .offset { displayOffset }
-            .graphicsLayer { rotationZ = layer.viewport.rotation }
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer { rotationZ = layer.viewport.rotation }
+        ) {
             val radiusX = size.width * 0.52f
             val radiusY = size.height * 0.92f
             drawOval(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        color.copy(alpha = alpha * 0.95f),
-                        color.copy(alpha = alpha * 0.35f),
+                        color.copy(alpha = (color.alpha * alpha * 0.95f).coerceIn(0f, 1f)),
+                        color.copy(alpha = (color.alpha * alpha * 0.55f).coerceIn(0f, 1f)),
                         color.copy(alpha = 0f)
                     ),
                     center = Offset(size.width / 2f, size.height * 0.55f),
@@ -448,5 +462,24 @@ fun ShadowRegionLayer(
                 )
             )
         }
+
+        BoundingBoxOverlayV6(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .requiredSize(
+                    width = widthDp + 80.dp,
+                    height = heightDp + 80.dp
+                ),
+            contentWidth = baseW,
+            contentHeight = baseH,
+            viewport = layer.viewport,
+            displayScale = displayScale,
+            templateSize = templateSize,
+            onGesture = onGesture,
+            onGestureEnd = onGestureEnd,
+            showBoundingBox = showBoundingBox,
+            onBoundingBoxVisible = {},
+            isLocked = isLocked
+        )
     }
 }

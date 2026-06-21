@@ -35,10 +35,12 @@ export const CANVAS_SERIALIZE_PROPS = [
   '_originalText',
   'shapeSubtype',
   'isShadowRegion',
+  'sourceKind',
   'crossOrigin',
   'shadow',
   'globalCompositeOperation',
   'blendMode',
   'clipPath',
   'clipShape',
+  'isReplaceable',
 ];

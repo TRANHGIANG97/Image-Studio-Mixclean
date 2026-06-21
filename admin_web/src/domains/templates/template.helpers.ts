@@ -18,6 +18,25 @@ export function buildInitialFabricState(backgroundUrl?: string | null) {
   };
 }
 
+/**
+ * Return true when a Fabric state contains actual drawable objects.
+ * Empty bootstrap states are used during PSD import and should fall back to canvas_data.
+ */
+export function hasRenderableFabricState(fabricState: unknown): boolean {
+  if (!fabricState) return false;
+
+  try {
+    const state =
+      typeof fabricState === 'string'
+        ? JSON.parse(fabricState)
+        : fabricState as { objects?: unknown[] };
+
+    return Array.isArray(state?.objects) && state.objects.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 function generateLayerId(): string {
   return `layer_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 }

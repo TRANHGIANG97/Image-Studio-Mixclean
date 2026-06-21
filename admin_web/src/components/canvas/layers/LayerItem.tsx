@@ -3,53 +3,13 @@
 import React from 'react';
 import {
   Eye, EyeOff, Lock, Unlock, Trash2,
-  ChevronUp, ChevronDown, Copy, Text,
-  Image as ImageIcon, Sparkles,
+  ChevronUp, ChevronDown, Copy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LayerState } from '@/store/layers.store';
-
-/** Get icon for layer type. */
-export function getLayerIcon(type: string) {
-  switch (type) {
-    case 'TEXT': return <Text className="w-3.5 h-3.5 text-pink-400" />;
-    case 'IMAGE': return <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />;
-    default: return <Sparkles className="w-3.5 h-3.5 text-amber-400" />;
-  }
-}
-
-/** Render a small preview for the layer. */
-export function renderLayerPreview(layer: LayerState, thumbnail?: string | null) {
-  if (layer.type === 'TEXT') {
-    const preview = layer.textPreview || 'Aa';
-    const short = preview.length > 10 ? `${preview.slice(0, 9)}…` : preview;
-    const color = typeof layer.fill === 'string' ? layer.fill : '#475569';
-    return (
-      <div
-        className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center overflow-hidden px-0.5"
-        title={preview}
-      >
-        <span
-          className="text-[7px] leading-[1.05] text-center line-clamp-2 max-w-full font-semibold"
-          style={{
-            fontFamily: layer.fontFamily ? `${layer.fontFamily}, sans-serif` : 'Outfit, sans-serif',
-            color,
-          }}
-        >
-          {short}
-        </span>
-      </div>
-    );
-  }
-  if (thumbnail) {
-    return (
-      <div className="w-6 h-6 rounded-md overflow-hidden bg-slate-50 border border-slate-200">
-        <img src={thumbnail} className="w-full h-full object-cover" alt="" />
-      </div>
-    );
-  }
-  return getLayerIcon(layer.type);
-}
+import { LayerPreview } from './LayerPreview';
+import { LayerTypeBadge } from './LayerTypeBadge';
+import { LAYER_PREVIEW_SIZE_PX } from './layer-preview-utils';
 
 interface LayerItemProps {
   layer: LayerState;
@@ -89,7 +49,7 @@ export function LayerItem({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      className={`p-3 rounded-xl border transition-all flex items-center justify-between group ${
+      className={`rounded-xl border transition-all overflow-hidden ${
         isEditing
           ? 'bg-indigo-50 border-indigo-500/50'
           : isActive
@@ -99,11 +59,12 @@ export function LayerItem({
               : 'bg-white border-slate-200/80 hover:border-slate-300/80 cursor-grab active:cursor-grabbing'
       }`}
     >
-      <div className="flex items-center gap-2.5 truncate flex-1 pr-2">
-        <div className="shrink-0 p-1 rounded-lg bg-slate-50 border border-slate-200/50 flex items-center justify-center">
-          {renderLayerPreview(layer, thumbnail)}
+      <div className="flex gap-3 p-3 items-start">
+        <div className="shrink-0">
+          <LayerPreview layer={layer} thumbnail={thumbnail} size={LAYER_PREVIEW_SIZE_PX} />
         </div>
-        <div className="truncate text-left flex-1">
+
+        <div className="flex-1 min-w-0 pt-0.5">
           {isEditing ? (
             <input
               value={renameValue}
@@ -120,50 +81,49 @@ export function LayerItem({
           ) : (
             <p
               onDoubleClick={(e) => { e.stopPropagation(); onStartRename(); }}
-              className={`text-xs font-semibold truncate transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-700'}`}
+              className={`text-sm font-semibold leading-snug line-clamp-2 transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-800'}`}
               title={layer.type === 'TEXT' && layer.textPreview ? layer.textPreview : 'Double click để đổi tên'}
             >
               {layer.name}
             </p>
           )}
-          <p className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mt-0.5">
-            {layer.type}
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <LayerTypeBadge type={layer.type} />
             {layer.type === 'TEXT' && layer.textPreview && layer.name !== layer.textPreview && (
-              <span className="normal-case font-medium text-slate-500 ml-1 truncate">
-                · {layer.textPreview.length > 20 ? `${layer.textPreview.slice(0, 20)}…` : layer.textPreview}
+              <span className="text-[10px] font-medium text-slate-500 truncate">
+                {layer.textPreview.length > 28 ? `${layer.textPreview.slice(0, 28)}…` : layer.textPreview}
               </span>
             )}
-          </p>
+          </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-1 shrink-0">
-        <div className="flex items-center">
-          <Button size="icon" variant="ghost" onClick={onMoveUp} className="w-6 h-6 text-slate-400 hover:text-slate-700 rounded-md cursor-pointer" title="Đưa lên">
-            <ChevronUp className="w-3.5 h-3.5" />
-          </Button>
-          <Button size="icon" variant="ghost" onClick={onMoveDown} className="w-6 h-6 text-slate-400 hover:text-slate-700 rounded-md cursor-pointer" title="Đưa xuống">
-            <ChevronDown className="w-3.5 h-3.5" />
-          </Button>
-        </div>
+      <div
+        className="flex items-center gap-0 pl-2 pr-1.5 py-1 bg-slate-50/80 border-t border-slate-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Button size="icon" variant="ghost" onClick={onMoveUp} className="w-6 h-6 text-slate-400 hover:text-slate-700 rounded-md cursor-pointer shrink-0" title="Đưa lên">
+          <ChevronUp className="w-3.5 h-3.5" />
+        </Button>
+        <Button size="icon" variant="ghost" onClick={onMoveDown} className="w-6 h-6 text-slate-400 hover:text-slate-700 rounded-md cursor-pointer shrink-0" title="Đưa xuống">
+          <ChevronDown className="w-3.5 h-3.5" />
+        </Button>
         <Button size="icon" variant="ghost" onClick={onLockToggle}
-          className={`w-6 h-6 rounded-md cursor-pointer ${layer.locked ? 'text-amber-500' : 'text-slate-400 hover:text-slate-700'}`}
+          className={`w-6 h-6 rounded-md cursor-pointer shrink-0 ${layer.locked ? 'text-amber-500' : 'text-slate-400 hover:text-slate-700'}`}
           title={layer.locked ? 'Mở khóa' : 'Khóa'}>
-          {layer.locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+          {layer.locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
         </Button>
         <Button size="icon" variant="ghost" onClick={onVisibilityToggle}
-          className={`w-6 h-6 rounded-md cursor-pointer ${!layer.visible ? 'text-slate-300' : 'text-slate-400 hover:text-slate-700'}`}
+          className={`w-6 h-6 rounded-md cursor-pointer shrink-0 ${!layer.visible ? 'text-slate-300' : 'text-slate-400 hover:text-slate-700'}`}
           title={layer.visible ? 'Ẩn' : 'Hiện'}>
           {layer.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
         </Button>
-        <div className="flex items-center">
-          <Button size="icon" variant="ghost" onClick={onDuplicate} className="w-6 h-6 text-slate-400 hover:text-indigo-600 rounded-md cursor-pointer" title="Nhân đôi">
-            <Copy className="w-3 h-3" />
-          </Button>
-          <Button size="icon" variant="ghost" onClick={onDelete} className="w-6 h-6 text-slate-400 hover:text-rose-500 rounded-md cursor-pointer" title="Xóa">
-            <Trash2 className="w-3 h-3" />
-          </Button>
-        </div>
+        <Button size="icon" variant="ghost" onClick={onDuplicate} className="w-6 h-6 text-slate-400 hover:text-indigo-600 rounded-md cursor-pointer shrink-0" title="Nhân đôi">
+          <Copy className="w-3.5 h-3.5" />
+        </Button>
+        <Button size="icon" variant="ghost" onClick={onDelete} className="w-6 h-6 text-slate-400 hover:text-rose-500 rounded-md cursor-pointer shrink-0" title="Xóa">
+          <Trash2 className="w-3.5 h-3.5" />
+        </Button>
       </div>
     </div>
   );

@@ -47,7 +47,7 @@ export default function PropertiesPanel({ onDirty }: PropertiesPanelProps) {
     const type =
       activeObjectProps.layerType ||
       (activeCanvasObject ? resolveLayerType(activeCanvasObject) : null);
-    if (type === 'TEXT' || type === 'IMAGE') {
+    if (type === 'TEXT' || type === 'IMAGE' || type === 'PLACEHOLDER_OBJECT') {
       setPropertyTab('content');
     } else {
       setPropertyTab('basic');
@@ -57,7 +57,9 @@ export default function PropertiesPanel({ onDirty }: PropertiesPanelProps) {
   const { addRecentColor } = useRecentColors();
 
   const isImageObject =
-    activeObjectProps?.layerType === 'IMAGE' || activeCanvasObject?.type === 'image';
+    activeObjectProps?.layerType === 'IMAGE' ||
+    activeObjectProps?.layerType === 'PLACEHOLDER_OBJECT' ||
+    activeCanvasObject?.type === 'image';
 
   const handlePropChange = (name: string, value: any) => {
     if (name === 'fill' && typeof value === 'string') addRecentColor(value);
@@ -79,9 +81,13 @@ export default function PropertiesPanel({ onDirty }: PropertiesPanelProps) {
       activeObjectProps?.layerType === 'TEXT' ||
       (activeCanvasObject ? resolveLayerType(activeCanvasObject) === 'TEXT' : false);
     const props =
-      isText && (name === 'stroke' || name === 'strokeWidth')
-        ? { [name]: value, paintFirst: 'stroke' }
-        : { [name]: value };
+      name === 'layerType'
+        ? { layerType: value, isReplaceable: value === 'PLACEHOLDER_OBJECT' }
+        : name === 'isReplaceable'
+          ? { isReplaceable: value }
+          : isText && (name === 'stroke' || name === 'strokeWidth')
+            ? { [name]: value, paintFirst: 'stroke' }
+            : { [name]: value };
 
     applyProps(props);
 
@@ -233,7 +239,7 @@ export default function PropertiesPanel({ onDirty }: PropertiesPanelProps) {
       hasBorders: true,
       layerId: `shadow_region_${Date.now()}`,
       layerName: `${activeObject.layerName || 'Layer'} Shadow`,
-      layerType: 'DECORATION',
+      layerType: 'SHADOW_REGION',
       isShadowRegion: true,
       sourceKind: 'shadow-region',
     } as any);
@@ -442,7 +448,9 @@ export default function PropertiesPanel({ onDirty }: PropertiesPanelProps) {
             <select value={activeObjectProps.layerType || 'DECORATION'} onChange={(e) => handlePropChange('layerType', e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-400 focus:outline-none focus:border-indigo-600">
               <option value="DECORATION">DECORATION (Cố định)</option>
-              <option value="IMAGE">IMAGE (Placeholder)</option>
+              <option value="SHADOW_REGION">SHADOW_REGION (Vùng bóng)</option>
+              <option value="IMAGE">IMAGE (Ảnh thường)</option>
+              <option value="PLACEHOLDER_OBJECT">PLACEHOLDER_OBJECT (Vật thể thay thế/Sản phẩm mẫu)</option>
               <option value="TEXT">TEXT (Chữ động)</option>
             </select>
           </div>

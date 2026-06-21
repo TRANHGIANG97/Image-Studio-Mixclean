@@ -8,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 interface EditorToolbarProps {
-  zoom: number;
+  zoomPercent: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onUndo: () => void;
@@ -38,7 +38,7 @@ const SHAPE_TYPES: { key: string; label: string }[] = [
 ];
 
 export default function EditorToolbar({
-  zoom, onZoomIn, onZoomOut, onUndo, onRedo, undoStack, redoStack,
+  zoomPercent, onZoomIn, onZoomOut, onUndo, onRedo, undoStack, redoStack,
   onAddText, onAddImage, onCrop, hasImageTarget = false, showGrid, onToggleGrid, snappingEnabled, onToggleSnapping, onShapeSelect,
 }: EditorToolbarProps) {
   const [shapeOpen, setShapeOpen] = useState(false);
@@ -134,7 +134,7 @@ export default function EditorToolbar({
           <ZoomOut className="w-3.5 h-3.5" />
         </button>
         <span className="text-[11px] font-mono text-slate-600 min-w-[48px] text-center select-none">
-          {Math.round(zoom * 100)}%
+          {zoomPercent}%
         </span>
         <button onClick={onZoomIn} className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-200 cursor-pointer">
           <ZoomIn className="w-3.5 h-3.5" />

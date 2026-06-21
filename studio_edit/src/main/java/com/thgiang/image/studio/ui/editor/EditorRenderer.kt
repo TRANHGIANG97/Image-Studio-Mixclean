@@ -65,6 +65,7 @@ class EditorRenderer(
             canvas.drawBitmap(template, 0f, 0f, paint)
             
             for (layer in request.layers) {
+                if (!layer.isVisible) continue
                 when (layer.type) {
                     LayerType.SHAPE_TEXT -> {
                         renderShapeTextLayer(canvas, layer, request.templateSize.width, request.templateSize.height)
@@ -222,9 +223,11 @@ class EditorRenderer(
         val shadowH = layer.product.baseSize.height.toFloat() * state.scale
         val left = (templateWidth - shadowW) / 2f + state.offset.x
         val top = (templateHeight - shadowH) / 2f + state.offset.y
-        val intensity = layer.appearance.shadowIntensity.coerceIn(0f, 1f)
-        val alpha = (layer.appearance.alpha * shadowOpacityFromIntensity(intensity) * 255f).toInt().coerceIn(0, 255)
+        val rawIntensity = layer.appearance.shadowIntensity
+        val intensity = if (rawIntensity > 0f) rawIntensity else 0.70f
         val color = layer.appearance.shadowColorArgb
+        val colorAlpha = (color ushr 24) and 0xFF
+        val alpha = ((colorAlpha / 255f) * layer.appearance.alpha * intensity * 255f).toInt().coerceIn(0, 255)
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
@@ -355,11 +358,26 @@ class EditorRenderer(
         val left = (templateWidth - shapeW) / 2f + state.offset.x
         val top = (templateHeight - shapeH) / 2f + state.offset.y
 
+        val shapeAlpha = (layer.shapeColorArgb ushr 24) and 0xFF
+        val hasShapeFill = EditorShapeGeometry.isFilledShape(
+            layer.shapeType,
+            shapeAlpha,
+            layer.fillGradient != null,
+        )
+        val canDrawShapeShadow = hasShapeFill ||
+            EditorShapeGeometry.isLineShape(layer.shapeType) ||
+            layer.hasStroke
+
         canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
             withSave {
                 rotate(state.rotation, left + shapeW / 2f, top + shapeH / 2f)
+                val scaleX = if (state.flippedH) -1f else 1f
+                val scaleY = if (state.flippedV) -1f else 1f
+                if (scaleX != 1f || scaleY != 1f) {
+                    scale(scaleX, scaleY, left + shapeW / 2f, top + shapeH / 2f)
+                }
 
-                if (layer.appearance.shadowIntensity > 0.05f) {
+                if (canDrawShapeShadow && layer.appearance.shadowIntensity > 0.05f) {
                     val (shadowDx, shadowDy) = shadowOffset(
                         layer.appearance.shadowAngle,
                         layer.appearance.shadowDistance,
@@ -459,7 +477,9 @@ class EditorRenderer(
         shapeH: Float,
         alpha: Int,
     ) {
-        val textSizePx = layer.textSizeSp * context.resources.displayMetrics.scaledDensity * state.scale
+        val density = context.resources.displayMetrics.density
+        val fontScale = context.resources.displayMetrics.scaledDensity / density
+        val textSizePx = layer.textSizeSp * fontScale * state.scale
 
         fun buildTextPaint(style: Paint.Style): TextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             color = if (style == Paint.Style.STROKE) layer.strokeColorArgb ?: layer.textColorArgb else layer.textColorArgb
@@ -518,24 +538,6 @@ class EditorRenderer(
 
         val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
 
-        if (layer.hasStroke) {
-            @Suppress("DEPRECATION")
-            val strokeLayout = StaticLayout(
-                displayText,
-                buildTextPaint(Paint.Style.STROKE),
-                textWidth,
-                alignment,
-                lineSpacing,
-                0f,
-                true,
-            )
-            val textTop = top + (shapeH - strokeLayout.height.toFloat()) / 2f
-            canvas.withSave {
-                translate(translateX, textTop)
-                strokeLayout.draw(this)
-            }
-        }
-
         @Suppress("DEPRECATION")
         val fillLayout = StaticLayout(
             displayText,
@@ -547,6 +549,43 @@ class EditorRenderer(
             true,
         )
         val textTop = top + (shapeH - fillLayout.height.toFloat()) / 2f
+
+        if (layer.textBackgroundColorArgb != null) {
+            val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = layer.textBackgroundColorArgb
+                style = Paint.Style.FILL
+                this.alpha = alpha
+            }
+            val textHeight = fillLayout.height.toFloat()
+            val localLeft = when (alignment) {
+                android.text.Layout.Alignment.ALIGN_NORMAL -> 0f
+                android.text.Layout.Alignment.ALIGN_OPPOSITE -> -textWidth.toFloat()
+                else -> -textWidth / 2f
+            }
+            val localRight = localLeft + textWidth
+            canvas.withSave {
+                translate(translateX, textTop)
+                drawRect(localLeft, 0f, localRight, textHeight, bgPaint)
+            }
+        }
+
+        if (layer.hasStroke) {
+            @Suppress("DEPRECATION")
+            val strokeLayout = StaticLayout(
+                displayText,
+                buildTextPaint(Paint.Style.STROKE),
+                textWidth,
+                alignment,
+                lineSpacing,
+                0f,
+                true,
+            )
+            canvas.withSave {
+                translate(translateX, textTop)
+                strokeLayout.draw(this)
+            }
+        }
+
         canvas.withSave {
             translate(translateX, textTop)
             fillLayout.draw(this)

@@ -13,6 +13,9 @@ interface TemplateCardProps {
   onCloneClick: (template: Template) => void;
   onDeleteClick: (templateId: string) => void;
   onRenameClick: (template: Template) => void;
+  isSelected: boolean;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onMouseEnter: () => void;
 }
 
 export function TemplateCard({
@@ -20,12 +23,13 @@ export function TemplateCard({
   onCloneClick,
   onDeleteClick,
   onRenameClick,
+  isSelected,
+  onMouseDown,
+  onMouseEnter,
 }: TemplateCardProps) {
   const updateStatusMutation = useUpdateTemplateStatus();
-  const { activeDropdownId, setActiveDropdownId, selectedTemplateIds, toggleTemplateSelection } =
+  const { activeDropdownId, setActiveDropdownId, toggleTemplateSelection } =
     useDashboardStore();
-
-  const isSelected = selectedTemplateIds.includes(tpl.id);
 
 
   const handleUpdateStatus = (newStatus: 'draft' | 'published', newEnvironment: 'debug' | 'release' | 'all') => {
@@ -46,10 +50,18 @@ export function TemplateCard({
   };
 
   return (
-    <Card className="bg-white border-slate-200 rounded-xl hover:border-slate-300/80 transition-all duration-300 group flex flex-col justify-between relative">
+    <Card
+      onMouseDown={onMouseDown}
+      onMouseEnter={onMouseEnter}
+      className={`bg-white rounded-xl hover:border-slate-300/80 transition-all duration-300 group flex flex-col justify-between relative select-none border ${
+        isSelected
+          ? 'border-indigo-500 shadow-lg shadow-indigo-600/5 bg-indigo-50/50'
+          : 'border-slate-200'
+      }`}
+    >
       {/* Checkbox overlay */}
       <div
-        className={`absolute top-3 left-3 z-10 transition-opacity duration-200 ${
+        className={`absolute top-3 left-3 z-10 transition-opacity duration-200 checkbox-overlay ${
           isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         }`}
         onClick={(e) => {

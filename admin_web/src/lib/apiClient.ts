@@ -8,6 +8,8 @@
  * - Supports GET, POST, PUT, DELETE with typed body/response.
  */
 
+import { applyCDN, removeCDN } from './cdn-rewriter';
+
 class ApiError extends Error {
   constructor(
     public statusCode: number,
@@ -26,10 +28,36 @@ async function request<TResponse = unknown>(
   const timeoutId = setTimeout(() => controller.abort(), 30_000);
 
   try {
+    // 1. If sending request body, parse through removeCDN (which is now a no-op)
+    if (options.body && typeof options.body === 'string') {
+      try {
+        let parsed = JSON.parse(options.body);
+        parsed = removeCDN(parsed);
+        options.body = JSON.stringify(parsed);
+      } catch (_) {
+        // Do nothing on string parse fail, keep original body
+      }
+    }
+
     const headers = new Headers(options.headers);
-    if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
+    const isFormData = options.body && (
+      options.body instanceof FormData ||
+      options.body.constructor?.name === 'FormData' ||
+      (typeof options.body === 'object' && typeof (options.body as any).append === 'function')
+    );
+
+    if (isFormData) {
+      headers.delete('Content-Type');
+    } else if (options.body && !headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json');
     }
+
+    console.log('[apiClient] request:', url, {
+      method: options.method,
+      hasBody: !!options.body,
+      isFormData: !!isFormData,
+      contentType: headers.get('Content-Type')
+    });
 
     const res = await fetch(url, {
       ...options,
@@ -42,7 +70,10 @@ async function request<TResponse = unknown>(
       return undefined as TResponse;
     }
 
-    const data = await res.json().catch(() => ({}));
+    let data = await res.json().catch(() => ({}));
+
+    // 2. If receiving response data, rewrite Supabase URLs to CDN URLs
+    data = applyCDN(data);
 
     if (!res.ok) {
       const message =

@@ -7,9 +7,16 @@ import { createServerClient } from '@supabase/ssr';
  * Refreshes the session cookie on every request to prevent expiry.
  */
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request,
-  });
+  const { pathname } = request.nextUrl;
+
+  // Bypass middleware for all API routes to prevent body stream corruption
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+
+  let response = request.method === 'GET' 
+    ? NextResponse.next({ request })
+    : NextResponse.next();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +28,9 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
+          response = request.method === 'GET'
+            ? NextResponse.next({ request })
+            : NextResponse.next();
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -34,8 +43,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-
-  const { pathname } = request.nextUrl;
 
   // Public paths that don't require auth
   const isPublicPath = pathname.startsWith('/login') || pathname.startsWith('/api/v1');

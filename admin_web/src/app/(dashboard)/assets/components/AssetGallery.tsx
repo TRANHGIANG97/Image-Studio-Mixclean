@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Asset, useDeleteAsset, useDeleteAssetsBulk } from '@/hooks/useAssets';
 import { Trash2, Image as ImageIcon, FileType, Copy, Check, Loader2, FolderInput } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,27 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [targetIdsForMove, setTargetIdsForMove] = useState<string[]>([]);
 
+  // Drag selection states
+  const [isDragSelecting, setIsDragSelecting] = useState(false);
+  const [startIndex, setStartIndex] = useState<number | null>(null);
+  const [isSelectingMode, setIsSelectingMode] = useState(true);
+  const [dragSelectedIds, setDragSelectedIds] = useState<Set<string>>(new Set());
+
+  // Refs for event listener closures
+  const isDragSelectingRef = useRef(isDragSelecting);
+  const startIndexRef = useRef(startIndex);
+  const dragSelectedIdsRef = useRef(dragSelectedIds);
+  const isSelectingModeRef = useRef(isSelectingMode);
+  const selectedIdsRef = useRef(selectedIds);
+
+  useEffect(() => {
+    isDragSelectingRef.current = isDragSelecting;
+    startIndexRef.current = startIndex;
+    dragSelectedIdsRef.current = dragSelectedIds;
+    isSelectingModeRef.current = isSelectingMode;
+    selectedIdsRef.current = selectedIds;
+  }, [isDragSelecting, startIndex, dragSelectedIds, isSelectingMode, selectedIds]);
+
   const handleOpenMoveModal = (ids: string[]) => {
     setTargetIdsForMove(ids);
     setIsMoveModalOpen(true);
@@ -61,6 +82,112 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
       setSelectedIds(assets.map((a) => a.id));
     }
   };
+
+  const handleMouseUpGlobal = () => {
+    if (isDragSelectingRef.current) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        dragSelectedIdsRef.current.forEach((id) => {
+          if (isSelectingModeRef.current) {
+            next.add(id);
+          } else {
+            next.delete(id);
+          }
+        });
+        return Array.from(next);
+      });
+      setIsDragSelecting(false);
+      setStartIndex(null);
+      setDragSelectedIds(new Set());
+    }
+  };
+
+  // Auto scroll window when dragging near boundaries
+  useEffect(() => {
+    let scrollInterval: any = null;
+
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDragSelectingRef.current) return;
+
+      const threshold = 120; // Boundary zone size in pixels
+      const clientY = e.clientY;
+      const viewHeight = window.innerHeight;
+
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+      }
+
+      if (clientY > viewHeight - threshold) {
+        // Dragging down -> scroll down
+        const ratio = (clientY - (viewHeight - threshold)) / threshold;
+        const speed = Math.max(5, Math.min(45, ratio * 45));
+        scrollInterval = setInterval(() => {
+          window.scrollBy(0, speed);
+        }, 16);
+      } else if (clientY < threshold) {
+        // Dragging up -> scroll up
+        const ratio = (threshold - clientY) / threshold;
+        const speed = Math.max(5, Math.min(45, ratio * 45));
+        scrollInterval = setInterval(() => {
+          window.scrollBy(0, -speed);
+        }, 16);
+      }
+    };
+
+    const handleGlobalMouseUp = () => {
+      handleMouseUpGlobal();
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+      }
+    };
+
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+      }
+    };
+  }, []);
+
+  const handleMouseDown = (e: React.MouseEvent, index: number, assetId: string) => {
+    // Only left click triggers drag selection
+    if (e.button !== 0) return;
+    
+    // Ignore clicks on inner action buttons
+    if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('input')) {
+      return;
+    }
+
+    e.preventDefault();
+    setIsDragSelecting(true);
+    setStartIndex(index);
+    
+    const startIsSelected = selectedIds.includes(assetId);
+    setIsSelectingMode(!startIsSelected);
+    setDragSelectedIds(new Set([assetId]));
+  };
+
+  const handleMouseEnter = (index: number) => {
+    if (!isDragSelecting || startIndex === null) return;
+
+    const min = Math.min(startIndex, index);
+    const max = Math.max(startIndex, index);
+
+    const nextDragSelected = new Set<string>();
+    for (let i = min; i <= max; i++) {
+      if (assets[i]) {
+        nextDragSelected.add(assets[i].id);
+      }
+    }
+    setDragSelectedIds(nextDragSelected);
+  };
+
 
   const handleCopyLink = (id: string, url: string) => {
     navigator.clipboard.writeText(url);
@@ -131,14 +258,21 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
 
       {/* Grid List */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        {assets.map((asset) => {
+        {assets.map((asset, index) => {
           const extension = asset.name.split('.').pop()?.toUpperCase() || 'FILE';
-          const isSelected = selectedIds.includes(asset.id);
+          
+          const isDragSelected = dragSelectedIds.has(asset.id);
+          const isSelected = isDragSelecting
+            ? (isSelectingMode
+                ? (selectedIds.includes(asset.id) || isDragSelected)
+                : (selectedIds.includes(asset.id) && !isDragSelected))
+            : selectedIds.includes(asset.id);
           
           return (
             <div
               key={asset.id}
-              onClick={() => toggleSelect(asset.id)}
+              onMouseDown={(e) => handleMouseDown(e, index, asset.id)}
+              onMouseEnter={() => handleMouseEnter(index)}
               className={`group relative bg-white border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 select-none ${
                 isSelected
                   ? 'border-indigo-500 shadow-lg shadow-indigo-600/10 bg-indigo-950/10'

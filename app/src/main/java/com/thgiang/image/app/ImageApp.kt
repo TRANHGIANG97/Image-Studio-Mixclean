@@ -39,6 +39,20 @@ class ImageApp : Application() {
                 add(SvgDecoder.Factory())
             }
             .okHttpClient(okHttpClient)
+            .eventListener(object : coil.EventListener {
+                override fun onStart(request: coil.request.ImageRequest) {
+                    super.onStart(request)
+                    Log.d("CoilError", "Start loading image URL: ${request.data}")
+                }
+                override fun onSuccess(request: coil.request.ImageRequest, result: coil.request.SuccessResult) {
+                    super.onSuccess(request, result)
+                    Log.d("CoilError", "Success loading image URL: ${request.data}")
+                }
+                override fun onError(request: coil.request.ImageRequest, result: coil.request.ErrorResult) {
+                    super.onError(request, result)
+                    Log.e("CoilError", "Error loading image URL: ${request.data}", result.throwable)
+                }
+            })
             .build()
         Coil.setImageLoader(imageLoader)
         clearTransportRuntimeDb()

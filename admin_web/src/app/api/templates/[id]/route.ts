@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTemplateById, updateTemplate, deleteTemplate } from '@/domains/templates/template.service';
 import { writeAuditLog } from '@/lib/auditLog';
+import { applyCDN, removeCDN } from '@/lib/cdn-rewriter';
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -10,7 +11,8 @@ interface Context {
 export async function GET(_req: NextRequest, context: Context) {
   try {
     const { id } = await context.params;
-    const template = await getTemplateById(id);
+    let template = await getTemplateById(id);
+    template = applyCDN(template);
     return NextResponse.json({ success: true, template });
   } catch (error: any) {
     console.error('Error fetching template details:', error);
@@ -22,7 +24,9 @@ export async function GET(_req: NextRequest, context: Context) {
 export async function PUT(req: NextRequest, context: Context) {
   try {
     const { id } = await context.params;
-    const body = await req.json();
+    let body = await req.json();
+    body = removeCDN(body);
+
     const template = await updateTemplate(id, {
       title:        body.title,
       category_id:  body.category_id,
@@ -50,7 +54,7 @@ export async function PUT(req: NextRequest, context: Context) {
       });
     }
 
-    return NextResponse.json({ success: true, template });
+    return NextResponse.json({ success: true, template: applyCDN(template) });
   } catch (error: any) {
     console.error('Error updating template:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

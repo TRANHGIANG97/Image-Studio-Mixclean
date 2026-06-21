@@ -5,10 +5,12 @@ import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.core.domain.model.template.ColorArgbParser
 import com.thgiang.image.core.domain.model.template.isLocked
 import com.thgiang.image.core.domain.model.template.isShadowRegionLayer
+import com.thgiang.image.core.domain.model.template.isReplaceableLayer
 import com.thgiang.image.core.domain.model.template.isVisible
 import com.thgiang.image.core.domain.model.template.resolvedImageUrl
 import com.thgiang.image.core.domain.model.template.resolvedShapeFillArgb
 import com.thgiang.image.core.domain.model.template.resolvedTextColorArgb
+import com.thgiang.image.studio.util.replaceLocalhostWithConfiguredHost
 import java.util.UUID
 
 /**
@@ -21,7 +23,6 @@ object CloudLayerToEditorMapper {
         val canvasHeight = cloudTemplate.canvas.baseHeight
 
         return cloudTemplate.layers
-            .filter { it.isVisible() }
             .sortedBy { it.zIndex }
             .mapNotNull { cloudLayer ->
                 mapLayer(cloudLayer, canvasWidth, canvasHeight, scaledDensity)
@@ -34,9 +35,9 @@ object CloudLayerToEditorMapper {
         canvasHeight: Int,
         scaledDensity: Float,
     ): EditorLayer? {
-        val isText = cloudLayer.type == "TEXT" || cloudLayer.type == "SHAPE_TEXT"
-        val isShadowRegion = cloudLayer.isShadowRegionLayer()
-        val isDecorationShape = cloudLayer.isDecorationShapeLayer()
+        val isText = isTextLayer(cloudLayer)
+        val isShadowRegion = !isText && cloudLayer.isShadowRegionLayer()
+        val isDecorationShape = !isText && cloudLayer.isDecorationShapeLayer()
         val offsetX = (cloudLayer.transform.anchorX - 0.5f) * canvasWidth.toFloat()
         val offsetY = (cloudLayer.transform.anchorY - 0.5f) * canvasHeight.toFloat()
         val layerId = cloudLayer.layerId.ifEmpty { UUID.randomUUID().toString() }
@@ -46,15 +47,9 @@ object CloudLayerToEditorMapper {
             scale = cloudLayer.transform.scale,
             rotation = cloudLayer.transform.rotation,
         )
-        val appearance = EditorAppearance(
-            shadowIntensity = cloudLayer.payload.shadowIntensity ?: 0f,
-            alpha = cloudLayer.payload.alpha ?: 1f,
-            shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
-            shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
-            shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt(),
-            shadowBlur = cloudLayer.payload.shadowBlur,
-        )
+        val appearance = resolveAppearance(cloudLayer)
         val locked = cloudLayer.isLocked()
+        val isVisible = cloudLayer.isVisible()
 
         return when {
             isText || isDecorationShape -> mapShapeTextLayer(cloudLayer, layerId, viewport, appearance, scaledDensity, locked)
@@ -70,6 +65,7 @@ object CloudLayerToEditorMapper {
                     viewport = viewport,
                     appearance = appearance,
                     isLocked = locked,
+                    isVisible = isVisible,
                     blendMode = cloudLayer.payload.blendMode,
                     strokeColorArgb = EditorStrokeMapper.parseStrokeColor(cloudLayer.payload.stroke),
                     strokeWidthPx = cloudLayer.payload.strokeWidth ?: 0f,
@@ -78,7 +74,10 @@ object CloudLayerToEditorMapper {
             }
 
             else -> {
-                val imageUrl = cloudLayer.resolvedImageUrl() ?: return null
+                val baseWidth = cloudLayer.payload.baseWidth ?: 0
+                val baseHeight = cloudLayer.payload.baseHeight ?: 0
+                if (baseWidth <= 1 && baseHeight <= 1) return null
+                val imageUrl = cloudLayer.resolvedImageUrl()?.replaceLocalhostWithConfiguredHost() ?: return null
                 EditorLayer(
                     id = layerId,
                     type = LayerType.IMAGE,
@@ -88,7 +87,7 @@ object CloudLayerToEditorMapper {
                         isBackgroundRemoved = true,
                         baseWidth = cloudLayer.payload.baseWidth ?: 0,
                         baseHeight = cloudLayer.payload.baseHeight ?: 0,
-                        isSample = cloudLayer.type == "PLACEHOLDER_OBJECT",
+                        isSample = cloudLayer.isReplaceableLayer(),
                     ),
                     viewport = viewport.copy(
                         flippedH = cloudLayer.payload.flippedH ?: false,
@@ -97,6 +96,7 @@ object CloudLayerToEditorMapper {
                     appearance = appearance,
                     cropRatio = cloudLayer.resolvedCropRatio(),
                     isLocked = locked,
+                    isVisible = isVisible,
                     blendMode = cloudLayer.payload.blendMode,
                     strokeColorArgb = EditorStrokeMapper.parseStrokeColor(cloudLayer.payload.stroke),
                     strokeWidthPx = cloudLayer.payload.strokeWidth ?: 0f,
@@ -116,12 +116,20 @@ object CloudLayerToEditorMapper {
     ): EditorLayer {
         val density = scaledDensity.coerceAtLeast(1f)
         val payload = cloudLayer.payload
+        val textSizeSp = (payload.fontSize ?: 60f).coerceIn(1f, 500f)
+        val textSizePx = textSizeSp * density
+        val charSpacingPx = (payload.charSpacing ?: 0f) * textSizeSp / 1000f
         val displayText = EditorTextStyleMapper.applyTextTransform(
             payload.text.orEmpty(),
             payload.textTransform,
         )
 
-        val shapeType = mapCloudShapeType(payload.shapeType)
+        val shapeType = mapCloudShapeType(
+            raw = payload.shapeType,
+            plainText = payload.shapeType.isNullOrBlank() &&
+                payload.fillGradient == null &&
+                payload.resolvedShapeFillArgb() == null,
+        )
         val isLine = shapeType == ShapeType.LINE
         val lineStrokeArgb = payload.fillColor?.let(ColorArgbParser::parseOrNull)
             ?: payload.resolvedShapeFillArgb()
@@ -132,15 +140,15 @@ object CloudLayerToEditorMapper {
             type = LayerType.SHAPE_TEXT,
             text = displayText,
             textColorArgb = payload.resolvedTextColorArgb() ?: 0xFFFFFFFF.toInt(),
-            textSizeSp = ((payload.fontSize ?: 60f) / density).coerceIn(8f, 120f),
+            textSizeSp = (payload.fontSize ?: 60f).coerceIn(1f, 500f),
             shapeType = shapeType,
             shapeColorArgb = if (isLine) {
                 0x00FFFFFF
             } else {
                 payload.resolvedShapeFillArgb() ?: 0x00FFFFFF.toInt()
             },
-            shapeWidthPx = (payload.baseWidth?.toFloat() ?: 350f).coerceAtLeast(1f),
-            shapeHeightPx = (payload.baseHeight?.toFloat() ?: 140f).coerceAtLeast(1f),
+            shapeWidthPx = ((payload.baseWidth?.toFloat() ?: 350f) / cloudLayer.transform.scale.coerceAtLeast(0.01f)).coerceAtLeast(1f),
+            shapeHeightPx = ((payload.baseHeight?.toFloat() ?: 140f) / cloudLayer.transform.scale.coerceAtLeast(0.01f)).coerceAtLeast(1f),
             fontFamily = payload.font,
             fontWeight = payload.fontWeight,
             fontStyle = payload.fontStyle,
@@ -148,7 +156,7 @@ object CloudLayerToEditorMapper {
             underline = payload.underline == true,
             linethrough = payload.linethrough == true,
             lineHeight = payload.lineHeight,
-            charSpacing = payload.charSpacing ?: 0f,
+            charSpacing = charSpacingPx,
             textBackgroundColorArgb = payload.textBackgroundColor?.let(ColorArgbParser::parseOrNull),
             textTransform = payload.textTransform,
             cornerRadiusX = payload.rx,
@@ -169,9 +177,45 @@ object CloudLayerToEditorMapper {
             textColorGradient = payload.textColorGradient,
             pathData = payload.pathData,
             polygonPoints = payload.polygonPoints ?: emptyList(),
-            viewport = viewport,
+            viewport = viewport.copy(
+                flippedH = payload.flippedH == true,
+                flippedV = payload.flippedV == true,
+            ),
             appearance = appearance,
             isLocked = locked,
+            isVisible = cloudLayer.isVisible(),
+        )
+    }
+
+    private fun isTextLayer(cloudLayer: CloudLayer): Boolean {
+        if (cloudLayer.type.equals("TEXT", ignoreCase = true) ||
+            cloudLayer.type.equals("SHAPE_TEXT", ignoreCase = true)
+        ) {
+            return true
+        }
+        if (cloudLayer.payload.sourceKind.equals("psd-text", ignoreCase = true)) return true
+        if (cloudLayer.type.equals("DECORATION", ignoreCase = true) &&
+            cloudLayer.resolvedImageUrl() == null &&
+            !cloudLayer.payload.text.isNullOrBlank()
+        ) {
+            return true
+        }
+        return !cloudLayer.payload.text.isNullOrBlank() && cloudLayer.resolvedImageUrl() == null
+    }
+
+    private fun resolveAppearance(cloudLayer: CloudLayer): EditorAppearance {
+        val shadowIntensity = cloudLayer.payload.shadowIntensity ?: 0f
+        // Only strip shadow when PSD export baked layer styles into the raster (composite(true)).
+        val bakedIntoRaster = cloudLayer.resolvedImageUrl() != null &&
+            cloudLayer.payload.sourceKind.equals("psd-rasterized", ignoreCase = true) &&
+            shadowIntensity > 0f
+        return EditorAppearance(
+            shadowIntensity = if (bakedIntoRaster) 0f else shadowIntensity,
+            alpha = cloudLayer.payload.alpha ?: 1f,
+            shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
+            shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
+            shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt(),
+            shadowBlur = cloudLayer.payload.shadowBlur,
         )
     }
 
@@ -188,8 +232,11 @@ object CloudLayerToEditorMapper {
             ?: CropRatio.ORIGINAL
     }
 
-    private fun mapCloudShapeType(raw: String?): ShapeType {
-        return when (raw?.lowercase()) {
+    private fun mapCloudShapeType(raw: String?, plainText: Boolean = false): ShapeType {
+        if (raw.isNullOrBlank()) {
+            return if (plainText) ShapeType.CARD else ShapeType.PILL
+        }
+        return when (raw.lowercase()) {
             "circle" -> ShapeType.CIRCLE
             "star" -> ShapeType.STAR
             "hexagon" -> ShapeType.HEXAGON

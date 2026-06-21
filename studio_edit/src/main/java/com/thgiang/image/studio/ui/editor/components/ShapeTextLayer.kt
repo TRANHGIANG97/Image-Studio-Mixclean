@@ -1,8 +1,6 @@
 package com.thgiang.image.studio.ui.editor.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -26,9 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -98,6 +96,7 @@ fun ShapeTextLayer(
         (layer.shapeColorArgb ushr 24) and 0xFF,
         layer.fillGradient != null,
     ) || (EditorShapeGeometry.isLineShape(layer.shapeType) && layer.resolveStrokeColorArgb() != null)
+    val canDrawShapeShadow = isShapeVisible || layer.hasStroke || layer.appearance.shadowIntensity > 0.05f
     val textColor = Color(layer.textColorArgb)
     val textSizeSp = layer.textSizeSp
     val fillBrush = remember(layer.fillGradient, layer.shapeColorArgb, shapeWidthPx, shapeHeightPx) {
@@ -120,20 +119,42 @@ fun ShapeTextLayer(
             SolidColor(textColor)
         }
     }
+    val fontScale = density.fontScale
+    val scaledTextSize = (textSizeSp / density.density) * layer.viewport.scale * displayScale
+    val finalFontSize = if (fontScale > 0) scaledTextSize / fontScale else scaledTextSize
+
     val textStyle = TextStyle(
         brush = textBrush,
-        fontSize = (textSizeSp * layer.viewport.scale * displayScale).sp,
+        fontSize = finalFontSize.sp,
         fontWeight = EditorTextStyleMapper.resolveComposeFontWeight(layer.fontWeight),
         fontStyle = EditorTextStyleMapper.resolveComposeFontStyle(layer.fontStyle),
         fontFamily = composeFontFamily,
         textAlign = EditorTextStyleMapper.resolveComposeTextAlign(layer.textAlign),
         textDecoration = EditorTextStyleMapper.resolveTextDecoration(layer.underline, layer.linethrough),
-        lineHeight = layer.lineHeight?.let { (textSizeSp * it * layer.viewport.scale * displayScale).sp }
-            ?: TextUnit.Unspecified,
-        letterSpacing = EditorTextStyleMapper
-            .resolveLetterSpacingEm(layer.charSpacing, textSizeSp * layer.viewport.scale * displayScale)
-            .sp,
+        lineHeight = layer.lineHeight?.let { 
+            val baseLineHeight = scaledTextSize * it
+            val finalLineHeight = if (fontScale > 0) baseLineHeight / fontScale else baseLineHeight
+            finalLineHeight.sp 
+        } ?: TextUnit.Unspecified,
+        letterSpacing = {
+            val baseSpacing = EditorTextStyleMapper.resolveLetterSpacingEm(layer.charSpacing, scaledTextSize)
+            val finalSpacing = if (fontScale > 0) baseSpacing / fontScale else baseSpacing
+            finalSpacing.sp
+        }(),
     )
+    val paddingX = if (isShapeVisible) {
+        val calcX = 12.dp * layer.viewport.scale * displayScale
+        if (calcX > displayW / 4) displayW / 4 else calcX
+    } else {
+        0.dp
+    }
+    val paddingY = if (isShapeVisible) {
+        val calcY = 6.dp * layer.viewport.scale * displayScale
+        if (calcY > displayH / 4) displayH / 4 else calcY
+    } else {
+        0.dp
+    }
+
     var inlineTextDraft by remember(layer.id) { mutableStateOf(layer.text) }
     val focusRequester = remember { FocusRequester() }
     var inlineEditHadFocus by remember(layer.id) { mutableStateOf(false) }
@@ -154,50 +175,38 @@ fun ShapeTextLayer(
     Box(
         modifier = modifier
             .offset { IntOffset(offsetXPx.roundToInt(), offsetYPx.roundToInt()) }
-            .size(displayW, displayH)
-            .drawBehind {
-                drawShapeDropShadow(
-                    shapeType = layer.shapeType,
-                    appearance = layer.appearance,
-                    scale = displayScale,
-                    cornerRadiusX = layer.cornerRadiusX,
-                    cornerRadiusY = layer.cornerRadiusY,
-                    pathData = layer.pathData,
-                    polygonPoints = layer.polygonPoints,
-                )
-            }
-            .graphicsLayer {
-                rotationZ = layer.viewport.rotation
-                alpha = layer.appearance.alpha
-                scaleX = if (layer.viewport.flippedH) -1f else 1f
-                scaleY = if (layer.viewport.flippedV) -1f else 1f
-                blendMode = EditorBlendModeMapper.toComposeBlendMode(layer.blendMode)
-                compositingStrategy = if (EditorBlendModeMapper.needsOffscreenCompositing(layer.blendMode)) {
-                    CompositingStrategy.Offscreen
-                } else {
-                    CompositingStrategy.Auto
-                }
-            }
-            .pointerInput(isLocked, layer.id, isInlineEditing) {
-                if (!isLocked && !isInlineEditing) {
-                    detectTransformGestures { _, pan, zoom, rotation ->
-                        onGesture(
-                            GestureDelta(
-                                pan      = pan / displayScale,
-                                scale    = zoom,
-                                rotation = rotation
-                            )
+            .requiredSize(displayW, displayH),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    if (canDrawShapeShadow) {
+                        drawShapeDropShadow(
+                            shapeType = layer.shapeType,
+                            appearance = layer.appearance,
+                            scale = displayScale,
+                            cornerRadiusX = layer.cornerRadiusX,
+                            cornerRadiusY = layer.cornerRadiusY,
+                            pathData = layer.pathData,
+                            polygonPoints = layer.polygonPoints,
                         )
                     }
                 }
-            }
-            .pointerInput(isLocked, showBoundingBox, isInlineEditing) {
-                if (!isLocked && showBoundingBox && !isInlineEditing) {
-                    detectTapGestures(onDoubleTap = { onRequestInlineEdit() })
-                }
-            },
-        contentAlignment = Alignment.Center
-    ) {
+                .graphicsLayer {
+                    rotationZ = layer.viewport.rotation
+                    alpha = layer.appearance.alpha
+                    scaleX = if (layer.viewport.flippedH) -1f else 1f
+                    scaleY = if (layer.viewport.flippedV) -1f else 1f
+                    blendMode = EditorBlendModeMapper.toComposeBlendMode(layer.blendMode)
+                    compositingStrategy = if (EditorBlendModeMapper.needsOffscreenCompositing(layer.blendMode)) {
+                        CompositingStrategy.Offscreen
+                    } else {
+                        CompositingStrategy.Auto
+                    }
+                },
+            contentAlignment = Alignment.Center,
+        ) {
         // ── Shape background drawn by Compose Canvas ──────────────────────
         if (isShapeVisible) {
             ShapeBackground(
@@ -226,7 +235,7 @@ fun ShapeTextLayer(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { commitInlineEdit() }),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .widthIn(max = displayW)
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         if (focusState.isFocused) {
@@ -235,17 +244,28 @@ fun ShapeTextLayer(
                             commitInlineEdit()
                         }
                     }
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                    .padding(horizontal = paddingX, vertical = paddingY),
             )
         } else if (layer.text.isNotBlank()) {
             val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
+            val displayStrokeWidth = layer.resolveStrokeWidthPx() * layer.viewport.scale * displayScale
+            if (layer.hasStroke) {
+                Text(
+                    text = displayText,
+                    style = textStyle.copy(
+                        brush = SolidColor(Color(layer.resolveStrokeColorArgb()!!)),
+                        drawStyle = Stroke(width = displayStrokeWidth),
+                    ),
+                    modifier = Modifier
+                        .widthIn(max = displayW)
+                        .padding(horizontal = paddingX, vertical = paddingY),
+                )
+            }
             Text(
                 text = displayText,
                 style = textStyle,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .widthIn(max = displayW)
                     .then(
                         if (layer.textBackgroundColorArgb != null) {
                             Modifier.background(Color(layer.textBackgroundColorArgb))
@@ -253,36 +273,29 @@ fun ShapeTextLayer(
                             Modifier
                         },
                     )
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                    .padding(horizontal = paddingX, vertical = paddingY),
             )
+        }
         }
 
-        // ── Selection ring ────────────────────────────────────────────────
-        if (showBoundingBox) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        if (isShapeVisible) {
-                            drawShapeOutline(
-                                shapeType = layer.shapeType,
-                                strokeColor = android.graphics.Color.parseColor("#3B82F6"),
-                                strokeWidthPx = 3f * density.density,
-                                cornerRadiusX = layer.cornerRadiusX,
-                                cornerRadiusY = layer.cornerRadiusY,
-                                shapeHeightPx = layer.shapeHeightPx,
-                                pathData = layer.pathData,
-                                polygonPoints = layer.polygonPoints,
-                            )
-                        } else {
-                            drawRect(
-                                color = Color(android.graphics.Color.parseColor("#3B82F6")),
-                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * density.density)
-                            )
-                        }
-                    }
-            )
-        }
+        BoundingBoxOverlayV6(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .requiredSize(
+                    width = displayW + 80.dp,
+                    height = displayH + 80.dp,
+                ),
+            contentWidth = layer.shapeWidthPx,
+            contentHeight = layer.shapeHeightPx,
+            viewport = layer.viewport,
+            displayScale = displayScale,
+            templateSize = templateSize,
+            onGesture = onGesture,
+            onGestureEnd = onGestureEnd,
+            showBoundingBox = showBoundingBox,
+            onBoundingBoxVisible = {},
+            isLocked = isLocked,
+        )
     }
 }
 

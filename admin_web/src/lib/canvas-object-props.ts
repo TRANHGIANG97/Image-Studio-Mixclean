@@ -1,9 +1,26 @@
-/** Infer layer type from Fabric object metadata. */
+/** True only when shadow metadata was set explicitly (e.g. "Tạo vùng bóng"). */
+export function isFabricShadowRegion(obj: any): boolean {
+  if (!obj) return false;
+  return (
+    obj.isShadowRegion === true ||
+    obj.sourceKind === 'shadow-region' ||
+    obj.layerType === 'SHADOW_REGION'
+  );
+}
+
+export function isFabricTextObject(obj: any): boolean {
+  if (!obj) return false;
+  if (obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text') return true;
+  if (typeof obj.text === 'string' && obj.text.trim().length > 0) return true;
+  return false;
+}
+
 export function resolveLayerType(obj: any): string {
   if (!obj) return 'DECORATION';
+  if (isFabricShadowRegion(obj)) return 'SHADOW_REGION';
+  if (isFabricTextObject(obj)) return 'TEXT';
   if (obj.layerType) return obj.layerType;
   if (obj.type === 'image') return 'IMAGE';
-  if (obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text') return 'TEXT';
   return 'DECORATION';
 }
 
@@ -23,6 +40,7 @@ export function extractActiveObjectProps(activeObj: any): Record<string, unknown
     layerId: activeObj.layerId,
     layerType: resolveLayerType(activeObj),
     layerName: activeObj.layerName,
+    isReplaceable: activeObj.isReplaceable === true || activeObj.layerType === 'PLACEHOLDER_OBJECT',
     text: activeObj.text,
     fontFamily: activeObj.fontFamily,
     src: activeObj.src,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
+import { removeCDN } from '@/lib/cdn-rewriter';
 
 export const dynamic = 'force-dynamic';
 
@@ -180,7 +181,23 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const templates = (data || []).map(enrichCanvasDataFromFabricState);
+    const rawTemplates = removeCDN((data || []).map(enrichCanvasDataFromFabricState));
+
+    // Strip unused fabric_state and conditionally strip layers for list views
+    const isDetailFetch = !!templateId;
+    const templates = rawTemplates.map((tpl: any) => {
+      if (tpl && typeof tpl === 'object') {
+        // Exclude fabric_state entirely (not used by Android App)
+        delete tpl.fabric_state;
+
+        // Exclude layers from canvas_data if it's a listing view to save bandwidth
+        if (!isDetailFetch && tpl.canvas_data) {
+          const { layers, ...lightCanvasData } = tpl.canvas_data;
+          tpl.canvas_data = lightCanvasData;
+        }
+      }
+      return tpl;
+    });
 
     return NextResponse.json(
       { success: true, templates },

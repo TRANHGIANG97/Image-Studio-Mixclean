@@ -28,7 +28,12 @@ fun CloudFirstSubcomposeAsyncImage(
         modifier = modifier,
         contentScale = contentScale,
         loading = { _ -> loading() },
-        error = { _ ->
+        error = { state ->
+            android.util.Log.e(
+                "CloudAssetPreview",
+                "Failed to load image. sourcePath: $sourcePath, resolvedModel: $model, error: ${state.result.throwable.message}",
+                state.result.throwable
+            )
             error()
         }
     )

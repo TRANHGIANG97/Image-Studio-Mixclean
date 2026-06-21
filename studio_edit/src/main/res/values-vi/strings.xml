@@ -109,6 +109,10 @@
     <string name="themeplate_selfie_food_06">Selfie đồ ăn 6</string>
     <string name="themeplate_selfie_food_07">Selfie đồ ăn 7</string>
     <string name="themeplate_selfie_food_08">Selfie đồ ăn 8</string>
+    <string name="studio_layer_shadow_label">Bóng</string>
+    <string name="studio_layer_picker_title">Chọn layer</string>
+    <string name="studio_layer_picker_subtitle">%1$d layer tại vị trí này</string>
+    <string name="studio_layer_picker_topmost">Layer trên cùng</string>
     <string name="studio_objects_label">Đối tượng</string>
     <string name="studio_layer_text_label">Chữ</string>
     <string name="studio_layer_text_with_content">Chữ: %1$s</string>

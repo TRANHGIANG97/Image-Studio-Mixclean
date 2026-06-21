@@ -22,6 +22,8 @@ export interface CreateTemplateInput {
   baseWidth?: number;
   baseHeight?: number;
   backgroundUrl?: string | null;
+  thumbnailUrl?: string | null;
+  canvasData?: CloudTemplate;
 }
 
 export interface UpdateTemplateInput {
@@ -54,8 +56,8 @@ export async function listTemplates(filters: TemplateFilters = {}) {
   const finalSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'updated_at';
   const finalSortOrder = sortOrder === 'asc' ? 'asc' : 'desc';
 
-  // We use count: 'exact' to get the total number of items matching filters
-  let query = DB().from('templates').select('*, categories(id, name)', { count: 'exact' });
+  // Omit fabric_state from select to reduce database and payload overhead
+  let query = DB().from('templates').select('id, template_id, category_id, title, status, environment, thumbnail_url, canvas_data, created_at, updated_at, categories(id, name)', { count: 'exact' });
 
   if (search) query = query.ilike('title', `%${search}%`);
   if (categoryId) query = query.eq('category_id', categoryId);
@@ -70,8 +72,20 @@ export async function listTemplates(filters: TemplateFilters = {}) {
 
   if (error) throw error;
 
+  // Prune layers from canvas_data in listing view to keep payload extremely lightweight
+  const lightTemplates = (data || []).map((tpl: any) => {
+    if (tpl.canvas_data) {
+      const { layers, ...lightCanvas } = tpl.canvas_data;
+      return {
+        ...tpl,
+        canvas_data: lightCanvas,
+      };
+    }
+    return tpl;
+  });
+
   return {
-    templates: data,
+    templates: lightTemplates,
     total: count || 0,
     hasMore: count ? from + data.length < count : false,
   };
@@ -95,17 +109,18 @@ export async function getTemplateById(id: string) {
  * Create a new template with initial CloudTemplate JSON.
  */
 export async function createTemplate(input: CreateTemplateInput) {
-  const width = input.baseWidth || 1080;
-  const height = input.baseHeight || 1920;
+  const width = input.baseWidth || input.canvasData?.canvas?.baseWidth || 1080;
+  const height = input.baseHeight || input.canvasData?.canvas?.baseHeight || 1920;
   const divisor = gcd(width, height);
   const aspectRatio = `${width / divisor}:${height / divisor}`;
+  const backgroundUrl = input.canvasData?.canvas?.backgroundUrl ?? input.backgroundUrl ?? null;
 
-  const initialCanvasData: CloudTemplate = {
+  const initialCanvasData: CloudTemplate = input.canvasData ?? {
     templateId: input.templateId,
     categoryId: input.categoryId,
     metadata: {
       title: input.title,
-      thumbnailUrl: input.backgroundUrl || '',
+      thumbnailUrl: input.thumbnailUrl || input.backgroundUrl || '',
       status: 'draft',
       schemaVersion: 1,
       createdAt: Date.now(),
@@ -115,10 +130,16 @@ export async function createTemplate(input: CreateTemplateInput) {
       baseWidth: width,
       baseHeight: height,
       aspectRatio,
-      backgroundUrl: input.backgroundUrl || null,
+      backgroundUrl,
     },
     layers: [],
   };
+
+  const thumbnailUrl =
+    input.thumbnailUrl ??
+    input.canvasData?.metadata?.thumbnailUrl ??
+    input.backgroundUrl ??
+    null;
 
   const { data, error } = await DB()
     .from('templates')
@@ -127,9 +148,9 @@ export async function createTemplate(input: CreateTemplateInput) {
       category_id: input.categoryId,
       title: input.title,
       status: 'draft',
-      thumbnail_url: input.backgroundUrl || null,
+      thumbnail_url: thumbnailUrl,
       canvas_data: initialCanvasData,
-      fabric_state: buildInitialFabricState(input.backgroundUrl),
+      fabric_state: buildInitialFabricState(backgroundUrl),
     })
     .select()
     .single();
@@ -181,8 +202,89 @@ export async function updateTemplate(id: string, input: UpdateTemplateInput) {
   return data;
 }
 
+/**
+ * Helper to clean up any template-specific assets when a template is deleted.
+ * Deletes assets in template-specific folders (like imported-psd, imported-psd-temp, or custom template folders)
+ * from both DB and Storage. Preserves shared library assets (backgrounds, stickers, fonts, uncategorized).
+ */
+async function cleanupTemplateAssets(supabaseAdmin: any, templateId: string) {
+  const { data: template } = await supabaseAdmin
+    .from('templates')
+    .select('canvas_data')
+    .eq('id', templateId)
+    .maybeSingle();
+
+  if (!template || !template.canvas_data) return;
+
+  try {
+    const canvasData = template.canvas_data as CloudTemplate;
+    const urlsToCleanup: string[] = [];
+
+    if (canvasData.canvas?.backgroundUrl) {
+      urlsToCleanup.push(canvasData.canvas.backgroundUrl);
+    }
+
+    if (canvasData.layers) {
+      for (const layer of canvasData.layers) {
+        if (layer.payload?.imageUrl) {
+          urlsToCleanup.push(layer.payload.imageUrl);
+        }
+        if (layer.payload?.defaultImageUrl) {
+          urlsToCleanup.push(layer.payload.defaultImageUrl);
+        }
+      }
+    }
+
+    const uniqueUrls = Array.from(new Set(urlsToCleanup));
+    const sharedFolders = ['backgrounds', 'stickers', 'fonts', 'uncategorized'];
+
+    for (const url of uniqueUrls) {
+      if (!url.includes('/storage/v1/object/public/assets/')) continue;
+
+      // Extract the folder name from the URL path
+      let folderName = '';
+      const marker = '/storage/v1/object/public/assets/';
+      const idx = url.indexOf(marker);
+      if (idx !== -1) {
+        const pathPart = url.substring(idx + marker.length);
+        const slashIdx = pathPart.indexOf('/');
+        if (slashIdx !== -1) {
+          folderName = pathPart.substring(0, slashIdx);
+        }
+      }
+
+      // If the folder is template-specific (not in sharedFolders), clean it up
+      if (folderName && !sharedFolders.includes(folderName)) {
+        // 1. Delete from database 'assets' table if registered
+        await supabaseAdmin
+          .from('assets')
+          .delete()
+          .eq('file_url', url);
+
+        // 2. Delete from Supabase Storage
+        let key = '';
+        if (idx !== -1) {
+          key = url.substring(idx + marker.length);
+        }
+        if (key) {
+          try {
+            await supabaseAdmin.storage.from('assets').remove([key]);
+            console.log(`Cleaned up template asset: ${key}`);
+          } catch (err) {
+            console.error(`Failed to delete storage asset: ${key}`, err);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error during template asset cleanup:', err);
+  }
+}
+
 export async function deleteTemplate(id: string) {
-  const { error } = await DB().from('templates').delete().eq('id', id);
+  const supabaseAdmin = DB();
+  await cleanupTemplateAssets(supabaseAdmin, id);
+  const { error } = await supabaseAdmin.from('templates').delete().eq('id', id);
   if (error) throw error;
 }
 
@@ -191,7 +293,11 @@ export async function deleteTemplate(id: string) {
  */
 export async function deleteTemplatesBulk(ids: string[]) {
   if (!ids || ids.length === 0) return;
-  const { error } = await DB().from('templates').delete().in('id', ids);
+  const supabaseAdmin = DB();
+  for (const id of ids) {
+    await cleanupTemplateAssets(supabaseAdmin, id);
+  }
+  const { error } = await supabaseAdmin.from('templates').delete().in('id', ids);
   if (error) throw error;
 }
 
