@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thgiang.image.R
+import com.thgiang.image.core.domain.model.template.TemplateCategorySlug
 import com.thgiang.image.core.domain.usecase.BorderStyleMapper
 import com.thgiang.image.core.domain.usecase.CacheBitmapUseCase
 import com.thgiang.image.core.domain.usecase.ComposeStyledBitmapUseCase
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.thgiang.image.studio.data.CloudTemplateRemoteRepository
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.model.StudioThemeplateSection
 import com.thgiang.image.studio.model.StudioThemeplates
@@ -43,7 +45,8 @@ class HomeViewModel @Inject constructor(
     private val composeStyledBitmapUseCase: ComposeStyledBitmapUseCase,
     private val cacheBitmapUseCase: CacheBitmapUseCase,
     private val draftManager: com.thgiang.image.feature.editor.model.DraftManager,
-    private val appOpenAdManager: com.thgiang.image.core.ad.AppOpenAdManager
+    private val appOpenAdManager: com.thgiang.image.core.ad.AppOpenAdManager,
+    private val cloudTemplateRepository: CloudTemplateRemoteRepository,
 ) : ViewModel() {
 
     @Volatile
@@ -231,10 +234,31 @@ class HomeViewModel @Inject constructor(
         _uiState.update { it.copy(isLoadingTemplates = true) }
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val cosmeticsJob = async { fetchTemplatesForCategory("cosmetics") }
-                val professionalJob = async { fetchTemplatesForCategory("professional") }
-                val digitalLifeJob = async { fetchTemplatesForCategory("digital_life") }
-                val selfieFoodJob = async { fetchTemplatesForCategory("selfie_food") }
+                val categories = runCatching {
+                    cloudTemplateRepository.fetchCategories()
+                }.getOrDefault(emptyList())
+
+                val cosmeticsId = TemplateCategorySlug.resolveCategoryId(
+                    TemplateCategorySlug.COSMETICS,
+                    categories,
+                )
+                val professionalId = TemplateCategorySlug.resolveCategoryId(
+                    TemplateCategorySlug.PROFESSIONAL,
+                    categories,
+                )
+                val digitalLifeId = TemplateCategorySlug.resolveCategoryId(
+                    TemplateCategorySlug.DIGITAL_LIFE,
+                    categories,
+                )
+                val selfieFoodId = TemplateCategorySlug.resolveCategoryId(
+                    TemplateCategorySlug.SELFIE_FOOD,
+                    categories,
+                )
+
+                val cosmeticsJob = async { fetchTemplatesForCategory(cosmeticsId) }
+                val professionalJob = async { fetchTemplatesForCategory(professionalId) }
+                val digitalLifeJob = async { fetchTemplatesForCategory(digitalLifeId) }
+                val selfieFoodJob = async { fetchTemplatesForCategory(selfieFoodId) }
 
                 val cosmetics = cosmeticsJob.await()
                 val professional = professionalJob.await()

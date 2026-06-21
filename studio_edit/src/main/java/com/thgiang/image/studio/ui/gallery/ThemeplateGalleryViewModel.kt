@@ -3,6 +3,7 @@ package com.thgiang.image.studio.ui.gallery
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thgiang.image.core.domain.model.template.CloudCategory
+import com.thgiang.image.core.domain.model.template.TemplateCategorySlug
 import com.thgiang.image.studio.data.CloudTemplateRemoteRepository
 import com.thgiang.image.studio.data.RemoteTemplateRow
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,8 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.text.Normalizer
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -81,34 +80,18 @@ class ThemeplateGalleryViewModel @Inject constructor(
             addAll(fallback)
             addAll(
                 remoteCategories.filterNot { remote ->
-                    remote.id in fallbackIds || canonicalCategoryId(remote.name) in defaultCategoryIds
+                    remote.id in fallbackIds || TemplateCategorySlug.slugFromCategoryName(remote.name) != null
                 }
             )
         }
     }
 
     private fun fallbackCategories(): List<CloudCategory> = listOf(
-        CloudCategory("professional", "Chuyên nghiệp", 0),
+        CloudCategory("professional", "Thời trang", 0),
         CloudCategory("cosmetics", "Mẫu Mỹ Phẩm", 1),
         CloudCategory("digital_life", "Đời sống số", 2),
         CloudCategory("selfie_food", "Mê ăn uống", 3),
     )
-
-    private fun canonicalCategoryId(name: String): String? {
-        val normalized = Normalizer.normalize(name, Normalizer.Form.NFD)
-            .replace(Regex("\\p{Mn}+"), "")
-            .lowercase(Locale.ROOT)
-            .replace(Regex("\\s+"), " ")
-            .trim()
-
-        return when {
-            "chuyen nghiep" in normalized -> "professional"
-            "my pham" in normalized -> "cosmetics"
-            "doi song so" in normalized -> "digital_life"
-            "me an uong" in normalized || "dam me an uong" in normalized -> "selfie_food"
-            else -> null
-        }
-    }
 
     private companion object {
         const val TAG = "ThemeplateGalleryVM"

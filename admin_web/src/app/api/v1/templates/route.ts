@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
 import { removeCDN } from '@/lib/cdn-rewriter';
+import { resolveCategoryNames } from '@/domains/categories/category-slug-map';
 
 export const dynamic = 'force-dynamic';
 
@@ -115,14 +116,8 @@ export async function GET(req: NextRequest) {
         if (isUuid) {
           query = query.eq('category_id', categoryId);
         } else {
-          const slugMap: Record<string, string> = {
-            'professional': 'Chuyên nghiệp',
-            'cosmetics': 'Mỹ Phẩm',
-            'digital_life': 'Đời sống số',
-            'selfie_food': 'Mê ăn uống'
-          };
-          const dbCategoryName = slugMap[categoryId.toLowerCase()] || categoryId;
-          query = query.eq('categories.name', dbCategoryName);
+          const categoryNames = resolveCategoryNames(categoryId);
+          query = query.in('categories.name', categoryNames);
         }
       }
     }
@@ -158,14 +153,8 @@ export async function GET(req: NextRequest) {
             if (isUuid) {
               fallbackQuery = fallbackQuery.eq('category_id', categoryId);
             } else {
-              const slugMap: Record<string, string> = {
-                'professional': 'Chuyên nghiệp',
-                'cosmetics': 'Mỹ Phẩm',
-                'digital_life': 'Đời sống số',
-                'selfie_food': 'Mê ăn uống'
-              };
-              const dbCategoryName = slugMap[categoryId.toLowerCase()] || categoryId;
-              fallbackQuery = fallbackQuery.eq('categories.name', dbCategoryName);
+              const categoryNames = resolveCategoryNames(categoryId);
+              fallbackQuery = fallbackQuery.in('categories.name', categoryNames);
             }
           }
         }

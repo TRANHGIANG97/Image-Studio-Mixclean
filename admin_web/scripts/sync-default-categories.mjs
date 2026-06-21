@@ -34,7 +34,7 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const DEFAULT_CATEGORIES = [
-  { name: 'Chuyên nghiệp', order: 0 },
+  { name: 'Thời trang', order: 0 },
   { name: 'Mỹ Phẩm', order: 1 },
   { name: 'Đời sống số', order: 2 },
   { name: 'Mê ăn uống', order: 3 },
