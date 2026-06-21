@@ -25,7 +25,8 @@ export type ShapeSubtype =
   | 'diamond'
   | 'hexagon';
 
-export type { DroppedAsset } from '@/lib/canvas-upload';
+import type { DroppedAsset } from '@/lib/canvas-upload';
+export type { DroppedAsset };
 export {
   isDroppableImageFile,
   uploadCanvasImageFile,
