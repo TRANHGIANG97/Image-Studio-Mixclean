@@ -32,11 +32,7 @@ import com.thgiang.image.studio.model.StudioThemeplateSection
 import com.thgiang.image.studio.model.StudioThemeplates
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.update
-import org.json.JSONArray
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlinx.coroutines.withContext
+
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -226,7 +222,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /** Force refresh từ server, bỏ qua cache. Gọi khi user pull-to-refresh. */
     fun refreshTemplates() {
+        cloudTemplateRepository.invalidateCache()
         loadCloudTemplates()
     }
 
@@ -255,10 +253,10 @@ class HomeViewModel @Inject constructor(
                     categories,
                 )
 
-                val cosmeticsJob = async { fetchTemplatesForCategory(cosmeticsId) }
-                val professionalJob = async { fetchTemplatesForCategory(professionalId) }
-                val digitalLifeJob = async { fetchTemplatesForCategory(digitalLifeId) }
-                val selfieFoodJob = async { fetchTemplatesForCategory(selfieFoodId) }
+                val cosmeticsJob = async { fetchRemoteTemplates(cosmeticsId) }
+                val professionalJob = async { fetchRemoteTemplates(professionalId) }
+                val digitalLifeJob = async { fetchRemoteTemplates(digitalLifeId) }
+                val selfieFoodJob = async { fetchRemoteTemplates(selfieFoodId) }
 
                 val cosmetics = cosmeticsJob.await()
                 val professional = professionalJob.await()
@@ -281,74 +279,30 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun fetchTemplatesForCategory(categoryId: String): List<StudioThemeplate> {
-        val baseUrl = com.thgiang.image.BuildConfig.ADMIN_WEB_BASE_URL
-        if (baseUrl.isBlank()) return emptyList()
-
-        val env = if (com.thgiang.image.BuildConfig.DEBUG) "debug" else "release"
-        val connection = (URL("$baseUrl/api/v1/templates?categoryId=$categoryId&limit=20&env=$env").openConnection() as HttpURLConnection).apply {
-            requestMethod = "GET"
-            connectTimeout = 5000
-            readTimeout = 5000
-            setRequestProperty("Accept", "application/json")
-        }
-
-        try {
-            val body = if (connection.responseCode in 200..299) {
-                connection.inputStream.bufferedReader().use { it.readText() }
-            } else {
-                connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+    /**
+     * Lấy danh sách template theo categoryId thông qua [CloudTemplateRemoteRepository].
+     * Map RemoteTemplateRow → StudioThemeplate để hiển thị trên màn hình Home.
+     */
+    private fun fetchRemoteTemplates(categoryId: String): List<StudioThemeplate> {
+        return runCatching {
+            cloudTemplateRepository.fetchTemplatesForCategory(categoryId).map { row ->
+                val objectSourceAssetPath = row.cloudTemplate.layers
+                    .firstOrNull { it.type.equals("PLACEHOLDER_OBJECT", ignoreCase = true) }
+                    ?.payload
+                    ?.let { payload -> payload.imageUrl ?: payload.defaultImageUrl }
+                StudioThemeplate(
+                    id = row.id,
+                    titleResId = com.thgiang.image.studio.R.string.themeplate_professional_watch,
+                    assetPath = row.thumbnailUrl,
+                    backgroundAssetPath = row.thumbnailUrl,
+                    objectSourceAssetPath = objectSourceAssetPath,
+                    accentColor = androidx.compose.ui.graphics.Color(0xFF7C4DFF),
+                    category = categoryId,
+                    titleString = row.title,
+                )
             }
-
-            if (body.isBlank()) return emptyList()
-
-            val root = JSONObject(body)
-            if (!root.optBoolean("success", false)) return emptyList()
-
-            val templatesArray = root.optJSONArray("templates") ?: return emptyList()
-            return buildList {
-                for (index in 0 until templatesArray.length()) {
-                    val item = templatesArray.optJSONObject(index) ?: continue
-                    val id = item.optString("template_id").ifBlank { item.optString("id") }
-                    val title = item.optString("title")
-                    val thumbnailUrl = item.optString("thumbnail_url")
-                    
-                    var objectSourceAssetPath: String? = null
-                    val canvasData = item.optJSONObject("canvas_data")
-                    if (canvasData != null) {
-                        val layersArray = canvasData.optJSONArray("layers")
-                        if (layersArray != null) {
-                            for (lIndex in 0 until layersArray.length()) {
-                                val layer = layersArray.optJSONObject(lIndex) ?: continue
-                                if (layer.optString("type") == "PLACEHOLDER_OBJECT") {
-                                    val payload = layer.optJSONObject("payload")
-                                    objectSourceAssetPath = payload?.optString("imageUrl") 
-                                        ?: payload?.optString("defaultImageUrl")
-                                    break
-                                }
-                            }
-                        }
-                    }
-
-                    add(
-                        StudioThemeplate(
-                            id = id,
-                            titleResId = com.thgiang.image.studio.R.string.themeplate_professional_watch,
-                            assetPath = thumbnailUrl,
-                            backgroundAssetPath = thumbnailUrl,
-                            objectSourceAssetPath = objectSourceAssetPath,
-                            accentColor = androidx.compose.ui.graphics.Color(0xFF7C4DFF),
-                            category = categoryId,
-                            titleString = title
-                        )
-                    )
-                }
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("HomeVM", "fetchTemplatesForCategory failed for $categoryId", e)
-            return emptyList()
-        } finally {
-            connection.disconnect()
-        }
+        }.onFailure { e ->
+            android.util.Log.e("HomeVM", "fetchRemoteTemplates failed for $categoryId", e)
+        }.getOrDefault(emptyList())
     }
 }

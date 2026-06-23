@@ -12,6 +12,7 @@ import { Category } from '@/hooks/useCategories';
 import { useCreateTemplate } from '@/hooks/useTemplates';
 import { useUploadAsset } from '@/hooks/useAssets';
 import { fileStem, readImageDimensions } from '@/lib/image-file-utils';
+import { compressImageFileToWebp, formatCompressSummary } from '@/lib/image-compress';
 
 interface CreateTemplateModalProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ type AspectRatioPreset = 'original' | '9_16' | '1_1' | '4_5' | 'custom';
 export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTemplateModalProps) {
   const [aspectRatioPreset, setAspectRatioPreset] = useState<AspectRatioPreset>('1_1');
   const [bgFile, setBgFile] = useState<File | null>(null);
+  const [bgCompressing, setBgCompressing] = useState(false);
+  const [bgFileInfo, setBgFileInfo] = useState<string | null>(null);
 
   const createMutation = useCreateTemplate();
   const uploadMutation = useUploadAsset();
@@ -50,6 +53,8 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
       });
       setAspectRatioPreset('1_1');
       setBgFile(null);
+      setBgFileInfo(null);
+      setBgCompressing(false);
     }
   }, [isOpen, categories, form]);
 
@@ -64,15 +69,32 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
   };
 
   const handleBgFileChange = async (file: File | null) => {
-    setBgFile(file);
+    setBgFile(null);
+    setBgFileInfo(null);
     if (!file) return;
 
-    const stem = fileStem(file.name);
-    if (!form.getValues('title')?.trim()) {
-      form.setValue('title', stem);
-    }
-    if (aspectRatioPreset === 'original') {
-      await applyOriginalDimensions(file);
+    setBgCompressing(true);
+    try {
+      const compressed = await compressImageFileToWebp(file);
+      const readyFile = compressed.file;
+      setBgFile(readyFile);
+      setBgFileInfo(formatCompressSummary(compressed));
+
+      const stem = fileStem(file.name);
+      if (!form.getValues('title')?.trim()) {
+        form.setValue('title', stem);
+      }
+      if (aspectRatioPreset === 'original') {
+        await applyOriginalDimensions(readyFile);
+      }
+    } catch {
+      setBgFile(file);
+      setBgFileInfo(`${file.name} · không nén được, dùng file gốc`);
+      if (aspectRatioPreset === 'original') {
+        await applyOriginalDimensions(file);
+      }
+    } finally {
+      setBgCompressing(false);
     }
   };
 
@@ -204,16 +226,29 @@ export function CreateTemplateModal({ isOpen, onClose, categories }: CreateTempl
             <Input
               type="file"
               accept="image/*"
+              disabled={bgCompressing}
               onChange={(e) => { void handleBgFileChange(e.target.files ? e.target.files[0] : null); }}
-              className="bg-white border-slate-200 text-slate-500 file:text-xs file:font-semibold file:text-indigo-400 file:bg-indigo-600/10 file:border-0 file:rounded-lg file:px-3 file:py-1 cursor-pointer rounded-xl"
+              className="bg-white border-slate-200 text-slate-500 file:text-xs file:font-semibold file:text-indigo-400 file:bg-indigo-600/10 file:border-0 file:rounded-lg file:px-3 file:py-1 cursor-pointer rounded-xl disabled:opacity-60"
             />
+            {bgCompressing && (
+              <p className="text-[10px] text-indigo-500 flex items-center gap-1">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Đang nén và chuyển sang WebP...
+              </p>
+            )}
+            {!bgCompressing && bgFileInfo && (
+              <p className="text-[10px] text-slate-400">{bgFileInfo}</p>
+            )}
+            {!bgCompressing && !bgFileInfo && (
+              <p className="text-[10px] text-slate-400">PNG/JPG sẽ tự chuyển WebP và nén nhẹ khi chọn file.</p>
+            )}
           </div>
 
           <DialogFooter className="mt-6">
             <Button type="button" variant="ghost" onClick={onClose} className="text-slate-500 hover:text-slate-800 rounded-xl">
               Hủy
             </Button>
-            <Button type="submit" disabled={isPending} className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white">
+            <Button type="submit" disabled={isPending || bgCompressing} className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white">
               {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               Tạo mới
             </Button>

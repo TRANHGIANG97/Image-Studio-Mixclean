@@ -9,8 +9,23 @@ object TemplateCategorySlug {
     const val DIGITAL_LIFE = "digital_life"
     const val SELFIE_FOOD = "selfie_food"
 
+    /**
+     * Giải quyết categoryId từ slug.
+     * Thứ tự ưu tiên:
+     *   1. Match trực tiếp theo [CloudCategory.slug] (chính xác nhất, không phụ thuộc tên tiếng Việt)
+     *   2. Fallback về name-matching (cho server cũ chưa trả slug)
+     *   3. Trả về slug gốc nếu không tìm thấy (dùng làm query param thô)
+     */
     fun resolveCategoryId(slug: String, categories: List<CloudCategory>): String {
         if (categories.isEmpty()) return slug
+
+        // Ưu tiên 1: match theo slug từ DB — không phụ thuộc tên tiếng Việt hardcode
+        val bySlug = categories.firstOrNull {
+            it.slug?.equals(slug, ignoreCase = true) == true
+        }
+        if (bySlug != null) return bySlug.id.takeIf { it.isNotBlank() } ?: slug
+
+        // Ưu tiên 2: fallback về name-matching cho server cũ chưa hỗ trợ slug
         return categories
             .firstOrNull { matchesSlug(slug, it.name) }
             ?.id

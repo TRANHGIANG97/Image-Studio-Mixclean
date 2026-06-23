@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/apiClient';
+import { compressImageFileToWebp, shouldCompressImageFile } from '@/lib/image-compress';
 
 export type Asset = {
   id: string;
@@ -62,9 +63,15 @@ export function useUploadAsset() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: { file: File; folder?: string; categoryId?: string | null }) => {
+    mutationFn: async (payload: { file: File; folder?: string; categoryId?: string | null }) => {
+      let file = payload.file;
+      if (shouldCompressImageFile(file)) {
+        const compressed = await compressImageFileToWebp(file);
+        file = compressed.file;
+      }
+
       const formData = new FormData();
-      formData.append('file', payload.file);
+      formData.append('file', file);
       if (payload.folder) formData.append('folder', payload.folder);
       if (payload.categoryId) formData.append('categoryId', payload.categoryId);
       return apiClient.upload<{ success: boolean; fileUrl: string; asset: Asset; isDuplicate: boolean }>('/api/upload', formData);
