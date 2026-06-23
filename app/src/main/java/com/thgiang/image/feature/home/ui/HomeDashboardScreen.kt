@@ -110,7 +110,7 @@ fun HomeDashboardScreen(
     onOpenStudioTool: () -> Unit = {},
     onOpenMagicTool: () -> Unit = {},
     onThemeplateSelected: (StudioThemeplate) -> Unit = {},
-    onOpenThemeplateGallery: (Int) -> Unit = {},
+    onOpenThemeplateGallery: (String) -> Unit = {},
     pickedUriFromPicker: Uri? = null,
     onConsumePickedUri: () -> Unit = {},
     isDarkMode: Boolean = false,
@@ -290,25 +290,12 @@ fun HomeDashboardScreen(
 
                     val cosmeticsTemplates = uiState.cosmeticsTemplates
                     val professionalTemplates = uiState.professionalTemplates
-                    val sections = remember(uiState.digitalLifeTemplates, uiState.selfieFoodTemplates) {
-                        listOf(
-                            StudioThemeplateSection(
-                                id = "digital_life",
-                                titleResId = com.thgiang.image.studio.R.string.themeplate_professional_digital_life,
-                                themeplates = uiState.digitalLifeTemplates
-                            ),
-                            StudioThemeplateSection(
-                                id = "selfie_food",
-                                titleResId = com.thgiang.image.studio.R.string.themeplate_professional_food_selfie,
-                                themeplates = uiState.selfieFoodTemplates
-                            )
-                        )
-                    }
+                    val sections = uiState.otherSections
 
                     CosmeticsThemeplateSection(
                         templates = cosmeticsTemplates,
                         modifier = Modifier.fillMaxWidth(),
-                        onOpenGallery = { onOpenThemeplateGallery(1) },
+                        onOpenGallery = { onOpenThemeplateGallery("cosmetics") },
                         onThemeplateSelected = onThemeplateSelected
                     )
 

@@ -19,7 +19,8 @@ data class StudioThemeplate(
 data class StudioThemeplateSection(
     val id: String,
     val titleResId: Int,
-    val themeplates: List<StudioThemeplate>
+    val themeplates: List<StudioThemeplate>,
+    val titleString: String? = null
 )
 
 /** Legacy registry — bundled templates removed; gallery loads from cloud API. */

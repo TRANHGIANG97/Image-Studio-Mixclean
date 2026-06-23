@@ -16,7 +16,7 @@ sealed class Screen(val route: String) {
             else "studio_editor/$themeplateId"
         }
     }
-    data object ThemeplateGallery : Screen("themeplate_gallery/{initialTab}") {
-        fun createRoute(initialTab: Int) = "themeplate_gallery/$initialTab"
+    data object ThemeplateGallery : Screen("themeplate_gallery/{categoryId}") {
+        fun createRoute(categoryId: String) = "themeplate_gallery/$categoryId"
     }
 }

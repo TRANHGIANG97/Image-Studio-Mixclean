@@ -507,8 +507,8 @@ fun AppRoot(
                                 navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
                             }
                         },
-                        onOpenThemeplateGallery = { tabIndex ->
-                            navController.navigate(Screen.ThemeplateGallery.createRoute(tabIndex))
+                        onOpenThemeplateGallery = { categoryId ->
+                            navController.navigate(Screen.ThemeplateGallery.createRoute(categoryId))
                         },
                         pickedUriFromPicker = pickedUri,
                         onConsumePickedUri = { 
@@ -704,15 +704,15 @@ fun AppRoot(
                 composable(
                     route = Screen.ThemeplateGallery.route,
                     arguments = listOf(
-                        navArgument("initialTab") {
-                            type = NavType.IntType
-                            defaultValue = 0
+                        navArgument("categoryId") {
+                            type = NavType.StringType
+                            defaultValue = ""
                         }
                     )
                 ) { backStackEntry ->
-                    val initialTab = backStackEntry.arguments?.getInt("initialTab") ?: 0
+                    val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
                     ThemeplateGalleryScreen(
-                        initialTabIndex = initialTab,
+                        initialCategoryId = categoryId,
                         onBack = { navController.popBackStack() },
                         onThemeplateSelected = { themeplateId, isPremium ->
                             val dummyTemplate = StudioThemeplate(

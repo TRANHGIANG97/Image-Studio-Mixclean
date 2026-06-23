@@ -32,7 +32,7 @@ import com.thgiang.image.core.domain.model.template.CloudCategory
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeplateGalleryScreen(
-    initialTabIndex: Int,
+    initialCategoryId: String,
     onBack: () -> Unit,
     onThemeplateSelected: (String, Boolean) -> Unit,
     viewModel: ThemeplateGalleryViewModel = hiltViewModel()
@@ -41,11 +41,19 @@ fun ThemeplateGalleryScreen(
     val remoteTemplates by viewModel.remoteTemplates.collectAsState()
     val loadingRemoteTemplates by viewModel.loadingRemoteTemplates.collectAsState()
     
-    var selectedTabIndex by remember { mutableStateOf(initialTabIndex) }
+    var selectedTabIndex by remember { mutableStateOf(0) }
 
-    LaunchedEffect(categories) {
-        if (categories.isNotEmpty() && selectedTabIndex >= categories.size) {
-            selectedTabIndex = 0
+    LaunchedEffect(categories, initialCategoryId) {
+        if (categories.isNotEmpty()) {
+            val resolvedIndex = categories.indexOfFirst {
+                it.id.equals(initialCategoryId, ignoreCase = true) ||
+                it.slug?.equals(initialCategoryId, ignoreCase = true) == true
+            }
+            if (resolvedIndex >= 0) {
+                selectedTabIndex = resolvedIndex
+            } else if (selectedTabIndex >= categories.size) {
+                selectedTabIndex = 0
+            }
         }
     }
 

@@ -244,31 +244,39 @@ class HomeViewModel @Inject constructor(
                     TemplateCategorySlug.PROFESSIONAL,
                     categories,
                 )
-                val digitalLifeId = TemplateCategorySlug.resolveCategoryId(
-                    TemplateCategorySlug.DIGITAL_LIFE,
-                    categories,
-                )
-                val selfieFoodId = TemplateCategorySlug.resolveCategoryId(
-                    TemplateCategorySlug.SELFIE_FOOD,
-                    categories,
-                )
 
                 val cosmeticsJob = async { fetchRemoteTemplates(cosmeticsId) }
                 val professionalJob = async { fetchRemoteTemplates(professionalId) }
-                val digitalLifeJob = async { fetchRemoteTemplates(digitalLifeId) }
-                val selfieFoodJob = async { fetchRemoteTemplates(selfieFoodId) }
+
+                // Tải song song toàn bộ các danh mục khác có cấu hình slug
+                val otherCategories = categories.filter {
+                    it.id != cosmeticsId && it.id != professionalId && it.slug?.isNotBlank() == true
+                }
+                val otherJobs = otherCategories.map { category ->
+                    category to async { fetchRemoteTemplates(category.id) }
+                }
 
                 val cosmetics = cosmeticsJob.await()
                 val professional = professionalJob.await()
-                val digitalLife = digitalLifeJob.await()
-                val selfieFood = selfieFoodJob.await()
+
+                val otherSections = otherJobs.map { (category, job) ->
+                    com.thgiang.image.studio.model.StudioThemeplateSection(
+                        id = category.id,
+                        titleResId = when (category.id) {
+                            "digital_life" -> com.thgiang.image.studio.R.string.themeplate_professional_digital_life
+                            "selfie_food" -> com.thgiang.image.studio.R.string.themeplate_professional_food_selfie
+                            else -> 0
+                        },
+                        titleString = category.name,
+                        themeplates = job.await()
+                    )
+                }.filter { it.themeplates.isNotEmpty() }
 
                 _uiState.update {
                     it.copy(
                         cosmeticsTemplates = cosmetics,
                         professionalTemplates = professional,
-                        digitalLifeTemplates = digitalLife,
-                        selfieFoodTemplates = selfieFood,
+                        otherSections = otherSections,
                         isLoadingTemplates = false
                     )
                 }

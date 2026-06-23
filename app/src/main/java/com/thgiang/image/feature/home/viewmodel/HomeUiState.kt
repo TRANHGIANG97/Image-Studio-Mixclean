@@ -23,8 +23,7 @@ data class HomeUiState(
     val pureForegroundUri: Uri? = null,
     val cosmeticsTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
     val professionalTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
-    val digitalLifeTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
-    val selfieFoodTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
+    val otherSections: List<com.thgiang.image.studio.model.StudioThemeplateSection> = emptyList(),
     val isLoadingTemplates: Boolean = false
 )
 

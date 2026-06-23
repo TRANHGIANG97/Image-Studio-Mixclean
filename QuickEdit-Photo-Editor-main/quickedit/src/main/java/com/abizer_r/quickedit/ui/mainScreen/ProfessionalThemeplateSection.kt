@@ -70,7 +70,7 @@ fun ProfessionalThemeplateSection(
     templates: List<StudioThemeplate>,
     sections: List<StudioThemeplateSection>,
     modifier: Modifier = Modifier,
-    onOpenGallery: (tabIndex: Int) -> Unit = {},
+    onOpenGallery: (categoryId: String) -> Unit = {},
     onThemeplateSelected: (StudioThemeplate) -> Unit
 ) {
     if (templates.isEmpty() && sections.isEmpty()) return
@@ -80,16 +80,16 @@ fun ProfessionalThemeplateSection(
             title = stringResource(R.string.professional_section_title),
             themeplates = templates,
             onThemeplateSelected = onThemeplateSelected,
-            onArrowClick = { onOpenGallery(0) }
+            onArrowClick = { onOpenGallery("professional") }
         )
 
         sections.forEachIndexed { index, section ->
             Spacer(modifier = Modifier.height(28.dp))
             ProfessionalThemeplateGroup(
-                title = stringResource(section.titleResId),
+                title = if (section.titleResId != 0) stringResource(section.titleResId) else section.titleString.orEmpty(),
                 themeplates = section.themeplates,
                 onThemeplateSelected = onThemeplateSelected,
-                onArrowClick = { onOpenGallery(index + 2) }
+                onArrowClick = { onOpenGallery(section.id) }
             )
         }
     }
