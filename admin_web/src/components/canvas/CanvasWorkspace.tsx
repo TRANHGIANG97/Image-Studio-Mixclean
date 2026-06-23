@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Canvas } from 'fabric';
+import { Canvas, IText } from 'fabric';
 import { initFabricEditorDefaults } from '@/lib/fabric-setup';
 import { loadTemplateIntoCanvas } from '@/lib/fabric-template-loader';
 import { CanvasContextMenu } from './CanvasContextMenu';
 import { useCanvasSnapping } from '@/hooks/useCanvasSnapping';
 import { useCanvasViewport } from '@/hooks/useCanvasViewport';
 import { extractActiveObjectProps } from '@/lib/canvas-object-props';
+import { injectFontFace, invalidateFontsManifestCache } from '@/lib/fonts-manifest';
 
 initFabricEditorDefaults();
 
@@ -60,6 +61,7 @@ import {
   uploadInlineImageUrl,
   isInlineImageUrl,
   canvasCoordsFromDropEvent,
+  createLayerId,
 } from '@/lib/canvas-factory';
 import Ruler from './Ruler';
 
@@ -522,6 +524,91 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       baseHeight,
     );
 
+    // Xử lý kéo thả file font (.ttf, .otf, .woff)
+    const getDroppedFontFiles = (dt: DataTransfer): File[] => {
+      const fromFiles = Array.from(dt.files).filter((file) => /\.(ttf|otf|woff)$/i.test(file.name));
+      if (fromFiles.length > 0) return fromFiles;
+ 
+      const fromItems: File[] = [];
+      for (const item of Array.from(dt.items || [])) {
+        if (item.kind !== 'file') continue;
+        const file = item.getAsFile();
+        if (file && /\.(ttf|otf|woff)$/i.test(file.name)) fromItems.push(file);
+      }
+      return fromItems;
+    };
+ 
+    const droppedFontFiles = getDroppedFontFiles(event.dataTransfer);
+    if (droppedFontFiles.length > 0) {
+      for (let i = 0; i < droppedFontFiles.length; i++) {
+        const file = droppedFontFiles[i];
+        const toastId = toast.loading(`Đang tải lên font "${file.name}"...`);
+        try {
+          const baseName = file.name.replace(/\.[^/.]+$/, '');
+          const fontName = baseName.replace(/[-_]/g, ' ');
+          const familySlug = baseName.toLowerCase().replace(/[^a-z0-9]/g, '');
+ 
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('name', fontName);
+          formData.append('family_slug', familySlug);
+          formData.append('style', 'Chưa phân loại');
+ 
+          const res = await fetch('/api/v1/fonts', {
+            method: 'POST',
+            body: formData,
+          });
+ 
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Tải font lên thất bại');
+ 
+          const fontEntry = data.font;
+          if (fontEntry && fontEntry.font_url) {
+            injectFontFace(fontEntry);
+            invalidateFontsManifestCache();
+            await document.fonts.load(`12px "${fontEntry.family_slug}"`);
+ 
+            const activeObj = fabricCanvas.getActiveObject() as any;
+            const isText = activeObj && (activeObj.type === 'i-text' || activeObj.layerType === 'TEXT');
+            if (isText) {
+              activeObj.set({ fontFamily: fontEntry.family_slug });
+              fabricCanvas.renderAll();
+              pushState();
+              setIsDirty(true);
+              syncLayersFromCanvas(fabricCanvas);
+              useLayersStore.getState().setActiveObjectProps(extractActiveObjectProps(activeObj));
+              toast.success(`Đã áp dụng font "${fontEntry.name}" cho layer chữ đang chọn!`, { id: toastId });
+            } else {
+              const textObj = new IText('Nhập chữ...', {
+                left: x + i * 24,
+                top: y + i * 24,
+                originX: 'center',
+                originY: 'center',
+                fontFamily: fontEntry.family_slug,
+                fontSize: 80,
+                fill: '#6366f1',
+                hasControls: true,
+                hasBorders: true,
+                selectable: true,
+              });
+              (textObj as any).layerId = createLayerId();
+              (textObj as any).layerType = 'TEXT';
+              (textObj as any).layerName = `Chữ: ${fontEntry.name}`;
+              fabricCanvas.add(textObj);
+              commitCanvasAdd(fabricCanvas, textObj);
+              toast.success(`Đã thêm layer chữ mới sử dụng font "${fontEntry.name}"!`, { id: toastId });
+            }
+          } else {
+            throw new Error('Phản hồi từ server không hợp lệ');
+          }
+        } catch (err: any) {
+          console.error('Failed to upload dropped font:', err);
+          toast.error(`Không thể tải lên font "${file.name}": ${err.message || 'Lỗi chưa xác định'}`, { id: toastId });
+        }
+      }
+      return;
+    }
+
     const droppedFiles = getDroppedImageFiles(event.dataTransfer);
     if (droppedFiles.length > 0) {
       for (let i = 0; i < droppedFiles.length; i++) {
@@ -670,8 +757,8 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center bg-indigo-500/10 border-2 border-dashed border-indigo-400/70 m-3 rounded-2xl">
           <div className="flex flex-col items-center gap-2 px-6 py-4 bg-white/90 rounded-2xl shadow-lg border border-indigo-200/80">
             <ImagePlus className="w-8 h-8 text-indigo-500" />
-            <p className="text-sm font-semibold text-slate-700">Thả ảnh để thêm layer</p>
-            <p className="text-[11px] text-slate-400">PNG, JPG, WebP, SVG...</p>
+            <p className="text-sm font-semibold text-slate-700">Thả ảnh hoặc file Font chữ tại đây</p>
+            <p className="text-[11px] text-slate-400">Ảnh (PNG, JPG, WebP...) hoặc Font (.ttf, .otf, .woff)</p>
           </div>
         </div>
       )}
