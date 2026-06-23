@@ -348,16 +348,21 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       const pointer = currentCanvas.getPointer(options.e);
       const prevActive = lastActiveTextObj;
       if (prevActive && prevActive.canvas === currentCanvas && prevActive.containsPoint(pointer)) {
-        currentCanvas.setActiveObject(prevActive);
-        currentCanvas.renderAll();
-        
-        if (options.e?.detail === 2 && typeof prevActive.enterEditing === 'function') {
-          prevActive.enterEditing();
-          if (prevActive.hiddenTextarea) {
-            prevActive.hiddenTextarea.focus({ preventScroll: true });
+        // Wrap in a setTimeout to avoid disrupting Fabric's synchronous event handling (which causes the mouse to stick/drag selection marquee)
+        setTimeout(() => {
+          if (currentCanvas.disposed) return;
+          if (currentCanvas.getActiveObject() !== prevActive) {
+            currentCanvas.setActiveObject(prevActive);
+          }
+          
+          if (options.e?.detail === 2 && typeof prevActive.enterEditing === 'function') {
+            prevActive.enterEditing();
+            if (prevActive.hiddenTextarea) {
+              prevActive.hiddenTextarea.focus({ preventScroll: true });
+            }
           }
           currentCanvas.renderAll();
-        }
+        }, 50);
       }
     };
 
