@@ -106,6 +106,7 @@ export function createTextObject(baseWidth: number, baseHeight: number): IText {
     textAlign: 'left',
     lineHeight: 1.16,
     charSpacing: 0,
+    padding: 20,
   });
 
   (textObj as any).layerId = createLayerId();
@@ -503,6 +504,7 @@ export function addTextPresetToCanvas(
     originY: 'center',
     ...(restConfig as object),
     shadow: shadow ? new Shadow(shadow) : undefined,
+    padding: 20,
   });
 
   (textObj as any).layerId = createLayerId();

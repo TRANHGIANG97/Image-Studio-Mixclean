@@ -43,4 +43,5 @@ export const CANVAS_SERIALIZE_PROPS = [
   'clipPath',
   'clipShape',
   'isReplaceable',
+  'padding',
 ];

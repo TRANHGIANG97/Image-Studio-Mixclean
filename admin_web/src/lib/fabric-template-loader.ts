@@ -116,10 +116,11 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
           }
         }
 
-        // Load fonts for all text objects loaded from JSON
+        // Load fonts and set padding for all text objects loaded from JSON (including groups)
         if (typeof document !== 'undefined') {
-          canvasInstance.getObjects().forEach((obj: any) => {
+          const processObject = (obj: any) => {
             if ((obj.type === 'i-text' || obj.layerType === 'TEXT') && obj.fontFamily) {
+              obj.set({ padding: 20 });
               ensureFontLoaded(obj.fontFamily).then(() => {
                 document.fonts.load(`12px "${obj.fontFamily}"`).then(() => {
                   if (typeof obj.initDimensions === 'function') {
@@ -129,8 +130,11 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
                   canvasInstance.renderAll();
                 }).catch(() => {});
               });
+            } else if (obj.forEachObject) {
+              obj.forEachObject(processObject);
             }
-          });
+          };
+          canvasInstance.getObjects().forEach(processObject);
         }
 
         canvasInstance.renderAll();
@@ -247,6 +251,7 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
             strokeWidth: payload.strokeWidth || 0,
             strokeDashArray: payload.strokeDashArray || null,
             globalCompositeOperation: getCompositeOperation(payload.blendMode),
+            padding: 20,
           });
 
           (textObj as any).layerId = layer.layerId;
