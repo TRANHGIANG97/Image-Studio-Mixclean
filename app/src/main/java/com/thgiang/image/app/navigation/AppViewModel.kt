@@ -54,6 +54,12 @@ class AppViewModel @Inject constructor(
     private val _batchAdWatchCount = MutableStateFlow(0)
     val batchAdWatchCount: StateFlow<Int> = _batchAdWatchCount.asStateFlow()
 
+    private val _premiumLimitBlockedTemplate = MutableStateFlow<com.thgiang.image.studio.model.StudioThemeplate?>(null)
+    val premiumLimitBlockedTemplate: StateFlow<com.thgiang.image.studio.model.StudioThemeplate?> = _premiumLimitBlockedTemplate.asStateFlow()
+
+    private val _isCheckingPremiumLimit = MutableStateFlow(false)
+    val isCheckingPremiumLimit: StateFlow<Boolean> = _isCheckingPremiumLimit.asStateFlow()
+
     init {
         viewModelScope.launch {
             preferencesRepository.preferences.collectLatest { prefs ->
@@ -184,5 +190,66 @@ class AppViewModel @Inject constructor(
 
     fun isAdDismissedRecently(): Boolean {
         return appOpenAdManager.wasAdDismissedRecently()
+    }
+
+    fun selectTemplate(themeplate: com.thgiang.image.studio.model.StudioThemeplate, onAllowed: () -> Unit) {
+        if (_uiState.value.isPremium || !themeplate.isPremium) {
+            onAllowed()
+            return
+        }
+
+        _isCheckingPremiumLimit.value = true
+        viewModelScope.launch {
+            try {
+                val today = getTodayDateString()
+                val result = preferencesRepository.checkPremiumTemplateLimit(themeplate.id, today)
+                if (result is com.thgiang.image.core.domain.settings.PremiumLimitResult.Allowed) {
+                    onAllowed()
+                } else {
+                    _premiumLimitBlockedTemplate.value = themeplate
+                }
+            } catch (e: Exception) {
+                onAllowed()
+            } finally {
+                _isCheckingPremiumLimit.value = false
+            }
+        }
+    }
+
+    fun dismissPremiumLimitDialog() {
+        _premiumLimitBlockedTemplate.value = null
+    }
+
+    fun watchAdForPremiumSlot(activity: android.app.Activity, templateId: String, onGranted: () -> Unit) {
+        _batchAdState.value = BatchAdState.Loading
+        rewardedAdManager.loadAd(
+            onLoaded = {
+                _batchAdState.value = BatchAdState.Ready
+                rewardedAdManager.showAd(
+                    activity = activity,
+                    onRewardReceived = {
+                        viewModelScope.launch {
+                            val today = getTodayDateString()
+                            preferencesRepository.grantExtraPremiumSlot(templateId, today)
+                            onGranted()
+                        }
+                    },
+                    onAdClosed = {
+                        _batchAdState.value = BatchAdState.Idle
+                    },
+                    onFailedToShow = {
+                        _batchAdState.value = BatchAdState.Error(it)
+                    }
+                )
+            },
+            onFailed = {
+                _batchAdState.value = BatchAdState.Error(it)
+            }
+        )
+    }
+
+    private fun getTodayDateString(): String {
+        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+        return sdf.format(java.util.Date())
     }
 }

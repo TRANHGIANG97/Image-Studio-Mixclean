@@ -34,6 +34,7 @@ export interface UpdateTemplateInput {
   thumbnail_url?: string | null;
   canvas_data?: CloudTemplate;
   fabric_state?: Record<string, unknown>;
+  is_premium?: boolean;
 }
 
 export interface CloneTemplateInput {
@@ -57,7 +58,7 @@ export async function listTemplates(filters: TemplateFilters = {}) {
   const finalSortOrder = sortOrder === 'asc' ? 'asc' : 'desc';
 
   // Omit fabric_state from select to reduce database and payload overhead
-  let query = DB().from('templates').select('id, template_id, category_id, title, status, environment, thumbnail_url, canvas_data, created_at, updated_at, categories(id, name)', { count: 'exact' });
+  let query = DB().from('templates').select('id, template_id, category_id, title, status, environment, is_premium, thumbnail_url, canvas_data, created_at, updated_at, categories(id, name)', { count: 'exact' });
 
   if (search) query = query.ilike('title', `%${search}%`);
   if (categoryId) query = query.eq('category_id', categoryId);
@@ -189,6 +190,7 @@ export async function updateTemplate(id: string, input: UpdateTemplateInput) {
       ...(input.category_id !== undefined && { category_id: input.category_id }),
       ...(input.status !== undefined && { status: input.status }),
       ...(input.environment !== undefined && { environment: input.environment }),
+      ...(input.is_premium !== undefined && { is_premium: input.is_premium }),
       ...(input.thumbnail_url !== undefined && { thumbnail_url: input.thumbnail_url }),
       ...(finalCanvasData !== undefined && { canvas_data: finalCanvasData }),
       ...(input.fabric_state !== undefined && { fabric_state: input.fabric_state }),

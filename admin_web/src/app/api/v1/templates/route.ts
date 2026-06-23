@@ -86,8 +86,8 @@ export async function GET(req: NextRequest) {
 
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryId);
     const selectQuery = categoryId && !isUuid
-      ? 'id, template_id, category_id, title, status, environment, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories!inner(id, name)'
-      : 'id, template_id, category_id, title, status, environment, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories(id, name)';
+      ? 'id, template_id, category_id, title, status, environment, is_premium, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories!inner(id, name)'
+      : 'id, template_id, category_id, title, status, environment, is_premium, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories(id, name)';
 
     const supabase = createSupabaseAdmin();
     let query = supabase
@@ -130,8 +130,8 @@ export async function GET(req: NextRequest) {
       if (error.code === '42703') {
         console.warn('Fallback: environment column does not exist in DB yet. Retrying without environment filter.');
         const fallbackSelectQuery = categoryId && !isUuid
-          ? 'id, template_id, category_id, title, status, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories!inner(id, name)'
-          : 'id, template_id, category_id, title, status, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories(id, name)';
+          ? 'id, template_id, category_id, title, status, is_premium, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories!inner(id, name)'
+          : 'id, template_id, category_id, title, status, is_premium, thumbnail_url, canvas_data, fabric_state, created_at, updated_at, categories(id, name)';
 
         let fallbackQuery = supabase
           .from('templates')

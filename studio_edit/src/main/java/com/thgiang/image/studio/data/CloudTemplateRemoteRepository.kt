@@ -16,6 +16,7 @@ data class RemoteTemplateRow(
     val status: String,
     val categoryId: String,
     val cloudTemplate: CloudTemplate,
+    val isPremium: Boolean = false,
 )
 
 @Singleton
@@ -115,6 +116,7 @@ class CloudTemplateRemoteRepository @Inject constructor(
                         status = item.optString("status"),
                         categoryId = item.optString("category_id"),
                         cloudTemplate = cloudTemplate,
+                        isPremium = item.optBoolean("is_premium", false),
                     )
                 )
             }

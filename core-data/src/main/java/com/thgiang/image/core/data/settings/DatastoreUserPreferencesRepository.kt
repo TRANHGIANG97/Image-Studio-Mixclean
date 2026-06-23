@@ -23,6 +23,8 @@ private val REVIEW_PROMPT_SHOWN_COUNT_KEY = intPreferencesKey("review_prompt_sho
 private val REVIEW_PROMPT_LAST_SHOWN_AT_MILLIS_KEY = longPreferencesKey("review_prompt_last_shown_at_millis")
 private val REVIEW_PROMPT_DISABLED_KEY = booleanPreferencesKey("review_prompt_disabled")
 private val REVIEW_MARKED_AS_REVIEWED_KEY = booleanPreferencesKey("review_marked_as_reviewed")
+private val LAST_PREMIUM_EDIT_DATE_KEY = stringPreferencesKey("last_premium_edit_date")
+private val EDITED_PREMIUM_TEMPLATES_TODAY_KEY = stringPreferencesKey("edited_premium_templates_today")
 
 private const val REVIEW_PROMPT_THRESHOLD = 3
 private const val REVIEW_PROMPT_INTERVAL_MILLIS = 24L * 60L * 60L * 1000L
@@ -46,7 +48,9 @@ class DatastoreUserPreferencesRepository(
                 reviewPromptShownCount = prefs[REVIEW_PROMPT_SHOWN_COUNT_KEY] ?: 0,
                 reviewPromptLastShownAtMillis = prefs[REVIEW_PROMPT_LAST_SHOWN_AT_MILLIS_KEY] ?: 0L,
                 reviewPromptDisabled = prefs[REVIEW_PROMPT_DISABLED_KEY] ?: false,
-                reviewMarkedAsReviewed = prefs[REVIEW_MARKED_AS_REVIEWED_KEY] ?: false
+                reviewMarkedAsReviewed = prefs[REVIEW_MARKED_AS_REVIEWED_KEY] ?: false,
+                lastPremiumEditDate = prefs[LAST_PREMIUM_EDIT_DATE_KEY] ?: "",
+                editedPremiumTemplatesToday = prefs[EDITED_PREMIUM_TEMPLATES_TODAY_KEY] ?: ""
             )
         }
 
@@ -119,6 +123,58 @@ class DatastoreUserPreferencesRepository(
             val shownCount = prefs[REVIEW_PROMPT_SHOWN_COUNT_KEY] ?: 0
             if (shownCount >= 2) {
                 prefs[REVIEW_PROMPT_DISABLED_KEY] = true
+            }
+        }
+    }
+
+    override suspend fun checkPremiumTemplateLimit(
+        templateId: String,
+        todayDateString: String,
+        limit: Int
+    ): com.thgiang.image.core.domain.settings.PremiumLimitResult {
+        var result: com.thgiang.image.core.domain.settings.PremiumLimitResult = 
+            com.thgiang.image.core.domain.settings.PremiumLimitResult.Allowed
+
+        context.dataStore.edit { prefs ->
+            val lastDate = prefs[LAST_PREMIUM_EDIT_DATE_KEY] ?: ""
+            var editedTemplatesStr = prefs[EDITED_PREMIUM_TEMPLATES_TODAY_KEY] ?: ""
+
+            if (lastDate != todayDateString) {
+                editedTemplatesStr = ""
+                prefs[LAST_PREMIUM_EDIT_DATE_KEY] = todayDateString
+            }
+
+            val list = if (editedTemplatesStr.isBlank()) emptyList() else editedTemplatesStr.split(",")
+            if (list.contains(templateId)) {
+                result = com.thgiang.image.core.domain.settings.PremiumLimitResult.Allowed
+            } else {
+                if (list.size < limit) {
+                    val newList = list + templateId
+                    prefs[EDITED_PREMIUM_TEMPLATES_TODAY_KEY] = newList.joinToString(",")
+                    result = com.thgiang.image.core.domain.settings.PremiumLimitResult.Allowed
+                } else {
+                    result = com.thgiang.image.core.domain.settings.PremiumLimitResult.Blocked(list.size)
+                }
+            }
+        }
+
+        return result
+    }
+
+    override suspend fun grantExtraPremiumSlot(templateId: String, todayDateString: String) {
+        context.dataStore.edit { prefs ->
+            val lastDate = prefs[LAST_PREMIUM_EDIT_DATE_KEY] ?: ""
+            var editedTemplatesStr = prefs[EDITED_PREMIUM_TEMPLATES_TODAY_KEY] ?: ""
+
+            if (lastDate != todayDateString) {
+                editedTemplatesStr = ""
+                prefs[LAST_PREMIUM_EDIT_DATE_KEY] = todayDateString
+            }
+
+            val list = if (editedTemplatesStr.isBlank()) emptyList() else editedTemplatesStr.split(",")
+            if (!list.contains(templateId)) {
+                val newList = list + templateId
+                prefs[EDITED_PREMIUM_TEMPLATES_TODAY_KEY] = newList.joinToString(",")
             }
         }
     }

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoFixHigh
@@ -502,7 +503,9 @@ fun AppRoot(
                             }
                         },
                         onThemeplateSelected = { themeplate: StudioThemeplate ->
-                            navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
+                            appViewModel.selectTemplate(themeplate) {
+                                navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
+                            }
                         },
                         onOpenThemeplateGallery = { tabIndex ->
                             navController.navigate(Screen.ThemeplateGallery.createRoute(tabIndex))
@@ -711,8 +714,17 @@ fun AppRoot(
                     ThemeplateGalleryScreen(
                         initialTabIndex = initialTab,
                         onBack = { navController.popBackStack() },
-                        onThemeplateSelected = { themeplateId ->
-                            navController.navigate(Screen.StudioEditor.createRoute(themeplateId))
+                        onThemeplateSelected = { themeplateId, isPremium ->
+                            val dummyTemplate = StudioThemeplate(
+                                id = themeplateId,
+                                titleResId = 0,
+                                assetPath = "",
+                                accentColor = androidx.compose.ui.graphics.Color.Transparent,
+                                isPremium = isPremium
+                            )
+                            appViewModel.selectTemplate(dummyTemplate) {
+                                navController.navigate(Screen.StudioEditor.createRoute(themeplateId))
+                            }
                         }
                     )
                 }
@@ -794,6 +806,70 @@ fun AppRoot(
                 showReviewPromptDialog = false
                 if (reviewPromptSource == ReviewPromptSource.Auto) {
                     appViewModel.markReviewDeclined()
+                }
+            }
+        )
+    }
+
+    val blockedTemplate by appViewModel.premiumLimitBlockedTemplate.collectAsState()
+    if (blockedTemplate != null) {
+        AlertDialog(
+            onDismissRequest = { appViewModel.dismissPremiumLimitDialog() },
+            title = {
+                Text(
+                    text = "Giới hạn Premium hôm nay",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            },
+            text = {
+                Text(
+                    text = "Bạn đã chỉnh sửa hết 3/3 template Premium miễn phí của ngày hôm nay. Hãy nâng cấp lên gói PRO để sử dụng không giới hạn, hoặc xem một video quảng cáo ngắn để nhận thêm lượt mở cho template này.",
+                    fontSize = 14.sp
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        appViewModel.dismissPremiumLimitDialog()
+                        showPremiumScreen = true
+                    }
+                ) {
+                    Text(
+                        text = "MUA BẢN PRO",
+                        color = Color(0xFFFFB300),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(
+                        onClick = {
+                            val template = blockedTemplate
+                            if (template != null && activity != null) {
+                                appViewModel.watchAdForPremiumSlot(activity, template.id) {
+                                    appViewModel.dismissPremiumLimitDialog()
+                                    navController.navigate(Screen.StudioEditor.createRoute(template.id))
+                                }
+                            }
+                        }
+                    ) {
+                        Text(
+                            text = "XEM QUẢNG CÁO",
+                            color = Color(0xFF00C6FF),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(
+                        onClick = { appViewModel.dismissPremiumLimitDialog() }
+                    ) {
+                        Text(
+                            text = "ĐÓNG",
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         )

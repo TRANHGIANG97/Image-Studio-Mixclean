@@ -299,6 +299,7 @@ class HomeViewModel @Inject constructor(
                     accentColor = androidx.compose.ui.graphics.Color(0xFF7C4DFF),
                     category = categoryId,
                     titleString = row.title,
+                    isPremium = row.isPremium,
                 )
             }
         }.onFailure { e ->

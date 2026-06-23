@@ -12,7 +12,8 @@ data class StudioThemeplate(
     val objectSourceAssetPath: String? = null,
     val accentColor: Color,
     val category: String = "cosmetics",
-    val titleString: String? = null
+    val titleString: String? = null,
+    val isPremium: Boolean = false,
 )
 
 data class StudioThemeplateSection(

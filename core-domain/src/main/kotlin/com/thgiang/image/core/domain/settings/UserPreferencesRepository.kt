@@ -6,6 +6,11 @@ sealed interface ReviewPromptDecision {
     data object ShowPrompt : ReviewPromptDecision
 }
 
+sealed interface PremiumLimitResult {
+    data object Allowed : PremiumLimitResult
+    data class Blocked(val usedCount: Int) : PremiumLimitResult
+}
+
 data class UserPreferences(
     val isDarkMode: Boolean = false,
     val selectedLanguage: String = "system",
@@ -16,7 +21,9 @@ data class UserPreferences(
     val reviewPromptShownCount: Int = 0,
     val reviewPromptLastShownAtMillis: Long = 0L,
     val reviewPromptDisabled: Boolean = false,
-    val reviewMarkedAsReviewed: Boolean = false
+    val reviewMarkedAsReviewed: Boolean = false,
+    val lastPremiumEditDate: String = "",
+    val editedPremiumTemplatesToday: String = ""
 )
 
 interface UserPreferencesRepository {
@@ -28,6 +35,8 @@ interface UserPreferencesRepository {
     suspend fun recordSuccessfulSave(nowMillis: Long = System.currentTimeMillis()): ReviewPromptDecision
     suspend fun markReviewAccepted()
     suspend fun markReviewDeclined()
+    suspend fun checkPremiumTemplateLimit(templateId: String, todayDateString: String, limit: Int = 3): PremiumLimitResult
+    suspend fun grantExtraPremiumSlot(templateId: String, todayDateString: String)
 }
 
 

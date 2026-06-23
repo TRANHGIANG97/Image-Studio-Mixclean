@@ -34,7 +34,7 @@ import com.thgiang.image.core.domain.model.template.CloudCategory
 fun ThemeplateGalleryScreen(
     initialTabIndex: Int,
     onBack: () -> Unit,
-    onThemeplateSelected: (String) -> Unit,
+    onThemeplateSelected: (String, Boolean) -> Unit,
     viewModel: ThemeplateGalleryViewModel = hiltViewModel()
 ) {
     val categories by viewModel.categories.collectAsState()
@@ -148,7 +148,7 @@ fun ThemeplateGalleryScreen(
 private fun RemoteThemeplateGrid(
     templates: List<RemoteTemplateRow>,
     isLoading: Boolean,
-    onTemplateSelected: (String) -> Unit
+    onTemplateSelected: (String, Boolean) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -184,7 +184,7 @@ private fun RemoteThemeplateGrid(
                     ) { template ->
                         RemoteThemeplateCard(
                             template = template,
-                            onClick = { onTemplateSelected(template.id) }
+                            onClick = { onTemplateSelected(template.id, template.isPremium) }
                         )
                     }
                 }
@@ -283,6 +283,24 @@ private fun RemoteThemeplateCard(
                         color = Color.White,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            if (template.isPremium) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color(0xFFFFB300))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "PRO",
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }

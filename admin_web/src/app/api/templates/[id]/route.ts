@@ -32,6 +32,7 @@ export async function PUT(req: NextRequest, context: Context) {
       category_id:  body.category_id,
       status:       body.status,
       environment:  body.environment,
+      is_premium:   body.is_premium,
       thumbnail_url: body.thumbnail_url,
       canvas_data:  body.canvas_data,
       fabric_state: body.fabric_state,

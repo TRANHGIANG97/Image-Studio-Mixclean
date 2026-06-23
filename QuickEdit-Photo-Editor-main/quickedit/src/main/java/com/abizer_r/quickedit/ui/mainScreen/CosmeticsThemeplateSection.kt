@@ -164,6 +164,23 @@ private fun CosmeticsThemeplateCard(
                     )
                 }
             )
+
+            if (themeplate.isPremium) {
+                Box(
+                    modifier = Modifier
+                        .padding(top = 4.dp, end = 4.dp)
+                        .background(Color(0xFFFFB300), shape = RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                        .align(Alignment.TopEnd)
+                ) {
+                    Text(
+                        text = "PRO",
+                        color = Color.White,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
