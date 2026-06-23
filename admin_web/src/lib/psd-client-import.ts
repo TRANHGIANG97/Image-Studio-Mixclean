@@ -287,7 +287,8 @@ function tryExtractLineHeight(node: any): number | null {
       if (sheetData) {
         const fontSize = sheetData.FontSize;
         if (sheetData.AutoLeading === false && typeof sheetData.Leading === 'number' && typeof fontSize === 'number' && fontSize > 0) {
-          return parseFloat((sheetData.Leading / fontSize).toFixed(3));
+          const lh = parseFloat((sheetData.Leading / fontSize).toFixed(3));
+          return lh >= 0.85 ? lh : null;
         }
       }
     }
