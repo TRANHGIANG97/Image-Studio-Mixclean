@@ -138,7 +138,22 @@ export const useLayersStore = create<LayersState>((set, get) => ({
 
     const isText = activeObject.type === 'i-text' || activeObject.type === 'textbox' || activeObject.type === 'text';
     if (isText && activeObject.isEditing && activeObject.selectionStart !== activeObject.selectionEnd) {
-      activeObject.setSelectionStyles(props);
+      const characterStyleKeys = ['fill', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'underline', 'linethrough', 'stroke', 'strokeWidth'];
+      const selectionProps: Record<string, any> = {};
+      const objectProps: Record<string, any> = {};
+      Object.entries(props).forEach(([key, val]) => {
+        if (characterStyleKeys.includes(key)) {
+          selectionProps[key] = val;
+        } else {
+          objectProps[key] = val;
+        }
+      });
+      if (Object.keys(objectProps).length > 0) {
+        activeObject.set(objectProps);
+      }
+      if (Object.keys(selectionProps).length > 0) {
+        activeObject.setSelectionStyles(selectionProps);
+      }
     } else {
       activeObject.set(props);
     }

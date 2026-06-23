@@ -211,6 +211,16 @@ export function TextPropertiesSection({
       title="Kiểu chữ"
       defaultOpen={true}
     >
+      <div className="space-y-1">
+        <span className="text-[9px] font-semibold text-slate-400">Nội dung văn bản</span>
+        <textarea
+          value={activeObjectProps.text || ''}
+          onChange={(e) => onPropChange('text', e.target.value)}
+          rows={2}
+          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:border-indigo-600 resize-none font-sans"
+          placeholder="Nhập nội dung chữ..."
+        />
+      </div>
       <div className="space-y-1.5">
         <span className="text-[9px] font-semibold text-slate-400">Định dạng</span>
         <div className="grid grid-cols-5 gap-1.5">

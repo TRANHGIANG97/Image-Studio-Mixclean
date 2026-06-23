@@ -230,7 +230,7 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
             fontStyle: payload.fontStyle || 'normal',
             underline: payload.underline || false,
             textAlign: payload.textAlign || 'left',
-            lineHeight: payload.lineHeight || 1.16,
+            lineHeight: (payload.lineHeight && payload.lineHeight >= 0.85) ? payload.lineHeight : 1.16,
             charSpacing: payload.charSpacing || 0,
             textBackgroundColor: payload.textBackgroundColor || null,
             linethrough: payload.linethrough || false,
