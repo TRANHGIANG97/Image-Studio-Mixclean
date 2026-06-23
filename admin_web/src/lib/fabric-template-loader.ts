@@ -122,6 +122,10 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
             if ((obj.type === 'i-text' || obj.layerType === 'TEXT') && obj.fontFamily) {
               ensureFontLoaded(obj.fontFamily).then(() => {
                 document.fonts.load(`12px "${obj.fontFamily}"`).then(() => {
+                  if (typeof obj.initDimensions === 'function') {
+                    obj.initDimensions();
+                    obj.setCoords();
+                  }
                   canvasInstance.renderAll();
                 }).catch(() => {});
               });
@@ -258,6 +262,10 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
           if (payload.font && typeof document !== 'undefined') {
             ensureFontLoaded(payload.font).then(() => {
               document.fonts.load(`12px "${payload.font}"`).then(() => {
+                if (typeof textObj.initDimensions === 'function') {
+                  textObj.initDimensions();
+                  textObj.setCoords();
+                }
                 canvasInstance.renderAll();
               }).catch(() => {});
             });

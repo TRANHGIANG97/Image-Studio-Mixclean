@@ -318,6 +318,8 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     let fabricCanvas: any = null;
     let isAborted = false;
 
+    let lastActiveTextObj: any = null;
+
     const onSelect = (e: any) => {
       const currentCanvas = fabricCanvas || fabricCanvasRef.current;
       if (!currentCanvas) return;
@@ -327,11 +329,36 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       const objAny = selectedObj as any;
       setActiveObjectId(objAny.layerId || null);
       syncActiveObjectProps(selectedObj);
+
+      if (objAny.type === 'i-text' || objAny.layerType === 'TEXT') {
+        lastActiveTextObj = objAny;
+      } else {
+        lastActiveTextObj = null;
+      }
     };
 
     const onClear = () => {
       setActiveObjectId(null);
       setActiveObjectProps(null);
+    };
+
+    const onMouseDown = (options: any) => {
+      const currentCanvas = fabricCanvas || fabricCanvasRef.current;
+      if (!currentCanvas) return;
+      const pointer = currentCanvas.getPointer(options.e);
+      const prevActive = lastActiveTextObj;
+      if (prevActive && prevActive.canvas === currentCanvas && prevActive.containsPoint(pointer)) {
+        currentCanvas.setActiveObject(prevActive);
+        currentCanvas.renderAll();
+        
+        if (options.e?.detail === 2 && typeof prevActive.enterEditing === 'function') {
+          prevActive.enterEditing();
+          if (prevActive.hiddenTextarea) {
+            prevActive.hiddenTextarea.focus({ preventScroll: true });
+          }
+          currentCanvas.renderAll();
+        }
+      }
     };
 
     const onModify = () => {
@@ -448,6 +475,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       newCanvas.on('object:modified', onModify);
       newCanvas.on('text:editing:entered', onTextEditingEntered);
       newCanvas.on('text:changed', onTextChanged);
+      newCanvas.on('mouse:down', onMouseDown);
       
       newCanvas.on('object:moving', handleObjectMoving);
       newCanvas.on('object:modified', clearGuides);
@@ -481,6 +509,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       canvasInstance.off('object:modified', onModify);
       canvasInstance.off('text:editing:entered', onTextEditingEntered);
       canvasInstance.off('text:changed', onTextChanged);
+      canvasInstance.off('mouse:down', onMouseDown);
       
       canvasInstance.off('object:moving', handleObjectMoving);
       canvasInstance.off('object:modified', clearGuides);

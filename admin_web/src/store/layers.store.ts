@@ -164,6 +164,10 @@ export const useLayersStore = create<LayersState>((set, get) => ({
       const fontName = props.fontFamily;
       ensureFontLoaded(fontName).then(() => {
         document.fonts.load(`12px "${fontName}"`).then(() => {
+          if (typeof activeObject.initDimensions === 'function') {
+            activeObject.initDimensions();
+            activeObject.setCoords();
+          }
           canvas.renderAll();
         }).catch((err) => {
           console.warn(`Failed to load font "${fontName}":`, err);

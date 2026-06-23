@@ -99,7 +99,8 @@ export default function LayerPanel({ compact = false, onDirty }: LayerPanelProps
       obj.set({
         lockMovementX: isLocked, lockMovementY: isLocked,
         lockScalingX: isLocked, lockScalingY: isLocked,
-        lockRotation: isLocked, hasControls: !isLocked, selectable: !isLocked
+        lockRotation: isLocked, hasControls: !isLocked, selectable: !isLocked,
+        evented: !isLocked
       });
       if (isLocked && canvas.getActiveObject() === obj) canvas.discardActiveObject();
       canvas.renderAll();
