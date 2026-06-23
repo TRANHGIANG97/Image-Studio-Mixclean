@@ -44,4 +44,5 @@ export const CANVAS_SERIALIZE_PROPS = [
   'clipShape',
   'isReplaceable',
   'padding',
+  'objectCaching',
 ];

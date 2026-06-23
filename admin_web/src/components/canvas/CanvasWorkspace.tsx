@@ -620,6 +620,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
                 hasBorders: true,
                 selectable: true,
                 padding: 20,
+                objectCaching: false,
               });
               (textObj as any).layerId = createLayerId();
               (textObj as any).layerType = 'TEXT';

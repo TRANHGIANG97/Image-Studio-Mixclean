@@ -120,7 +120,7 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
         if (typeof document !== 'undefined') {
           const processObject = (obj: any) => {
             if ((obj.type === 'i-text' || obj.layerType === 'TEXT') && obj.fontFamily) {
-              obj.set({ padding: 20 });
+              obj.set({ padding: 20, objectCaching: false });
               ensureFontLoaded(obj.fontFamily).then(() => {
                 document.fonts.load(`12px "${obj.fontFamily}"`).then(() => {
                   if (typeof obj.initDimensions === 'function') {
@@ -252,6 +252,7 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
             strokeDashArray: payload.strokeDashArray || null,
             globalCompositeOperation: getCompositeOperation(payload.blendMode),
             padding: 20,
+            objectCaching: false,
           });
 
           (textObj as any).layerId = layer.layerId;
