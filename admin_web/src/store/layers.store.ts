@@ -157,6 +157,14 @@ export const useLayersStore = create<LayersState>((set, get) => ({
     } else {
       activeObject.set(props);
     }
+    if (isText) {
+      if (typeof activeObject.initDimensions === 'function') {
+        activeObject.initDimensions();
+      }
+      if (typeof activeObject.setCoords === 'function') {
+        activeObject.setCoords();
+      }
+    }
     canvas.renderAll();
 
     // If fontFamily is updated, wait for font to load and trigger renderAll again

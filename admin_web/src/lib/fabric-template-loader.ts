@@ -116,25 +116,30 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
           }
         }
 
-        // Load fonts and set padding for all text objects loaded from JSON (including groups)
+        // Load fonts and fix properties for all text objects loaded from JSON
         if (typeof document !== 'undefined') {
-          const processObject = (obj: any) => {
-            if ((obj.type === 'i-text' || obj.layerType === 'TEXT') && obj.fontFamily) {
-              obj.set({ padding: 20, objectCaching: false });
-              ensureFontLoaded(obj.fontFamily).then(() => {
-                document.fonts.load(`12px "${obj.fontFamily}"`).then(() => {
-                  if (typeof obj.initDimensions === 'function') {
-                    obj.initDimensions();
-                    obj.setCoords();
-                  }
-                  canvasInstance.renderAll();
-                }).catch(() => {});
+          canvasInstance.getObjects().forEach((obj: any) => {
+            if (obj.type === 'i-text' || obj.layerType === 'TEXT') {
+              obj.set({
+                padding: 20,
+                objectCaching: false,
               });
-            } else if (obj.forEachObject) {
-              obj.forEachObject(processObject);
+              if (obj.lineHeight !== undefined && obj.lineHeight < 0.85) {
+                obj.set('lineHeight', 1.16);
+              }
+              if (obj.fontFamily) {
+                ensureFontLoaded(obj.fontFamily).then(() => {
+                  document.fonts.load(`12px "${obj.fontFamily}"`).then(() => {
+                    if (typeof obj.initDimensions === 'function') {
+                      obj.initDimensions();
+                      obj.setCoords();
+                    }
+                    canvasInstance.renderAll();
+                  }).catch(() => {});
+                });
+              }
             }
-          };
-          canvasInstance.getObjects().forEach(processObject);
+          });
         }
 
         canvasInstance.renderAll();
