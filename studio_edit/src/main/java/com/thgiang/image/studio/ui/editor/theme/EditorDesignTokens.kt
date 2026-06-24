@@ -1,5 +1,7 @@
 package com.thgiang.image.studio.ui.editor.theme
 
+import com.thgiang.image.studio.ui.editor.model.*
+
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color

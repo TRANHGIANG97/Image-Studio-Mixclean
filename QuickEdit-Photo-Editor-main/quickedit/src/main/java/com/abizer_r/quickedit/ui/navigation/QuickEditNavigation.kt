@@ -51,7 +51,7 @@ import com.abizer_r.quickedit.utils.other.bitmap.BitmapUtils
 import com.abizer_r.quickedit.utils.other.bitmap.ImmutableBitmap
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.model.StudioThemeplates
-import com.thgiang.image.studio.ui.editor.ThemeplateEditorScreen
+import com.thgiang.image.studio.ui.editor.screen.ThemeplateEditorScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect

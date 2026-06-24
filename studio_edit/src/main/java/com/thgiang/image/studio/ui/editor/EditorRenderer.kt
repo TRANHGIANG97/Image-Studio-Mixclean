@@ -1,4 +1,10 @@
 package com.thgiang.image.studio.ui.editor
+import com.thgiang.image.studio.ui.editor.*
+import com.thgiang.image.studio.ui.editor.label.geometry.*
+import com.thgiang.image.studio.ui.editor.canvas.*
+import com.thgiang.image.studio.ui.editor.mapper.*
+
+import com.thgiang.image.studio.ui.editor.model.*
 
 import android.content.Context
 import android.graphics.*
@@ -359,14 +365,14 @@ class EditorRenderer(
         val top = (templateHeight - shapeH) / 2f + state.offset.y
 
         val shapeAlpha = (layer.shapeColorArgb ushr 24) and 0xFF
+        val shouldRenderShape = !EditorShapeGeometry.isTextOnlyShape(layer.shapeType)
         val hasShapeFill = EditorShapeGeometry.isFilledShape(
             layer.shapeType,
             shapeAlpha,
             layer.fillGradient != null,
         )
-        val canDrawShapeShadow = hasShapeFill ||
-            EditorShapeGeometry.isLineShape(layer.shapeType) ||
-            layer.hasStroke
+        val canDrawShapeShadow = shouldRenderShape &&
+            (hasShapeFill || layer.hasShapeBorder || layer.appearance.shadowIntensity > 0.05f)
 
         canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
             withSave {
@@ -398,13 +404,7 @@ class EditorRenderer(
                 }
 
                 val alpha = (layer.appearance.alpha * 255).toInt().coerceIn(0, 255)
-                val shapeAlpha = (layer.shapeColorArgb ushr 24) and 0xFF
-                val hasShapeFill = EditorShapeGeometry.isFilledShape(
-                    layer.shapeType,
-                    shapeAlpha,
-                    layer.fillGradient != null,
-                )
-                if (hasShapeFill) {
+                if (shouldRenderShape && hasShapeFill) {
                     val shapePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         style = Paint.Style.FILL
                         color = layer.shapeColorArgb
@@ -436,11 +436,11 @@ class EditorRenderer(
                     )
                 }
 
-                if (layer.hasStroke) {
+                if (layer.hasShapeBorder) {
                     val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         EditorStrokeMapper.configureStrokePaint(
                             paint = this,
-                            strokeColorArgb = layer.resolveStrokeColorArgb()!!,
+                            strokeColorArgb = layer.resolveShapeBorderColorArgb()!!,
                             strokeWidthPx = layer.resolveStrokeWidthPx() * state.scale,
                             strokeDashArray = layer.strokeDashArray,
                             alpha = alpha,
@@ -566,23 +566,6 @@ class EditorRenderer(
             canvas.withSave {
                 translate(translateX, textTop)
                 drawRect(localLeft, 0f, localRight, textHeight, bgPaint)
-            }
-        }
-
-        if (layer.hasStroke) {
-            @Suppress("DEPRECATION")
-            val strokeLayout = StaticLayout(
-                displayText,
-                buildTextPaint(Paint.Style.STROKE),
-                textWidth,
-                alignment,
-                lineSpacing,
-                0f,
-                true,
-            )
-            canvas.withSave {
-                translate(translateX, textTop)
-                strokeLayout.draw(this)
             }
         }
 

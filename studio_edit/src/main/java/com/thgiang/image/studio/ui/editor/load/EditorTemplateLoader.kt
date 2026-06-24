@@ -1,13 +1,12 @@
 package com.thgiang.image.studio.ui.editor.load
+import com.thgiang.image.studio.ui.editor.*
+import com.thgiang.image.studio.ui.editor.mapper.*
 
 import android.content.Context
+import com.thgiang.image.studio.ui.editor.model.*
 import android.graphics.BitmapFactory
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.studio.data.CloudTemplateRemoteRepository
-import com.thgiang.image.studio.ui.editor.CloudLayerToEditorMapper
-import com.thgiang.image.studio.ui.editor.EditorLayer
-import com.thgiang.image.studio.ui.editor.EditorTemplate
-import com.thgiang.image.studio.ui.editor.LayerType
 import com.thgiang.image.studio.util.FontDownloader
 import com.thgiang.image.studio.util.openAssetSourceInputStream
 import dagger.hilt.android.qualifiers.ApplicationContext

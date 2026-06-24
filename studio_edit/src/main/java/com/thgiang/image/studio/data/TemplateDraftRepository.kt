@@ -1,13 +1,14 @@
 package com.thgiang.image.studio.data
+import com.thgiang.image.studio.ui.editor.*
 
 import android.content.Context
+import com.thgiang.image.studio.ui.editor.model.*
 import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import com.thgiang.image.studio.ui.editor.EditorState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.util.UUID

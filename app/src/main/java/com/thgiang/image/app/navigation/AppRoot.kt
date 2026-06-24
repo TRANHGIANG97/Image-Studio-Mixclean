@@ -94,10 +94,10 @@ import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.thgiang.image.feature.remove.ui.BatchRemoveScreen
 import com.thgiang.image.feature.remove.ui.MultiImagePickerScreen
 import com.thgiang.image.feature.settings.ui.SettingsScreen
-import com.thgiang.image.studio.ui.editor.ThemeplateEditorScreen
 import com.thgiang.image.studio.ui.gallery.ThemeplateGalleryScreen
 import com.thgiang.image.studio.model.StudioThemeplates
 import com.thgiang.image.studio.model.StudioThemeplate
+import com.thgiang.image.studio.ui.editor.screen.ThemeplateEditorScreen
 import java.util.Locale
 import com.abizer_r.quickedit.ui.backgroundMode.BackgroundGradientPreset
 import com.abizer_r.quickedit.utils.BorderGradientPreset

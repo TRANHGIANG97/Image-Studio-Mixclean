@@ -1,8 +1,7 @@
 package com.thgiang.image.studio.di
+import com.thgiang.image.studio.ui.editor.*
 
-import com.thgiang.image.studio.ui.editor.EditorBitmapPool
-import com.thgiang.image.studio.ui.editor.EditorHistoryManager
-import com.thgiang.image.studio.ui.editor.EditorRenderer
+import com.thgiang.image.studio.ui.editor.model.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

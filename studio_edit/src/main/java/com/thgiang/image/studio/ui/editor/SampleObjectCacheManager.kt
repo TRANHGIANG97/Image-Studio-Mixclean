@@ -1,4 +1,7 @@
 package com.thgiang.image.studio.ui.editor
+import com.thgiang.image.studio.ui.editor.*
+
+import com.thgiang.image.studio.ui.editor.model.*
 
 import android.content.Context
 import android.graphics.Bitmap

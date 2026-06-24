@@ -1,4 +1,8 @@
 package com.thgiang.image.studio.ui.editor
+import com.thgiang.image.studio.ui.editor.*
+import com.thgiang.image.studio.ui.editor.canvas.*
+
+import com.thgiang.image.studio.ui.editor.model.*
 
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
@@ -13,11 +17,25 @@ sealed class EditorEvent {
     data class SetProductImage(val uri: Uri, val replaceLayerId: String? = null) : EditorEvent()
     data class AddSticker(val assetPath: String) : EditorEvent()
 
-    // ── Shape & Text layer events ─────────────────────────────────────────
+    // ── Label events ──────────────────────────────────────────────────────
     /** Add a new plain TEXT layer at the canvas center */
     data object AddTextLayer : EditorEvent()
-    /** Add a new SHAPE_TEXT layer at the canvas center */
+    /** Add a new SHAPE_TEXT layer at the canvas center (keeps Label tool active) */
     data class AddShapeTextLayer(val shapeType: ShapeType) : EditorEvent()
+    /** Add label with chosen shape and exit label tool */
+    data class ConfirmAddLabel(val shapeType: ShapeType) : EditorEvent()
+    /** Add text-only label with custom text */
+    data class ConfirmAddLabelText(val text: String) : EditorEvent()
+    /** Exit label tool without adding a layer */
+    data object DismissLabelTool : EditorEvent()
+
+    // ── Shape events (độc lập với Label) ──────────────────────────────────
+    /** Add a decorative shape layer (no text) and keep Shape tool active */
+    data class AddShapeLayer(val shapeType: ShapeType) : EditorEvent()
+    /** Add shape and exit shape tool */
+    data class ConfirmAddShape(val shapeType: ShapeType) : EditorEvent()
+    /** Exit shape tool without adding a layer */
+    data object DismissShapeTool : EditorEvent()
     /** Update the text content of the selected SHAPE_TEXT layer */
     data class UpdateShapeText(val text: String) : EditorEvent()
     /** Update the fill color (ARGB) of the selected SHAPE_TEXT layer */
@@ -49,6 +67,8 @@ sealed class EditorEvent {
     data class UpdateStrokeColor(val argb: Int) : EditorEvent()
     data class UpdateStrokeWidth(val widthPx: Float) : EditorEvent()
     data class UpdateCornerRadius(val radiusPx: Float) : EditorEvent()
+    /** Keep shape dimensions in sync with rendered text (no history entry). */
+    data class SyncShapeSize(val widthPx: Float, val heightPx: Float) : EditorEvent()
 
     data class UpdateGesture(val delta: GestureDelta) : EditorEvent()
     data class UpdateOffset(val delta: Offset) : EditorEvent()

@@ -1,6 +1,9 @@
 package com.thgiang.image.studio.ui.editor.product
+import com.thgiang.image.studio.ui.editor.*
+import com.thgiang.image.studio.ui.editor.label.factory.*
 
 import android.content.Context
+import com.thgiang.image.studio.ui.editor.model.*
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.ui.unit.IntSize
@@ -8,10 +11,6 @@ import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.core.util.processors.ProcessorUtils
 import com.thgiang.image.studio.R
-import com.thgiang.image.studio.ui.editor.EditorLayer
-import com.thgiang.image.studio.ui.editor.EditorLayerFactory
-import com.thgiang.image.studio.ui.editor.EditorProduct
-import com.thgiang.image.studio.ui.editor.SampleObjectCacheManager
 import com.thgiang.image.studio.ui.editor.load.EditorTemplateLoader
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers

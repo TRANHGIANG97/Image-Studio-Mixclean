@@ -1,4 +1,8 @@
 package com.thgiang.image.admin.ui
+import com.thgiang.image.studio.ui.editor.model.*
+import com.thgiang.image.studio.ui.editor.panel.*
+import com.thgiang.image.studio.ui.editor.*
+import com.thgiang.image.studio.ui.editor.canvas.*
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -82,10 +86,6 @@ import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.ui.editor.EditorEvent
-import com.thgiang.image.studio.ui.editor.EditorTool
-import com.thgiang.image.studio.ui.editor.components.EditorBottomToolbar
-import com.thgiang.image.studio.ui.editor.components.EditorCanvasV2
-import com.thgiang.image.studio.ui.editor.components.EditorControlsV2
 import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 
@@ -639,7 +639,7 @@ private fun BuilderActionChip(
 
 @Composable
 private fun SelectedLayerHeader(
-    layer: com.thgiang.image.studio.ui.editor.EditorLayer?,
+    layer: com.thgiang.image.studio.ui.editor.model.EditorLayer?,
     layerIndex: Int,
     layersCount: Int,
     onMoveUp: () -> Unit,

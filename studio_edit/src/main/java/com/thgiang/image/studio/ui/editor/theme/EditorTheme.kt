@@ -1,5 +1,7 @@
 package com.thgiang.image.studio.ui.editor.theme
 
+import com.thgiang.image.studio.ui.editor.model.*
+
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.shape.RoundedCornerShape

@@ -123,6 +123,8 @@
     <string name="studio_label_select_hint">Chạm nhãn trên canvas hoặc trong Đối tượng để chỉnh.</string>
     <string name="studio_label_shape_pill">Viên</string>
     <string name="studio_label_shape_card">Thẻ</string>
+    <string name="studio_label_shape_text_only">Chỉ chữ</string>
+    <string name="studio_label_shape_parallelogram">Tứ giác</string>
     <string name="studio_label_shape_teardrop">Bong bóng</string>
     <string name="studio_label_shape_circle">Tròn</string>
     <string name="studio_label_shape_star">Sao</string>
@@ -171,6 +173,13 @@
     <string name="studio_label_stroke_color">Màu viền</string>
     <string name="studio_label_stroke_width">Độ dày viền</string>
     <string name="studio_label_corner_radius">Bo góc</string>
+    <string name="studio_label_apply_shape">Áp dụng hình</string>
+    <string name="studio_label_cancel_shape">Hủy</string>
+    <string name="studio_label_apply_shape_hint">Nhấn dấu tích để áp dụng hình dạng mới.</string>
+    <string name="studio_label_confirm_add">Thêm nhãn</string>
+    <string name="studio_label_stroke_width_requires_color">Hãy chọn màu viền trước.</string>
+    <string name="studio_label_shadow_requires_shape">Cần thêm hình dạng trước khi đổ bóng.</string>
+    <string name="studio_label_corner_not_applicable">Không áp dụng cho hình này</string>
     <string name="studio_label_font_family">Font chữ</string>
     <string name="studio_label_text_size">Cỡ chữ</string>
     <string name="studio_layer_image_label">Ảnh %1$d</string>

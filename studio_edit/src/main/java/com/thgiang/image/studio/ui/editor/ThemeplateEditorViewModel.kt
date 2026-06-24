@@ -1,6 +1,11 @@
 package com.thgiang.image.studio.ui.editor
+import com.thgiang.image.studio.ui.editor.*
+import com.thgiang.image.studio.ui.editor.label.factory.*
+import com.thgiang.image.studio.ui.editor.canvas.*
 
 import android.content.Context
+import com.thgiang.image.studio.ui.editor.model.*
+import com.thgiang.image.studio.ui.editor.label.model.*
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.SavedStateHandle
@@ -17,6 +22,7 @@ import com.thgiang.image.studio.ui.editor.product.EditorProductWorkflow
 import com.thgiang.image.studio.ui.editor.product.ProductImageResult
 import com.thgiang.image.studio.ui.editor.product.SampleObjectResult
 import com.thgiang.image.studio.ui.editor.product.StickerResult
+import com.thgiang.image.studio.ui.editor.label.LabelViewModelDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -44,6 +50,7 @@ class ThemeplateEditorViewModel @Inject constructor(
         private const val SNAP_ANGLE_THRESHOLD = 5f
         private val SNAP_ANGLES = listOf(0f, 90f, 180f, 270f)
         private const val HISTORY_DEBOUNCE_MS = 300L
+        private const val SHAPE_FIT_DEBOUNCE_MS = 200L
         private const val GESTURE_THROTTLE_MS = 16L // ~60fps
     }
 
@@ -66,6 +73,7 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     // Debounced history push for gesture operations
     private val historyPushFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val shapeFitFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     private val gestureThrottleFlow = MutableSharedFlow<GestureDelta>(extraBufferCapacity = 1)
 
     private var templateLoadJob: Job? = null
@@ -77,12 +85,30 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     val themeplateId: String? = savedStateHandle.get<String>("themeplateId")
 
+    val labelDelegate by lazy {
+        LabelViewModelDelegate(
+            context = context,
+            layerFactory = layerFactory,
+            shapeFitFlow = shapeFitFlow,
+            readState = { _state.value },
+            updateState = { block -> _state.update { s -> block(s) } },
+            requestHistoryPush = { historyPushFlow.tryEmit(Unit) },
+            pushHistory = { historyPushJob?.cancel(); historyPushJob = viewModelScope.launch { pushHistoryInternal() } },
+        )
+    }
+
     init {
         // Debounced history push
         viewModelScope.launch {
             historyPushFlow
                 .debounce(HISTORY_DEBOUNCE_MS)
                 .collect { pushHistoryInternal() }
+        }
+
+        viewModelScope.launch {
+            shapeFitFlow
+                .debounce(SHAPE_FIT_DEBOUNCE_MS)
+                .collect { applyShapeFitToActiveLayer() }
         }
         
         // Throttled gesture updates for smooth 60fps
@@ -118,10 +144,20 @@ class ThemeplateEditorViewModel @Inject constructor(
     private inline fun updateActiveLayer(crossinline block: (EditorLayer) -> EditorLayer) {
         _state.update { state ->
             val layerId = state.selectedLayerId ?: return@update state
-            val newLayers = state.layers.map { 
-                if (it.id == layerId) block(it) else it 
+            val newLayers = state.layers.map {
+                if (it.id == layerId) block(it) else it
             }
             state.copy(layers = newLayers)
+        }
+    }
+
+    private fun applyShapeFitToActiveLayer() {
+        updateActiveLayer { layer ->
+            if (layer.type == LayerType.SHAPE_TEXT) {
+                layer.withShapeFittedToText(context)
+            } else {
+                layer
+            }
         }
     }
 
@@ -132,103 +168,45 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.LoadCloudTemplateById -> loadCloudTemplateById(event.templateId)
             is EditorEvent.SetProductImage -> setProductImage(event.uri, event.replaceLayerId)
             is EditorEvent.AddSticker -> addSticker(event.assetPath)
-            EditorEvent.AddTextLayer -> addTextLayer()
-            is EditorEvent.AddShapeTextLayer -> addShapeTextLayer(event.shapeType)
-            is EditorEvent.UpdateShapeText -> {
-                updateActiveLayer { it.copy(text = event.text) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateShapeColor -> {
-                updateActiveLayer { it.copy(shapeColorArgb = event.argb, fillGradient = null) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextColor -> {
-                updateActiveLayer { it.copy(textColorArgb = event.argb, textColorGradient = null) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextSize -> {
-                updateActiveLayer { it.copy(textSizeSp = event.sizeSp.coerceIn(1f, 500f)) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextFontFamily -> {
-                updateActiveLayer { it.copy(fontFamily = event.fontFamily?.takeIf { family -> family.isNotBlank() }) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateShapeType -> {
-                updateActiveLayer { it.copy(shapeType = event.shapeType) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextBold -> {
-                updateActiveLayer {
-                    it.copy(fontWeight = if (event.bold) "bold" else "normal")
-                }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextItalic -> {
-                updateActiveLayer {
-                    it.copy(fontStyle = if (event.italic) "italic" else "normal")
-                }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextUnderline -> {
-                updateActiveLayer { it.copy(underline = event.underline) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextLinethrough -> {
-                updateActiveLayer { it.copy(linethrough = event.linethrough) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextAlign -> {
-                updateActiveLayer { it.copy(textAlign = event.align) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateLineHeight -> {
-                updateActiveLayer {
-                    it.copy(lineHeight = event.multiplier.coerceIn(0.5f, 3f))
-                }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateCharSpacing -> {
-                updateActiveLayer { it.copy(charSpacing = event.spacing.coerceIn(-20f, 80f)) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextTransform -> {
-                updateActiveLayer { it.copy(textTransform = event.transform) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateFillGradient -> {
-                updateActiveLayer { it.copy(fillGradient = event.gradient) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateTextColorGradient -> {
-                updateActiveLayer { it.copy(textColorGradient = event.gradient) }
-                requestHistoryPush()
-            }
-            is EditorEvent.ApplyLabelTypographyPreset -> {
-                updateActiveLayer {
-                    it.copy(
-                        fontWeight = event.fontWeight,
-                        textSizeSp = event.textSizeSp.coerceIn(1f, 500f),
-                        textTransform = event.textTransform,
-                    )
-                }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateStrokeColor -> {
-                updateActiveLayer { it.copy(strokeColorArgb = event.argb) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateStrokeWidth -> {
-                updateActiveLayer { it.copy(strokeWidthPx = event.widthPx.coerceIn(0f, 20f)) }
-                requestHistoryPush()
-            }
-            is EditorEvent.UpdateCornerRadius -> {
-                updateActiveLayer {
-                    val radius = event.radiusPx.coerceAtLeast(0f)
-                    it.copy(cornerRadiusX = radius, cornerRadiusY = radius)
-                }
-                requestHistoryPush()
-            }
+            // ── Label events (delegated) ──────────────────
+            EditorEvent.AddTextLayer ->
+                labelDelegate.addTextLayer(_state.value.template.originalSize.width.toFloat())
+            is EditorEvent.AddShapeTextLayer ->
+                labelDelegate.addShapeTextLayer(event.shapeType, _state.value.template.originalSize.width.toFloat())
+            is EditorEvent.ConfirmAddLabel ->
+                labelDelegate.confirmAddLabel(event.shapeType, _state.value.template.originalSize.width.toFloat())
+            is EditorEvent.ConfirmAddLabelText ->
+                labelDelegate.confirmAddLabelWithText(event.text, _state.value.template.originalSize.width.toFloat())
+            EditorEvent.DismissLabelTool -> labelDelegate.dismissLabelTool()
+            // ── Shape events (delegated) ──────────────────
+            is EditorEvent.AddShapeLayer ->
+                labelDelegate.addShapeLayer(event.shapeType, _state.value.template.originalSize.width.toFloat())
+            is EditorEvent.ConfirmAddShape ->
+                labelDelegate.confirmAddShape(event.shapeType, _state.value.template.originalSize.width.toFloat())
+            EditorEvent.DismissShapeTool -> labelDelegate.dismissShapeTool()
+            // ── Label edit events ─────────────────────────
+            is EditorEvent.UpdateShapeText -> labelDelegate.updateShapeText(event.text)
+            is EditorEvent.UpdateShapeColor -> labelDelegate.updateShapeColor(event.argb)
+            is EditorEvent.UpdateTextColor -> labelDelegate.updateTextColor(event.argb)
+            is EditorEvent.UpdateTextSize -> labelDelegate.updateTextSize(event.sizeSp)
+            is EditorEvent.UpdateTextFontFamily -> labelDelegate.updateTextFontFamily(event.fontFamily)
+            is EditorEvent.UpdateShapeType -> labelDelegate.updateShapeType(event.shapeType)
+            is EditorEvent.UpdateTextBold -> labelDelegate.updateTextBold(event.bold)
+            is EditorEvent.UpdateTextItalic -> labelDelegate.updateTextItalic(event.italic)
+            is EditorEvent.UpdateTextUnderline -> labelDelegate.updateTextUnderline(event.underline)
+            is EditorEvent.UpdateTextLinethrough -> labelDelegate.updateTextLinethrough(event.linethrough)
+            is EditorEvent.UpdateTextAlign -> labelDelegate.updateTextAlign(event.align)
+            is EditorEvent.UpdateLineHeight -> labelDelegate.updateLineHeight(event.multiplier)
+            is EditorEvent.UpdateCharSpacing -> labelDelegate.updateCharSpacing(event.spacing)
+            is EditorEvent.UpdateTextTransform -> labelDelegate.updateTextTransform(event.transform)
+            is EditorEvent.UpdateFillGradient -> labelDelegate.updateFillGradient(event.gradient)
+            is EditorEvent.UpdateTextColorGradient -> labelDelegate.updateTextColorGradient(event.gradient)
+            is EditorEvent.ApplyLabelTypographyPreset ->
+                labelDelegate.applyLabelTypographyPreset(event.fontWeight, event.textSizeSp, event.textTransform)
+            is EditorEvent.UpdateStrokeColor -> labelDelegate.updateStrokeColor(event.argb)
+            is EditorEvent.UpdateStrokeWidth -> labelDelegate.updateStrokeWidth(event.widthPx)
+            is EditorEvent.UpdateCornerRadius -> labelDelegate.updateCornerRadius(event.radiusPx)
+            is EditorEvent.SyncShapeSize -> labelDelegate.syncShapeSize(event.widthPx, event.heightPx)
             is EditorEvent.UpdateGesture -> {
                 gestureThrottleFlow.tryEmit(event.delta)
                 requestHistoryPush()
@@ -358,32 +336,6 @@ class ThemeplateEditorViewModel @Inject constructor(
             } else {
                 state
             }
-        }
-        pushHistory()
-    }
-
-    private fun addShapeTextLayer(shapeType: ShapeType) {
-        val layer = layerFactory.createShapeTextLayer(_state.value.template.originalSize.width.toFloat(), shapeType)
-        val layerId = layer.id
-        _state.update {
-            it.copy(
-                layers = it.layers + layer,
-                selectedLayerId = layerId,
-                selectedTool = EditorTool.Label
-            )
-        }
-        pushHistory()
-    }
-
-    private fun addTextLayer() {
-        val layer = layerFactory.createTextLayer(_state.value.template.originalSize.width.toFloat())
-        val layerId = layer.id
-        _state.update {
-            it.copy(
-                layers = it.layers + layer,
-                selectedLayerId = layerId,
-                selectedTool = EditorTool.Label
-            )
         }
         pushHistory()
     }

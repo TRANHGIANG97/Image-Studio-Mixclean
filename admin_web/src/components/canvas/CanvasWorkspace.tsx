@@ -345,7 +345,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     const onMouseDown = (options: any) => {
       const currentCanvas = fabricCanvas || fabricCanvasRef.current;
       if (!currentCanvas) return;
-      const pointer = currentCanvas.getPointer(options.e);
+      const pointer = currentCanvas.getScenePoint(options.e);
       const prevActive = lastActiveTextObj;
       if (prevActive && prevActive.canvas === currentCanvas && prevActive.containsPoint(pointer)) {
         // Wrap in a setTimeout to avoid disrupting Fabric's synchronous event handling (which causes the mouse to stick/drag selection marquee)

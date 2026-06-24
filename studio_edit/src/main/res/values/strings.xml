@@ -123,6 +123,7 @@
     <string name="studio_reset_zoom">Reset</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Label</string>
+    <string name="studio_tool_shape">Shape</string>
     <string name="studio_label_add_label">Add label</string>
     <string name="studio_label_add_text">Add text</string>
     <string name="studio_label_add_shape">Add Label</string>
@@ -130,6 +131,8 @@
     <string name="studio_label_select_hint">Tap a label on the canvas or in Objects to edit it.</string>
     <string name="studio_label_shape_pill">Pill</string>
     <string name="studio_label_shape_card">Card</string>
+    <string name="studio_label_shape_text_only">Text only</string>
+    <string name="studio_label_shape_parallelogram">Quadrilateral</string>
     <string name="studio_label_shape_teardrop">Bubble</string>
     <string name="studio_label_shape_circle">Circle</string>
     <string name="studio_label_shape_star">Star</string>
@@ -179,6 +182,13 @@
     <string name="studio_label_stroke_color">Stroke color</string>
     <string name="studio_label_stroke_width">Stroke width</string>
     <string name="studio_label_corner_radius">Corner radius</string>
+    <string name="studio_label_corner_not_applicable">Not available for this shape</string>
+    <string name="studio_label_apply_shape">Apply shape</string>
+    <string name="studio_label_cancel_shape">Cancel</string>
+    <string name="studio_label_apply_shape_hint">Tap the checkmark to apply the new shape.</string>
+    <string name="studio_label_confirm_add">Add label</string>
+    <string name="studio_label_stroke_width_requires_color">Choose a border color first.</string>
+    <string name="studio_label_shadow_requires_shape">Add a shape before applying shadow.</string>
     <string name="studio_objects_label">Objects</string>
     <string name="studio_layer_text_label">Text</string>
     <string name="studio_layer_text_with_content">Text: %1$s</string>

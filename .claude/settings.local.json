@@ -176,7 +176,10 @@
       "Bash(node *)",
       "Bash(grep -v \"//\\\\|case\\\\|default\\\\|function\\\\|const\\\\|let\\\\|var\\\\|return\\\\|if\\\\|else\\\\|import\\\\|export\\\\|className\\\\|type\\\\|href\\\\|src\\\\|alt\\\\|key\\\\|placeholder\")",
       "Bash(Test-Path \"c:\\\\Users\\\\Toshiba\\\\Desktop\\\\imageProduction-main\\\\local.properties\")",
-      "Bash(./gradlew :studio_edit:clean :studio_edit:compileDebugKotlin)"
+      "Bash(./gradlew :studio_edit:clean :studio_edit:compileDebugKotlin)",
+      "Bash(sed -i 's/^package com\\\\.thgiang\\\\.image\\\\.studio\\\\.ui\\\\.editor$/package com.thgiang.image.studio.ui.editor.screen/' c:/Users/Toshiba/Desktop/imageProduction-main/studio_edit/src/main/java/com/thgiang/image/studio/ui/editor/screen/ThemeplateEditorScreen.kt)",
+      "Bash(sed -i 's|import com\\\\.thgiang\\\\.image\\\\.studio\\\\.ui\\\\.editor\\\\.ThemeplateEditorScreen|import com.thgiang.image.studio.ui.editor.screen.ThemeplateEditorScreen|' \"app/src/main/java/com/thgiang/image/app/navigation/AppRoot.kt\")",
+      "Bash(./gradlew :studio_edit:compileDebugKotlin :app:compileDebugKotlin)"
     ]
   }
 }
