@@ -113,4 +113,9 @@ data class CloudPayload(
     val polygonPoints: List<Float>? = null,
     /** When true, user can replace this image in studio_edit (Android). */
     val replaceable: Boolean? = null,
+    /** Text path / warp (Word Transform). */
+    val textFormCategory: String? = null,
+    val textFormPreset: String? = null,
+    val textFormAmount: Float? = null,
+    val textFormReversePath: Boolean? = null,
 ) : java.io.Serializable

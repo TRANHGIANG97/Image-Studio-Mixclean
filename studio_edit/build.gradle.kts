@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.colorpicker)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.ui.graphics)
+    implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     testImplementation(project(":core-domain"))
     androidTestImplementation(libs.androidx.junit)

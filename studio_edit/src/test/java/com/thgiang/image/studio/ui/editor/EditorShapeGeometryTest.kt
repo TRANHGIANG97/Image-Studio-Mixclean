@@ -5,6 +5,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+import com.thgiang.image.studio.ui.editor.model.ShapeType
+import com.thgiang.image.studio.ui.editor.label.geometry.EditorShapeGeometry
+import com.thgiang.image.studio.ui.editor.mapper.CloudLayerToEditorMapper
+
 class EditorShapeGeometryTest {
 
     @Test

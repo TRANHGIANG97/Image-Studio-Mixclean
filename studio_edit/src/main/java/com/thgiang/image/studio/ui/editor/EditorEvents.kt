@@ -66,6 +66,7 @@ sealed class EditorEvent {
     ) : EditorEvent()
     data class UpdateStrokeColor(val argb: Int) : EditorEvent()
     data class UpdateStrokeWidth(val widthPx: Float) : EditorEvent()
+    data class UpdateStrokeDash(val dashArray: List<Float>) : EditorEvent()
     data class UpdateCornerRadius(val radiusPx: Float) : EditorEvent()
     /** Keep shape dimensions in sync with rendered text (no history entry). */
     data class SyncShapeSize(val widthPx: Float, val heightPx: Float) : EditorEvent()
@@ -83,6 +84,13 @@ sealed class EditorEvent {
     data class UpdateShadowAngle(val angle: Float) : EditorEvent()
     data class UpdateShadowDistance(val distance: Float) : EditorEvent()
     data class UpdateShadowColor(val argb: Int) : EditorEvent()
+    data class UpdateShadowBlur(val blurPx: Float?) : EditorEvent()
+    data class UpdateElevation(val intensity: Float) : EditorEvent()
+    data class UpdateDepthSize(val sizePx: Float) : EditorEvent()
+    data class UpdateDepthColor(val argb: Int?) : EditorEvent()
+    data class UpdateExtrusionAngle(val angle: Float) : EditorEvent()
+    data class UpdateElevationStyle(val style: ShapeElevationStyle) : EditorEvent()
+    data class UpdateElevationTarget(val target: ElevationTarget) : EditorEvent()
     data class UpdateAlpha(val alpha: Float) : EditorEvent()
     data class SetBoundingBoxVisible(val visible: Boolean) : EditorEvent()
     data class SelectTool(val tool: EditorTool) : EditorEvent()
@@ -95,6 +103,19 @@ sealed class EditorEvent {
     data object Redo : EditorEvent()
     data object MoveLayerUp : EditorEvent()
     data object MoveLayerDown : EditorEvent()
+    data object MoveLayerToTop : EditorEvent()
+    data object MoveLayerToBottom : EditorEvent()
+    /** Toggle lock state of the currently selected layer */
+    data object ToggleLayerLock : EditorEvent()
+    /** Align selected layer to canvas: left / centerH / right / top / centerV / bottom */
+    data class AlignLayer(val alignment: LayerAlignment) : EditorEvent()
+    /** Copy the current layer's style (fill, stroke, shadow) to clipboard */
+    data object CopyLabelStyle : EditorEvent()
+    /** Paste clipboard style onto the currently selected layer */
+    data object PasteLabelStyle : EditorEvent()
+    data class ApplyTextFormPreset(val preset: TextFormPreset) : EditorEvent()
+    data class UpdateTextFormAmount(val amount: Float) : EditorEvent()
+    data object ResetTextForm : EditorEvent()
     data object SaveDraft : EditorEvent()
     data class Export(val templateAssetPath: String) : EditorEvent()
 }

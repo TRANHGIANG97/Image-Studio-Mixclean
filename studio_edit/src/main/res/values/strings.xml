@@ -123,7 +123,7 @@
     <string name="studio_reset_zoom">Reset</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Label</string>
-    <string name="studio_tool_shape">Shape</string>
+    <string name="studio_tool_shape">Frame</string>
     <string name="studio_label_add_label">Add label</string>
     <string name="studio_label_add_text">Add text</string>
     <string name="studio_label_add_shape">Add Label</string>
@@ -145,6 +145,7 @@
     <string name="studio_label_shape_polygon">Polygon</string>
     <string name="studio_label_edit_text">Text</string>
     <string name="studio_label_text_placeholder">Label text</string>
+    <string name="studio_label_insert_newline">New line</string>
     <string name="studio_label_apply_text">Apply</string>
     <string name="studio_label_fill_color">Fill color</string>
     <string name="studio_label_text_color">Text color</string>
@@ -189,6 +190,40 @@
     <string name="studio_label_confirm_add">Add label</string>
     <string name="studio_label_stroke_width_requires_color">Choose a border color first.</string>
     <string name="studio_label_shadow_requires_shape">Add a shape before applying shadow.</string>
+    <string name="studio_label_shadow_requires_border">Add a border or fill color before applying shadow.</string>
+    <string name="studio_label_elevation_requires_border">Add a border or fill color before applying elevation.</string>
+    <string name="studio_label_elevation_requires_text">Add visible text color before applying elevation.</string>
+    <string name="studio_elevation_raised">Raised</string>
+    <string name="studio_elevation_inset">Inset</string>
+    <string name="studio_elevation_depth">Depth</string>
+    <string name="studio_elevation_3d_format">3-D Format</string>
+    <string name="studio_elevation_depth_color">Depth color</string>
+    <string name="studio_elevation_depth_size">Depth size</string>
+    <string name="studio_elevation_lighting_angle">Lighting angle</string>
+    <string name="studio_elevation_custom">Customize</string>
+    <string name="studio_elevation_shadow_blur">Shadow blur</string>
+    <string name="studio_label_shape_frame_tab">Frame</string>
+    <string name="studio_text_form_tab">Transform</string>
+    <string name="studio_text_form_follow_path">Follow Path</string>
+    <string name="studio_text_form_warp">Warp</string>
+    <string name="studio_text_form_amount">Intensity</string>
+    <string name="studio_text_form_none">None</string>
+    <string name="studio_text_form_path_wave">Wave</string>
+    <string name="studio_text_form_path_arc_up">Arc Up</string>
+    <string name="studio_text_form_path_arc_down">Arc Down</string>
+    <string name="studio_text_form_path_circle">Circle</string>
+    <string name="studio_text_form_path_ring">Ring</string>
+    <string name="studio_text_form_warp_arch_up">Arch Up</string>
+    <string name="studio_text_form_warp_arch_down">Arch Down</string>
+    <string name="studio_text_form_warp_bulge">Bulge</string>
+    <string name="studio_text_form_warp_wave">Wave</string>
+    <string name="studio_text_form_warp_flag">Flag</string>
+    <string name="studio_text_form_warp_rise">Rise</string>
+    <string name="studio_text_form_warp_fall">Fall</string>
+    <string name="studio_text_form_warp_inflate">Inflate</string>
+    <string name="studio_text_form_warp_deflate">Deflate</string>
+    <string name="studio_text_form_warp_chevron_up">Chevron Up</string>
+    <string name="studio_text_form_warp_chevron_down">Chevron Down</string>
     <string name="studio_objects_label">Objects</string>
     <string name="studio_layer_text_label">Text</string>
     <string name="studio_layer_text_with_content">Text: %1$s</string>
@@ -197,5 +232,19 @@
     <string name="studio_layer_picker_title">Select layer</string>
     <string name="studio_layer_picker_subtitle">%1$d layers at this point</string>
     <string name="studio_layer_picker_topmost">Top layer</string>
+    <string name="studio_label_size">Size</string>
+    <string name="studio_label_rotate">Rotate</string>
+    <string name="studio_label_arrange">Arrange</string>
+    <string name="studio_label_copy_style">Copy Style</string>
+    <string name="studio_label_paste_style">Paste Style</string>
+    <string name="studio_label_bring_forward">Bring Forward</string>
+    <string name="studio_label_send_backward">Send Back</string>
+    <string name="studio_label_align_left">Left</string>
+    <string name="studio_label_align_center">Center</string>
+    <string name="studio_label_align_right">Right</string>
+    <string name="studio_label_align_top">Top</string>
+    <string name="studio_label_align_middle">Middle</string>
+    <string name="studio_label_align_bottom">Bottom</string>
 </resources>
+
 

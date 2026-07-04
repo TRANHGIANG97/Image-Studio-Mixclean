@@ -118,13 +118,16 @@ object EditorGradientMapper {
         val coords = gradient.coords
         val dx = coords.x2 - coords.x1
         val dy = coords.y2 - coords.y1
-        return Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+        val degrees = Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+        return (degrees + 360f) % 360f
     }
 
     fun buildLinearGradient(
         color1Argb: Int,
         color2Argb: Int,
         angleDegrees: Float,
+        stop1Offset: Float = 0f,
+        stop2Offset: Float = 1f,
     ): CloudGradient {
         val angleRad = Math.toRadians(angleDegrees.toDouble())
         val cosA = kotlin.math.cos(angleRad).toFloat()
@@ -132,8 +135,8 @@ object EditorGradientMapper {
         return CloudGradient(
             type = "linear",
             colorStops = listOf(
-                CloudGradientStop(0f, argbToCssHex(color1Argb)),
-                CloudGradientStop(1f, argbToCssHex(color2Argb)),
+                CloudGradientStop(stop1Offset, argbToCssHex(color1Argb)),
+                CloudGradientStop(stop2Offset, argbToCssHex(color2Argb)),
             ),
             coords = CloudGradientCoords(
                 x1 = 0.5f - 0.5f * cosA,

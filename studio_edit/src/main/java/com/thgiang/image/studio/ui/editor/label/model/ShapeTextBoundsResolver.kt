@@ -20,8 +20,9 @@ object ShapeTextBoundsResolver {
     private const val MIN_HEIGHT_PX = 30f
 
     fun fitShapeToText(layer: EditorLayer, context: Context): EditorLayer {
-        if (layer.type != LayerType.SHAPE_TEXT) return layer
-        if (EditorShapeGeometry.isTextOnlyShape(layer.shapeType)) return layer
+        if (layer.type != LayerType.SHAPE && layer.type != LayerType.TEXT && layer.type != LayerType.SHAPE_TEXT) {
+            return layer
+        }
 
         val density = context.resources.displayMetrics.density
         val fontScale = context.resources.displayMetrics.scaledDensity / density
@@ -43,14 +44,28 @@ object ShapeTextBoundsResolver {
         val paddingV = PADDING_V_DP * density
         val strokePad = shapeStrokePadding(layer)
 
-        return if (EditorShapeGeometry.isLineShape(layer.shapeType)) {
-            layer.copy(
-                shapeWidthPx = (textWidth + 2f * paddingH + strokePad).coerceAtLeast(MIN_WIDTH_PX),
+        if (EditorShapeGeometry.isTextOnlyShape(layer.shapeType)) {
+            return layer.copy(
+                shapeWidthPx = max(
+                    layer.shapeWidthPx,
+                    (textWidth + 2f * paddingH).coerceAtLeast(MIN_WIDTH_PX),
+                ),
+                shapeHeightPx = max(
+                    layer.shapeHeightPx,
+                    (textHeight + 2f * paddingV).coerceAtLeast(MIN_HEIGHT_PX),
+                ),
             )
+        }
+
+        val fittedW = (textWidth + 2f * paddingH + strokePad).coerceAtLeast(MIN_WIDTH_PX)
+        val fittedH = (textHeight + 2f * paddingV + strokePad).coerceAtLeast(MIN_HEIGHT_PX)
+
+        return if (EditorShapeGeometry.isLineShape(layer.shapeType)) {
+            layer.copy(shapeWidthPx = max(layer.shapeWidthPx, fittedW))
         } else {
             layer.copy(
-                shapeWidthPx = (textWidth + 2f * paddingH + strokePad).coerceAtLeast(MIN_WIDTH_PX),
-                shapeHeightPx = (textHeight + 2f * paddingV + strokePad).coerceAtLeast(MIN_HEIGHT_PX),
+                shapeWidthPx = max(layer.shapeWidthPx, fittedW),
+                shapeHeightPx = max(layer.shapeHeightPx, fittedH),
             )
         }
     }

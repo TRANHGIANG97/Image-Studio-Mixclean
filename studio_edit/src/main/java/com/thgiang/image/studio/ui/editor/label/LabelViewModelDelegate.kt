@@ -1,20 +1,31 @@
 package com.thgiang.image.studio.ui.editor.label
 
 import android.content.Context
-import com.thgiang.image.studio.ui.editor.model.*
-import com.thgiang.image.studio.ui.editor.label.model.*
-import com.thgiang.image.studio.ui.editor.label.factory.*
+import com.thgiang.image.core.domain.model.template.CloudGradient
+import com.thgiang.image.studio.ui.editor.label.factory.EditorLayerFactory
+import com.thgiang.image.studio.ui.editor.label.model.applyShapeTypeChange
+import com.thgiang.image.studio.ui.editor.label.model.withShapeFittedToText
+import com.thgiang.image.studio.ui.editor.model.EditorLayer
+import com.thgiang.image.studio.ui.editor.model.EditorState
+import com.thgiang.image.studio.ui.editor.model.EditorTool
+import com.thgiang.image.studio.ui.editor.model.ShapeType
+import com.thgiang.image.studio.ui.editor.model.TextFormEffect
+import com.thgiang.image.studio.ui.editor.model.TextFormPreset
+import com.thgiang.image.studio.ui.editor.model.LayerGroupRole
+import com.thgiang.image.studio.ui.editor.model.isLabelLayer
+import com.thgiang.image.studio.ui.editor.model.withPreset
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 class LabelViewModelDelegate(
     private val context: Context,
     private val layerFactory: EditorLayerFactory,
-    private val shapeFitFlow: MutableSharedFlow<Unit>,
-    private val readState: () -> EditorState,
-    private val updateState: (EditorState.() -> EditorState) -> Unit,
-    private val requestHistoryPush: () -> Unit,
-    private val pushHistory: () -> Unit,
-) {
+    shapeFitFlow: MutableSharedFlow<Unit>,
+    readState: () -> EditorState,
+    updateState: (EditorState.() -> EditorState) -> Unit,
+    requestHistoryPush: () -> Unit,
+    pushHistory: () -> Unit,
+) : EditorLayerMutationHost(shapeFitFlow, readState, updateState, requestHistoryPush, pushHistory) {
+
     fun addTextLayer(templateWidth: Float) {
         val layer = layerFactory.createTextLayer(templateWidth)
         val layerId = layer.id
@@ -28,14 +39,35 @@ class LabelViewModelDelegate(
         pushHistory()
     }
 
+    private fun fitAndSyncGroup(groupLayers: List<EditorLayer>): List<EditorLayer> {
+        val label = groupLayers.firstOrNull { it.isLabelLayer } ?: return groupLayers
+        val fittedLabel = label.withShapeFittedToText(context)
+        return groupLayers.map { layer ->
+            if (layer.isLabelLayer) {
+                fittedLabel
+            } else {
+                layer.copy(
+                    shapeWidthPx = fittedLabel.shapeWidthPx,
+                    shapeHeightPx = fittedLabel.shapeHeightPx,
+                    shapeType = fittedLabel.shapeType,
+                    cornerRadiusX = fittedLabel.cornerRadiusX,
+                    cornerRadiusY = fittedLabel.cornerRadiusY,
+                )
+            }
+        }
+    }
+
+    private fun primarySelectionId(layers: List<EditorLayer>): String =
+        layers.firstOrNull { it.groupRole == LayerGroupRole.LABEL }?.id
+            ?: layers.firstOrNull { it.isLabelLayer }?.id
+            ?: layers.first().id
+
     fun addShapeTextLayer(shapeType: ShapeType, templateWidth: Float) {
-        val layer = layerFactory
-            .createShapeTextLayer(templateWidth, shapeType)
-            .withShapeFittedToText(context)
-        val layerId = layer.id
+        val group = fitAndSyncGroup(layerFactory.createShapeTextGroup(templateWidth, shapeType))
+        val layerId = primarySelectionId(group)
         updateState {
             copy(
-                layers = layers + layer,
+                layers = layers + group,
                 selectedLayerId = layerId,
                 selectedTool = EditorTool.Label,
             )
@@ -44,13 +76,11 @@ class LabelViewModelDelegate(
     }
 
     fun confirmAddLabel(shapeType: ShapeType, templateWidth: Float) {
-        val layer = layerFactory
-            .createShapeTextLayer(templateWidth, shapeType)
-            .withShapeFittedToText(context)
-        val layerId = layer.id
+        val group = fitAndSyncGroup(layerFactory.createShapeTextGroup(templateWidth, shapeType))
+        val layerId = primarySelectionId(group)
         updateState {
             copy(
-                layers = layers + layer,
+                layers = layers + group,
                 selectedLayerId = layerId,
                 selectedTool = null,
             )
@@ -78,170 +108,105 @@ class LabelViewModelDelegate(
         updateState { copy(selectedTool = null) }
     }
 
-    // ── Shape creation ───────────────────────────────────────────
-
-    fun addShapeLayer(shapeType: ShapeType, templateWidth: Float) {
-        val layer = layerFactory.createShapeLayer(templateWidth, shapeType)
-        val layerId = layer.id
-        updateState {
-            copy(
-                layers = layers + layer,
-                selectedLayerId = layerId,
-                selectedTool = EditorTool.Shape,
-            )
-        }
-        pushHistory()
-    }
-
-    fun confirmAddShape(shapeType: ShapeType, templateWidth: Float) {
-        val layer = layerFactory.createShapeLayer(templateWidth, shapeType)
-        val layerId = layer.id
-        updateState {
-            copy(
-                layers = layers + layer,
-                selectedLayerId = layerId,
-                selectedTool = null,
-            )
-        }
-        pushHistory()
-    }
-
-    fun dismissShapeTool() {
-        updateState { copy(selectedTool = null) }
-    }
-
     fun updateShapeText(text: String) {
-        updateActiveLayer { it.copy(text = text) }
-        shapeFitFlow.tryEmit(Unit)
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(text = text) }
     }
 
     fun updateTextSize(sizeSp: Float) {
-        updateActiveTextLayer { it.copy(textSizeSp = sizeSp.coerceIn(1f, 500f)) }
-        requestHistoryPush()
+        updateActiveLabelLayer {
+            it.copy(
+                textSizeSp = sizeSp.coerceIn(1f, 500f),
+                viewport = it.viewport.withScale(1f),
+            )
+        }
     }
 
     fun updateTextFontFamily(fontFamily: String?) {
-        updateActiveTextLayer { it.copy(fontFamily = fontFamily?.takeIf { f -> f.isNotBlank() }) }
-        requestHistoryPush()
+        updateActiveLabelLayer {
+            it.copy(fontFamily = fontFamily?.takeIf { f -> f.isNotBlank() })
+        }
     }
 
     fun updateTextBold(bold: Boolean) {
-        updateActiveTextLayer { it.copy(fontWeight = if (bold) "bold" else "normal") }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(fontWeight = if (bold) "bold" else "normal") }
     }
 
     fun updateTextItalic(italic: Boolean) {
-        updateActiveTextLayer { it.copy(fontStyle = if (italic) "italic" else "normal") }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(fontStyle = if (italic) "italic" else "normal") }
     }
 
     fun updateTextUnderline(underline: Boolean) {
-        updateActiveLayer { it.copy(underline = underline) }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(underline = underline) }
     }
 
     fun updateTextLinethrough(linethrough: Boolean) {
-        updateActiveLayer { it.copy(linethrough = linethrough) }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(linethrough = linethrough) }
     }
 
     fun updateTextAlign(align: String) {
-        updateActiveLayer { it.copy(textAlign = align) }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(textAlign = align) }
     }
 
     fun updateLineHeight(multiplier: Float) {
-        updateActiveTextLayer { it.copy(lineHeight = multiplier.coerceIn(0.5f, 3f)) }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(lineHeight = multiplier.coerceIn(0.5f, 3f)) }
     }
 
     fun updateCharSpacing(spacing: Float) {
-        updateActiveTextLayer { it.copy(charSpacing = spacing.coerceIn(-20f, 80f)) }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(charSpacing = spacing.coerceIn(-20f, 80f)) }
     }
 
     fun updateTextTransform(transform: String?) {
-        updateActiveTextLayer { it.copy(textTransform = transform) }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(textTransform = transform) }
+    }
+
+    fun applyTextFormPreset(preset: TextFormPreset) {
+        updateActiveLabelLayer { layer ->
+            val defaultAmount = when (preset) {
+                TextFormPreset.NONE -> 0.5f
+                else -> layer.textForm.amount.takeIf { it > 0.01f } ?: 0.55f
+            }
+            layer.copy(textForm = layer.textForm.withPreset(preset).copy(amount = defaultAmount))
+        }
+    }
+
+    fun updateTextFormAmount(amount: Float) {
+        updateActiveLabelLayer {
+            it.copy(textForm = it.textForm.copy(amount = amount.coerceIn(0f, 1f)))
+        }
+    }
+
+    fun resetTextForm() {
+        updateActiveLabelLayer { it.copy(textForm = TextFormEffect()) }
     }
 
     fun applyLabelTypographyPreset(fontWeight: String, textSizeSp: Float, textTransform: String?) {
-        updateActiveTextLayer {
+        updateActiveLabelLayer {
             it.copy(
                 fontWeight = fontWeight,
                 textSizeSp = textSizeSp.coerceIn(1f, 500f),
                 textTransform = textTransform,
             )
         }
-        requestHistoryPush()
-    }
-
-    fun updateShapeColor(argb: Int) {
-        updateActiveLayer { it.copy(shapeColorArgb = argb, fillGradient = null) }
-        requestHistoryPush()
     }
 
     fun updateTextColor(argb: Int) {
-        updateActiveLayer { it.copy(textColorArgb = argb, textColorGradient = null) }
-        requestHistoryPush()
+        updateActiveLabelLayer { it.copy(textColorArgb = argb, textColorGradient = null) }
+    }
+
+    fun updateTextColorGradient(gradient: CloudGradient?) {
+        updateActiveLabelLayer { it.copy(textColorGradient = gradient) }
     }
 
     fun updateShapeType(shapeType: ShapeType) {
-        updateActiveTextLayer { layer -> layer.applyShapeTypeChange(shapeType) }
-        requestHistoryPush()
-    }
-
-    fun updateFillGradient(gradient: com.thgiang.image.core.domain.model.template.CloudGradient?) {
-        updateActiveLayer { it.copy(fillGradient = gradient) }
-        requestHistoryPush()
-    }
-
-    fun updateTextColorGradient(gradient: com.thgiang.image.core.domain.model.template.CloudGradient?) {
-        updateActiveLayer { it.copy(textColorGradient = gradient) }
-        requestHistoryPush()
-    }
-
-    fun updateStrokeColor(argb: Int) {
-        updateActiveLayer { it.copy(strokeColorArgb = argb) }
-        requestHistoryPush()
-    }
-
-    fun updateStrokeWidth(widthPx: Float) {
-        updateActiveTextLayer { it.copy(strokeWidthPx = widthPx.coerceIn(0f, 20f)) }
-        requestHistoryPush()
-    }
-
-    fun updateCornerRadius(radiusPx: Float) {
-        updateActiveLayer {
-            val r = radiusPx.coerceAtLeast(0f)
-            it.copy(cornerRadiusX = r, cornerRadiusY = r)
-        }
-        requestHistoryPush()
+        updateActiveLabelLayer { layer -> layer.applyShapeTypeChange(shapeType) }
     }
 
     fun syncShapeSize(widthPx: Float, heightPx: Float) {
-        updateActiveLayer {
+        updateActiveLabelLayer {
             it.copy(
                 shapeWidthPx = widthPx.coerceAtLeast(60f),
                 shapeHeightPx = heightPx.coerceAtLeast(30f),
             )
         }
-    }
-
-    private inline fun updateActiveLayer(crossinline block: (EditorLayer) -> EditorLayer) {
-        val state = readState()
-        val layerId = state.selectedLayerId ?: return
-        updateState {
-            val newLayers = layers.map { l ->
-                if (l.id == layerId) block(l) else l
-            }
-            copy(layers = newLayers)
-        }
-    }
-
-    private inline fun updateActiveTextLayer(crossinline block: (EditorLayer) -> EditorLayer) {
-        updateActiveLayer { block(it) }
-        shapeFitFlow.tryEmit(Unit)
     }
 }

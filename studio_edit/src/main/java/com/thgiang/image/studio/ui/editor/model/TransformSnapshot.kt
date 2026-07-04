@@ -26,7 +26,7 @@ data class TransformSnapshot(
             if (a.isLocked != b.isLocked) return false
             if (a.isVisible != b.isVisible) return false
             // Shape-text specific
-            if (a.type == LayerType.SHAPE_TEXT) {
+            if (a.isVectorContentLayer) {
                 if (a.text != b.text) return false
                 if (a.textColorArgb != b.textColorArgb) return false
                 if (kotlin.math.abs(a.textSizeSp - b.textSizeSp) >= epsilon) return false

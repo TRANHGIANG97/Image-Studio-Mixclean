@@ -131,7 +131,7 @@ private fun LayerPickerRow(
             contentAlignment = Alignment.Center,
         ) {
             when {
-                layer.type == LayerType.SHAPE_TEXT -> {
+                layer.isVectorContentLayer -> {
                     val shapeColor = Color(layer.shapeColorArgb)
                     val textColor = Color(layer.textColorArgb)
                     val backgroundBrush = if (layer.fillGradient != null) {
@@ -208,7 +208,7 @@ private fun LayerPickerRow(
 @Composable
 private fun layerPickerLabel(layer: EditorLayer, displayIndex: Int): String {
     return when {
-        layer.type == LayerType.SHAPE_TEXT -> {
+        layer.isVectorContentLayer -> {
             val preview = EditorTextStyleMapper.applyTextTransform(
                 layer.text.trim(),
                 layer.textTransform,

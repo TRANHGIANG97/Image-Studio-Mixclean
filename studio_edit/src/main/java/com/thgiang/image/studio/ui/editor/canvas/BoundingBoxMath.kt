@@ -16,24 +16,15 @@ fun detectHandleRotated(
     handleRadius: Float,
     rotateOffset: Float,
     rotateTouchRadius: Float,
-    rotateHandleOffset: Float
+    rotateHandleOffset: Float,
+    lockAspectRatio: Boolean
 ): HandleZone {
     val local = inverseRotatePoint(touch, center, rotation)
 
     val hw = screenW / 2f
     val hh = screenH / 2f
 
-    val corners = listOf(
-        Offset(center.x - hw, center.y - hh) to HandleZone.Corner.TL,
-        Offset(center.x + hw, center.y - hh) to HandleZone.Corner.TR,
-        Offset(center.x - hw, center.y + hh) to HandleZone.Corner.BL,
-        Offset(center.x + hw, center.y + hh) to HandleZone.Corner.BR
-    )
-
-    corners.forEach { (pos, zone) ->
-        if (distance(local, pos) < handleRadius + EditorDims.CORNER_EXTRA_TOUCH) return zone
-    }
-
+    // 1. Check rotate handle first
     val rotBase = Offset(center.x, center.y + hh)
     val rotPos = Offset(center.x, center.y + hh + rotateOffset + rotateHandleOffset)
     val nearRotateButton = distance(local, rotPos) <= rotateTouchRadius
@@ -44,6 +35,48 @@ fun detectHandleRotated(
         return HandleZone.Rotate
     }
 
+    // 2. Find the closest handle among corners and edges
+    var bestZone: HandleZone = HandleZone.None
+    var minDistance = Float.MAX_VALUE
+    val limit = handleRadius + EditorDims.CORNER_EXTRA_TOUCH
+
+    val corners = listOf(
+        Offset(center.x - hw, center.y - hh) to HandleZone.Corner.TL,
+        Offset(center.x + hw, center.y - hh) to HandleZone.Corner.TR,
+        Offset(center.x - hw, center.y + hh) to HandleZone.Corner.BL,
+        Offset(center.x + hw, center.y + hh) to HandleZone.Corner.BR
+    )
+
+    corners.forEach { (pos, zone) ->
+        val dist = distance(local, pos)
+        if (dist < limit && dist < minDistance) {
+            minDistance = dist
+            bestZone = zone
+        }
+    }
+
+    if (!lockAspectRatio) {
+        val edges = listOf(
+            Offset(center.x - hw, center.y) to HandleZone.Edge.Left,
+            Offset(center.x + hw, center.y) to HandleZone.Edge.Right,
+            Offset(center.x, center.y - hh) to HandleZone.Edge.Top,
+            Offset(center.x, center.y + hh) to HandleZone.Edge.Bottom
+        )
+
+        edges.forEach { (pos, zone) ->
+            val dist = distance(local, pos)
+            if (dist < limit && dist < minDistance) {
+                minDistance = dist
+                bestZone = zone
+            }
+        }
+    }
+
+    if (bestZone != HandleZone.None) {
+        return bestZone
+    }
+
+    // 3. Check body
     val padding = handleRadius * 0.5f
     return if (local.x in (center.x - hw + padding)..(center.x + hw - padding) &&
         local.y in (center.y - hh + padding)..(center.y + hh - padding)
@@ -66,10 +99,9 @@ fun calculateRotatedScale(
 ): Float {
     val localStart = inverseRotatePoint(startTouch, center, rotation)
     val localCurrent = inverseRotatePoint(currentTouch, center, rotation)
-    val opposite = oppositeCorner(handle, center, screenW, screenH)
 
-    val startDist = distance(localStart, opposite).coerceAtLeast(1f)
-    val currentDist = distance(localCurrent, opposite).coerceAtLeast(1f)
+    val startDist = distance(localStart, center).coerceAtLeast(1f)
+    val currentDist = distance(localCurrent, center).coerceAtLeast(1f)
 
     val scaleFactor = currentDist / startDist
     return (startScale * scaleFactor).coerceIn(EditorConfig.MIN_SCALE, EditorConfig.MAX_SCALE)

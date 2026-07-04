@@ -20,11 +20,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
@@ -154,7 +159,7 @@ fun EditorObjectList(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    layers.forEachIndexed { _, layer ->
+                    layers.filter { it.shouldShowInObjectList() }.forEachIndexed { _, layer ->
                         val isSample = layer.product.isSample
                         val displayIndex = if (!isSample) {
                             nonSampleIndex++
@@ -165,7 +170,7 @@ fun EditorObjectList(
 
                         ObjectLayerCard(
                             layer = layer,
-                            isSelected = layer.id == selectedLayerId,
+                            isSelected = layers.isSelectedAsGroup(selectedLayerId, layer.id),
                             displayIndex = displayIndex,
                             accentColor = tokens.accent,
                             accentSoftColor = tokens.accentSoft,
@@ -204,7 +209,7 @@ private fun ObjectLayerCard(
 
     // Tên hiển thị
     val labelText = when {
-        layer.type == LayerType.SHAPE_TEXT -> {
+        layer.isVectorContentLayer -> {
             val preview = EditorTextStyleMapper.applyTextTransform(
                 layer.text.trim(),
                 layer.textTransform,
@@ -274,7 +279,7 @@ private fun ObjectLayerCard(
                 }
 
                 // SHAPE_TEXT — mini shape + text preview
-                layer.type == LayerType.SHAPE_TEXT -> {
+                layer.isVectorContentLayer -> {
                     val shapeColor = Color(layer.shapeColorArgb)
                     val textColor = Color(layer.textColorArgb)
                     val backgroundBrush = if (layer.fillGradient != null) {
@@ -354,7 +359,7 @@ private fun ObjectLayerCard(
             }
 
             // Badge góc trên bên trái: layer type icon/text
-            if (layer.type == LayerType.SHAPE_TEXT || layer.type == LayerType.SHADOW_REGION) {
+            if (layer.isVectorContentLayer || layer.type == LayerType.SHADOW_REGION) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -421,4 +426,366 @@ private fun ObjectLayerCard(
             modifier = Modifier.fillMaxWidth()
         )
     }
+}
+
+@Composable
+fun LayersIcon(
+    modifier: Modifier = Modifier,
+    tint: Color = Color(0xFF374151)
+) {
+    Canvas(modifier = modifier.size(20.dp)) {
+        val sizeDp = size.width
+        val cardWidth = sizeDp * 0.65f
+        val cardHeight = sizeDp * 0.65f
+        
+        // Draw bottom card
+        drawRoundRect(
+            color = tint.copy(alpha = 0.4f),
+            topLeft = Offset(sizeDp * 0.35f, sizeDp * 0.35f),
+            size = Size(cardWidth, cardHeight),
+            cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx()),
+            style = Stroke(width = 1.5.dp.toPx())
+        )
+        
+        // Draw top card
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(0f, 0f),
+            size = Size(cardWidth, cardHeight),
+            cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx()),
+            style = Stroke(width = 1.5.dp.toPx())
+        )
+        // Fill top card content slightly
+        drawRoundRect(
+            color = tint.copy(alpha = 0.12f),
+            topLeft = Offset(0f, 0f),
+            size = Size(cardWidth, cardHeight),
+            cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx())
+        )
+    }
+}
+
+@Composable
+fun EditorObjectListVertical(
+    layers: List<EditorLayer>,
+    selectedLayerId: String?,
+    onSelectLayer: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tokens = LocalEditorTokens.current
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    var nonSampleIndex = 0
+
+    Column(
+        modifier = modifier.wrapContentSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Vertical stack of layers (shown when expanded)
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn(tween(200)) + expandVertically(tween(200)),
+            exit = fadeOut(tween(150)) + shrinkVertically(tween(180))
+        ) {
+            Box(
+                modifier = Modifier
+                    .heightIn(max = 260.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 4.dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    layers.filter { it.shouldShowInObjectList() }.forEach { layer ->
+                        val isSample = layer.product.isSample
+                        val displayIndex = if (!isSample) {
+                            nonSampleIndex++
+                            nonSampleIndex
+                        } else {
+                            -1
+                        }
+
+                        ObjectLayerCardCompact(
+                            layer = layer,
+                            isSelected = layers.isSelectedAsGroup(selectedLayerId, layer.id),
+                            displayIndex = displayIndex,
+                            accentColor = tokens.accent,
+                            accentSoftColor = tokens.accentSoft,
+                            surfaceElevatedColor = tokens.surfaceElevated,
+                            onSelect = { onSelectLayer(layer.id) }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Toggle Button at the bottom
+        val toggleAlpha = if (expanded) 1f else 0.5f
+        Box(
+            modifier = Modifier
+                .size(46.dp)
+                .graphicsLayer { alpha = toggleAlpha }
+                .shadow(
+                    elevation = 4.dp,
+                    shape = CircleShape,
+                    ambientColor = Color.Black.copy(alpha = 0.15f),
+                    spotColor = Color.Black.copy(alpha = 0.25f)
+                )
+                .background(Color.White, CircleShape)
+                .border(
+                    width = 1.dp,
+                    color = if (expanded) tokens.accent.copy(alpha = 0.5f) else Color(0xFFE5E7EB),
+                    shape = CircleShape
+                )
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = androidx.compose.foundation.LocalIndication.current,
+                    onClick = { expanded = !expanded }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            LayersIcon(
+                modifier = Modifier.size(20.dp),
+                tint = if (expanded) tokens.accent else tokens.textSecondary
+            )
+        }
+    }
+}
+
+@Composable
+private fun ObjectLayerCardCompact(
+    layer: EditorLayer,
+    isSelected: Boolean,
+    displayIndex: Int,
+    accentColor: Color,
+    accentSoftColor: Color,
+    surfaceElevatedColor: Color,
+    onSelect: () -> Unit
+) {
+    val scale by animateFloatAsState(
+        targetValue = if (isSelected) 1.06f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "cardScale"
+    )
+
+    val thumbnailModel = remember(layer.product) {
+        layer.product.foregroundUriString ?: layer.product.originalUriString
+    }
+
+    val labelText = when {
+        layer.isVectorContentLayer -> {
+            val preview = EditorTextStyleMapper.applyTextTransform(
+                layer.text.trim(),
+                layer.textTransform,
+            ).ifBlank { stringResource(R.string.studio_layer_text_label) }
+            stringResource(R.string.studio_layer_text_with_content, preview.take(8))
+        }
+        layer.type == LayerType.SHADOW_REGION -> "Bóng"
+        displayIndex == -1 -> stringResource(R.string.studio_badge_sample)
+        else -> stringResource(R.string.studio_layer_image_label, displayIndex)
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Label Text on the left
+        Box(
+            modifier = Modifier
+                .shadow(elevation = 2.dp, shape = RoundedCornerShape(4.dp))
+                .background(Color.White.copy(alpha = 0.92f), RoundedCornerShape(4.dp))
+                .border(width = 0.5.dp, color = Color(0xFFE0E0E0), shape = RoundedCornerShape(4.dp))
+                .padding(horizontal = 6.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = labelText,
+                color = if (isSelected) accentColor else Color(0xFF4B5563),
+                fontSize = 9.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .then(
+                if (isSelected) Modifier.shadow(
+                    elevation = 6.dp,
+                    shape = RoundedCornerShape(8.dp),
+                    ambientColor = accentColor.copy(alpha = 0.4f),
+                    spotColor = accentColor.copy(alpha = 0.6f)
+                ) else Modifier
+            )
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (isSelected) accentSoftColor else surfaceElevatedColor
+            )
+            .then(
+                if (isSelected) Modifier.border(
+                    width = 2.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(accentColor, accentColor.copy(alpha = 0.6f))
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) else Modifier.border(
+                    width = 1.dp,
+                    color = Color(0xFFE5E7EB),
+                    shape = RoundedCornerShape(8.dp)
+                )
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = androidx.compose.foundation.LocalIndication.current,
+                onClick = onSelect
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        when {
+            layer.product.processing -> {
+                StudioLottieLoader(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .align(Alignment.Center)
+                )
+            }
+            layer.isVectorContentLayer -> {
+                val shapeColor = Color(layer.shapeColorArgb)
+                val textColor = Color(layer.textColorArgb)
+                val backgroundBrush = if (layer.fillGradient != null) {
+                    EditorGradientMapper.toComposeBrush(
+                        gradient = layer.fillGradient,
+                        width = 80f,
+                        height = 50f,
+                        fallbackColor = shapeColor,
+                    )
+                } else {
+                    Brush.linearGradient(listOf(shapeColor.copy(alpha = 0.18f), shapeColor.copy(alpha = 0.18f)))
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(backgroundBrush)
+                        .padding(4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    val isShapeInvisible = layer.shapeType == ShapeType.TEXT_ONLY ||
+                        layer.shapeColorArgb == 0 ||
+                        (layer.shapeColorArgb and 0xFFFFFF) == 0xFFFFFF
+                    if (!isShapeInvisible) {
+                        ShapePreviewIcon(
+                            shape = layer.shapeType,
+                            color = shapeColor,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                    val isTextInvisible = layer.textColorArgb == 0 || (layer.textColorArgb and 0xFFFFFF) == 0xFFFFFF
+                    Text(
+                        text = EditorTextStyleMapper
+                            .applyTextTransform(layer.text, layer.textTransform)
+                            .ifBlank { "…" }
+                            .take(10),
+                        color = if (isTextInvisible) Color(0xFF374151) else textColor,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+            thumbnailModel != null -> {
+                val checker = rememberCheckerboardBrush()
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(checker)
+                ) {
+                    AsyncImage(
+                        model = thumbnailModel,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
+            else -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(Color(0xFFE8ECF0), Color(0xFFD1D5DB))
+                            )
+                        )
+                )
+            }
+        }
+
+        // Badge góc trên bên trái
+        if (layer.isVectorContentLayer || layer.type == LayerType.SHADOW_REGION) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(2.dp)
+                    .size(12.dp)
+                    .background(
+                        color = if (isSelected) accentColor else Color(0xCC000000),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (layer.type == LayerType.SHADOW_REGION) "S" else "T",
+                    color = Color.White,
+                    fontSize = 7.sp,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        // Checkmark indicator góc dưới phải
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(2.dp)
+                    .size(12.dp)
+                    .background(accentColor, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                EditorCheckIcon(
+                    modifier = Modifier.size(7.dp),
+                    tint = Color.White
+                )
+            }
+        }
+
+        // Locked badge
+        if (layer.isLocked) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(2.dp)
+                    .size(10.dp)
+                    .background(Color(0xCC666666), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("🔒", fontSize = 6.sp)
+            }
+        }
+    }
+}
 }

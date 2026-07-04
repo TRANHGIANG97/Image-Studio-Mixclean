@@ -42,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.thgiang.image.studio.ui.editor.tool.StickerGallerySheet
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -70,6 +71,7 @@ fun EditorControlsV2(
     onUpdateShadowAngle: (Float) -> Unit,
     onUpdateShadowDistance: (Float) -> Unit,
     onUpdateShadowColor: (Int) -> Unit,
+    onUpdateShadowBlur: (Float?) -> Unit,
     onUpdateAlpha: (Float) -> Unit,
     onSelectCropRatio: (CropRatio) -> Unit,
     onLayoutEvent: (EditorEvent) -> Unit,
@@ -113,11 +115,24 @@ fun EditorControlsV2(
                             }
 
                             is EditorTool.Sticker -> {
+                                var showGallery by rememberSaveable { mutableStateOf(false) }
+
                                 StickerPicker(
-                                    onStickerSelected = { assetPath ->
-                                        onLayoutEvent(EditorEvent.AddSticker(assetPath))
+                                    onStickerSelected = { url ->
+                                        onLayoutEvent(EditorEvent.AddSticker(url))
                                     },
+                                    onShowGallery = { showGallery = true },
                                 )
+
+                                if (showGallery) {
+                                    StickerGallerySheet(
+                                        onStickerSelected = { url ->
+                                            onLayoutEvent(EditorEvent.AddSticker(url))
+                                            showGallery = false
+                                        },
+                                        onDismiss = { showGallery = false },
+                                    )
+                                }
                             }
 
                             is EditorTool.Label -> {
@@ -141,6 +156,7 @@ fun EditorControlsV2(
                                     onUpdateShadowAngle = onUpdateShadowAngle,
                                     onUpdateShadowDistance = onUpdateShadowDistance,
                                     onUpdateShadowColor = onUpdateShadowColor,
+                                    onUpdateShadowBlur = onUpdateShadowBlur,
                                 )
                             }
 

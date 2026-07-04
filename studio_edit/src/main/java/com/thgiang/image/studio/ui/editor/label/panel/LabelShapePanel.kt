@@ -17,21 +17,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thgiang.image.studio.R
@@ -51,13 +55,16 @@ fun LabelShapePanel(
 ) {
     var expanded by rememberSaveable { mutableStateOf(true) }
     var labelText by rememberSaveable { mutableStateOf("") }
+    var labelTextField by remember { mutableStateOf(TextFieldValue("")) }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val chevronRotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = tween(durationMillis = 200),
         label = "chevronRotation"
     )
 
-    val isShapeLayer = selectedLayer?.type == LayerType.SHAPE_TEXT
+    val isLabelLayer = selectedLayer?.isLabelLayer == true
 
     Column(
         modifier = Modifier
@@ -100,7 +107,7 @@ fun LabelShapePanel(
 
             LabelConfirmButton(
                 onClick = {
-                    if (isShapeLayer) {
+                    if (isLabelLayer) {
                         onLayoutEvent(EditorEvent.DismissLabelTool)
                     } else {
                         onLayoutEvent(EditorEvent.ConfirmAddLabelText(labelText))
@@ -108,7 +115,7 @@ fun LabelShapePanel(
                     }
                 },
                 tokens = tokens,
-                enabled = isShapeLayer || labelText.isNotBlank(),
+                enabled = isLabelLayer || labelText.isNotBlank(),
             )
         }
 
@@ -117,7 +124,7 @@ fun LabelShapePanel(
             enter = expandVertically(animationSpec = tween(200)),
             exit = shrinkVertically(animationSpec = tween(180)),
         ) {
-            if (isShapeLayer) {
+            if (isLabelLayer) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -132,15 +139,22 @@ fun LabelShapePanel(
                     )
                 }
             } else {
-                // Text-only label creation — no shape gallery
-                OutlinedTextField(
-                    value = labelText,
-                    onValueChange = { labelText = it },
-                    placeholder = { Text(stringResource(R.string.studio_label_text_placeholder)) },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                LabelTextInputRow(
+                    value = labelTextField,
+                    onValueChange = { updated ->
+                        labelTextField = updated
+                        labelText = updated.text
+                    },
+                    onInsertNewline = {
+                        labelTextField = insertNewlineAtCursor(labelTextField).also { updated ->
+                            labelText = updated.text
+                        }
+                    },
+                    onDone = {
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
         }

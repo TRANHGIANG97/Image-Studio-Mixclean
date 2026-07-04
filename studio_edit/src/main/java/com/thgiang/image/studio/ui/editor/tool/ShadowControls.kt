@@ -1,6 +1,7 @@
 @file:Suppress("OPT_IN_USAGE", "OPT_IN_USAGE_ERROR")
 package com.thgiang.image.studio.ui.editor.tool
 import com.thgiang.image.studio.ui.editor.tool.*
+import com.thgiang.image.studio.ui.editor.panel.toSliderColors
 
 import androidx.compose.animation.AnimatedVisibility
 import com.thgiang.image.studio.ui.editor.model.*
@@ -99,6 +100,7 @@ fun ShadowToolPanel(
     onUpdateShadowAngle: (Float) -> Unit,
     onUpdateShadowDistance: (Float) -> Unit,
     onUpdateShadowColor: (Int) -> Unit,
+    onUpdateShadowBlur: (Float?) -> Unit,
     tokens: EditorTokens = LocalEditorTokens.current,
 ) {
     var expanded by rememberSaveable { mutableStateOf(true) }
@@ -201,6 +203,19 @@ fun ShadowToolPanel(
                     Spacer(Modifier.weight(0.5f))
                 }
 
+                if (appearance.shadowIntensity > 0.05f) {
+                    val currentBlur = appearance.shadowBlur ?: 8f
+                    PrecisionSlider(
+                        label = "Độ mờ (Blur)",
+                        value = currentBlur,
+                        valueRange = 0f..50f,
+                        onValueChange = onUpdateShadowBlur,
+                        valueFormatter = { "${it.toInt()}px" },
+                        colors = remember(tokens) { tokens.toSliderColors() },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 // Presets Row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -214,6 +229,7 @@ fun ShadowToolPanel(
                                 onUpdateShadow(preset.intensity)
                                 onUpdateShadowAngle(preset.angle)
                                 onUpdateShadowDistance(preset.distance)
+                                onUpdateShadowBlur(null)
                             },
                             modifier = Modifier.weight(1f)
                         )

@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
@@ -74,6 +75,8 @@ fun EditorCanvasV2(
     showOverlay: Boolean = false,
     viewportPadding: PaddingValues = PaddingValues(),
     isLabelToolActive: Boolean = false,
+    isShapeToolActive: Boolean = false,
+    onEvent: (EditorEvent) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -147,7 +150,7 @@ fun EditorCanvasV2(
                         canvasOffset += pan
                     }
                 }
-                .pointerInput(layers, selectedLayerId, templateSize, isLabelToolActive, layerPickerHits) {
+                .pointerInput(layers, selectedLayerId, templateSize, isLabelToolActive, isShapeToolActive, layerPickerHits) {
                     detectTapGestures(
                         onTap = { tap ->
                             val displayWidthPx = with(density) { displayWidth.toPx() }
@@ -166,14 +169,22 @@ fun EditorCanvasV2(
                                 calculatedScale = calculatedScale,
                                 selectionHitPaddingPx = selectionHitPaddingPx,
                             )
-                            val hits = LayerHitTest.hitLayersAtPoint(layers, hitContext)
+                            val rawHits = LayerHitTest.hitLayersAtPoint(layers, hitContext)
+                            val hits = LayerGroupOps.collapseHits(rawHits, layers)
                             when {
-                                // Label tool active + single hit is a SHAPE_TEXT layer → start inline editing
-                                isLabelToolActive && hits.size == 1 && hits.first().type == LayerType.SHAPE_TEXT -> {
+                                isLabelToolActive && hits.size == 1 && hits.first().isLabelLayer -> {
                                     onShapeTextInlineEdit(hits.first().id)
                                 }
                                 hits.isEmpty() -> onSelectLayer(null)
-                                hits.size == 1 -> onSelectLayer(hits.first().id)
+                                hits.size == 1 -> {
+                                    val hit = hits.first()
+                                    val selectId = when {
+                                        isShapeToolActive && hit.groupId != null ->
+                                            layers.frameInGroup(hit)?.id ?: hit.id
+                                        else -> hit.id
+                                    }
+                                    onSelectLayer(selectId)
+                                }
                                 else -> layerPickerHits = hits
                             }
                         },
@@ -195,8 +206,11 @@ fun EditorCanvasV2(
                                 calculatedScale = calculatedScale,
                                 selectionHitPaddingPx = selectionHitPaddingPx,
                             )
-                            val doubleHits = LayerHitTest.hitLayersAtPoint(layers, hitContext)
-                            if (doubleHits.size == 1 && doubleHits.first().type == LayerType.SHAPE_TEXT) {
+                            val doubleHits = LayerGroupOps.collapseHits(
+                                LayerHitTest.hitLayersAtPoint(layers, hitContext),
+                                layers,
+                            )
+                            if (doubleHits.size == 1 && doubleHits.first().isLabelLayer) {
                                 onShapeTextInlineEdit(doubleHits.first().id)
                             }
                         }
@@ -287,41 +301,39 @@ fun EditorCanvasV2(
                 } else {
                     layers.forEach { layer ->
                         if (!layer.isVisible) return@forEach
-                        when (layer.type) {
-                            LayerType.SHAPE_TEXT -> {
+                        when {
+                            layer.isVectorContentLayer -> {
+                                val isSelected = layers.isSelectedAsGroup(selectedLayerId, layer.id)
                                 ShapeTextLayer(
                                     layer         = layer,
                                     displayScale  = calculatedScale,
                                     templateSize  = templateSize,
                                     onGesture     = { delta ->
-                                        if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
+                                        if (isSelected && !layer.isLocked) onGesture(delta)
                                     },
                                     onGestureEnd  = {
-                                        if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
+                                        if (isSelected && !layer.isLocked) onGestureEnd()
                                     },
-                                    showBoundingBox = layer.id == selectedLayerId,
+                                    showBoundingBox = isSelected,
                                     isLocked      = layer.isLocked,
-                                    isInlineEditing = layer.id == inlineEditingLayerId,
+                                    isInlineEditing = layer.id == inlineEditingLayerId && layer.shouldRenderLabelContent,
                                     onRequestInlineEdit = { inlineEditingLayerId = layer.id },
                                     onCommitInlineEdit = { text ->
                                         onShapeTextCommit(text)
                                         inlineEditingLayerId = null
                                     },
                                     onSyncShapeSize = { widthPx, heightPx ->
-                                        if (layer.id == selectedLayerId && !layer.isLocked) {
+                                        if (isSelected && !layer.isLocked) {
                                             onSyncShapeSize(widthPx, heightPx)
                                         }
                                     },
                                     modifier      = Modifier.align(Alignment.Center)
                                 )
                             }
-                            LayerType.IMAGE -> {
+                            layer.type == LayerType.IMAGE -> {
                                 if (layer.product.isBackgroundRemoved && layer.product.foregroundUri != null) {
                                     ProductLayerV2(
-                                        product = layer.product,
-                                        viewport = layer.viewport,
-                                        appearance = layer.appearance,
-                                        cropRatio = layer.cropRatio,
+                                        layer = layer,
                                         displayScale = calculatedScale,
                                         templateSize = templateSize,
                                         layerBlendMode = layer.blendMode,
@@ -331,13 +343,14 @@ fun EditorCanvasV2(
                                         onGestureEnd = {
                                             if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
                                         },
-                                        showOverlay = showOverlay,
+                                        showOverlay = showOverlay && layer.id == selectedLayerId,
                                         showBoundingBox = layer.id == selectedLayerId,
-                                        isLocked = layer.isLocked,
-                                        strokeColorArgb = layer.resolveStrokeColorArgb(),
-                                        strokeWidthPx = layer.resolveStrokeWidthPx(),
-                                        onBoundingBoxVisible = { /* Not used */ },
-                                        onPickImage = onPickImage
+                                        onBoundingBoxVisible = { visible ->
+                                            if (visible) {
+                                                onSelectLayer(layer.id)
+                                            }
+                                        },
+                                        onPickImage = onPickImage,
                                     )
                                 } else if (layer.product.processing) {
                                     Box(
@@ -350,7 +363,7 @@ fun EditorCanvasV2(
                                     }
                                 }
                             }
-                            LayerType.SHADOW_REGION -> {
+                            layer.type == LayerType.SHADOW_REGION -> {
                                 ShadowRegionLayer(
                                     layer = layer,
                                     displayScale = calculatedScale,
@@ -406,6 +419,20 @@ fun EditorCanvasV2(
                     )
                 }
             }
+        }
+        // ── Floating Quick Actions (Shape) ───────────────────────
+        val activeLayer = layers.find { it.id == selectedLayerId }
+        if (activeLayer != null) {
+            val canvasTop = ((maxHeight - displayHeight) / 2f).coerceAtLeast(0.dp)
+            ShapeQuickActionsBar(
+                layer = activeLayer,
+                visible = true,
+                onEvent = onEvent,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = canvasTop)
+                    .zIndex(10f)
+            )
         }
     }
 }
@@ -468,8 +495,8 @@ fun ShadowRegionLayer(
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
-    val baseW = layer.product.baseSize.width.toFloat()
-    val baseH = layer.product.baseSize.height.toFloat()
+    val baseW = layer.shapeWidthPx
+    val baseH = layer.shapeHeightPx
 
     val widthDp = with(density) { (baseW * layer.viewport.scale * displayScale).toInt().coerceAtLeast(1).toDp() }
     val heightDp = with(density) { (baseH * layer.viewport.scale * displayScale).toInt().coerceAtLeast(1).toDp() }
@@ -521,6 +548,7 @@ fun ShadowRegionLayer(
             viewport = layer.viewport,
             displayScale = displayScale,
             templateSize = templateSize,
+            lockAspectRatio = false,
             onGesture = onGesture,
             onGestureEnd = onGestureEnd,
             showBoundingBox = showBoundingBox,

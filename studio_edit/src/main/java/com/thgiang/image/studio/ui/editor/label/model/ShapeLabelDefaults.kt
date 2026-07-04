@@ -5,8 +5,9 @@ import com.thgiang.image.studio.ui.editor.model.*
 
 /** Default visible outline for shape labels (accent blue, 5px at 1:1 template scale). */
 object ShapeLabelDefaults {
-    const val BORDER_COLOR_ARGB: Int = 0xFF2563EB.toInt()
-    const val BORDER_WIDTH_PX: Float = 5f
+    const val BORDER_COLOR_ARGB: Int = 0xFF1565C0.toInt()
+    const val BORDER_WIDTH_PX: Float = 2f
+    const val DEFAULT_TEXT_SIZE_SP: Float = 65f
 }
 
 fun EditorLayer.applyShapeTypeChange(shapeType: ShapeType): EditorLayer {

@@ -1,6 +1,7 @@
 package com.thgiang.image.studio.ui.editor.canvas
 import com.thgiang.image.studio.ui.editor.canvas.*
 
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import com.thgiang.image.studio.ui.editor.model.*
 import androidx.compose.ui.geometry.Size
@@ -82,7 +83,8 @@ fun DrawScope.drawRotatedOverlay(
     gestureMode: GestureMode,
     activeHandle: HandleZone,
     isGestureActive: Boolean,
-    isLocked: Boolean = false
+    isLocked: Boolean = false,
+    lockAspectRatio: Boolean = true
 ) {
     withTransform({
         rotate(degrees = rotation, pivot = Offset(cx, cy))
@@ -148,6 +150,61 @@ fun DrawScope.drawRotatedOverlay(
                         color = Color.White,
                         radius = radius * 0.4f,
                         center = pos
+                    )
+                }
+            }
+
+            // Edge handles (Canva-style pill handles)
+            if (!lockAspectRatio) {
+                val edgeHandles = listOf(
+                    Offset(cx - hw, cy) to HandleZone.Edge.Left,
+                    Offset(cx + hw, cy) to HandleZone.Edge.Right,
+                    Offset(cx, cy - hh) to HandleZone.Edge.Top,
+                    Offset(cx, cy + hh) to HandleZone.Edge.Bottom
+                )
+
+                edgeHandles.forEach { (pos, zone) ->
+                    val isActive = gestureMode == GestureMode.SCALE_EDGE && activeHandle == zone
+                    val isHorizontal = zone == HandleZone.Edge.Top || zone == HandleZone.Edge.Bottom
+                    
+                    val w = if (isHorizontal) dimensions.edgeHandleHeightPx else dimensions.edgeHandleWidthPx
+                    val h = if (isHorizontal) dimensions.edgeHandleWidthPx else dimensions.edgeHandleHeightPx
+                    
+                    val handleColor = if (isActive) EditorColors.HandleActive else EditorColors.HandleInactive
+                    
+                    // Shadow behind the pill handle
+                    drawRoundRect(
+                        color = Color.Black.copy(alpha = 0.2f),
+                        topLeft = Offset(pos.x - w / 2f - 1.5f.dp.toPx(), pos.y - h / 2f - 1.5f.dp.toPx()),
+                        size = Size(w + 3.dp.toPx(), h + 3.dp.toPx()),
+                        cornerRadius = CornerRadius(dimensions.edgeHandleWidthPx / 2f, dimensions.edgeHandleWidthPx / 2f)
+                    )
+
+                    // Accent glow when active
+                    if (isActive) {
+                        drawRoundRect(
+                            color = EditorColors.HandleActive.copy(alpha = 0.35f),
+                            topLeft = Offset(pos.x - w / 2f - 3.dp.toPx(), pos.y - h / 2f - 3.dp.toPx()),
+                            size = Size(w + 6.dp.toPx(), h + 6.dp.toPx()),
+                            cornerRadius = CornerRadius(dimensions.edgeHandleWidthPx / 2f, dimensions.edgeHandleWidthPx / 2f)
+                        )
+                    }
+
+                    // Main pill handle
+                    drawRoundRect(
+                        color = handleColor,
+                        topLeft = Offset(pos.x - w / 2f, pos.y - h / 2f),
+                        size = Size(w, h),
+                        cornerRadius = CornerRadius(dimensions.edgeHandleWidthPx / 2f, dimensions.edgeHandleWidthPx / 2f)
+                    )
+
+                    // Border stroke
+                    drawRoundRect(
+                        color = EditorColors.HandleStroke,
+                        topLeft = Offset(pos.x - w / 2f, pos.y - h / 2f),
+                        size = Size(w, h),
+                        cornerRadius = CornerRadius(dimensions.edgeHandleWidthPx / 2f, dimensions.edgeHandleWidthPx / 2f),
+                        style = Stroke(width = dimensions.borderStrokePx)
                     )
                 }
             }

@@ -113,9 +113,8 @@ fun ThemeplateEditorScreen(
 
     EditorTheme {
         val tokens = LocalEditorTokens.current
-        val editingToolsUnlocked = state.layers.any {
-            it.product.isBackgroundRemoved && !it.product.isSample && !it.product.processing
-        }
+        val activeLayer = state.layers.find { it.id == state.selectedLayerId }
+        val editingToolsUnlocked = activeLayer != null && !activeLayer.product.processing
         val selectedToolForUi = state.selectedTool.takeIf { tool ->
             editingToolsUnlocked || tool is EditorTool.Label || tool is EditorTool.Sticker || tool is EditorTool.Shape
         }
@@ -142,11 +141,24 @@ fun ThemeplateEditorScreen(
                     layers = state.layers,
                     selectedLayerId = state.selectedLayerId,
                     isLabelToolActive = selectedToolForUi is EditorTool.Label,
+                    isShapeToolActive = selectedToolForUi is EditorTool.Shape,
                     showOverlay = state.showOverlay,
-                    viewportPadding = PaddingValues(
-                        top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp,
-                        bottom = if (state.layers.isNotEmpty()) 360.dp else 88.dp
-                    ),
+                    viewportPadding = run {
+                        val imeHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+                        val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                        val toolbarHeight = 56.dp
+                        val bottomPadding = if (imeHeight > 0.dp) {
+                            // Keyboard is visible: canvas fits above keyboard + toolbar
+                            imeHeight + toolbarHeight
+                        } else {
+                            // Keyboard hidden: use existing logic
+                            if (state.layers.isNotEmpty()) 360.dp else (toolbarHeight + navBarHeight)
+                        }
+                        PaddingValues(
+                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp,
+                            bottom = bottomPadding
+                        )
+                    },
                     onGesture = { delta ->
                         focusManager.clearFocus()
                         keyboardController?.hide()
@@ -166,7 +178,20 @@ fun ThemeplateEditorScreen(
                     onSyncShapeSize = { widthPx, heightPx ->
                         viewModel.onEvent(EditorEvent.SyncShapeSize(widthPx, heightPx))
                     },
+                    onEvent = { viewModel.onEvent(it) },
                     modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            if (state.template.loaded && state.layers.isNotEmpty()) {
+                EditorObjectListVertical(
+                    layers = state.layers,
+                    selectedLayerId = state.selectedLayerId,
+                    onSelectLayer = { id -> viewModel.onEvent(EditorEvent.SelectLayer(id)) },
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 12.dp)
+                        .zIndex(5f)
                 )
             }
 
@@ -294,33 +319,49 @@ fun ThemeplateEditorScreen(
             }
 
             // ── Layer 3: Bottom controls + toolbar ────────────────────
-            val activeLayer = state.layers.find { it.id == state.selectedLayerId }
+            val labelToolActive = selectedToolForUi is EditorTool.Label
+            val showControls = state.template.loaded &&
+                selectedToolForUi != null &&
+                (activeLayer != null ||
+                    selectedToolForUi is EditorTool.Label ||
+                    selectedToolForUi is EditorTool.Sticker ||
+                    selectedToolForUi is EditorTool.Shape)
 
+            // Shared toolbar click handler
+            val onToolClicked: (EditorTool?) -> Unit = { tool ->
+                if (tool is EditorTool.Duplicate) {
+                    viewModel.onEvent(EditorEvent.DuplicateLayer)
+                } else if (tool is EditorTool.Delete) {
+                    viewModel.onEvent(EditorEvent.DeleteLayer)
+                } else if (tool != null) {
+                    if (tool == EditorTool.Shape) {
+                        if (selectedToolForUi == EditorTool.Shape) {
+                            viewModel.onEvent(EditorEvent.SelectLayer(null))
+                        } else {
+                            viewModel.onEvent(EditorEvent.SelectLayer(null))
+                            viewModel.onEvent(EditorEvent.SelectTool(EditorTool.Shape))
+                        }
+                    } else if (tool == selectedToolForUi && activeLayer != null && tool is EditorTool.Label) {
+                        viewModel.onEvent(EditorEvent.SelectLayer(null))
+                    } else {
+                        viewModel.onEvent(EditorEvent.SelectTool(tool))
+                    }
+                }
+            }
+
+            // Controls panel slides up with IME — placed BELOW canvas in z-order
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .imePadding(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-
-                // ── Danh sách đối tượng ngang ────────────────────────
-                EditorObjectList(
-                    layers = state.layers,
-                    selectedLayerId = state.selectedLayerId,
-                    onSelectLayer = { id -> viewModel.onEvent(EditorEvent.SelectLayer(id)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Controls flow in the same bottom stack so it sits below the object strip.
                 AnimatedVisibility(
-                    visible = state.template.loaded &&
-                        selectedToolForUi != null &&
-                        (activeLayer != null || selectedToolForUi is EditorTool.Label || selectedToolForUi is EditorTool.Sticker),
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    visible = showControls,
+                    modifier = Modifier.fillMaxWidth(),
                     enter = slideInVertically(tween(250)) { it } + fadeIn(tween(200)),
-                    exit  = slideOutVertically(tween(200)) { it } + fadeOut(tween(180))
+                    exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(180)),
                 ) {
                     if (selectedToolForUi != null) {
                         EditorControlsV2(
@@ -328,37 +369,39 @@ fun ThemeplateEditorScreen(
                             appearance = activeLayer?.appearance ?: EditorAppearance(shadowIntensity = 0f),
                             cropRatio = activeLayer?.cropRatio ?: CropRatio.ORIGINAL,
                             selectedLayer = activeLayer,
-                            onUpdateShadow         = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
-                            onUpdateShadowAngle    = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
+                            onUpdateShadow = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
+                            onUpdateShadowAngle = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
                             onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },
-                            onUpdateShadowColor    = { viewModel.onEvent(EditorEvent.UpdateShadowColor(it)) },
-                            onUpdateAlpha          = { viewModel.onEvent(EditorEvent.UpdateAlpha(it)) },
-                            onSelectCropRatio      = { viewModel.onEvent(EditorEvent.SelectCropRatio(it)) },
-                            onLayoutEvent          = { viewModel.onEvent(it) }
+                            onUpdateShadowColor = { viewModel.onEvent(EditorEvent.UpdateShadowColor(it)) },
+                            onUpdateShadowBlur = { viewModel.onEvent(EditorEvent.UpdateShadowBlur(it)) },
+                            onUpdateAlpha = { viewModel.onEvent(EditorEvent.UpdateAlpha(it)) },
+                            onSelectCropRatio = { viewModel.onEvent(EditorEvent.SelectCropRatio(it)) },
+                            onLayoutEvent = { viewModel.onEvent(it) },
                         )
                     }
                 }
 
-                EditorBottomToolbar(
-                    selectedTool = selectedToolForUi,
-                    onToolSelected = { tool ->
-                        if (tool is EditorTool.Duplicate) {
-                            viewModel.onEvent(EditorEvent.DuplicateLayer)
-                        } else if (tool is EditorTool.Delete) {
-                            viewModel.onEvent(EditorEvent.DeleteLayer)
-                        } else if (tool != null) {
-                            viewModel.onEvent(EditorEvent.SelectTool(tool))
-                        }
-                    },
-                    onReplaceImage = {
-                        targetReplaceLayerId = state.selectedLayerId
-                        triggerImagePicker()
-                    },
-                    toolsLocked = !editingToolsUnlocked,
-                    labelLayerActive = selectedToolForUi is EditorTool.Label ||
-                        activeLayer?.type == LayerType.SHAPE_TEXT,
-                    modifier = Modifier.fillMaxWidth().navigationBarsPadding()
-                )
+                // Toolbar is always anchored at the absolute bottom (above nav bar)
+                // Hides when keyboard opens so the text input field sits right on the keyboard.
+                AnimatedVisibility(
+                    visible = !WindowInsets.isImeVisible,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    EditorBottomToolbar(
+                        selectedTool = selectedToolForUi,
+                        onToolSelected = onToolClicked,
+                        onReplaceImage = {
+                            targetReplaceLayerId = state.selectedLayerId
+                            triggerImagePicker()
+                        },
+                        toolsLocked = !editingToolsUnlocked,
+                        labelLayerActive = selectedToolForUi is EditorTool.Label ||
+                            activeLayer?.isLabelLayer == true,
+                        shapeShadowInPanel = selectedToolForUi is EditorTool.Shape ||
+                            activeLayer?.isFrameLayer == true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
 
             // ── Layer 4: Snackbar ─────────────────────────────────────

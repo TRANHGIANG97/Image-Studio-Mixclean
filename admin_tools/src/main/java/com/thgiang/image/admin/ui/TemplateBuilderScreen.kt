@@ -314,6 +314,7 @@ fun TemplateBuilderScreen(
                                 onUpdateShadowAngle = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
                                 onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },
                                 onUpdateShadowColor = { viewModel.onEvent(EditorEvent.UpdateShadowColor(it)) },
+                                onUpdateShadowBlur = { viewModel.onEvent(EditorEvent.UpdateShadowBlur(it)) },
                                 onUpdateAlpha = { viewModel.onEvent(EditorEvent.UpdateAlpha(it)) },
                                 onSelectCropRatio = { viewModel.onEvent(EditorEvent.SelectCropRatio(it)) },
                                 onLayoutEvent = { viewModel.onEvent(it) }

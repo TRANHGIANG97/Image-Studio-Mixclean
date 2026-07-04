@@ -6,7 +6,11 @@ import com.thgiang.image.studio.ui.editor.panel.*
 import com.thgiang.image.studio.ui.editor.mapper.*
 
 import android.annotation.SuppressLint
-import com.thgiang.image.studio.ui.editor.model.*
+import com.thgiang.image.studio.ui.editor.model.EditorLayer
+import com.thgiang.image.studio.ui.editor.model.LayerViewportScale
+import com.thgiang.image.studio.ui.editor.model.ElevationTarget
+import com.thgiang.image.studio.ui.editor.model.ShapeType
+import com.thgiang.image.studio.ui.editor.model.isLabelLayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,11 +27,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
 import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
 import androidx.compose.material.icons.automirrored.filled.FormatAlignRight
 import androidx.compose.material.icons.filled.FormatAlignCenter
@@ -93,16 +101,17 @@ internal enum class LabelEditTab {
     ALIGN,      // Căn lề
     BG_COLOR,   // Màu nền
     TEXT_COLOR, // Màu chữ
-    SHAPE       // Hình dạng
+    ELEVATION,  // Độ nổi
+    TEXT_FORM,  // Hình dạng chữ (path / warp)
+    SHAPE       // Khung shape
 }
 
 // ── Main Section ────────────────────────────────────────
 
 /**
  * Tab ordering inspired by Microsoft Word:
- * - [labelTextFirstTabs]:  Text-first (Label tool) — LABEL, FONT, SIZE, FORMAT, ALIGN, TEXT_COLOR
- * - [labelShapeFirstTabs]: Shape-first (Shape tool) — SHAPE, BG_COLOR, TEXT_COLOR, then text tabs
- * - [LabelEditTab.values()]: Default (all 8 tabs in enum order)
+ * - [labelTextFirstTabs]: Text-first (Label tool)
+ * - [LabelEditTab.values()]: Default (all tabs in enum order)
  */
 internal val labelTextFirstTabs: List<LabelEditTab> = listOf(
     LabelEditTab.LABEL,
@@ -111,17 +120,8 @@ internal val labelTextFirstTabs: List<LabelEditTab> = listOf(
     LabelEditTab.FORMAT,
     LabelEditTab.ALIGN,
     LabelEditTab.TEXT_COLOR,
-)
-
-internal val labelShapeFirstTabs: List<LabelEditTab> = listOf(
-    LabelEditTab.SHAPE,
-    LabelEditTab.BG_COLOR,
-    LabelEditTab.TEXT_COLOR,
-    LabelEditTab.LABEL,
-    LabelEditTab.FONT,
-    LabelEditTab.SIZE,
-    LabelEditTab.FORMAT,
-    LabelEditTab.ALIGN,
+    LabelEditTab.ELEVATION,
+    LabelEditTab.TEXT_FORM,
 )
 
 @SuppressLint("UnrememberedMutableInteractionSource")
@@ -132,9 +132,11 @@ internal fun LabelEditSection(
     onLayoutEvent: (EditorEvent) -> Unit,
     tabOrder: List<LabelEditTab> = LabelEditTab.values().toList(),
 ) {
-    var textDraft by remember(layer.id) { mutableStateOf(layer.text) }
+    var textDraft by remember(layer.id) { mutableStateOf(TextFieldValue(layer.text)) }
     LaunchedEffect(layer.text) {
-        textDraft = layer.text
+        if (layer.text != textDraft.text) {
+            textDraft = TextFieldValue(layer.text, TextRange(layer.text.length))
+        }
     }
     var showFontPicker by remember { mutableStateOf(false) }
     var manifestFonts by remember { mutableStateOf<List<FontManifestEntry>>(emptyList()) }
@@ -199,7 +201,9 @@ internal fun LabelEditSection(
                     LabelEditTab.ALIGN -> "Căn lề"
                     LabelEditTab.BG_COLOR -> "Màu nền"
                     LabelEditTab.TEXT_COLOR -> "Màu chữ"
-                    LabelEditTab.SHAPE -> "Hình dạng"
+                    LabelEditTab.ELEVATION -> "Độ nổi"
+                    LabelEditTab.TEXT_FORM -> stringResource(R.string.studio_text_form_tab)
+                    LabelEditTab.SHAPE -> stringResource(R.string.studio_label_shape_frame_tab)
                 }
                 Box(
                     modifier = Modifier
@@ -223,31 +227,8 @@ internal fun LabelEditSection(
             }
         }
 
-        // Tab Contents (enforcing 3.dp vertical spacing)
         when (activeTab) {
-            LabelEditTab.LABEL -> {
-                OutlinedTextField(
-                    value = textDraft,
-                    onValueChange = {
-                        textDraft = it
-                        onLayoutEvent(EditorEvent.UpdateShapeText(it))
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .defaultMinSize(minHeight = 48.dp),
-                    singleLine = true,
-                    placeholder = { Text(stringResource(R.string.studio_label_text_placeholder)) },
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            onLayoutEvent(EditorEvent.UpdateShapeText(textDraft))
-                            focusManager.clearFocus()
-                            keyboardController?.hide()
-                        },
-                    ),
-                )
-            }
+            LabelEditTab.LABEL -> Unit
             LabelEditTab.FONT -> {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(
@@ -274,11 +255,19 @@ internal fun LabelEditSection(
                     )
                     SizeControl(
                         layerId = layer.id,
-                        value = layer.textSizeSp,
+                        value = LayerViewportScale.effectiveTextSizeSp(layer),
                         onValueChange = { onLayoutEvent(EditorEvent.UpdateTextSize(it)) },
                         sliderColors = sliderColors,
                         tokens = tokens,
                     )
+                    if (layer.shapeType != ShapeType.TEXT_ONLY) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        ShapeSizeSection(
+                            layer = layer,
+                            tokens = tokens,
+                            onLayoutEvent = onLayoutEvent,
+                        )
+                    }
                 }
             }
             LabelEditTab.FORMAT -> {
@@ -406,6 +395,31 @@ internal fun LabelEditSection(
                     showMode = LabelColorTab.Text,
                 )
             }
+            LabelEditTab.ELEVATION -> {
+                if (layer.isLabelLayer && layer.supportsTextElevation) {
+                    ShapeElevationSection(
+                        appearance = layer.appearance,
+                        fillColorArgb = layer.resolveTextElevationColorArgb(),
+                        tokens = tokens,
+                        onLayoutEvent = onLayoutEvent,
+                        elevationTarget = ElevationTarget.TEXT,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.studio_label_elevation_requires_text),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = tokens.textSecondary,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
+                    )
+                }
+            }
+            LabelEditTab.TEXT_FORM -> {
+                TextFormSection(
+                    layer = layer,
+                    tokens = tokens,
+                    onLayoutEvent = onLayoutEvent,
+                )
+            }
             LabelEditTab.SHAPE -> {
                 LabelShapeSection(
                     layer = layer,
@@ -415,10 +429,84 @@ internal fun LabelEditSection(
                 )
             }
         }
+
+        if (activeTab == LabelEditTab.LABEL) {
+            LabelTextInputRow(
+                value = textDraft,
+                onValueChange = { updated ->
+                    textDraft = updated
+                    onLayoutEvent(EditorEvent.UpdateShapeText(updated.text))
+                },
+                onInsertNewline = {
+                    textDraft = insertNewlineAtCursor(textDraft).also { updated ->
+                        onLayoutEvent(EditorEvent.UpdateShapeText(updated.text))
+                    }
+                },
+                onDone = {
+                    onLayoutEvent(EditorEvent.UpdateShapeText(textDraft.text))
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                },
+            )
+        }
     }
 }
 
 // ── Subcomponents ────────────────────────────────────────
+
+internal fun insertNewlineAtCursor(value: TextFieldValue): TextFieldValue {
+    val start = value.selection.start.coerceIn(0, value.text.length)
+    val end = value.selection.end.coerceIn(0, value.text.length)
+    val newText = buildString {
+        append(value.text.substring(0, start))
+        append('\n')
+        append(value.text.substring(end))
+    }
+    val cursor = start + 1
+    return TextFieldValue(newText, TextRange(cursor, cursor))
+}
+
+@Composable
+internal fun LabelTextInputRow(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    onInsertNewline: () -> Unit,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .weight(1f)
+                .defaultMinSize(minHeight = 48.dp),
+            singleLine = false,
+            maxLines = 6,
+            placeholder = { Text(stringResource(R.string.studio_label_text_placeholder)) },
+            shape = RoundedCornerShape(12.dp),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onDone() }),
+        )
+        IconButton(
+            onClick = onInsertNewline,
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFFF5F5F5)),
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardReturn,
+                contentDescription = stringResource(R.string.studio_label_insert_newline),
+                tint = Color(0xFF424242),
+            )
+        }
+    }
+}
 
 @SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
@@ -495,7 +583,7 @@ private fun SizeControl(
         PrecisionSlider(
             label = "",
             value = localValue,
-            valueRange = 1f..500f,
+            valueRange = 1f..3000f,
             onValueChange = {
                 localValue = it
                 lastEmitted = it

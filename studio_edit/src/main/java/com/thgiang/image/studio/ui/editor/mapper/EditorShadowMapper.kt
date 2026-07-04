@@ -11,7 +11,11 @@ import androidx.compose.ui.graphics.nativeCanvas
 
 object EditorShadowMapper {
 
-    fun configureDropShadowPaint(appearance: EditorAppearance, layerAlpha: Float = 1f): Paint =
+    fun configureDropShadowPaint(
+        appearance: EditorAppearance,
+        layerAlpha: Float = 1f,
+        renderScale: Float = 1f,
+    ): Paint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
             color = appearance.shadowColorArgb
@@ -22,7 +26,7 @@ object EditorShadowMapper {
                     255f
                 ).toInt().coerceIn(0, 255)
             maskFilter = BlurMaskFilter(
-                appearance.resolvedShadowBlurRadius().coerceAtLeast(0f),
+                appearance.resolvedShadowBlurRadius() * renderScale.coerceAtLeast(0.01f),
                 BlurMaskFilter.Blur.NORMAL,
             )
         }
@@ -42,7 +46,7 @@ object EditorShadowMapper {
         polygonPoints: List<Float> = emptyList(),
     ) {
         if (appearance.shadowIntensity <= 0.05f) return
-        val paint = configureDropShadowPaint(appearance)
+        val paint = configureDropShadowPaint(appearance, renderScale = scale)
         val (dx, dy) = shadowOffsetPx(appearance, scale)
 
         drawIntoCanvas { canvas ->

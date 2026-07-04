@@ -64,7 +64,7 @@ object LayerHitTest {
     ): IntSize? {
         val padding = context.selectionHitPaddingPx * 2f
         return when (layer.type) {
-            LayerType.SHAPE_TEXT -> {
+            LayerType.SHAPE, LayerType.TEXT, LayerType.SHAPE_TEXT -> {
                 val w = layer.shapeWidthPx * layer.viewport.scale * context.calculatedScale + padding
                 val h = layer.shapeHeightPx * layer.viewport.scale * context.calculatedScale + padding
                 IntSize(w.toInt().coerceAtLeast(1), h.toInt().coerceAtLeast(1))
@@ -75,8 +75,8 @@ object LayerHitTest {
                     return null
                 }
                 val croppedSize = layer.cropRatio.calculateSize(
-                    layer.product.baseSize.width.toFloat(),
-                    layer.product.baseSize.height.toFloat(),
+                    layer.shapeWidthPx,
+                    layer.shapeHeightPx,
                 )
                 val w =
                     croppedSize.width * layer.viewport.scale * context.calculatedScale +
@@ -89,9 +89,9 @@ object LayerHitTest {
 
             LayerType.SHADOW_REGION -> {
                 val w =
-                    layer.product.baseSize.width.toFloat() * layer.viewport.scale * context.calculatedScale + padding
+                    layer.shapeWidthPx * layer.viewport.scale * context.calculatedScale + padding
                 val h =
-                    layer.product.baseSize.height.toFloat() * layer.viewport.scale * context.calculatedScale + padding
+                    layer.shapeHeightPx * layer.viewport.scale * context.calculatedScale + padding
                 IntSize(w.toInt().coerceAtLeast(1), h.toInt().coerceAtLeast(1))
             }
         }

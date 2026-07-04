@@ -63,7 +63,13 @@ class EditorProductWorkflow @Inject constructor(
         )
         val newLayers = if (replaceLayerId != null && currentLayers.any { it.id == replaceLayerId }) {
             currentLayers.map {
-                if (it.id == replaceLayerId) processingLayer.copy(viewport = it.viewport) else it
+                if (it.id == replaceLayerId) {
+                    it.copy(
+                        product = EditorProduct(originalUriString = uri.toString(), processing = true)
+                    )
+                } else {
+                    it
+                }
             }
         } else {
             currentLayers + processingLayer

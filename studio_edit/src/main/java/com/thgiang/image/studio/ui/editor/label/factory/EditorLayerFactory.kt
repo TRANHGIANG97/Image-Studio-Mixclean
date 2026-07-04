@@ -10,40 +10,47 @@ import javax.inject.Singleton
 
 @Singleton
 class EditorLayerFactory @Inject constructor() {
-    fun createShapeTextLayer(templateWidth: Float, shapeType: ShapeType): EditorLayer {
+    /** Phase 3: label on shape → frame + label group. TEXT_ONLY → single TEXT layer. */
+    fun createShapeTextGroup(templateWidth: Float, shapeType: ShapeType): List<EditorLayer> {
+        if (shapeType == ShapeType.TEXT_ONLY) {
+            return listOf(createTextLayer(templateWidth).copy(text = "Label"))
+        }
+        return EditorLayerNormalizer.normalize(listOf(buildHybridShapeTextLayer(templateWidth, shapeType)))
+    }
+
+    private fun buildHybridShapeTextLayer(templateWidth: Float, shapeType: ShapeType): EditorLayer {
         val defaultW = (if (templateWidth > 0f) templateWidth * 0.20f else 120f).coerceIn(60f, 300f)
         val defaultH = (defaultW * 0.42f).coerceIn(30f, 110f)
         val lineStrokeColor = 0xFF424242.toInt()
         val isLine = shapeType == ShapeType.LINE
-        val isTextOnly = shapeType == ShapeType.TEXT_ONLY
 
-        val baseLayer = EditorLayer(
+        return EditorLayer(
             type = LayerType.SHAPE_TEXT,
             text = "Label",
             textColorArgb = 0xFF000000.toInt(),
-            textSizeSp = 28f,
+            textSizeSp = ShapeLabelDefaults.DEFAULT_TEXT_SIZE_SP,
             shapeType = shapeType,
-            shapeColorArgb = 0x00FFFFFF,
+            shapeColorArgb = if (isLine) 0x00FFFFFF else 0xFFE3F2FD.toInt(),
             shapeWidthPx = defaultW,
             shapeHeightPx = defaultH,
             cornerRadiusX = if (shapeType == ShapeType.CARD) 0f else null,
             cornerRadiusY = if (shapeType == ShapeType.CARD) 0f else null,
             strokeColorArgb = when {
                 isLine -> lineStrokeColor
-                isTextOnly -> null
                 else -> ShapeLabelDefaults.BORDER_COLOR_ARGB
             },
             strokeWidthPx = when {
                 isLine -> 6f
-                isTextOnly -> 0f
                 else -> ShapeLabelDefaults.BORDER_WIDTH_PX
             },
             viewport = EditorViewport(scale = 1f),
             appearance = EditorAppearance(shadowIntensity = 0f, alpha = 1f),
         )
-
-        return baseLayer
     }
+
+    @Deprecated("Use createShapeTextGroup for Phase 3 composite layers.")
+    fun createShapeTextLayer(templateWidth: Float, shapeType: ShapeType): EditorLayer =
+        buildHybridShapeTextLayer(templateWidth, shapeType)
 
     /**
      * Create a decorative shape layer (no text, no auto-fitting).
@@ -58,12 +65,12 @@ class EditorLayerFactory @Inject constructor() {
         val isTextOnly = shapeType == ShapeType.TEXT_ONLY
 
         return EditorLayer(
-            type = LayerType.SHAPE_TEXT,
-            text = "",                          // No text — shape only
+            type = LayerType.SHAPE,
+            text = "",
             textColorArgb = 0xFF000000.toInt(),
             textSizeSp = 28f,
             shapeType = shapeType,
-            shapeColorArgb = 0x00FFFFFF,        // Transparent fill (same as old label shapes)
+            shapeColorArgb = if (isTextOnly || isLine) 0x00FFFFFF else 0xFFE3F2FD.toInt(),
             shapeWidthPx = defaultW,
             shapeHeightPx = defaultH,
             cornerRadiusX = if (shapeType == ShapeType.CARD) 0f else null,
@@ -88,10 +95,10 @@ class EditorLayerFactory @Inject constructor() {
         val defaultH = (defaultW * 0.24f).coerceIn(72f, 220f)
 
         return EditorLayer(
-            type = LayerType.SHAPE_TEXT,
+            type = LayerType.TEXT,
             text = "Nhập chữ...",
             textColorArgb = 0xFF5B21B6.toInt(),
-            textSizeSp = 28f,
+            textSizeSp = ShapeLabelDefaults.DEFAULT_TEXT_SIZE_SP,
             shapeType = ShapeType.TEXT_ONLY,
             shapeColorArgb = 0x00FFFFFF,
             shapeWidthPx = defaultW,
@@ -117,6 +124,8 @@ class EditorLayerFactory @Inject constructor() {
             processing = false,
             isSample = false,
         ),
+        shapeWidthPx = stickerWidth.toFloat(),
+        shapeHeightPx = stickerHeight.toFloat(),
         viewport = EditorViewport(scale = initialScale),
         appearance = EditorAppearance(
             shadowIntensity = 0f,

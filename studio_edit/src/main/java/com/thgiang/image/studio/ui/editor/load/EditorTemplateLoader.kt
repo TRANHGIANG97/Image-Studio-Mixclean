@@ -4,6 +4,7 @@ import com.thgiang.image.studio.ui.editor.mapper.*
 
 import android.content.Context
 import com.thgiang.image.studio.ui.editor.model.*
+import com.thgiang.image.studio.ui.editor.model.EditorLayerNormalizer
 import android.graphics.BitmapFactory
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.studio.data.CloudTemplateRemoteRepository
@@ -38,12 +39,14 @@ class EditorTemplateLoader @Inject constructor(
     suspend fun buildFromCloud(cloudTemplate: CloudTemplate): LoadedEditorTemplate {
         val backgroundUrl = cloudTemplate.canvas.backgroundUrl.orEmpty()
         val density = context.resources.displayMetrics.scaledDensity.coerceAtLeast(1f)
-        val editorLayers = CloudLayerToEditorMapper.mapLayers(cloudTemplate, density)
+        val editorLayers = EditorLayerNormalizer.normalize(
+            CloudLayerToEditorMapper.mapLayers(cloudTemplate, density),
+        )
 
         FontDownloader.preloadTemplateFonts(
             context = context,
             families = editorLayers
-                .filter { it.type == LayerType.SHAPE_TEXT }
+                .filter { it.isLabelLayer }
                 .map { it.fontFamily },
         )
 

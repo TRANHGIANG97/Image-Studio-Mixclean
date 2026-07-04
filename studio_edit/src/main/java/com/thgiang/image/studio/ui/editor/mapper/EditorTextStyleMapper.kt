@@ -77,6 +77,20 @@ object EditorTextStyleMapper {
         return charSpacing / textSizePx
     }
 
+    fun resolveStyledTypeface(
+        baseTypeface: Typeface?,
+        fontWeight: String?,
+        fontStyle: String?,
+    ): Typeface {
+        val style = when {
+            isBold(fontWeight) && isItalicStyle(fontStyle) -> Typeface.BOLD_ITALIC
+            isBold(fontWeight) -> Typeface.BOLD
+            isItalicStyle(fontStyle) -> Typeface.ITALIC
+            else -> Typeface.NORMAL
+        }
+        return Typeface.create(baseTypeface ?: Typeface.DEFAULT, style)
+    }
+
     fun configureTextPaint(
         paint: TextPaint,
         fontWeight: String?,
@@ -85,13 +99,7 @@ object EditorTextStyleMapper {
         linethrough: Boolean,
         baseTypeface: Typeface? = null,
     ) {
-        val style = when {
-            isBold(fontWeight) && fontStyle.equals("italic", ignoreCase = true) -> Typeface.BOLD_ITALIC
-            isBold(fontWeight) -> Typeface.BOLD
-            fontStyle.equals("italic", ignoreCase = true) -> Typeface.ITALIC
-            else -> Typeface.NORMAL
-        }
-        paint.typeface = Typeface.create(baseTypeface ?: Typeface.DEFAULT, style)
+        paint.typeface = resolveStyledTypeface(baseTypeface, fontWeight, fontStyle)
         paint.isFakeBoldText = false
         paint.isUnderlineText = underline
         if (linethrough) {

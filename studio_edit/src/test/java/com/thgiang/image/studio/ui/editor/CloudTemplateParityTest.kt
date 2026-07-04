@@ -5,6 +5,10 @@ import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
+import com.thgiang.image.studio.ui.editor.mapper.CloudLayerToEditorMapper
+import com.thgiang.image.studio.ui.editor.model.ShapeType
+import com.thgiang.image.studio.ui.editor.model.LayerType
+import com.thgiang.image.studio.ui.editor.label.geometry.EditorShapeGeometry
 
 /**
  * Parity fixture mirroring admin_web template-converter export for gradient + shadow shapes.
@@ -20,9 +24,10 @@ class CloudTemplateParityTest {
         )
 
         val layers = CloudLayerToEditorMapper.mapLayers(template, scaledDensity = 3f)
-        assertEquals(6, layers.size)
+        assertEquals(7, layers.size)
 
         val gradientRect = layers.first { it.id == "shape_gradient_rect" }
+        assertEquals(LayerType.SHAPE, gradientRect.type)
         assertEquals(ShapeType.CARD, gradientRect.shapeType)
         assertNotNull(gradientRect.fillGradient)
         assertEquals(22f, gradientRect.appearance.shadowBlur)
@@ -41,12 +46,17 @@ class CloudTemplateParityTest {
         assertEquals(EditorShapeGeometry.FABRIC_ARROW_PATH, arrow.pathData)
 
         val textGradient = layers.first { it.id == "text_gradient" }
+        assertEquals(LayerType.TEXT, textGradient.type)
         assertNotNull(textGradient.textColorGradient)
-        assertEquals(18f, textGradient.appearance.shadowBlur)
+        val textGradientFrame = layers.firstOrNull {
+            it.groupId == textGradient.groupId && it.groupRole == com.thgiang.image.studio.ui.editor.model.LayerGroupRole.FRAME
+        }
+        assertNotNull(textGradientFrame)
+        assertEquals(18f, textGradientFrame!!.appearance.shadowBlur)
 
         val decorationText = layers.first { it.id == "decoration_text_fallback" }
         assertEquals("Hello", decorationText.text)
-        assertEquals(LayerType.SHAPE_TEXT, decorationText.type)
+        assertEquals(LayerType.TEXT, decorationText.type)
     }
 
     @Test
@@ -61,6 +71,33 @@ class CloudTemplateParityTest {
         val textLayer = layers.single { it.id == "tracking_text" }
 
         assertEquals(24f, textLayer.charSpacing, 0.001f)
+    }
+
+    @Test
+    fun testGradientAngleTrace() {
+        for (a in 350..365) {
+            val grad = com.thgiang.image.studio.ui.editor.mapper.EditorGradientMapper.buildLinearGradient(
+                color1Argb = 0xFF000000.toInt(),
+                color2Argb = 0xFFFFFFFF.toInt(),
+                angleDegrees = a.toFloat()
+            )
+            val mapped = com.thgiang.image.studio.ui.editor.mapper.EditorGradientMapper.linearGradientAngleDegrees(grad)
+            println("Angle trace: Input=$a -> x1=${grad.coords.x1}, y1=${grad.coords.y1}, x2=${grad.coords.x2}, y2=${grad.coords.y2} -> Mapped=$mapped")
+        }
+    }
+
+    @Test
+    fun testGradientAngleParity() {
+        for (a in 0..360) {
+            val grad = com.thgiang.image.studio.ui.editor.mapper.EditorGradientMapper.buildLinearGradient(
+                color1Argb = 0xFF000000.toInt(),
+                color2Argb = 0xFFFFFFFF.toInt(),
+                angleDegrees = a.toFloat()
+            )
+            val mapped = com.thgiang.image.studio.ui.editor.mapper.EditorGradientMapper.linearGradientAngleDegrees(grad)
+            val diff = kotlin.math.abs(a % 360 - mapped % 360)
+            org.junit.Assert.assertTrue("Angle $a mismatch: $mapped", diff < 1f || diff > 359f)
+        }
     }
 
     companion object {

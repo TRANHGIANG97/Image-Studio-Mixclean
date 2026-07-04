@@ -15,11 +15,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +36,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -35,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thgiang.image.core.design.components.PrecisionSlider
 import com.thgiang.image.core.design.components.PrecisionSliderColors
+import kotlin.math.abs
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.EditorEvent
 import com.thgiang.image.studio.ui.editor.panel.toSliderColors
@@ -42,10 +56,14 @@ import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import io.mhssn.colorpicker.ColorPickerDialog
 import io.mhssn.colorpicker.ColorPickerType
 
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+
 private enum class FillColorMode { Solid, Gradient }
 private enum class TextColorMode { Solid, Gradient }
 
 internal enum class LabelColorTab { Background, Text }
+private enum class FillSubTab { PRESETS, COLOR, OPACITY }
 
 @Composable
 internal fun LabelGradientSection(
@@ -53,6 +71,7 @@ internal fun LabelGradientSection(
     tokens: EditorTokens,
     onLayoutEvent: (EditorEvent) -> Unit,
     showMode: LabelColorTab? = null,
+    onSubTabActiveChanged: (Boolean) -> Unit = {},
 ) {
     var fillMode by remember(layer.id, layer.fillGradient) {
         mutableStateOf(if (layer.fillGradient != null) FillColorMode.Gradient else FillColorMode.Solid)
@@ -67,6 +86,8 @@ internal fun LabelGradientSection(
     val textGrad = layer.textColorGradient
     val fillColor1 = EditorGradientMapper.parseStopArgb(fillGrad, 0, layer.shapeColorArgb)
     val fillColor2 = EditorGradientMapper.parseStopArgb(fillGrad, 1, layer.shapeColorArgb)
+    val fillStop1Offset = fillGrad?.colorStops?.getOrNull(0)?.offset ?: 0f
+    val fillStop2Offset = fillGrad?.colorStops?.getOrNull(1)?.offset ?: 1f
     val textColor1 = EditorGradientMapper.parseStopArgb(textGrad, 0, layer.textColorArgb)
     val textColor2 = EditorGradientMapper.parseStopArgb(textGrad, 1, layer.textColorArgb)
     val fillAngle = EditorGradientMapper.linearGradientAngleDegrees(fillGrad)
@@ -114,7 +135,7 @@ internal fun LabelGradientSection(
         )
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         if (showMode == null || showMode == LabelColorTab.Background) {
             FillColorEditor(
                 mode = fillMode,
@@ -122,6 +143,8 @@ internal fun LabelGradientSection(
                 solidArgb = layer.shapeColorArgb,
                 color1 = fillColor1,
                 color2 = fillColor2,
+                stop1Offset = fillStop1Offset,
+                stop2Offset = fillStop2Offset,
                 angle = fillAngle,
                 sliderColors = sliderColors,
                 onModeChange = { mode ->
@@ -131,7 +154,7 @@ internal fun LabelGradientSection(
                     } else {
                         onLayoutEvent(
                             EditorEvent.UpdateFillGradient(
-                                EditorGradientMapper.buildLinearGradient(fillColor1, fillColor2, fillAngle),
+                                EditorGradientMapper.buildLinearGradient(fillColor1, fillColor2, fillAngle, fillStop1Offset, fillStop2Offset),
                             ),
                         )
                     }
@@ -143,10 +166,19 @@ internal fun LabelGradientSection(
                 onAngleChange = { angle ->
                     onLayoutEvent(
                         EditorEvent.UpdateFillGradient(
-                            EditorGradientMapper.buildLinearGradient(fillColor1, fillColor2, angle),
+                            EditorGradientMapper.buildLinearGradient(fillColor1, fillColor2, angle, fillStop1Offset, fillStop2Offset),
                         ),
                     )
                 },
+                onPresetSelected = { presetAngle ->
+                    onLayoutEvent(
+                        EditorEvent.UpdateFillGradient(
+                            EditorGradientMapper.buildLinearGradient(fillColor1, fillColor2, presetAngle, fillStop1Offset, fillStop2Offset),
+                        ),
+                    )
+                },
+                onLayoutEvent = onLayoutEvent,
+                onSubTabActiveChanged = onSubTabActiveChanged,
             )
         }
 
@@ -194,6 +226,8 @@ private fun FillColorEditor(
     solidArgb: Int,
     color1: Int,
     color2: Int,
+    stop1Offset: Float,
+    stop2Offset: Float,
     angle: Float,
     sliderColors: PrecisionSliderColors,
     onModeChange: (FillColorMode) -> Unit,
@@ -202,46 +236,233 @@ private fun FillColorEditor(
     onGradientColor1: () -> Unit,
     onGradientColor2: () -> Unit,
     onAngleChange: (Float) -> Unit,
+    onPresetSelected: (Float) -> Unit,
+    onLayoutEvent: (EditorEvent) -> Unit,
+    onSubTabActiveChanged: (Boolean) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(
-            text = stringResource(R.string.studio_label_fill_color),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = tokens.textPrimary,
-        )
-        ModeToggleRow(
-            solidLabel = stringResource(R.string.studio_label_color_solid),
-            gradientLabel = stringResource(R.string.studio_label_color_gradient),
-            isGradient = mode == FillColorMode.Gradient,
-            tokens = tokens,
-            onSolid = { onModeChange(FillColorMode.Solid) },
-            onGradient = { onModeChange(FillColorMode.Gradient) },
-        )
-        if (mode == FillColorMode.Solid) {
-            LabelColorRow(
-                currentArgb = solidArgb,
-                palette = fillPalette,
-                onSelectColor = onSolidColor,
-                onCustomColorClick = onCustomSolid,
-                tokens = tokens,
-            )
+    val fillAlpha = (solidArgb ushr 24) and 0xFF
+    val fillRgb = solidArgb and 0x00FFFFFF
+    var activeSubTab by rememberSaveable { mutableStateOf<FillSubTab?>(null) }
+    var isEditingGradientDetail by rememberSaveable { mutableStateOf(false) }
+    var gradientDetailTab by rememberSaveable { mutableStateOf(0) }
+
+    LaunchedEffect(activeSubTab) {
+        onSubTabActiveChanged(activeSubTab != null)
+        if (activeSubTab != FillSubTab.COLOR) {
+            isEditingGradientDetail = false
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        if (activeSubTab == null) {
+            // Horizontal sub-tab bar shown as menu
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FillSubTab.values().forEach { tab ->
+                    val label = when (tab) {
+                        FillSubTab.PRESETS -> "Mẫu màu"
+                        FillSubTab.COLOR -> "Màu nền"
+                        FillSubTab.OPACITY -> "Độ trong suốt"
+                    }
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFF5F5F5))
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = { activeSubTab = tab }
+                            )
+                            .padding(vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = label,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = tokens.textSecondary
+                        )
+                    }
+                }
+            }
         } else {
-            GradientStopsRow(
-                color1 = Color(color1),
-                color2 = Color(color2),
-                tokens = tokens,
-                onPickColor1 = onGradientColor1,
-                onPickColor2 = onGradientColor2,
-            )
-            PrecisionSlider(
-                label = stringResource(R.string.studio_label_gradient_angle),
-                value = angle,
-                valueRange = 0f..360f,
-                onValueChange = onAngleChange,
-                valueFormatter = { "${it.toInt()}°" },
-                colors = sliderColors,
-            )
+            // Content view mode: show Back button on the left, tab contents on the right
+            // Top Navigation Row: Back button + Headers/Title
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                IconButton(
+                    onClick = {
+                        activeSubTab = null
+                    },
+                    modifier = Modifier.size(32.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Quay lại",
+                        tint = tokens.textSecondary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                // If in gradient detail, show "Hướng Gradient" / "Chỉnh sửa Gradient" tabs here
+                if (isEditingGradientDetail && activeSubTab == FillSubTab.COLOR) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Dãy màu",
+                            fontSize = 12.sp,
+                            fontWeight = if (gradientDetailTab == 0) FontWeight.Bold else FontWeight.Medium,
+                            color = if (gradientDetailTab == 0) tokens.accent else tokens.textSecondary,
+                            modifier = Modifier.clickable { gradientDetailTab = 0 }
+                        )
+                        Text(
+                            text = "Hướng Gradient",
+                            fontSize = 12.sp,
+                            fontWeight = if (gradientDetailTab == 1) FontWeight.Bold else FontWeight.Medium,
+                            color = if (gradientDetailTab == 1) tokens.accent else tokens.textSecondary,
+                            modifier = Modifier.clickable { gradientDetailTab = 1 }
+                        )
+                        Text(
+                            text = "Góc",
+                            fontSize = 12.sp,
+                            fontWeight = if (gradientDetailTab == 2) FontWeight.Bold else FontWeight.Medium,
+                            color = if (gradientDetailTab == 2) tokens.accent else tokens.textSecondary,
+                            modifier = Modifier.clickable { gradientDetailTab = 2 }
+                        )
+                    }
+                } else {
+                    // Otherwise show standard sub-tab title
+                    val subTabTitle = when (activeSubTab) {
+                        FillSubTab.PRESETS -> "Mẫu màu"
+                        FillSubTab.COLOR -> "Màu nền"
+                        FillSubTab.OPACITY -> "Độ trong suốt"
+                        else -> ""
+                    }
+                    Text(
+                        text = subTabTitle,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = tokens.textPrimary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Sub-tab Content goes BELOW the top navigation row
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                when (activeSubTab) {
+                    FillSubTab.PRESETS -> {
+                        ShapeStyleGallery(
+                            events = ShapeStyleEvents(
+                                updateShapeColor = { onSolidColor(it) },
+                                updateStrokeColor = { onLayoutEvent(EditorEvent.UpdateStrokeColor(it)) },
+                                updateStrokeWidth = { onLayoutEvent(EditorEvent.UpdateStrokeWidth(it)) },
+                                updateShadow = { onLayoutEvent(EditorEvent.UpdateShadow(it)) },
+                            ),
+                            currentFillArgb = solidArgb,
+                        )
+                    }
+                    FillSubTab.COLOR -> {
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            if (!isEditingGradientDetail) {
+                                ModeToggleRow(
+                                    solidLabel = stringResource(R.string.studio_label_color_solid),
+                                    gradientLabel = stringResource(R.string.studio_label_color_gradient),
+                                    isGradient = mode == FillColorMode.Gradient,
+                                    tokens = tokens,
+                                    onSolid = { onModeChange(FillColorMode.Solid) },
+                                    onGradient = {
+                                        onModeChange(FillColorMode.Gradient)
+                                        isEditingGradientDetail = true
+                                    },
+                                )
+
+                                if (mode == FillColorMode.Solid) {
+                                    LabelColorRow(
+                                        currentArgb = solidArgb,
+                                        palette = fillPalette,
+                                        onSelectColor = onSolidColor,
+                                        onCustomColorClick = onCustomSolid,
+                                        tokens = tokens,
+                                    )
+                                } else {
+                                    LaunchedEffect(Unit) {
+                                        isEditingGradientDetail = true
+                                    }
+                                }
+                            } else {
+                                when (gradientDetailTab) {
+                                    0 -> {
+                                        GradientEditorSection(
+                                            color1Argb = color1,
+                                            color2Argb = color2,
+                                            stop1Offset = stop1Offset,
+                                            stop2Offset = stop2Offset,
+                                            angle = angle,
+                                            tokens = tokens,
+                                            onGradientChanged = { gradient ->
+                                                onLayoutEvent(EditorEvent.UpdateFillGradient(gradient))
+                                            },
+                                        )
+                                    }
+                                    1 -> {
+                                        GradientPresetsGallery(
+                                            currentAngle = angle,
+                                            tokens = tokens,
+                                            onPresetSelected = onPresetSelected,
+                                        )
+                                    }
+                                    2 -> {
+                                        Column(
+                                            modifier = Modifier.padding(vertical = 4.dp),
+                                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            PrecisionSlider(
+                                                label = stringResource(R.string.studio_label_gradient_angle),
+                                                value = angle,
+                                                valueRange = 0f..359f,
+                                                onValueChange = onAngleChange,
+                                                valueFormatter = { "${it.toInt()} độ" },
+                                                colors = sliderColors,
+                                                isCompact = true,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    FillSubTab.OPACITY -> {
+                        val transparencyPct = (100 - (fillAlpha / 255f * 100)).toInt().coerceIn(0, 100)
+                        PrecisionSlider(
+                            label = "Độ trong suốt",
+                            value = transparencyPct.toFloat(),
+                            valueRange = 0f..100f,
+                            onValueChange = { pct ->
+                                val newAlpha = ((100f - pct) / 100f * 255f).toInt().coerceIn(0, 255)
+                                onSolidColor((newAlpha shl 24) or fillRgb)
+                            },
+                            valueFormatter = { "${it.toInt()}%" },
+                            colors = sliderColors,
+                        )
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 }
@@ -296,10 +517,11 @@ private fun TextColorEditor(
             PrecisionSlider(
                 label = stringResource(R.string.studio_label_gradient_angle),
                 value = angle,
-                valueRange = 0f..360f,
+                valueRange = 0f..359f,
                 onValueChange = onAngleChange,
-                valueFormatter = { "${it.toInt()}°" },
+                valueFormatter = { "${it.toInt()} độ" },
                 colors = sliderColors,
+                isCompact = true,
             )
         }
     }
@@ -420,4 +642,63 @@ private val textPalette = listOf(
     Color(0xFF1E88E5), Color(0xFF43A047), Color(0xFFFB8C00),
     Color(0xFF8E24AA), Color(0xFF00ACC1), Color(0xFF6D4C41),
 )
+
+@Composable
+private fun GradientPresetsGallery(
+    currentAngle: Float,
+    tokens: EditorTokens,
+    onPresetSelected: (Float) -> Unit,
+) {
+    val presets = remember {
+        listOf(
+            "→" to 0f,
+            "↓" to 90f,
+            "←" to 180f,
+            "↑" to 270f,
+            "↘" to 45f,
+            "↗" to 315f
+        )
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier.padding(vertical = 2.dp)
+    ) {
+        Text(
+            text = "Hướng gradient",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = tokens.textSecondary,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            presets.forEach { (label, presetAngle) ->
+                val isSelected = abs(currentAngle - presetAngle) < 2f
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (isSelected) tokens.accentSoft else Color(0xFFF5F5F5))
+                        .border(
+                            width = if (isSelected) 1.5.dp else 0.5.dp,
+                            color = if (isSelected) tokens.accent else Color(0xFFE0E0E0),
+                            shape = RoundedCornerShape(8.dp),
+                        )
+                        .clickable { onPresetSelected(presetAngle) }
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = label,
+                        fontSize = 14.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = if (isSelected) tokens.accent else tokens.textPrimary,
+                    )
+                }
+            }
+        }
+    }
+}
 

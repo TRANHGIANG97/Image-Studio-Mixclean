@@ -49,15 +49,19 @@ import kotlin.math.*
 data class GestureDelta(
     val pan: Offset = Offset.Zero,
     val scale: Float = 1f,
-    val rotation: Float = 0f
+    val rotation: Float = 0f,
+    val deltaWidth: Float = 0f,
+    val deltaHeight: Float = 0f
 ) {
     val isEmpty: Boolean
-        get() = pan == Offset.Zero && scale == 1f && rotation == 0f
+        get() = pan == Offset.Zero && scale == 1f && rotation == 0f && deltaWidth == 0f && deltaHeight == 0f
 
     operator fun plus(other: GestureDelta): GestureDelta = GestureDelta(
         pan = this.pan + other.pan,
         scale = this.scale * other.scale,
-        rotation = this.rotation + other.rotation
+        rotation = this.rotation + other.rotation,
+        deltaWidth = this.deltaWidth + other.deltaWidth,
+        deltaHeight = this.deltaHeight + other.deltaHeight
     )
 }
 
@@ -99,7 +103,7 @@ object EditorColors {
 object EditorDims {
     val HandleRadiusDp = 4.dp
     val TouchRadiusDp = 18.dp
-    val RotateLineDp = 12.dp
+    val RotateLineDp = 28.dp
     val RotateHandleOffsetDp = 5.dp
     val BorderStrokeDp = 1.2.dp
     val CornerActiveScale = 1.2f
@@ -146,9 +150,15 @@ sealed class HandleZone {
         data object BL : Corner()
         data object BR : Corner()
     }
+    sealed class Edge : HandleZone() {
+        data object Left : Edge()
+        data object Right : Edge()
+        data object Top : Edge()
+        data object Bottom : Edge()
+    }
 }
 
-enum class GestureMode { IDLE, DRAG, SCALE_CORNER, ROTATE, PINCH }
+enum class GestureMode { IDLE, DRAG, SCALE_CORNER, SCALE_EDGE, ROTATE, PINCH }
 
 data class CachedDimensions(
     val handleRadiusPx: Float,
@@ -159,7 +169,9 @@ data class CachedDimensions(
     val rotateRadiusPx: Float,
     val rotateRadiusActivePx: Float,
     val rotateTouchRadiusPx: Float,
-    val crosshairSizePx: Float
+    val crosshairSizePx: Float,
+    val edgeHandleWidthPx: Float,
+    val edgeHandleHeightPx: Float
 )
 
 // ============ Main Composable ============
@@ -204,7 +216,9 @@ fun BoundingBoxOverlayV6(
             rotateRadiusPx = with(density) { EditorDims.RotateRadiusDp.toPx() },
             rotateRadiusActivePx = with(density) { EditorDims.RotateRadiusActiveDp.toPx() },
             rotateTouchRadiusPx = with(density) { EditorDims.RotateTouchRadiusDp.toPx() },
-            crosshairSizePx = with(density) { EditorDims.CrosshairSizeDp.toPx() }
+            crosshairSizePx = with(density) { EditorDims.CrosshairSizeDp.toPx() },
+            edgeHandleWidthPx = with(density) { 5.dp.toPx() },
+            edgeHandleHeightPx = with(density) { 16.dp.toPx() }
         )
     }
 
@@ -217,6 +231,7 @@ fun BoundingBoxOverlayV6(
         targetValue = when (gestureMode) {
             GestureMode.DRAG -> EditorColors.BorderDrag
             GestureMode.SCALE_CORNER -> EditorColors.BorderScale
+            GestureMode.SCALE_EDGE -> EditorColors.BorderScale
             GestureMode.ROTATE -> EditorColors.BorderRotate
             GestureMode.PINCH -> EditorColors.BorderMulti
             GestureMode.IDLE -> EditorColors.BorderIdle
@@ -253,13 +268,15 @@ fun BoundingBoxOverlayV6(
                         handleRadius = dimensions.touchRadiusPx,
                         rotateOffset = dimensions.rotateLinePx,
                         rotateTouchRadius = dimensions.rotateTouchRadiusPx,
-                        rotateHandleOffset = dimensions.rotateHandleOffsetPx
+                        rotateHandleOffset = dimensions.rotateHandleOffsetPx,
+                        lockAspectRatio = lockAspectRatio
                     )
 
                     gestureMode = when (activeHandle) {
                         HandleZone.Body -> GestureMode.DRAG
                         HandleZone.Rotate -> GestureMode.ROTATE
                         is HandleZone.Corner -> GestureMode.SCALE_CORNER
+                        is HandleZone.Edge -> GestureMode.SCALE_EDGE
                         HandleZone.None -> GestureMode.IDLE
                     }
 
@@ -368,12 +385,14 @@ fun BoundingBoxOverlayV6(
                                 handleRadius = dimensions.touchRadiusPx,
                                 rotateOffset = dimensions.rotateLinePx,
                                 rotateTouchRadius = dimensions.rotateTouchRadiusPx,
-                                rotateHandleOffset = dimensions.rotateHandleOffsetPx
+                                rotateHandleOffset = dimensions.rotateHandleOffsetPx,
+                                lockAspectRatio = lockAspectRatio
                             )
                             gestureMode = when (newHandle) {
                                 HandleZone.Body -> GestureMode.DRAG
                                 HandleZone.Rotate -> GestureMode.ROTATE
                                 is HandleZone.Corner -> GestureMode.SCALE_CORNER
+                                is HandleZone.Edge -> GestureMode.SCALE_EDGE
                                 HandleZone.None -> GestureMode.IDLE
                             }
                             activeHandle = newHandle
@@ -544,28 +563,68 @@ fun BoundingBoxOverlayV6(
 
                                 val oldScale = currentViewport.scale
                                 val scaleFactor = newScale / oldScale
-                                val dw = currentContentWidth * (newScale - oldScale)
-                                val dh = currentContentHeight * (newScale - oldScale)
-                                val localPan = when (handle) {
-                                    is HandleZone.Corner.TL -> Offset(-dw / 2f, -dh / 2f)
-                                    is HandleZone.Corner.TR -> Offset(dw / 2f, -dh / 2f)
-                                    is HandleZone.Corner.BL -> Offset(-dw / 2f, dh / 2f)
-                                    is HandleZone.Corner.BR -> Offset(dw / 2f, dh / 2f)
-                                }
-                                val rotationRad = Math.toRadians(currentViewport.rotation.toDouble())
-                                val cosR = kotlin.math.cos(rotationRad).toFloat()
-                                val sinR = kotlin.math.sin(rotationRad).toFloat()
-                                val anchorPan = Offset(
-                                    localPan.x * cosR - localPan.y * sinR,
-                                    localPan.x * sinR + localPan.y * cosR,
-                                )
 
                                 change.consume()
                                 hasMoved = true
 
                                 currentOnGesture(GestureDelta(
                                     scale = scaleFactor,
-                                    pan = anchorPan,
+                                    pan = Offset.Zero,
+                                ))
+                            }
+
+                            GestureMode.SCALE_EDGE -> {
+                                val change = pressed.firstOrNull() ?: continue
+                                if (!change.positionChanged()) continue
+
+                                val handle = activeHandle as? HandleZone.Edge ?: continue
+                                val adjustedCurrentTouch = change.position + correction
+
+                                val localPrevious = inverseRotatePoint(change.previousPosition + correction, center, currentViewport.rotation)
+                                val localCurrent = inverseRotatePoint(adjustedCurrentTouch, center, currentViewport.rotation)
+
+                                var dwTemplate = 0f
+                                var dhTemplate = 0f
+                                var localPanTemplate = Offset.Zero
+
+                                when (handle) {
+                                    HandleZone.Edge.Right -> {
+                                        val dw = localCurrent.x - localPrevious.x
+                                        dwTemplate = dw / currentDisplayScale
+                                        localPanTemplate = Offset(dwTemplate / 2f, 0f)
+                                    }
+                                    HandleZone.Edge.Left -> {
+                                        val dw = localPrevious.x - localCurrent.x
+                                        dwTemplate = dw / currentDisplayScale
+                                        localPanTemplate = Offset(-dwTemplate / 2f, 0f)
+                                    }
+                                    HandleZone.Edge.Bottom -> {
+                                        val dh = localCurrent.y - localPrevious.y
+                                        dhTemplate = dh / currentDisplayScale
+                                        localPanTemplate = Offset(0f, dhTemplate / 2f)
+                                    }
+                                    HandleZone.Edge.Top -> {
+                                        val dh = localPrevious.y - localCurrent.y
+                                        dhTemplate = dh / currentDisplayScale
+                                        localPanTemplate = Offset(0f, -dhTemplate / 2f)
+                                    }
+                                }
+
+                                val rotationRad = Math.toRadians(currentViewport.rotation.toDouble())
+                                val cosR = cos(rotationRad).toFloat()
+                                val sinR = sin(rotationRad).toFloat()
+                                val panTemplate = Offset(
+                                    localPanTemplate.x * cosR - localPanTemplate.y * sinR,
+                                    localPanTemplate.x * sinR + localPanTemplate.y * cosR
+                                )
+
+                                change.consume()
+                                hasMoved = true
+
+                                currentOnGesture(GestureDelta(
+                                    pan = panTemplate,
+                                    deltaWidth = dwTemplate,
+                                    deltaHeight = dhTemplate
                                 ))
                             }
 
@@ -640,7 +699,8 @@ fun BoundingBoxOverlayV6(
                     gestureMode = gestureMode,
                     activeHandle = activeHandle,
                     isGestureActive = gestureMode != GestureMode.IDLE,
-                    isLocked = isLocked
+                    isLocked = isLocked,
+                    lockAspectRatio = lockAspectRatio
                 )
             }
         }

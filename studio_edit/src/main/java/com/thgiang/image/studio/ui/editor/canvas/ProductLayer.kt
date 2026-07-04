@@ -56,10 +56,7 @@ data class EditorGraphicsSpec(
 
 @Composable
 fun ProductLayerV2(
-    product: EditorProduct,
-    viewport: EditorViewport,
-    appearance: EditorAppearance,
-    cropRatio: CropRatio,
+    layer: EditorLayer,
     displayScale: Float,
     templateSize: IntSize,
     layerBlendMode: String? = null,
@@ -69,17 +66,21 @@ fun ProductLayerV2(
     showBoundingBox: Boolean = false,
     onBoundingBoxVisible: (Boolean) -> Unit = {},
     onPickImage: () -> Unit = {},
-    isLocked: Boolean = false,
-    strokeColorArgb: Int? = null,
-    strokeWidthPx: Float = 0f,
 ) {
     val density = LocalDensity.current
+    val product = layer.product
+    val viewport = layer.viewport
+    val appearance = layer.appearance
+    val cropRatio = layer.cropRatio
+    val isLocked = layer.isLocked
+    val strokeColorArgb = layer.strokeColorArgb
+    val strokeWidthPx = layer.strokeWidthPx
     
-    val actualSize by remember(product.baseSize, cropRatio) {
+    val actualSize by remember(layer.shapeWidthPx, layer.shapeHeightPx, cropRatio) {
         derivedStateOf {
             cropRatio.calculateSize(
-                product.baseSize.width.toFloat(),
-                product.baseSize.height.toFloat()
+                layer.shapeWidthPx,
+                layer.shapeHeightPx
             )
         }
     }
@@ -148,119 +149,160 @@ fun ProductLayerV2(
         }
     }
 
+    val paddingExtra = 40.dp
+    val paddingExtraPx = with(density) { paddingExtra.toPx() }
+
     Box(
         modifier = Modifier
-            .requiredSize(originalWidth, originalHeight)
-            .offset { displayOffset }
+            .requiredSize(originalWidth + paddingExtra * 2, originalHeight + paddingExtra * 2)
+            .offset {
+                IntOffset(
+                    (displayOffset.x - paddingExtraPx).roundToInt(),
+                    (displayOffset.y - paddingExtraPx).roundToInt()
+                )
+            }
     ) {
-        // Shadow Layer
-        if (appearance.shadowIntensity > 0.05f) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .requiredSize(originalWidth, originalHeight)
+        ) {
+            // Shadow Layer
+            if (appearance.shadowIntensity > 0.05f) {
+                SubcomposeAsyncImage(
+                    model = product.foregroundUri,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            alpha = graphicsSpec.shadowAlpha
+                            rotationZ = graphicsSpec.rotation
+                            if (blurRadius > 0.5f) {
+                                renderEffect = BlurEffect(
+                                    radiusX = blurRadius,
+                                    radiusY = blurRadius,
+                                    edgeTreatment = TileMode.Decal,
+                                )
+                            }
+                        }
+                        .clip(cropShape)
+                        .offset {
+                            IntOffset(
+                                (graphicsSpec.shadowDx * displayScale).roundToInt(),
+                                (graphicsSpec.shadowDy * displayScale).roundToInt()
+                            )
+                        },
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(graphicsSpec.shadowColor),
+                    loading = { Box(Modifier.fillMaxSize().background(Color.Transparent)) }
+                )
+            }
+
+            // Foreground Image Layer
             SubcomposeAsyncImage(
                 model = product.foregroundUri,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer {
-                        alpha = graphicsSpec.shadowAlpha
-                        rotationZ = graphicsSpec.rotation
-                        if (blurRadius > 0.5f) {
-                            renderEffect = BlurEffect(
-                                radiusX = blurRadius,
-                                radiusY = blurRadius,
-                                edgeTreatment = TileMode.Decal,
-                            )
+                    .then(
+                        if (hasStroke) {
+                            Modifier.drawBehind {
+                                val inset = displayStrokeWidth / 2f
+                                drawRect(
+                                    color = Color(strokeColorArgb!!),
+                                    topLeft = Offset(inset, inset),
+                                    size = Size(
+                                        width = size.width - displayStrokeWidth,
+                                        height = size.height - displayStrokeWidth,
+                                    ),
+                                    style = Stroke(width = displayStrokeWidth),
+                                )
+                            }
+                        } else {
+                            Modifier
                         }
-                    }
-                    .clip(cropShape)
-                    .offset {
-                        IntOffset(
-                            (graphicsSpec.shadowDx * displayScale).roundToInt(),
-                            (graphicsSpec.shadowDy * displayScale).roundToInt()
-                        )
-                    },
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(graphicsSpec.shadowColor),
-                loading = { Box(Modifier.fillMaxSize().background(Color.Transparent)) }
-            )
-        }
-
-        // Foreground Image Layer
-        SubcomposeAsyncImage(
-            model = product.foregroundUri,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    if (hasStroke) {
-                        Modifier.drawBehind {
-                            val inset = displayStrokeWidth / 2f
-                            drawRect(
-                                color = Color(strokeColorArgb!!),
-                                topLeft = Offset(inset, inset),
-                                size = Size(
-                                    width = size.width - displayStrokeWidth,
-                                    height = size.height - displayStrokeWidth,
-                                ),
-                                style = Stroke(width = displayStrokeWidth),
-                            )
-                        }
-                    } else {
-                        Modifier
-                    }
-                )
-                .graphicsLayer {
-                    alpha = graphicsSpec.alpha
-                    rotationZ = graphicsSpec.rotation
-                    blendMode = EditorBlendModeMapper.toComposeBlendMode(layerBlendMode)
-                    compositingStrategy = if (EditorBlendModeMapper.needsOffscreenCompositing(layerBlendMode)) {
-                        CompositingStrategy.Offscreen
-                    } else {
-                        CompositingStrategy.Auto
-                    }
-                }
-                .clip(cropShape),
-            contentScale = ContentScale.Fit,
-            loading = { 
-                Box(Modifier.fillMaxSize().background(Color.Transparent)) 
-            },
-            error = { state ->
-                android.util.Log.e(
-                    "ProductLayer",
-                    "Failed to load foreground image. URL/Uri: ${product.foregroundUri}, error: ${state.result.throwable.message}",
-                    state.result.throwable
-                )
-                Box(
-                    Modifier.fillMaxSize().background(Color.Red.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Error,
-                        contentDescription = "Error loading image",
-                        tint = Color.Red.copy(alpha = 0.5f)
                     )
-                }
-            }
-        )
-
-        // Pink Overlay (Subject Mask)
-        AnimatedVisibility(
-            visible = showOverlay,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            AsyncImage(
-                model = product.foregroundUri,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
                     .graphicsLayer {
+                        alpha = graphicsSpec.alpha
                         rotationZ = graphicsSpec.rotation
+                        blendMode = EditorBlendModeMapper.toComposeBlendMode(layerBlendMode)
+                        compositingStrategy = if (EditorBlendModeMapper.needsOffscreenCompositing(layerBlendMode)) {
+                            CompositingStrategy.Offscreen
+                        } else {
+                            CompositingStrategy.Auto
+                        }
                     }
                     .clip(cropShape),
                 contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(AuroraCoral.copy(alpha = 0.55f))
+                loading = {
+                    Box(Modifier.fillMaxSize().background(Color.Transparent))
+                },
+                error = { state ->
+                    android.util.Log.e(
+                        "ProductLayer",
+                        "Failed to load foreground image. URL/Uri: ${product.foregroundUri}, error: ${state.result.throwable.message}",
+                        state.result.throwable
+                    )
+                    Box(
+                        Modifier.fillMaxSize().background(Color.Red.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Error,
+                            contentDescription = "Error loading image",
+                            tint = Color.Red.copy(alpha = 0.5f)
+                        )
+                    }
+                }
             )
+
+            // Pink Overlay (Subject Mask)
+            AnimatedVisibility(
+                visible = showOverlay,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                AsyncImage(
+                    model = product.foregroundUri,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            rotationZ = graphicsSpec.rotation
+                        }
+                        .clip(cropShape),
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(AuroraCoral.copy(alpha = 0.55f))
+                )
+            }
+
+            // 2-directional horizontal arrow replace button, compact, transparent background
+            if (product.isSample && !product.processing && !isLocked) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(36.dp)
+                        .background(Color.Transparent)
+                        .clickable { onPickImage() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Drop shadow for prominence
+                    Icon(
+                        imageVector = Icons.Default.SwapHoriz,
+                        contentDescription = null,
+                        tint = Color.Black.copy(alpha = 0.6f),
+                        modifier = Modifier.size(30.dp).offset(y = 1.dp)
+                    )
+                    // Main icon
+                    Icon(
+                        imageVector = Icons.Default.SwapHoriz,
+                        contentDescription = stringResource(R.string.studio_action_replace),
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
         }
 
         // Bounding Box Overlay
@@ -276,38 +318,12 @@ fun ProductLayerV2(
             viewport = viewport,
             displayScale = displayScale,
             templateSize = templateSize,
+            lockAspectRatio = false,
             onGesture = onGesture,
             onGestureEnd = onGestureEnd,
             showBoundingBox = showBoundingBox,
             onBoundingBoxVisible = onBoundingBoxVisible,
             isLocked = isLocked
         )
-
-        // 2-directional horizontal arrow replace button, compact, transparent background
-        if (product.isSample && !product.processing && !isLocked) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(36.dp)
-                    .background(Color.Transparent)
-                    .clickable { onPickImage() },
-                contentAlignment = Alignment.Center
-            ) {
-                // Drop shadow for prominence
-                Icon(
-                    imageVector = Icons.Default.SwapHoriz,
-                    contentDescription = null,
-                    tint = Color.Black.copy(alpha = 0.6f),
-                    modifier = Modifier.size(30.dp).offset(y = 1.dp)
-                )
-                // Main icon
-                Icon(
-                    imageVector = Icons.Default.SwapHoriz,
-                    contentDescription = stringResource(R.string.studio_action_replace),
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        }
     }
 }

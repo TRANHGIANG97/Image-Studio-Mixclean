@@ -2,7 +2,9 @@ package com.thgiang.image.studio.ui.editor.mapper
 import com.thgiang.image.studio.ui.editor.canvas.*
 import com.thgiang.image.studio.ui.editor.mapper.*
 
+import com.thgiang.image.studio.ui.editor.label.geometry.EditorShapeGeometry
 import com.thgiang.image.studio.ui.editor.model.*
+import com.thgiang.image.studio.ui.editor.model.EditorLayerNormalizer
 
 import com.thgiang.image.core.domain.model.template.CloudLayer
 import com.thgiang.image.core.domain.model.template.CloudTemplate
@@ -31,6 +33,7 @@ object CloudLayerToEditorMapper {
             .mapNotNull { cloudLayer ->
                 mapLayer(cloudLayer, canvasWidth, canvasHeight, scaledDensity)
             }
+            .let { EditorLayerNormalizer.normalize(it) }
     }
 
     private fun mapLayer(
@@ -66,6 +69,8 @@ object CloudLayerToEditorMapper {
                         baseWidth = cloudLayer.payload.baseWidth ?: 0,
                         baseHeight = cloudLayer.payload.baseHeight ?: 0,
                     ),
+                    shapeWidthPx = (cloudLayer.payload.baseWidth ?: 0).toFloat(),
+                    shapeHeightPx = (cloudLayer.payload.baseHeight ?: 0).toFloat(),
                     viewport = viewport,
                     appearance = appearance,
                     isLocked = locked,
@@ -89,10 +94,12 @@ object CloudLayerToEditorMapper {
                         originalUriString = imageUrl,
                         foregroundUriString = imageUrl,
                         isBackgroundRemoved = true,
-                        baseWidth = cloudLayer.payload.baseWidth ?: 0,
-                        baseHeight = cloudLayer.payload.baseHeight ?: 0,
+                        baseWidth = baseWidth,
+                        baseHeight = baseHeight,
                         isSample = cloudLayer.isReplaceableLayer(),
                     ),
+                    shapeWidthPx = baseWidth.toFloat(),
+                    shapeHeightPx = baseHeight.toFloat(),
                     viewport = viewport.copy(
                         flippedH = cloudLayer.payload.flippedH ?: false,
                         flippedV = cloudLayer.payload.flippedV ?: false,
@@ -134,14 +141,21 @@ object CloudLayerToEditorMapper {
                 payload.fillGradient == null &&
                 payload.resolvedShapeFillArgb() == null,
         )
+        val isTextOnly = EditorShapeGeometry.isTextOnlyShape(shapeType)
         val isLine = shapeType == ShapeType.LINE
+        val layerType = when {
+            displayText.isBlank() && !isTextOnly -> LayerType.SHAPE
+            isTextOnly -> LayerType.TEXT
+            displayText.isNotBlank() && !isTextOnly -> LayerType.SHAPE_TEXT
+            else -> LayerType.TEXT
+        }
         val lineStrokeArgb = payload.fillColor?.let(ColorArgbParser::parseOrNull)
             ?: payload.resolvedShapeFillArgb()
             ?: 0xFF6366F1.toInt()
 
         return EditorLayer(
             id = layerId,
-            type = LayerType.SHAPE_TEXT,
+            type = layerType,
             text = displayText,
             textColorArgb = payload.resolvedTextColorArgb() ?: 0xFFFFFFFF.toInt(),
             textSizeSp = (payload.fontSize ?: 60f).coerceIn(1f, 500f),
@@ -163,6 +177,7 @@ object CloudLayerToEditorMapper {
             charSpacing = charSpacingPx,
             textBackgroundColorArgb = payload.textBackgroundColor?.let(ColorArgbParser::parseOrNull),
             textTransform = payload.textTransform,
+            textForm = resolveTextForm(payload),
             cornerRadiusX = payload.rx,
             cornerRadiusY = payload.ry,
             blendMode = payload.blendMode,
@@ -234,6 +249,22 @@ object CloudLayerToEditorMapper {
         return payload.cropRatio
             ?.let { value -> runCatching { CropRatio.valueOf(value) }.getOrNull() }
             ?: CropRatio.ORIGINAL
+    }
+
+    private fun resolveTextForm(payload: com.thgiang.image.core.domain.model.template.CloudPayload): TextFormEffect {
+        val preset = TextFormPreset.fromId(payload.textFormPreset)
+        if (preset == TextFormPreset.NONE) return TextFormEffect()
+        val category = when (payload.textFormCategory?.lowercase()) {
+            "follow_path", "path" -> TextFormCategory.FOLLOW_PATH
+            "warp" -> TextFormCategory.WARP
+            else -> preset.category
+        }
+        return TextFormEffect(
+            category = category,
+            preset = preset,
+            amount = payload.textFormAmount?.coerceIn(0f, 1f) ?: 0.55f,
+            reversePath = payload.textFormReversePath == true,
+        )
     }
 
     private fun mapCloudShapeType(raw: String?, plainText: Boolean = false): ShapeType {

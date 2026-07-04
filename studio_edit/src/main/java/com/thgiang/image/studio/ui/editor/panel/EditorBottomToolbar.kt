@@ -39,10 +39,15 @@ fun EditorBottomToolbar(
     onReplaceImage: () -> Unit,
     toolsLocked: Boolean = false,
     labelLayerActive: Boolean = false,
+    shapeShadowInPanel: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val tokens = LocalEditorTokens.current
-    val tools = remember { EditorTool.ALL }
+    val tools = remember(selectedTool, shapeShadowInPanel) {
+        EditorTool.ALL.filter { tool ->
+            !(tool is EditorTool.Shadow && (selectedTool is EditorTool.Shape || shapeShadowInPanel))
+        }
+    }
 
     Box(
         modifier = modifier
@@ -62,6 +67,7 @@ fun EditorBottomToolbar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
                 .horizontalScroll(scrollState)
                 .padding(horizontal = 4.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),

@@ -1,7 +1,14 @@
 package com.thgiang.image.studio.ui.editor.model
 
 enum class LayerType : java.io.Serializable {
-    IMAGE, SHAPE_TEXT, SHADOW_REGION
+    IMAGE,
+    /** Khung — decorative shape geometry (Phase 2). */
+    SHAPE,
+    /** Nhãn — text content (Phase 2). */
+    TEXT,
+    /** @deprecated Legacy combined layer; normalized to SHAPE/TEXT or group on load. */
+    SHAPE_TEXT,
+    SHADOW_REGION,
 }
 
 enum class ShapeType : java.io.Serializable {

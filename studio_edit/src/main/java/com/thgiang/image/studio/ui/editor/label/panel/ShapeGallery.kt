@@ -53,6 +53,16 @@ internal val defaultCreateShapes: List<ShapeType> = listOf(
     ShapeType.ARROW,
 )
 
+/** Shape templates shown in the Shape tool → Hình tab (matches editor gallery row). */
+internal val defaultShapeTabShapes: List<ShapeType> = listOf(
+    ShapeType.TEXT_ONLY,
+    ShapeType.CARD,
+    ShapeType.PARALLELOGRAM,
+    ShapeType.PILL,
+    ShapeType.TEARDROP,
+    ShapeType.CIRCLE,
+)
+
 @Composable
 internal fun shapeLabel(shape: ShapeType): String = when (shape) {
     ShapeType.TEXT_ONLY -> stringResource(R.string.studio_label_shape_text_only)
@@ -82,20 +92,34 @@ internal fun ShapeGallery(
     singleRow: Boolean = false,
 ) {
     if (singleRow) {
-        Row(
+        Box(
             modifier = modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            shapes.forEach { shape ->
-                ShapeGalleryItem(
-                    shape = shape,
-                    label = "",
-                    isSelected = selectedShape == shape,
-                    tokens = tokens,
-                    onClick = { onShapeSelected(shape) },
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White)
+                .border(
+                    width = 1.dp,
+                    color = Color(0xFFE5E7EB),
+                    shape = RoundedCornerShape(12.dp)
                 )
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                shapes.forEach { shape ->
+                    ShapeGalleryItem(
+                        shape = shape,
+                        label = "",
+                        isSelected = selectedShape == shape,
+                        tokens = tokens,
+                        onClick = { onShapeSelected(shape) },
+                    )
+                }
             }
         }
     } else {
@@ -138,10 +162,10 @@ private fun ShapeGalleryItem(
         modifier = Modifier
             .width(46.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(if (isSelected) tokens.accentSoft else Color(0xFFF5F5F5))
+            .background(if (isSelected) tokens.accentSoft else Color.Transparent)
             .border(
-                width = if (isSelected) 1.5.dp else 0.5.dp,
-                color = if (isSelected) tokens.accent else tokens.borderSubtle,
+                width = if (isSelected) 1.5.dp else 0.dp,
+                color = if (isSelected) tokens.accent else Color.Transparent,
                 shape = RoundedCornerShape(8.dp),
             )
             .clickable(onClick = onClick)
@@ -151,7 +175,7 @@ private fun ShapeGalleryItem(
             modifier = Modifier.size(28.dp),
             contentAlignment = Alignment.Center,
         ) {
-            ShapePreviewIcon(shape = shape, color = if (isSelected) tokens.accent else tokens.textSecondary)
+            ShapePreviewIcon(shape = shape, color = if (isSelected) tokens.accent else Color(0xFF121212))
         }
         if (label.isNotEmpty()) {
             Text(
@@ -216,7 +240,6 @@ internal fun ShapePreviewIcon(
                     topLeft = androidx.compose.ui.geometry.Offset(pad, pad + h * 0.25f),
                     size = Size(w, h * 0.5f),
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(h * 0.25f, h * 0.25f),
-                    style = Stroke(strokeWidth),
                 )
             }
             ShapeType.CARD -> {
@@ -225,7 +248,6 @@ internal fun ShapePreviewIcon(
                     topLeft = androidx.compose.ui.geometry.Offset(pad, pad + h * 0.15f),
                     size = Size(w, h * 0.7f),
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(0f, 0f),
-                    style = Stroke(strokeWidth),
                 )
             }
             ShapeType.LINE -> {
@@ -245,7 +267,6 @@ internal fun ShapePreviewIcon(
                 drawPath(
                     path = geometryPath,
                     color = previewColor,
-                    style = Stroke(strokeWidth),
                 )
             }
         }

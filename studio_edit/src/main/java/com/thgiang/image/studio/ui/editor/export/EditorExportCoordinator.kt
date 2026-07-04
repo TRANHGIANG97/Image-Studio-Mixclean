@@ -41,7 +41,7 @@ class EditorExportCoordinator @Inject constructor(
                 templateAssetPath = templateAssetPath,
                 templateSize = templateSize,
                 layers = state.layers.filter {
-                    it.type == LayerType.SHAPE_TEXT ||
+                    it.isVectorContentLayer ||
                         it.type == LayerType.SHADOW_REGION ||
                         it.product.foregroundUri != null
                 },

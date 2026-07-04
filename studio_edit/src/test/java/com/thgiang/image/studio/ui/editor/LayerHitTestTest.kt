@@ -1,7 +1,13 @@
 package com.thgiang.image.studio.ui.editor
 
-import com.thgiang.image.studio.ui.editor.LayerType.IMAGE
-import com.thgiang.image.studio.ui.editor.LayerType.SHAPE_TEXT
+import com.thgiang.image.studio.ui.editor.model.LayerType
+import com.thgiang.image.studio.ui.editor.model.LayerType.IMAGE
+import com.thgiang.image.studio.ui.editor.model.LayerType.SHAPE_TEXT
+import com.thgiang.image.studio.ui.editor.canvas.LayerHitTest
+import com.thgiang.image.studio.ui.editor.canvas.LayerHitTestContext
+import com.thgiang.image.studio.ui.editor.model.EditorLayer
+import com.thgiang.image.studio.ui.editor.model.EditorViewport
+import com.thgiang.image.studio.ui.editor.model.EditorProduct
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

@@ -103,6 +103,7 @@ fun PrecisionSlider(
     valueFormatter: (Float) -> String = { (it * 100).roundToInt().toString() },
     steps: Int = 0,
     colors: PrecisionSliderColors = PrecisionSliderDefaults.colors(),
+    isCompact: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isDragging by interactionSource.collectIsDraggedAsState()
@@ -121,17 +122,42 @@ fun PrecisionSlider(
 
     val labelColor = if (isActive) colors.labelActiveColor else colors.labelColor
 
-    Column(modifier = modifier.animateContentSize()) {
+    if (isCompact) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = label,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = labelColor
+                color = labelColor,
+                modifier = Modifier.widthIn(min = 36.dp)
+            )
+
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                valueRange = valueRange,
+                enabled = enabled,
+                steps = steps,
+                interactionSource = interactionSource,
+                colors = SliderDefaults.colors(
+                    thumbColor = Color.Transparent,
+                    activeTrackColor = Color.Transparent,
+                    inactiveTrackColor = Color.Transparent,
+                    disabledThumbColor = Color.Transparent,
+                    disabledActiveTrackColor = Color.Transparent,
+                    disabledInactiveTrackColor = Color.Transparent,
+                ),
+                thumb = { PrecisionThumb(isDragging, colors) },
+                track = { sliderState ->
+                    val fraction = (sliderState.value - valueRange.start) /
+                        (valueRange.endInclusive - valueRange.start)
+                    PrecisionTrack(fraction, colors)
+                },
+                modifier = Modifier.weight(1f).height(32.dp)
             )
 
             if (isEditing) {
@@ -176,7 +202,6 @@ fun PrecisionSlider(
                             }
                     )
                 }
-
                 LaunchedEffect(Unit) { focusRequester.requestFocus() }
             } else {
                 Box(
@@ -205,49 +230,135 @@ fun PrecisionSlider(
                 }
             }
         }
+    } else {
+        Column(modifier = modifier.animateContentSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = label,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = labelColor
+                )
 
-        Spacer(Modifier.height(4.dp))
+                if (isEditing) {
+                    Box(
+                        modifier = Modifier
+                            .width(64.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(colors.valuePillBackground)
+                            .border(0.5.dp, colors.borderColor, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        BasicTextField(
+                            value = editText,
+                            onValueChange = { newText ->
+                                editText = newText.filter { it.isDigit() || it == '.' || it == '-' }
+                            },
+                            textStyle = TextStyle(
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = colors.valuePillTextColor,
+                                textAlign = TextAlign.Center
+                            ),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    commitEdit(editText, valueRange, onValueChange)
+                                    isEditing = false
+                                    keyboard?.hide()
+                                }
+                            ),
+                            visualTransformation = VisualTransformation.None,
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .onKeyEvent { event ->
+                                    if (event.type == KeyEventType.KeyUp && event.key == Key.Enter) {
+                                        commitEdit(editText, valueRange, onValueChange)
+                                        isEditing = false
+                                        keyboard?.hide()
+                                        true
+                                    } else false
+                                }
+                        )
+                    }
 
-        Slider(
-            value = value,
-            onValueChange = onValueChange,
-            valueRange = valueRange,
-            enabled = enabled,
-            steps = steps,
-            interactionSource = interactionSource,
-            colors = SliderDefaults.colors(
-                thumbColor = Color.Transparent,
-                activeTrackColor = Color.Transparent,
-                inactiveTrackColor = Color.Transparent,
-                disabledThumbColor = Color.Transparent,
-                disabledActiveTrackColor = Color.Transparent,
-                disabledInactiveTrackColor = Color.Transparent,
-            ),
-            thumb = { PrecisionThumb(isDragging, colors) },
-            track = { sliderState ->
-                val fraction = (sliderState.value - valueRange.start) /
-                    (valueRange.endInclusive - valueRange.start)
-                PrecisionTrack(fraction, colors)
-            },
-            modifier = Modifier.height(32.dp)
-        )
+                    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(colors.valuePillBackground)
+                            .graphicsLayer {
+                                scaleX = pillScale
+                                scaleY = pillScale
+                            }
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                editText = valueFormatter(value)
+                                isEditing = true
+                            }
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = valueFormatter(value),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.valuePillTextColor
+                        )
+                    }
+                }
+            }
 
-        Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(4.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = valueFormatter(valueRange.start),
-                fontSize = 9.sp,
-                color = colors.rangeLabelColor
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                valueRange = valueRange,
+                enabled = enabled,
+                steps = steps,
+                interactionSource = interactionSource,
+                colors = SliderDefaults.colors(
+                    thumbColor = Color.Transparent,
+                    activeTrackColor = Color.Transparent,
+                    inactiveTrackColor = Color.Transparent,
+                    disabledThumbColor = Color.Transparent,
+                    disabledActiveTrackColor = Color.Transparent,
+                    disabledInactiveTrackColor = Color.Transparent,
+                ),
+                thumb = { PrecisionThumb(isDragging, colors) },
+                track = { sliderState ->
+                    val fraction = (sliderState.value - valueRange.start) /
+                        (valueRange.endInclusive - valueRange.start)
+                    PrecisionTrack(fraction, colors)
+                },
+                modifier = Modifier.height(32.dp)
             )
-            Text(
-                text = valueFormatter(valueRange.endInclusive),
-                fontSize = 9.sp,
-                color = colors.rangeLabelColor
-            )
+
+            Spacer(Modifier.height(2.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = valueFormatter(valueRange.start),
+                    fontSize = 9.sp,
+                    color = colors.rangeLabelColor
+                )
+                Text(
+                    text = valueFormatter(valueRange.endInclusive),
+                    fontSize = 9.sp,
+                    color = colors.rangeLabelColor
+                )
+            }
         }
     }
 }

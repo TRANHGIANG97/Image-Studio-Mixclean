@@ -3,6 +3,11 @@ import com.thgiang.image.studio.ui.editor.*
 import com.thgiang.image.studio.ui.editor.label.geometry.*
 import com.thgiang.image.studio.ui.editor.canvas.*
 import com.thgiang.image.studio.ui.editor.mapper.*
+import com.thgiang.image.studio.ui.editor.mapper.EditorElevationMapper.drawShapeElevation
+import com.thgiang.image.studio.ui.editor.mapper.hasShape3DDepth
+import com.thgiang.image.studio.ui.editor.mapper.supportsTextElevation
+import com.thgiang.image.studio.ui.editor.mapper.TextElevationMapper
+import com.thgiang.image.studio.ui.editor.mapper.EditorShadowMapper.drawShapeDropShadow
 
 import com.thgiang.image.studio.ui.editor.model.*
 
@@ -73,7 +78,7 @@ class EditorRenderer(
             for (layer in request.layers) {
                 if (!layer.isVisible) continue
                 when (layer.type) {
-                    LayerType.SHAPE_TEXT -> {
+                    LayerType.SHAPE, LayerType.TEXT, LayerType.SHAPE_TEXT -> {
                         renderShapeTextLayer(canvas, layer, request.templateSize.width, request.templateSize.height)
                     }
                     LayerType.SHADOW_REGION -> {
@@ -225,8 +230,8 @@ class EditorRenderer(
         templateHeight: Int
     ) {
         val state = layer.viewport
-        val shadowW = layer.product.baseSize.width.toFloat() * state.scale
-        val shadowH = layer.product.baseSize.height.toFloat() * state.scale
+        val shadowW = layer.shapeWidthPx * state.scale
+        val shadowH = layer.shapeHeightPx * state.scale
         val left = (templateWidth - shadowW) / 2f + state.offset.x
         val top = (templateHeight - shadowH) / 2f + state.offset.y
         val rawIntensity = layer.appearance.shadowIntensity
@@ -365,7 +370,7 @@ class EditorRenderer(
         val top = (templateHeight - shapeH) / 2f + state.offset.y
 
         val shapeAlpha = (layer.shapeColorArgb ushr 24) and 0xFF
-        val shouldRenderShape = !EditorShapeGeometry.isTextOnlyShape(layer.shapeType)
+        val shouldRenderShape = layer.shouldRenderFrameContent
         val hasShapeFill = EditorShapeGeometry.isFilledShape(
             layer.shapeType,
             shapeAlpha,
@@ -383,12 +388,37 @@ class EditorRenderer(
                     scale(scaleX, scaleY, left + shapeW / 2f, top + shapeH / 2f)
                 }
 
+                if (
+                    layer.isFrameLayer &&
+                    layer.supportsShapeElevation &&
+                    layer.appearance.hasShape3DDepth(state.scale) &&
+                    layer.appearance.appliesShapeElevation()
+                ) {
+                    drawShapeElevation(
+                        shapeType = layer.shapeType,
+                        appearance = layer.appearance,
+                        fillColorArgb = layer.shapeColorArgb,
+                        left = left,
+                        top = top,
+                        shapeW = shapeW,
+                        shapeH = shapeH,
+                        cornerRadiusX = layer.cornerRadiusX,
+                        cornerRadiusY = layer.cornerRadiusY,
+                        scale = state.scale,
+                        pathData = layer.pathData,
+                        polygonPoints = layer.polygonPoints,
+                    )
+                }
+
                 if (canDrawShapeShadow && layer.appearance.shadowIntensity > 0.05f) {
                     val (shadowDx, shadowDy) = shadowOffset(
                         layer.appearance.shadowAngle,
                         layer.appearance.shadowDistance,
                     )
-                    val shadowPaint = EditorShadowMapper.configureDropShadowPaint(layer.appearance)
+                    val shadowPaint = EditorShadowMapper.configureDropShadowPaint(
+                        layer.appearance,
+                        renderScale = state.scale,
+                    )
                     drawShapeGeometry(
                         shapeType = layer.shapeType,
                         left = left + shadowDx,
@@ -444,6 +474,7 @@ class EditorRenderer(
                             strokeWidthPx = layer.resolveStrokeWidthPx() * state.scale,
                             strokeDashArray = layer.strokeDashArray,
                             alpha = alpha,
+                            renderScale = state.scale,
                         )
                     }
                     drawShapeGeometry(
@@ -460,8 +491,44 @@ class EditorRenderer(
                     )
                 }
 
-                if (layer.text.isNotBlank()) {
-                    drawShapeTextContent(canvas, layer, state, left, top, shapeW, shapeH, alpha)
+                if (
+                    layer.isLabelLayer &&
+                    layer.supportsTextElevation &&
+                    layer.appearance.hasShape3DDepth(state.scale) &&
+                    layer.appearance.appliesTextElevation()
+                ) {
+                    TextElevationMapper.drawOnCanvas(
+                        canvas = canvas,
+                        layer = layer,
+                        left = left,
+                        top = top,
+                        width = shapeW,
+                        height = shapeH,
+                        renderScale = state.scale,
+                        context = context,
+                    )
+                }
+
+                if (layer.text.isNotBlank() && layer.shouldRenderLabelContent) {
+                    if (layer.textForm.isActive) {
+                        TextFormLayoutEngine.drawOnCanvas(
+                            canvas = canvas,
+                            layer = layer,
+                            left = left,
+                            top = top,
+                            width = shapeW,
+                            height = shapeH,
+                            renderScale = state.scale,
+                            context = context,
+                            alpha = alpha,
+                            gradientLeft = left,
+                            gradientTop = top,
+                            gradientWidth = shapeW,
+                            gradientHeight = shapeH,
+                        )
+                    } else {
+                        drawShapeTextContent(canvas, layer, state, left, top, shapeW, shapeH, alpha)
+                    }
                 }
             }
         }

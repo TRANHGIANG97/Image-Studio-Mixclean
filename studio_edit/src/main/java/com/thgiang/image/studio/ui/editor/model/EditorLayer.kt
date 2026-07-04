@@ -37,6 +37,8 @@ data class EditorLayer(
     val charSpacing: Float = 0f,
     val textBackgroundColorArgb: Int? = null,
     val textTransform: String? = null,
+    /** Word-style text path / warp transform (Follow Path + Warp). */
+    val textForm: TextFormEffect = TextFormEffect(),
     /** Corner radius in template pixels (from cloud rx/ry) */
     val cornerRadiusX: Float? = null,
     val cornerRadiusY: Float? = null,
@@ -48,6 +50,11 @@ data class EditorLayer(
     val textColorGradient: CloudGradient? = null,
     val pathData: String? = null,
     val polygonPoints: List<Float> = emptyList(),
+
+    /** Shared id for frame + label siblings (Phase 3). */
+    val groupId: String? = null,
+    /** Role inside a [groupId] composite. */
+    val groupRole: LayerGroupRole? = null,
 
     // ── Common transform & appearance ───────────────────────
     val viewport: EditorViewport = EditorViewport(),

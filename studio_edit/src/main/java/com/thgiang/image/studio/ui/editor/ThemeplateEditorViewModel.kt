@@ -5,7 +5,11 @@ import com.thgiang.image.studio.ui.editor.canvas.*
 
 import android.content.Context
 import com.thgiang.image.studio.ui.editor.model.*
-import com.thgiang.image.studio.ui.editor.label.model.*
+import com.thgiang.image.studio.ui.editor.label.model.withShapeFittedToText
+import com.thgiang.image.studio.ui.editor.model.preferredEditorTool
+import com.thgiang.image.studio.ui.editor.model.isLabelLayer
+import com.thgiang.image.studio.ui.editor.model.EditorLayerNormalizer
+import com.thgiang.image.studio.ui.editor.canvas.LayerAlignment
 import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.SavedStateHandle
@@ -14,6 +18,8 @@ import androidx.lifecycle.viewModelScope
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.data.TemplateDraftRepository
+import com.thgiang.image.studio.data.RemoteSticker
+import com.thgiang.image.studio.data.StickerRemoteRepository
 import com.thgiang.image.studio.ui.editor.export.EditorExportCoordinator
 import com.thgiang.image.studio.ui.editor.export.ExportOutcome
 import com.thgiang.image.studio.ui.editor.export.SaveDraftOutcome
@@ -23,12 +29,24 @@ import com.thgiang.image.studio.ui.editor.product.ProductImageResult
 import com.thgiang.image.studio.ui.editor.product.SampleObjectResult
 import com.thgiang.image.studio.ui.editor.product.StickerResult
 import com.thgiang.image.studio.ui.editor.label.LabelViewModelDelegate
+import com.thgiang.image.studio.ui.editor.label.model.LabelStyleClipboard
+import com.thgiang.image.studio.ui.editor.shape.ShapeViewModelDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import kotlin.math.abs
+
+/**
+ * UI state cho khu vực Sticker picker.
+ */
+data class StickerUiState(
+    val previewMeme: List<RemoteSticker> = emptyList(),
+    val previewDecor: List<RemoteSticker> = emptyList(),
+    val isLoadingPreview: Boolean = false,
+    val previewError: Boolean = false,
+)
 
 @HiltViewModel
 class ThemeplateEditorViewModel @Inject constructor(
@@ -39,6 +57,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private val historyManager: EditorHistoryManager,
     private val productWorkflow: EditorProductWorkflow,
     private val layerFactory: EditorLayerFactory,
+    private val stickerRepository: StickerRemoteRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -54,6 +73,9 @@ class ThemeplateEditorViewModel @Inject constructor(
         private const val GESTURE_THROTTLE_MS = 16L // ~60fps
     }
 
+    // Clipboard: stores style of last copied layer (fill, stroke, shadow)
+    private var styleClipboard: LabelStyleClipboard? = null
+
     val draftId: String? = savedStateHandle.get<String>("draftId")
     
     private val _state = MutableStateFlow(
@@ -61,7 +83,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             restored.copy(
                 template = restored.template ?: EditorTemplate(),
                 selectedTool = restored.selectedTool,
-                layers = restored.layers ?: emptyList(),
+                layers = EditorLayerNormalizer.normalize(restored.layers ?: emptyList()),
                 selectedLayerId = restored.selectedLayerId
             )
         }
@@ -70,6 +92,12 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     val canUndo: StateFlow<Boolean> = historyManager.canUndo
     val canRedo: StateFlow<Boolean> = historyManager.canRedo
+
+    // ─── Sticker state ────────────────────────────────────────────
+    private val _stickerState = MutableStateFlow(StickerUiState())
+    val stickerState: StateFlow<StickerUiState> = _stickerState.asStateFlow()
+
+    private var stickerPreviewJob: Job? = null
 
     // Debounced history push for gesture operations
     private val historyPushFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -88,6 +116,17 @@ class ThemeplateEditorViewModel @Inject constructor(
     val labelDelegate by lazy {
         LabelViewModelDelegate(
             context = context,
+            layerFactory = layerFactory,
+            shapeFitFlow = shapeFitFlow,
+            readState = { _state.value },
+            updateState = { block -> _state.update { s -> block(s) } },
+            requestHistoryPush = { historyPushFlow.tryEmit(Unit) },
+            pushHistory = { historyPushJob?.cancel(); historyPushJob = viewModelScope.launch { pushHistoryInternal() } },
+        )
+    }
+
+    val shapeDelegate by lazy {
+        ShapeViewModelDelegate(
             layerFactory = layerFactory,
             shapeFitFlow = shapeFitFlow,
             readState = { _state.value },
@@ -141,19 +180,16 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
-    private inline fun updateActiveLayer(crossinline block: (EditorLayer) -> EditorLayer) {
+    private fun updateActiveLayer(block: (EditorLayer) -> EditorLayer) {
         _state.update { state ->
             val layerId = state.selectedLayerId ?: return@update state
-            val newLayers = state.layers.map {
-                if (it.id == layerId) block(it) else it
-            }
-            state.copy(layers = newLayers)
+            state.copy(layers = LayerGroupSync.apply(state.layers, layerId, block))
         }
     }
 
     private fun applyShapeFitToActiveLayer() {
         updateActiveLayer { layer ->
-            if (layer.type == LayerType.SHAPE_TEXT) {
+            if (layer.isLabelLayer) {
                 layer.withShapeFittedToText(context)
             } else {
                 layer
@@ -180,17 +216,24 @@ class ThemeplateEditorViewModel @Inject constructor(
             EditorEvent.DismissLabelTool -> labelDelegate.dismissLabelTool()
             // ── Shape events (delegated) ──────────────────
             is EditorEvent.AddShapeLayer ->
-                labelDelegate.addShapeLayer(event.shapeType, _state.value.template.originalSize.width.toFloat())
+                shapeDelegate.addShapeLayer(event.shapeType, _state.value.template.originalSize.width.toFloat())
             is EditorEvent.ConfirmAddShape ->
-                labelDelegate.confirmAddShape(event.shapeType, _state.value.template.originalSize.width.toFloat())
-            EditorEvent.DismissShapeTool -> labelDelegate.dismissShapeTool()
+                shapeDelegate.confirmAddShape(event.shapeType, _state.value.template.originalSize.width.toFloat())
+            EditorEvent.DismissShapeTool -> shapeDelegate.dismissShapeTool()
             // ── Label edit events ─────────────────────────
             is EditorEvent.UpdateShapeText -> labelDelegate.updateShapeText(event.text)
-            is EditorEvent.UpdateShapeColor -> labelDelegate.updateShapeColor(event.argb)
+            is EditorEvent.UpdateShapeColor -> shapeDelegate.updateShapeColor(event.argb)
             is EditorEvent.UpdateTextColor -> labelDelegate.updateTextColor(event.argb)
             is EditorEvent.UpdateTextSize -> labelDelegate.updateTextSize(event.sizeSp)
             is EditorEvent.UpdateTextFontFamily -> labelDelegate.updateTextFontFamily(event.fontFamily)
-            is EditorEvent.UpdateShapeType -> labelDelegate.updateShapeType(event.shapeType)
+            is EditorEvent.UpdateShapeType -> {
+                val layer = _state.value.layers.find { it.id == _state.value.selectedLayerId }
+                if (layer?.isLabelLayer == true) {
+                    labelDelegate.updateShapeType(event.shapeType)
+                } else {
+                    shapeDelegate.updateShapeType(event.shapeType)
+                }
+            }
             is EditorEvent.UpdateTextBold -> labelDelegate.updateTextBold(event.bold)
             is EditorEvent.UpdateTextItalic -> labelDelegate.updateTextItalic(event.italic)
             is EditorEvent.UpdateTextUnderline -> labelDelegate.updateTextUnderline(event.underline)
@@ -199,14 +242,26 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.UpdateLineHeight -> labelDelegate.updateLineHeight(event.multiplier)
             is EditorEvent.UpdateCharSpacing -> labelDelegate.updateCharSpacing(event.spacing)
             is EditorEvent.UpdateTextTransform -> labelDelegate.updateTextTransform(event.transform)
-            is EditorEvent.UpdateFillGradient -> labelDelegate.updateFillGradient(event.gradient)
+            is EditorEvent.ApplyTextFormPreset -> labelDelegate.applyTextFormPreset(event.preset)
+            is EditorEvent.UpdateTextFormAmount -> labelDelegate.updateTextFormAmount(event.amount)
+            EditorEvent.ResetTextForm -> labelDelegate.resetTextForm()
+            is EditorEvent.UpdateFillGradient -> shapeDelegate.updateFillGradient(event.gradient)
             is EditorEvent.UpdateTextColorGradient -> labelDelegate.updateTextColorGradient(event.gradient)
             is EditorEvent.ApplyLabelTypographyPreset ->
                 labelDelegate.applyLabelTypographyPreset(event.fontWeight, event.textSizeSp, event.textTransform)
-            is EditorEvent.UpdateStrokeColor -> labelDelegate.updateStrokeColor(event.argb)
-            is EditorEvent.UpdateStrokeWidth -> labelDelegate.updateStrokeWidth(event.widthPx)
-            is EditorEvent.UpdateCornerRadius -> labelDelegate.updateCornerRadius(event.radiusPx)
-            is EditorEvent.SyncShapeSize -> labelDelegate.syncShapeSize(event.widthPx, event.heightPx)
+            is EditorEvent.UpdateStrokeColor -> shapeDelegate.updateStrokeColor(event.argb)
+            is EditorEvent.UpdateStrokeWidth -> shapeDelegate.updateStrokeWidth(event.widthPx)
+            is EditorEvent.UpdateStrokeDash ->
+                shapeDelegate.updateStrokeDash(event.dashArray)
+            is EditorEvent.UpdateCornerRadius -> shapeDelegate.updateCornerRadius(event.radiusPx)
+            is EditorEvent.SyncShapeSize -> {
+                val layer = _state.value.layers.find { it.id == _state.value.selectedLayerId }
+                if (layer?.isLabelLayer == true) {
+                    labelDelegate.syncShapeSize(event.widthPx, event.heightPx)
+                } else {
+                    shapeDelegate.syncShapeSize(event.widthPx, event.heightPx)
+                }
+            }
             is EditorEvent.UpdateGesture -> {
                 gestureThrottleFlow.tryEmit(event.delta)
                 requestHistoryPush()
@@ -253,6 +308,47 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.UpdateShadowColor -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowColorArgb = event.argb)) }
             }
+            is EditorEvent.UpdateShadowBlur -> {
+                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowBlur = event.blurPx)) }
+            }
+            is EditorEvent.UpdateElevation -> {
+                val intensity = event.intensity.coerceIn(0f, 1f)
+                updateActiveLayer {
+                    it.copy(
+                        appearance = it.appearance.copy(
+                            elevationIntensity = intensity,
+                            depthSizePx = intensity * EditorAppearance.MAX_SHAPE_DEPTH_PX,
+                        ),
+                    )
+                }
+            }
+            is EditorEvent.UpdateDepthSize -> {
+                val size = event.sizePx.coerceIn(0f, EditorAppearance.MAX_SHAPE_DEPTH_PX)
+                updateActiveLayer {
+                    it.copy(
+                        appearance = it.appearance.copy(
+                            depthSizePx = size,
+                            elevationIntensity = size / EditorAppearance.MAX_SHAPE_DEPTH_PX,
+                        ),
+                    )
+                }
+            }
+            is EditorEvent.UpdateDepthColor -> {
+                updateActiveLayer {
+                    it.copy(appearance = it.appearance.copy(depthColorArgb = event.argb))
+                }
+            }
+            is EditorEvent.UpdateExtrusionAngle -> {
+                updateActiveLayer {
+                    it.copy(appearance = it.appearance.copy(extrusionAngle = event.angle % 360f))
+                }
+            }
+            is EditorEvent.UpdateElevationStyle -> {
+                updateActiveLayer { it.copy(appearance = it.appearance.copy(elevationStyle = event.style)) }
+            }
+            is EditorEvent.UpdateElevationTarget -> {
+                updateActiveLayer { it.copy(appearance = it.appearance.copy(elevationTarget = event.target)) }
+            }
             is EditorEvent.UpdateAlpha -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f))) }
             }
@@ -278,7 +374,18 @@ class ThemeplateEditorViewModel @Inject constructor(
                 pushHistory()
             }
             is EditorEvent.SelectLayer -> {
-                _state.update { it.copy(selectedLayerId = event.layerId) }
+                val targetLayer = _state.value.layers.find { it.id == event.layerId }
+                _state.update {
+                    it.copy(
+                        selectedLayerId = event.layerId,
+                        selectedTool = targetLayer?.preferredEditorTool()
+                            ?: if (it.selectedTool == EditorTool.Shape || it.selectedTool == EditorTool.Label) {
+                                null
+                            } else {
+                                it.selectedTool
+                            },
+                    )
+                }
             }
             EditorEvent.DuplicateLayer -> {
                 val current = _state.value
@@ -286,37 +393,44 @@ class ThemeplateEditorViewModel @Inject constructor(
                     _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
                     return
                 }
-                val activeLayer = current.layers.find { it.id == current.selectedLayerId }
-                if (activeLayer != null) {
-                    val duplicatedLayer = activeLayer.copy(
-                        id = java.util.UUID.randomUUID().toString(),
-                        viewport = activeLayer.viewport.withOffset(
-                            Offset(activeLayer.viewport.offset.x + 50f, activeLayer.viewport.offset.y + 50f)
-                        )
-                    )
-                    _state.update { it.copy(layers = it.layers + duplicatedLayer, selectedLayerId = duplicatedLayer.id) }
+                val (newLayers, primaryId) = LayerGroupOps.duplicate(
+                    current.layers,
+                    current.selectedLayerId!!,
+                )
+                if (primaryId != null) {
+                    _state.update { it.copy(layers = newLayers, selectedLayerId = primaryId) }
                     pushHistory()
                 }
             }
             EditorEvent.DeleteLayer -> {
                 val currentLayerId = _state.value.selectedLayerId
                 if (currentLayerId != null) {
-                    _state.update { 
+                    val removeIds = LayerGroupOps.deleteIds(_state.value.layers, currentLayerId)
+                    _state.update {
                         it.copy(
-                            layers = it.layers.filterNot { layer -> layer.id == currentLayerId }, 
-                            selectedLayerId = null
-                        ) 
+                            layers = it.layers.filterNot { layer -> layer.id in removeIds },
+                            selectedLayerId = null,
+                        )
                     }
                     pushHistory()
                 } else {
                     _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
                 }
             }
-            EditorEvent.CommitTransform -> pushHistory()
+            EditorEvent.CommitTransform -> {
+                bakeViewportScaleForSelection()
+                pushHistory()
+            }
             EditorEvent.Undo -> undo()
             EditorEvent.Redo -> redo()
             EditorEvent.MoveLayerUp -> moveLayer(up = true)
             EditorEvent.MoveLayerDown -> moveLayer(up = false)
+            EditorEvent.MoveLayerToTop -> moveLayerToEdge(toTop = true)
+            EditorEvent.MoveLayerToBottom -> moveLayerToEdge(toTop = false)
+            EditorEvent.ToggleLayerLock -> toggleLayerLock()
+            is EditorEvent.AlignLayer -> alignLayer(event.alignment)
+            EditorEvent.CopyLabelStyle -> copyLabelStyle()
+            EditorEvent.PasteLabelStyle -> pasteLabelStyle()
             EditorEvent.SaveDraft -> saveDraft()
             is EditorEvent.Export -> export(event.templateAssetPath)
         }
@@ -340,11 +454,82 @@ class ThemeplateEditorViewModel @Inject constructor(
         pushHistory()
     }
 
+    private fun moveLayerToEdge(toTop: Boolean) {
+        val currentLayerId = _state.value.selectedLayerId ?: return
+        _state.update { state ->
+            val mutableLayers = state.layers.toMutableList()
+            val index = mutableLayers.indexOfFirst { it.id == currentLayerId }
+            if (index == -1) return@update state
+            val layer = mutableLayers.removeAt(index)
+            if (toTop) mutableLayers.add(layer) else mutableLayers.add(0, layer)
+            state.copy(layers = mutableLayers)
+        }
+        pushHistory()
+    }
+
+    private fun toggleLayerLock() {
+        updateActiveLayer { layer -> layer.copy(isLocked = !layer.isLocked) }
+    }
+
+    private fun alignLayer(alignment: LayerAlignment) {
+        val canvasW = _state.value.template.originalSize.width.toFloat()
+        val canvasH = _state.value.template.originalSize.height.toFloat()
+        if (canvasW <= 0f || canvasH <= 0f) return
+
+        updateActiveLayer { layer ->
+            val shapeW = layer.shapeWidthPx.takeIf { it > 0f } ?: 100f
+            val shapeH = layer.shapeHeightPx.takeIf { it > 0f } ?: 100f
+            val currentOffset = layer.viewport.offset
+            val newOffset = when (alignment) {
+                LayerAlignment.LEFT             -> currentOffset.copy(x = shapeW / 2f)
+                LayerAlignment.CENTER_HORIZONTAL -> currentOffset.copy(x = canvasW / 2f)
+                LayerAlignment.RIGHT            -> currentOffset.copy(x = canvasW - shapeW / 2f)
+                LayerAlignment.TOP              -> currentOffset.copy(y = shapeH / 2f)
+                LayerAlignment.CENTER_VERTICAL  -> currentOffset.copy(y = canvasH / 2f)
+                LayerAlignment.BOTTOM           -> currentOffset.copy(y = canvasH - shapeH / 2f)
+            }
+            layer.copy(viewport = layer.viewport.withOffset(newOffset))
+        }
+        pushHistory()
+    }
+
+    private fun copyLabelStyle() {
+        val layer = _state.value.layers.find { it.id == _state.value.selectedLayerId } ?: return
+        styleClipboard = LabelStyleClipboard(
+            shapeColorArgb = layer.shapeColorArgb,
+            fillGradient = layer.fillGradient,
+            strokeColorArgb = layer.strokeColorArgb,
+            strokeWidthPx = layer.strokeWidthPx,
+            strokeDashArray = layer.strokeDashArray,
+            cornerRadiusX = layer.cornerRadiusX,
+            cornerRadiusY = layer.cornerRadiusY,
+            appearance = layer.appearance,
+        )
+    }
+
+    private fun pasteLabelStyle() {
+        val clip = styleClipboard ?: return
+        updateActiveLayer { layer ->
+            layer.copy(
+                shapeColorArgb = clip.shapeColorArgb,
+                fillGradient = clip.fillGradient,
+                strokeColorArgb = clip.strokeColorArgb,
+                strokeWidthPx = clip.strokeWidthPx,
+                strokeDashArray = clip.strokeDashArray,
+                cornerRadiusX = clip.cornerRadiusX,
+                cornerRadiusY = clip.cornerRadiusY,
+                appearance = clip.appearance,
+            )
+        }
+        pushHistory()
+    }
+
     private fun applyLoadedTemplate(loaded: com.thgiang.image.studio.ui.editor.load.LoadedEditorTemplate) {
+
         _state.update {
             it.copy(
                 template = loaded.template,
-                layers = loaded.layers.ifEmpty { it.layers },
+                layers = EditorLayerNormalizer.normalize(loaded.layers.ifEmpty { it.layers }),
                 selectedLayerId = loaded.selectedLayerId ?: it.selectedLayerId,
                 errorMessage = null,
             )
@@ -454,6 +639,47 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
+    // ============ Sticker ============
+
+    /**
+     * Tải 20 sticker preview (10 meme + 10 decor) từ admin_web trong background.
+     * Gọi lần đầu khi người dùng bật tool Sticker; các lần sau dùng cache.
+     * Chạy trên Dispatchers.IO để không block UI thread.
+     */
+    fun loadStickerPreview() {
+        // Đã có dữ liệu → không cần gọi lại
+        if (_stickerState.value.previewMeme.isNotEmpty() ||
+            _stickerState.value.previewDecor.isNotEmpty()
+        ) return
+
+        // Đang load → tránh gọi trùng
+        if (stickerPreviewJob?.isActive == true) return
+
+        stickerPreviewJob = viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            _stickerState.update { it.copy(isLoadingPreview = true, previewError = false) }
+            try {
+                val (meme, decor) = stickerRepository.fetchPreview()
+                _stickerState.update {
+                    it.copy(
+                        previewMeme = meme,
+                        previewDecor = decor,
+                        isLoadingPreview = false,
+                    )
+                }
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "loadStickerPreview failed", e)
+                _stickerState.update { it.copy(isLoadingPreview = false, previewError = true) }
+            }
+        }
+    }
+
+    /** Xóa cache sticker và tải lại preview — gọi khi user muốn refresh. */
+    fun invalidateStickerCache() {
+        stickerRepository.invalidateCache()
+        _stickerState.update { StickerUiState() }
+        loadStickerPreview()
+    }
+
     private fun addSticker(assetPath: String) {
         viewModelScope.launch {
             try {
@@ -503,7 +729,41 @@ class ThemeplateEditorViewModel @Inject constructor(
                     is ProductImageResult.Ready -> {
                         _state.update { state ->
                             val updatedLayers = state.layers.map {
-                                if (it.id == update.processingId) it.copy(product = result.product) else it
+                                if (it.id == update.processingId) {
+                                    if (replaceLayerId != null) {
+                                        // Fit new image aspect ratio within the old shape bounds
+                                        val oldW = it.shapeWidthPx.coerceAtLeast(1f)
+                                        val oldH = it.shapeHeightPx.coerceAtLeast(1f)
+                                        val newAspect = result.product.baseWidth.toFloat() / result.product.baseHeight.toFloat().coerceAtLeast(1f)
+                                        val oldAspect = oldW / oldH
+
+                                        val (newW, newH) = if (newAspect > oldAspect) {
+                                            oldW to (oldW / newAspect)
+                                        } else {
+                                            (oldH * newAspect) to oldH
+                                        }
+
+                                        it.copy(
+                                            product = result.product,
+                                            shapeWidthPx = newW,
+                                            shapeHeightPx = newH,
+                                        )
+                                    } else {
+                                        // For new image insertions, use original aspect ratio and standard max scale
+                                        val newW = result.product.baseWidth.toFloat()
+                                        val newH = result.product.baseHeight.toFloat()
+                                        val maxDim = 400f
+                                        val scaleFactor = (maxDim / maxOf(newW, newH)).coerceAtMost(1f)
+
+                                        it.copy(
+                                            product = result.product,
+                                            shapeWidthPx = newW * scaleFactor,
+                                            shapeHeightPx = newH * scaleFactor,
+                                        )
+                                    }
+                                } else {
+                                    it
+                                }
                             }
                             state.copy(layers = updatedLayers, showBoundingBox = true)
                         }
@@ -562,6 +822,25 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
+    private fun bakeViewportScaleForSelection() {
+        val state = _state.value
+        val layerId = state.selectedLayerId ?: return
+        val selected = state.layers.find { it.id == layerId } ?: return
+        val targets = selected.groupId?.let { gid ->
+            state.layers.filter { it.groupId == gid }
+        } ?: listOf(selected)
+        if (targets.none { LayerViewportScale.needsBake(it) }) return
+
+        val bakedIds = targets.map { it.id }.toSet()
+        _state.update { current ->
+            current.copy(
+                layers = current.layers.map { layer ->
+                    if (layer.id in bakedIds) LayerViewportScale.bake(layer) else layer
+                },
+            )
+        }
+    }
+
     private fun applyGestureDelta(delta: GestureDelta) {
         updateActiveLayer { layer ->
             var newViewport = layer.viewport
@@ -579,7 +858,13 @@ class ThemeplateEditorViewModel @Inject constructor(
                 newViewport = newViewport.withRotation(newRotation)
             }
             
-            layer.copy(viewport = newViewport)
+            var updatedLayer = layer.copy(viewport = newViewport)
+            if (delta.deltaWidth != 0f || delta.deltaHeight != 0f) {
+                val newW = (layer.shapeWidthPx + delta.deltaWidth).coerceAtLeast(60f)
+                val newH = (layer.shapeHeightPx + delta.deltaHeight).coerceAtLeast(30f)
+                updatedLayer = updatedLayer.copy(shapeWidthPx = newW, shapeHeightPx = newH)
+            }
+            updatedLayer
         }
     }
 
