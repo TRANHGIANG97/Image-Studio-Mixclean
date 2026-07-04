@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.unit.IntSize
@@ -324,4 +325,68 @@ fun DrawScope.drawRuleOfThirdsGrid(cx: Float, cy: Float, hw: Float, hh: Float) {
         val y = cy - hh + (hh * 2f / 3f) * i
         drawLine(color, Offset(cx - hw, y), Offset(cx + hw, y), strokeWidth)
     }
+}
+
+fun DrawScope.drawTooltip(
+    cx: Float,
+    cy: Float,
+    hh: Float,
+    text: String,
+    density: Float
+) {
+    val paint = android.graphics.Paint().apply {
+        isAntiAlias = true
+        textSize = 11f * density
+        color = android.graphics.Color.WHITE
+        textAlign = android.graphics.Paint.Align.CENTER
+        typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+    }
+
+    val textWidth = paint.measureText(text)
+    val textHeight = paint.fontMetrics.descent - paint.fontMetrics.ascent
+
+    val padX = 8f * density
+    val padY = 5f * density
+
+    val rectW = textWidth + padX * 2
+    val rectH = textHeight + padY * 2
+
+    val tooltipY = cy + hh + 28f * density
+    val tooltipX = cx
+
+    val rect = android.graphics.RectF(
+        tooltipX - rectW / 2f,
+        tooltipY - rectH / 2f,
+        tooltipX + rectW / 2f,
+        tooltipY + rectH / 2f
+    )
+
+    // Draw background shadow
+    val shadowPaint = android.graphics.Paint().apply {
+        isAntiAlias = true
+        color = android.graphics.Color.BLACK
+        alpha = 40
+    }
+    drawContext.canvas.nativeCanvas.drawRoundRect(
+        android.graphics.RectF(rect.left, rect.top + 1.5f * density, rect.right, rect.bottom + 1.5f * density),
+        6f * density,
+        6f * density,
+        shadowPaint
+    )
+
+    // Draw dark rounded rect background
+    val bgPaint = android.graphics.Paint().apply {
+        isAntiAlias = true
+        color = android.graphics.Color.parseColor("#1F2937") // Grey 800
+    }
+    drawContext.canvas.nativeCanvas.drawRoundRect(
+        rect,
+        6f * density,
+        6f * density,
+        bgPaint
+    )
+
+    // Draw text inside
+    val textY = tooltipY - (paint.fontMetrics.descent + paint.fontMetrics.ascent) / 2f
+    drawContext.canvas.nativeCanvas.drawText(text, tooltipX, textY, paint)
 }

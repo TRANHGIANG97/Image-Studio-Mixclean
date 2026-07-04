@@ -658,6 +658,17 @@ fun BoundingBoxOverlayV6(
         Modifier
     }
 
+    val tooltipText by remember(viewport.scale, viewport.rotation, contentWidth, contentHeight, gestureMode) {
+        derivedStateOf {
+            if (gestureMode == GestureMode.IDLE) ""
+            else if (gestureMode == GestureMode.ROTATE) {
+                "${viewport.rotation.roundToInt()}°"
+            } else {
+                "${(contentWidth * viewport.scale).roundToInt()} × ${(contentHeight * viewport.scale).roundToInt()} px"
+            }
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -702,6 +713,16 @@ fun BoundingBoxOverlayV6(
                     isLocked = isLocked,
                     lockAspectRatio = lockAspectRatio
                 )
+
+                if (tooltipText.isNotEmpty()) {
+                    drawTooltip(
+                        cx = cx,
+                        cy = cy,
+                        hh = hh,
+                        text = tooltipText,
+                        density = density.density
+                    )
+                }
             }
         }
     }
