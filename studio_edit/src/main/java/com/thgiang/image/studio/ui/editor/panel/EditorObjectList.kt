@@ -560,12 +560,7 @@ fun EditorObjectListVertical(
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { totalDrag = Offset.Zero },
-                        onDragEnd = {
-                            val limitPx = 8.dp.toPx()
-                            if (totalDrag.getDistance() < limitPx) {
-                                expanded = !expanded
-                            }
-                        },
+                        onDragEnd = { },
                         onDragCancel = { },
                         onDrag = { change, dragAmount ->
                             change.consume()
@@ -578,6 +573,12 @@ fun EditorObjectListVertical(
                             )
                         }
                     )
+                }
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    expanded = !expanded
                 },
             contentAlignment = Alignment.Center
         ) {

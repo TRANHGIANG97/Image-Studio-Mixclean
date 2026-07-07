@@ -118,12 +118,7 @@ fun ShapeQuickActionsBar(
                         .pointerInput(Unit) {
                             detectDragGestures(
                                 onDragStart = { totalDrag = Offset.Zero },
-                                onDragEnd = {
-                                    val limitPx = with(density) { 8.dp.toPx() }
-                                    if (totalDrag.getDistance() < limitPx) {
-                                        isCollapsed = false
-                                    }
-                                },
+                                onDragEnd = {},
                                 onDragCancel = {},
                                 onDrag = { change, dragAmount ->
                                     change.consume()
@@ -136,6 +131,12 @@ fun ShapeQuickActionsBar(
                                     )
                                 }
                             )
+                        }
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            isCollapsed = false
                         },
                     contentAlignment = Alignment.Center
                 ) {
