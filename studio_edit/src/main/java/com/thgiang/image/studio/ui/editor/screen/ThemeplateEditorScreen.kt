@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,11 +32,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.ui.editor.label.panel.LabelEditTab
+import com.thgiang.image.studio.ui.editor.label.panel.LabelEditingKeyboardToolbar
+import com.thgiang.image.studio.ui.editor.label.panel.LabelSelectionToolbar
+import com.thgiang.image.studio.ui.editor.label.panel.LabelShapePanel
 import kotlinx.coroutines.delay
 
 import androidx.compose.ui.platform.LocalFocusManager
@@ -60,6 +68,8 @@ fun ThemeplateEditorScreen(
     var showCustomPicker by remember { mutableStateOf(false) }
 
     var targetReplaceLayerId by remember { mutableStateOf<String?>(null) }
+    var quickActionsOffset by remember { mutableStateOf(Offset.Zero) }
+    var layersOffset by remember { mutableStateOf(Offset.Zero) }
     
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -118,6 +128,84 @@ fun ThemeplateEditorScreen(
         val selectedToolForUi = state.selectedTool.takeIf { tool ->
             editingToolsUnlocked || tool is EditorTool.Label || tool is EditorTool.Sticker || tool is EditorTool.Shape
         }
+        var shouldAutoEditNextLabel by remember { mutableStateOf(false) }
+        var activeLabelTab by rememberSaveable(state.selectedLayerId) {
+            mutableStateOf(LabelEditTab.FONT)
+        }
+        val editingLayer = state.layers.find { it.id == state.editingLayerId }
+        val isLabelEditing = state.labelPhase == LabelInteractionPhase.Editing && editingLayer != null
+        val isLabelSelected = state.labelPhase == LabelInteractionPhase.Selected &&
+            activeLayer?.isLabelLayer == true
+
+        LaunchedEffect(state.selectedLayerId) {
+            val selectedId = state.selectedLayerId
+            if (selectedId != null && shouldAutoEditNextLabel) {
+                viewModel.onEvent(EditorEvent.StartTextEdit(selectedId))
+                shouldAutoEditNextLabel = false
+            }
+        }
+
+        LaunchedEffect(state.selectedLayerId) {
+            if (state.selectedLayerId != null) {
+                activeLabelTab = LabelEditTab.FONT
+            }
+        }
+
+        val isImeVisible = WindowInsets.isImeVisible
+        var wasEditingImeVisible by remember { mutableStateOf(false) }
+        var isExitingLabelEdit by remember { mutableStateOf(false) }
+        var isCanvasGestureActive by remember { mutableStateOf(false) }
+
+        fun exitLabelEditing(dismissKeyboard: Boolean = true) {
+            if (state.editingLayerId == null || isExitingLabelEdit) return
+            isExitingLabelEdit = true
+            focusManager.clearFocus()
+            if (dismissKeyboard) {
+                keyboardController?.hide()
+            }
+            viewModel.onEvent(EditorEvent.FinishTextEdit)
+        }
+
+        LaunchedEffect(isLabelEditing) {
+            if (!isLabelEditing) {
+                isExitingLabelEdit = false
+            }
+        }
+
+        LaunchedEffect(isImeVisible, isLabelEditing, state.editingLayerId, isCanvasGestureActive) {
+            if (!isLabelEditing) {
+                wasEditingImeVisible = false
+                return@LaunchedEffect
+            }
+            val imeJustHidden = wasEditingImeVisible && !isImeVisible
+            wasEditingImeVisible = isImeVisible
+            if (imeJustHidden && !isCanvasGestureActive) {
+                delay(300)
+                if (state.editingLayerId != null && !isCanvasGestureActive) {
+                    exitLabelEditing(dismissKeyboard = false)
+                }
+            }
+        }
+
+        fun confirmLabelEdit() {
+            exitLabelEditing()
+        }
+
+        fun dispatchLayoutEvent(event: EditorEvent) {
+            when {
+                event is EditorEvent.RequestTextEdit -> {
+                    viewModel.onEvent(EditorEvent.StartTextEdit(event.layerId))
+                    keyboardController?.show()
+                }
+                event is EditorEvent.AddShapeTextLayer ||
+                    event is EditorEvent.ConfirmAddLabel ||
+                    event is EditorEvent.ConfirmAddLabelText -> {
+                    shouldAutoEditNextLabel = true
+                    viewModel.onEvent(event)
+                }
+                else -> viewModel.onEvent(event)
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -127,8 +215,13 @@ fun ThemeplateEditorScreen(
                     interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                     indication = null
                 ) {
-                    focusManager.clearFocus()
-                    keyboardController?.hide()
+                    if (state.editingLayerId != null) {
+                        exitLabelEditing()
+                    } else {
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                        viewModel.onEvent(EditorEvent.DeselectLayer)
+                    }
                 }
         ) {
 
@@ -142,13 +235,13 @@ fun ThemeplateEditorScreen(
                     selectedLayerId = state.selectedLayerId,
                     isLabelToolActive = selectedToolForUi is EditorTool.Label,
                     isShapeToolActive = selectedToolForUi is EditorTool.Shape,
+                    editingLayerId = state.editingLayerId,
                     showOverlay = state.showOverlay,
                     viewportPadding = run {
                         val imeHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
                         val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                        val toolbarHeight = 56.dp
+                        val toolbarHeight = if (isLabelEditing) 52.dp else 56.dp
                         val bottomPadding = if (imeHeight > 0.dp) {
-                            // Keyboard is visible: canvas fits above keyboard + toolbar
                             imeHeight + toolbarHeight
                         } else {
                             // Keyboard hidden: use existing logic
@@ -160,11 +253,18 @@ fun ThemeplateEditorScreen(
                         )
                     },
                     onGesture = { delta ->
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
+                        if (state.editingLayerId == null) {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                        }
                         viewModel.onEvent(EditorEvent.UpdateGesture(delta))
                     },
-                    onGestureEnd = { viewModel.onEvent(EditorEvent.CommitTransform) },
+                    onGestureEnd = {
+                        viewModel.onEvent(EditorEvent.CommitTransform)
+                    },
+                    onGestureActiveChanged = { active ->
+                        isCanvasGestureActive = active
+                    },
                     onPickImage = {
                         targetReplaceLayerId = state.selectedLayerId // Set ID of layer when tapping pink Replace button
                         triggerImagePicker()
@@ -191,6 +291,16 @@ fun ThemeplateEditorScreen(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(end = 12.dp)
+                        .offset { IntOffset(layersOffset.x.toInt(), layersOffset.y.toInt()) }
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                layersOffset = Offset(
+                                    x = layersOffset.x + dragAmount.x,
+                                    y = layersOffset.y + dragAmount.y
+                                )
+                            }
+                        }
                         .zIndex(5f)
                 )
             }
@@ -319,9 +429,10 @@ fun ThemeplateEditorScreen(
             }
 
             // ── Layer 3: Bottom controls + toolbar ────────────────────
-            val labelToolActive = selectedToolForUi is EditorTool.Label
             val showControls = state.template.loaded &&
                 selectedToolForUi != null &&
+                !isLabelEditing &&
+                !isLabelSelected &&
                 (activeLayer != null ||
                     selectedToolForUi is EditorTool.Label ||
                     selectedToolForUi is EditorTool.Sticker ||
@@ -344,6 +455,9 @@ fun ThemeplateEditorScreen(
                     } else if (tool == selectedToolForUi && activeLayer != null && tool is EditorTool.Label) {
                         viewModel.onEvent(EditorEvent.SelectLayer(null))
                     } else {
+                        if (tool is EditorTool.Label && (activeLayer == null || !activeLayer.isLabelLayer)) {
+                            shouldAutoEditNextLabel = true
+                        }
                         viewModel.onEvent(EditorEvent.SelectTool(tool))
                     }
                 }
@@ -354,9 +468,60 @@ fun ThemeplateEditorScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .imePadding(),
+                    .windowInsetsPadding(
+                        WindowInsets.ime.union(WindowInsets.safeDrawing)
+                            .only(WindowInsetsSides.Bottom),
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                AnimatedVisibility(
+                    visible = isLabelEditing && editingLayer != null,
+                    modifier = Modifier.fillMaxWidth(),
+                    enter = slideInVertically(tween(200)) { it } + fadeIn(tween(180)),
+                    exit = slideOutVertically(tween(180)) { it } + fadeOut(tween(160)),
+                ) {
+                    val layer = editingLayer ?: return@AnimatedVisibility
+                    LabelEditingKeyboardToolbar(
+                        layer = layer,
+                        tokens = tokens,
+                        onLayoutEvent = { viewModel.onEvent(it) },
+                        onConfirm = { confirmLabelEdit() },
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = isLabelSelected && activeLayer != null,
+                    modifier = Modifier.fillMaxWidth(),
+                    enter = slideInVertically(tween(250)) { it } + fadeIn(tween(200)),
+                    exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(180)),
+                ) {
+                    val layer = activeLayer ?: return@AnimatedVisibility
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        LabelSelectionToolbar(
+                            activeTab = activeLabelTab,
+                            onTabSelected = { tab ->
+                                if (tab == LabelEditTab.EDIT) {
+                                    viewModel.onEvent(EditorEvent.StartTextEdit(layer.id))
+                                    keyboardController?.show()
+                                } else {
+                                    activeLabelTab = tab
+                                }
+                            },
+                            onConfirm = { viewModel.onEvent(EditorEvent.DeselectLayer) },
+                            tokens = tokens,
+                        )
+                        LabelShapePanel(
+                            selectedLayer = layer,
+                            onLayoutEvent = { dispatchLayoutEvent(it) },
+                            tokens = tokens,
+                            canvasFirstMode = true,
+                            showTabBar = false,
+                            activeTab = activeLabelTab,
+                            onActiveTabChange = { activeLabelTab = it },
+                        )
+                    }
+                }
+
                 AnimatedVisibility(
                     visible = showControls,
                     modifier = Modifier.fillMaxWidth(),
@@ -376,16 +541,14 @@ fun ThemeplateEditorScreen(
                             onUpdateShadowBlur = { viewModel.onEvent(EditorEvent.UpdateShadowBlur(it)) },
                             onUpdateAlpha = { viewModel.onEvent(EditorEvent.UpdateAlpha(it)) },
                             onSelectCropRatio = { viewModel.onEvent(EditorEvent.SelectCropRatio(it)) },
-                            onLayoutEvent = { viewModel.onEvent(it) },
+                            onLayoutEvent = { dispatchLayoutEvent(it) },
                         )
                     }
                 }
 
-                // Toolbar is always anchored at the absolute bottom (above nav bar)
-                // Hides when keyboard opens so the text input field sits right on the keyboard.
                 AnimatedVisibility(
-                    visible = !WindowInsets.isImeVisible,
-                    modifier = Modifier.fillMaxWidth()
+                    visible = !isImeVisible && !isLabelEditing && !isLabelSelected,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     EditorBottomToolbar(
                         selectedTool = selectedToolForUi,

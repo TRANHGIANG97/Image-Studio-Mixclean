@@ -85,7 +85,8 @@ class EditorExportCoordinator @Inject constructor(
                 name = name,
                 state = state,
                 templateAssetPath = templateAssetPath,
-                templateObjectAssetPath = null,
+                // Lấy đúng objectAssetPath từ template thay vì hardcode null
+                templateObjectAssetPath = state.template.objectAssetPath,
             )
             SaveDraftOutcome.Success(newDraftId, System.currentTimeMillis())
         }.getOrElse { e -> SaveDraftOutcome.Failure(e) }

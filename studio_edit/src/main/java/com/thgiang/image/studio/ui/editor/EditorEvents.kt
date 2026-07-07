@@ -117,5 +117,16 @@ sealed class EditorEvent {
     data class UpdateTextFormAmount(val amount: Float) : EditorEvent()
     data object ResetTextForm : EditorEvent()
     data object SaveDraft : EditorEvent()
+    data class RequestTextEdit(val layerId: String) : EditorEvent()
+    /** Enter inline text-edit: thin frame, keyboard, hide BB. */
+    data class StartTextEdit(val layerId: String) : EditorEvent()
+    /** Confirm text edit: fit, commit, deselect (ảnh 3). */
+    data object ConfirmTextEdit : EditorEvent()
+    /** Clear selection without fitting. */
+    data object DeselectLayer : EditorEvent()
+    /** Fit label bounding box to text after editing ends (keeps selection). */
+    data object FinishTextEdit : EditorEvent()
+    /** Append a newline to the active label text (canvas inline edit). */
+    data object InsertTextNewline : EditorEvent()
     data class Export(val templateAssetPath: String) : EditorEvent()
 }

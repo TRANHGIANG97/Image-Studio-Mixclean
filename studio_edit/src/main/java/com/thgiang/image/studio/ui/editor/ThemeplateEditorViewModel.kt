@@ -5,7 +5,9 @@ import com.thgiang.image.studio.ui.editor.canvas.*
 
 import android.content.Context
 import com.thgiang.image.studio.ui.editor.model.*
+import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import com.thgiang.image.studio.ui.editor.label.model.withShapeFittedToText
+import com.thgiang.image.studio.ui.editor.label.model.withShapeHeightFittedToText
 import com.thgiang.image.studio.ui.editor.model.preferredEditorTool
 import com.thgiang.image.studio.ui.editor.model.isLabelLayer
 import com.thgiang.image.studio.ui.editor.model.EditorLayerNormalizer
@@ -80,11 +82,18 @@ class ThemeplateEditorViewModel @Inject constructor(
     
     private val _state = MutableStateFlow(
         (templateDraftRepository.loadDraft(draftId ?: "") ?: EditorState()).let { restored ->
+            val layers = EditorLayerNormalizer.normalize(restored.layers ?: emptyList())
+            val (sel, edit) = LabelInteractionState.normalize(
+                restored.selectedLayerId,
+                restored.editingLayerId,
+                layers,
+            )
             restored.copy(
                 template = restored.template ?: EditorTemplate(),
                 selectedTool = restored.selectedTool,
-                layers = EditorLayerNormalizer.normalize(restored.layers ?: emptyList()),
-                selectedLayerId = restored.selectedLayerId
+                layers = layers,
+                selectedLayerId = sel,
+                editingLayerId = edit,
             )
         }
     )
@@ -197,6 +206,16 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
+    private fun refitActiveLabelHeightToText() {
+        updateActiveLayer { layer ->
+            if (layer.isLabelLayer && !layer.textForm.isActive) {
+                layer.withShapeHeightFittedToText(context)
+            } else {
+                layer
+            }
+        }
+    }
+
     fun onEvent(event: EditorEvent) {
         when (event) {
             is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath, event.objectSourceAssetPath)
@@ -222,6 +241,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             EditorEvent.DismissShapeTool -> shapeDelegate.dismissShapeTool()
             // ── Label edit events ─────────────────────────
             is EditorEvent.UpdateShapeText -> labelDelegate.updateShapeText(event.text)
+            EditorEvent.InsertTextNewline -> labelDelegate.insertTextNewline()
             is EditorEvent.UpdateShapeColor -> shapeDelegate.updateShapeColor(event.argb)
             is EditorEvent.UpdateTextColor -> labelDelegate.updateTextColor(event.argb)
             is EditorEvent.UpdateTextSize -> labelDelegate.updateTextSize(event.sizeSp)
@@ -356,16 +376,27 @@ class ThemeplateEditorViewModel @Inject constructor(
                 // Not used anymore as bounding box depends on selectedLayerId
             }
             is EditorEvent.SelectTool -> {
-                val requiresLayer = event.tool is EditorTool.Rotate ||
-                        event.tool is EditorTool.Shadow ||
-                        event.tool is EditorTool.Transparency
-                
-                if (requiresLayer && _state.value.selectedLayerId == null) {
-                    _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
+                if (event.tool is EditorTool.Label) {
+                    val active = _state.value.layers.find { it.id == _state.value.selectedLayerId }
+                    if (active == null || !active.isLabelLayer) {
+                        labelDelegate.addTextLayer(_state.value.template.originalSize.width.toFloat())
+                    } else {
+                        _state.update {
+                            it.copy(selectedTool = EditorTool.Label)
+                        }
+                    }
                 } else {
-                    _state.update {
-                        val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) null else event.tool
-                        it.copy(selectedTool = nextTool)
+                    val requiresLayer = event.tool is EditorTool.Rotate ||
+                            event.tool is EditorTool.Shadow ||
+                            event.tool is EditorTool.Transparency
+                    
+                    if (requiresLayer && _state.value.selectedLayerId == null) {
+                        _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
+                    } else {
+                        _state.update {
+                            val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) null else event.tool
+                            it.copy(selectedTool = nextTool)
+                        }
                     }
                 }
             }
@@ -375,9 +406,12 @@ class ThemeplateEditorViewModel @Inject constructor(
             }
             is EditorEvent.SelectLayer -> {
                 val targetLayer = _state.value.layers.find { it.id == event.layerId }
+                val (rawSel, rawEdit) = LabelInteractionState.onSelectLayer(event.layerId)
+                val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, _state.value.layers)
                 _state.update {
                     it.copy(
-                        selectedLayerId = event.layerId,
+                        selectedLayerId = sel,
+                        editingLayerId = edit,
                         selectedTool = targetLayer?.preferredEditorTool()
                             ?: if (it.selectedTool == EditorTool.Shape || it.selectedTool == EditorTool.Label) {
                                 null
@@ -410,6 +444,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                         it.copy(
                             layers = it.layers.filterNot { layer -> layer.id in removeIds },
                             selectedLayerId = null,
+                            editingLayerId = null,
                         )
                     }
                     pushHistory()
@@ -419,6 +454,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             }
             EditorEvent.CommitTransform -> {
                 bakeViewportScaleForSelection()
+                refitActiveLabelHeightToText()
                 pushHistory()
             }
             EditorEvent.Undo -> undo()
@@ -432,7 +468,56 @@ class ThemeplateEditorViewModel @Inject constructor(
             EditorEvent.CopyLabelStyle -> copyLabelStyle()
             EditorEvent.PasteLabelStyle -> pasteLabelStyle()
             EditorEvent.SaveDraft -> saveDraft()
+            is EditorEvent.RequestTextEdit -> startTextEdit(event.layerId)
+            is EditorEvent.StartTextEdit -> startTextEdit(event.layerId)
+            EditorEvent.ConfirmTextEdit -> confirmTextEdit()
+            EditorEvent.DeselectLayer -> deselectLayer()
+            EditorEvent.FinishTextEdit -> finishTextEdit()
             is EditorEvent.Export -> export(event.templateAssetPath)
+        }
+    }
+
+    private fun startTextEdit(layerId: String) {
+        val layer = _state.value.layers.find { it.id == layerId } ?: return
+        if (!layer.isLabelLayer) return
+        val (rawSel, rawEdit) = LabelInteractionState.onStartTextEdit(layerId)
+        val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, _state.value.layers)
+        _state.update {
+            it.copy(
+                selectedLayerId = sel,
+                editingLayerId = edit,
+                selectedTool = layer.preferredEditorTool(),
+            )
+        }
+    }
+
+    private fun finishTextEdit() {
+        applyShapeFitToActiveLayer()
+        requestHistoryPush()
+        _state.update { state ->
+            val (sel, edit) = LabelInteractionState.onFinishTextEdit(
+                state.selectedLayerId,
+                state.editingLayerId,
+            )
+            state.copy(selectedLayerId = sel, editingLayerId = edit)
+        }
+    }
+
+    private fun confirmTextEdit() {
+        applyShapeFitToActiveLayer()
+        requestHistoryPush()
+        _state.update { state ->
+            val (rawSel, rawEdit) = LabelInteractionState.onConfirmTextEdit()
+            val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, state.layers)
+            state.copy(selectedLayerId = sel, editingLayerId = edit)
+        }
+    }
+
+    private fun deselectLayer() {
+        _state.update { state ->
+            val (rawSel, rawEdit) = LabelInteractionState.onDeselectLayer()
+            val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, state.layers)
+            state.copy(selectedLayerId = sel, editingLayerId = edit)
         }
     }
 
@@ -580,7 +665,13 @@ class ThemeplateEditorViewModel @Inject constructor(
                 templateLoader.probeLocalAsset(assetPath)
             }.onSuccess { loaded ->
                 _state.update {
-                    it.copy(template = loaded.template, errorMessage = null)
+                    it.copy(
+                        template = loaded.template.copy(
+                            // Lưu objectAssetPath để draft có thể khôi phục ảnh mẫu khi load lại
+                            objectAssetPath = objectSourceAssetPath ?: it.template.objectAssetPath,
+                        ),
+                        errorMessage = null,
+                    )
                 }
                 android.util.Log.d(TAG, "Successfully loaded template state")
                 if (objectSourceAssetPath != null) {
@@ -848,20 +939,36 @@ class ThemeplateEditorViewModel @Inject constructor(
             if (delta.pan != Offset.Zero) {
                 newViewport = newViewport.withOffset(newViewport.offset + delta.pan)
             }
-            if (delta.scale != 1f) {
-                val newScale = (newViewport.scale * delta.scale).coerceIn(MIN_SCALE, MAX_SCALE)
-                newViewport = newViewport.withScale(newScale)
+            
+            var updatedLayer = layer
+            if (layer.isLabelLayer) {
+                if (delta.scale != 1f) {
+                    val newTextSize = (layer.textSizeSp * delta.scale).coerceIn(1f, ShapeLabelDefaults.MAX_TEXT_SIZE_SP)
+                    val newW = (layer.shapeWidthPx * delta.scale).coerceAtLeast(60f)
+                    val newH = (layer.shapeHeightPx * delta.scale).coerceAtLeast(30f)
+                    updatedLayer = updatedLayer.copy(
+                        textSizeSp = newTextSize,
+                        shapeWidthPx = newW,
+                        shapeHeightPx = newH,
+                    )
+                }
+            } else {
+                if (delta.scale != 1f) {
+                    val newScale = (newViewport.scale * delta.scale).coerceIn(MIN_SCALE, MAX_SCALE)
+                    newViewport = newViewport.withScale(newScale)
+                }
             }
+
             if (delta.rotation != 0f) {
                 var newRotation = (newViewport.rotation + delta.rotation) % 360f
                 if (newRotation < 0) newRotation += 360f
                 newViewport = newViewport.withRotation(newRotation)
             }
             
-            var updatedLayer = layer.copy(viewport = newViewport)
+            updatedLayer = updatedLayer.copy(viewport = newViewport)
             if (delta.deltaWidth != 0f || delta.deltaHeight != 0f) {
-                val newW = (layer.shapeWidthPx + delta.deltaWidth).coerceAtLeast(60f)
-                val newH = (layer.shapeHeightPx + delta.deltaHeight).coerceAtLeast(30f)
+                val newW = (updatedLayer.shapeWidthPx + delta.deltaWidth).coerceAtLeast(60f)
+                val newH = (updatedLayer.shapeHeightPx + delta.deltaHeight).coerceAtLeast(30f)
                 updatedLayer = updatedLayer.copy(shapeWidthPx = newW, shapeHeightPx = newH)
             }
             updatedLayer
@@ -967,6 +1074,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun persistState() {
         savedStateHandle["editor_state_template_path"] = _state.value.template.assetPath
         savedStateHandle["editor_state_selected_layer_id"] = _state.value.selectedLayerId
+        savedStateHandle["editor_state_editing_layer_id"] = _state.value.editingLayerId
         savedStateHandle["editor_state_selected_tool"] = _state.value.selectedTool?.javaClass?.name
         savedStateHandle["editor_state_show_overlay"] = _state.value.showOverlay
         savedStateHandle["editor_state_show_bounding_box"] = _state.value.showBoundingBox

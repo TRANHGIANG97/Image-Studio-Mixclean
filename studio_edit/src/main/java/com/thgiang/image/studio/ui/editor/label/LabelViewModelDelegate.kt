@@ -3,8 +3,11 @@ package com.thgiang.image.studio.ui.editor.label
 import android.content.Context
 import com.thgiang.image.core.domain.model.template.CloudGradient
 import com.thgiang.image.studio.ui.editor.label.factory.EditorLayerFactory
+import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import com.thgiang.image.studio.ui.editor.label.model.applyShapeTypeChange
 import com.thgiang.image.studio.ui.editor.label.model.withShapeFittedToText
+import com.thgiang.image.studio.ui.editor.label.model.withShapeHeightFittedToText
+import com.thgiang.image.studio.ui.editor.label.model.withTextFormShapeFitted
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
 import com.thgiang.image.studio.ui.editor.model.EditorState
 import com.thgiang.image.studio.ui.editor.model.EditorTool
@@ -27,7 +30,7 @@ class LabelViewModelDelegate(
 ) : EditorLayerMutationHost(shapeFitFlow, readState, updateState, requestHistoryPush, pushHistory) {
 
     fun addTextLayer(templateWidth: Float) {
-        val layer = layerFactory.createTextLayer(templateWidth)
+        val layer = layerFactory.createTextLayer(templateWidth).withShapeFittedToText(context)
         val layerId = layer.id
         updateState {
             copy(
@@ -108,55 +111,80 @@ class LabelViewModelDelegate(
         updateState { copy(selectedTool = null) }
     }
 
+    private fun fitLabelLayer(layer: EditorLayer): EditorLayer =
+        if (layer.textForm.isActive) layer.withTextFormShapeFitted(context)
+        else layer.withShapeFittedToText(context)
+
     fun updateShapeText(text: String) {
-        updateActiveLabelLayer { it.copy(text = text) }
+        updateActiveLayerWhen({ it.isLabelLayer }) {
+            fitLabelLayer(it.copy(text = text))
+        }
+        requestHistoryPush()
+    }
+
+    fun insertTextNewline() {
+        updateActiveLayerWhen({ it.isLabelLayer }) { layer ->
+            fitLabelLayer(layer.copy(text = layer.text + "\n"))
+        }
+        requestHistoryPush()
     }
 
     fun updateTextSize(sizeSp: Float) {
         updateActiveLabelLayer {
-            it.copy(
-                textSizeSp = sizeSp.coerceIn(1f, 500f),
-                viewport = it.viewport.withScale(1f),
-            )
+            val newSize = sizeSp.coerceIn(1f, ShapeLabelDefaults.MAX_TEXT_SIZE_SP)
+            if (it.textForm.isActive) {
+                val ratio = newSize / it.textSizeSp.coerceAtLeast(0.01f)
+                it.copy(
+                    textSizeSp = newSize,
+                    viewport = it.viewport.withScale(1f),
+                    shapeWidthPx = (it.shapeWidthPx * ratio).coerceAtLeast(60f),
+                    shapeHeightPx = (it.shapeHeightPx * ratio).coerceAtLeast(30f),
+                )
+            } else {
+                it.copy(
+                    textSizeSp = newSize,
+                    viewport = it.viewport.withScale(1f),
+                ).withShapeFittedToText(context)
+            }
         }
     }
 
     fun updateTextFontFamily(fontFamily: String?) {
         updateActiveLabelLayer {
-            it.copy(fontFamily = fontFamily?.takeIf { f -> f.isNotBlank() })
+            fitLabelLayer(it.copy(fontFamily = fontFamily?.takeIf { f -> f.isNotBlank() }))
         }
     }
 
     fun updateTextBold(bold: Boolean) {
-        updateActiveLabelLayer { it.copy(fontWeight = if (bold) "bold" else "normal") }
+        updateActiveLabelLayer { fitLabelLayer(it.copy(fontWeight = if (bold) "bold" else "normal")) }
     }
 
     fun updateTextItalic(italic: Boolean) {
-        updateActiveLabelLayer { it.copy(fontStyle = if (italic) "italic" else "normal") }
+        updateActiveLabelLayer { fitLabelLayer(it.copy(fontStyle = if (italic) "italic" else "normal")) }
     }
 
     fun updateTextUnderline(underline: Boolean) {
-        updateActiveLabelLayer { it.copy(underline = underline) }
+        updateActiveLabelLayer { fitLabelLayer(it.copy(underline = underline)) }
     }
 
     fun updateTextLinethrough(linethrough: Boolean) {
-        updateActiveLabelLayer { it.copy(linethrough = linethrough) }
+        updateActiveLabelLayer { fitLabelLayer(it.copy(linethrough = linethrough)) }
     }
 
     fun updateTextAlign(align: String) {
-        updateActiveLabelLayer { it.copy(textAlign = align) }
+        updateActiveLabelLayer { fitLabelLayer(it.copy(textAlign = align)) }
     }
 
     fun updateLineHeight(multiplier: Float) {
-        updateActiveLabelLayer { it.copy(lineHeight = multiplier.coerceIn(0.5f, 3f)) }
+        updateActiveLabelLayer { fitLabelLayer(it.copy(lineHeight = multiplier.coerceIn(0.5f, 3f))) }
     }
 
     fun updateCharSpacing(spacing: Float) {
-        updateActiveLabelLayer { it.copy(charSpacing = spacing.coerceIn(-20f, 80f)) }
+        updateActiveLabelLayer { fitLabelLayer(it.copy(charSpacing = spacing.coerceIn(-20f, 80f))) }
     }
 
     fun updateTextTransform(transform: String?) {
-        updateActiveLabelLayer { it.copy(textTransform = transform) }
+        updateActiveLabelLayer { fitLabelLayer(it.copy(textTransform = transform)) }
     }
 
     fun applyTextFormPreset(preset: TextFormPreset) {
@@ -165,7 +193,12 @@ class LabelViewModelDelegate(
                 TextFormPreset.NONE -> 0.5f
                 else -> layer.textForm.amount.takeIf { it > 0.01f } ?: 0.55f
             }
-            layer.copy(textForm = layer.textForm.withPreset(preset).copy(amount = defaultAmount))
+            val updated = layer.copy(textForm = layer.textForm.withPreset(preset).copy(amount = defaultAmount))
+            if (preset == TextFormPreset.NONE) {
+                updated.withShapeFittedToText(context)
+            } else {
+                updated.withTextFormShapeFitted(context)
+            }
         }
     }
 
@@ -176,15 +209,19 @@ class LabelViewModelDelegate(
     }
 
     fun resetTextForm() {
-        updateActiveLabelLayer { it.copy(textForm = TextFormEffect()) }
+        updateActiveLabelLayer {
+            it.copy(textForm = TextFormEffect()).withShapeFittedToText(context)
+        }
     }
 
     fun applyLabelTypographyPreset(fontWeight: String, textSizeSp: Float, textTransform: String?) {
         updateActiveLabelLayer {
-            it.copy(
-                fontWeight = fontWeight,
-                textSizeSp = textSizeSp.coerceIn(1f, 500f),
-                textTransform = textTransform,
+            fitLabelLayer(
+                it.copy(
+                    fontWeight = fontWeight,
+                    textSizeSp = textSizeSp.coerceIn(1f, ShapeLabelDefaults.MAX_TEXT_SIZE_SP),
+                    textTransform = textTransform,
+                ),
             )
         }
     }
@@ -202,11 +239,13 @@ class LabelViewModelDelegate(
     }
 
     fun syncShapeSize(widthPx: Float, heightPx: Float) {
-        updateActiveLabelLayer {
-            it.copy(
+        updateActiveLayerWhen({ it.isLabelLayer }) { layer ->
+            val sized = layer.copy(
                 shapeWidthPx = widthPx.coerceAtLeast(60f),
                 shapeHeightPx = heightPx.coerceAtLeast(30f),
             )
+            if (layer.textForm.isActive) sized else sized.withShapeHeightFittedToText(context)
         }
+        requestHistoryPush()
     }
 }

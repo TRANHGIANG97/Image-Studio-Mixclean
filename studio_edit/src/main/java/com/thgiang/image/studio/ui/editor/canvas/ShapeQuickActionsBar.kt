@@ -2,6 +2,7 @@
 package com.thgiang.image.studio.ui.editor.canvas
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -50,7 +54,7 @@ import com.thgiang.image.studio.ui.editor.model.EditorLayer
 /**
  * Canva-style quick action mini toolbar shown above the selected shape on canvas.
  *
- * Shows: Duplicate | BringForward | SendBack | Lock/Unlock | Delete
+ * Shows: Collapsed FAB or Expanded toolbar: Duplicate | BringForward | SendBack | Lock/Unlock | Delete
  *
  * Position: rendered above the bounding box, centered horizontally.
  * Visibility: animated fade+slide when shape is selected/deselected.
@@ -71,80 +75,116 @@ fun ShapeQuickActionsBar(
         modifier = modifier,
     ) {
         Box(
-            modifier = Modifier
-                .shadow(
-                    elevation = 6.dp,
-                    shape = RoundedCornerShape(12.dp),
-                    ambientColor = Color.Black.copy(alpha = 0.12f),
-                    spotColor = Color.Black.copy(alpha = 0.08f),
-                )
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.White.copy(alpha = 0.10f))
-                .border(0.5.dp, Color(0xFFE8E8E8).copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+            modifier = Modifier.animateContentSize()
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(0.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // Collapse / Expand Toggle
-                QuickActionButton(
-                    icon = if (isCollapsed) Icons.Default.KeyboardArrowRight else Icons.Default.KeyboardArrowLeft,
-                    label = if (isCollapsed) "Mở rộng" else "Thu gọn",
-                    tint = Color(0xFF424242),
-                    onClick = { isCollapsed = !isCollapsed },
-                )
-
-                QuickActionDivider()
-
-                if (!isCollapsed) {
-                    // Duplicate
-                    QuickActionButton(
-                        icon = Icons.Default.ContentCopy,
-                        label = "Sao chép",
-                        tint = Color(0xFF424242),
-                        onClick = { onEvent(EditorEvent.DuplicateLayer) },
-                    )
-
-                    QuickActionDivider()
-
-                    // Bring Forward
-                    QuickActionButton(
-                        icon = Icons.Default.FlipToFront,
-                        label = "Lên trước",
-                        tint = Color(0xFF424242),
-                        onClick = { onEvent(EditorEvent.MoveLayerUp) },
-                    )
-
-                    // Send Backward
-                    QuickActionButton(
-                        icon = Icons.Default.FlipToBack,
-                        label = "Xuống sau",
-                        tint = Color(0xFF424242),
-                        onClick = { onEvent(EditorEvent.MoveLayerDown) },
-                    )
-
-                    QuickActionDivider()
-
-                    // Lock / Unlock
-                    if (layer != null) {
-                        QuickActionButton(
-                            icon = if (layer.isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
-                            label = if (layer.isLocked) "Mở khóa" else "Khóa",
-                            tint = if (layer.isLocked) Color(0xFF1565C0) else Color(0xFF424242),
-                            onClick = { onEvent(EditorEvent.ToggleLayerLock) },
+            if (isCollapsed) {
+                // Collapsed State: A single prominent circular FAB button
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = CircleShape,
+                            ambientColor = Color.Black.copy(alpha = 0.20f),
+                            spotColor = Color.Black.copy(alpha = 0.30f),
                         )
+                        .clip(CircleShape)
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFF6366F1), // Indigo
+                                    Color(0xFF8B5CF6)  // Violet
+                                )
+                            )
+                        )
+                        .border(1.5.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+                        .clickable { isCollapsed = false },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = "Mở rộng",
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            } else {
+                // Expanded State: Horizontal action toolbar row
+                Box(
+                    modifier = Modifier
+                        .shadow(
+                            elevation = 6.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            ambientColor = Color.Black.copy(alpha = 0.12f),
+                            spotColor = Color.Black.copy(alpha = 0.08f),
+                        )
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White.copy(alpha = 0.95f))
+                        .border(0.5.dp, Color(0xFFE8E8E8), RoundedCornerShape(12.dp)),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                        horizontalArrangement = Arrangement.spacedBy(0.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        // Collapse Trigger Action Button
+                        QuickActionButton(
+                            icon = Icons.Default.KeyboardArrowLeft,
+                            label = "Thu gọn",
+                            tint = Color(0xFF424242),
+                            onClick = { isCollapsed = true },
+                        )
+
                         QuickActionDivider()
+
+                        // Duplicate
+                        QuickActionButton(
+                            icon = Icons.Default.ContentCopy,
+                            label = "Sao chép",
+                            tint = Color(0xFF424242),
+                            onClick = { onEvent(EditorEvent.DuplicateLayer) },
+                        )
+
+                        QuickActionDivider()
+
+                        // Bring Forward (Lên trên)
+                        QuickActionButton(
+                            icon = Icons.Default.FlipToFront,
+                            label = "Lên trên",
+                            tint = Color(0xFF424242),
+                            onClick = { onEvent(EditorEvent.MoveLayerUp) },
+                        )
+
+                        // Send Backward (Xuống dưới)
+                        QuickActionButton(
+                            icon = Icons.Default.FlipToBack,
+                            label = "Xuống dưới",
+                            tint = Color(0xFF424242),
+                            onClick = { onEvent(EditorEvent.MoveLayerDown) },
+                        )
+
+                        QuickActionDivider()
+
+                        // Lock / Unlock
+                        if (layer != null) {
+                            QuickActionButton(
+                                icon = if (layer.isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
+                                label = if (layer.isLocked) "Mở khóa" else "Khóa",
+                                tint = if (layer.isLocked) Color(0xFF1565C0) else Color(0xFF424242),
+                                onClick = { onEvent(EditorEvent.ToggleLayerLock) },
+                            )
+                            QuickActionDivider()
+                        }
+
+                        // Delete
+                        QuickActionButton(
+                            icon = Icons.Default.Delete,
+                            label = "Xóa",
+                            tint = Color(0xFFE53935),
+                            onClick = { onEvent(EditorEvent.DeleteLayer) },
+                        )
                     }
                 }
-
-                // Delete
-                QuickActionButton(
-                    icon = Icons.Default.Delete,
-                    label = "Xóa",
-                    tint = Color(0xFFE53935),
-                    onClick = { onEvent(EditorEvent.DeleteLayer) },
-                )
             }
         }
     }

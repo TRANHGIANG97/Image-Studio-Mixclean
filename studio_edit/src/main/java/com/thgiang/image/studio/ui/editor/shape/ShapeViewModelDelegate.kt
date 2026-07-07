@@ -50,11 +50,30 @@ class ShapeViewModelDelegate(
     }
 
     fun updateShapeColor(argb: Int) {
-        updateActiveFrameLayer { it.copy(shapeColorArgb = argb, fillGradient = null) }
+        updateActiveFrameLayer {
+            val alpha = (argb ushr 24) and 0xFF
+            val targetShape = if (alpha > 0) {
+                if (it.shapeType == ShapeType.TEXT_ONLY) ShapeType.CARD else it.shapeType
+            } else {
+                ShapeType.TEXT_ONLY
+            }
+            it.copy(
+                shapeColorArgb = argb,
+                fillGradient = null,
+                shapeType = targetShape
+            )
+        }
     }
 
     fun updateFillGradient(gradient: CloudGradient?) {
-        updateActiveFrameLayer { it.copy(fillGradient = gradient) }
+        updateActiveFrameLayer {
+            val targetShape = if (gradient != null) {
+                if (it.shapeType == ShapeType.TEXT_ONLY) ShapeType.CARD else it.shapeType
+            } else {
+                it.shapeType
+            }
+            it.copy(fillGradient = gradient, shapeType = targetShape)
+        }
     }
 
     fun updateShapeType(shapeType: ShapeType) {

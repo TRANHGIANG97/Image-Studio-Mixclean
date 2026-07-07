@@ -5,10 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,9 +24,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.thgiang.image.studio.ui.editor.mapper.EditorTextStyleMapper
 import com.thgiang.image.studio.ui.editor.mapper.TextElevationMapper.drawTextElevation
 import com.thgiang.image.studio.ui.editor.mapper.TextFormLayoutEngine.drawTextForm
@@ -44,13 +47,14 @@ internal fun TextLabelLayerContent(
     paddingX: Dp,
     paddingY: Dp,
     isInlineEditing: Boolean,
-    inlineTextDraft: String,
-    onInlineTextDraftChange: (String) -> Unit,
+    inlineTextDraft: TextFieldValue,
+    onInlineTextDraftChange: (TextFieldValue) -> Unit,
     focusRequester: FocusRequester,
     inlineEditHadFocus: Boolean,
     onInlineEditHadFocus: (Boolean) -> Unit,
     onCommitInlineEdit: () -> Unit,
     onTextLayout: (TextLayoutResult) -> Unit,
+    textLayoutResult: TextLayoutResult? = null,
     modifier: Modifier = Modifier,
 ) {
     if (!layer.isLabelLayer || (layer.text.isBlank() && !isInlineEditing)) return
@@ -72,7 +76,7 @@ internal fun TextLabelLayerContent(
                     )
                 }
             },
-        contentAlignment = Alignment.Center,
+        contentAlignment = if (layer.textForm.isActive) Alignment.Center else Alignment.TopCenter,
     ) {
         if (isInlineEditing) {
             BasicTextField(
@@ -81,16 +85,31 @@ internal fun TextLabelLayerContent(
                 textStyle = textStyle,
                 singleLine = false,
                 maxLines = 6,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { onCommitInlineEdit() }),
+                onTextLayout = onTextLayout,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
+                decorationBox = { innerTextField ->
+                    Box(modifier = Modifier.wrapContentSize(unbounded = true)) {
+                        if (inlineTextDraft.text.isEmpty()) {
+                            Text(
+                                text = "Nhập chữ...",
+                                style = textStyle.copy(color = textStyle.color.copy(alpha = 0.35f))
+                            )
+                        }
+                        innerTextField()
+                    }
+                },
                 modifier = Modifier
-                    .wrapContentSize(unbounded = true)
+                    .then(
+                        if ((textLayoutResult?.lineCount ?: 1) > 1) {
+                            Modifier.width(displaySize.width)
+                        } else {
+                            Modifier.widthIn(min = 60.dp)
+                        }
+                    )
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         if (focusState.isFocused) {
                             onInlineEditHadFocus(true)
-                        } else if (inlineEditHadFocus && isInlineEditing) {
-                            onCommitInlineEdit()
                         }
                     }
                     .padding(horizontal = paddingX, vertical = paddingY),
@@ -130,7 +149,7 @@ internal fun TextLabelLayerContent(
                     overflow = TextOverflow.Visible,
                     softWrap = true,
                     modifier = Modifier
-                        .wrapContentSize(unbounded = true)
+                        .width(displaySize.width)
                         .then(
                             if (layer.textBackgroundColorArgb != null) {
                                 Modifier.background(Color(layer.textBackgroundColorArgb))

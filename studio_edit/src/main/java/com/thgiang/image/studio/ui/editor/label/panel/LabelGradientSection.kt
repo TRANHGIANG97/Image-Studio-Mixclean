@@ -21,12 +21,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.FormatColorFill
+import androidx.compose.material.icons.filled.Opacity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -220,6 +224,41 @@ internal fun LabelGradientSection(
 }
 
 @Composable
+private fun SubTabButton(
+    icon: ImageVector,
+    label: String,
+    selected: Boolean,
+    tokens: EditorTokens,
+    onClick: () -> Unit
+) {
+    val color = if (selected) tokens.accent else tokens.textPrimary
+    Column(
+        modifier = Modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
+            .padding(vertical = 4.dp, horizontal = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(20.dp)
+        )
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = color
+        )
+    }
+}
+
+@Composable
 private fun FillColorEditor(
     mode: FillColorMode,
     tokens: EditorTokens,
@@ -253,116 +292,52 @@ private fun FillColorEditor(
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        if (activeSubTab == null) {
-            // Horizontal sub-tab bar shown as menu
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                FillSubTab.values().forEach { tab ->
-                    val label = when (tab) {
-                        FillSubTab.PRESETS -> "Mẫu màu"
-                        FillSubTab.COLOR -> "Màu nền"
-                        FillSubTab.OPACITY -> "Độ trong suốt"
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFF5F5F5))
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = { activeSubTab = tab }
-                            )
-                            .padding(vertical = 6.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = label,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = tokens.textSecondary
-                        )
-                    }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Horizontal sub-tab bar ALWAYS visible
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SubTabButton(
+                icon = Icons.Filled.Palette,
+                label = "Mẫu màu",
+                selected = activeSubTab == FillSubTab.PRESETS,
+                tokens = tokens,
+                onClick = {
+                    activeSubTab = if (activeSubTab == FillSubTab.PRESETS) null else FillSubTab.PRESETS
                 }
-            }
-        } else {
-            // Content view mode: show Back button on the left, tab contents on the right
-            // Top Navigation Row: Back button + Headers/Title
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                IconButton(
-                    onClick = {
-                        activeSubTab = null
-                    },
-                    modifier = Modifier.size(32.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "Quay lại",
-                        tint = tokens.textSecondary,
-                        modifier = Modifier.size(24.dp)
-                    )
+            )
+            SubTabButton(
+                icon = Icons.Filled.FormatColorFill,
+                label = "Màu nền",
+                selected = activeSubTab == FillSubTab.COLOR,
+                tokens = tokens,
+                onClick = {
+                    activeSubTab = if (activeSubTab == FillSubTab.COLOR) null else FillSubTab.COLOR
                 }
-
-                // If in gradient detail, show "Hướng Gradient" / "Chỉnh sửa Gradient" tabs here
-                if (isEditingGradientDetail && activeSubTab == FillSubTab.COLOR) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Dãy màu",
-                            fontSize = 12.sp,
-                            fontWeight = if (gradientDetailTab == 0) FontWeight.Bold else FontWeight.Medium,
-                            color = if (gradientDetailTab == 0) tokens.accent else tokens.textSecondary,
-                            modifier = Modifier.clickable { gradientDetailTab = 0 }
-                        )
-                        Text(
-                            text = "Hướng Gradient",
-                            fontSize = 12.sp,
-                            fontWeight = if (gradientDetailTab == 1) FontWeight.Bold else FontWeight.Medium,
-                            color = if (gradientDetailTab == 1) tokens.accent else tokens.textSecondary,
-                            modifier = Modifier.clickable { gradientDetailTab = 1 }
-                        )
-                        Text(
-                            text = "Góc",
-                            fontSize = 12.sp,
-                            fontWeight = if (gradientDetailTab == 2) FontWeight.Bold else FontWeight.Medium,
-                            color = if (gradientDetailTab == 2) tokens.accent else tokens.textSecondary,
-                            modifier = Modifier.clickable { gradientDetailTab = 2 }
-                        )
-                    }
-                } else {
-                    // Otherwise show standard sub-tab title
-                    val subTabTitle = when (activeSubTab) {
-                        FillSubTab.PRESETS -> "Mẫu màu"
-                        FillSubTab.COLOR -> "Màu nền"
-                        FillSubTab.OPACITY -> "Độ trong suốt"
-                        else -> ""
-                    }
-                    Text(
-                        text = subTabTitle,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = tokens.textPrimary
-                    )
+            )
+            SubTabButton(
+                icon = Icons.Filled.Opacity,
+                label = "Độ trong suốt",
+                selected = activeSubTab == FillSubTab.OPACITY,
+                tokens = tokens,
+                onClick = {
+                    activeSubTab = if (activeSubTab == FillSubTab.OPACITY) null else FillSubTab.OPACITY
                 }
-            }
+            )
+        }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Sub-tab Content goes BELOW the top navigation row
+        // Sub-tab Content goes BELOW the tab bar
+        androidx.compose.animation.AnimatedVisibility(
+            visible = activeSubTab != null,
+            enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+        ) {
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
             ) {
                 when (activeSubTab) {
                     FillSubTab.PRESETS -> {
@@ -377,7 +352,7 @@ private fun FillColorEditor(
                         )
                     }
                     FillSubTab.COLOR -> {
-                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             if (!isEditingGradientDetail) {
                                 ModeToggleRow(
                                     solidLabel = stringResource(R.string.studio_label_color_solid),
@@ -405,6 +380,46 @@ private fun FillColorEditor(
                                     }
                                 }
                             } else {
+                                // Sub-navigation inside gradient editor
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(
+                                        onClick = { isEditingGradientDetail = false },
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                            contentDescription = "Quay lại",
+                                            tint = tokens.textSecondary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    Text(
+                                        text = "Dãy màu",
+                                        fontSize = 12.sp,
+                                        fontWeight = if (gradientDetailTab == 0) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (gradientDetailTab == 0) tokens.accent else tokens.textSecondary,
+                                        modifier = Modifier.clickable { gradientDetailTab = 0 }
+                                    )
+                                    Text(
+                                        text = "Hướng",
+                                        fontSize = 12.sp,
+                                        fontWeight = if (gradientDetailTab == 1) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (gradientDetailTab == 1) tokens.accent else tokens.textSecondary,
+                                        modifier = Modifier.clickable { gradientDetailTab = 1 }
+                                    )
+                                    Text(
+                                        text = "Góc",
+                                        fontSize = 12.sp,
+                                        fontWeight = if (gradientDetailTab == 2) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (gradientDetailTab == 2) tokens.accent else tokens.textSecondary,
+                                        modifier = Modifier.clickable { gradientDetailTab = 2 }
+                                    )
+                                }
+
                                 when (gradientDetailTab) {
                                     0 -> {
                                         GradientEditorSection(

@@ -8,6 +8,7 @@ object ShapeLabelDefaults {
     const val BORDER_COLOR_ARGB: Int = 0xFF1565C0.toInt()
     const val BORDER_WIDTH_PX: Float = 2f
     const val DEFAULT_TEXT_SIZE_SP: Float = 65f
+    const val MAX_TEXT_SIZE_SP: Float = 500f
 }
 
 fun EditorLayer.applyShapeTypeChange(shapeType: ShapeType): EditorLayer {

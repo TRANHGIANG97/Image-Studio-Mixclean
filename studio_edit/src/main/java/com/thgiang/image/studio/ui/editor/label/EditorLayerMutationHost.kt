@@ -6,6 +6,7 @@ import com.thgiang.image.studio.ui.editor.model.EditorState
 import com.thgiang.image.studio.ui.editor.model.LayerGroupSync
 import com.thgiang.image.studio.ui.editor.model.isFrameLayer
 import com.thgiang.image.studio.ui.editor.model.isLabelLayer
+import com.thgiang.image.studio.ui.editor.model.LayerType
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 open class EditorLayerMutationHost(
@@ -42,13 +43,6 @@ open class EditorLayerMutationHost(
         val selectedId = state.selectedLayerId ?: return
         val selectedLayer = state.layers.find { it.id == selectedId } ?: return
 
-        // If the selected layer is itself a frame layer, update it directly
-        if (selectedLayer.isFrameLayer) {
-            updateActiveLayerWhen({ it.isFrameLayer }, block)
-            requestHistoryPush()
-            return
-        }
-
         // If the selected layer is a label in a group, find and update the sibling frame layer
         val groupId = selectedLayer.groupId
         if (selectedLayer.isLabelLayer && groupId != null) {
@@ -62,8 +56,8 @@ open class EditorLayerMutationHost(
             }
         }
 
-        // Fallback: apply predicate as before
-        updateActiveLayerWhen({ it.isFrameLayer }, block)
+        // Otherwise (standalone frame layer, text layer, etc.), update the selected layer directly
+        updateActiveLayerWhen({ it.id == selectedId }, block)
         requestHistoryPush()
     }
 }

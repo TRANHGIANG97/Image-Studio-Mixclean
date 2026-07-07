@@ -1,8 +1,19 @@
 package com.thgiang.image.studio.ui.editor.canvas
 
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.OpenWith
+import androidx.compose.material3.Icon
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
@@ -26,6 +38,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.zIndex
 import com.thgiang.image.studio.ui.editor.canvas.GestureDelta
 import com.thgiang.image.studio.ui.editor.canvas.shape.ShapeFrameLayerContent
 import com.thgiang.image.studio.ui.editor.canvas.text.TextLabelLayerContent
@@ -40,7 +55,6 @@ import com.thgiang.image.studio.ui.editor.mapper.resolveStrokeWidthPx
 import com.thgiang.image.studio.ui.editor.model.isLabelLayer
 import com.thgiang.image.studio.ui.editor.model.shouldRenderFrameContent
 import com.thgiang.image.studio.ui.editor.model.shouldRenderLabelContent
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -57,8 +71,12 @@ fun ShapeTextLayer(
     isLocked: Boolean,
     isInlineEditing: Boolean = false,
     onRequestInlineEdit: () -> Unit = {},
+    onTapToSelect: () -> Unit = {},
     onCommitInlineEdit: (String) -> Unit = {},
+    onUpdateInlineEdit: (String) -> Unit = {},
     onSyncShapeSize: (widthPx: Float, heightPx: Float) -> Unit = { _, _ -> },
+    allLayers: List<EditorLayer> = emptyList(),
+    onGestureActiveChanged: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -77,32 +95,15 @@ fun ShapeTextLayer(
         )
     }
 
-    val templateScale = layer.viewport.scale * displayScale
+    val templateScale = (layer.viewport.scale * displayScale).coerceAtLeast(0.01f)
     var textLayoutResult by remember(layer.id) { mutableStateOf<TextLayoutResult?>(null) }
 
-    val strokePadTemplate = if (layer.hasShapeBorder) layer.resolveStrokeWidthPx() * 2f else 0f
-    val padHXTemplate = with(density) { 12.dp.toPx() } / templateScale.coerceAtLeast(0.01f)
-    val padVYTemplate = with(density) { 6.dp.toPx() } / templateScale.coerceAtLeast(0.01f)
-
-    val textFittedWidthPx = textLayoutResult?.let {
-        (it.size.width / templateScale + 2f * padHXTemplate + strokePadTemplate).coerceAtLeast(60f)
-    }
-    val textFittedHeightPx = textLayoutResult?.let {
-        (it.size.height / templateScale + 2f * padVYTemplate + strokePadTemplate).coerceAtLeast(30f)
-    }
-    val effectiveShapeWidthPx = maxOf(layer.shapeWidthPx, textFittedWidthPx ?: layer.shapeWidthPx)
-    val effectiveShapeHeightPx = maxOf(layer.shapeHeightPx, textFittedHeightPx ?: layer.shapeHeightPx)
-
-    // BoundingBox uses layer.shapeWidthPx directly so user resize gestures are reflected immediately.
-    // effectiveShapeWidthPx is only used for rendering content (avoids text overflow on auto-grow).
-    val bbShapeWidthPx = layer.shapeWidthPx.coerceAtLeast(60f)
-    val bbShapeHeightPx = layer.shapeHeightPx.coerceAtLeast(30f)
+    // BB dims come from layer model; text edits re-fit via updateShapeText / FinishTextEdit.
+    val effectiveShapeWidthPx = layer.shapeWidthPx.coerceAtLeast(60f)
+    val effectiveShapeHeightPx = layer.shapeHeightPx.coerceAtLeast(30f)
 
     val displayW = with(density) { (effectiveShapeWidthPx * templateScale).toDp() }
     val displayH = with(density) { (effectiveShapeHeightPx * templateScale).toDp() }
-    // BoundingBox display sizes follow user-set dimensions
-    val bbDisplayW = with(density) { (bbShapeWidthPx * templateScale).toDp() }
-    val bbDisplayH = with(density) { (bbShapeHeightPx * templateScale).toDp() }
 
     val offsetXPx = layer.viewport.offset.x * displayScale
     val offsetYPx = layer.viewport.offset.y * displayScale
@@ -182,45 +183,46 @@ fun ShapeTextLayer(
         0.dp
     }
 
-    // Grow box when text/typography needs more space — never shrink user-resized bounds.
-    LaunchedEffect(
-        layer.text,
-        layer.textSizeSp,
-        layer.fontFamily,
-        layer.fontWeight,
-        layer.fontStyle,
-        layer.charSpacing,
-        layer.lineHeight,
-        layer.textTransform,
-        layer.id,
-        layer.isLabelLayer,
-    ) {
-        if (!layer.isLabelLayer) return@LaunchedEffect
-        kotlinx.coroutines.delay(250)
-        val targetW = textFittedWidthPx ?: return@LaunchedEffect
-        val targetH = textFittedHeightPx ?: return@LaunchedEffect
-        if (targetW > layer.shapeWidthPx + 1f || targetH > layer.shapeHeightPx + 1f) {
-            onSyncShapeSize(
-                kotlin.math.max(targetW, layer.shapeWidthPx),
-                kotlin.math.max(targetH, layer.shapeHeightPx),
-            )
-        }
-    }
+    // Auto-fit on text change is handled in LabelViewModelDelegate.updateShapeText.
 
-    var inlineTextDraft by remember(layer.id) { mutableStateOf(layer.text) }
+    var inlineTextDraft by remember(layer.id) {
+        val initialText = if (layer.text == "Nhập chữ...") "" else layer.text
+        mutableStateOf(
+            TextFieldValue(
+                text = initialText,
+                selection = TextRange(initialText.length),
+            )
+        )
+    }
     val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
     var inlineEditHadFocus by remember(layer.id) { mutableStateOf(false) }
     val radiusScale = layer.viewport.scale * displayScale
-
+ 
     LaunchedEffect(isInlineEditing) {
         if (isInlineEditing) {
-            inlineTextDraft = layer.text
+            val initialText = if (layer.text == "Nhập chữ...") "" else layer.text
+            inlineTextDraft = TextFieldValue(
+                text = initialText,
+                selection = TextRange(initialText.length),
+            )
             inlineEditHadFocus = false
             focusRequester.requestFocus()
         }
     }
 
-  val commitInlineEdit = { onCommitInlineEdit(inlineTextDraft) }
+    LaunchedEffect(layer.text, isInlineEditing) {
+        if (isInlineEditing) {
+            val normalizedText = if (layer.text == "Nhập chữ...") "" else layer.text
+            if (inlineTextDraft.text != normalizedText) {
+                inlineTextDraft = TextFieldValue(
+                    text = normalizedText,
+                    selection = TextRange(normalizedText.length),
+                )
+            }
+        }
+    }
+
+    val commitInlineEdit = { onCommitInlineEdit(inlineTextDraft.text) }
 
     val paddingExtra = 40.dp
     val paddingExtraPx = with(density) { paddingExtra.toPx() }
@@ -229,8 +231,8 @@ fun ShapeTextLayer(
         modifier = modifier
             .offset {
                 IntOffset(
-                    (offsetXPx - paddingExtraPx).roundToInt(),
-                    (offsetYPx - paddingExtraPx).roundToInt()
+                    offsetXPx.roundToInt(),
+                    offsetYPx.roundToInt()
                 )
             }
             .requiredSize(displayW + paddingExtra * 2, displayH + paddingExtra * 2),
@@ -239,6 +241,16 @@ fun ShapeTextLayer(
             modifier = Modifier
                 .align(Alignment.Center)
                 .requiredSize(displayW, displayH)
+                .then(
+                    if (!showBoundingBox && !isInlineEditing && !isLocked) {
+                        Modifier.pointerInput(layer.id) {
+                            detectTapGestures(onTap = { onTapToSelect() })
+                        }
+                    } else {
+                        Modifier
+                    },
+                )
+                .zIndex(if (isInlineEditing) 1f else 0f)
                 .graphicsLayer {
                     rotationZ = layer.viewport.rotation
                     scaleX = if (layer.viewport.flippedH) -1f else 1f
@@ -274,36 +286,62 @@ fun ShapeTextLayer(
                     paddingY = paddingY,
                     isInlineEditing = isInlineEditing,
                     inlineTextDraft = inlineTextDraft,
-                    onInlineTextDraftChange = { inlineTextDraft = it },
+                    onInlineTextDraftChange = { text ->
+                        inlineTextDraft = text
+                        onUpdateInlineEdit(text.text)
+                    },
                     focusRequester = focusRequester,
                     inlineEditHadFocus = inlineEditHadFocus,
                     onInlineEditHadFocus = { inlineEditHadFocus = it },
                     onCommitInlineEdit = commitInlineEdit,
                     onTextLayout = { textLayoutResult = it },
+                    textLayoutResult = textLayoutResult,
                 )
             }
         }
 
-        BoundingBoxOverlayV6(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .requiredSize(
-                    width = maxOf(bbDisplayW, displayW) + 80.dp,
-                    height = maxOf(bbDisplayH, displayH) + 80.dp,
-                ),
-            // Use layer.shapeWidthPx (user intent) so resize handles respond immediately.
-            // Do NOT use effectiveShapeWidthPx here — that would prevent bounding box from shrinking.
-            contentWidth = bbShapeWidthPx,
-            contentHeight = bbShapeHeightPx,
-            viewport = layer.viewport,
-            displayScale = displayScale,
-            templateSize = templateSize,
-            lockAspectRatio = false,
-            onGesture = onGesture,
-            onGestureEnd = onGestureEnd,
-            showBoundingBox = showBoundingBox,
-            onBoundingBoxVisible = {},
-            isLocked = isLocked,
-        )
+        if (showBoundingBox || isInlineEditing) {
+            BoundingBoxOverlayV6(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .requiredSize(
+                        width = displayW + 80.dp,
+                        height = displayH + 80.dp,
+                    ),
+                contentWidth = effectiveShapeWidthPx,
+                contentHeight = effectiveShapeHeightPx,
+                viewport = layer.viewport,
+                displayScale = displayScale,
+                templateSize = templateSize,
+                lockAspectRatio = false,
+                onGesture = onGesture,
+                onGestureEnd = onGestureEnd,
+                onBodyClick = {
+                    if (!isLocked) onRequestInlineEdit()
+                },
+                onBodyDoubleTap = {
+                    if (!isLocked) onRequestInlineEdit()
+                },
+                showBoundingBox = true,
+                onBoundingBoxVisible = {},
+                isLocked = isLocked,
+                otherLayers = allLayers.filter { it.id != layer.id },
+                isInlineEditing = isInlineEditing,
+                onGestureActiveChanged = onGestureActiveChanged,
+            )
+        }
+
+        if (isInlineEditing) {
+            TextEditFrameOverlay(
+                contentWidth = effectiveShapeWidthPx,
+                contentHeight = effectiveShapeHeightPx,
+                viewport = layer.viewport,
+                displayScale = displayScale,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .requiredSize(displayW + 80.dp, displayH + 80.dp)
+                    .zIndex(2f),
+            )
+        }
     }
 }

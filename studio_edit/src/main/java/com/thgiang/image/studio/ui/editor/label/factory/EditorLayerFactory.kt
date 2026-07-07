@@ -91,9 +91,6 @@ class EditorLayerFactory @Inject constructor() {
     }
 
     fun createTextLayer(templateWidth: Float): EditorLayer {
-        val defaultW = (if (templateWidth > 0f) templateWidth * 0.58f else 360f).coerceIn(180f, 760f)
-        val defaultH = (defaultW * 0.24f).coerceIn(72f, 220f)
-
         return EditorLayer(
             type = LayerType.TEXT,
             text = "Nhập chữ...",
@@ -101,8 +98,8 @@ class EditorLayerFactory @Inject constructor() {
             textSizeSp = ShapeLabelDefaults.DEFAULT_TEXT_SIZE_SP,
             shapeType = ShapeType.TEXT_ONLY,
             shapeColorArgb = 0x00FFFFFF,
-            shapeWidthPx = defaultW,
-            shapeHeightPx = defaultH,
+            shapeWidthPx = 60f,
+            shapeHeightPx = 30f,
             fontFamily = "sans-serif",
             viewport = EditorViewport(scale = 1f),
             appearance = EditorAppearance(shadowIntensity = 0f, alpha = 1f),

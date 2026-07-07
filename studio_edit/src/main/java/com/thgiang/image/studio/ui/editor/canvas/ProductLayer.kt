@@ -66,6 +66,8 @@ fun ProductLayerV2(
     showBoundingBox: Boolean = false,
     onBoundingBoxVisible: (Boolean) -> Unit = {},
     onPickImage: () -> Unit = {},
+    allLayers: List<EditorLayer> = emptyList(),
+    modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
     val product = layer.product
@@ -153,13 +155,10 @@ fun ProductLayerV2(
     val paddingExtraPx = with(density) { paddingExtra.toPx() }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .requiredSize(originalWidth + paddingExtra * 2, originalHeight + paddingExtra * 2)
             .offset {
-                IntOffset(
-                    (displayOffset.x - paddingExtraPx).roundToInt(),
-                    (displayOffset.y - paddingExtraPx).roundToInt()
-                )
+                displayOffset
             }
     ) {
         Box(
@@ -276,33 +275,6 @@ fun ProductLayerV2(
                     colorFilter = ColorFilter.tint(AuroraCoral.copy(alpha = 0.55f))
                 )
             }
-
-            // 2-directional horizontal arrow replace button, compact, transparent background
-            if (product.isSample && !product.processing && !isLocked) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(36.dp)
-                        .background(Color.Transparent)
-                        .clickable { onPickImage() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Drop shadow for prominence
-                    Icon(
-                        imageVector = Icons.Default.SwapHoriz,
-                        contentDescription = null,
-                        tint = Color.Black.copy(alpha = 0.6f),
-                        modifier = Modifier.size(30.dp).offset(y = 1.dp)
-                    )
-                    // Main icon
-                    Icon(
-                        imageVector = Icons.Default.SwapHoriz,
-                        contentDescription = stringResource(R.string.studio_action_replace),
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
         }
 
         // Bounding Box Overlay
@@ -323,7 +295,35 @@ fun ProductLayerV2(
             onGestureEnd = onGestureEnd,
             showBoundingBox = showBoundingBox,
             onBoundingBoxVisible = onBoundingBoxVisible,
-            isLocked = isLocked
+            isLocked = isLocked,
+            otherLayers = allLayers.filter { it.id != layer.id }
         )
+
+        // 2-directional horizontal arrow replace button, compact, transparent background
+        if (product.isSample && !product.processing && !isLocked) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(36.dp)
+                    .background(Color.Transparent)
+                    .clickable { onPickImage() },
+                contentAlignment = Alignment.Center
+            ) {
+                // Drop shadow for prominence
+                Icon(
+                    imageVector = Icons.Default.SwapHoriz,
+                    contentDescription = null,
+                    tint = Color.Black.copy(alpha = 0.6f),
+                    modifier = Modifier.size(30.dp).offset(y = 1.dp)
+                )
+                // Main icon
+                Icon(
+                    imageVector = Icons.Default.SwapHoriz,
+                    contentDescription = stringResource(R.string.studio_action_replace),
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
     }
 }

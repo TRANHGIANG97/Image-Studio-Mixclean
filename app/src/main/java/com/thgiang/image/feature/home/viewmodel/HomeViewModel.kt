@@ -228,6 +228,17 @@ class HomeViewModel @Inject constructor(
         loadCloudTemplates()
     }
 
+    /** Gọi khi quay lại màn hình Home — chỉ tải từ server nếu chưa có dữ liệu trong phiên này. */
+    fun ensureTemplatesLoaded() {
+        val state = _uiState.value
+        val hasData = state.cosmeticsTemplates.isNotEmpty() ||
+            state.professionalTemplates.isNotEmpty() ||
+            state.otherSections.isNotEmpty()
+        if (!hasData && !state.isLoadingTemplates) {
+            loadCloudTemplates()
+        }
+    }
+
     private fun loadCloudTemplates() {
         _uiState.update { it.copy(isLoadingTemplates = true) }
         viewModelScope.launch(Dispatchers.IO) {

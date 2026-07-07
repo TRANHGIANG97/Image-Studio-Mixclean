@@ -92,7 +92,11 @@ class TemplateCache @Inject constructor() {
     private companion object {
         const val TAG = "TemplateCache"
 
-        /** TTL chung: 30 phút. Templates và categories đều dùng cùng TTL để đơn giản. */
-        const val TTL_MS = 30 * 60 * 1000L
+        /**
+         * TTL cache: 6 giờ.
+         * Dữ liệu template/category hiếm khi thay đổi trong ngày.
+         * Người dùng có thể pull-to-refresh để tải lại thủ công nếu cần.
+         */
+        const val TTL_MS = 6 * 60 * 60 * 1000L
     }
 }

@@ -67,7 +67,6 @@ fun EditorBottomToolbar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
                 .horizontalScroll(scrollState)
                 .padding(horizontal = 4.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),

@@ -171,8 +171,21 @@ export async function createTemplate(input: CreateTemplateInput) {
  */
 export async function updateTemplate(id: string, input: UpdateTemplateInput) {
   let finalCanvasData = input.canvas_data;
-  if (input.title !== undefined && finalCanvasData === undefined) {
-    const existing = await getTemplateById(id);
+  const existing = await getTemplateById(id);
+
+  if (finalCanvasData) {
+    // Safety guard: if finalCanvasData is missing the 'layers' property (e.g. updated from a list view),
+    // restore the layers from the existing database record to prevent data loss.
+    if (existing && existing.canvas_data) {
+      const existingCanvas = existing.canvas_data as CloudTemplate;
+      if (finalCanvasData.layers === undefined && existingCanvas.layers !== undefined) {
+        finalCanvasData = {
+          ...finalCanvasData,
+          layers: existingCanvas.layers,
+        };
+      }
+    }
+  } else if (input.title !== undefined) {
     if (existing && existing.canvas_data) {
       const canvasData = { ...existing.canvas_data } as CloudTemplate;
       if (canvasData.metadata) {

@@ -4,6 +4,8 @@ data class EditorState(
     val template: EditorTemplate = EditorTemplate(),
     val layers: List<EditorLayer> = emptyList(),
     val selectedLayerId: String? = null,
+    /** Layer currently in inline text-edit mode (thin frame, no BB). */
+    val editingLayerId: String? = null,
     val selectedTool: EditorTool? = null,
     val isExporting: Boolean = false,
     val isSavingDraft: Boolean = false,
@@ -15,4 +17,7 @@ data class EditorState(
 ) : java.io.Serializable {
     val canExport: Boolean
         get() = layers.any { it.product.isBackgroundRemoved } && !isExporting && template.loaded
+
+    val labelPhase: LabelInteractionPhase
+        get() = LabelInteractionState.phase(selectedLayerId, editingLayerId)
 }

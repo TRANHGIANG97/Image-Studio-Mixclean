@@ -11,10 +11,38 @@ import java.util.UUID
 class DraftManager(private val context: Context) {
 
     private val serializer = ProjectSerializer()
-    private val draftsDir = File(context.cacheDir, "drafts")
+
+    /**
+     * Dùng [filesDir] thay vì [cacheDir] để Android không tự xóa dữ liệu draft
+     * khi bộ nhớ thiếu. [cacheDir] là bộ nhớ đệm tạm thời, hệ thống có thể
+     * xóa bất cứ lúc nào → gây màn hình trắng khi mở lại draft.
+     */
+    private val draftsDir = File(context.filesDir, "drafts")
 
     init {
         if (!draftsDir.exists()) draftsDir.mkdirs()
+        migrateCacheDirDrafts()
+    }
+
+    /**
+     * Migration một lần: chuyển các draft cũ từ [cacheDir]/drafts → [filesDir]/drafts.
+     * Chạy khi khởi tạo, tự động bỏ qua nếu không có gì cần migrate.
+     */
+    private fun migrateCacheDirDrafts() {
+        val oldDir = File(context.cacheDir, "drafts")
+        if (!oldDir.exists()) return
+        try {
+            oldDir.listFiles { f -> f.isDirectory }?.forEach { oldDraft ->
+                val target = File(draftsDir, oldDraft.name)
+                if (!target.exists()) {
+                    oldDraft.copyRecursively(target, overwrite = false)
+                }
+                oldDraft.deleteRecursively()
+            }
+            if (oldDir.listFiles().isNullOrEmpty()) oldDir.delete()
+        } catch (e: Exception) {
+            android.util.Log.w("DraftManager", "migrateCacheDirDrafts failed: ${e.message}")
+        }
     }
 
     /** Lấy thư mục gốc của một draft. */

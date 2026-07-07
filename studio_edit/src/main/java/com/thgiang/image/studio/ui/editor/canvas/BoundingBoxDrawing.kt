@@ -6,6 +6,7 @@ import androidx.compose.ui.geometry.Offset
 import com.thgiang.image.studio.ui.editor.model.*
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -85,8 +86,25 @@ fun DrawScope.drawRotatedOverlay(
     activeHandle: HandleZone,
     isGestureActive: Boolean,
     isLocked: Boolean = false,
-    lockAspectRatio: Boolean = true
+    lockAspectRatio: Boolean = true,
+    isInlineEditing: Boolean = false
 ) {
+    if (isInlineEditing) {
+        withTransform({
+            rotate(degrees = rotation, pivot = Offset(cx, cy))
+        }) {
+            val movePos = Offset(cx, cy + hh + 20.dp.toPx())
+            val moveRadius = 14.dp.toPx()
+            drawMoveHandle(
+                center = movePos,
+                radius = moveRadius,
+                color = Color(0xFF7C3AED), // purple theme
+                borderStrokePx = 1.5.dp.toPx()
+            )
+        }
+        return
+    }
+
     withTransform({
         rotate(degrees = rotation, pivot = Offset(cx, cy))
     }) {
@@ -389,4 +407,78 @@ fun DrawScope.drawTooltip(
     // Draw text inside
     val textY = tooltipY - (paint.fontMetrics.descent + paint.fontMetrics.ascent) / 2f
     drawContext.canvas.nativeCanvas.drawText(text, tooltipX, textY, paint)
+}
+
+fun DrawScope.drawMoveHandle(
+    center: Offset,
+    radius: Float,
+    color: Color,
+    borderStrokePx: Float
+) {
+    // Draw transparent circle background
+    drawCircle(
+        color = Color.White.copy(alpha = 0.05f),
+        radius = radius,
+        center = center
+    )
+    
+    // Draw border
+    drawCircle(
+        color = color,
+        radius = radius,
+        center = center,
+        style = Stroke(width = borderStrokePx)
+    )
+    
+    // Draw 4-way arrow icon
+    val density = radius / 14.dp.toPx()
+    val L = 7.dp.toPx() * density
+    val arrowSize = 2.5.dp.toPx() * density
+    val strokeW = 1.5.dp.toPx() * density
+    
+    drawLine(
+        color = color,
+        start = Offset(center.x - L, center.y),
+        end = Offset(center.x + L, center.y),
+        strokeWidth = strokeW
+    )
+    drawLine(
+        color = color,
+        start = Offset(center.x, center.y - L),
+        end = Offset(center.x, center.y + L),
+        strokeWidth = strokeW
+    )
+    
+    // Arrowheads
+    val leftPath = Path().apply {
+        moveTo(center.x - L, center.y)
+        lineTo(center.x - L + arrowSize, center.y - arrowSize)
+        lineTo(center.x - L + arrowSize, center.y + arrowSize)
+        close()
+    }
+    drawPath(path = leftPath, color = color)
+    
+    val rightPath = Path().apply {
+        moveTo(center.x + L, center.y)
+        lineTo(center.x + L - arrowSize, center.y - arrowSize)
+        lineTo(center.x + L - arrowSize, center.y + arrowSize)
+        close()
+    }
+    drawPath(path = rightPath, color = color)
+    
+    val upPath = Path().apply {
+        moveTo(center.x, center.y - L)
+        lineTo(center.x - arrowSize, center.y - L + arrowSize)
+        lineTo(center.x + arrowSize, center.y - L + arrowSize)
+        close()
+    }
+    drawPath(path = upPath, color = color)
+    
+    val downPath = Path().apply {
+        moveTo(center.x, center.y + L)
+        lineTo(center.x - arrowSize, center.y + L - arrowSize)
+        lineTo(center.x + arrowSize, center.y + L - arrowSize)
+        close()
+    }
+    drawPath(path = downPath, color = color)
 }

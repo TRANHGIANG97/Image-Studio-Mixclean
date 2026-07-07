@@ -150,7 +150,8 @@ fun HomeDashboardScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                homeViewModel.refreshTemplates()
+                // Chỉ tải nếu chưa có dữ liệu — dùng cache khi quay lại từ chức năng khác
+                homeViewModel.ensureTemplatesLoaded()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

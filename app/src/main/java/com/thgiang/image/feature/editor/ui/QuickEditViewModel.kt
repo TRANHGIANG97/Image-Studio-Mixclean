@@ -97,7 +97,8 @@ class QuickEditViewModel @Inject constructor(
                 }
                 if (snapshot != null && snapshot.layers.isNotEmpty()) {
                     val layer = snapshot.layers.first()
-                    val draftDir = File(File(context.cacheDir, "drafts"), draftId)
+                    // Sử dụng filesDir (bộ nhớ vĩnh viễn) — đồng bộ với DraftManager
+                    val draftDir = File(File(context.filesDir, "drafts"), draftId)
                     val bitmapFile = File(draftDir, layer.cacheFileName)
                     if (bitmapFile.exists()) {
                         val bitmap = withContext(Dispatchers.IO) {
@@ -112,6 +113,10 @@ class QuickEditViewModel @Inject constructor(
                             return@launch
                         }
                     }
+                    // File draft bị thiếu → thông báo lỗi thân thiện thay vì màn hình trắng
+                    android.util.Log.w(TAG, "Draft file not found for draftId=$draftId, file=${layer.cacheFileName}")
+                    _uiState.update { it.copy(loadError = true) }
+                    return@launch
                 }
             }
 

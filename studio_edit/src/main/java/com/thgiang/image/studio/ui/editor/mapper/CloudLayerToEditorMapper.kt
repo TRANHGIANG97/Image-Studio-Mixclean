@@ -2,6 +2,7 @@ package com.thgiang.image.studio.ui.editor.mapper
 import com.thgiang.image.studio.ui.editor.canvas.*
 import com.thgiang.image.studio.ui.editor.mapper.*
 
+import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import com.thgiang.image.studio.ui.editor.label.geometry.EditorShapeGeometry
 import com.thgiang.image.studio.ui.editor.model.*
 import com.thgiang.image.studio.ui.editor.model.EditorLayerNormalizer
@@ -127,7 +128,7 @@ object CloudLayerToEditorMapper {
     ): EditorLayer {
         val density = scaledDensity.coerceAtLeast(1f)
         val payload = cloudLayer.payload
-        val textSizeSp = (payload.fontSize ?: 60f).coerceIn(1f, 500f)
+        val textSizeSp = (payload.fontSize ?: 60f).coerceIn(1f, ShapeLabelDefaults.MAX_TEXT_SIZE_SP)
         val textSizePx = textSizeSp * density
         val charSpacingPx = (payload.charSpacing ?: 0f) * textSizeSp / 1000f
         val displayText = EditorTextStyleMapper.applyTextTransform(
@@ -158,7 +159,7 @@ object CloudLayerToEditorMapper {
             type = layerType,
             text = displayText,
             textColorArgb = payload.resolvedTextColorArgb() ?: 0xFFFFFFFF.toInt(),
-            textSizeSp = (payload.fontSize ?: 60f).coerceIn(1f, 500f),
+            textSizeSp = (payload.fontSize ?: 60f).coerceIn(1f, ShapeLabelDefaults.MAX_TEXT_SIZE_SP),
             shapeType = shapeType,
             shapeColorArgb = if (isLine) {
                 0x00FFFFFF

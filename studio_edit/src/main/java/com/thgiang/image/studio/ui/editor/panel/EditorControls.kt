@@ -139,6 +139,7 @@ fun EditorControlsV2(
                                 LabelShapePanel(
                                     selectedLayer = selectedLayer,
                                     onLayoutEvent = onLayoutEvent,
+                                    canvasFirstMode = false,
                                 )
                             }
 

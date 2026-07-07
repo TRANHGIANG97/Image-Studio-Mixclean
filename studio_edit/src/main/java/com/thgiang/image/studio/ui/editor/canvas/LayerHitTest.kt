@@ -65,8 +65,16 @@ object LayerHitTest {
         val padding = context.selectionHitPaddingPx * 2f
         return when (layer.type) {
             LayerType.SHAPE, LayerType.TEXT, LayerType.SHAPE_TEXT -> {
-                val w = layer.shapeWidthPx * layer.viewport.scale * context.calculatedScale + padding
-                val h = layer.shapeHeightPx * layer.viewport.scale * context.calculatedScale + padding
+                val scale = layer.viewport.scale * context.calculatedScale
+                var w = layer.shapeWidthPx * scale + padding
+                var h = layer.shapeHeightPx * scale + padding
+                if (layer.isLabelLayer && layer.text.isNotBlank()) {
+                    val textSizePx = layer.textSizeSp * scale
+                    h = kotlin.math.max(h, textSizePx * 1.4f + padding)
+                    val approxCharW = textSizePx * 0.55f
+                    val textW = approxCharW * layer.text.length + padding
+                    w = kotlin.math.max(w, textW.coerceAtMost(layer.shapeWidthPx * scale + padding * 2f))
+                }
                 IntSize(w.toInt().coerceAtLeast(1), h.toInt().coerceAtLeast(1))
             }
 

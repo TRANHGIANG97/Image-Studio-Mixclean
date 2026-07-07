@@ -36,16 +36,36 @@ class UriTypeAdapter : TypeAdapter<Uri>() {
 class TemplateDraftRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val draftsDir = File(context.cacheDir, "drafts")
+    /**
+     * Dùng [filesDir] thay vì [cacheDir] để Android không tự xóa draft
+     * khi bộ nhớ thiếu. Đồng bộ với DraftManager.
+     */
+    private val draftsDir = File(context.filesDir, "drafts")
     private val gson: Gson = GsonBuilder()
         .registerTypeAdapter(Uri::class.java, UriTypeAdapter())
         .create()
 
-    fun saveDraft(draftId: String?, name: String, state: EditorState, templateAssetPath: String, templateObjectAssetPath: String?): String {
+    fun saveDraft(
+        draftId: String?,
+        name: String,
+        state: EditorState,
+        templateAssetPath: String,
+        templateObjectAssetPath: String?,
+    ): String {
         draftsDir.mkdirs()
         val id = draftId ?: UUID.randomUUID().toString()
         val dir = File(draftsDir, id)
         dir.mkdirs()
+
+        // Thư mục chứa ảnh được sao chép từ content://
+        val imagesDir = File(dir, "images")
+        imagesDir.mkdirs()
+
+        // Sao chép tất cả ảnh content:// vào thư mục draft và thay bằng file:// path
+        val persistedLayers = state.layers.map { layer ->
+            val persistedProduct = persistProductImages(layer.product, imagesDir, layer.id)
+            layer.copy(product = persistedProduct)
+        }
 
         val metaMap = mapOf(
             "id" to id,
@@ -57,8 +77,68 @@ class TemplateDraftRepository @Inject constructor(
             "templateObjectAssetPath" to templateObjectAssetPath
         )
         File(dir, "metadata.json").writeText(gson.toJson(metaMap))
-        File(dir, "editor_state.json").writeText(gson.toJson(state.copy(exportResult = null, isExporting = false)))
+        val persistedState = state.copy(
+            layers = persistedLayers,
+            exportResult = null,
+            isExporting = false,
+        )
+        File(dir, "editor_state.json").writeText(gson.toJson(persistedState))
         return id
+    }
+
+    /**
+     * Sao chép ảnh trong [EditorProduct] từ URI tạm thời (content://) sang
+     * file vĩnh viễn trong thư mục draft. Trả về bản copy của product với
+     * URI đã được thay bằng file:// path bền vững.
+     *
+     * Các URI https:// (ảnh nền cloud) được giữ nguyên — Coil sẽ cache chúng.
+     */
+    private fun persistProductImages(
+        product: EditorProduct,
+        imagesDir: File,
+        layerId: String,
+    ): EditorProduct {
+        val newOriginal = persistUriIfContent(
+            uriString = product.originalUriString,
+            targetFile = File(imagesDir, "${layerId}_original.jpg"),
+        )
+        val newForeground = persistUriIfContent(
+            uriString = product.foregroundUriString,
+            targetFile = File(imagesDir, "${layerId}_foreground.png"),
+        )
+        return if (newOriginal != product.originalUriString || newForeground != product.foregroundUriString) {
+            product.copy(
+                originalUriString = newOriginal,
+                foregroundUriString = newForeground,
+            )
+        } else {
+            product
+        }
+    }
+
+    /**
+     * Sao chép dữ liệu tại [uriString] (nếu là content://) sang [targetFile].
+     * Trả về đường dẫn file:// mới nếu thành công, hoặc [uriString] gốc nếu không.
+     */
+    private fun persistUriIfContent(uriString: String?, targetFile: File): String? {
+        if (uriString == null) return null
+        // Chỉ xử lý content:// — file:// và https:// giữ nguyên
+        if (!uriString.startsWith("content://")) return uriString
+
+        return try {
+            val uri = Uri.parse(uriString)
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                targetFile.outputStream().use { output -> input.copyTo(output) }
+            }
+            if (targetFile.exists() && targetFile.length() > 0) {
+                "file://${targetFile.absolutePath}"
+            } else {
+                uriString // fallback: giữ nguyên nếu copy thất bại
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("TemplateDraftRepo", "Failed to persist URI $uriString: ${e.message}")
+            uriString // fallback an toàn
+        }
     }
 
     fun loadDraft(draftId: String): EditorState? {

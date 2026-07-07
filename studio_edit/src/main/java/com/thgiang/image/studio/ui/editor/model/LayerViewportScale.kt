@@ -1,5 +1,6 @@
 package com.thgiang.image.studio.ui.editor.model
 
+import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import kotlin.math.abs
 
 /** Bakes [EditorViewport.scale] into layer dimensions so UI sliders match visual size. */
@@ -19,7 +20,7 @@ object LayerViewportScale {
 
         return when {
             layer.isLabelLayer -> layer.copy(
-                textSizeSp = (layer.textSizeSp * scale).coerceIn(1f, 3000f),
+                textSizeSp = (layer.textSizeSp * scale).coerceIn(1f, ShapeLabelDefaults.MAX_TEXT_SIZE_SP),
                 shapeWidthPx = (layer.shapeWidthPx * scale).coerceAtLeast(60f),
                 shapeHeightPx = (layer.shapeHeightPx * scale).coerceAtLeast(30f),
                 viewport = layer.viewport.withScale(1f),

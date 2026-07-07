@@ -34,6 +34,7 @@ val EditorLayer.shouldRenderFrameContent: Boolean
         type == LayerType.SHAPE -> true
         groupRole == LayerGroupRole.FRAME -> true
         type == LayerType.SHAPE_TEXT && isFrameLayer -> true
+        (type == LayerType.TEXT || type == LayerType.SHAPE_TEXT) && !EditorShapeGeometry.isTextOnlyShape(shapeType) -> true
         else -> false
     }
 

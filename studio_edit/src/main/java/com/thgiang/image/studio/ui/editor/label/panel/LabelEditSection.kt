@@ -6,6 +6,7 @@ import com.thgiang.image.studio.ui.editor.panel.*
 import com.thgiang.image.studio.ui.editor.mapper.*
 
 import android.annotation.SuppressLint
+import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
 import com.thgiang.image.studio.ui.editor.model.LayerViewportScale
 import com.thgiang.image.studio.ui.editor.model.ElevationTarget
@@ -22,6 +23,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,10 +36,8 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
 import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
 import androidx.compose.material.icons.automirrored.filled.FormatAlignRight
 import androidx.compose.material.icons.filled.FormatAlignCenter
@@ -43,6 +45,9 @@ import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.FormatUnderlined
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -58,6 +63,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -93,10 +100,12 @@ private val presets = listOf(
     TypographyPreset(R.string.studio_label_preset_uppercase, "bold", 54f, "uppercase"),
 )
 
-internal enum class LabelEditTab {
+enum class LabelEditTab {
+    EDIT,       // Sửa
     LABEL,      // Nhãn
     FONT,       // Font
     SIZE,       // Size
+    TEXT_STYLE, // Kiểu văn bản (Đề mục/Đề mục phụ/Nội dung)
     FORMAT,     // Định dạng
     ALIGN,      // Căn lề
     BG_COLOR,   // Màu nền
@@ -114,9 +123,10 @@ internal enum class LabelEditTab {
  * - [LabelEditTab.values()]: Default (all tabs in enum order)
  */
 internal val labelTextFirstTabs: List<LabelEditTab> = listOf(
-    LabelEditTab.LABEL,
+    LabelEditTab.EDIT,
     LabelEditTab.FONT,
     LabelEditTab.SIZE,
+    LabelEditTab.TEXT_STYLE,
     LabelEditTab.FORMAT,
     LabelEditTab.ALIGN,
     LabelEditTab.TEXT_COLOR,
@@ -125,12 +135,17 @@ internal val labelTextFirstTabs: List<LabelEditTab> = listOf(
 )
 
 @SuppressLint("UnrememberedMutableInteractionSource")
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun LabelEditSection(
     layer: EditorLayer,
     tokens: EditorTokens,
     onLayoutEvent: (EditorEvent) -> Unit,
     tabOrder: List<LabelEditTab> = LabelEditTab.values().toList(),
+    showTabBar: Boolean = true,
+    canvasFirstMode: Boolean = false,
+    activeTabExternal: LabelEditTab? = null,
+    onActiveTabChange: (LabelEditTab) -> Unit = {},
 ) {
     var textDraft by remember(layer.id) { mutableStateOf(TextFieldValue(layer.text)) }
     LaunchedEffect(layer.text) {
@@ -144,10 +159,37 @@ internal fun LabelEditSection(
     val scope = rememberCoroutineScope()
     val sliderColors = remember(tokens) { tokens.toSliderColors() }
 
-    var activeTab by rememberSaveable { mutableStateOf(LabelEditTab.LABEL) }
+    var activeTabInternal by rememberSaveable(layer.id) { mutableStateOf(tabOrder.firstOrNull() ?: LabelEditTab.FONT) }
+    val activeTab = activeTabExternal ?: activeTabInternal
+    fun setActiveTab(tab: LabelEditTab) {
+        if (activeTabExternal == null) {
+            activeTabInternal = tab
+        }
+        onActiveTabChange(tab)
+    }
 
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val editFocusRequester = remember { FocusRequester() }
+
+    if (!canvasFirstMode) {
+        LaunchedEffect(activeTab) {
+            if (activeTab == LabelEditTab.EDIT) {
+                kotlinx.coroutines.delay(50)
+                editFocusRequester.requestFocus()
+                keyboardController?.show()
+            }
+        }
+    }
+
+    val isImeVisible = WindowInsets.isImeVisible
+    var wasImeVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(isImeVisible, activeTab) {
+        if (!canvasFirstMode && wasImeVisible && !isImeVisible && activeTab == LabelEditTab.EDIT) {
+            onLayoutEvent(EditorEvent.FinishTextEdit)
+        }
+        wasImeVisible = isImeVisible
+    }
 
     val isBold = EditorTextStyleMapper.isBoldWeight(layer.fontWeight)
     val isItalic = EditorTextStyleMapper.isItalicStyle(layer.fontStyle)
@@ -182,52 +224,78 @@ internal fun LabelEditSection(
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        // Horizontal Scrollable Tab Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            tabOrder.forEach { tab ->
-                val isSelected = activeTab == tab
-                val tabTitle = when (tab) {
-                    LabelEditTab.LABEL -> "Nhãn"
-                    LabelEditTab.FONT -> "Font"
-                    LabelEditTab.SIZE -> "Size"
-                    LabelEditTab.FORMAT -> "Định dạng"
-                    LabelEditTab.ALIGN -> "Căn lề"
-                    LabelEditTab.BG_COLOR -> "Màu nền"
-                    LabelEditTab.TEXT_COLOR -> "Màu chữ"
-                    LabelEditTab.ELEVATION -> "Độ nổi"
-                    LabelEditTab.TEXT_FORM -> stringResource(R.string.studio_text_form_tab)
-                    LabelEditTab.SHAPE -> stringResource(R.string.studio_label_shape_frame_tab)
-                }
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(if (isSelected) tokens.accentSoft else Color(0xFFF5F5F5))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { activeTab = tab }
-                        )
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = tabTitle,
-                        fontSize = 12.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSelected) tokens.accent else tokens.textSecondary
-                    )
+        if (showTabBar) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                tabOrder.forEach { tab ->
+                    val isSelected = activeTab == tab
+                    val tabTitle = labelTabTitle(tab)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isSelected) tokens.accentSoft else Color(0xFFF5F5F5))
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = {
+                                    if (tab == LabelEditTab.EDIT) {
+                                        if (canvasFirstMode) {
+                                            onLayoutEvent(EditorEvent.StartTextEdit(layer.id))
+                                        } else {
+                                            setActiveTab(LabelEditTab.EDIT)
+                                            onLayoutEvent(EditorEvent.RequestTextEdit(layer.id))
+                                        }
+                                    } else {
+                                        setActiveTab(tab)
+                                    }
+                                },
+                            )
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            if (tab == LabelEditTab.EDIT) {
+                                Icon(
+                                    imageVector = Icons.Filled.Edit,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = tokens.textSecondary,
+                                )
+                            }
+                            Text(
+                                text = tabTitle,
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) tokens.accent else tokens.textSecondary,
+                            )
+                        }
+                    }
                 }
             }
         }
 
         when (activeTab) {
+            LabelEditTab.EDIT -> {
+                if (!canvasFirstMode) {
+                    LabelTextInputRow(
+                    value = textDraft,
+                    onValueChange = { updated ->
+                        textDraft = updated
+                        onLayoutEvent(EditorEvent.UpdateShapeText(updated.text))
+                    },
+                    focusRequester = editFocusRequester,
+                )
+                }
+            }
             LabelEditTab.LABEL -> Unit
             LabelEditTab.FONT -> {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -267,6 +335,81 @@ internal fun LabelEditSection(
                             tokens = tokens,
                             onLayoutEvent = onLayoutEvent,
                         )
+                    }
+                }
+            }
+            LabelEditTab.TEXT_STYLE -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = "Các kiểu tài liệu",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = tokens.textSecondary,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    )
+
+                    val stylePresets = listOf(
+                        Triple("Đề mục", presets[0], androidx.compose.ui.text.TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold)),
+                        Triple("Đề mục phụ", presets[1], androidx.compose.ui.text.TextStyle(fontSize = 17.sp, fontWeight = FontWeight.SemiBold)),
+                        Triple("Nội dung", presets[2], androidx.compose.ui.text.TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal))
+                    )
+
+                    stylePresets.forEach { (title, preset, previewStyle) ->
+                        val isSelected = layer.fontWeight == preset.fontWeight && layer.textSizeSp == preset.textSizeSp
+                        val bgCol = if (isSelected) Color(0xFFF3F4F6) else Color.Transparent
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(bgCol)
+                                .clickable {
+                                    onLayoutEvent(
+                                        EditorEvent.ApplyLabelTypographyPreset(
+                                            preset.fontWeight,
+                                            preset.textSizeSp,
+                                            preset.textTransform
+                                        )
+                                    )
+                                }
+                                .padding(vertical = 10.dp, horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = tokens.textPrimary,
+                                    modifier = Modifier
+                                        .padding(end = 12.dp)
+                                        .size(18.dp),
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(end = 12.dp)
+                                        .size(18.dp)
+                                )
+                            }
+
+                            Text(
+                                text = title,
+                                style = previewStyle.copy(color = tokens.textPrimary),
+                                modifier = Modifier.weight(1f),
+                            )
+
+                            Icon(
+                                imageVector = Icons.Filled.ChevronRight,
+                                contentDescription = null,
+                                tint = tokens.textSecondary,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -430,82 +573,38 @@ internal fun LabelEditSection(
             }
         }
 
-        if (activeTab == LabelEditTab.LABEL) {
-            LabelTextInputRow(
-                value = textDraft,
-                onValueChange = { updated ->
-                    textDraft = updated
-                    onLayoutEvent(EditorEvent.UpdateShapeText(updated.text))
-                },
-                onInsertNewline = {
-                    textDraft = insertNewlineAtCursor(textDraft).also { updated ->
-                        onLayoutEvent(EditorEvent.UpdateShapeText(updated.text))
-                    }
-                },
-                onDone = {
-                    onLayoutEvent(EditorEvent.UpdateShapeText(textDraft.text))
-                    focusManager.clearFocus()
-                    keyboardController?.hide()
-                },
-            )
-        }
+
     }
 }
 
 // ── Subcomponents ────────────────────────────────────────
 
-internal fun insertNewlineAtCursor(value: TextFieldValue): TextFieldValue {
-    val start = value.selection.start.coerceIn(0, value.text.length)
-    val end = value.selection.end.coerceIn(0, value.text.length)
-    val newText = buildString {
-        append(value.text.substring(0, start))
-        append('\n')
-        append(value.text.substring(end))
-    }
-    val cursor = start + 1
-    return TextFieldValue(newText, TextRange(cursor, cursor))
-}
-
 @Composable
 internal fun LabelTextInputRow(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    onInsertNewline: () -> Unit,
-    onDone: () -> Unit,
     modifier: Modifier = Modifier,
+    focusRequester: FocusRequester? = null,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier
-                .weight(1f)
-                .defaultMinSize(minHeight = 48.dp),
-            singleLine = false,
-            maxLines = 6,
-            placeholder = { Text(stringResource(R.string.studio_label_text_placeholder)) },
-            shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { onDone() }),
-        )
-        IconButton(
-            onClick = onInsertNewline,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFF5F5F5)),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardReturn,
-                contentDescription = stringResource(R.string.studio_label_insert_newline),
-                tint = Color(0xFF424242),
-            )
-        }
-    }
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp)
+            .then(
+                if (focusRequester != null) {
+                    Modifier.focusRequester(focusRequester)
+                } else {
+                    Modifier
+                },
+            ),
+        singleLine = false,
+        maxLines = 6,
+        placeholder = { Text(stringResource(R.string.studio_label_text_placeholder)) },
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
+    )
 }
 
 @SuppressLint("UnrememberedMutableInteractionSource")
@@ -583,7 +682,7 @@ private fun SizeControl(
         PrecisionSlider(
             label = "",
             value = localValue,
-            valueRange = 1f..3000f,
+            valueRange = 1f..ShapeLabelDefaults.MAX_TEXT_SIZE_SP,
             onValueChange = {
                 localValue = it
                 lastEmitted = it

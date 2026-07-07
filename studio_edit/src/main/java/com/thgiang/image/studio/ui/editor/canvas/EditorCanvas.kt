@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -30,6 +31,14 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroidSize
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,8 +66,11 @@ import com.thgiang.image.studio.util.openAssetSourceInputStream
 import com.thgiang.image.studio.util.toAssetModel
 import coil.compose.SubcomposeAsyncImage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun EditorCanvasV2(
     templateAssetPath: String,
@@ -76,34 +88,36 @@ fun EditorCanvasV2(
     viewportPadding: PaddingValues = PaddingValues(),
     isLabelToolActive: Boolean = false,
     isShapeToolActive: Boolean = false,
+    editingLayerId: String? = null,
     onEvent: (EditorEvent) -> Unit = {},
+    onGestureActiveChanged: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val tokens = LocalEditorTokens.current
 
+    val coroutineScope = rememberCoroutineScope()
     // ── Canvas-level pinch-to-zoom + pan ──────────────────
-    var canvasScale by remember { mutableFloatStateOf(1f) }
-    var canvasOffset by remember { mutableStateOf(Offset.Zero) }
+    val canvasScaleAnim = remember { Animatable(1f) }
+    val canvasScale = canvasScaleAnim.value
+    val canvasOffsetAnim = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
+    val canvasOffset = canvasOffsetAnim.value
     val isZoomedOrPanned by remember {
         derivedStateOf { canvasScale != 1f || canvasOffset != Offset.Zero }
     }
-    var inlineEditingLayerId by remember { mutableStateOf<String?>(null) }
+
+    // Backup states for text zoom focus
+    var backupScale by remember { mutableFloatStateOf(1f) }
+    var backupOffset by remember { mutableStateOf(Offset.Zero) }
+    var hasBackup by remember { mutableStateOf(false) }
 
     var layerPickerHits by remember { mutableStateOf<List<EditorLayer>?>(null) }
+    var quickActionsOffset by remember { mutableStateOf(Offset.Zero) }
 
-    // Helper: switch inline editing to a specific SHAPE_TEXT layer
-    val onShapeTextInlineEdit: (String) -> Unit = { layerId ->
-        // First select the layer, then activate inline editing
-        onSelectLayer(layerId)
-        inlineEditingLayerId = layerId
-    }
-
-    LaunchedEffect(selectedLayerId) {
-        if (inlineEditingLayerId != selectedLayerId) {
-            inlineEditingLayerId = null
-        }
+    // Helper: switch inline editing to a specific label layer
+    val onStartTextEdit: (String) -> Unit = { layerId ->
+        onEvent(EditorEvent.StartTextEdit(layerId))
     }
 
     if (layerPickerHits != null) {
@@ -139,20 +153,192 @@ fun EditorCanvasV2(
         val displayWidth  = templateWidth  * calculatedScale
         val displayHeight = templateHeight * calculatedScale
 
+        val isImeVisible = WindowInsets.isImeVisible
+        val imeHeight = WindowInsets.ime.getBottom(density)
+
+        LaunchedEffect(editingLayerId, isImeVisible, imeHeight) {
+            if (editingLayerId != null && isImeVisible) {
+                delay(350)
+                if (editingLayerId == null) return@LaunchedEffect
+                val activeLayer = layers.firstOrNull { it.id == editingLayerId }
+                if (activeLayer != null) {
+                    // 1. Capture current zoom & pan as backup if not already saved
+                    if (!hasBackup) {
+                        backupScale = canvasScaleAnim.value
+                        backupOffset = canvasOffsetAnim.value
+                        hasBackup = true
+                    }
+
+                    // 2. Center of text box in template space
+                    val layerCenterTemplate = activeLayer.viewport.offset
+
+                    // 3. Zoom level for focus (e.g. 1.6x)
+                    val targetScale = 1.6f
+
+                    // 4. Calculate display coordinates to push it to center of visible area
+                    val targetOffsetX = -(layerCenterTemplate.x * calculatedScale * targetScale)
+                    val targetOffsetY = -(layerCenterTemplate.y * calculatedScale * targetScale)
+
+                    // 5. Run smooth spring animation for premium feel
+                    launch {
+                        canvasScaleAnim.animateTo(
+                            targetValue = targetScale,
+                            animationSpec = androidx.compose.animation.core.spring(
+                                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                                stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                            )
+                        )
+                    }
+                    launch {
+                        canvasOffsetAnim.animateTo(
+                            targetValue = Offset(targetOffsetX, targetOffsetY),
+                            animationSpec = androidx.compose.animation.core.spring(
+                                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                                stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                            )
+                        )
+                    }
+                }
+            } else if (editingLayerId == null) {
+                // Restore back to original viewport state
+                if (hasBackup) {
+                    launch {
+                        canvasScaleAnim.animateTo(
+                            targetValue = backupScale,
+                            animationSpec = androidx.compose.animation.core.spring(
+                                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                            )
+                        )
+                    }
+                    launch {
+                        canvasOffsetAnim.animateTo(
+                            targetValue = backupOffset,
+                            animationSpec = androidx.compose.animation.core.spring(
+                                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                            )
+                        )
+                    }
+                    hasBackup = false
+                }
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 // Canvas pinch/pan only when no layer is selected — avoids stealing BB corner drags
                 .pointerInput(selectedLayerId) {
                     if (selectedLayerId != null) return@pointerInput
-                    detectTransformGestures { _, pan, zoom, _ ->
-                        canvasScale = (canvasScale * zoom).coerceIn(0.2f, 5f)
-                        canvasOffset += pan
+                    val velocityTracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
+                    
+                    awaitEachGesture {
+                        // Stop any running animation as soon as the user touches the canvas
+                        coroutineScope.launch { canvasOffsetAnim.stop() }
+                        
+                        var zoom = 1f
+                        var pan = Offset.Zero
+                        var pastTouchSlop = false
+                        val touchSlop = viewConfiguration.touchSlop
+                        
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        velocityTracker.resetTracking()
+                        velocityTracker.addPosition(down.uptimeMillis, down.position)
+                        
+                        var activePointers = 1
+                        
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val canceled = event.changes.any { it.isConsumed }
+                            if (canceled) break
+                            
+                            val changes = event.changes
+                            activePointers = changes.count { it.pressed }
+                            
+                            if (activePointers == 0) {
+                                // All fingers released
+                                if (event.changes.size == 1 && pastTouchSlop) {
+                                    val velocity = velocityTracker.calculateVelocity()
+                                    if (kotlin.math.hypot(velocity.x, velocity.y) > 200f) {
+                                        coroutineScope.launch {
+                                            canvasOffsetAnim.animateDecay(
+                                                initialVelocity = Offset(velocity.x, velocity.y),
+                                                animationSpec = exponentialDecay()
+                                            )
+                                        }
+                                    }
+                                }
+                                break
+                            }
+                            
+                            if (activePointers == 1) {
+                                val change = changes.first { it.pressed }
+                                velocityTracker.addPosition(change.uptimeMillis, change.position)
+                            }
+                            
+                            val panChange = event.calculatePan()
+                            val zoomChange = event.calculateZoom()
+                            
+                            if (!pastTouchSlop) {
+                                zoom *= zoomChange
+                                pan += panChange
+                                val centroidSize = event.calculateCentroidSize(useCurrent = false)
+                                val zoomMotion = kotlin.math.abs(1f - zoom) * centroidSize
+                                val panMotion = pan.getDistance()
+                                
+                                if (zoomMotion > touchSlop || panMotion > touchSlop) {
+                                    pastTouchSlop = true
+                                }
+                            }
+                            
+                            if (pastTouchSlop) {
+                                if (zoomChange != 1f || panChange != Offset.Zero) {
+                                    coroutineScope.launch {
+                                        // Allow soft elastic limits during pinch gesture (0.12x to 5.8x)
+                                        canvasScaleAnim.snapTo((canvasScaleAnim.value * zoomChange).coerceIn(0.12f, 5.8f))
+                                        canvasOffsetAnim.snapTo(canvasOffsetAnim.value + panChange)
+                                    }
+                                }
+                                event.changes.forEach { it.consume() }
+                            }
+                        }
+                        
+                        // Bounce back smoothly if scale is out of hard limits [0.2f, 5.0f]
+                        val currentScale = canvasScaleAnim.value
+                        if (currentScale < 0.2f || currentScale > 5.0f) {
+                            val targetScale = currentScale.coerceIn(0.2f, 5.0f)
+                            coroutineScope.launch {
+                                canvasScaleAnim.animateTo(
+                                    targetValue = targetScale,
+                                    animationSpec = androidx.compose.animation.core.spring(
+                                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                                        stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                                    )
+                                )
+                            }
+                            if (targetScale <= 1.0f) {
+                                coroutineScope.launch {
+                                    canvasOffsetAnim.animateTo(
+                                        targetValue = Offset.Zero,
+                                        animationSpec = androidx.compose.animation.core.spring(
+                                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                            stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                                        )
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
-                .pointerInput(layers, selectedLayerId, templateSize, isLabelToolActive, isShapeToolActive, layerPickerHits) {
+                .pointerInput(layers, selectedLayerId, templateSize, isLabelToolActive, isShapeToolActive, layerPickerHits, canvasScale, canvasOffset) {
                     detectTapGestures(
                         onTap = { tap ->
+                            val cx = size.width / 2f
+                            val cy = size.height / 2f
+                            val untransformedTapX = cx + (tap.x - cx - canvasOffset.x) / canvasScale
+                            val untransformedTapY = cy + (tap.y - cy - canvasOffset.y) / canvasScale
+
                             val displayWidthPx = with(density) { displayWidth.toPx() }
                             val displayHeightPx = with(density) { displayHeight.toPx() }
                             val selectionHitPaddingPx = with(density) { 24.dp.toPx() }
@@ -160,8 +346,8 @@ fun EditorCanvasV2(
                             val templateTopPx = (size.height - displayHeightPx) / 2f
 
                             val hitContext = LayerHitTestContext(
-                                tapX = tap.x,
-                                tapY = tap.y,
+                                tapX = untransformedTapX,
+                                tapY = untransformedTapY,
                                 displayWidthPx = displayWidthPx,
                                 displayHeightPx = displayHeightPx,
                                 templateLeftPx = templateLeftPx,
@@ -172,9 +358,6 @@ fun EditorCanvasV2(
                             val rawHits = LayerHitTest.hitLayersAtPoint(layers, hitContext)
                             val hits = LayerGroupOps.collapseHits(rawHits, layers)
                             when {
-                                isLabelToolActive && hits.size == 1 && hits.first().isLabelLayer -> {
-                                    onShapeTextInlineEdit(hits.first().id)
-                                }
                                 hits.isEmpty() -> onSelectLayer(null)
                                 hits.size == 1 -> {
                                     val hit = hits.first()
@@ -189,7 +372,11 @@ fun EditorCanvasV2(
                             }
                         },
                         onDoubleTap = { tap ->
-                            // Double-tap on any text layer → inline editing (regardless of tool)
+                            val cx = size.width / 2f
+                            val cy = size.height / 2f
+                            val untransformedTapX = cx + (tap.x - cx - canvasOffset.x) / canvasScale
+                            val untransformedTapY = cy + (tap.y - cy - canvasOffset.y) / canvasScale
+
                             val displayWidthPx = with(density) { displayWidth.toPx() }
                             val displayHeightPx = with(density) { displayHeight.toPx() }
                             val selectionHitPaddingPx = with(density) { 24.dp.toPx() }
@@ -197,8 +384,8 @@ fun EditorCanvasV2(
                             val templateTopPx = (size.height - displayHeightPx) / 2f
 
                             val hitContext = LayerHitTestContext(
-                                tapX = tap.x,
-                                tapY = tap.y,
+                                tapX = untransformedTapX,
+                                tapY = untransformedTapY,
                                 displayWidthPx = displayWidthPx,
                                 displayHeightPx = displayHeightPx,
                                 templateLeftPx = templateLeftPx,
@@ -211,7 +398,56 @@ fun EditorCanvasV2(
                                 layers,
                             )
                             if (doubleHits.size == 1 && doubleHits.first().isLabelLayer) {
-                                onShapeTextInlineEdit(doubleHits.first().id)
+                                onStartTextEdit(doubleHits.first().id)
+                            } else {
+                                // Double tap on canvas background to zoom or reset
+                                coroutineScope.launch {
+                                    if (isZoomedOrPanned) {
+                                        // Reset zoom/pan smoothly using spring animation
+                                        launch {
+                                            canvasScaleAnim.animateTo(
+                                                targetValue = 1f,
+                                                animationSpec = androidx.compose.animation.core.spring(
+                                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                                                )
+                                            )
+                                        }
+                                        launch {
+                                            canvasOffsetAnim.animateTo(
+                                                targetValue = Offset.Zero,
+                                                animationSpec = androidx.compose.animation.core.spring(
+                                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                                                )
+                                            )
+                                        }
+                                    } else {
+                                        // Zoom in to 2.0x centered at the tapped position
+                                        val targetScale = 2f
+                                        val targetOffsetX = -(tap.x - cx) * targetScale
+                                        val targetOffsetY = -(tap.y - cy) * targetScale
+                                        
+                                        launch {
+                                            canvasScaleAnim.animateTo(
+                                                targetValue = targetScale,
+                                                animationSpec = androidx.compose.animation.core.spring(
+                                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                                                )
+                                            )
+                                        }
+                                        launch {
+                                            canvasOffsetAnim.animateTo(
+                                                targetValue = Offset(targetOffsetX, targetOffsetY),
+                                                animationSpec = androidx.compose.animation.core.spring(
+                                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     )
@@ -304,6 +540,7 @@ fun EditorCanvasV2(
                         when {
                             layer.isVectorContentLayer -> {
                                 val isSelected = layers.isSelectedAsGroup(selectedLayerId, layer.id)
+                                val isEditingThisLayer = editingLayerId == layer.id && layer.shouldRenderLabelContent
                                 ShapeTextLayer(
                                     layer         = layer,
                                     displayScale  = calculatedScale,
@@ -314,19 +551,25 @@ fun EditorCanvasV2(
                                     onGestureEnd  = {
                                         if (isSelected && !layer.isLocked) onGestureEnd()
                                     },
-                                    showBoundingBox = isSelected,
+                                    showBoundingBox = isSelected && !isEditingThisLayer,
                                     isLocked      = layer.isLocked,
-                                    isInlineEditing = layer.id == inlineEditingLayerId && layer.shouldRenderLabelContent,
-                                    onRequestInlineEdit = { inlineEditingLayerId = layer.id },
+                                    isInlineEditing = isEditingThisLayer,
+                                    onRequestInlineEdit = { onStartTextEdit(layer.id) },
+                                    onTapToSelect = { onSelectLayer(layer.id) },
                                     onCommitInlineEdit = { text ->
+                                        onShapeTextCommit(text.ifBlank { "Nhập chữ..." })
+                                        onEvent(EditorEvent.FinishTextEdit)
+                                    },
+                                    onUpdateInlineEdit = { text ->
                                         onShapeTextCommit(text)
-                                        inlineEditingLayerId = null
                                     },
                                     onSyncShapeSize = { widthPx, heightPx ->
                                         if (isSelected && !layer.isLocked) {
                                             onSyncShapeSize(widthPx, heightPx)
                                         }
                                     },
+                                    allLayers = layers,
+                                    onGestureActiveChanged = onGestureActiveChanged,
                                     modifier      = Modifier.align(Alignment.Center)
                                 )
                             }
@@ -351,6 +594,8 @@ fun EditorCanvasV2(
                                             }
                                         },
                                         onPickImage = onPickImage,
+                                        allLayers = layers,
+                                        modifier = Modifier.align(Alignment.Center)
                                     )
                                 } else if (layer.product.processing) {
                                     Box(
@@ -376,6 +621,7 @@ fun EditorCanvasV2(
                                     },
                                     showBoundingBox = layer.id == selectedLayerId,
                                     isLocked = layer.isLocked,
+                                    allLayers = layers,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             }
@@ -396,8 +642,10 @@ fun EditorCanvasV2(
                     .clip(RoundedCornerShape(999.dp))
                     .background(Color.White.copy(alpha = 0.92f))
                     .clickable {
-                        canvasScale = 1f
-                        canvasOffset = Offset.Zero
+                        coroutineScope.launch {
+                            launch { canvasScaleAnim.animateTo(1f) }
+                            launch { canvasOffsetAnim.animateTo(Offset.Zero) }
+                        }
                     }
                     .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
@@ -431,6 +679,16 @@ fun EditorCanvasV2(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = canvasTop)
+                    .offset { IntOffset(quickActionsOffset.x.roundToInt(), quickActionsOffset.y.roundToInt()) }
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            quickActionsOffset = Offset(
+                                x = quickActionsOffset.x + dragAmount.x,
+                                y = quickActionsOffset.y + dragAmount.y
+                            )
+                        }
+                    }
                     .zIndex(10f)
             )
         }
@@ -492,6 +750,7 @@ fun ShadowRegionLayer(
     onGestureEnd: () -> Unit,
     showBoundingBox: Boolean = false,
     isLocked: Boolean = false,
+    allLayers: List<EditorLayer> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -553,7 +812,8 @@ fun ShadowRegionLayer(
             onGestureEnd = onGestureEnd,
             showBoundingBox = showBoundingBox,
             onBoundingBoxVisible = {},
-            isLocked = isLocked
+            isLocked = isLocked,
+            otherLayers = allLayers.filter { it.id != layer.id }
         )
     }
 }

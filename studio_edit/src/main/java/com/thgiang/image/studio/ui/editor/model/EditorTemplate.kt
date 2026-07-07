@@ -7,7 +7,9 @@ data class EditorTemplate(
     val originalWidth: Int = 0,
     val originalHeight: Int = 0,
     val backgroundColorArgb: Int = 0xFFFFFFFF.toInt(),
-    val loaded: Boolean = false
+    val loaded: Boolean = false,
+    /** Đường dẫn ảnh mẫu sản phẩm (sample object) — dùng để khôi phục khi load lại draft. */
+    val objectAssetPath: String? = null,
 ) : java.io.Serializable {
     val originalSize: IntSize get() = IntSize(originalWidth, originalHeight)
 }

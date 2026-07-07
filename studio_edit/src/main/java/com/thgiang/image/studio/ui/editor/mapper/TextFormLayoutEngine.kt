@@ -424,9 +424,25 @@ object TextFormLayoutEngine {
         renderScale: Float,
         context: Context,
     ): RectF {
-        if (!layer.textForm.isActive) {
-            return RectF(0f, 0f, boxWidth, boxHeight)
-        }
+        val extents = measureGlyphExtents(layer, boxWidth, boxHeight, renderScale, context)
+            ?: return RectF(0f, 0f, boxWidth, boxHeight)
+        return RectF(
+            extents.left.coerceAtLeast(0f),
+            extents.top.coerceAtLeast(0f),
+            extents.right.coerceAtMost(boxWidth),
+            extents.bottom.coerceAtMost(boxHeight),
+        )
+    }
+
+    /** Unclamped glyph union used for text-form shape fitting. */
+    fun measureGlyphExtents(
+        layer: EditorLayer,
+        boxWidth: Float,
+        boxHeight: Float,
+        renderScale: Float,
+        context: Context,
+    ): RectF? {
+        if (!layer.textForm.isActive) return null
         val textSizePx = layer.textSizeSp * renderScale
         val paint = buildTextPaint(layer, textSizePx, 255, context, Paint.Style.FILL)
         val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
@@ -441,7 +457,7 @@ object TextFormLayoutEngine {
             charSpacingEm = layer.charSpacing,
             textSizePx = textSizePx,
         )
-        if (glyphs.isEmpty()) return RectF(0f, 0f, boxWidth, boxHeight)
+        if (glyphs.isEmpty()) return null
 
         var left = Float.MAX_VALUE
         var top = Float.MAX_VALUE
@@ -454,12 +470,7 @@ object TextFormLayoutEngine {
             right = maxOf(right, g.x + half)
             bottom = maxOf(bottom, g.y + textSizePx * 0.2f)
         }
-        return RectF(
-            left.coerceAtLeast(0f),
-            top.coerceAtLeast(0f),
-            right.coerceAtMost(boxWidth),
-            bottom.coerceAtMost(boxHeight),
-        )
+        return RectF(left, top, right, bottom)
     }
 
     private fun buildTextPaint(

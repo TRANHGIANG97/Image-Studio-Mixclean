@@ -91,8 +91,8 @@ class EditorRenderer(
                             ?: continue
 
                         val state = layer.viewport
-                        val baseW = layer.product.baseSize.width.toFloat()
-                        val baseH = layer.product.baseSize.height.toFloat()
+                        val baseW = layer.shapeWidthPx
+                        val baseH = layer.shapeHeightPx
                         val drawW = baseW * state.scale
                         val drawH = baseH * state.scale
                         val centerX = (request.templateSize.width - drawW) / 2f

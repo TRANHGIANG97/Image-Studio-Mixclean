@@ -52,111 +52,28 @@ fun LabelShapePanel(
     selectedLayer: EditorLayer?,
     onLayoutEvent: (EditorEvent) -> Unit,
     tokens: EditorTokens = LocalEditorTokens.current,
+    canvasFirstMode: Boolean = false,
+    showTabBar: Boolean = true,
+    activeTab: LabelEditTab = LabelEditTab.FONT,
+    onActiveTabChange: (LabelEditTab) -> Unit = {},
 ) {
-    var expanded by rememberSaveable { mutableStateOf(true) }
-    var labelText by rememberSaveable { mutableStateOf("") }
-    var labelTextField by remember { mutableStateOf(TextFieldValue("")) }
-    val focusManager = LocalFocusManager.current
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val chevronRotation by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f,
-        animationSpec = tween(durationMillis = 200),
-        label = "chevronRotation"
-    )
-
-    val isLabelLayer = selectedLayer?.isLabelLayer == true
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
+    if (selectedLayer != null && selectedLayer.isLabelLayer) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) { expanded = !expanded },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Text(
-                    text = stringResource(R.string.studio_tool_label),
-                    color = tokens.textPrimary,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Icon(
-                    imageVector = Icons.Filled.KeyboardDoubleArrowDown,
-                    contentDescription = null,
-                    tint = tokens.textSecondary,
-                    modifier = Modifier
-                        .size(18.dp)
-                        .graphicsLayer { rotationZ = chevronRotation },
-                )
-            }
-
-            LabelConfirmButton(
-                onClick = {
-                    if (isLabelLayer) {
-                        onLayoutEvent(EditorEvent.DismissLabelTool)
-                    } else {
-                        onLayoutEvent(EditorEvent.ConfirmAddLabelText(labelText))
-                        labelText = ""
-                    }
-                },
+            LabelEditSection(
+                layer = selectedLayer,
                 tokens = tokens,
-                enabled = isLabelLayer || labelText.isNotBlank(),
+                onLayoutEvent = onLayoutEvent,
+                tabOrder = if (canvasFirstMode) labelSelectionTabs else labelTextFirstTabs,
+                showTabBar = showTabBar,
+                canvasFirstMode = canvasFirstMode,
+                activeTabExternal = if (canvasFirstMode) activeTab else null,
+                onActiveTabChange = onActiveTabChange,
             )
-        }
-
-        AnimatedVisibility(
-            visible = expanded,
-            enter = expandVertically(animationSpec = tween(200)),
-            exit = shrinkVertically(animationSpec = tween(180)),
-        ) {
-            if (isLabelLayer) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    LabelEditSection(
-                        layer = selectedLayer!!,
-                        tokens = tokens,
-                        onLayoutEvent = onLayoutEvent,
-                        tabOrder = labelTextFirstTabs,
-                    )
-                }
-            } else {
-                LabelTextInputRow(
-                    value = labelTextField,
-                    onValueChange = { updated ->
-                        labelTextField = updated
-                        labelText = updated.text
-                    },
-                    onInsertNewline = {
-                        labelTextField = insertNewlineAtCursor(labelTextField).also { updated ->
-                            labelText = updated.text
-                        }
-                    },
-                    onDone = {
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
-                    },
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-            }
         }
     }
 }
