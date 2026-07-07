@@ -288,19 +288,11 @@ fun ThemeplateEditorScreen(
                     layers = state.layers,
                     selectedLayerId = state.selectedLayerId,
                     onSelectLayer = { id -> viewModel.onEvent(EditorEvent.SelectLayer(id)) },
+                    layersOffset = layersOffset,
+                    onLayersOffsetChange = { layersOffset = it },
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(end = 12.dp)
-                        .offset { IntOffset(layersOffset.x.toInt(), layersOffset.y.toInt()) }
-                        .pointerInput(Unit) {
-                            detectDragGestures { change, dragAmount ->
-                                change.consume()
-                                layersOffset = Offset(
-                                    x = layersOffset.x + dragAmount.x,
-                                    y = layersOffset.y + dragAmount.y
-                                )
-                            }
-                        }
                         .zIndex(5f)
                 )
             }

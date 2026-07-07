@@ -676,19 +676,12 @@ fun EditorCanvasV2(
                 layer = activeLayer,
                 visible = true,
                 onEvent = onEvent,
+                quickActionsOffset = quickActionsOffset,
+                onQuickActionsOffsetChange = { quickActionsOffset = it },
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = canvasTop)
                     .offset { IntOffset(quickActionsOffset.x.roundToInt(), quickActionsOffset.y.roundToInt()) }
-                    .pointerInput(Unit) {
-                        detectDragGestures { change, dragAmount ->
-                            change.consume()
-                            quickActionsOffset = Offset(
-                                x = quickActionsOffset.x + dragAmount.x,
-                                y = quickActionsOffset.y + dragAmount.y
-                            )
-                        }
-                    }
                     .zIndex(10f)
             )
         }

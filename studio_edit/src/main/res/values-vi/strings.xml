@@ -232,4 +232,15 @@
     <string name="studio_label_align_top">Trên</string>
     <string name="studio_label_align_middle">Giữa dọc</string>
     <string name="studio_label_align_bottom">Dưới</string>
+    <string name="studio_confirm_exit_title">Hủy thay đổi?</string>
+    <string name="studio_confirm_exit_message">Bạn có những thay đổi chưa được lưu. Bạn có muốn thoát mà không lưu không?</string>
+    <string name="studio_confirm_exit_action">Loại bỏ</string>
+    <string name="studio_confirm_exit_cancel">Tiếp tục chỉnh sửa</string>
+    <string name="studio_share">Chia sẻ</string>
+    <string name="studio_save_draft">Lưu bản nháp</string>
+    <string name="studio_save_draft_dialog_title">Lưu công việc hiện tại?</string>
+    <string name="studio_save_draft_dialog_message">Lưu thiết kế này dưới dạng bản nháp để tiếp tục sau?</string>
+    <string name="studio_save_draft_confirm">Lưu bản nháp</string>
+    <string name="studio_draft_saved">Đã lưu bản nháp</string>
+    <string name="studio_reset_zoom">Cài lại</string>
 </resources>

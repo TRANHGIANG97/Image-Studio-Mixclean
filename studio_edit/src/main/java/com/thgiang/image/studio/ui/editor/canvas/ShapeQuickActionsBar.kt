@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,8 +49,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
 import com.thgiang.image.studio.ui.editor.EditorEvent
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
 
 /**
  * Canva-style quick action mini toolbar shown above the selected shape on canvas.
@@ -64,9 +74,15 @@ fun ShapeQuickActionsBar(
     layer: EditorLayer?,
     visible: Boolean,
     onEvent: (EditorEvent) -> Unit,
+    quickActionsOffset: Offset,
+    onQuickActionsOffsetChange: (Offset) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var isCollapsed by remember(layer?.id) { mutableStateOf(false) }
+    val density = LocalDensity.current
+
+    val currentQuickActionsOffset by rememberUpdatedState(quickActionsOffset)
+    val currentOnQuickActionsOffsetChange by rememberUpdatedState(onQuickActionsOffsetChange)
 
     AnimatedVisibility(
         visible = visible && layer != null,
@@ -78,7 +94,8 @@ fun ShapeQuickActionsBar(
             modifier = Modifier.animateContentSize()
         ) {
             if (isCollapsed) {
-                // Collapsed State: A single prominent circular FAB button
+                // Collapsed State: A single prominent circular FAB button (draggable & clickable)
+                var totalDrag by remember { mutableStateOf(Offset.Zero) }
                 Box(
                     modifier = Modifier
                         .size(48.dp)
@@ -98,7 +115,28 @@ fun ShapeQuickActionsBar(
                             )
                         )
                         .border(1.5.dp, Color.White.copy(alpha = 0.6f), CircleShape)
-                        .clickable { isCollapsed = false },
+                        .pointerInput(Unit) {
+                            detectDragGestures(
+                                onDragStart = { totalDrag = Offset.Zero },
+                                onDragEnd = {
+                                    val limitPx = with(density) { 8.dp.toPx() }
+                                    if (totalDrag.getDistance() < limitPx) {
+                                        isCollapsed = false
+                                    }
+                                },
+                                onDragCancel = {},
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    totalDrag += dragAmount
+                                    currentOnQuickActionsOffsetChange(
+                                        Offset(
+                                            x = currentQuickActionsOffset.x + dragAmount.x,
+                                            y = currentQuickActionsOffset.y + dragAmount.y
+                                        )
+                                    )
+                                }
+                            )
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -109,7 +147,7 @@ fun ShapeQuickActionsBar(
                     )
                 }
             } else {
-                // Expanded State: Horizontal action toolbar row
+                // Expanded State: Horizontal action toolbar row (with a 6-dot drag handle on the left)
                 Box(
                     modifier = Modifier
                         .shadow(
@@ -127,6 +165,39 @@ fun ShapeQuickActionsBar(
                         horizontalArrangement = Arrangement.spacedBy(0.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        // 6-Dot Drag Handle Icon (Safe & Standard drag trigger)
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 6.dp, end = 2.dp)
+                                .size(width = 16.dp, height = 32.dp)
+                                .pointerInput(Unit) {
+                                    detectDragGestures { change, dragAmount ->
+                                        change.consume()
+                                        currentOnQuickActionsOffsetChange(
+                                            Offset(
+                                                x = currentQuickActionsOffset.x + dragAmount.x,
+                                                y = currentQuickActionsOffset.y + dragAmount.y
+                                            )
+                                        )
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Canvas(modifier = Modifier.fillMaxSize()) {
+                                val cx = size.width / 2f
+                                val cy = size.height / 2f
+                                val dotRadius = 1.2.dp.toPx()
+                                val spacing = 4.dp.toPx()
+                                val color = Color(0xFF9E9E9E)
+                                drawCircle(color, dotRadius, Offset(cx - 2.dp.toPx(), cy - spacing))
+                                drawCircle(color, dotRadius, Offset(cx - 2.dp.toPx(), cy))
+                                drawCircle(color, dotRadius, Offset(cx - 2.dp.toPx(), cy + spacing))
+                                drawCircle(color, dotRadius, Offset(cx + 2.dp.toPx(), cy - spacing))
+                                drawCircle(color, dotRadius, Offset(cx + 2.dp.toPx(), cy))
+                                drawCircle(color, dotRadius, Offset(cx + 2.dp.toPx(), cy + spacing))
+                            }
+                        }
+
                         // Collapse Trigger Action Button
                         QuickActionButton(
                             icon = Icons.Default.KeyboardArrowLeft,

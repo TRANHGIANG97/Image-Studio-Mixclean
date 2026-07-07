@@ -4,6 +4,13 @@ import com.thgiang.image.studio.ui.editor.label.panel.*
 import com.thgiang.image.studio.ui.editor.canvas.*
 import com.thgiang.image.studio.ui.editor.mapper.*
 
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.runtime.rememberUpdatedState
+import kotlin.math.roundToInt
+
 import androidx.compose.animation.AnimatedVisibility
 import com.thgiang.image.studio.ui.editor.model.*
 import androidx.compose.animation.core.Spring
@@ -465,20 +472,30 @@ fun LayersIcon(
     }
 }
 
+
+
 @Composable
 fun EditorObjectListVertical(
     layers: List<EditorLayer>,
     selectedLayerId: String?,
     onSelectLayer: (String) -> Unit,
+    layersOffset: Offset,
+    onLayersOffsetChange: (Offset) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val tokens = LocalEditorTokens.current
+    val density = LocalDensity.current
     var expanded by rememberSaveable { mutableStateOf(false) }
+
+    val currentLayersOffset by rememberUpdatedState(layersOffset)
+    val currentOnLayersOffsetChange by rememberUpdatedState(onLayersOffsetChange)
 
     var nonSampleIndex = 0
 
     Column(
-        modifier = modifier.wrapContentSize(),
+        modifier = modifier
+            .wrapContentSize()
+            .offset { IntOffset(layersOffset.x.roundToInt(), layersOffset.y.roundToInt()) },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -521,8 +538,9 @@ fun EditorObjectListVertical(
             }
         }
 
-        // Toggle Button at the bottom
+        // Toggle Button at the bottom (Handles both Tap to toggle and Drag to move entire widget)
         val toggleAlpha = if (expanded) 1f else 0.5f
+        var totalDrag by remember { mutableStateOf(Offset.Zero) }
         Box(
             modifier = Modifier
                 .size(46.dp)
@@ -539,11 +557,28 @@ fun EditorObjectListVertical(
                     color = if (expanded) tokens.accent.copy(alpha = 0.5f) else Color(0xFFE5E7EB),
                     shape = CircleShape
                 )
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = androidx.compose.foundation.LocalIndication.current,
-                    onClick = { expanded = !expanded }
-                ),
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { totalDrag = Offset.Zero },
+                        onDragEnd = {
+                            val limitPx = 8.dp.toPx()
+                            if (totalDrag.getDistance() < limitPx) {
+                                expanded = !expanded
+                            }
+                        },
+                        onDragCancel = { },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            totalDrag += dragAmount
+                            currentOnLayersOffsetChange(
+                                Offset(
+                                    x = currentLayersOffset.x + dragAmount.x,
+                                    y = currentLayersOffset.y + dragAmount.y
+                                )
+                            )
+                        }
+                    )
+                },
             contentAlignment = Alignment.Center
         ) {
             LayersIcon(
