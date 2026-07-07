@@ -139,7 +139,7 @@ internal fun StickerPicker(
                 if (stickerState.previewError) {
                     Icon(
                         imageVector = Icons.Filled.Refresh,
-                        contentDescription = "Thử lại",
+                        contentDescription = stringResource(R.string.studio_back_button),
                         tint = tokens.textSecondary,
                         modifier = Modifier
                             .size(20.dp)
@@ -168,7 +168,7 @@ internal fun StickerPicker(
                             horizontalArrangement = Arrangement.spacedBy(2.dp),
                         ) {
                             Text(
-                                text = "Xem thêm",
+                                text = stringResource(R.string.studio_action_view_more),
                                 color = tokens.textSecondary,
                                 fontSize = 12.sp,
                             )

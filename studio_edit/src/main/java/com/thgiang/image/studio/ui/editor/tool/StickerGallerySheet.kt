@@ -63,6 +63,8 @@ import com.thgiang.image.studio.data.RemoteSticker
 import com.thgiang.image.studio.data.StickerRemoteRepository
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import androidx.compose.ui.res.stringResource
+import com.thgiang.image.studio.R
 import kotlinx.coroutines.launch
 
 /**
@@ -90,12 +92,12 @@ internal fun StickerGallerySheet(
     val memeState by viewModel.memeState.collectAsState()
     val decorState by viewModel.decorState.collectAsState()
 
-    // Tab index: 0 = Trang trí, 1 = Meme
+    // Tab index: 0 = Decor, 1 = Meme
     var selectedTab by remember { mutableIntStateOf(0) }
 
     val tabs = listOf(
-        "Nhãn dán trang trí" to StickerRemoteRepository.FOLDER_DECOR,
-        "Nhãn dán meme" to StickerRemoteRepository.FOLDER_MEME,
+        stringResource(R.string.studio_sticker_tab_decor) to StickerRemoteRepository.FOLDER_DECOR,
+        stringResource(R.string.studio_sticker_tab_meme) to StickerRemoteRepository.FOLDER_MEME,
     )
 
     ModalBottomSheet(
@@ -116,7 +118,7 @@ internal fun StickerGallerySheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Thư viện nhãn dán",
+                    text = stringResource(R.string.studio_sticker_library_title),
                     color = tokens.textPrimary,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
@@ -124,7 +126,7 @@ internal fun StickerGallerySheet(
                 )
                 Icon(
                     imageVector = Icons.Filled.Close,
-                    contentDescription = "Đóng",
+                    contentDescription = stringResource(R.string.studio_confirm_exit_cancel),
                     tint = tokens.textSecondary,
                     modifier = Modifier
                         .size(28.dp)

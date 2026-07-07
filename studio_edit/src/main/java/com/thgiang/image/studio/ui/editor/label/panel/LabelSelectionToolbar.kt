@@ -56,18 +56,18 @@ internal val labelSelectionTabs: List<LabelEditTab> = listOf(
 
 @Composable
 internal fun labelTabTitle(tab: LabelEditTab): String = when (tab) {
-    LabelEditTab.EDIT -> "Sửa"
-    LabelEditTab.LABEL -> "Nhãn"
-    LabelEditTab.FONT -> "Phông chữ"
-    LabelEditTab.SIZE -> "Cỡ chữ"
-    LabelEditTab.TEXT_STYLE -> "Kiểu văn bản"
-    LabelEditTab.FORMAT -> "Định dạng"
-    LabelEditTab.ALIGN -> "Căn lề"
-    LabelEditTab.BG_COLOR -> "Màu nền"
-    LabelEditTab.TEXT_COLOR -> "Màu sắc"
-    LabelEditTab.ELEVATION -> "Hiệu ứng"
-    LabelEditTab.TEXT_FORM -> "Nghệ thuật"
-    LabelEditTab.SHAPE -> "Khung nhãn"
+    LabelEditTab.EDIT -> stringResource(R.string.studio_label_tab_edit)
+    LabelEditTab.LABEL -> stringResource(R.string.studio_tool_label)
+    LabelEditTab.FONT -> stringResource(R.string.studio_label_tab_font)
+    LabelEditTab.SIZE -> stringResource(R.string.studio_label_tab_size)
+    LabelEditTab.TEXT_STYLE -> stringResource(R.string.studio_label_tab_text_style)
+    LabelEditTab.FORMAT -> stringResource(R.string.studio_label_tab_format)
+    LabelEditTab.ALIGN -> stringResource(R.string.studio_label_tab_align)
+    LabelEditTab.BG_COLOR -> stringResource(R.string.studio_label_tab_bg_color)
+    LabelEditTab.TEXT_COLOR -> stringResource(R.string.studio_label_tab_text_color)
+    LabelEditTab.ELEVATION -> stringResource(R.string.studio_label_tab_elevation)
+    LabelEditTab.TEXT_FORM -> stringResource(R.string.studio_label_tab_text_form)
+    LabelEditTab.SHAPE -> stringResource(R.string.studio_label_tab_shape)
 }
 
 @Composable

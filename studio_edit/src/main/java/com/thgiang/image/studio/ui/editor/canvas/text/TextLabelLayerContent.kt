@@ -37,6 +37,8 @@ import com.thgiang.image.studio.ui.editor.mapper.supportsTextElevation
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
 import com.thgiang.image.studio.ui.editor.model.appliesTextElevation
 import com.thgiang.image.studio.ui.editor.model.isLabelLayer
+import androidx.compose.ui.res.stringResource
+import com.thgiang.image.studio.R
 
 @Composable
 internal fun TextLabelLayerContent(
@@ -91,7 +93,7 @@ internal fun TextLabelLayerContent(
                     Box(modifier = Modifier.wrapContentSize(unbounded = true)) {
                         if (inlineTextDraft.text.isEmpty()) {
                             Text(
-                                text = "Nhập chữ...",
+                                text = stringResource(R.string.studio_text_default_placeholder),
                                 style = textStyle.copy(color = textStyle.color.copy(alpha = 0.35f))
                             )
                         }

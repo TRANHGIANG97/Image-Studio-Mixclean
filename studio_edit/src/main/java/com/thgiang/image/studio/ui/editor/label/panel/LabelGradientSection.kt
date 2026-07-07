@@ -303,7 +303,7 @@ private fun FillColorEditor(
         ) {
             SubTabButton(
                 icon = Icons.Filled.Palette,
-                label = "Mẫu màu",
+                label = stringResource(R.string.studio_label_color_presets_tab),
                 selected = activeSubTab == FillSubTab.PRESETS,
                 tokens = tokens,
                 onClick = {
@@ -312,7 +312,7 @@ private fun FillColorEditor(
             )
             SubTabButton(
                 icon = Icons.Filled.FormatColorFill,
-                label = "Màu nền",
+                label = stringResource(R.string.studio_label_bg_color_tab),
                 selected = activeSubTab == FillSubTab.COLOR,
                 tokens = tokens,
                 onClick = {
@@ -321,7 +321,7 @@ private fun FillColorEditor(
             )
             SubTabButton(
                 icon = Icons.Filled.Opacity,
-                label = "Độ trong suốt",
+                label = stringResource(R.string.studio_label_opacity_tab),
                 selected = activeSubTab == FillSubTab.OPACITY,
                 tokens = tokens,
                 onClick = {
@@ -392,27 +392,27 @@ private fun FillColorEditor(
                                     ) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                            contentDescription = "Quay lại",
+                                            contentDescription = stringResource(R.string.studio_back_button),
                                             tint = tokens.textSecondary,
                                             modifier = Modifier.size(20.dp)
                                         )
                                     }
                                     Text(
-                                        text = "Dãy màu",
+                                        text = stringResource(R.string.studio_label_gradient_colors_tab),
                                         fontSize = 12.sp,
                                         fontWeight = if (gradientDetailTab == 0) FontWeight.Bold else FontWeight.Medium,
                                         color = if (gradientDetailTab == 0) tokens.accent else tokens.textSecondary,
                                         modifier = Modifier.clickable { gradientDetailTab = 0 }
                                     )
                                     Text(
-                                        text = "Hướng",
+                                        text = stringResource(R.string.studio_label_gradient_direction_tab),
                                         fontSize = 12.sp,
                                         fontWeight = if (gradientDetailTab == 1) FontWeight.Bold else FontWeight.Medium,
                                         color = if (gradientDetailTab == 1) tokens.accent else tokens.textSecondary,
                                         modifier = Modifier.clickable { gradientDetailTab = 1 }
                                     )
                                     Text(
-                                        text = "Góc",
+                                        text = stringResource(R.string.studio_label_gradient_angle_tab),
                                         fontSize = 12.sp,
                                         fontWeight = if (gradientDetailTab == 2) FontWeight.Bold else FontWeight.Medium,
                                         color = if (gradientDetailTab == 2) tokens.accent else tokens.textSecondary,
@@ -464,7 +464,7 @@ private fun FillColorEditor(
                     FillSubTab.OPACITY -> {
                         val transparencyPct = (100 - (fillAlpha / 255f * 100)).toInt().coerceIn(0, 100)
                         PrecisionSlider(
-                            label = "Độ trong suốt",
+                            label = stringResource(R.string.studio_label_opacity_tab),
                             value = transparencyPct.toFloat(),
                             valueRange = 0f..100f,
                             onValueChange = { pct ->

@@ -245,6 +245,58 @@
     <string name="studio_label_align_top">Top</string>
     <string name="studio_label_align_middle">Middle</string>
     <string name="studio_label_align_bottom">Bottom</string>
+
+    <!-- Quick Action Bar -->
+    <string name="studio_action_collapse">Collapse</string>
+    <string name="studio_action_duplicate">Duplicate</string>
+    <string name="studio_action_bring_forward">Bring Forward</string>
+    <string name="studio_action_send_backward">Send Backward</string>
+    <string name="studio_action_lock">Lock</string>
+    <string name="studio_action_unlock">Unlock</string>
+    <string name="studio_action_delete">Delete</string>
+    <string name="studio_action_view_more">View more</string>
+
+    <!-- Label Toolbar Tabs -->
+    <string name="studio_label_tab_edit">Edit</string>
+    <string name="studio_label_tab_font">Font</string>
+    <string name="studio_label_tab_size">Size</string>
+    <string name="studio_label_tab_text_style">Style</string>
+    <string name="studio_label_tab_format">Format</string>
+    <string name="studio_label_tab_align">Align</string>
+    <string name="studio_label_tab_text_color">Color</string>
+    <string name="studio_label_tab_bg_color">Background</string>
+    <string name="studio_label_tab_elevation">Effect</string>
+    <string name="studio_label_tab_text_form">Artistic</string>
+    <string name="studio_label_tab_shape">Frame</string>
+
+    <!-- Font Categories -->
+    <string name="studio_font_category_system">System</string>
+
+    <!-- Document Styles (Text Presets) -->
+    <string name="studio_label_document_styles">Document styles</string>
+    <string name="studio_label_style_title">Title</string>
+    <string name="studio_label_style_subtitle">Subtitle</string>
+    <string name="studio_label_style_body">Body</string>
+
+    <!-- Color Presets -->
+    <string name="studio_color_presets">Color Presets</string>
+
+    <!-- Text Placeholder -->
+    <string name="studio_text_default_placeholder">Double tap to type</string>
+
+    <!-- Sticker Picker -->
+    <string name="studio_sticker_library_title">Sticker Library</string>
+    <string name="studio_sticker_tab_decor">Decorative</string>
+    <string name="studio_sticker_tab_meme">Meme</string>
+
+    <!-- Gradient sub-section tabs -->
+    <string name="studio_label_color_presets_tab">Color Presets</string>
+    <string name="studio_label_bg_color_tab">Fill Color</string>
+    <string name="studio_label_opacity_tab">Opacity</string>
+    <string name="studio_label_gradient_colors_tab">Color Range</string>
+    <string name="studio_label_gradient_direction_tab">Direction</string>
+    <string name="studio_label_gradient_angle_tab">Angle</string>
+    <string name="studio_back_button">Back</string>
 </resources>
 
 

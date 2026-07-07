@@ -243,4 +243,56 @@
     <string name="studio_save_draft_confirm">Lưu bản nháp</string>
     <string name="studio_draft_saved">Đã lưu bản nháp</string>
     <string name="studio_reset_zoom">Cài lại</string>
+
+    <!-- Quick Action Bar -->
+    <string name="studio_action_collapse">Thu gọn</string>
+    <string name="studio_action_duplicate">Sao chép</string>
+    <string name="studio_action_bring_forward">Lên trên</string>
+    <string name="studio_action_send_backward">Xuống dưới</string>
+    <string name="studio_action_lock">Khóa</string>
+    <string name="studio_action_unlock">Mở khóa</string>
+    <string name="studio_action_delete">Xóa</string>
+    <string name="studio_action_view_more">Xem thêm</string>
+
+    <!-- Label Toolbar Tabs -->
+    <string name="studio_label_tab_edit">Sửa</string>
+    <string name="studio_label_tab_font">Phông chữ</string>
+    <string name="studio_label_tab_size">Cỡ chữ</string>
+    <string name="studio_label_tab_text_style">Kiểu văn bản</string>
+    <string name="studio_label_tab_format">Định dạng</string>
+    <string name="studio_label_tab_align">Căn lề</string>
+    <string name="studio_label_tab_text_color">Màu sắc</string>
+    <string name="studio_label_tab_bg_color">Màu nền</string>
+    <string name="studio_label_tab_elevation">Hiệu ứng</string>
+    <string name="studio_label_tab_text_form">Nghệ thuật</string>
+    <string name="studio_label_tab_shape">Khung nhãn</string>
+
+    <!-- Font Categories -->
+    <string name="studio_font_category_system">Hệ thống</string>
+
+    <!-- Document Styles (Text Presets) -->
+    <string name="studio_label_document_styles">Các kiểu tài liệu</string>
+    <string name="studio_label_style_title">Đề mục</string>
+    <string name="studio_label_style_subtitle">Đề mục phụ</string>
+    <string name="studio_label_style_body">Nội dung</string>
+
+    <!-- Color Presets -->
+    <string name="studio_color_presets">Mẫu màu</string>
+
+    <!-- Text Placeholder -->
+    <string name="studio_text_default_placeholder">Nhập chữ...</string>
+
+    <!-- Sticker Picker -->
+    <string name="studio_sticker_library_title">Thư viện nhãn dán</string>
+    <string name="studio_sticker_tab_decor">Nhãn dán trang trí</string>
+    <string name="studio_sticker_tab_meme">Nhãn dán meme</string>
+
+    <!-- Gradient sub-section tabs -->
+    <string name="studio_label_color_presets_tab">Mẫu màu</string>
+    <string name="studio_label_bg_color_tab">Màu nền</string>
+    <string name="studio_label_opacity_tab">Độ trong suốt</string>
+    <string name="studio_label_gradient_colors_tab">Dãy màu</string>
+    <string name="studio_label_gradient_direction_tab">Hướng</string>
+    <string name="studio_label_gradient_angle_tab">Góc</string>
+    <string name="studio_back_button">Quay lại</string>
 </resources>

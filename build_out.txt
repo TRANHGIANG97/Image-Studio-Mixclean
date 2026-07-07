@@ -1,0 +1,54 @@
+﻿Reusing configuration cache.
+> Task :core-data:preBuild UP-TO-DATE
+> Task :core-util:preBuild UP-TO-DATE
+> Task :core-domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :studio_edit:preBuild UP-TO-DATE
+> Task :core-ui:preBuild UP-TO-DATE
+> Task :core-data:preDebugBuild UP-TO-DATE
+> Task :studio_edit:preDebugBuild UP-TO-DATE
+> Task :core-domain:processResources NO-SOURCE
+> Task :core-ui:preDebugBuild UP-TO-DATE
+> Task :core-util:preDebugBuild UP-TO-DATE
+> Task :studio_edit:generateDebugBuildConfig UP-TO-DATE
+> Task :studio_edit:generateDebugResources UP-TO-DATE
+> Task :core-data:processDebugNavigationResources UP-TO-DATE
+> Task :studio_edit:processDebugNavigationResources UP-TO-DATE
+> Task :core-data:javaPreCompileDebug UP-TO-DATE
+> Task :core-data:generateDebugResources UP-TO-DATE
+> Task :core-ui:generateDebugResources UP-TO-DATE
+> Task :core-ui:javaPreCompileDebug UP-TO-DATE
+> Task :core-util:generateDebugResources UP-TO-DATE
+> Task :core-ui:processDebugNavigationResources UP-TO-DATE
+> Task :core-util:javaPreCompileDebug UP-TO-DATE
+> Task :core-util:processDebugNavigationResources UP-TO-DATE
+> Task :core-data:packageDebugResources UP-TO-DATE
+> Task :core-util:packageDebugResources UP-TO-DATE
+> Task :core-ui:packageDebugResources UP-TO-DATE
+> Task :studio_edit:packageDebugResources UP-TO-DATE
+> Task :core-data:parseDebugLocalResources UP-TO-DATE
+> Task :core-domain:compileKotlin UP-TO-DATE
+> Task :core-util:parseDebugLocalResources UP-TO-DATE
+> Task :studio_edit:parseDebugLocalResources UP-TO-DATE
+> Task :core-ui:parseDebugLocalResources UP-TO-DATE
+> Task :core-data:generateDebugRFile UP-TO-DATE
+> Task :core-util:generateDebugRFile UP-TO-DATE
+> Task :core-domain:compileJava NO-SOURCE
+> Task :core-domain:classes UP-TO-DATE
+> Task :core-ui:generateDebugRFile UP-TO-DATE
+> Task :studio_edit:generateDebugRFile UP-TO-DATE
+> Task :core-domain:jar UP-TO-DATE
+> Task :core-ui:compileDebugKotlin UP-TO-DATE
+> Task :core-ui:compileDebugJavaWithJavac NO-SOURCE
+> Task :core-ui:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core-data:compileDebugKotlin UP-TO-DATE
+> Task :core-data:compileDebugJavaWithJavac NO-SOURCE
+> Task :core-data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core-util:compileDebugKotlin UP-TO-DATE
+> Task :core-util:compileDebugJavaWithJavac NO-SOURCE
+> Task :core-util:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :studio_edit:kspDebugKotlin
+> Task :studio_edit:compileDebugKotlin
+
+BUILD SUCCESSFUL in 11s
+34 actionable tasks: 2 executed, 32 up-to-date
+Configuration cache entry reused.

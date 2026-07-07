@@ -46,9 +46,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.thgiang.image.studio.R
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.fillMaxSize
@@ -142,7 +144,7 @@ fun ShapeQuickActionsBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Tune,
-                        contentDescription = "Mở rộng",
+                        contentDescription = stringResource(R.string.studio_action_collapse),
                         tint = Color.White,
                         modifier = Modifier.size(22.dp)
                     )
@@ -202,7 +204,7 @@ fun ShapeQuickActionsBar(
                         // Collapse Trigger Action Button
                         QuickActionButton(
                             icon = Icons.Default.KeyboardArrowLeft,
-                            label = "Thu gọn",
+                            label = stringResource(R.string.studio_action_collapse),
                             tint = Color(0xFF424242),
                             onClick = { isCollapsed = true },
                         )
@@ -212,25 +214,25 @@ fun ShapeQuickActionsBar(
                         // Duplicate
                         QuickActionButton(
                             icon = Icons.Default.ContentCopy,
-                            label = "Sao chép",
+                            label = stringResource(R.string.studio_action_duplicate),
                             tint = Color(0xFF424242),
                             onClick = { onEvent(EditorEvent.DuplicateLayer) },
                         )
 
                         QuickActionDivider()
 
-                        // Bring Forward (Lên trên)
+                        // Bring Forward
                         QuickActionButton(
                             icon = Icons.Default.FlipToFront,
-                            label = "Lên trên",
+                            label = stringResource(R.string.studio_action_bring_forward),
                             tint = Color(0xFF424242),
                             onClick = { onEvent(EditorEvent.MoveLayerUp) },
                         )
 
-                        // Send Backward (Xuống dưới)
+                        // Send Backward
                         QuickActionButton(
                             icon = Icons.Default.FlipToBack,
-                            label = "Xuống dưới",
+                            label = stringResource(R.string.studio_action_send_backward),
                             tint = Color(0xFF424242),
                             onClick = { onEvent(EditorEvent.MoveLayerDown) },
                         )
@@ -239,9 +241,13 @@ fun ShapeQuickActionsBar(
 
                         // Lock / Unlock
                         if (layer != null) {
+                            val lockLabel = if (layer.isLocked)
+                                stringResource(R.string.studio_action_unlock)
+                            else
+                                stringResource(R.string.studio_action_lock)
                             QuickActionButton(
                                 icon = if (layer.isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
-                                label = if (layer.isLocked) "Mở khóa" else "Khóa",
+                                label = lockLabel,
                                 tint = if (layer.isLocked) Color(0xFF1565C0) else Color(0xFF424242),
                                 onClick = { onEvent(EditorEvent.ToggleLayerLock) },
                             )
@@ -251,7 +257,7 @@ fun ShapeQuickActionsBar(
                         // Delete
                         QuickActionButton(
                             icon = Icons.Default.Delete,
-                            label = "Xóa",
+                            label = stringResource(R.string.studio_action_delete),
                             tint = Color(0xFFE53935),
                             onClick = { onEvent(EditorEvent.DeleteLayer) },
                         )

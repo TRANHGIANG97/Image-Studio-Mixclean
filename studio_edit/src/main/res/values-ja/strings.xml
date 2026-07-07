@@ -243,6 +243,58 @@
     <string name="studio_label_align_top">トップ</string>
     <string name="studio_label_align_middle">真ん中</string>
     <string name="studio_label_align_bottom">底</string>
+
+    <!-- Quick Action Bar -->
+    <string name="studio_action_collapse">閉じる</string>
+    <string name="studio_action_duplicate">コピー</string>
+    <string name="studio_action_bring_forward">前面へ</string>
+    <string name="studio_action_send_backward">背面へ</string>
+    <string name="studio_action_lock">ロック</string>
+    <string name="studio_action_unlock">ロック解除</string>
+    <string name="studio_action_delete">削除</string>
+    <string name="studio_action_view_more">もっと見る</string>
+
+    <!-- Label Toolbar Tabs -->
+    <string name="studio_label_tab_edit">編集</string>
+    <string name="studio_label_tab_font">フォント</string>
+    <string name="studio_label_tab_size">文字サイズ</string>
+    <string name="studio_label_tab_text_style">文字スタイル</string>
+    <string name="studio_label_tab_format">形式</string>
+    <string name="studio_label_tab_align">位置合わせ</string>
+    <string name="studio_label_tab_text_color">色</string>
+    <string name="studio_label_tab_bg_color">塗りつぶし</string>
+    <string name="studio_label_tab_elevation">効果</string>
+    <string name="studio_label_tab_text_form">テキストアート</string>
+    <string name="studio_label_tab_shape">フレーム</string>
+
+    <!-- Font Categories -->
+    <string name="studio_font_category_system">システム</string>
+
+    <!-- Document Styles (Text Presets) -->
+    <string name="studio_label_document_styles">ドキュメントスタイル</string>
+    <string name="studio_label_style_title">タイトル</string>
+    <string name="studio_label_style_subtitle">サブタイトル</string>
+    <string name="studio_label_style_body">本文</string>
+
+    <!-- Color Presets -->
+    <string name="studio_color_presets">カラーパレット</string>
+
+    <!-- Text Placeholder -->
+    <string name="studio_text_default_placeholder">文字入力...</string>
+
+    <!-- Sticker Picker -->
+    <string name="studio_sticker_library_title">ステッカーライブラリ</string>
+    <string name="studio_sticker_tab_decor">デコレーション</string>
+    <string name="studio_sticker_tab_meme">ミーム</string>
+
+    <!-- Gradient sub-section tabs -->
+    <string name="studio_label_color_presets_tab">カラーパレット</string>
+    <string name="studio_label_bg_color_tab">塩りつぶしの色</string>
+    <string name="studio_label_opacity_tab">不透明度</string>
+    <string name="studio_label_gradient_colors_tab">カラー範囲</string>
+    <string name="studio_label_gradient_direction_tab">方向</string>
+    <string name="studio_label_gradient_angle_tab">角度</string>
+    <string name="studio_back_button">戻る</string>
 </resources>
 
 

@@ -300,7 +300,7 @@ internal fun LabelEditSection(
             LabelEditTab.FONT -> {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(
-                        text = "Font",
+                        text = stringResource(R.string.studio_label_tab_font),
                         fontSize = 12.sp,
                         color = tokens.textSecondary,
                         modifier = Modifier.padding(start = 4.dp)
@@ -316,7 +316,7 @@ internal fun LabelEditSection(
             LabelEditTab.SIZE -> {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(
-                        text = "Size",
+                        text = stringResource(R.string.studio_label_tab_size),
                         fontSize = 12.sp,
                         color = tokens.textSecondary,
                         modifier = Modifier.padding(start = 4.dp)
@@ -346,7 +346,7 @@ internal fun LabelEditSection(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
-                        text = "Các kiểu tài liệu",
+                        text = stringResource(R.string.studio_label_document_styles),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = tokens.textSecondary,
@@ -354,9 +354,9 @@ internal fun LabelEditSection(
                     )
 
                     val stylePresets = listOf(
-                        Triple("Đề mục", presets[0], androidx.compose.ui.text.TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold)),
-                        Triple("Đề mục phụ", presets[1], androidx.compose.ui.text.TextStyle(fontSize = 17.sp, fontWeight = FontWeight.SemiBold)),
-                        Triple("Nội dung", presets[2], androidx.compose.ui.text.TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal))
+                        Triple(stringResource(R.string.studio_label_style_title), presets[0], androidx.compose.ui.text.TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold)),
+                        Triple(stringResource(R.string.studio_label_style_subtitle), presets[1], androidx.compose.ui.text.TextStyle(fontSize = 17.sp, fontWeight = FontWeight.SemiBold)),
+                        Triple(stringResource(R.string.studio_label_style_body), presets[2], androidx.compose.ui.text.TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal))
                     )
 
                     stylePresets.forEach { (title, preset, previewStyle) ->
