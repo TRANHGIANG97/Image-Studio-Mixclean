@@ -163,6 +163,19 @@ export function useBulkDeleteTemplates() {
   });
 }
 
+export function useBulkUpdateTemplatesStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { ids: string[]; status?: 'draft' | 'published'; environment?: 'debug' | 'release' | 'all' }) =>
+      apiClient.put<{ message: string }>('/api/templates', payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
+      toast.success('Cập nhật trạng thái hàng loạt thành công!');
+    },
+    onError: (error: any) => toast.error(`Lỗi cập nhật hàng loạt: ${error.message}`),
+  });
+}
+
 export function useUpdateTemplateStatus() {
   const queryClient = useQueryClient();
   return useMutation({

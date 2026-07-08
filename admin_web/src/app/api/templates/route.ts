@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listTemplates, createTemplate, deleteTemplatesBulk } from '@/domains/templates/template.service';
+import { listTemplates, createTemplate, deleteTemplatesBulk, updateTemplatesBulk } from '@/domains/templates/template.service';
 
 // GET: Fetch all templates (with search, category filter, status filter, pagination)
 export async function GET(req: NextRequest) {
@@ -55,6 +55,27 @@ export async function POST(req: NextRequest) {
     console.error('Error creating template:', error);
     const status = error.statusCode || 500;
     return NextResponse.json({ error: error.message }, { status });
+  }
+}
+
+// PUT: Bulk update templates status/environment
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    if (!body.ids || !Array.isArray(body.ids)) {
+      return NextResponse.json({ error: 'ids array is required' }, { status: 400 });
+    }
+    if (body.status === undefined && body.environment === undefined) {
+      return NextResponse.json({ error: 'status or environment is required' }, { status: 400 });
+    }
+    const count = await updateTemplatesBulk(body.ids, {
+      status: body.status,
+      environment: body.environment,
+    });
+    return NextResponse.json({ success: true, count, message: `Updated ${count} templates` });
+  } catch (error: any) {
+    console.error('Error bulk updating templates:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 

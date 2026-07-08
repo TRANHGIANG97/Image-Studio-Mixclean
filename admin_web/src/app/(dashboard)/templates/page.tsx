@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Layers, Plus, FileArchive, FileImage, Trash2, Sparkles, Loader2, LayoutGrid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTemplates, useBulkDeleteTemplates, Template } from '@/hooks/useTemplates';
+import { useTemplates, useBulkDeleteTemplates, useBulkUpdateTemplatesStatus, Template } from '@/hooks/useTemplates';
 import { useCategories } from '@/hooks/useCategories';
 import { useDashboardStore } from '@/store/dashboard.store';
 import { useRouter } from 'next/navigation';
@@ -23,6 +23,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -71,7 +78,38 @@ export default function TemplatesPage() {
 
   // Mutations
   const bulkDeleteMutation = useBulkDeleteTemplates();
+  const bulkUpdateStatusMutation = useBulkUpdateTemplatesStatus();
   const [isCreatingDemo, setIsCreatingDemo] = useState(false);
+
+  const handleBulkStatusChange = (value: string | null) => {
+    if (!value) return;
+    let status: 'draft' | 'published' = 'draft';
+    let environment: 'debug' | 'release' | 'all' = 'all';
+
+    if (value === 'debug') {
+      status = 'published';
+      environment = 'debug';
+    } else if (value === 'release') {
+      status = 'published';
+      environment = 'release';
+    } else if (value === 'all') {
+      status = 'published';
+      environment = 'all';
+    } else if (value === 'draft') {
+      status = 'draft';
+      environment = 'all';
+    }
+
+    bulkUpdateStatusMutation.mutate({
+      ids: selectedTemplateIds,
+      status,
+      environment,
+    }, {
+      onSuccess: () => {
+        clearSelection();
+      }
+    });
+  };
 
   const handleCreateDemoCollage = async () => {
     try {
@@ -132,13 +170,27 @@ export default function TemplatesPage() {
           </div>
 
           {selectedTemplateIds.length > 0 && (
-            <Button
-              variant="destructive"
-              onClick={() => setIsBulkDeleteOpen(true)}
-              className="rounded-xl flex items-center gap-2 px-4 shadow-xl"
-            >
-              <Trash2 className="w-4 h-4" /> Xóa ({selectedTemplateIds.length})
-            </Button>
+            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-1 shadow-md">
+              <Button
+                variant="destructive"
+                onClick={() => setIsBulkDeleteOpen(true)}
+                className="rounded-lg flex items-center gap-2 px-3 py-1.5 h-8 text-xs font-semibold shadow-sm"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Xóa ({selectedTemplateIds.length})
+              </Button>
+              
+              <Select onValueChange={handleBulkStatusChange}>
+                <SelectTrigger size="sm" className="rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-800 text-xs font-semibold shadow-sm h-8">
+                  <SelectValue placeholder="Đổi trạng thái" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-slate-200 text-slate-700">
+                  <SelectItem value="draft">Draft (Bản nháp)</SelectItem>
+                  <SelectItem value="debug">Publish Debug</SelectItem>
+                  <SelectItem value="release">Publish Release</SelectItem>
+                  <SelectItem value="all">Publish All (Debug & Release)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           )}
 
           <Button

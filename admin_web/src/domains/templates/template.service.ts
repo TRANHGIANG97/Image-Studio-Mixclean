@@ -317,6 +317,37 @@ export async function deleteTemplatesBulk(ids: string[]) {
 }
 
 /**
+ * Bulk update templates status/environment.
+ */
+export async function updateTemplatesBulk(
+  ids: string[],
+  updates: { status?: 'draft' | 'published'; environment?: 'debug' | 'release' | 'all' }
+) {
+  if (!ids || ids.length === 0) return 0;
+
+  const updateData: Record<string, any> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (updates.status !== undefined) {
+    updateData.status = updates.status;
+  }
+
+  if (updates.environment !== undefined) {
+    updateData.environment = updates.environment;
+  }
+
+  const { data, error } = await DB()
+    .from('templates')
+    .update(updateData)
+    .in('id', ids)
+    .select('id');
+
+  if (error) throw error;
+  return data?.length || 0;
+}
+
+/**
  * Clone a template with new ID and title.
  */
 export async function cloneTemplate(input: CloneTemplateInput) {
