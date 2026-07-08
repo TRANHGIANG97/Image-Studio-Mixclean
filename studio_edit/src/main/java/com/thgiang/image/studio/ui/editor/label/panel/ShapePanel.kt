@@ -207,7 +207,9 @@ fun ShapePanel(
                     ) {
                         Icon(
                             imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
-                            contentDescription = if (isExpanded) "Thu nhỏ" else "Mở rộng",
+                            contentDescription = stringResource(
+                                if (isExpanded) R.string.studio_shape_collapse else R.string.studio_shape_expand,
+                            ),
                             tint = tokens.textSecondary,
                             modifier = Modifier.size(24.dp)
                         )

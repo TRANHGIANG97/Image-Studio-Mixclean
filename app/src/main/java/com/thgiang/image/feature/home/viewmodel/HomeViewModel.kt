@@ -240,9 +240,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadCloudTemplates() {
-        _uiState.update { it.copy(isLoadingTemplates = true) }
+        val hasInternet = isNetworkAvailable()
+        _uiState.update { it.copy(isLoadingTemplates = true, isOffline = !hasInternet) }
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                if (!hasInternet) {
+                    delay(800) // smooth out transitions for skeleton display when offline
+                }
                 val categories = runCatching {
                     cloudTemplateRepository.fetchCategories()
                 }.getOrDefault(emptyList())
@@ -288,14 +292,24 @@ class HomeViewModel @Inject constructor(
                         cosmeticsTemplates = cosmetics,
                         professionalTemplates = professional,
                         otherSections = otherSections,
-                        isLoadingTemplates = false
+                        isLoadingTemplates = false,
+                        isOffline = !hasInternet
                     )
                 }
             } catch (e: Exception) {
                 android.util.Log.e("HomeVM", "Failed to load cloud templates", e)
-                _uiState.update { it.copy(isLoadingTemplates = false) }
+                _uiState.update { it.copy(isLoadingTemplates = false, isOffline = !hasInternet) }
             }
         }
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        return runCatching {
+            val cm = application.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+            val activeNetwork = cm?.activeNetwork ?: return false
+            val capabilities = cm.getNetworkCapabilities(activeNetwork) ?: return false
+            capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        }.getOrDefault(false)
     }
 
     /**

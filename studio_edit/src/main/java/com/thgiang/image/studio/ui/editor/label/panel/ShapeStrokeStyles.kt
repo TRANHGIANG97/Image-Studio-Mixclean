@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -28,19 +30,22 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.thgiang.image.studio.R
 
 data class DashStylePreset(
-    val label: String,
+    @StringRes val labelRes: Int,
     val dashArray: List<Float>?,  // null = solid
 )
 
 val dashStylePresets: List<DashStylePreset> = listOf(
-    DashStylePreset("Liền", null),
-    DashStylePreset("Chấm tròn", listOf(2f, 6f)),
-    DashStylePreset("Chấm vuông", listOf(4f, 4f)),
-    DashStylePreset("Gạch", listOf(10f, 6f)),
-    DashStylePreset("Gạch-chấm", listOf(12f, 6f, 2f, 6f)),
-    DashStylePreset("Gạch-chấm-chấm", listOf(12f, 6f, 2f, 6f, 2f, 6f)),
+    DashStylePreset(R.string.studio_dash_solid, null),
+    DashStylePreset(R.string.studio_dash_round_dot, listOf(2f, 6f)),
+    DashStylePreset(R.string.studio_dash_square_dot, listOf(4f, 4f)),
+    DashStylePreset(R.string.studio_dash_dash, listOf(10f, 6f)),
+    DashStylePreset(R.string.studio_dash_dash_dot, listOf(12f, 6f, 2f, 6f)),
+    DashStylePreset(R.string.studio_dash_dash_dot_dot, listOf(12f, 6f, 2f, 6f, 2f, 6f)),
 )
 
 val outlineWeightPresets: List<Float> = listOf(1f, 2f, 3f, 5f)
@@ -60,6 +65,7 @@ fun DashStylePicker(
         dashStylePresets.forEach { preset ->
             val isSolid = preset.dashArray == null && currentDashArray.isNullOrEmpty()
             val isMatch = preset.dashArray == currentDashArray || isSolid
+            val label = stringResource(preset.labelRes)
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
@@ -70,6 +76,7 @@ fun DashStylePicker(
                         shape = RoundedCornerShape(6.dp),
                     )
                     .clickable { onDashSelected(preset.dashArray) }
+                    .semantics { contentDescription = label }
                     .padding(horizontal = 8.dp, vertical = 6.dp),
             ) {
                 Box(

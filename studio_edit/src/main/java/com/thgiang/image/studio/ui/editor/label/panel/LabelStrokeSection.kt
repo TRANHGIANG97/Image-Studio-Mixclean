@@ -86,11 +86,15 @@ internal fun LabelStrokeSection(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val tabs = listOf("Màu viền", "Kiểu viền", "Độ dày")
-                tabs.forEachIndexed { index, label ->
+                val tabResIds = listOf(
+                    R.string.studio_stroke_tab_color,
+                    R.string.studio_stroke_tab_style,
+                    R.string.studio_stroke_tab_width,
+                )
+                tabResIds.forEachIndexed { index, labelRes ->
                     val isSelected = activeSubTab == index
                     Text(
-                        text = label,
+                        text = stringResource(labelRes),
                         fontSize = 12.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) tokens.accent else tokens.textSecondary,
@@ -113,7 +117,7 @@ internal fun LabelStrokeSection(
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
-                    text = "∅ Không viền",
+                    text = stringResource(R.string.studio_stroke_none),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Medium,
                     color = if (!hasStroke) tokens.accent else Color(0xFF757575)
@@ -158,7 +162,7 @@ internal fun LabelStrokeSection(
                 // Độ dày Tab
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     PrecisionSlider(
-                        label = "Độ dày",
+                        label = stringResource(R.string.studio_stroke_tab_width),
                         value = layer.strokeWidthPx,
                         valueRange = 0f..20f,
                         onValueChange = { onLayoutEvent(EditorEvent.UpdateStrokeWidth(it)) },

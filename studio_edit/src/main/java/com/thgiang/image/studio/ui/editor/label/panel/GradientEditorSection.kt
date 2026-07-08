@@ -40,6 +40,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.thgiang.image.studio.R
 import com.thgiang.image.core.domain.model.template.CloudGradient
 import com.thgiang.image.studio.ui.editor.EditorEvent
 import com.thgiang.image.studio.ui.editor.mapper.EditorGradientMapper
@@ -178,28 +180,30 @@ internal fun GradientEditorSection(
 
         // ── Color swatch row ──────────────────────────────────────────────
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            val startLabel = stringResource(R.string.studio_label_gradient_start)
+            val endLabel = stringResource(R.string.studio_label_gradient_end)
             if (isReversed) {
                 ColorStopSwatch(
-                    label = "Màu cuối",
+                    label = endLabel,
                     color = color2,
                     tokens = tokens,
                     onClick = { activeStopPicker = "stop2" },
                 )
                 ColorStopSwatch(
-                    label = "Màu đầu",
+                    label = startLabel,
                     color = color1,
                     tokens = tokens,
                     onClick = { activeStopPicker = "stop1" },
                 )
             } else {
                 ColorStopSwatch(
-                    label = "Màu đầu",
+                    label = startLabel,
                     color = color1,
                     tokens = tokens,
                     onClick = { activeStopPicker = "stop1" },
                 )
                 ColorStopSwatch(
-                    label = "Màu cuối",
+                    label = endLabel,
                     color = color2,
                     tokens = tokens,
                     onClick = { activeStopPicker = "stop2" },

@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.toArgb
+import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -55,18 +56,18 @@ import kotlin.math.sin
 
 /** Word 3-D Format → Depth presets (Size in pt ≈ px at 1:1). */
 data class ElevationPreset(
-    val label: String,
+    @StringRes val labelRes: Int,
     val depthPx: Float,
     val style: ShapeElevationStyle,
     val angle: Float = 225f,
 )
 
 val elevationPresets: List<ElevationPreset> = listOf(
-    ElevationPreset("Không", 0f, ShapeElevationStyle.RAISED),
-    ElevationPreset("Mỏng", 6f, ShapeElevationStyle.RAISED),
-    ElevationPreset("Vừa", 15f, ShapeElevationStyle.RAISED),
-    ElevationPreset("Sâu", 30f, ShapeElevationStyle.RAISED),
-    ElevationPreset("Chìm", 12f, ShapeElevationStyle.INSET, angle = 45f),
+    ElevationPreset(R.string.studio_elevation_preset_none, 0f, ShapeElevationStyle.RAISED),
+    ElevationPreset(R.string.studio_elevation_preset_thin, 6f, ShapeElevationStyle.RAISED),
+    ElevationPreset(R.string.studio_elevation_preset_medium, 15f, ShapeElevationStyle.RAISED),
+    ElevationPreset(R.string.studio_elevation_preset_deep, 30f, ShapeElevationStyle.RAISED),
+    ElevationPreset(R.string.studio_elevation_preset_inset, 12f, ShapeElevationStyle.INSET, angle = 45f),
 )
 
 internal val depthColorPalette = listOf(
@@ -396,7 +397,7 @@ private fun ElevationPresetCard(
         }
         Spacer(Modifier.height(1.dp))
         Text(
-            text = preset.label,
+            text = stringResource(preset.labelRes),
             color = if (selected) tokens.textPrimary else tokens.textSecondary,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontSize = 9.sp,

@@ -9,6 +9,10 @@ import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import java.io.File
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 data class RemoteTemplateRow(
     val id: String,
     val title: String,
@@ -22,6 +26,7 @@ data class RemoteTemplateRow(
 @Singleton
 class CloudTemplateRemoteRepository @Inject constructor(
     private val cache: TemplateCache,
+    @ApplicationContext private val context: Context,
 ) {
 
     private val client = AdminWebJsonClient(BuildConfig.ADMIN_WEB_BASE_URL)
@@ -29,22 +34,53 @@ class CloudTemplateRemoteRepository @Inject constructor(
     fun fetchCategories(): List<CloudCategory> {
         cache.getCategories()?.let { return it }
 
-        val root = client.getJson("/api/v1/categories")
-        val categoriesArray = root.optJSONArray("categories") ?: return emptyList()
+        val result = try {
+            val root = client.getJson("/api/v1/categories")
+            val categoriesArray = root.optJSONArray("categories") ?: return emptyList()
 
-        val result = buildList {
-            for (index in 0 until categoriesArray.length()) {
-                val item = categoriesArray.optJSONObject(index) ?: continue
-                add(
-                    CloudCategory(
-                        id = item.optString("id"),
-                        name = item.optString("name"),
-                        order = item.optInt("order", index),
-                        slug = item.optString("slug").takeIf { it.isNotBlank() },
+            val list = buildList {
+                for (index in 0 until categoriesArray.length()) {
+                    val item = categoriesArray.optJSONObject(index) ?: continue
+                    add(
+                        CloudCategory(
+                            id = item.optString("id"),
+                            name = item.optString("name"),
+                            order = item.optInt("order", index),
+                            slug = item.optString("slug").takeIf { it.isNotBlank() },
+                        )
                     )
-                )
+                }
+            }.sortedBy { it.order }
+            saveCategoriesToDisk(root.toString())
+            list
+        } catch (e: Exception) {
+            Log.e(TAG, "Network categories fetch failed, loading from disk cache", e)
+            val cachedJson = loadCategoriesFromDisk()
+            if (cachedJson != null) {
+                try {
+                    val root = JSONObject(cachedJson)
+                    val categoriesArray = root.optJSONArray("categories") ?: return emptyList()
+                    buildList {
+                        for (index in 0 until categoriesArray.length()) {
+                            val item = categoriesArray.optJSONObject(index) ?: continue
+                            add(
+                                CloudCategory(
+                                    id = item.optString("id"),
+                                    name = item.optString("name"),
+                                    order = item.optInt("order", index),
+                                    slug = item.optString("slug").takeIf { it.isNotBlank() },
+                                )
+                            )
+                        }
+                    }.sortedBy { it.order }
+                } catch (pe: Exception) {
+                    Log.e(TAG, "Parsing disk cache categories failed", pe)
+                    emptyList()
+                }
+            } else {
+                emptyList()
             }
-        }.sortedBy { it.order }
+        }
 
         cache.putCategories(result)
         return result
@@ -56,21 +92,82 @@ class CloudTemplateRemoteRepository @Inject constructor(
         cache.getTemplates(categoryId)?.let { return it }
 
         val env = if (BuildConfig.DEBUG) "debug" else "release"
-        val root = client.getJson(
-            path = "/api/v1/templates",
-            query = mapOf(
-                "categoryId" to categoryId,
-                "limit" to "50",
-                "env" to env,
-            ),
-        )
-        val result = parseTemplateRows(root)
+        val result = try {
+            val root = client.getJson(
+                path = "/api/v1/templates",
+                query = mapOf(
+                    "categoryId" to categoryId,
+                    "limit" to "50",
+                    "env" to env,
+                ),
+            )
+            val parsed = parseTemplateRows(root)
+            if (parsed.isNotEmpty()) {
+                saveTemplatesToDisk(categoryId, root.toString())
+            }
+            parsed
+        } catch (e: Exception) {
+            Log.e(TAG, "Network templates fetch failed for $categoryId, loading from disk cache", e)
+            val cachedJson = loadTemplatesFromDisk(categoryId)
+            if (cachedJson != null) {
+                try {
+                    parseTemplateRows(JSONObject(cachedJson))
+                } catch (pe: Exception) {
+                    Log.e(TAG, "Parsing disk cache templates failed for $categoryId", pe)
+                    emptyList()
+                }
+            } else {
+                emptyList()
+            }
+        }
         cache.putTemplates(categoryId, result)
         return result
     }
 
+    private fun saveCategoriesToDisk(jsonStr: String) {
+        runCatching {
+            val dir = File(context.filesDir, "templates_cache")
+            if (!dir.exists()) dir.mkdirs()
+            File(dir, "categories.json").writeText(jsonStr)
+        }.onFailure {
+            Log.e(TAG, "Failed to save categories to disk", it)
+        }
+    }
+
+    private fun loadCategoriesFromDisk(): String? {
+        return runCatching {
+            val file = File(context.filesDir, "templates_cache/categories.json")
+            if (file.exists()) file.readText() else null
+        }.getOrNull()
+    }
+
+    private fun saveTemplatesToDisk(categoryId: String, jsonStr: String) {
+        runCatching {
+            val dir = File(context.filesDir, "templates_cache")
+            if (!dir.exists()) dir.mkdirs()
+            File(dir, "templates_$categoryId.json").writeText(jsonStr)
+        }.onFailure {
+            Log.e(TAG, "Failed to save templates to disk for $categoryId", it)
+        }
+    }
+
+    private fun loadTemplatesFromDisk(categoryId: String): String? {
+        return runCatching {
+            val file = File(context.filesDir, "templates_cache/templates_$categoryId.json")
+            if (file.exists()) file.readText() else null
+        }.getOrNull()
+    }
+
     /** Xóa cache — gọi khi user pull-to-refresh. */
-    fun invalidateCache() = cache.invalidate()
+    fun invalidateCache() {
+        cache.invalidate()
+        runCatching {
+            val dir = File(context.filesDir, "templates_cache")
+            if (dir.exists()) {
+                dir.deleteRecursively()
+            }
+        }
+    }
 
     fun fetchTemplateById(templateId: String): CloudTemplate {
         require(templateId.isNotBlank()) { "templateId is blank" }

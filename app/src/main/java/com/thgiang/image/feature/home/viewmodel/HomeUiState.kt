@@ -24,7 +24,8 @@ data class HomeUiState(
     val cosmeticsTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
     val professionalTemplates: List<com.thgiang.image.studio.model.StudioThemeplate> = emptyList(),
     val otherSections: List<com.thgiang.image.studio.model.StudioThemeplateSection> = emptyList(),
-    val isLoadingTemplates: Boolean = false
+    val isLoadingTemplates: Boolean = false,
+    val isOffline: Boolean = false,
 )
 
 

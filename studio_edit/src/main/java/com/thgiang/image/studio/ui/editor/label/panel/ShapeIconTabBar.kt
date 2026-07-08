@@ -38,6 +38,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 
 /**
@@ -46,13 +49,13 @@ import com.thgiang.image.studio.ui.editor.theme.EditorTokens
  */
 enum class ShapeEditTab(
     val icon: ImageVector,
-    val label: String,
+    @StringRes val labelRes: Int,
 ) {
-    FILL(Icons.Default.FormatColorFill, "Màu"),
-    STROKE(Icons.Default.BorderColor, "Viền"),
-    SHADOW(Icons.Default.WbSunny, "Bóng"),
-    ELEVATION(Icons.Default.Layers, "Độ nổi"),
-    SHAPE(Icons.Default.Category, "Hình"),
+    FILL(Icons.Default.FormatColorFill, R.string.studio_shape_tab_fill),
+    STROKE(Icons.Default.BorderColor, R.string.studio_shape_tab_stroke),
+    SHADOW(Icons.Default.WbSunny, R.string.studio_shape_tab_shadow),
+    ELEVATION(Icons.Default.Layers, R.string.studio_shape_tab_elevation),
+    SHAPE(Icons.Default.Category, R.string.studio_shape_tab_shape),
 }
 
 /** Default tabs shown for Shape tool editing mode */
@@ -126,6 +129,7 @@ private fun ShapeTabItem(
 
     val iconTint = if (isSelected) tokens.accent else Color(0xFF9E9E9E)
     val labelColor = if (isSelected) tokens.accent else Color(0xFF9E9E9E)
+    val label = stringResource(tab.labelRes)
 
     Box(
         modifier = Modifier
@@ -149,12 +153,12 @@ private fun ShapeTabItem(
         ) {
             Icon(
                 imageVector = tab.icon,
-                contentDescription = tab.label,
+                contentDescription = label,
                 tint = iconTint,
                 modifier = Modifier.size(18.dp),
             )
             Text(
-                text = tab.label,
+                text = label,
                 fontSize = 9.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                 color = labelColor,

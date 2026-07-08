@@ -39,6 +39,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.thgiang.image.studio.R
 import com.thgiang.image.core.design.components.PrecisionSlider
 import com.thgiang.image.studio.ui.editor.EditorEvent
 import com.thgiang.image.studio.ui.editor.model.EditorAppearance
@@ -50,7 +53,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 data class ShadowPreset(
-    val label: String,
+    @StringRes val labelRes: Int,
     val intensity: Float,
     val angle: Float,
     val distance: Float,
@@ -58,14 +61,14 @@ data class ShadowPreset(
 )
 
 val shadowPresets = listOf(
-    ShadowPreset("Không", 0f, 0f, 0f),
-    ShadowPreset("Tinh tế", 0.2f, 45f, 4f),
-    ShadowPreset("Mềm mại", 0.4f, 45f, 8f),
-    ShadowPreset("Vừa", 0.5f, 135f, 12f),
-    ShadowPreset("Mạnh", 0.75f, 135f, 16f),
-    ShadowPreset("Dưới - Phải", 0.4f, 45f, 10f),
-    ShadowPreset("Dưới", 0.4f, 90f, 10f),
-    ShadowPreset("Center Glow", 0.4f, 0f, 0f, 16f),
+    ShadowPreset(R.string.studio_shadow_preset_none, 0f, 0f, 0f),
+    ShadowPreset(R.string.studio_shadow_preset_light, 0.2f, 45f, 4f),
+    ShadowPreset(R.string.studio_shadow_preset_soft, 0.4f, 45f, 8f),
+    ShadowPreset(R.string.studio_shadow_preset_medium, 0.5f, 135f, 12f),
+    ShadowPreset(R.string.studio_shadow_preset_strong, 0.75f, 135f, 16f),
+    ShadowPreset(R.string.studio_shadow_preset_bottom_right, 0.4f, 45f, 10f),
+    ShadowPreset(R.string.studio_shadow_preset_bottom, 0.4f, 90f, 10f),
+    ShadowPreset(R.string.studio_shadow_preset_center_glow, 0.4f, 0f, 0f, 16f),
 )
 
 val shadowColorPalette = listOf(
@@ -131,7 +134,7 @@ fun ShapeShadowSection(
         if (appearance.shadowIntensity > 0.05f) {
             // Intensity Slider
             PrecisionSlider(
-                label = "Độ đậm",
+                label = stringResource(R.string.studio_shadow_tab_intensity),
                 value = appearance.shadowIntensity,
                 valueRange = 0f..1f,
                 onValueChange = { onLayoutEvent(EditorEvent.UpdateShadow(it)) },
@@ -142,7 +145,7 @@ fun ShapeShadowSection(
             // Blur Slider
             val currentBlur = appearance.shadowBlur ?: 8f // fallback static default if null
             PrecisionSlider(
-                label = "Độ mờ (Blur)",
+                label = stringResource(R.string.studio_elevation_shadow_blur),
                 value = currentBlur,
                 valueRange = 0f..50f,
                 onValueChange = { onLayoutEvent(EditorEvent.UpdateShadowBlur(it)) },
@@ -152,7 +155,7 @@ fun ShapeShadowSection(
 
             // Shadow Color Row
             Text(
-                text = "Màu bóng",
+                text = stringResource(R.string.studio_shadow_tab_color),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = tokens.textPrimary,
@@ -244,7 +247,7 @@ private fun ShadowPresetCard(
         }
         Spacer(Modifier.height(2.dp))
         Text(
-            text = preset.label,
+            text = stringResource(preset.labelRes),
             color = if (selected) tokens.textPrimary else tokens.textSecondary,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontSize = 9.sp,

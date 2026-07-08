@@ -680,7 +680,7 @@ private fun GradientPresetsGallery(
         modifier = Modifier.padding(vertical = 2.dp)
     ) {
         Text(
-            text = "Hướng gradient",
+            text = stringResource(R.string.studio_label_gradient_direction_tab),
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             color = tokens.textSecondary,

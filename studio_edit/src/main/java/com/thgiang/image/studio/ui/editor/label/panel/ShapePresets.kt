@@ -31,17 +31,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.thgiang.image.studio.R
 
 /**
  * Data class for a Shape Style preset — matches Microsoft Word's "Shape Styles" gallery.
  * Each preset bundles: fill color, outline color, outline width, and optional shadow.
  */
 data class ShapeStylePreset(
-    val label: String,
+    @StringRes val labelRes: Int,
     val fillColorArgb: Int,
     val outlineColorArgb: Int,
     val outlineWidthPx: Float,
     val shadowIntensity: Float = 0f,
+)
+
+private val shapeColorLabelRes = listOf(
+    R.string.studio_color_blue,
+    R.string.studio_color_red,
+    R.string.studio_color_green,
+    R.string.studio_color_orange,
+    R.string.studio_color_purple,
+    R.string.studio_color_cyan,
+    R.string.studio_color_teal,
+    R.string.studio_color_indigo,
+    R.string.studio_color_pink,
+    R.string.studio_color_amber,
+    R.string.studio_color_lime,
+    R.string.studio_color_deep_purple,
+    R.string.studio_color_brown,
+    R.string.studio_color_blue_gray,
+    R.string.studio_color_gray,
+    R.string.studio_color_black,
 )
 
 /**
@@ -49,34 +71,43 @@ data class ShapeStylePreset(
  * - 16 "Colored Fill": solid fill + matching outline
  * - 8 "Subtle Effect": light fill + subtle shadow
  */
-internal val shapeStylePresets: List<ShapeStylePreset> = listOf(
-    // ── Colored Fill ──────────────────────────────────────
-    ShapeStylePreset("Xanh dương",   0xFFE3F2FD.toInt(), 0xFF1565C0.toInt(), 2f),
-    ShapeStylePreset("Đỏ",           0xFFFFEBEE.toInt(), 0xFFC62828.toInt(), 2f),
-    ShapeStylePreset("Xanh lá",      0xFFE8F5E9.toInt(), 0xFF2E7D32.toInt(), 2f),
-    ShapeStylePreset("Cam",          0xFFFFF3E0.toInt(), 0xFFEF6C00.toInt(), 2f),
-    ShapeStylePreset("Tím",          0xFFF3E5F5.toInt(), 0xFF7B1FA2.toInt(), 2f),
-    ShapeStylePreset("Lục lam",      0xFFE0F7FA.toInt(), 0xFF00838F.toInt(), 2f),
-    ShapeStylePreset("Xanh mòng",    0xFFE0F2F1.toInt(), 0xFF00695C.toInt(), 2f),
-    ShapeStylePreset("Chàm",         0xFFE8EAF6.toInt(), 0xFF283593.toInt(), 2f),
-    ShapeStylePreset("Hồng",         0xFFFCE4EC.toInt(), 0xFFAD1457.toInt(), 2f),
-    ShapeStylePreset("Hổ phách",     0xFFFFF8E1.toInt(), 0xFFFF8F00.toInt(), 2f),
-    ShapeStylePreset("Vàng xanh",    0xFFF1F8E9.toInt(), 0xFF558B2F.toInt(), 2f),
-    ShapeStylePreset("Tím đậm",      0xFFEDE7F6.toInt(), 0xFF4527A0.toInt(), 2f),
-    ShapeStylePreset("Nâu",          0xFFEFEBE9.toInt(), 0xFF4E342E.toInt(), 2f),
-    ShapeStylePreset("Xám lam",      0xFFECEFF1.toInt(), 0xFF37474F.toInt(), 2f),
-    ShapeStylePreset("Xám",          0xFFF5F5F5.toInt(), 0xFF616161.toInt(), 2f),
-    ShapeStylePreset("Đen",          0xFF212121.toInt(), 0xFFFFFFFF.toInt(), 2f),
-    // ── Subtle Effect ─────────────────────────────────────
-    ShapeStylePreset("Xanh dương",   0xFFBBDEFB.toInt(), 0xFF90CAF9.toInt(), 1f, 0.15f),
-    ShapeStylePreset("Đỏ",           0xFFFFCDD2.toInt(), 0xFFEF9A9A.toInt(), 1f, 0.15f),
-    ShapeStylePreset("Xanh lá",      0xFFC8E6C9.toInt(), 0xFFA5D6A7.toInt(), 1f, 0.15f),
-    ShapeStylePreset("Cam",          0xFFFFE0B2.toInt(), 0xFFFFCC80.toInt(), 1f, 0.15f),
-    ShapeStylePreset("Tím",          0xFFE1BEE7.toInt(), 0xFFCE93D8.toInt(), 1f, 0.15f),
-    ShapeStylePreset("Lục lam",      0xFFB2EBF2.toInt(), 0xFF80DEEA.toInt(), 1f, 0.15f),
-    ShapeStylePreset("Xanh mòng",    0xFFB2DFDB.toInt(), 0xFF80CBC4.toInt(), 1f, 0.15f),
-    ShapeStylePreset("Chàm",         0xFFC5CAE9.toInt(), 0xFF9FA8DA.toInt(), 1f, 0.15f),
-)
+internal val shapeStylePresets: List<ShapeStylePreset> = buildList {
+    val coloredFillData = listOf(
+        Triple(0xFFE3F2FD.toInt(), 0xFF1565C0.toInt(), 2f),
+        Triple(0xFFFFEBEE.toInt(), 0xFFC62828.toInt(), 2f),
+        Triple(0xFFE8F5E9.toInt(), 0xFF2E7D32.toInt(), 2f),
+        Triple(0xFFFFF3E0.toInt(), 0xFFEF6C00.toInt(), 2f),
+        Triple(0xFFF3E5F5.toInt(), 0xFF7B1FA2.toInt(), 2f),
+        Triple(0xFFE0F7FA.toInt(), 0xFF00838F.toInt(), 2f),
+        Triple(0xFFE0F2F1.toInt(), 0xFF00695C.toInt(), 2f),
+        Triple(0xFFE8EAF6.toInt(), 0xFF283593.toInt(), 2f),
+        Triple(0xFFFCE4EC.toInt(), 0xFFAD1457.toInt(), 2f),
+        Triple(0xFFFFF8E1.toInt(), 0xFFFF8F00.toInt(), 2f),
+        Triple(0xFFF1F8E9.toInt(), 0xFF558B2F.toInt(), 2f),
+        Triple(0xFFEDE7F6.toInt(), 0xFF4527A0.toInt(), 2f),
+        Triple(0xFFEFEBE9.toInt(), 0xFF4E342E.toInt(), 2f),
+        Triple(0xFFECEFF1.toInt(), 0xFF37474F.toInt(), 2f),
+        Triple(0xFFF5F5F5.toInt(), 0xFF616161.toInt(), 2f),
+        Triple(0xFF212121.toInt(), 0xFFFFFFFF.toInt(), 2f),
+    )
+    coloredFillData.forEachIndexed { index, (fill, outline, width) ->
+        add(ShapeStylePreset(shapeColorLabelRes[index], fill, outline, width))
+    }
+
+    val subtleEffectData = listOf(
+        Triple(0xFFBBDEFB.toInt(), 0xFF90CAF9.toInt(), 1f),
+        Triple(0xFFFFCDD2.toInt(), 0xFFEF9A9A.toInt(), 1f),
+        Triple(0xFFC8E6C9.toInt(), 0xFFA5D6A7.toInt(), 1f),
+        Triple(0xFFFFE0B2.toInt(), 0xFFFFCC80.toInt(), 1f),
+        Triple(0xFFE1BEE7.toInt(), 0xFFCE93D8.toInt(), 1f),
+        Triple(0xFFB2EBF2.toInt(), 0xFF80DEEA.toInt(), 1f),
+        Triple(0xFFB2DFDB.toInt(), 0xFF80CBC4.toInt(), 1f),
+        Triple(0xFFC5CAE9.toInt(), 0xFF9FA8DA.toInt(), 1f),
+    )
+    subtleEffectData.forEachIndexed { index, (fill, outline, width) ->
+        add(ShapeStylePreset(shapeColorLabelRes[index], fill, outline, width, 0.15f))
+    }
+}
 
 data class ShapeStyleEvents(
     val updateShapeColor: (Int) -> Unit,
@@ -134,7 +165,7 @@ fun ShapeStyleGallery(
                                 .background(Color(0xFFE0E0E0))
                         )
                         Text(
-                            text = "Subtle",
+                            text = stringResource(R.string.studio_shape_style_subtle),
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF9E9E9E),

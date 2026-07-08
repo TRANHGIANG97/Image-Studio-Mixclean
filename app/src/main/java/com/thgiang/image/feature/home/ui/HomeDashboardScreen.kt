@@ -22,6 +22,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -289,26 +294,71 @@ fun HomeDashboardScreen(
 
                     Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
 
+                    if (uiState.isOffline) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                                .background(
+                                    color = if (isHomeDarkStyle) Color(0xFF2C2C2C) else Color(0xFFFFF3CD),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .border(
+                                    width = 0.5.dp,
+                                    color = if (isHomeDarkStyle) Color(0xFF444444) else Color(0xFFFFEEBA),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Science,
+                                contentDescription = null,
+                                tint = if (isHomeDarkStyle) Color(0xFFE5A93B) else Color(0xFF856404),
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Không có kết nối Internet. Đang hiển thị mẫu đã lưu.",
+                                color = if (isHomeDarkStyle) Color(0xFFE5A93B) else Color(0xFF856404),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
+                    }
+
                     val cosmeticsTemplates = uiState.cosmeticsTemplates
                     val professionalTemplates = uiState.professionalTemplates
                     val sections = uiState.otherSections
 
-                    CosmeticsThemeplateSection(
-                        templates = cosmeticsTemplates,
-                        modifier = Modifier.fillMaxWidth(),
-                        onOpenGallery = { onOpenThemeplateGallery("cosmetics") },
-                        onThemeplateSelected = onThemeplateSelected
-                    )
+                    if (uiState.isLoadingTemplates && cosmeticsTemplates.isEmpty() && professionalTemplates.isEmpty()) {
+                        com.thgiang.image.feature.home.ui.components.SkeletonThemeplateSection(
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
+                        com.thgiang.image.feature.home.ui.components.SkeletonThemeplateSection(
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        CosmeticsThemeplateSection(
+                            templates = cosmeticsTemplates,
+                            modifier = Modifier.fillMaxWidth(),
+                            onOpenGallery = { onOpenThemeplateGallery("cosmetics") },
+                            onThemeplateSelected = onThemeplateSelected
+                        )
 
-                    Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
+                        Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
 
-                    ProfessionalThemeplateSection(
-                        templates = professionalTemplates,
-                        sections = sections,
-                        modifier = Modifier.fillMaxWidth(),
-                        onOpenGallery = onOpenThemeplateGallery,
-                        onThemeplateSelected = onThemeplateSelected
-                    )
+                        ProfessionalThemeplateSection(
+                            templates = professionalTemplates,
+                            sections = sections,
+                            modifier = Modifier.fillMaxWidth(),
+                            onOpenGallery = onOpenThemeplateGallery,
+                            onThemeplateSelected = onThemeplateSelected
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
 
