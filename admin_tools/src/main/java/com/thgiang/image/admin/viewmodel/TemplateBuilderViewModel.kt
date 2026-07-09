@@ -241,9 +241,6 @@ class TemplateBuilderViewModel @Inject constructor(
             is EditorEvent.UpdateAlpha -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f))) }
             }
-            is EditorEvent.SetBoundingBoxVisible -> {
-                // Not used anymore as bounding box depends on selectedLayerId
-            }
             is EditorEvent.SelectTool -> {
                 _state.update {
                     val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) null else event.tool
