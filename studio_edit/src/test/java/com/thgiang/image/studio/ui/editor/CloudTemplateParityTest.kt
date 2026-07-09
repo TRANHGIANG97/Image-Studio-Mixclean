@@ -60,6 +60,41 @@ class CloudTemplateParityTest {
     }
 
     @Test
+    fun `radial gradient ground shadow strips drop shadow intensity`() {
+        val template = CloudTemplateParser.parse(
+            templateId = "ground_shadow_tpl",
+            categoryId = "cat",
+            canvasData = JSONObject(GROUND_SHADOW_FIXTURE),
+        )
+
+        val layers = CloudLayerToEditorMapper.mapLayers(template, scaledDensity = 3f)
+        val groundShadow = layers.first { it.id == "layer_ground_shadow" }
+        assertEquals(LayerType.SHAPE, groundShadow.type)
+        assertEquals(ShapeType.CIRCLE, groundShadow.shapeType)
+        assertNotNull(groundShadow.fillGradient)
+        assertEquals(0f, groundShadow.appearance.shadowIntensity, 0.001f)
+
+        val product = layers.first { it.id == "layer_product" }
+        assertEquals(LayerType.IMAGE, product.type)
+        assertEquals(0.3f, product.appearance.shadowIntensity, 0.01f)
+        assertEquals(true, product.product.isSample)
+    }
+
+    @Test
+    fun `IMAGE with replaceable flag maps to isSample`() {
+        val template = CloudTemplateParser.parse(
+            templateId = "replaceable_image_tpl",
+            categoryId = "cat",
+            canvasData = JSONObject(REPLACEABLE_IMAGE_FIXTURE),
+        )
+
+        val layers = CloudLayerToEditorMapper.mapLayers(template, scaledDensity = 3f)
+        val product = layers.single { it.id == "layer_replaceable_image" }
+        assertEquals(LayerType.IMAGE, product.type)
+        assertEquals(true, product.product.isSample)
+    }
+
+    @Test
     fun `cloud tracking maps to app spacing in px`() {
         val template = CloudTemplateParser.parse(
             templateId = "tracking_tpl",
@@ -220,6 +255,79 @@ class CloudTemplateParityTest {
                     "imageUrl": "https://example.com/1x1.png",
                     "baseWidth": 1,
                     "baseHeight": 1
+                  }
+                }
+              ]
+            }
+        """.trimIndent()
+
+        private val GROUND_SHADOW_FIXTURE = """
+            {
+              "templateId": "ground_shadow_tpl",
+              "categoryId": "cat",
+              "canvas": { "baseWidth": 1080, "baseHeight": 1920, "aspectRatio": "9:16" },
+              "layers": [
+                {
+                  "layerId": "layer_ground_shadow",
+                  "type": "DECORATION",
+                  "zIndex": 0,
+                  "transform": { "anchorX": 0.5, "anchorY": 0.72, "scale": 1, "rotation": 0 },
+                  "payload": {
+                    "shapeType": "ellipse",
+                    "baseWidth": 420,
+                    "baseHeight": 90,
+                    "fillColor": "rgba(0,0,0,0.28)",
+                    "fillGradient": {
+                      "type": "radial",
+                      "colorStops": [
+                        { "offset": 0, "color": "rgba(0,0,0,0.28)" },
+                        { "offset": 0.55, "color": "rgba(0,0,0,0.16)" },
+                        { "offset": 1, "color": "rgba(0,0,0,0)" }
+                      ],
+                      "coords": { "x1": 0.5, "y1": 0.5, "r1": 0, "x2": 0.5, "y2": 0.5, "r2": 0.5 }
+                    },
+                    "shadowIntensity": 0.94,
+                    "shadowAngle": 45,
+                    "shadowDistance": 12,
+                    "shadowBlur": 15,
+                    "alpha": 0.95
+                  }
+                },
+                {
+                  "layerId": "layer_product",
+                  "type": "PLACEHOLDER_OBJECT",
+                  "zIndex": 1,
+                  "transform": { "anchorX": 0.5, "anchorY": 0.55, "scale": 1, "rotation": 0 },
+                  "payload": {
+                    "imageUrl": "https://example.com/product.png",
+                    "baseWidth": 320,
+                    "baseHeight": 320,
+                    "shadowIntensity": 0.3,
+                    "shadowAngle": 45,
+                    "shadowDistance": 12
+                  }
+                }
+              ]
+            }
+        """.trimIndent()
+
+        private val REPLACEABLE_IMAGE_FIXTURE = """
+            {
+              "templateId": "replaceable_image_tpl",
+              "categoryId": "cat",
+              "canvas": { "baseWidth": 1080, "baseHeight": 1920, "aspectRatio": "9:16" },
+              "layers": [
+                {
+                  "layerId": "layer_replaceable_image",
+                  "type": "IMAGE",
+                  "zIndex": 0,
+                  "transform": { "anchorX": 0.5, "anchorY": 0.5, "scale": 1, "rotation": 0 },
+                  "payload": {
+                    "imageUrl": "https://example.com/sample.png",
+                    "defaultImageUrl": "https://example.com/sample.png",
+                    "baseWidth": 400,
+                    "baseHeight": 400,
+                    "replaceable": true
                   }
                 }
               ]

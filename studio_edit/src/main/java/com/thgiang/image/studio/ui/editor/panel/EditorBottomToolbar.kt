@@ -37,6 +37,7 @@ fun EditorBottomToolbar(
     selectedTool: EditorTool?,
     onToolSelected: (EditorTool?) -> Unit,
     onReplaceImage: () -> Unit,
+    canReplaceImage: Boolean = true,
     toolsLocked: Boolean = false,
     labelLayerActive: Boolean = false,
     shapeShadowInPanel: Boolean = false,
@@ -86,8 +87,8 @@ fun EditorBottomToolbar(
                     else -> false
                 }
                 val isEnabled = when {
-                    tool is EditorTool.Replace ||
-                        tool is EditorTool.Sticker ||
+                    tool is EditorTool.Replace -> canReplaceImage
+                    tool is EditorTool.Sticker ||
                         tool is EditorTool.Label ||
                         tool is EditorTool.Shape -> true
                     tool is EditorTool.Crop -> !toolsLocked && !labelLayerActive

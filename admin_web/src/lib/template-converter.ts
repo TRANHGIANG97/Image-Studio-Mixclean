@@ -255,6 +255,9 @@ export function fabricToCloudTemplate(
         layerType = 'SHADOW_REGION';
       } else if (isFabricTextObject(obj)) {
         layerType = 'TEXT';
+      } else if (isReplaceable) {
+        // Normalize checkbox-only path so mobile + admin counts/badges agree.
+        layerType = 'PLACEHOLDER_OBJECT';
       }
 
       let strokeColorStr = null;

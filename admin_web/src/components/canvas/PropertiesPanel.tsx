@@ -84,7 +84,11 @@ export default function PropertiesPanel({ onDirty }: PropertiesPanelProps) {
       name === 'layerType'
         ? { layerType: value, isReplaceable: value === 'PLACEHOLDER_OBJECT' }
         : name === 'isReplaceable'
-          ? { isReplaceable: value }
+          ? {
+              isReplaceable: value,
+              // Keep Fabric layerType in sync so badge / drop-replace / export stay consistent.
+              layerType: value ? 'PLACEHOLDER_OBJECT' : 'IMAGE',
+            }
           : isText && (name === 'stroke' || name === 'strokeWidth')
             ? { [name]: value, paintFirst: 'stroke' }
             : { [name]: value };

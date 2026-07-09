@@ -835,7 +835,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                                         }
 
                                         it.copy(
-                                            product = result.product,
+                                            product = result.product.copy(isSample = it.product.isSample),
                                             shapeWidthPx = newW,
                                             shapeHeightPx = newH,
                                         )

@@ -65,7 +65,7 @@ fun ProductLayerV2(
     showOverlay: Boolean = false,
     showBoundingBox: Boolean = false,
     onBoundingBoxVisible: (Boolean) -> Unit = {},
-    onPickImage: () -> Unit = {},
+    onPickImage: (layerId: String) -> Unit = {},
     allLayers: List<EditorLayer> = emptyList(),
     modifier: Modifier = Modifier
 ) {
@@ -306,7 +306,7 @@ fun ProductLayerV2(
                     .align(Alignment.Center)
                     .size(36.dp)
                     .background(Color.Transparent)
-                    .clickable { onPickImage() },
+                    .clickable { onPickImage(layer.id) },
                 contentAlignment = Alignment.Center
             ) {
                 // Drop shadow for prominence

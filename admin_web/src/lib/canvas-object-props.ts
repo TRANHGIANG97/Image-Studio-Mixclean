@@ -19,9 +19,33 @@ export function resolveLayerType(obj: any): string {
   if (!obj) return 'DECORATION';
   if (isFabricShadowRegion(obj)) return 'SHADOW_REGION';
   if (isFabricTextObject(obj)) return 'TEXT';
+  if (obj.layerType === 'PLACEHOLDER_OBJECT' || obj.isReplaceable === true) {
+    return 'PLACEHOLDER_OBJECT';
+  }
   if (obj.layerType) return obj.layerType;
   if (obj.type === 'image') return 'IMAGE';
   return 'DECORATION';
+}
+
+/** Image layer that can be swapped on Android studio_edit. */
+export function isFabricReplaceableImage(obj: any): boolean {
+  if (!obj) return false;
+  return (
+    obj.layerType === 'PLACEHOLDER_OBJECT' ||
+    obj.isReplaceable === true ||
+    (obj.type === 'image' && obj.layerType === 'IMAGE' && obj.isReplaceable === true)
+  );
+}
+
+/** Fabric image-like layer (product photo, placeholder, or plain image). */
+export function isFabricImageLayer(obj: any): boolean {
+  if (!obj) return false;
+  return (
+    obj.type === 'image' ||
+    obj.layerType === 'IMAGE' ||
+    obj.layerType === 'PLACEHOLDER_OBJECT' ||
+    obj.isReplaceable === true
+  );
 }
 
 /** Snapshot Fabric object fields used by PropertiesPanel. */

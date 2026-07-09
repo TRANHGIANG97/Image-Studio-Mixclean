@@ -80,7 +80,7 @@ fun EditorCanvasV2(
     selectedLayerId: String?,
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
-    onPickImage: () -> Unit,
+    onPickImage: (layerId: String?) -> Unit,
     onSelectLayer: (String?) -> Unit,
     onShapeTextCommit: (String) -> Unit = {},
     onSyncShapeSize: (widthPx: Float, heightPx: Float) -> Unit = { _, _ -> },
@@ -531,7 +531,7 @@ fun EditorCanvasV2(
 
                 if (layers.isEmpty()) {
                     PickImagePlaceholder(
-                        onClick = onPickImage,
+                        onClick = { onPickImage(null) },
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {

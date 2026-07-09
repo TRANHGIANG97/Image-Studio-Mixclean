@@ -153,10 +153,16 @@ export function ImagePropertiesSection({
         const { FabricImage } = await import('fabric');
         const newImg = await FabricImage.fromURL(url, { crossOrigin: 'anonymous' });
         (activeCanvasObject as any).setElement(newImg._element || newImg.getElement());
-        (activeCanvasObject as any).set({ src: url, defaultImageUrl: url });
+        const isPlaceholder =
+          (activeCanvasObject as any).layerType === 'PLACEHOLDER_OBJECT' ||
+          (activeCanvasObject as any).isReplaceable === true;
+        const nextDefault = isPlaceholder
+          ? (activeCanvasObject as any).defaultImageUrl || url
+          : url;
+        (activeCanvasObject as any).set({ src: url, defaultImageUrl: nextDefault });
         (activeCanvasObject as any).applyFilters();
         canvas.renderAll();
-        updateActiveObject({ src: url, defaultImageUrl: url });
+        updateActiveObject({ src: url, defaultImageUrl: nextDefault });
         onRecordChange();
         toast.dismiss(loadingToast);
         toast.success('Thay thế hình ảnh thành công!');

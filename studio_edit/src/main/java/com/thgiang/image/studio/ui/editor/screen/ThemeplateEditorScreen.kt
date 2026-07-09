@@ -265,8 +265,12 @@ fun ThemeplateEditorScreen(
                     onGestureActiveChanged = { active ->
                         isCanvasGestureActive = active
                     },
-                    onPickImage = {
-                        targetReplaceLayerId = state.selectedLayerId // Set ID of layer when tapping pink Replace button
+                    onPickImage = { layerId ->
+                        // Prefer the tapped sample layer so swap icon never replaces the wrong object.
+                        targetReplaceLayerId = layerId ?: state.selectedLayerId
+                        if (layerId != null && layerId != state.selectedLayerId) {
+                            viewModel.onEvent(EditorEvent.SelectLayer(layerId))
+                        }
                         triggerImagePicker()
                     },
                     onSelectLayer = { id ->
@@ -546,9 +550,18 @@ fun ThemeplateEditorScreen(
                         selectedTool = selectedToolForUi,
                         onToolSelected = onToolClicked,
                         onReplaceImage = {
-                            targetReplaceLayerId = state.selectedLayerId
-                            triggerImagePicker()
+                            val target = activeLayer
+                            if (target?.type == LayerType.IMAGE &&
+                                target.product.isSample &&
+                                !target.isLocked
+                            ) {
+                                targetReplaceLayerId = target.id
+                                triggerImagePicker()
+                            }
                         },
+                        canReplaceImage = activeLayer?.type == LayerType.IMAGE &&
+                            activeLayer.product.isSample &&
+                            !activeLayer.isLocked,
                         toolsLocked = !editingToolsUnlocked,
                         labelLayerActive = selectedToolForUi is EditorTool.Label ||
                             activeLayer?.isLabelLayer == true,

@@ -35,18 +35,38 @@ export function validateTemplateForPublish(
   }
 
   for (const layer of cloudTemplate.layers || []) {
+    const isReplaceable =
+      layer.type === 'PLACEHOLDER_OBJECT' || layer.payload?.replaceable === true;
     const url = layer.payload?.imageUrl || layer.payload?.defaultImageUrl;
-    if (!url) continue;
     const isImageLike =
       layer.type === 'IMAGE' ||
       layer.type === 'PLACEHOLDER_OBJECT' ||
       (layer.type === 'DECORATION' && Boolean(url));
-    if (!isImageLike) continue;
+
+    if (isReplaceable) {
+      const defaultUrl = layer.payload?.defaultImageUrl || layer.payload?.imageUrl;
+      if (!defaultUrl) {
+        errors.push(
+          `Đối tượng thay thế (${layer.layerId}) cần có ảnh mặc định (defaultImageUrl) trước khi publish.`
+        );
+      } else {
+        const isValid = defaultUrl.startsWith('http') || defaultUrl.startsWith('/');
+        if (!isValid) {
+          const preview = defaultUrl.length > 48 ? `${defaultUrl.slice(0, 48)}...` : defaultUrl;
+          errors.push(
+            `Đối tượng thay thế có URL không hợp lệ (${layer.layerId}): "${preview}". Hãy lưu lại template để upload ảnh lên server.`
+          );
+        }
+      }
+      continue;
+    }
+
+    if (!url || !isImageLike) continue;
     const isValid = url.startsWith('http') || url.startsWith('/');
     if (!isValid) {
       const preview = url.length > 48 ? `${url.slice(0, 48)}...` : url;
       errors.push(
-        `Layer ảnh có URL không hợp lệ (${layer.layerId}): "${preview}". Hãy lưu lại template để upload ảnh lên server.`,
+        `Layer ảnh có URL không hợp lệ (${layer.layerId}): "${preview}". Hãy lưu lại template để upload ảnh lên server.`
       );
     }
   }

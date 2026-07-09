@@ -57,15 +57,25 @@ class EditorProductWorkflow @Inject constructor(
         currentLayers: List<EditorLayer>,
     ): ProcessingLayerUpdate {
         val processingId = replaceLayerId ?: newProcessingId()
+        val existing = replaceLayerId?.let { id -> currentLayers.firstOrNull { it.id == id } }
+        val keepSample = existing?.product?.isSample == true
         val processingLayer = EditorLayer(
             id = processingId,
-            product = EditorProduct(originalUriString = uri.toString(), processing = true),
+            product = EditorProduct(
+                originalUriString = uri.toString(),
+                processing = true,
+                isSample = keepSample,
+            ),
         )
-        val newLayers = if (replaceLayerId != null && currentLayers.any { it.id == replaceLayerId }) {
+        val newLayers = if (existing != null) {
             currentLayers.map {
                 if (it.id == replaceLayerId) {
                     it.copy(
-                        product = EditorProduct(originalUriString = uri.toString(), processing = true)
+                        product = EditorProduct(
+                            originalUriString = uri.toString(),
+                            processing = true,
+                            isSample = keepSample,
+                        )
                     )
                 } else {
                     it

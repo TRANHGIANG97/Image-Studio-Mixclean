@@ -11,6 +11,7 @@ import com.thgiang.image.core.domain.model.template.CloudLayer
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.core.domain.model.template.ColorArgbParser
 import com.thgiang.image.core.domain.model.template.isLocked
+import com.thgiang.image.core.domain.model.template.hasGradientBakedShadow
 import com.thgiang.image.core.domain.model.template.isShadowRegionLayer
 import com.thgiang.image.core.domain.model.template.isReplaceableLayer
 import com.thgiang.image.core.domain.model.template.isVisible
@@ -229,8 +230,9 @@ object CloudLayerToEditorMapper {
         val bakedIntoRaster = cloudLayer.resolvedImageUrl() != null &&
             cloudLayer.payload.sourceKind.equals("psd-rasterized", ignoreCase = true) &&
             shadowIntensity > 0f
+        val bakedInGradient = cloudLayer.hasGradientBakedShadow()
         return EditorAppearance(
-            shadowIntensity = if (bakedIntoRaster) 0f else shadowIntensity,
+            shadowIntensity = if (bakedIntoRaster || bakedInGradient) 0f else shadowIntensity,
             alpha = cloudLayer.payload.alpha ?: 1f,
             shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
             shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
@@ -243,7 +245,9 @@ object CloudLayerToEditorMapper {
         return type.equals("DECORATION", ignoreCase = true) &&
             !isShadowRegionLayer() &&
             resolvedImageUrl() == null &&
-            (payload.shapeType != null || payload.resolvedShapeFillArgb() != null)
+            (payload.shapeType != null ||
+                payload.resolvedShapeFillArgb() != null ||
+                payload.fillGradient != null)
     }
 
     private fun CloudLayer.resolvedCropRatio(): CropRatio {
@@ -274,7 +278,7 @@ object CloudLayerToEditorMapper {
         }
         return when (raw.lowercase()) {
             "text-only", "text_only", "plain-text", "plaintext" -> ShapeType.TEXT_ONLY
-            "circle" -> ShapeType.CIRCLE
+            "circle", "ellipse" -> ShapeType.CIRCLE
             "star" -> ShapeType.STAR
             "hexagon" -> ShapeType.HEXAGON
             "triangle" -> ShapeType.TRIANGLE

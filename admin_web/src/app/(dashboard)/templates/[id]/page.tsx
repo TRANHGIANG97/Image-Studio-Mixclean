@@ -185,7 +185,10 @@ export default function TemplateDetailPage() {
 
   const canvasData = template.canvas_data as CloudTemplate;
   const layersCount = canvasData.layers?.length || 0;
-  const placeholderCount = canvasData.layers?.filter(l => l.type?.includes('PLACEHOLDER')).length || 0;
+  const placeholderCount =
+    canvasData.layers?.filter(
+      (l) => l.type?.includes('PLACEHOLDER') || l.payload?.replaceable === true
+    ).length || 0;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">

@@ -286,7 +286,13 @@ export async function replaceImageLayerFromUrl(
   handlers: CanvasCommitHandlers
 ): Promise<void> {
   const activeObj = canvas.getActiveObject() as any;
-  if (!activeObj || (activeObj.type !== 'image' && activeObj.layerType !== 'IMAGE')) {
+  const isImageLayer =
+    activeObj &&
+    (activeObj.type === 'image' ||
+      activeObj.layerType === 'IMAGE' ||
+      activeObj.layerType === 'PLACEHOLDER_OBJECT' ||
+      activeObj.isReplaceable === true);
+  if (!isImageLayer) {
     toast.error('Không tìm thấy layer ảnh đang chọn để thay thế.');
     return;
   }
@@ -309,8 +315,11 @@ export async function replaceImageLayerFromUrl(
     (newImg as any).layerId = activeObj.layerId;
     (newImg as any).layerType = activeObj.layerType;
     (newImg as any).layerName = activeObj.layerName;
+    (newImg as any).isReplaceable = activeObj.isReplaceable;
+    (newImg as any).cropRatio = activeObj.cropRatio;
     (newImg as any).src = url;
-    (newImg as any).defaultImageUrl = url;
+    // Keep existing default sample URL for placeholders; only seed if missing.
+    (newImg as any).defaultImageUrl = activeObj.defaultImageUrl || url;
 
     canvas.remove(activeObj);
     canvas.add(newImg);
@@ -360,9 +369,12 @@ export function findImageLayerAtPoint(canvas: any, x: number, y: number): Fabric
   for (let i = objects.length - 1; i >= 0; i--) {
     const obj = objects[i];
     if (obj._isBackground) continue;
-    if (obj.type === 'image' || obj.layerType === 'IMAGE') {
-      if (obj.containsPoint(pointer)) return obj;
-    }
+    const isImageLayer =
+      obj.type === 'image' ||
+      obj.layerType === 'IMAGE' ||
+      obj.layerType === 'PLACEHOLDER_OBJECT' ||
+      obj.isReplaceable === true;
+    if (isImageLayer && obj.containsPoint(pointer)) return obj;
   }
   return null;
 }
@@ -380,7 +392,11 @@ export async function replaceDroppedImageOnLayer(
     loadingToast = toast.loading('Đang thay thế hình ảnh layer...');
     const newImg = await FabricImage.fromURL(url, { crossOrigin: 'anonymous' });
     targetObj.setElement(newImg._element || newImg.getElement());
-    targetObj.set({ src: url, defaultImageUrl: url });
+    const keepDefault =
+      targetObj.layerType === 'PLACEHOLDER_OBJECT' || targetObj.isReplaceable === true
+        ? targetObj.defaultImageUrl || url
+        : url;
+    targetObj.set({ src: url, defaultImageUrl: keepDefault });
     targetObj.applyFilters?.();
     canvas.renderAll();
     onUpdateActive?.(url);
