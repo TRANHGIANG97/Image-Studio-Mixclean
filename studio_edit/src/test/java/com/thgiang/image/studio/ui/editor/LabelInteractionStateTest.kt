@@ -52,13 +52,6 @@ class LabelInteractionStateTest {
     }
 
     @Test
-    fun `onConfirmTextEdit clears selection`() {
-        val (sel, edit) = LabelInteractionState.onConfirmTextEdit()
-        assertEquals(null, sel)
-        assertEquals(null, edit)
-    }
-
-    @Test
     fun `onFinishTextEdit keeps selection clears editing`() {
         val (sel, edit) = LabelInteractionState.onFinishTextEdit("label-1", "label-1")
         assertEquals("label-1", sel)

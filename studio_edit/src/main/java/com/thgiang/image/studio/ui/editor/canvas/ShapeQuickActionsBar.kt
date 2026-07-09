@@ -3,7 +3,6 @@ package com.thgiang.image.studio.ui.editor.canvas
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -58,6 +57,7 @@ import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 import com.thgiang.image.studio.ui.editor.EditorEvent
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
@@ -88,8 +88,8 @@ fun ShapeQuickActionsBar(
 
     AnimatedVisibility(
         visible = visible && layer != null,
-        enter = fadeIn(tween(160)) + slideInVertically(tween(200)) { -it / 2 },
-        exit = fadeOut(tween(120)) + slideOutVertically(tween(160)) { -it / 2 },
+        enter = fadeIn(MotionTokens.fadeDefault) + slideInVertically(MotionTokens.springPanel()) { -it / 2 },
+        exit = fadeOut(MotionTokens.fadeQuick) + slideOutVertically(MotionTokens.springPanel()) { -it / 2 },
         modifier = modifier,
     ) {
         Box(

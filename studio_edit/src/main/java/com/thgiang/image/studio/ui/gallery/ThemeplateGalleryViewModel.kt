@@ -28,13 +28,21 @@ class ThemeplateGalleryViewModel @Inject constructor(
     private val _loadingRemoteTemplates = MutableStateFlow(false)
     val loadingRemoteTemplates: StateFlow<Boolean> = _loadingRemoteTemplates.asStateFlow()
 
+    /** True when the last template fetch failed — the grid shows a retry state instead of an empty grid. */
+    private val _templatesLoadFailed = MutableStateFlow(false)
+    val templatesLoadFailed: StateFlow<Boolean> = _templatesLoadFailed.asStateFlow()
+
+    private var lastRequestedCategoryId: String? = null
+
     init {
         loadCategories()
     }
 
     fun loadTemplatesForCategory(categoryId: String) {
+        lastRequestedCategoryId = categoryId
         viewModelScope.launch(Dispatchers.IO) {
             _loadingRemoteTemplates.value = true
+            _templatesLoadFailed.value = false
             runCatching {
                 cloudTemplateRepository.fetchTemplatesForCategory(categoryId)
             }.onSuccess { remoteItems ->
@@ -42,9 +50,14 @@ class ThemeplateGalleryViewModel @Inject constructor(
             }.onFailure { error ->
                 android.util.Log.e(TAG, "Failed to load remote templates", error)
                 _remoteTemplates.value = emptyList()
+                _templatesLoadFailed.value = true
             }
             _loadingRemoteTemplates.value = false
         }
+    }
+
+    fun retryLoadTemplates() {
+        lastRequestedCategoryId?.let { loadTemplatesForCategory(it) }
     }
 
     private fun loadCategories() {

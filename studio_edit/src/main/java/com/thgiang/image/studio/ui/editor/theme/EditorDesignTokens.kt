@@ -2,6 +2,11 @@ package com.thgiang.image.studio.ui.editor.theme
 
 import com.thgiang.image.studio.ui.editor.model.*
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -78,6 +83,40 @@ object EditorColorPalette {
     val HistogramGreen     = Color(0xFF22C55E)
     val HistogramBlue      = Color(0xFF3B82F6)
     val HistogramLuminance = Color(0xFF9FB1CC)
+}
+
+// ── Motion Tokens — Canva-grade physics-based animation specs ─────────────
+/**
+ * Centralized animation specs for studio_edit.
+ * Philosophy: springs for anything that moves or resizes (translate / scale /
+ * expand); short tweens ONLY for pure opacity fades — opacity has no mass.
+ *
+ * The spring factories are generic because AnimatedVisibility transitions are
+ * typed (FiniteAnimationSpec<IntOffset> for slides, <IntSize> for expand/shrink,
+ * <Float> for scale) — the type parameter is inferred at the call site.
+ */
+object MotionTokens {
+    /** Panels sliding/expanding in and out — soft, near-critically damped. */
+    fun <T> springPanel(): SpringSpec<T> = spring(
+        dampingRatio = 0.85f,
+        stiffness = Spring.StiffnessMediumLow,
+    )
+
+    /** Selection scale, chips, tab indicators — playful overshoot. */
+    fun <T> springEmphasized(): SpringSpec<T> = spring(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessMedium,
+    )
+
+    /** Release / settle after gesture — fast with a slight bounce. */
+    fun <T> springSettle(): SpringSpec<T> = spring(
+        dampingRatio = Spring.DampingRatioLowBouncy,
+        stiffness = Spring.StiffnessHigh,
+    )
+
+    /** Opacity-only fades — physics not needed. */
+    val fadeQuick: TweenSpec<Float> = tween(durationMillis = 120)
+    val fadeDefault: TweenSpec<Float> = tween(durationMillis = 180)
 }
 
 // ── Editor Design Tokens ──────────────────────────────────────────────────

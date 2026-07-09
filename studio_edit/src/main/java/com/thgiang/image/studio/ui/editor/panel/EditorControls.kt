@@ -58,6 +58,7 @@ import com.thgiang.image.core.design.components.PrecisionSlider
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.EditorEvent
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -91,7 +92,7 @@ fun EditorControlsV2(
                 AnimatedContent(
                     targetState = tool,
                     transitionSpec = {
-                        fadeIn(animationSpec = tween(150)) togetherWith fadeOut(animationSpec = tween(150))
+                        fadeIn(animationSpec = MotionTokens.fadeDefault) togetherWith fadeOut(animationSpec = MotionTokens.fadeQuick)
                     },
                     label = "ControlsAnimation",
                 ) { targetTool ->
@@ -215,8 +216,8 @@ fun EditorControlsV2(
 
                                     AnimatedVisibility(
                                         visible = expanded,
-                                        enter = expandVertically(animationSpec = tween(200)),
-                                        exit = shrinkVertically(animationSpec = tween(180))
+                                        enter = expandVertically(animationSpec = MotionTokens.springPanel()),
+                                        exit = shrinkVertically(animationSpec = MotionTokens.springPanel())
                                     ) {
                                         // Slider Row - Chia đôi chiều ngang (nhỏ lại gấp đôi)
                                         Row(

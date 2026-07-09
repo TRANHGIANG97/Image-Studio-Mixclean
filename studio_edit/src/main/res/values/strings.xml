@@ -163,6 +163,9 @@
     <string name="studio_save_draft_dialog_message">Save this design as a draft to continue later?</string>
     <string name="studio_save_draft_confirm">Save draft</string>
     <string name="studio_draft_saved">Draft saved</string>
+    <string name="studio_draft_save_failed">Couldn\'t save draft. Please try again.</string>
+    <string name="studio_gallery_load_failed">Couldn\'t load templates. Check your connection and try again.</string>
+    <string name="studio_retry">Retry</string>
     <string name="studio_reset_zoom">Reset</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Label</string>

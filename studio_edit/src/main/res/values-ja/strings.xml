@@ -162,6 +162,9 @@
     <string name="studio_save_draft_dialog_message">このデザインを下書きとして保存して、後で続行しますか?</string>
     <string name="studio_save_draft_confirm">下書きの保存</string>
     <string name="studio_draft_saved">下書きが保存されました</string>
+    <string name="studio_draft_save_failed">下書きを保存できませんでした。もう一度お試しください。</string>
+    <string name="studio_gallery_load_failed">テンプレートを読み込めませんでした。接続を確認してもう一度お試しください。</string>
+    <string name="studio_retry">再試行</string>
     <string name="studio_reset_zoom">リセット</string>
     <string name="studio_tool_label">ラベル</string>
     <string name="studio_tool_shape">フレーム</string>

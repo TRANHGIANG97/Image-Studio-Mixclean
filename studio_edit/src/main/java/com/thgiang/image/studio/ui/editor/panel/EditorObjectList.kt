@@ -13,9 +13,7 @@ import kotlin.math.roundToInt
 
 import androidx.compose.animation.AnimatedVisibility
 import com.thgiang.image.studio.ui.editor.model.*
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -64,6 +62,7 @@ import coil.compose.AsyncImage
 import androidx.compose.ui.res.stringResource
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 
 /**
  * Layer Strip (formerly "minimap") — cải tiến toàn diện:
@@ -94,8 +93,8 @@ fun EditorObjectList(
 
     AnimatedVisibility(
         visible = layers.isNotEmpty(),
-        enter = slideInVertically(animationSpec = tween(250)) { it } + fadeIn(tween(200)),
-        exit = slideOutVertically(animationSpec = tween(200)) { it } + fadeOut(tween(150)),
+        enter = slideInVertically(animationSpec = MotionTokens.springPanel()) { it } + fadeIn(MotionTokens.fadeDefault),
+        exit = slideOutVertically(animationSpec = MotionTokens.springPanel()) { it } + fadeOut(MotionTokens.fadeQuick),
         modifier = modifier
     ) {
         Column(
@@ -154,8 +153,8 @@ fun EditorObjectList(
 
             AnimatedVisibility(
                 visible = expanded,
-                enter = expandVertically(animationSpec = tween(200)),
-                exit = shrinkVertically(animationSpec = tween(180))
+                enter = expandVertically(animationSpec = MotionTokens.springPanel()),
+                exit = shrinkVertically(animationSpec = MotionTokens.springPanel())
             ) {
                 // Layer strip
                 Row(
@@ -203,10 +202,7 @@ private fun ObjectLayerCard(
 ) {
     val scale by animateFloatAsState(
         targetValue = if (isSelected) 1.06f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
+        animationSpec = MotionTokens.springEmphasized(),
         label = "cardScale"
     )
 
@@ -502,8 +498,8 @@ fun EditorObjectListVertical(
         // Vertical stack of layers (shown when expanded)
         AnimatedVisibility(
             visible = expanded,
-            enter = fadeIn(tween(200)) + expandVertically(tween(200)),
-            exit = fadeOut(tween(150)) + shrinkVertically(tween(180))
+            enter = fadeIn(MotionTokens.fadeDefault) + expandVertically(MotionTokens.springPanel()),
+            exit = fadeOut(MotionTokens.fadeQuick) + shrinkVertically(MotionTokens.springPanel())
         ) {
             Box(
                 modifier = Modifier
@@ -602,10 +598,7 @@ private fun ObjectLayerCardCompact(
 ) {
     val scale by animateFloatAsState(
         targetValue = if (isSelected) 1.06f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
+        animationSpec = MotionTokens.springEmphasized(),
         label = "cardScale"
     )
 

@@ -40,8 +40,6 @@ object LabelInteractionState {
 
     fun onStartTextEdit(layerId: String): Pair<String?, String?> = layerId to layerId
 
-    fun onConfirmTextEdit(): Pair<String?, String?> = null to null
-
     fun onDeselectLayer(): Pair<String?, String?> = null to null
 
     fun onFinishTextEdit(

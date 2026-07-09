@@ -92,7 +92,6 @@ sealed class EditorEvent {
     data class UpdateElevationStyle(val style: ShapeElevationStyle) : EditorEvent()
     data class UpdateElevationTarget(val target: ElevationTarget) : EditorEvent()
     data class UpdateAlpha(val alpha: Float) : EditorEvent()
-    data class SetBoundingBoxVisible(val visible: Boolean) : EditorEvent()
     data class SelectTool(val tool: EditorTool) : EditorEvent()
     data class SelectCropRatio(val ratio: CropRatio) : EditorEvent()
     data class SelectLayer(val layerId: String?) : EditorEvent()
@@ -120,13 +119,13 @@ sealed class EditorEvent {
     data class RequestTextEdit(val layerId: String) : EditorEvent()
     /** Enter inline text-edit: thin frame, keyboard, hide BB. */
     data class StartTextEdit(val layerId: String) : EditorEvent()
-    /** Confirm text edit: fit, commit, deselect (ảnh 3). */
-    data object ConfirmTextEdit : EditorEvent()
     /** Clear selection without fitting. */
     data object DeselectLayer : EditorEvent()
     /** Fit label bounding box to text after editing ends (keeps selection). */
     data object FinishTextEdit : EditorEvent()
     /** Append a newline to the active label text (canvas inline edit). */
     data object InsertTextNewline : EditorEvent()
+    /** Acknowledge the currently shown error so it never re-shows on recompose. */
+    data object ClearError : EditorEvent()
     data class Export(val templateAssetPath: String) : EditorEvent()
 }

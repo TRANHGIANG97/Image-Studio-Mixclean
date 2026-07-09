@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -36,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
+import coil.size.Precision
 import com.thgiang.image.core.design.theme.AuroraCoral
 import com.thgiang.image.studio.R
 import androidx.compose.ui.res.stringResource
@@ -122,6 +125,20 @@ fun ProductLayerV2(
 
     val originalWidth = with(density) { (actualSize.width * viewport.scale * displayScale).toInt().toDp() }
     val originalHeight = with(density) { (actualSize.height * viewport.scale * displayScale).toInt().toDp() }
+
+    // Decode at the displayed pixel size instead of full resolution (OOM risk on low-end
+    // devices). INEXACT lets Coil reuse larger cached bitmaps while the layer is scaled.
+    val imageContext = LocalContext.current
+    val targetPxWidth = (actualSize.width * viewport.scale * displayScale).roundToInt().coerceAtLeast(1)
+    val targetPxHeight = (actualSize.height * viewport.scale * displayScale).roundToInt().coerceAtLeast(1)
+    val foregroundRequest = remember(product.foregroundUri, targetPxWidth, targetPxHeight) {
+        ImageRequest.Builder(imageContext)
+            .data(product.foregroundUri)
+            .size(targetPxWidth, targetPxHeight)
+            .precision(Precision.INEXACT)
+            .crossfade(true)
+            .build()
+    }
     val displayStrokeWidth = strokeWidthPx * viewport.scale * displayScale
     val hasStroke = strokeWidthPx > 0f && strokeColorArgb != null
     val blurRadius = appearance.resolvedShadowBlurRadius() * displayScale
@@ -169,7 +186,7 @@ fun ProductLayerV2(
             // Shadow Layer
             if (appearance.shadowIntensity > 0.05f) {
                 SubcomposeAsyncImage(
-                    model = product.foregroundUri,
+                    model = foregroundRequest,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
@@ -199,7 +216,7 @@ fun ProductLayerV2(
 
             // Foreground Image Layer
             SubcomposeAsyncImage(
-                model = product.foregroundUri,
+                model = foregroundRequest,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()

@@ -61,6 +61,7 @@ import com.thgiang.image.core.design.components.PrecisionSlider
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -156,8 +157,8 @@ fun ShadowToolPanel(
 
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(animationSpec = tween(200)),
-            exit = shrinkVertically(animationSpec = tween(180))
+            enter = expandVertically(animationSpec = MotionTokens.springPanel()),
+            exit = shrinkVertically(animationSpec = MotionTokens.springPanel())
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),

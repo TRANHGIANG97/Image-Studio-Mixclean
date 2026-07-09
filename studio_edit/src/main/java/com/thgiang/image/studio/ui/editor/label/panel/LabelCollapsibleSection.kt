@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 
 @Composable
 internal fun LabelCollapsibleSection(
@@ -94,8 +95,8 @@ internal fun LabelCollapsibleSection(
 
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(animationSpec = tween(200)),
-            exit = shrinkVertically(animationSpec = tween(180)),
+            enter = expandVertically(animationSpec = MotionTokens.springPanel()),
+            exit = shrinkVertically(animationSpec = MotionTokens.springPanel()),
         ) {
             Column(modifier = Modifier.padding(top = 10.dp, bottom = 8.dp)) {
                 content()

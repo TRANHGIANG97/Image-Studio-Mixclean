@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ fun ThemeplateGalleryScreen(
     val categories by viewModel.categories.collectAsState()
     val remoteTemplates by viewModel.remoteTemplates.collectAsState()
     val loadingRemoteTemplates by viewModel.loadingRemoteTemplates.collectAsState()
+    val templatesLoadFailed by viewModel.templatesLoadFailed.collectAsState()
     
     var selectedTabIndex by remember { mutableStateOf(0) }
 
@@ -144,6 +146,8 @@ fun ThemeplateGalleryScreen(
                     RemoteThemeplateGrid(
                         templates = remoteTemplates,
                         isLoading = loadingRemoteTemplates,
+                        loadFailed = templatesLoadFailed,
+                        onRetry = { viewModel.retryLoadTemplates() },
                         onTemplateSelected = onThemeplateSelected
                     )
                 }
@@ -156,6 +160,8 @@ fun ThemeplateGalleryScreen(
 private fun RemoteThemeplateGrid(
     templates: List<RemoteTemplateRow>,
     isLoading: Boolean,
+    loadFailed: Boolean,
+    onRetry: () -> Unit,
     onTemplateSelected: (String, Boolean) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -166,6 +172,32 @@ private fun RemoteThemeplateGrid(
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = Color(0xFFFF2D55))
+                }
+            } else if (loadFailed && templates.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.studio_gallery_load_failed),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.Refresh,
+                            contentDescription = stringResource(R.string.studio_retry),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clickable { onRetry() }
+                        )
+                    }
                 }
             } else if (templates.isEmpty()) {
                 Box(

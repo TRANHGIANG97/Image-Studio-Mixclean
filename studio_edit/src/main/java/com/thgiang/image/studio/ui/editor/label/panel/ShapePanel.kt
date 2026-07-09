@@ -4,9 +4,10 @@ package com.thgiang.image.studio.ui.editor.label.panel
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,7 @@ import com.thgiang.image.studio.ui.editor.model.isFrameLayer
 import com.thgiang.image.studio.ui.editor.model.*
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 
 /**
  * Canva-style Shape Panel.
@@ -91,7 +93,11 @@ fun ShapePanel(
         if (isFrameLayer && selectedLayer != null) {
             // ── EDITING MODE ─────────────────────────────────────────────
 
-            AnimatedVisibility(visible = isExpanded) {
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(animationSpec = MotionTokens.springPanel()) + fadeIn(MotionTokens.fadeDefault),
+                exit = shrinkVertically(animationSpec = MotionTokens.springPanel()) + fadeOut(MotionTokens.fadeQuick),
+            ) {
                 // Tab Content (scrollable)
                 Box(
                     modifier = Modifier
@@ -103,7 +109,7 @@ fun ShapePanel(
                     AnimatedContent(
                         targetState = activeTab,
                         transitionSpec = {
-                            fadeIn(tween(160)) togetherWith fadeOut(tween(100))
+                            fadeIn(MotionTokens.fadeDefault) togetherWith fadeOut(MotionTokens.fadeQuick)
                         },
                         label = "shapeTabContent",
                     ) { tab ->

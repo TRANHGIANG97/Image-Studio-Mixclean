@@ -11,7 +11,6 @@ import com.thgiang.image.studio.ui.editor.model.*
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -40,6 +39,7 @@ import com.thgiang.image.studio.R
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 import com.thgiang.image.studio.ui.editor.label.panel.LabelEditTab
 import com.thgiang.image.studio.ui.editor.label.panel.LabelEditingKeyboardToolbar
 import com.thgiang.image.studio.ui.editor.label.panel.LabelSelectionToolbar
@@ -97,6 +97,7 @@ fun ThemeplateEditorScreen(
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { msg ->
             snackbarHostState.showSnackbar(msg, duration = SnackbarDuration.Long)
+            viewModel.onEvent(EditorEvent.ClearError)
         }
     }
     
@@ -129,7 +130,7 @@ fun ThemeplateEditorScreen(
             editingToolsUnlocked || tool is EditorTool.Label || tool is EditorTool.Sticker || tool is EditorTool.Shape
         }
         var shouldAutoEditNextLabel by remember { mutableStateOf(false) }
-        var activeLabelTab by rememberSaveable(state.selectedLayerId) {
+        var activeLabelTab by rememberSaveable {
             mutableStateOf(LabelEditTab.FONT)
         }
         val editingLayer = state.layers.find { it.id == state.editingLayerId }
@@ -145,10 +146,17 @@ fun ThemeplateEditorScreen(
             }
         }
 
+        // Reset the label tab only when the selection changes KIND (null/non-label → label);
+        // switching between two label layers keeps the user's current tab.
+        var previousSelectionWasLabel by remember { mutableStateOf(activeLayer?.isLabelLayer == true) }
         LaunchedEffect(state.selectedLayerId) {
-            if (state.selectedLayerId != null) {
+            val isLabelSelection = state.layers
+                .find { it.id == state.selectedLayerId }
+                ?.isLabelLayer == true
+            if (isLabelSelection && !previousSelectionWasLabel) {
                 activeLabelTab = LabelEditTab.FONT
             }
+            previousSelectionWasLabel = isLabelSelection
         }
 
         val isImeVisible = WindowInsets.isImeVisible
@@ -443,7 +451,8 @@ fun ThemeplateEditorScreen(
                 } else if (tool != null) {
                     if (tool == EditorTool.Shape) {
                         if (selectedToolForUi == EditorTool.Shape) {
-                            viewModel.onEvent(EditorEvent.SelectLayer(null))
+                            // Toggle the tool off only — keep the current layer selection.
+                            viewModel.onEvent(EditorEvent.SelectTool(EditorTool.Shape))
                         } else {
                             viewModel.onEvent(EditorEvent.SelectLayer(null))
                             viewModel.onEvent(EditorEvent.SelectTool(EditorTool.Shape))
@@ -473,8 +482,8 @@ fun ThemeplateEditorScreen(
                 AnimatedVisibility(
                     visible = isLabelEditing && editingLayer != null,
                     modifier = Modifier.fillMaxWidth(),
-                    enter = slideInVertically(tween(200)) { it } + fadeIn(tween(180)),
-                    exit = slideOutVertically(tween(180)) { it } + fadeOut(tween(160)),
+                    enter = slideInVertically(MotionTokens.springPanel()) { it } + fadeIn(MotionTokens.fadeDefault),
+                    exit = slideOutVertically(MotionTokens.springPanel()) { it } + fadeOut(MotionTokens.fadeQuick),
                 ) {
                     val layer = editingLayer ?: return@AnimatedVisibility
                     LabelEditingKeyboardToolbar(
@@ -488,8 +497,8 @@ fun ThemeplateEditorScreen(
                 AnimatedVisibility(
                     visible = isLabelSelected && activeLayer != null,
                     modifier = Modifier.fillMaxWidth(),
-                    enter = slideInVertically(tween(250)) { it } + fadeIn(tween(200)),
-                    exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(180)),
+                    enter = slideInVertically(MotionTokens.springPanel()) { it } + fadeIn(MotionTokens.fadeDefault),
+                    exit = slideOutVertically(MotionTokens.springPanel()) { it } + fadeOut(MotionTokens.fadeQuick),
                 ) {
                     val layer = activeLayer ?: return@AnimatedVisibility
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -521,8 +530,8 @@ fun ThemeplateEditorScreen(
                 AnimatedVisibility(
                     visible = showControls,
                     modifier = Modifier.fillMaxWidth(),
-                    enter = slideInVertically(tween(250)) { it } + fadeIn(tween(200)),
-                    exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(180)),
+                    enter = slideInVertically(MotionTokens.springPanel()) { it } + fadeIn(MotionTokens.fadeDefault),
+                    exit = slideOutVertically(MotionTokens.springPanel()) { it } + fadeOut(MotionTokens.fadeQuick),
                 ) {
                     if (selectedToolForUi != null) {
                         EditorControlsV2(
@@ -545,6 +554,8 @@ fun ThemeplateEditorScreen(
                 AnimatedVisibility(
                     visible = !isImeVisible && !isLabelEditing && !isLabelSelected,
                     modifier = Modifier.fillMaxWidth(),
+                    enter = slideInVertically(MotionTokens.springPanel()) { it } + fadeIn(MotionTokens.fadeDefault),
+                    exit = slideOutVertically(MotionTokens.springPanel()) { it } + fadeOut(MotionTokens.fadeQuick),
                 ) {
                     EditorBottomToolbar(
                         selectedTool = selectedToolForUi,

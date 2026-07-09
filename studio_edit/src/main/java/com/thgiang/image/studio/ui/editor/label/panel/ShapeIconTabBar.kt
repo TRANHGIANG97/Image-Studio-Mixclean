@@ -2,7 +2,6 @@
 package com.thgiang.image.studio.ui.editor.label.panel
 
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -42,6 +41,7 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 
 /**
  * Shape editing tabs — Canva-style icon tabs.
@@ -123,7 +123,7 @@ private fun ShapeTabItem(
 ) {
     val indicatorHeight by animateDpAsState(
         targetValue = if (isSelected) 2.5.dp else 0.dp,
-        animationSpec = tween(180),
+        animationSpec = MotionTokens.springEmphasized(),
         label = "tabIndicator_${tab.name}",
     )
 

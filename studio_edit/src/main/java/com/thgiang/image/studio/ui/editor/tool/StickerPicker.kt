@@ -57,6 +57,7 @@ import com.thgiang.image.studio.data.RemoteSticker
 import com.thgiang.image.studio.ui.editor.ThemeplateEditorViewModel
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 
 /**
  * Thanh nhãn dán ngang nhanh (Quick Sticker Strip).
@@ -187,8 +188,8 @@ internal fun StickerPicker(
         // ── Content ────────────────────────────────────────────────
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(animationSpec = tween(200)),
-            exit = shrinkVertically(animationSpec = tween(180)),
+            enter = expandVertically(animationSpec = MotionTokens.springPanel()),
+            exit = shrinkVertically(animationSpec = MotionTokens.springPanel()),
         ) {
             when {
                 // Đang tải

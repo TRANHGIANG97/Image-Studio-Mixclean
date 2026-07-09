@@ -3,14 +3,12 @@ import com.thgiang.image.studio.ui.editor.panel.*
 
 import androidx.compose.animation.core.animateFloatAsState
 import com.thgiang.image.studio.ui.editor.model.*
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -31,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
+import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 
 @Composable
 fun EditorBottomToolbar(
@@ -162,11 +161,17 @@ private fun ToolButton(
     val baseScale = 1.0f
     val scale by animateFloatAsState(
         targetValue = if (isSelected) baseScale * 1.08f else baseScale,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness    = Spring.StiffnessMedium
-        ),
+        animationSpec = MotionTokens.springEmphasized(),
         label = "toolScale"
+    )
+
+    // Press feedback — subtle scale-down while pressed, springs back on release
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = MotionTokens.springEmphasized(),
+        label = "toolPressScale"
     )
 
     val iconTint = when {
@@ -187,7 +192,7 @@ private fun ToolButton(
             .widthIn(min = 60.dp)
             .clickable(
                 enabled = enabled,
-                interactionSource = remember { MutableInteractionSource() },
+                interactionSource = interactionSource,
                 indication = androidx.compose.foundation.LocalIndication.current,
                 onClick = onClick
             )
@@ -201,8 +206,8 @@ private fun ToolButton(
                 .background(if (isSelected) accentSoftColor else Color.Transparent)
                 .padding(horizontal = 8.dp, vertical = 6.dp)
                 .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
+                    scaleX = scale * pressScale
+                    scaleY = scale * pressScale
                     alpha = containerAlpha
                 }
         ) {

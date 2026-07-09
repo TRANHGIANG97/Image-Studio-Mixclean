@@ -17,6 +17,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thgiang.image.core.domain.logging.AppLogger
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.data.TemplateDraftRepository
@@ -60,6 +61,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private val productWorkflow: EditorProductWorkflow,
     private val layerFactory: EditorLayerFactory,
     private val stickerRepository: StickerRemoteRepository,
+    private val appLogger: AppLogger,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -372,9 +374,6 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.UpdateAlpha -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f))) }
             }
-            is EditorEvent.SetBoundingBoxVisible -> {
-                // Not used anymore as bounding box depends on selectedLayerId
-            }
             is EditorEvent.SelectTool -> {
                 if (event.tool is EditorTool.Label) {
                     val active = _state.value.layers.find { it.id == _state.value.selectedLayerId }
@@ -470,9 +469,9 @@ class ThemeplateEditorViewModel @Inject constructor(
             EditorEvent.SaveDraft -> saveDraft()
             is EditorEvent.RequestTextEdit -> startTextEdit(event.layerId)
             is EditorEvent.StartTextEdit -> startTextEdit(event.layerId)
-            EditorEvent.ConfirmTextEdit -> confirmTextEdit()
             EditorEvent.DeselectLayer -> deselectLayer()
             EditorEvent.FinishTextEdit -> finishTextEdit()
+            EditorEvent.ClearError -> _state.update { it.copy(errorMessage = null) }
             is EditorEvent.Export -> export(event.templateAssetPath)
         }
     }
@@ -499,16 +498,6 @@ class ThemeplateEditorViewModel @Inject constructor(
                 state.selectedLayerId,
                 state.editingLayerId,
             )
-            state.copy(selectedLayerId = sel, editingLayerId = edit)
-        }
-    }
-
-    private fun confirmTextEdit() {
-        applyShapeFitToActiveLayer()
-        requestHistoryPush()
-        _state.update { state ->
-            val (rawSel, rawEdit) = LabelInteractionState.onConfirmTextEdit()
-            val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, state.layers)
             state.copy(selectedLayerId = sel, editingLayerId = edit)
         }
     }
@@ -1064,7 +1053,15 @@ class ThemeplateEditorViewModel @Inject constructor(
                     }
                     _state.update { it.copy(draftSavedAt = outcome.savedAt) }
                 }
-                is SaveDraftOutcome.Failure -> outcome.error.printStackTrace()
+                is SaveDraftOutcome.Failure -> {
+                    appLogger.logNonFatal(
+                        outcome.error,
+                        mapOf("templateId" to (themeplateId ?: draftId ?: "unknown")),
+                    )
+                    _state.update {
+                        it.copy(errorMessage = context.getString(R.string.studio_draft_save_failed))
+                    }
+                }
             }
         }
     }
