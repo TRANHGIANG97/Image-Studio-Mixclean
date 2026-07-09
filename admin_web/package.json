@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "sync:studio-assets": "node scripts/sync-studio-assets.mjs",
-    "sync:default-categories": "node scripts/sync-default-categories.mjs"
+    "sync:default-categories": "node scripts/sync-default-categories.mjs",
+    "migrate:templates": "tsx scripts/migrate-validate-templates.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1063.0",
@@ -56,6 +57,7 @@
     "jsdom": "^29.1.1",
     "sharp": "^0.35.2",
     "tailwindcss": "^4",
+    "tsx": "^4.23.0",
     "typescript": "^5",
     "vitest": "^4.1.8"
   }

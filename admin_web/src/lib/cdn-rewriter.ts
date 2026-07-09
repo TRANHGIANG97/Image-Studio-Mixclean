@@ -1,4 +1,4 @@
-const R2_PUBLIC_BASE = 'https://pub-d63489ecea7149a585628ea6a2c2da7f.r2.dev';
+export const R2_PUBLIC_BASE = 'https://pub-d63489ecea7149a585628ea6a2c2da7f.r2.dev';
 
 /** Unwrap `/api/proxy?url=` and `http://host/api/proxy?url=` to the original asset URL. */
 export function unwrapProxyUrl(value: string): string {

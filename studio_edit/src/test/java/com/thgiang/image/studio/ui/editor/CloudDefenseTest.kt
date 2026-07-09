@@ -1,6 +1,7 @@
 package com.thgiang.image.studio.ui.editor
 
 import androidx.compose.ui.graphics.BlendMode
+import com.thgiang.image.core.domain.logging.AppLogger
 import com.thgiang.image.core.domain.model.template.CloudTemplateParser
 import com.thgiang.image.studio.ui.editor.mapper.CloudLayerToEditorMapper
 import com.thgiang.image.studio.ui.editor.mapper.EditorBlendModeMapper
@@ -91,6 +92,74 @@ class CloudDefenseTest {
         // The valid text layer survives; junk layers are skipped, not fatal.
         assertTrue(layers.any { it.id == "valid_text" })
         assertTrue(layers.none { it.id == "junk_unknown_type" })
+    }
+
+    // ── Observability (AppLogger) ───────────────────────────────────
+
+    @Test
+    fun `mapper skip is reported to AppLogger`() {
+        val logger = FakeAppLogger()
+        val template = CloudTemplateParser.parse(
+            templateId = "hostile_tpl",
+            categoryId = "cat",
+            canvasData = JSONObject(HOSTILE_FIXTURE),
+        )
+
+        CloudLayerToEditorMapper.mapLayers(template, scaledDensity = 3f, logger = logger)
+
+        // The junk layer skip must surface as logNonFatal (exception) or logWarning (null-mapped).
+        val reportedLayerIds =
+            logger.nonFatals.map { it.second["layerId"] } + logger.warnings.map { it.second["layerId"] }
+        assertTrue(reportedLayerIds.contains("junk_unknown_type"))
+    }
+
+    @Test
+    fun `template_mapped event carries mapped and skipped counts`() {
+        val logger = FakeAppLogger()
+        val template = CloudTemplateParser.parse(
+            templateId = "hostile_tpl",
+            categoryId = "cat",
+            canvasData = JSONObject(HOSTILE_FIXTURE),
+        )
+
+        val layers = CloudLayerToEditorMapper.mapLayers(template, scaledDensity = 3f, logger = logger)
+
+        val event = logger.events.single { it.first == "template_mapped" }
+        assertEquals("hostile_tpl", event.second["templateId"])
+        assertEquals(layers.size.toString(), event.second["layerCount"])
+        assertEquals("1", event.second["layerCount"])
+        assertEquals("1", event.second["skippedCount"])
+    }
+
+    @Test
+    fun `no logger passed keeps mapping silent and safe`() {
+        val template = CloudTemplateParser.parse(
+            templateId = "hostile_tpl",
+            categoryId = "cat",
+            canvasData = JSONObject(HOSTILE_FIXTURE),
+        )
+
+        // Default parameter path (tests/legacy callers): must not crash without a logger.
+        val layers = CloudLayerToEditorMapper.mapLayers(template, scaledDensity = 3f)
+        assertTrue(layers.any { it.id == "valid_text" })
+    }
+
+    private class FakeAppLogger : AppLogger {
+        val nonFatals = mutableListOf<Pair<Throwable, Map<String, String>>>()
+        val warnings = mutableListOf<Pair<String, Map<String, String>>>()
+        val events = mutableListOf<Pair<String, Map<String, String>>>()
+
+        override fun logNonFatal(throwable: Throwable, context: Map<String, String>) {
+            nonFatals += throwable to context
+        }
+
+        override fun logWarning(message: String, context: Map<String, String>) {
+            warnings += message to context
+        }
+
+        override fun logEvent(name: String, params: Map<String, String>) {
+            events += name to params
+        }
     }
 
     private fun manifestWithOutfit() = FontsManifest(

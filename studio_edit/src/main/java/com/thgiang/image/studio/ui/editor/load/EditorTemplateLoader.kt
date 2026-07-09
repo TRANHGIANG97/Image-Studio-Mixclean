@@ -6,6 +6,7 @@ import android.content.Context
 import com.thgiang.image.studio.ui.editor.model.*
 import com.thgiang.image.studio.ui.editor.model.EditorLayerNormalizer
 import android.graphics.BitmapFactory
+import com.thgiang.image.core.domain.logging.AppLogger
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.studio.data.CloudTemplateRemoteRepository
 import com.thgiang.image.studio.util.FontDownloader
@@ -25,6 +26,7 @@ data class LoadedEditorTemplate(
 @Singleton
 class EditorTemplateLoader @Inject constructor(
     private val cloudTemplateRepository: CloudTemplateRemoteRepository,
+    private val logger: AppLogger,
     @ApplicationContext private val context: Context,
 ) {
     suspend fun fetchCloudTemplate(templateId: String): CloudTemplate = withContext(Dispatchers.IO) {
@@ -40,8 +42,17 @@ class EditorTemplateLoader @Inject constructor(
         val backgroundUrl = cloudTemplate.canvas.backgroundUrl.orEmpty()
         val density = context.resources.displayMetrics.scaledDensity.coerceAtLeast(1f)
         val editorLayers = EditorLayerNormalizer.normalize(
-            CloudLayerToEditorMapper.mapLayers(cloudTemplate, density),
+            CloudLayerToEditorMapper.mapLayers(cloudTemplate, density, logger),
         )
+
+        if (editorLayers.isEmpty()) {
+            // Cloud template hợp lệ nhưng render ra editor trống — cần theo dõi
+            // vì user sẽ thấy màn hình trắng thay vì template.
+            logger.logEvent(
+                "template_render_empty",
+                mapOf("templateId" to cloudTemplate.templateId),
+            )
+        }
 
         FontDownloader.preloadTemplateFonts(
             context = context,

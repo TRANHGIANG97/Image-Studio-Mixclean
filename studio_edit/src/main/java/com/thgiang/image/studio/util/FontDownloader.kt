@@ -3,6 +3,7 @@ package com.thgiang.image.studio.util
 import android.content.Context
 import android.graphics.Typeface
 import android.util.Log
+import com.thgiang.image.core.domain.logging.AppLogger
 import com.thgiang.image.studio.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,6 +35,13 @@ object FontDownloader {
 
     /** Default sans-serif family used when a requested font is unknown to the registry. */
     const val FALLBACK_FONT_FAMILY = "sans-serif"
+
+    /**
+     * Observability sink, assigned from the Hilt module (this is a legacy `object`,
+     * so constructor injection is not available). Nullable: falls back to Logcat-only.
+     */
+    @Volatile
+    var appLogger: AppLogger? = null
 
     private val fontCache = ConcurrentHashMap<String, Typeface>()
     private val aliasToSlug = ConcurrentHashMap<String, String>()
@@ -80,6 +88,7 @@ object FontDownloader {
             // Font fallback chain: font lạ từ Web không được phép đổi sang font hệ thống
             // ngẫu nhiên một cách âm thầm — log để team biết cần nhúng thêm font.
             Log.w(TAG, "Unknown font '$fontFamily' — falling back to $FALLBACK_FONT_FAMILY")
+            appLogger?.logEvent("font_fallback", mapOf("requested" to fontFamily))
             return systemTypeface(FALLBACK_FONT_FAMILY)
         }
 

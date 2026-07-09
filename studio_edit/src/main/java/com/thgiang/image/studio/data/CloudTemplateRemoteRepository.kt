@@ -1,6 +1,7 @@
 package com.thgiang.image.studio.data
 
 import android.util.Log
+import com.thgiang.image.core.domain.logging.AppLogger
 import com.thgiang.image.core.domain.model.template.CloudCategory
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.core.domain.model.template.CloudTemplateParser
@@ -27,6 +28,7 @@ data class RemoteTemplateRow(
 @Singleton
 class CloudTemplateRemoteRepository @Inject constructor(
     private val cache: TemplateCache,
+    private val logger: AppLogger,
     @ApplicationContext private val context: Context,
 ) {
 
@@ -199,6 +201,12 @@ class CloudTemplateRemoteRepository @Inject constructor(
                             TAG,
                             "Skipping invalid template '${outcome.templateId}': ${outcome.reason}"
                         )
+                        val eventParams = mapOf(
+                            "templateId" to (outcome.templateId ?: "unknown"),
+                            "reason" to outcome.reason,
+                        )
+                        logger.logWarning("Skipping invalid template", eventParams)
+                        logger.logEvent("template_parse_invalid", eventParams)
                         continue
                     }
                 }

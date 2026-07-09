@@ -19,6 +19,7 @@ import com.thgiang.image.core.domain.model.template.resolvedImageUrl
 import com.thgiang.image.core.domain.model.template.resolvedShapeFillArgb
 import com.thgiang.image.core.domain.model.template.resolvedTextColorArgb
 import android.util.Log
+import com.thgiang.image.core.domain.logging.AppLogger
 import com.thgiang.image.studio.util.replaceLocalhostWithConfiguredHost
 import java.util.UUID
 
@@ -29,21 +30,50 @@ object CloudLayerToEditorMapper {
 
     private const val TAG = "CloudMapper"
 
-    fun mapLayers(cloudTemplate: CloudTemplate, scaledDensity: Float): List<EditorLayer> {
+    fun mapLayers(
+        cloudTemplate: CloudTemplate,
+        scaledDensity: Float,
+        logger: AppLogger? = null,
+    ): List<EditorLayer> {
         val canvasWidth = cloudTemplate.canvas.baseWidth
         val canvasHeight = cloudTemplate.canvas.baseHeight
+        var skippedCount = 0
 
         return cloudTemplate.layers
             .sortedBy { it.zIndex }
             .mapNotNull { cloudLayer ->
                 // Graceful skip: một layer hỏng không được phép kéo sập cả template.
-                runCatching {
+                val result = runCatching {
                     mapLayer(cloudLayer, canvasWidth, canvasHeight, scaledDensity)
-                }.onFailure { error ->
-                    Log.w(TAG, "Skipped layer ${cloudLayer.layerId}: ${error.message}")
-                }.getOrNull()
+                }
+                val mapped = result.getOrNull()
+                if (mapped == null) {
+                    skippedCount++
+                    val error = result.exceptionOrNull()
+                    Log.w(TAG, "Skipped layer ${cloudLayer.layerId}: ${error?.message ?: "unmappable payload"}")
+                    val skipContext = mapOf(
+                        "templateId" to cloudTemplate.templateId,
+                        "layerId" to cloudLayer.layerId,
+                    )
+                    if (error != null) {
+                        logger?.logNonFatal(error, skipContext)
+                    } else {
+                        logger?.logWarning("Skipped unmappable layer", skipContext)
+                    }
+                }
+                mapped
             }
             .let { EditorLayerNormalizer.normalize(it) }
+            .also { normalized ->
+                logger?.logEvent(
+                    "template_mapped",
+                    mapOf(
+                        "templateId" to cloudTemplate.templateId,
+                        "layerCount" to normalized.size.toString(),
+                        "skippedCount" to skippedCount.toString(),
+                    ),
+                )
+            }
     }
 
     private fun mapLayer(
