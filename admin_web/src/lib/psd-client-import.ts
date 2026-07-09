@@ -1,5 +1,7 @@
 import Psd from '@webtoon/psd';
 import { CloudLayer } from '@/types/cloud-template';
+import { classifyPsdLayer, PsdLayerSignals } from '@/lib/psd/layer-classifier';
+import { pixelsToBlob, pixelsToThumbnailBlob } from '@/lib/psd/rasterize-service';
 
 export interface ExtractedLayer {
   layerId: string;
@@ -439,55 +441,14 @@ function hasComplexEffects(node: any): boolean {
   }
 }
 
-/** Render raw RGBA pixels to HTML5 Canvas and convert to compressed WebP Blob */
-async function pixelsToWebpBlob(pixels: Uint8ClampedArray, width: number, height: number): Promise<Blob | null> {
-  if (typeof document === 'undefined') return null;
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return null;
-
-  const imgData = ctx.createImageData(width, height);
-  imgData.data.set(pixels);
-  ctx.putImageData(imgData, 0, 0);
-
-  return new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, 'image/webp', 0.85);
-  });
+/** Render raw RGBA pixels to compressed WebP Blob (delegates to rasterize-service). */
+function pixelsToWebpBlob(pixels: Uint8ClampedArray, width: number, height: number): Promise<Blob | null> {
+  return pixelsToBlob(pixels, width, height);
 }
 
-/** Render composite and resize for thumbnail WebP Blob */
-async function createThumbnailBlob(pixels: Uint8ClampedArray, width: number, height: number): Promise<Blob | null> {
-  if (typeof document === 'undefined') return null;
-  const sourceCanvas = document.createElement('canvas');
-  sourceCanvas.width = width;
-  sourceCanvas.height = height;
-  const sCtx = sourceCanvas.getContext('2d');
-  if (!sCtx) return null;
-
-  const imgData = sCtx.createImageData(width, height);
-  imgData.data.set(pixels);
-  sCtx.putImageData(imgData, 0, 0);
-
-  // Resize canvas to max 720 width
-  const targetWidth = Math.min(720, width);
-  const targetHeight = Math.round((targetWidth / width) * height);
-
-  const destCanvas = document.createElement('canvas');
-  destCanvas.width = targetWidth;
-  destCanvas.height = targetHeight;
-  const dCtx = destCanvas.getContext('2d');
-  if (!dCtx) return null;
-
-  // Draw white background
-  dCtx.fillStyle = '#ffffff';
-  dCtx.fillRect(0, 0, targetWidth, targetHeight);
-  dCtx.drawImage(sourceCanvas, 0, 0, targetWidth, targetHeight);
-
-  return new Promise<Blob | null>((resolve) => {
-    destCanvas.toBlob(resolve, 'image/webp', 0.88);
-  });
+/** Render composite and resize for thumbnail WebP Blob (delegates to rasterize-service). */
+function createThumbnailBlob(pixels: Uint8ClampedArray, width: number, height: number): Promise<Blob | null> {
+  return pixelsToThumbnailBlob(pixels, width, height);
 }
 
 async function tryExtractBackgroundLayer(node: any, canvasWidth: number, canvasHeight: number) {
@@ -616,51 +577,39 @@ export async function parsePsdOnClient(
       node.additionalProperties?.SoCo
     );
 
-    // --- FIX 4: Refined rasterize criteria ---
-    // Only rasterize text when the effect truly cannot be mapped to canvas:
-    //   - Warp Text (impossible in web canvas)
-    //   - Mixed styles (different fonts/sizes/colors in same layer)
-    //   - Complex effects (Stroke, Bevel, Inner Glow) — NOT simple Drop Shadow
-    const shouldRasterizeText = rawIsText && (hasWarp || mixedStyles || complexFx);
-    const isText = rawIsText && !shouldRasterizeText;
-
     const opacity = normalizeOpacity(node.composedOpacity ?? node.opacity);
     const rawBlendMode = node.layerFrame?.layerProperties?.blendMode || node.layerProperties?.blendMode;
     const blendMode = mapPsdBlendMode(rawBlendMode);
 
+    const hasMask = !!(node.additionalProperties?.LMsk || node.additionalProperties?.VMsk || node.layerMask || node.vectorMask);
+    const isClipping = !!node.clipping;
+
+    // Rules Engine: single source of truth for keep-vector vs rasterize.
+    const signals: PsdLayerSignals = {
+      isText: rawIsText,
+      hasWarp,
+      warpStyle,
+      hasMixedStyles: mixedStyles,
+      hasComplexEffects: complexFx,
+      hasDropShadow: !!dropShadow,
+      isAdjustment,
+      hasMask,
+      isClipping,
+      blendMode,
+    };
+    const classification = classifyPsdLayer(signals);
+    const shouldRasterizeText = rawIsText && classification.strategy === 'rasterize';
+    const isText = rawIsText && !shouldRasterizeText;
+
     const layerWarnings: string[] = [];
 
-    // Build warnings
     if (shouldRasterizeText) {
-      const reasons: string[] = [];
-      if (hasWarp) reasons.push(`chữ uốn cong (Warp Text: "${warpStyle}")`);
-      if (mixedStyles) reasons.push(`định dạng chữ hỗn hợp`);
-      if (complexFx) reasons.push(`hiệu ứng phức tạp (Stroke/Bevel/Glow)`);
-      layerWarnings.push(`Tự động phẳng hóa thành Ảnh để giữ nguyên: ${reasons.join(', ')}`);
-    } else if (isText) {
-      if (dropShadow) {
-        layerWarnings.push(`Drop Shadow đã được map sang canvas shadow`);
+      layerWarnings.push(`Tự động phẳng hóa thành Ảnh để giữ nguyên: ${classification.reasons.join(', ')}`);
+    } else {
+      layerWarnings.push(...classification.reasons);
+      if (!isText && hasAnyEffects && !complexFx) {
+        layerWarnings.push(`Hiệu ứng lớp/Layer Styles (Drop Shadow, Stroke, Glow, v.v.)`);
       }
-    }
-
-    if (!shouldRasterizeText && complexFx) {
-      layerWarnings.push(`Hiệu ứng phức tạp (Stroke, Bevel, Glow) — có thể khác biệt nhỏ`);
-    } else if (!isText && hasAnyEffects && !shouldRasterizeText) {
-      layerWarnings.push(`Hiệu ứng lớp/Layer Styles (Drop Shadow, Stroke, Glow, v.v.)`);
-    }
-
-    const hasMask = !!(node.additionalProperties?.LMsk || node.additionalProperties?.VMsk || node.layerMask || node.vectorMask);
-    if (hasMask) {
-      layerWarnings.push(`Mặt nạ lớp (Layer Mask/Vector Mask)`);
-    }
-
-    if (isAdjustment) {
-      layerWarnings.push(`Lớp chỉnh màu/tô màu — tự động composite thành Ảnh`);
-    }
-
-    const isClipping = !!node.clipping;
-    if (isClipping) {
-      layerWarnings.push(`Mặt nạ cắt (Clipping Mask)`);
     }
 
     if (!isText && !shouldRasterizeText && !isAdjustment) {
@@ -684,7 +633,7 @@ export async function parsePsdOnClient(
     // --- FIX 2: Apply Drop Shadow from PSD to canvas payload ---
     const shadow = dropShadow ?? (isText ? null : tryExtractDropShadow(node));
     const psdStroke = !shouldRasterizeText ? tryExtractStroke(node) : null;
-    const effectsBaked = shouldRasterizeText || isAdjustment;
+    const effectsBaked = classification.effectsBaked;
 
     const payload: any = {
       alpha: opacity,
