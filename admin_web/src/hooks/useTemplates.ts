@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-q
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/apiClient';
 import { CloudTemplate } from '@/types/cloud-template';
+import { CURRENT_SCHEMA_VERSION } from '@/lib/schema/template-contract';
 import { parsePsdOnClient, ClientPsdImportResult } from '@/lib/psd-client-import';
 
 // Re-use existing strict CloudTemplate type instead of `any`
@@ -354,7 +355,7 @@ export function useImportPsdTemplate() {
           title: importResult.title,
           thumbnailUrl: thumbnailUrl || null,
           status: 'draft',
-          schemaVersion: 1,
+          schemaVersion: CURRENT_SCHEMA_VERSION,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         },

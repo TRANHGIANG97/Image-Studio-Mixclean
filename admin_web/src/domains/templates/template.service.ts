@@ -1,5 +1,6 @@
 import { createSupabaseAdmin } from '@/lib/supabase';
 import { CloudTemplate } from '@/types/cloud-template';
+import { CURRENT_SCHEMA_VERSION } from '@/lib/schema/template-contract';
 import JSZip from 'jszip';
 import { gcd, buildInitialFabricState, remapClonedTemplateIds } from './template.helpers';
 
@@ -123,7 +124,7 @@ export async function createTemplate(input: CreateTemplateInput) {
       title: input.title,
       thumbnailUrl: input.thumbnailUrl || input.backgroundUrl || '',
       status: 'draft',
-      schemaVersion: 1,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },

@@ -1,10 +1,125 @@
-import { CloudTemplate, CloudLayer } from '@/types/cloud-template';
+import { CloudTemplate, CloudLayer, CloudPayload, CloudTransform } from '@/types/cloud-template';
 import { arrowPath } from '@/lib/fabric-shape-utils';
 import { removeCDN } from '@/lib/cdn-rewriter';
 import { isFabricTextObject } from '@/lib/canvas-object-props';
+import { CURRENT_SCHEMA_VERSION, validateCloudTemplate } from '@/lib/schema/template-contract';
 
 // Helper to calculate GCD for aspect ratio
 const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+
+/** Gradient serialized from a Fabric fill object (kept as-is in payload). */
+interface SerializedGradient {
+  type: unknown;
+  colorStops: unknown;
+  coords: unknown;
+}
+
+/**
+ * Payload being built during conversion. Extends CloudPayload with
+ * converter-internal fields (stroke, gradients, _originalText...) that ride
+ * along in the JSON but are not part of the mobile-facing interface.
+ */
+type ConverterPayload = Partial<CloudPayload> & {
+  stroke?: string | null;
+  strokeWidth?: number | null;
+  strokeDashArray?: unknown;
+  imageFilters?: unknown;
+  _originalText?: string;
+  textColorGradient?: SerializedGradient;
+  fillGradient?: SerializedGradient;
+};
+
+/** Fabric gradient fill (subset the converter reads). */
+interface FabricGradient {
+  type?: string;
+  colorStops?: Array<{ offset?: number; color: string }>;
+  coords?: unknown;
+}
+
+type FabricFill = string | FabricGradient | null | undefined;
+
+interface FabricShadowLike {
+  offsetX?: number;
+  offsetY?: number;
+  color?: string;
+  blur?: number;
+}
+
+/**
+ * Structural view of the Fabric.js object properties the converter reads.
+ * Fabric's own types churn between versions, so we only pin what we use.
+ */
+interface FabricObjectLike {
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  type?: string;
+  originX?: string;
+  originY?: string;
+  scaleX?: number;
+  scaleY?: number;
+  angle?: number;
+  opacity?: number;
+  flipX?: boolean;
+  flipY?: boolean;
+  visible?: boolean;
+  lockMovementX?: boolean;
+  lockMovementY?: boolean;
+  selectable?: boolean;
+  shadow?: FabricShadowLike | null;
+  fill?: FabricFill;
+  stroke?: FabricFill;
+  strokeWidth?: number;
+  strokeDashArray?: unknown;
+  blendMode?: string;
+  globalCompositeOperation?: string;
+  layerId?: string;
+  layerType?: string;
+  isReplaceable?: boolean;
+  isShadowRegion?: boolean;
+  sourceKind?: string;
+  groupPath?: string;
+  _isBackground?: boolean;
+  // Text properties
+  text?: string;
+  fontFamily?: string;
+  fontSize?: number;
+  fontWeight?: string | number;
+  fontStyle?: string;
+  underline?: boolean;
+  textAlign?: string;
+  lineHeight?: number;
+  charSpacing?: number;
+  textBackgroundColor?: string | null;
+  linethrough?: boolean;
+  textTransform?: string;
+  _originalText?: string;
+  // Image / shape properties
+  src?: string;
+  defaultImageUrl?: string;
+  cropRatio?: string;
+  imageFilters?: unknown;
+  shapeSubtype?: string;
+  path?: unknown;
+  points?: unknown;
+  rx?: number;
+  ry?: number;
+}
+
+interface FabricImageLike {
+  src?: string;
+  defaultImageUrl?: string;
+  getSrc?: () => unknown;
+  _element?: { src?: string } | null;
+  _originalElement?: { src?: string } | null;
+}
+
+interface FabricCanvasLike {
+  getObjects: () => FabricObjectLike[];
+  backgroundImage?: FabricImageLike | null;
+  backgroundColor?: FabricFill;
+}
 
 /**
  * Converts a hex or rgba color to a 32-bit ARGB integer used by Android.
@@ -90,14 +205,14 @@ function fabricPointsToFlat(points: unknown): number[] | null {
   return flat.length >= 6 ? flat : null;
 }
 
-function fabricBackgroundColorToArgb(backgroundColor: any): number | null {
+function fabricBackgroundColorToArgb(backgroundColor: FabricFill): number | null {
   if (!backgroundColor) return null;
   if (typeof backgroundColor === 'string') return colorToArgbInt(backgroundColor);
   const firstStop = backgroundColor.colorStops?.[0]?.color;
   return typeof firstStop === 'string' ? colorToArgbInt(firstStop) : null;
 }
 
-function fabricImageUrl(image: any): string | null {
+function fabricImageUrl(image: FabricImageLike | null | undefined): string | null {
   if (!image) return null;
   if (typeof image.src === 'string' && image.src.trim()) return image.src;
   if (typeof image.defaultImageUrl === 'string' && image.defaultImageUrl.trim()) return image.defaultImageUrl;
@@ -151,18 +266,205 @@ function getBlendModeFromComposite(gco?: string | null): string {
   }
 }
 
+export interface ShadowParams {
+  shadowIntensity: number;
+  shadowAngle: number;
+  shadowDistance: number;
+  shadowColorArgb: number;
+  shadowBlur: number;
+}
+
+/** Extracts drop-shadow parameters from a Fabric object's shadow property. */
+export function extractShadowParams(obj: FabricObjectLike): ShadowParams {
+  let shadowIntensity = 0;
+  let shadowAngle = 45;
+  let shadowDistance = 0;
+  let shadowColorArgb = colorToArgbInt('rgba(0, 0, 0, 0.4)');
+  let shadowBlur = 15;
+
+  if (obj.shadow) {
+    const shadow = obj.shadow;
+    const offsetX = shadow.offsetX || 0;
+    const offsetY = shadow.offsetY || 0;
+
+    shadowDistance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+    // Angle in degrees from radians
+    shadowAngle = Math.atan2(offsetY, offsetX) * (180 / Math.PI);
+    if (shadowAngle < 0) shadowAngle += 360;
+
+    shadowColorArgb = colorToArgbInt(shadow.color || 'rgba(0, 0, 0, 0.4)');
+    shadowBlur = shadow.blur || 15;
+
+    // Extract opacity from shadow color
+    if (shadow.color) {
+      const colorStr = shadow.color.trim();
+      if (colorStr.startsWith('rgba')) {
+        const match = colorStr.match(/rgba?\((?:\d+,\s*){3}([\d.]+)\)/);
+        if (match) shadowIntensity = parseFloat(match[1]);
+      } else if (colorStr.startsWith('rgb')) {
+        shadowIntensity = 1.0;
+      } else if (colorStr.startsWith('#')) {
+        const hex = colorStr.replace('#', '');
+        if (hex.length === 8) {
+          shadowIntensity = parseFloat((parseInt(hex.slice(6, 8), 16) / 255).toFixed(2));
+        } else {
+          shadowIntensity = 1.0;
+        }
+      } else {
+        shadowIntensity = 1.0;
+      }
+    } else {
+      shadowIntensity = 0.4; // Default fallback if no color
+    }
+  }
+
+  return { shadowIntensity, shadowAngle, shadowDistance, shadowColorArgb, shadowBlur };
+}
+
 /**
- * Converts a Fabric.js Canvas state into the standard CloudTemplate JSON structure.
+ * Converts a Fabric object's position (any origin) into relative anchor
+ * coordinates (0.0 → 1.0 of the canvas) plus scale/rotation.
  */
-export function fabricToCloudTemplate(
-  fabricCanvas: any,
+export function extractTransform(
+  obj: FabricObjectLike,
+  canvasBaseWidth: number,
+  canvasBaseHeight: number
+): CloudTransform {
+  // Calculate absolute center of the object (origin independent)
+  const originX = obj.originX || 'left';
+  const originY = obj.originY || 'top';
+
+  const width = obj.width * (obj.scaleX || 1);
+  const height = obj.height * (obj.scaleY || 1);
+
+  let centerX = obj.left;
+  let centerY = obj.top;
+
+  if (originX !== 'center') {
+    centerX = obj.left + width / 2;
+  }
+  if (originY !== 'center') {
+    centerY = obj.top + height / 2;
+  }
+
+  return {
+    anchorX: centerX / canvasBaseWidth,
+    anchorY: centerY / canvasBaseHeight,
+    scale: obj.scaleX || 1.0,
+    rotation: obj.angle || 0.0,
+  };
+}
+
+/** Extracts text-specific payload fields from a Fabric text object. */
+function extractTextPayload(obj: FabricObjectLike): ConverterPayload {
+  const payload: ConverterPayload = {
+    text: obj.text || '',
+    font: obj.fontFamily || 'sans-serif',
+    fontSize: obj.fontSize || 60,
+  };
+
+  let textColorStr = '#ffffff';
+  if (typeof obj.fill === 'string') {
+    textColorStr = obj.fill;
+  } else if (obj.fill && typeof obj.fill === 'object' && obj.fill.colorStops?.[0]?.color) {
+    textColorStr = obj.fill.colorStops[0].color;
+  }
+  payload.textColorArgb = colorToArgbInt(textColorStr);
+
+  payload.fontWeight = obj.fontWeight || 'normal';
+  payload.fontStyle = obj.fontStyle || 'normal';
+  payload.underline = obj.underline || false;
+  payload.textAlign = obj.textAlign || 'left';
+  payload.lineHeight = obj.lineHeight || 1.16;
+  payload.charSpacing = obj.charSpacing || 0;
+  payload.textBackgroundColor = obj.textBackgroundColor || null;
+  payload.linethrough = obj.linethrough || false;
+  payload.textTransform = obj.textTransform || 'none';
+  payload._originalText = obj._originalText || obj.text || '';
+  payload.baseWidth = Math.round(obj.width * (obj.scaleX || 1));
+  payload.baseHeight = Math.round(obj.height * (obj.scaleY || 1));
+
+  if (obj.fill && typeof obj.fill === 'object') {
+    payload.textColorGradient = {
+      type: obj.fill.type,
+      colorStops: obj.fill.colorStops,
+      coords: obj.fill.coords,
+    };
+  }
+
+  return payload;
+}
+
+/** Extracts image/shape payload fields from a non-text Fabric object. */
+function extractImagePayload(obj: FabricObjectLike, isShadowRegion: boolean): ConverterPayload {
+  const payload: ConverterPayload = {
+    imageUrl: obj.src || null,
+    defaultImageUrl: obj.defaultImageUrl || null,
+    baseWidth: Math.round(obj.width),
+    baseHeight: Math.round(obj.height),
+  };
+
+  if (obj.cropRatio) {
+    payload.cropRatio = obj.cropRatio;
+  }
+  if (obj.imageFilters) {
+    payload.imageFilters = obj.imageFilters;
+  }
+
+  // Support vector shapes serialization
+  const isShape =
+    ['rect', 'circle', 'triangle', 'line', 'polygon', 'path', 'ellipse'].includes(obj.type ?? '') ||
+    obj.shapeSubtype;
+  if (isShape || isShadowRegion) {
+    const shapeType = obj.shapeSubtype || (isShadowRegion ? 'ellipse' : obj.type);
+    payload.shapeType = shapeType;
+
+    let fillColorStr = '#6366f1';
+    if (typeof obj.fill === 'string') {
+      fillColorStr = obj.fill;
+    } else if (obj.fill && typeof obj.fill === 'object' && obj.fill.colorStops?.[0]?.color) {
+      fillColorStr = obj.fill.colorStops[0].color;
+    }
+    if (shapeType === 'line') {
+      fillColorStr = typeof obj.stroke === 'string' ? obj.stroke : fillColorStr;
+      payload.strokeWidth = obj.strokeWidth ?? 6;
+    }
+    payload.fillColor = fillColorStr;
+
+    if (obj.fill && typeof obj.fill === 'object') {
+      payload.fillGradient = {
+        type: obj.fill.type,
+        colorStops: obj.fill.colorStops,
+        coords: obj.fill.coords,
+      };
+    }
+
+    if (shapeType === 'arrow' || obj.type === 'path') {
+      payload.pathData = fabricPathToSvg(obj.path) ?? (shapeType === 'arrow' ? arrowPath : null);
+    }
+    if (obj.type === 'polygon' || shapeType === 'polygon') {
+      payload.polygonPoints = fabricPointsToFlat(obj.points);
+    }
+
+    if (obj.type === 'rect' || obj.shapeSubtype === 'rect') {
+      payload.rx = obj.rx || 0;
+      payload.ry = obj.ry || 0;
+    }
+  }
+
+  return payload;
+}
+
+/** Builds the raw CloudTemplate from a Fabric canvas (no contract validation). */
+function buildCloudTemplate(
+  fabricCanvas: FabricCanvasLike | null | undefined,
   canvasBaseWidth: number,
   canvasBaseHeight: number,
   templateId: string,
   categoryId: string,
   title: string,
-  status: 'draft' | 'published' = 'draft',
-  thumbnailUrl: string | null = null
+  status: 'draft' | 'published',
+  thumbnailUrl: string | null
 ): CloudTemplate {
   if (!fabricCanvas) {
     throw new Error('Fabric canvas is not initialized');
@@ -177,71 +479,10 @@ export function fabricToCloudTemplate(
   // Get layers (excluding background objects)
   const objects = fabricCanvas.getObjects();
   const layers: CloudLayer[] = objects
-    .filter((obj: any) => obj._isBackground !== true)
-    .map((obj: any, index: number) => {
-      // Calculate absolute center of the object (origin independent)
-      const originX = obj.originX || 'left';
-      const originY = obj.originY || 'top';
-      
-      const width = obj.width * (obj.scaleX || 1);
-      const height = obj.height * (obj.scaleY || 1);
-
-      let centerX = obj.left;
-      let centerY = obj.top;
-
-      if (originX !== 'center') {
-        centerX = obj.left + width / 2;
-      }
-      if (originY !== 'center') {
-        centerY = obj.top + height / 2;
-      }
-
-      // Convert absolute center to relative coordinates (0.0 to 1.0)
-      const anchorX = centerX / canvasBaseWidth;
-      const anchorY = centerY / canvasBaseHeight;
-
-      // Extract shadow parameters
-      let shadowIntensity = 0;
-      let shadowAngle = 45;
-      let shadowDistance = 0;
-      let shadowColorArgb = colorToArgbInt('rgba(0, 0, 0, 0.4)');
-      let shadowBlur = 15;
-
-      if (obj.shadow) {
-        const shadow = obj.shadow;
-        const offsetX = shadow.offsetX || 0;
-        const offsetY = shadow.offsetY || 0;
-        
-        shadowDistance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-        // Angle in degrees from radians
-        shadowAngle = Math.atan2(offsetY, offsetX) * (180 / Math.PI);
-        if (shadowAngle < 0) shadowAngle += 360;
-
-        shadowColorArgb = colorToArgbInt(shadow.color || 'rgba(0, 0, 0, 0.4)');
-        shadowBlur = shadow.blur || 15;
-        
-        // Extract opacity from shadow color
-        if (shadow.color) {
-          const colorStr = shadow.color.trim();
-          if (colorStr.startsWith('rgba')) {
-            const match = colorStr.match(/rgba?\((?:\d+,\s*){3}([\d.]+)\)/);
-            if (match) shadowIntensity = parseFloat(match[1]);
-          } else if (colorStr.startsWith('rgb')) {
-            shadowIntensity = 1.0;
-          } else if (colorStr.startsWith('#')) {
-            const hex = colorStr.replace('#', '');
-            if (hex.length === 8) {
-              shadowIntensity = parseFloat((parseInt(hex.slice(6, 8), 16) / 255).toFixed(2));
-            } else {
-              shadowIntensity = 1.0;
-            }
-          } else {
-            shadowIntensity = 1.0;
-          }
-        } else {
-          shadowIntensity = 0.4; // Default fallback if no color
-        }
-      }
+    .filter((obj) => obj._isBackground !== true)
+    .map((obj, index): CloudLayer => {
+      const transform = extractTransform(obj, canvasBaseWidth, canvasBaseHeight);
+      const shadowParams = extractShadowParams(obj);
 
       const layerId = obj.layerId || `layer_${Date.now()}_${index}`;
       let layerType = obj.layerType || 'DECORATION';
@@ -267,7 +508,7 @@ export function fabricToCloudTemplate(
         strokeColorStr = obj.stroke.colorStops[0].color;
       }
 
-      const payload: any = {
+      const payload: ConverterPayload = {
         alpha: obj.opacity !== undefined ? obj.opacity : 1,
         flippedH: obj.flipX || false,
         flippedV: obj.flipY || false,
@@ -275,11 +516,7 @@ export function fabricToCloudTemplate(
         locked: obj.lockMovementX === true || obj.lockMovementY === true || obj.selectable === false,
         groupPath: obj.groupPath || null,
         sourceKind: isShadowRegion ? 'shadow-region' : (obj.sourceKind || null),
-        shadowIntensity,
-        shadowAngle,
-        shadowDistance,
-        shadowColorArgb,
-        shadowBlur,
+        ...shadowParams,
         stroke: strokeColorStr,
         strokeWidth: obj.strokeWidth || 0,
         strokeDashArray: obj.strokeDashArray || null,
@@ -288,109 +525,25 @@ export function fabricToCloudTemplate(
       };
 
       if (layerType === 'TEXT') {
-        payload.text = obj.text || '';
-        payload.font = obj.fontFamily || 'sans-serif';
-        payload.fontSize = obj.fontSize || 60;
-        
-        let textColorStr = '#ffffff';
-        if (typeof obj.fill === 'string') {
-          textColorStr = obj.fill;
-        } else if (obj.fill && typeof obj.fill === 'object' && obj.fill.colorStops?.[0]?.color) {
-          textColorStr = obj.fill.colorStops[0].color;
-        }
-        payload.textColorArgb = colorToArgbInt(textColorStr);
-
-        payload.fontWeight = obj.fontWeight || 'normal';
-        payload.fontStyle = obj.fontStyle || 'normal';
-        payload.underline = obj.underline || false;
-        payload.textAlign = obj.textAlign || 'left';
-        payload.lineHeight = obj.lineHeight || 1.16;
-        payload.charSpacing = obj.charSpacing || 0;
-        payload.textBackgroundColor = obj.textBackgroundColor || null;
-        payload.linethrough = obj.linethrough || false;
-        payload.textTransform = obj.textTransform || 'none';
-        payload._originalText = obj._originalText || obj.text || '';
-        payload.baseWidth = Math.round(obj.width * (obj.scaleX || 1));
-        payload.baseHeight = Math.round(obj.height * (obj.scaleY || 1));
-        
-        if (obj.fill && typeof obj.fill === 'object') {
-          payload.textColorGradient = {
-            type: obj.fill.type,
-            colorStops: obj.fill.colorStops,
-            coords: obj.fill.coords,
-          };
-        }
+        Object.assign(payload, extractTextPayload(obj));
       } else {
-        payload.imageUrl = obj.src || null;
-        payload.defaultImageUrl = obj.defaultImageUrl || null;
-        payload.baseWidth = Math.round(obj.width);
-        payload.baseHeight = Math.round(obj.height);
-        if (obj.cropRatio) {
-          payload.cropRatio = obj.cropRatio;
-        }
-        if (obj.imageFilters) {
-          payload.imageFilters = obj.imageFilters;
-        }
-        
-        // Support vector shapes serialization
-        const isShape = ['rect', 'circle', 'triangle', 'line', 'polygon', 'path', 'ellipse'].includes(obj.type) || obj.shapeSubtype;
-        if (isShape || isShadowRegion) {
-          const shapeType = obj.shapeSubtype || (isShadowRegion ? 'ellipse' : obj.type);
-          payload.shapeType = shapeType;
-          
-          let fillColorStr = '#6366f1';
-          if (typeof obj.fill === 'string') {
-            fillColorStr = obj.fill;
-          } else if (obj.fill && typeof obj.fill === 'object' && obj.fill.colorStops?.[0]?.color) {
-            fillColorStr = obj.fill.colorStops[0].color;
-          }
-          if (shapeType === 'line') {
-            fillColorStr = typeof obj.stroke === 'string' ? obj.stroke : fillColorStr;
-            payload.strokeWidth = obj.strokeWidth ?? 6;
-          }
-          payload.fillColor = fillColorStr;
-          
-          if (obj.fill && typeof obj.fill === 'object') {
-            payload.fillGradient = {
-              type: obj.fill.type,
-              colorStops: obj.fill.colorStops,
-              coords: obj.fill.coords,
-            };
-          }
-
-          if (shapeType === 'arrow' || obj.type === 'path') {
-            payload.pathData = fabricPathToSvg(obj.path) ?? (shapeType === 'arrow' ? arrowPath : null);
-          }
-          if (obj.type === 'polygon' || shapeType === 'polygon') {
-            payload.polygonPoints = fabricPointsToFlat(obj.points);
-          }
-          
-          if (obj.type === 'rect' || obj.shapeSubtype === 'rect') {
-            payload.rx = obj.rx || 0;
-            payload.ry = obj.ry || 0;
-          }
-        }
+        Object.assign(payload, extractImagePayload(obj, isShadowRegion));
       }
 
       return {
         layerId,
         type: layerType,
         zIndex: index,
-        transform: {
-          anchorX,
-          anchorY,
-          scale: obj.scaleX || 1.0,
-          rotation: obj.angle || 0.0,
-        },
+        transform,
         payload,
       };
     })
-    .filter((layer: any, index: number) => {
-      const obj = objects.filter((o: any) => o._isBackground !== true)[index];
+    .filter((layer, index) => {
+      const obj = objects.filter((o) => o._isBackground !== true)[index];
       if (!obj) return true;
       if (layer.type === 'TEXT' || layer.type === 'SHADOW_REGION') return true;
       const isShape =
-        ['rect', 'circle', 'triangle', 'line', 'polygon', 'path', 'ellipse'].includes(obj.type) ||
+        ['rect', 'circle', 'triangle', 'line', 'polygon', 'path', 'ellipse'].includes(obj.type ?? '') ||
         obj.shapeSubtype ||
         layer.payload.shapeType;
       if (isShape) return true;
@@ -407,7 +560,7 @@ export function fabricToCloudTemplate(
       title,
       thumbnailUrl: thumbnailUrl || backgroundUrl || '',
       status,
-      schemaVersion: 1,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       createdAt: Date.now(), // Fallbacks
       updatedAt: Date.now(),
     },
@@ -420,4 +573,82 @@ export function fabricToCloudTemplate(
     },
     layers,
   }) as CloudTemplate;
+}
+
+export interface FabricConversionResult {
+  /** Converted template — contract-clamped when validation passes. */
+  template: CloudTemplate;
+  /** Contract warnings (clamped values, unknown types...). Never throws. */
+  warnings: string[];
+  /** Contract errors — surfaced to callers; publish gate blocks on these. */
+  errors: string[];
+}
+
+/**
+ * Converts a Fabric.js canvas and validates the result against the data
+ * contract (template-contract.ts). Warnings never throw; on contract errors
+ * the raw (unclamped) template is still returned so drafts keep working —
+ * validateTemplateForPublish blocks the actual publish.
+ */
+export function fabricToCloudTemplateValidated(
+  fabricCanvas: unknown,
+  canvasBaseWidth: number,
+  canvasBaseHeight: number,
+  templateId: string,
+  categoryId: string,
+  title: string,
+  status: 'draft' | 'published' = 'draft',
+  thumbnailUrl: string | null = null
+): FabricConversionResult {
+  const rawTemplate = buildCloudTemplate(
+    fabricCanvas as FabricCanvasLike | null,
+    canvasBaseWidth,
+    canvasBaseHeight,
+    templateId,
+    categoryId,
+    title,
+    status,
+    thumbnailUrl
+  );
+
+  const validation = validateCloudTemplate(rawTemplate);
+  return {
+    template: validation.data ?? rawTemplate,
+    warnings: validation.warnings,
+    errors: validation.errors,
+  };
+}
+
+/**
+ * Converts a Fabric.js Canvas state into the standard CloudTemplate JSON structure.
+ */
+export function fabricToCloudTemplate(
+  fabricCanvas: unknown,
+  canvasBaseWidth: number,
+  canvasBaseHeight: number,
+  templateId: string,
+  categoryId: string,
+  title: string,
+  status: 'draft' | 'published' = 'draft',
+  thumbnailUrl: string | null = null
+): CloudTemplate {
+  const { template, warnings, errors } = fabricToCloudTemplateValidated(
+    fabricCanvas,
+    canvasBaseWidth,
+    canvasBaseHeight,
+    templateId,
+    categoryId,
+    title,
+    status,
+    thumbnailUrl
+  );
+
+  if (warnings.length > 0) {
+    console.warn('[template-contract] Cảnh báo khi chuyển đổi template:', warnings);
+  }
+  if (errors.length > 0) {
+    console.error('[template-contract] Template vi phạm data contract:', errors);
+  }
+
+  return template;
 }

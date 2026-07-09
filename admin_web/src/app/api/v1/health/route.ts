@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { CURRENT_SCHEMA_VERSION } from '@/lib/schema/template-contract';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,7 @@ export async function GET() {
     {
       ok: true,
       apiVersion: 1,
-      schemaVersion: 1,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       ts: Date.now(),
     },
     {

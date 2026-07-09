@@ -456,6 +456,14 @@ export default function TemplateEditPage() {
           }
           return false;
         }
+        if (validation.warnings.length > 0) {
+          console.warn('[publish] Cảnh báo data contract:', validation.warnings);
+          if (!silent) {
+            toast.warning(
+              `${validation.warnings.length} cảnh báo khi kiểm tra template — giá trị lệch đã được tự chỉnh. Xem console để biết chi tiết.`
+            );
+          }
+        }
       }
 
       const needsBackgroundUpload = !serializedTemplate.canvas.backgroundUrl;

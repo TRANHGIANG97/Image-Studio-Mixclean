@@ -1,4 +1,5 @@
 import { CloudLayer, CloudTemplate } from '@/types/cloud-template';
+import { CURRENT_SCHEMA_VERSION } from '@/lib/schema/template-contract';
 
 const TEMPLATE_ID = 'demo_food_camera_collage_v1';
 const TEMPLATE_TITLE = 'Delicious Collage';
@@ -301,7 +302,7 @@ export function buildFoodCameraCollageTemplate({
       title: TEMPLATE_TITLE,
       thumbnailUrl,
       status: 'published',
-      schemaVersion: 1,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },
