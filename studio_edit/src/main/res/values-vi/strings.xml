@@ -245,6 +245,8 @@
     <string name="studio_draft_save_failed">Không thể lưu bản nháp. Vui lòng thử lại.</string>
     <string name="studio_gallery_load_failed">Không thể tải mẫu. Kiểm tra kết nối mạng và thử lại.</string>
     <string name="studio_retry">Thử lại</string>
+    <string name="studio_hide_keyboard">Ẩn bàn phím</string>
+    <string name="studio_layers_toggle">Lớp</string>
     <string name="studio_reset_zoom">Cài lại</string>
 
     <!-- Quick Action Bar -->

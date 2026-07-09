@@ -68,6 +68,8 @@ fun EditorControlsV2(
     appearance: EditorAppearance,
     cropRatio: CropRatio,
     selectedLayer: EditorLayer? = null,
+    peekExpanded: Boolean = false,
+    onPeekExpandedChange: (Boolean) -> Unit = {},
     onUpdateShadow: (Float) -> Unit,
     onUpdateShadowAngle: (Float) -> Unit,
     onUpdateShadowDistance: (Float) -> Unit,
@@ -89,6 +91,45 @@ fun EditorControlsV2(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                if (tool != null) {
+                    val chevronRotation by animateFloatAsState(
+                        targetValue = if (peekExpanded) 180f else 0f,
+                        animationSpec = tween(durationMillis = 200),
+                        label = "panelPeekChevron",
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) { onPeekExpandedChange(!peekExpanded) }
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = toolPanelTitle(tool),
+                            color = tokens.textPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.KeyboardDoubleArrowDown,
+                            contentDescription = null,
+                            tint = tokens.textSecondary,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .graphicsLayer { rotationZ = chevronRotation },
+                        )
+                    }
+                }
+
+                AnimatedVisibility(
+                    visible = tool != null && peekExpanded,
+                    enter = expandVertically(animationSpec = MotionTokens.springPanel()),
+                    exit = shrinkVertically(animationSpec = MotionTokens.springPanel()),
+                ) {
                 AnimatedContent(
                     targetState = tool,
                     transitionSpec = {
@@ -163,7 +204,7 @@ fun EditorControlsV2(
                             }
 
                             is EditorTool.Transparency -> {
-                                var expanded by rememberSaveable { mutableStateOf(true) }
+                                var expanded by rememberSaveable { mutableStateOf(false) }
                                 val chevronRotation by animateFloatAsState(
                                     targetValue = if (expanded) 180f else 0f,
                                     animationSpec = tween(durationMillis = 200),
@@ -273,7 +314,23 @@ fun EditorControlsV2(
                         }
                     }
                 }
+                }
             }
         }
     }
+}
+
+@Composable
+private fun toolPanelTitle(tool: EditorTool): String = when (tool) {
+    is EditorTool.Replace -> stringResource(R.string.studio_tool_replace)
+    is EditorTool.Sticker -> stringResource(R.string.studio_tool_sticker)
+    is EditorTool.Label -> stringResource(R.string.studio_tool_label)
+    is EditorTool.Shape -> stringResource(R.string.studio_tool_shape)
+    is EditorTool.Layout -> stringResource(R.string.studio_tool_layout)
+    is EditorTool.Rotate -> stringResource(R.string.studio_tool_rotateflip)
+    is EditorTool.Shadow -> stringResource(R.string.studio_tool_shadow)
+    is EditorTool.Transparency -> stringResource(R.string.studio_tool_transparency)
+    is EditorTool.Crop -> stringResource(R.string.studio_tool_crop)
+    is EditorTool.Duplicate -> stringResource(R.string.studio_tool_duplicate)
+    is EditorTool.Delete -> stringResource(R.string.studio_tool_delete)
 }

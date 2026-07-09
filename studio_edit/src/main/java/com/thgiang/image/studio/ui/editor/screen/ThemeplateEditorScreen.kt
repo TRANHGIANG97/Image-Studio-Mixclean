@@ -40,6 +40,8 @@ import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 import com.thgiang.image.studio.ui.editor.theme.MotionTokens
+import com.thgiang.image.studio.ui.components.ShimmerBox
+import androidx.compose.foundation.layout.aspectRatio
 import com.thgiang.image.studio.ui.editor.label.panel.LabelEditTab
 import com.thgiang.image.studio.ui.editor.label.panel.LabelEditingKeyboardToolbar
 import com.thgiang.image.studio.ui.editor.label.panel.LabelSelectionToolbar
@@ -163,6 +165,23 @@ fun ThemeplateEditorScreen(
         var wasEditingImeVisible by remember { mutableStateOf(false) }
         var isExitingLabelEdit by remember { mutableStateOf(false) }
         var isCanvasGestureActive by remember { mutableStateOf(false) }
+        var showLayersPanel by rememberSaveable { mutableStateOf(false) }
+        var controlsExpanded by rememberSaveable { mutableStateOf(false) }
+
+        val showControls = state.template.loaded &&
+            selectedToolForUi != null &&
+            !isLabelEditing &&
+            !isLabelSelected &&
+            (activeLayer != null ||
+                selectedToolForUi is EditorTool.Label ||
+                selectedToolForUi is EditorTool.Sticker ||
+                selectedToolForUi is EditorTool.Shape)
+
+        val bottomToolbarVisible = !isImeVisible && !isLabelEditing && !isLabelSelected
+
+        LaunchedEffect(selectedToolForUi) {
+            controlsExpanded = false
+        }
 
         fun exitLabelEditing(dismissKeyboard: Boolean = true) {
             if (state.editingLayerId == null || isExitingLabelEdit) return
@@ -252,8 +271,13 @@ fun ThemeplateEditorScreen(
                         val bottomPadding = if (imeHeight > 0.dp) {
                             imeHeight + toolbarHeight
                         } else {
-                            // Keyboard hidden: use existing logic
-                            if (state.layers.isNotEmpty()) 360.dp else (toolbarHeight + navBarHeight)
+                            when {
+                                isLabelSelected -> 220.dp + navBarHeight
+                                showControls && controlsExpanded -> 260.dp + navBarHeight
+                                showControls -> 72.dp + navBarHeight
+                                bottomToolbarVisible -> toolbarHeight + navBarHeight
+                                else -> navBarHeight
+                            }
                         }
                         PaddingValues(
                             top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp,
@@ -293,9 +317,31 @@ fun ThemeplateEditorScreen(
                     onEvent = { viewModel.onEvent(it) },
                     modifier = Modifier.fillMaxSize()
                 )
+            } else {
+                val aspect = state.template.originalSize.let { size ->
+                    if (size.width > 0 && size.height > 0) size.width.toFloat() / size.height else 9f / 16f
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp,
+                            bottom = 72.dp,
+                            start = 24.dp,
+                            end = 24.dp,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    ShimmerBox(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(aspect)
+                            .clip(RoundedCornerShape(12.dp)),
+                    )
+                }
             }
 
-            if (state.template.loaded && state.layers.isNotEmpty()) {
+            if (showLayersPanel && state.template.loaded && state.layers.isNotEmpty()) {
                 EditorObjectListVertical(
                     layers = state.layers,
                     selectedLayerId = state.selectedLayerId,
@@ -373,6 +419,23 @@ fun ThemeplateEditorScreen(
                                            else tokens.textDisabled.copy(alpha = 0.32f)
                                 )
                             }
+                            if (state.template.loaded && state.layers.isNotEmpty()) {
+                                IconButton(
+                                    onClick = { showLayersPanel = !showLayersPanel },
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(androidx.compose.foundation.shape.CircleShape)
+                                        .background(
+                                            if (showLayersPanel) tokens.accentSoft
+                                            else Color.Transparent,
+                                        ),
+                                ) {
+                                    LayersIcon(
+                                        tint = if (showLayersPanel) tokens.accent
+                                        else tokens.textPrimary.copy(alpha = 0.65f),
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -433,14 +496,6 @@ fun ThemeplateEditorScreen(
             }
 
             // ── Layer 3: Bottom controls + toolbar ────────────────────
-            val showControls = state.template.loaded &&
-                selectedToolForUi != null &&
-                !isLabelEditing &&
-                !isLabelSelected &&
-                (activeLayer != null ||
-                    selectedToolForUi is EditorTool.Label ||
-                    selectedToolForUi is EditorTool.Sticker ||
-                    selectedToolForUi is EditorTool.Shape)
 
             // Shared toolbar click handler
             val onToolClicked: (EditorTool?) -> Unit = { tool ->
@@ -490,7 +545,7 @@ fun ThemeplateEditorScreen(
                         layer = layer,
                         tokens = tokens,
                         onLayoutEvent = { viewModel.onEvent(it) },
-                        onConfirm = { confirmLabelEdit() },
+                        onDismissKeyboard = { confirmLabelEdit() },
                     )
                 }
 
@@ -512,7 +567,6 @@ fun ThemeplateEditorScreen(
                                     activeLabelTab = tab
                                 }
                             },
-                            onConfirm = { viewModel.onEvent(EditorEvent.DeselectLayer) },
                             tokens = tokens,
                         )
                         LabelShapePanel(
@@ -539,6 +593,8 @@ fun ThemeplateEditorScreen(
                             appearance = activeLayer?.appearance ?: EditorAppearance(shadowIntensity = 0f),
                             cropRatio = activeLayer?.cropRatio ?: CropRatio.ORIGINAL,
                             selectedLayer = activeLayer,
+                            peekExpanded = controlsExpanded,
+                            onPeekExpandedChange = { controlsExpanded = it },
                             onUpdateShadow = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
                             onUpdateShadowAngle = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
                             onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },

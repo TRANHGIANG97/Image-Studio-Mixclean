@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardHide
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material3.Icon
@@ -43,7 +43,7 @@ internal fun LabelEditingKeyboardToolbar(
     layer: EditorLayer,
     tokens: EditorTokens,
     onLayoutEvent: (EditorEvent) -> Unit,
-    onConfirm: () -> Unit,
+    onDismissKeyboard: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val textSize = LayerViewportScale.effectiveTextSizeSp(layer)
@@ -89,16 +89,16 @@ internal fun LabelEditingKeyboardToolbar(
         Box(modifier = Modifier.weight(1f))
 
         IconButton(
-            onClick = onConfirm,
+            onClick = onDismissKeyboard,
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(tokens.accent),
+                .background(tokens.accentSoft),
         ) {
             Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = stringResource(R.string.studio_done),
-                tint = Color.White,
+                imageVector = Icons.Filled.KeyboardHide,
+                contentDescription = stringResource(R.string.studio_hide_keyboard),
+                tint = tokens.accent,
             )
         }
     }

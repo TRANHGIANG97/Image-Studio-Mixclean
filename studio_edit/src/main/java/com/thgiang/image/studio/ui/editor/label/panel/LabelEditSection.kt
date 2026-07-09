@@ -147,12 +147,6 @@ internal fun LabelEditSection(
     activeTabExternal: LabelEditTab? = null,
     onActiveTabChange: (LabelEditTab) -> Unit = {},
 ) {
-    var textDraft by remember(layer.id) { mutableStateOf(TextFieldValue(layer.text)) }
-    LaunchedEffect(layer.text) {
-        if (layer.text != textDraft.text) {
-            textDraft = TextFieldValue(layer.text, TextRange(layer.text.length))
-        }
-    }
     var showFontPicker by remember { mutableStateOf(false) }
     var manifestFonts by remember { mutableStateOf<List<FontManifestEntry>>(emptyList()) }
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -168,27 +162,13 @@ internal fun LabelEditSection(
         onActiveTabChange(tab)
     }
 
-    val focusManager = LocalFocusManager.current
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val editFocusRequester = remember { FocusRequester() }
-
+    // Tool-first mode: EDIT tab opens inline canvas editor — no duplicate panel TextField.
     if (!canvasFirstMode) {
-        LaunchedEffect(activeTab) {
+        LaunchedEffect(activeTab, layer.id) {
             if (activeTab == LabelEditTab.EDIT) {
-                kotlinx.coroutines.delay(50)
-                editFocusRequester.requestFocus()
-                keyboardController?.show()
+                onLayoutEvent(EditorEvent.RequestTextEdit(layer.id))
             }
         }
-    }
-
-    val isImeVisible = WindowInsets.isImeVisible
-    var wasImeVisible by remember { mutableStateOf(false) }
-    LaunchedEffect(isImeVisible, activeTab) {
-        if (!canvasFirstMode && wasImeVisible && !isImeVisible && activeTab == LabelEditTab.EDIT) {
-            onLayoutEvent(EditorEvent.FinishTextEdit)
-        }
-        wasImeVisible = isImeVisible
     }
 
     val isBold = EditorTextStyleMapper.isBoldWeight(layer.fontWeight)
@@ -284,18 +264,7 @@ internal fun LabelEditSection(
         }
 
         when (activeTab) {
-            LabelEditTab.EDIT -> {
-                if (!canvasFirstMode) {
-                    LabelTextInputRow(
-                    value = textDraft,
-                    onValueChange = { updated ->
-                        textDraft = updated
-                        onLayoutEvent(EditorEvent.UpdateShapeText(updated.text))
-                    },
-                    focusRequester = editFocusRequester,
-                )
-                }
-            }
+            LabelEditTab.EDIT -> Unit
             LabelEditTab.LABEL -> Unit
             LabelEditTab.FONT -> {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -578,34 +547,6 @@ internal fun LabelEditSection(
 }
 
 // ── Subcomponents ────────────────────────────────────────
-
-@Composable
-internal fun LabelTextInputRow(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier,
-    focusRequester: FocusRequester? = null,
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
-            .then(
-                if (focusRequester != null) {
-                    Modifier.focusRequester(focusRequester)
-                } else {
-                    Modifier
-                },
-            ),
-        singleLine = false,
-        maxLines = 6,
-        placeholder = { Text(stringResource(R.string.studio_label_text_placeholder)) },
-        shape = RoundedCornerShape(12.dp),
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
-    )
-}
 
 @SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
