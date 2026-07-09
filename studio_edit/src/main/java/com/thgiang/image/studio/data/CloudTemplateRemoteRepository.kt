@@ -4,6 +4,7 @@ import android.util.Log
 import com.thgiang.image.core.domain.model.template.CloudCategory
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.core.domain.model.template.CloudTemplateParser
+import com.thgiang.image.core.domain.model.template.ParseOutcome
 import com.thgiang.image.studio.BuildConfig
 import org.json.JSONObject
 import javax.inject.Inject
@@ -189,7 +190,18 @@ class CloudTemplateRemoteRepository @Inject constructor(
                 val item = templatesArray.optJSONObject(index) ?: continue
                 if (!item.has("canvas_data")) continue
 
-                val cloudTemplate = CloudTemplateParser.parseFromApiItem(item)
+                // Safe parse: template hỏng bị loại khỏi danh sách một cách có chủ đích
+                // (kèm log) thay vì crash cả flow hoặc render trống vô danh.
+                val cloudTemplate = when (val outcome = CloudTemplateParser.parseFromApiItemSafe(item)) {
+                    is ParseOutcome.Success -> outcome.template
+                    is ParseOutcome.Invalid -> {
+                        Log.w(
+                            TAG,
+                            "Skipping invalid template '${outcome.templateId}': ${outcome.reason}"
+                        )
+                        continue
+                    }
+                }
 
                 // Schema version guard: bỏ qua template yêu cầu schema mới hơn app hỗ trợ.
                 // Tránh crash hoặc hiển thị lỗi trên bản Release cũ khi admin_web publish

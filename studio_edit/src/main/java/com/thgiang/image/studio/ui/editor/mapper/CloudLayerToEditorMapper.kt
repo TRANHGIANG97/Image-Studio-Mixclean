@@ -18,6 +18,7 @@ import com.thgiang.image.core.domain.model.template.isVisible
 import com.thgiang.image.core.domain.model.template.resolvedImageUrl
 import com.thgiang.image.core.domain.model.template.resolvedShapeFillArgb
 import com.thgiang.image.core.domain.model.template.resolvedTextColorArgb
+import android.util.Log
 import com.thgiang.image.studio.util.replaceLocalhostWithConfiguredHost
 import java.util.UUID
 
@@ -26,6 +27,8 @@ import java.util.UUID
  */
 object CloudLayerToEditorMapper {
 
+    private const val TAG = "CloudMapper"
+
     fun mapLayers(cloudTemplate: CloudTemplate, scaledDensity: Float): List<EditorLayer> {
         val canvasWidth = cloudTemplate.canvas.baseWidth
         val canvasHeight = cloudTemplate.canvas.baseHeight
@@ -33,7 +36,12 @@ object CloudLayerToEditorMapper {
         return cloudTemplate.layers
             .sortedBy { it.zIndex }
             .mapNotNull { cloudLayer ->
-                mapLayer(cloudLayer, canvasWidth, canvasHeight, scaledDensity)
+                // Graceful skip: một layer hỏng không được phép kéo sập cả template.
+                runCatching {
+                    mapLayer(cloudLayer, canvasWidth, canvasHeight, scaledDensity)
+                }.onFailure { error ->
+                    Log.w(TAG, "Skipped layer ${cloudLayer.layerId}: ${error.message}")
+                }.getOrNull()
             }
             .let { EditorLayerNormalizer.normalize(it) }
     }

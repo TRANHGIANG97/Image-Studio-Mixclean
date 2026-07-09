@@ -151,6 +151,83 @@ class CloudTemplateParserTest {
     }
 
     @Test
+    fun `parseFromApiItemSafe returns Invalid when canvas_data missing`() {
+        val item = JSONObject(
+            """
+            { "id": "row_broken", "template_id": "tpl_broken", "title": "Broken" }
+            """.trimIndent()
+        )
+
+        val outcome = CloudTemplateParser.parseFromApiItemSafe(item)
+        assertTrue(outcome is ParseOutcome.Invalid)
+        val invalid = outcome as ParseOutcome.Invalid
+        assertEquals("missing canvas_data", invalid.reason)
+        assertEquals("tpl_broken", invalid.templateId)
+    }
+
+    @Test
+    fun `parseFromApiItemSafe returns Invalid when canvas_data has wrong type`() {
+        val item = JSONObject(
+            """
+            { "id": "row_wrong", "canvas_data": "not-an-object" }
+            """.trimIndent()
+        )
+
+        val outcome = CloudTemplateParser.parseFromApiItemSafe(item)
+        assertTrue(outcome is ParseOutcome.Invalid)
+        assertEquals("row_wrong", (outcome as ParseOutcome.Invalid).templateId)
+    }
+
+    @Test
+    fun `parseFromApiItemSafe does not throw on empty JSON object`() {
+        val outcome = CloudTemplateParser.parseFromApiItemSafe(JSONObject("{}"))
+        assertTrue(outcome is ParseOutcome.Invalid)
+        assertNull((outcome as ParseOutcome.Invalid).templateId)
+    }
+
+    @Test
+    fun `parseFromApiItemSafe returns Success with defaults for empty canvas_data`() {
+        val item = JSONObject(
+            """
+            { "id": "row_empty", "canvas_data": {} }
+            """.trimIndent()
+        )
+
+        val outcome = CloudTemplateParser.parseFromApiItemSafe(item)
+        assertTrue(outcome is ParseOutcome.Success)
+        val template = (outcome as ParseOutcome.Success).template
+        assertEquals(1080, template.canvas.baseWidth)
+        assertEquals(1920, template.canvas.baseHeight)
+        assertTrue(template.layers.isEmpty())
+    }
+
+    @Test
+    fun `parseFromApiItemSafe returns Success for valid minimal template`() {
+        val item = JSONObject(
+            """
+            {
+              "id": "row_ok",
+              "template_id": "tpl_ok",
+              "category_id": "cat",
+              "title": "Minimal",
+              "canvas_data": {
+                "templateId": "tpl_ok",
+                "categoryId": "cat",
+                "canvas": { "baseWidth": 1080, "baseHeight": 1920 },
+                "layers": []
+              }
+            }
+            """.trimIndent()
+        )
+
+        val outcome = CloudTemplateParser.parseFromApiItemSafe(item)
+        assertTrue(outcome is ParseOutcome.Success)
+        val template = (outcome as ParseOutcome.Success).template
+        assertEquals("tpl_ok", template.templateId)
+        assertEquals("Minimal", template.metadata.title)
+    }
+
+    @Test
     fun `parseLayers ignores null string placeholders`() {
         val layers = JSONArray(
             """

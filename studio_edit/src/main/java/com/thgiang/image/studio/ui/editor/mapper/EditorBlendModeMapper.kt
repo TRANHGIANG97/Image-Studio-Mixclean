@@ -11,7 +11,12 @@ import android.os.Build
 import androidx.compose.ui.graphics.BlendMode as ComposeBlendMode
 
 object EditorBlendModeMapper {
-    fun toComposeBlendMode(blendMode: String?): ComposeBlendMode = when (blendMode?.lowercase()) {
+    /**
+     * Explicit whitelist mapping the Web contract blend-mode strings to Compose blend modes.
+     * `null`/blank/"normal" and any unknown value map to `null` → render normal.
+     * Raw strings never reach the renderer.
+     */
+    fun toComposeBlendModeOrNull(blendMode: String?): ComposeBlendMode? = when (blendMode?.lowercase()) {
         "multiply" -> ComposeBlendMode.Multiply
         "screen" -> ComposeBlendMode.Screen
         "overlay" -> ComposeBlendMode.Overlay
@@ -28,8 +33,11 @@ object EditorBlendModeMapper {
         "color" -> ComposeBlendMode.Color
         "luminosity" -> ComposeBlendMode.Luminosity
         "linear-dodge", "lighter" -> ComposeBlendMode.Plus
-        else -> ComposeBlendMode.SrcOver
+        else -> null
     }
+
+    fun toComposeBlendMode(blendMode: String?): ComposeBlendMode =
+        toComposeBlendModeOrNull(blendMode) ?: ComposeBlendMode.SrcOver
 
     fun applyToPaint(paint: Paint, blendMode: String?) {
         if (blendMode.isNullOrBlank() || blendMode.equals("normal", ignoreCase = true)) return
@@ -46,8 +54,10 @@ object EditorBlendModeMapper {
             applyToPaint(this, blendMode)
         }
 
+    // Whitelist-based: unknown blend modes render normal, so they must not force an
+    // offscreen buffer either — same behavior as "normal".
     fun needsOffscreenCompositing(blendMode: String?): Boolean =
-        !blendMode.isNullOrBlank() && !blendMode.equals("normal", ignoreCase = true)
+        toComposeBlendModeOrNull(blendMode) != null
 
     private fun toAndroidBlendMode(blendMode: String): AndroidBlendMode? = when (blendMode.lowercase()) {
         "multiply" -> AndroidBlendMode.MULTIPLY

@@ -49,6 +49,12 @@ android {
         buildConfig = true
     }
 
+    testOptions {
+        // Defense paths (graceful skip, font fallback) call android.util.Log;
+        // stub it out in JVM unit tests instead of throwing "not mocked".
+        unitTests.isReturnDefaultValues = true
+    }
+
     defaultConfig {
         buildConfigField("String", "ADMIN_WEB_BASE_URL", "\"${localProperty("ADMIN_WEB_BASE_URL") ?: "http://10.0.2.2:3000"}\"")
         buildConfigField("String", "CDN_BASE_URL", "\"${localProperty("CDN_BASE_URL") ?: ""}\"")

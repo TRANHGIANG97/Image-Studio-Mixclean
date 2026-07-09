@@ -32,6 +32,9 @@ data class FontsManifest(
 object FontDownloader {
     private const val TAG = "FontDownloader"
 
+    /** Default sans-serif family used when a requested font is unknown to the registry. */
+    const val FALLBACK_FONT_FAMILY = "sans-serif"
+
     private val fontCache = ConcurrentHashMap<String, Typeface>()
     private val aliasToSlug = ConcurrentHashMap<String, String>()
     private var cachedManifest: FontsManifest? = null
@@ -72,7 +75,13 @@ object FontDownloader {
         if (fontFamily.isNullOrBlank()) return null
 
         val manifest = getManifest()
-        val entry = resolveEntry(manifest, fontFamily) ?: return null
+        val entry = resolveEntryWithFallback(manifest, fontFamily)
+        if (entry == null) {
+            // Font fallback chain: font lạ từ Web không được phép đổi sang font hệ thống
+            // ngẫu nhiên một cách âm thầm — log để team biết cần nhúng thêm font.
+            Log.w(TAG, "Unknown font '$fontFamily' — falling back to $FALLBACK_FONT_FAMILY")
+            return systemTypeface(FALLBACK_FONT_FAMILY)
+        }
 
         if (entry.source == "system") {
             return systemTypeface(entry.familySlug)
@@ -202,6 +211,29 @@ object FontDownloader {
     private fun registerAlias(alias: String, slug: String) {
         if (alias.isBlank()) return
         aliasToSlug[alias.lowercase()] = slug
+    }
+
+    /**
+     * Tries every comma-separated candidate in a CSS-style font stack
+     * (e.g. `"UTM Mystery, UTM Avo, sans-serif"`) before giving up.
+     */
+    private fun resolveEntryWithFallback(manifest: FontsManifest, fontFamily: String): FontManifestEntry? {
+        fontFamily.split(",").forEach { candidate ->
+            val trimmed = candidate.trim()
+            if (trimmed.isNotBlank()) {
+                resolveEntry(manifest, trimmed)?.let { return it }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Pure resolution used for the fallback chain: known font → its family slug,
+     * unknown font → [FALLBACK_FONT_FAMILY]. Exposed for unit tests.
+     */
+    fun resolveFamilySlugOrFallback(manifest: FontsManifest, fontFamily: String?): String {
+        if (fontFamily.isNullOrBlank()) return FALLBACK_FONT_FAMILY
+        return resolveEntryWithFallback(manifest, fontFamily)?.familySlug ?: FALLBACK_FONT_FAMILY
     }
 
     private fun resolveEntry(manifest: FontsManifest, fontFamily: String): FontManifestEntry? {

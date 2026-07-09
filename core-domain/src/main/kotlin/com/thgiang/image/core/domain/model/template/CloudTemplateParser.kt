@@ -4,10 +4,35 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
+ * Result of safely parsing a template API item. Invalid templates carry the failure
+ * reason so callers can filter them out of lists and log/report — instead of crashing
+ * or silently rendering an empty template.
+ */
+sealed interface ParseOutcome {
+    data class Success(val template: CloudTemplate) : ParseOutcome
+    data class Invalid(val reason: String, val templateId: String?) : ParseOutcome
+}
+
+/**
  * Single source of truth for parsing [CloudTemplate] JSON from admin_web public API.
  */
 object CloudTemplateParser {
     const val SUPPORTED_SCHEMA_VERSION = 1
+
+    /**
+     * Never throws. Prefer this over [parseFromApiItem] — any malformed input
+     * (missing canvas_data, JSON of the wrong shape, etc.) yields [ParseOutcome.Invalid].
+     */
+    fun parseFromApiItemSafe(item: JSONObject): ParseOutcome {
+        val templateId = item.optNonBlankString("template_id") ?: item.optNonBlankString("id")
+        item.optJSONObject("canvas_data")
+            ?: return ParseOutcome.Invalid("missing canvas_data", templateId)
+        return runCatching { parseFromApiItem(item) }
+            .fold(
+                onSuccess = { ParseOutcome.Success(it) },
+                onFailure = { ParseOutcome.Invalid(it.message ?: "parse error", templateId) },
+            )
+    }
 
     fun parseFromApiItem(item: JSONObject): CloudTemplate {
         val canvasData = item.optJSONObject("canvas_data")
