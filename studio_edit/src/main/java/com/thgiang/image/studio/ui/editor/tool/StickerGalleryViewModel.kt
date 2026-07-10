@@ -93,7 +93,7 @@ class StickerGalleryViewModel @Inject constructor(
 
                     stateFlow.update { current ->
                         current.copy(
-                            stickers = current.stickers + result.stickers,
+                            stickers = (current.stickers + result.stickers).distinctBy { it.id },
                             isLoading = false,
                             isLoadingMore = false,
                             hasMore = result.hasMore,
