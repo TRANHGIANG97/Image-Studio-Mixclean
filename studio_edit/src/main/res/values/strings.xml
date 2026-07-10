@@ -64,6 +64,8 @@
     <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_duplicate">Duplicate</string>
     <string name="studio_tool_delete">Delete</string>
+    <string name="studio_tool_add_image">Thêm ảnh</string>
+    <string name="studio_tool_remove_bg">Xóa nền</string>
     <string name="studio_badge_sample">Sample</string>
     <string name="studio_action_replace">Replace</string>
     <string name="studio_gallery_no_templates">No templates available</string>

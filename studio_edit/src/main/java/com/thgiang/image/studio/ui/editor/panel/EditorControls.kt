@@ -305,4 +305,6 @@ private fun toolPanelTitle(tool: EditorTool): String = when (tool) {
     is EditorTool.Crop -> stringResource(R.string.studio_tool_crop)
     is EditorTool.Duplicate -> stringResource(R.string.studio_tool_duplicate)
     is EditorTool.Delete -> stringResource(R.string.studio_tool_delete)
+    is EditorTool.AddImage -> stringResource(R.string.studio_tool_add_image)
+    is EditorTool.RemoveBg -> stringResource(R.string.studio_tool_remove_bg)
 }

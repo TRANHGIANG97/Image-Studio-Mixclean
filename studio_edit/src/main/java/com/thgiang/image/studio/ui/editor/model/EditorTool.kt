@@ -12,8 +12,13 @@ sealed class EditorTool(val iconName: String) : java.io.Serializable {
     data object Crop : EditorTool("crop_square")
     data object Duplicate : EditorTool("content_copy")
     data object Delete : EditorTool("delete")
+    data object AddImage : EditorTool("add_a_photo")
+    data object RemoveBg : EditorTool("auto_awesome")
 
     companion object {
-        val ALL = listOf(Replace, Sticker, Label, Shape, Rotate, Shadow, Transparency, Crop, Duplicate, Delete)
+        val ALL = listOf(
+            Replace, Sticker, Label, Shape, Rotate, Shadow, Transparency, Crop, Duplicate, Delete,
+            AddImage, RemoveBg
+        )
     }
 }

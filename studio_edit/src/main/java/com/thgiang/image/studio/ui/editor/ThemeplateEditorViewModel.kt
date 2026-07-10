@@ -236,6 +236,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.LoadCloudTemplate -> loadCloudTemplate(event.cloudTemplate)
             is EditorEvent.LoadCloudTemplateById -> loadCloudTemplateById(event.templateId)
             is EditorEvent.SetProductImage -> setProductImage(event.uri, event.replaceLayerId)
+            is EditorEvent.RemoveBackground -> removeBackground(event.layerId)
             is EditorEvent.AddSticker -> addSticker(event.assetPath)
             // ── Label events (delegated) ──────────────────
             EditorEvent.AddTextLayer ->
@@ -939,6 +940,83 @@ class ThemeplateEditorViewModel @Inject constructor(
                     update.processingId,
                     e.message ?: context.getString(R.string.studio_error_process_image),
                 )
+            }
+        }
+    }
+
+    private fun removeBackground(layerId: String) {
+        val layer = _state.value.layers.find { it.id == layerId } ?: return
+        val uriStr = layer.product.originalUriString ?: layer.product.foregroundUriString ?: return
+        val uri = Uri.parse(uriStr)
+
+        bgRemoveJob?.cancel()
+
+        _state.update { state ->
+            val updatedLayers = state.layers.map {
+                if (it.id == layerId) {
+                    it.copy(product = it.product.copy(processing = true))
+                } else {
+                    it
+                }
+            }
+            state.copy(layers = updatedLayers)
+        }
+
+        bgRemoveJob = viewModelScope.launch {
+            try {
+                when (val result = productWorkflow.processUserImage(uri)) {
+                    is ProductImageResult.Ready -> {
+                        _state.update { state ->
+                            val updatedLayers = state.layers.map {
+                                if (it.id == layerId) {
+                                    it.copy(
+                                        product = result.product.copy(
+                                            isSample = it.product.isSample,
+                                            originalUriString = uriStr
+                                        )
+                                    )
+                                } else {
+                                    it
+                                }
+                            }
+                            state.copy(layers = updatedLayers)
+                        }
+                        triggerOverlay()
+                        pushHistory()
+                    }
+                    is ProductImageResult.Failed -> {
+                        _state.update { state ->
+                            val updatedLayers = state.layers.map {
+                                if (it.id == layerId) {
+                                    it.copy(product = it.product.copy(processing = false))
+                                } else {
+                                    it
+                                }
+                            }
+                            state.copy(
+                                layers = updatedLayers,
+                                errorMessage = result.message ?: context.getString(R.string.studio_error_process_image)
+                            )
+                        }
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "removeBackground failed", e)
+                _state.update { state ->
+                    val updatedLayers = state.layers.map {
+                        if (it.id == layerId) {
+                            it.copy(product = it.product.copy(processing = false))
+                        } else {
+                            it
+                        }
+                    }
+                    state.copy(
+                        layers = updatedLayers,
+                        errorMessage = e.message ?: context.getString(R.string.studio_error_process_image)
+                    )
+                }
             }
         }
     }

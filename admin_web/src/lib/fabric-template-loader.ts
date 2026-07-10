@@ -82,9 +82,11 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
         // Force-restore custom properties directly from the raw JSON objects to the Fabric objects by index
         if (state && Array.isArray(state.objects)) {
           const fabricObjects = canvasInstance.getObjects();
+          console.log('[restore] Total objects in state:', state.objects.length, 'in canvas:', fabricObjects.length);
           state.objects.forEach((stateObj: any, index: number) => {
             const obj = fabricObjects[index];
             if (obj && stateObj) {
+              console.log(`[restore] Index ${index}: state.type=${stateObj.type}, state.layerId=${stateObj.layerId}, state.isReplaceable=${stateObj.isReplaceable}, state.layerType=${stateObj.layerType}`);
               const customKeys = [
                 'layerId',
                 'layerType',
@@ -103,6 +105,7 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
                   obj[key] = stateObj[key];
                 }
               });
+              console.log(`[restore] Result Index ${index}: obj.layerId=${obj.layerId}, obj.isReplaceable=${obj.isReplaceable}, obj.layerType=${obj.layerType}`);
             }
           });
         }
@@ -145,32 +148,56 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
         }
 
         // Align and restore custom properties (like isReplaceable, layerType, defaultImageUrl, cropRatio, layerName)
-        // by correlating the loaded Fabric objects with template.canvas_data.layers using layerId
-        if (canvasData && Array.isArray(canvasData.layers)) {
-          const layersMap = new Map(canvasData.layers.map((l: any) => [l.layerId, l]));
-          canvasInstance.getObjects().forEach((obj: any) => {
-            if (obj._isBackground === true) return;
-            const layer = layersMap.get(obj.layerId) as any;
-            if (layer) {
-              const isReplaceable =
-                layer.type === 'PLACEHOLDER_OBJECT' || layer.payload?.replaceable === true;
-              
-              if (isReplaceable) {
-                obj.isReplaceable = true;
-                obj.layerType = 'PLACEHOLDER_OBJECT';
-                if (layer.payload?.defaultImageUrl) {
-                  obj.defaultImageUrl = layer.payload.defaultImageUrl;
-                }
-                if (layer.payload?.cropRatio) {
-                  obj.cropRatio = layer.payload.cropRatio;
-                }
-              } else if (layer.type === 'IMAGE' || obj.type === 'image' || obj.type === 'FabricImage') {
-                obj.layerType = layer.type || obj.layerType || 'IMAGE';
-                obj.isReplaceable = false;
-              } else {
-                obj.layerType = layer.type || obj.layerType || 'DECORATION';
-                obj.isReplaceable = false;
-              }
+        // by correlating the loaded Fabric objects with template.canvas_data.layers using layerId.
+        // Fallback to index-based matching if layerId is missing.
+         if (canvasData && Array.isArray(canvasData.layers)) {
+           const layersMap = new Map(canvasData.layers.map((l: any) => [l.layerId, l]));
+           const fabricObjects = canvasInstance.getObjects();
+           
+           // Filter non-background objects to match with database layers by index
+           const nonBgFabricObjects = fabricObjects.filter((o: any) => o._isBackground !== true);
+           const dbLayers = [...canvasData.layers].sort((a: any, b: any) => a.zIndex - b.zIndex);
+
+           fabricObjects.forEach((obj: any) => {
+             if (obj._isBackground === true) return;
+             
+             // 1. Try matching by layerId
+             let layer: any = obj.layerId ? layersMap.get(obj.layerId) : null;
+             
+             // 2. Fallback to index-based match if layerId is missing
+             if (!layer) {
+               const idx = nonBgFabricObjects.indexOf(obj);
+               if (idx !== -1 && idx < dbLayers.length) {
+                 layer = dbLayers[idx] as any;
+                 console.log(`[align] Fallback index match at idx=${idx}: layer.layerId=${layer?.layerId}, layer.name=${layer?.name}`);
+                 if (layer) {
+                   obj.layerId = layer.layerId;
+                 }
+               }
+             }
+
+             console.log(`[align] Matching obj.layerId=${obj.layerId}: found in canvas_data? ${!!layer}`);
+             if (layer) {
+               console.log(`[align] found layer name=${layer.name}, type=${layer.type}, replaceable=${layer.payload?.replaceable}`);
+               const isReplaceable =
+                 layer.type === 'PLACEHOLDER_OBJECT' || layer.payload?.replaceable === true;
+               
+               if (isReplaceable) {
+                 obj.isReplaceable = true;
+                 obj.layerType = 'PLACEHOLDER_OBJECT';
+                 if (layer.payload?.defaultImageUrl) {
+                   obj.defaultImageUrl = layer.payload.defaultImageUrl;
+                 }
+                 if (layer.payload?.cropRatio) {
+                   obj.cropRatio = layer.payload.cropRatio;
+                 }
+               } else if (layer.type === 'IMAGE' || obj.type === 'image' || obj.type === 'FabricImage') {
+                 obj.layerType = layer.type || obj.layerType || 'IMAGE';
+                 obj.isReplaceable = false;
+               } else {
+                 obj.layerType = layer.type || obj.layerType || 'DECORATION';
+                 obj.isReplaceable = false;
+               }
               
               if (layer.name) {
                 obj.layerName = layer.name;

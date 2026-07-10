@@ -138,7 +138,6 @@ fun AppRoot(
     var showPremiumScreen by remember { mutableStateOf(false) }
     var showQualitySheet by remember { mutableStateOf(false) }
     var showRewardedAdDialog by remember { mutableStateOf(false) }
-    var showSaveRewardedAdDialog by remember { mutableStateOf(false) }
     var showReviewPromptDialog by remember { mutableStateOf(false) }
     var reviewPromptSource by remember { mutableStateOf(ReviewPromptSource.Auto) }
     var pendingSaveAction by remember { mutableStateOf<(() -> Unit)?>(null) }
@@ -164,12 +163,6 @@ fun AppRoot(
             }
             showRewardedAdDialog -> {
                 showRewardedAdDialog = false
-                appViewModel.resetBatchAdState()
-                return@BackHandler
-            }
-            showSaveRewardedAdDialog -> {
-                showSaveRewardedAdDialog = false
-                pendingSaveAction = null
                 appViewModel.resetBatchAdState()
                 return@BackHandler
             }
@@ -221,8 +214,13 @@ fun AppRoot(
             action()
         } else {
             pendingSaveAction = action
-            showSaveRewardedAdDialog = true
-            appViewModel.requestBatchAccess()
+            activity?.let { act ->
+                appViewModel.watchAdForBatch(act) {
+                    val actn = pendingSaveAction
+                    pendingSaveAction = null
+                    actn?.invoke()
+                }
+            }
         }
     }
 
@@ -767,39 +765,7 @@ fun AppRoot(
         )
     }
 
-    if (showSaveRewardedAdDialog) {
-        val adState by appViewModel.batchAdState.collectAsState()
-        val watchCount by appViewModel.batchAdWatchCount.collectAsState()
 
-        ModernRewardedAdDialog(
-            count = watchCount,
-            isLoading = adState is BatchAdState.Loading,
-            title = "Watch video to save",
-            message = "Watch a short video before saving this image.",
-            watchButtonText = "WATCH VIDEO",
-            showUpgradeButton = false,
-            onWatchAd = {
-                activity?.let {
-                    appViewModel.watchAdForBatch(it) {
-                        val action = pendingSaveAction
-                        showSaveRewardedAdDialog = false
-                        pendingSaveAction = null
-                        action?.invoke()
-                    }
-                }
-            },
-            onUpgrade = {
-                showSaveRewardedAdDialog = false
-                pendingSaveAction = null
-                appViewModel.resetBatchAdState()
-            },
-            onDismiss = {
-                showSaveRewardedAdDialog = false
-                pendingSaveAction = null
-                appViewModel.resetBatchAdState()
-            }
-        )
-    }
 
     if (showReviewPromptDialog) {
         ReviewPromptDialog(

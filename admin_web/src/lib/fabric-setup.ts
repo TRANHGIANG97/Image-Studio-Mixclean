@@ -17,6 +17,51 @@ export function initFabricEditorDefaults(): void {
     (FabricImage as any).ownDefaults.crossOrigin = 'anonymous';
   }
 
+  FabricObject.customProperties = [
+    'layerId',
+    'layerType',
+    'layerName',
+    '_isBackground',
+    'lockMovementX',
+    'lockMovementY',
+    'hasControls',
+    'hasBorders',
+    'selectable',
+    'src',
+    'defaultImageUrl',
+    'cropRatio',
+    'fill',
+    'fontSize',
+    'fontWeight',
+    'fontStyle',
+    'underline',
+    'textAlign',
+    'lineHeight',
+    'charSpacing',
+    'rx',
+    'ry',
+    'stroke',
+    'strokeWidth',
+    'strokeDashArray',
+    'imageFilters',
+    'textBackgroundColor',
+    'linethrough',
+    'textTransform',
+    '_originalText',
+    'shapeSubtype',
+    'isShadowRegion',
+    'sourceKind',
+    'crossOrigin',
+    'shadow',
+    'globalCompositeOperation',
+    'blendMode',
+    'clipPath',
+    'clipShape',
+    'isReplaceable',
+    'padding',
+    'objectCaching',
+  ];
+
   FabricObject.ownDefaults.borderColor = accent;
   FabricObject.ownDefaults.borderScaleFactor = 2.5;
   FabricObject.ownDefaults.cornerColor = '#ffffff';

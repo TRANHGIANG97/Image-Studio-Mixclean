@@ -132,4 +132,5 @@ sealed class EditorEvent {
     /** Acknowledge the currently shown error so it never re-shows on recompose. */
     data object ClearError : EditorEvent()
     data class Export(val templateAssetPath: String) : EditorEvent()
+    data class RemoveBackground(val layerId: String) : EditorEvent()
 }

@@ -36,7 +36,10 @@ fun EditorBottomToolbar(
     selectedTool: EditorTool?,
     onToolSelected: (EditorTool?) -> Unit,
     onReplaceImage: () -> Unit,
+    onAddImage: () -> Unit = {},
+    onRemoveBg: () -> Unit = {},
     canReplaceImage: Boolean = true,
+    canRemoveBg: Boolean = false,
     toolsLocked: Boolean = false,
     labelLayerActive: Boolean = false,
     shapeShadowInPanel: Boolean = false,
@@ -82,11 +85,13 @@ fun EditorBottomToolbar(
                     is EditorTool.Shadow -> selectedTool is EditorTool.Shadow
                     is EditorTool.Transparency -> selectedTool is EditorTool.Transparency
                     is EditorTool.Crop -> selectedTool is EditorTool.Crop
-                    is EditorTool.Duplicate, is EditorTool.Delete -> false // These are instant actions
+                    is EditorTool.Duplicate, is EditorTool.Delete, is EditorTool.AddImage, is EditorTool.RemoveBg -> false // These are instant actions
                     else -> false
                 }
                 val isEnabled = when {
                     tool is EditorTool.Replace -> canReplaceImage
+                    tool is EditorTool.AddImage -> true
+                    tool is EditorTool.RemoveBg -> canRemoveBg
                     tool is EditorTool.Sticker ||
                         tool is EditorTool.Label ||
                         tool is EditorTool.Shape -> true
@@ -103,10 +108,11 @@ fun EditorBottomToolbar(
                     primaryColor = tokens.textPrimary,
                     secondaryColor = tokens.textSecondary,
                     onClick = {
-                        if (tool is EditorTool.Replace) {
-                            onReplaceImage()
-                        } else {
-                            onToolSelected(tool)
+                        when (tool) {
+                            is EditorTool.Replace -> onReplaceImage()
+                            is EditorTool.AddImage -> onAddImage()
+                            is EditorTool.RemoveBg -> onRemoveBg()
+                            else -> onToolSelected(tool)
                         }
                     }
                 )
@@ -139,6 +145,8 @@ private fun ToolButton(
         is EditorTool.Crop         -> R.string.studio_tool_crop
         is EditorTool.Duplicate    -> R.string.studio_tool_duplicate
         is EditorTool.Delete       -> R.string.studio_tool_delete
+        is EditorTool.AddImage     -> R.string.studio_tool_add_image
+        is EditorTool.RemoveBg     -> R.string.studio_tool_remove_bg
         else                       -> R.string.studio_tool_layout
     }
 
@@ -155,6 +163,8 @@ private fun ToolButton(
         is EditorTool.Crop         -> R.drawable.ic_tool_crop
         is EditorTool.Duplicate    -> R.drawable.ic_tool_duplicate
         is EditorTool.Delete       -> R.drawable.ic_tool_delete
+        is EditorTool.AddImage     -> R.drawable.ic_tool_add_image
+        is EditorTool.RemoveBg     -> R.drawable.ic_tool_remove_bg
         else                       -> R.drawable.ic_tool_layout
     }
 

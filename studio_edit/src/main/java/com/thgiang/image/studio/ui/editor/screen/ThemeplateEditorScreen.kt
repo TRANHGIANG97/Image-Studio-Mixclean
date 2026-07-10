@@ -626,8 +626,20 @@ fun ThemeplateEditorScreen(
                                 triggerImagePicker()
                             }
                         },
+                        onAddImage = {
+                            targetReplaceLayerId = null
+                            triggerImagePicker()
+                        },
+                        onRemoveBg = {
+                            val target = activeLayer
+                            if (target?.type == LayerType.IMAGE && !target.isLocked) {
+                                viewModel.onEvent(EditorEvent.RemoveBackground(target.id))
+                            }
+                        },
                         canReplaceImage = activeLayer?.type == LayerType.IMAGE &&
                             activeLayer.product.isSample &&
+                            !activeLayer.isLocked,
+                        canRemoveBg = activeLayer?.type == LayerType.IMAGE &&
                             !activeLayer.isLocked,
                         toolsLocked = !editingToolsUnlocked,
                         labelLayerActive = selectedToolForUi is EditorTool.Label ||

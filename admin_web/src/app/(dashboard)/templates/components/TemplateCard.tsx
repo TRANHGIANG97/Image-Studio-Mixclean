@@ -145,6 +145,15 @@ export function TemplateCard({
           Sửa: {new Date(tpl.updated_at).toLocaleDateString('vi-VN')}
         </span>
         <div className="flex items-center gap-2">
+          <Link
+            href={`/templates/${tpl.id}/edit`}
+            className="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 rounded-xl px-2.5 h-8 text-[11px] font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <PenTool className="w-3.5 h-3.5" /> Thiết kế
+          </Link>
           <Button
             variant="ghost"
             size="icon"
