@@ -87,12 +87,7 @@ internal fun StickerPicker(
         stickerState.previewMeme + stickerState.previewDecor
     }
 
-    var expanded by rememberSaveable { mutableStateOf(true) }
-    val chevronRotation by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f,
-        animationSpec = tween(durationMillis = 200),
-        label = "chevronRotation"
-    )
+    val expanded = true
 
     Column(
         modifier = Modifier
@@ -106,13 +101,8 @@ internal fun StickerPicker(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Tiêu đề + chevron thu gọn
+            // Tiêu đề
             Row(
-                modifier = Modifier
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) { expanded = !expanded },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
@@ -121,14 +111,6 @@ internal fun StickerPicker(
                     color = tokens.textPrimary,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                )
-                Icon(
-                    imageVector = Icons.Filled.KeyboardDoubleArrowDown,
-                    contentDescription = null,
-                    tint = tokens.textSecondary,
-                    modifier = Modifier
-                        .size(18.dp)
-                        .graphicsLayer { rotationZ = chevronRotation },
                 )
             }
 

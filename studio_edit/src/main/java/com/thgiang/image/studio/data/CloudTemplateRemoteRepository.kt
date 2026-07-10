@@ -90,40 +90,42 @@ class CloudTemplateRemoteRepository @Inject constructor(
     }
 
     fun fetchTemplatesForCategory(categoryId: String): List<RemoteTemplateRow> {
-        if (categoryId.isBlank()) return emptyList()
-
-        cache.getTemplates(categoryId)?.let { return it }
+        val cacheKey = if (categoryId.isBlank()) "all_newest" else categoryId
+        cache.getTemplates(cacheKey)?.let { return it }
 
         val env = if (BuildConfig.DEBUG) "debug" else "release"
         val result = try {
+            val queryParams = mutableMapOf(
+                "limit" to "50",
+                "env" to env,
+            )
+            if (categoryId.isNotBlank()) {
+                queryParams["categoryId"] = categoryId
+            }
             val root = client.getJson(
                 path = "/api/v1/templates",
-                query = mapOf(
-                    "categoryId" to categoryId,
-                    "limit" to "50",
-                    "env" to env,
-                ),
+                query = queryParams,
             )
             val parsed = parseTemplateRows(root)
             if (parsed.isNotEmpty()) {
-                saveTemplatesToDisk(categoryId, root.toString())
+                saveTemplatesToDisk(cacheKey, root.toString())
             }
             parsed
         } catch (e: Exception) {
-            Log.e(TAG, "Network templates fetch failed for $categoryId, loading from disk cache", e)
-            val cachedJson = loadTemplatesFromDisk(categoryId)
+            Log.e(TAG, "Network templates fetch failed for $cacheKey, loading from disk cache", e)
+            val cachedJson = loadTemplatesFromDisk(cacheKey)
             if (cachedJson != null) {
                 try {
                     parseTemplateRows(JSONObject(cachedJson))
                 } catch (pe: Exception) {
-                    Log.e(TAG, "Parsing disk cache templates failed for $categoryId", pe)
+                    Log.e(TAG, "Parsing disk cache templates failed for $cacheKey", pe)
                     emptyList()
                 }
             } else {
                 emptyList()
             }
         }
-        cache.putTemplates(categoryId, result)
+        cache.putTemplates(cacheKey, result)
         return result
     }
 

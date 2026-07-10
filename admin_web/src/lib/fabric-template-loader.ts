@@ -116,6 +116,41 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
           }
         }
 
+        // Align and restore custom properties (like isReplaceable, layerType, defaultImageUrl, cropRatio, layerName)
+        // by correlating the loaded Fabric objects with template.canvas_data.layers using layerId
+        if (canvasData && Array.isArray(canvasData.layers)) {
+          const layersMap = new Map(canvasData.layers.map((l: any) => [l.layerId, l]));
+          canvasInstance.getObjects().forEach((obj: any) => {
+            if (obj._isBackground === true) return;
+            const layer = layersMap.get(obj.layerId) as any;
+            if (layer) {
+              const isReplaceable =
+                layer.type === 'PLACEHOLDER_OBJECT' || layer.payload?.replaceable === true;
+              
+              if (isReplaceable) {
+                obj.isReplaceable = true;
+                obj.layerType = 'PLACEHOLDER_OBJECT';
+                if (layer.payload?.defaultImageUrl) {
+                  obj.defaultImageUrl = layer.payload.defaultImageUrl;
+                }
+                if (layer.payload?.cropRatio) {
+                  obj.cropRatio = layer.payload.cropRatio;
+                }
+              } else if (layer.type === 'IMAGE' || obj.type === 'image' || obj.type === 'FabricImage') {
+                obj.layerType = layer.type || obj.layerType || 'IMAGE';
+                obj.isReplaceable = false;
+              } else {
+                obj.layerType = layer.type || obj.layerType || 'DECORATION';
+                obj.isReplaceable = false;
+              }
+              
+              if (layer.name) {
+                obj.layerName = layer.name;
+              }
+            }
+          });
+        }
+
         // Load fonts and fix properties for all text objects loaded from JSON
         if (typeof document !== 'undefined') {
           canvasInstance.getObjects().forEach((obj: any) => {

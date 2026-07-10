@@ -33,8 +33,9 @@ class StickerRemoteRepository @Inject constructor(
 
     companion object {
         private const val TAG = "StickerRemoteRepo"
-        const val FOLDER_MEME = "svg_undraw"
-        const val FOLDER_DECOR = "sticker_decor"
+        const val FOLDER_svg_undraw = "svg_undraw"
+        const val Svg_materials_icon = "materials_icon"
+
         const val PREVIEW_LIMIT = 10
         const val PAGE_LIMIT = 30
     }
@@ -56,7 +57,7 @@ class StickerRemoteRepository @Inject constructor(
             val memeRoot = client.getJson(
                 path = "/api/assets",
                 query = mapOf(
-                    "folder" to FOLDER_MEME,
+                    "folder" to FOLDER_svg_undraw,
                     "limit" to PREVIEW_LIMIT.toString(),
                 ),
             )
@@ -64,7 +65,7 @@ class StickerRemoteRepository @Inject constructor(
             val decorRoot = client.getJson(
                 path = "/api/assets",
                 query = mapOf(
-                    "folder" to FOLDER_DECOR,
+                    "folder" to Svg_materials_icon,
                     "limit" to PREVIEW_LIMIT.toString(),
                 ),
             )

@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
@@ -96,8 +97,8 @@ internal fun StickerGallerySheet(
     var selectedTab by remember { mutableIntStateOf(0) }
 
     val tabs = listOf(
-        stringResource(R.string.studio_sticker_tab_decor) to StickerRemoteRepository.FOLDER_DECOR,
-        stringResource(R.string.studio_sticker_tab_meme) to StickerRemoteRepository.FOLDER_MEME,
+        stringResource(R.string.studio_sticker_tab_decor) to StickerRemoteRepository.Svg_materials_icon,
+        stringResource(R.string.studio_sticker_tab_meme) to StickerRemoteRepository.FOLDER_svg_undraw,
     )
 
     ModalBottomSheet(
@@ -105,8 +106,8 @@ internal fun StickerGallerySheet(
         sheetState = sheetState,
         containerColor = tokens.surfaceBase,
         dragHandle = null,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        modifier = Modifier.fillMaxHeight(0.88f),
+        shape = RoundedCornerShape(0.dp),
+        modifier = Modifier.fillMaxSize(),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -125,8 +126,8 @@ internal fun StickerGallerySheet(
                     modifier = Modifier.weight(1f),
                 )
                 Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = stringResource(R.string.studio_confirm_exit_cancel),
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.studio_back),
                     tint = tokens.textSecondary,
                     modifier = Modifier
                         .size(28.dp)
@@ -175,8 +176,8 @@ internal fun StickerGallerySheet(
 
             // ── Grid content ────────────────────────────────────────
             val (currentState, currentFolder) = when (selectedTab) {
-                0 -> Pair(decorState, StickerRemoteRepository.FOLDER_DECOR)
-                else -> Pair(memeState, StickerRemoteRepository.FOLDER_MEME)
+                0 -> Pair(decorState, StickerRemoteRepository.Svg_materials_icon)
+                else -> Pair(memeState, StickerRemoteRepository.FOLDER_svg_undraw)
             }
 
             StickerGrid(

@@ -217,7 +217,13 @@ fun AppRoot(
     }
 
     fun requestSaveVideoAd(action: () -> Unit) {
-        action()
+        if (appState.isPremium) {
+            action()
+        } else {
+            pendingSaveAction = action
+            showSaveRewardedAdDialog = true
+            appViewModel.requestBatchAccess()
+        }
     }
 
     ModalNavigationDrawer(

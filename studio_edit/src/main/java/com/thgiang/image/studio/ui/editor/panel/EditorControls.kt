@@ -89,7 +89,7 @@ fun EditorControlsV2(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                if (tool != null) {
+                if (tool != null && tool !is EditorTool.Sticker) {
                     Text(
                         text = toolPanelTitle(tool),
                         color = tokens.textPrimary,

@@ -243,7 +243,7 @@ fun HomeDashboardScreen(
                     Spacer(modifier = Modifier.height(HomeUiTokens.sectionSpacing))
 
                     HomeThemeplateSlider(
-                        templates = uiState.professionalTemplates,
+                        templates = uiState.newestTemplates,
                         onThemeplateSelected = onThemeplateSelected
                     )
 
@@ -477,15 +477,20 @@ private fun HomeThemeplateSlider(
 
                 Box(
                     modifier = Modifier
-                        .padding(6.dp)
+                        .padding(8.dp)
                         .align(Alignment.TopStart)
+                        .background(
+                            color = Color(0xFFFF3D00), // Vibrant Red-Orange
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        text = "Themeplate",
-                        color = Color(0xFFFF6D00),
-                        fontSize = 4.5.sp,
+                        text = "NEW",
+                        color = Color.White,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.25.sp
+                        letterSpacing = 0.5.sp
                     )
                 }
             }

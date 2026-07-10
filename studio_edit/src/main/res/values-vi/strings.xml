@@ -289,8 +289,8 @@
 
     <!-- Sticker Picker -->
     <string name="studio_sticker_library_title">Thư viện nhãn dán</string>
-    <string name="studio_sticker_tab_decor">Nhãn dán trang trí</string>
-    <string name="studio_sticker_tab_meme">Nhãn dán meme</string>
+    <string name="studio_sticker_tab_decor">Biểu tượng</string>
+    <string name="studio_sticker_tab_meme">Minh họa phẳng</string>
 
     <!-- Gradient sub-section tabs -->
     <string name="studio_label_color_presets_tab">Mẫu màu</string>

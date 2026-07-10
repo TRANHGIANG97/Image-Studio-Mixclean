@@ -59,8 +59,8 @@ class StickerGalleryViewModel @Inject constructor(
 
     init {
         // Tải trang đầu tiên của cả 2 tab khi ViewModel được tạo
-        loadMore(StickerRemoteRepository.FOLDER_MEME)
-        loadMore(StickerRemoteRepository.FOLDER_DECOR)
+        loadMore(StickerRemoteRepository.FOLDER_svg_undraw)
+        loadMore(StickerRemoteRepository.Svg_materials_icon)
     }
 
     /**
@@ -125,13 +125,13 @@ class StickerGalleryViewModel @Inject constructor(
     // ─── Helpers ──────────────────────────────────────────────────
 
     private fun stateFlowFor(folder: String): MutableStateFlow<StickerTabState> =
-        if (folder == StickerRemoteRepository.FOLDER_MEME) _memeState else _decorState
+        if (folder == StickerRemoteRepository.FOLDER_svg_undraw) _memeState else _decorState
 
     private fun jobFor(folder: String): Job? =
-        if (folder == StickerRemoteRepository.FOLDER_MEME) memeLoadJob else decorLoadJob
+        if (folder == StickerRemoteRepository.FOLDER_svg_undraw) memeLoadJob else decorLoadJob
 
     private fun setJobFor(folder: String, job: Job) {
-        if (folder == StickerRemoteRepository.FOLDER_MEME) memeLoadJob = job
+        if (folder == StickerRemoteRepository.FOLDER_svg_undraw) memeLoadJob = job
         else decorLoadJob = job
     }
 }

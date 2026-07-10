@@ -262,6 +262,7 @@ class HomeViewModel @Inject constructor(
 
                 val cosmeticsJob = async { fetchRemoteTemplates(cosmeticsId) }
                 val professionalJob = async { fetchRemoteTemplates(professionalId) }
+                val newestJob = async { fetchRemoteTemplates("") }
 
                 // Tải song song toàn bộ các danh mục khác có cấu hình slug
                 val otherCategories = categories.filter {
@@ -273,6 +274,7 @@ class HomeViewModel @Inject constructor(
 
                 val cosmetics = cosmeticsJob.await()
                 val professional = professionalJob.await()
+                val newest = newestJob.await()
 
                 val otherSections = otherJobs.map { (category, job) ->
                     com.thgiang.image.studio.model.StudioThemeplateSection(
@@ -291,6 +293,7 @@ class HomeViewModel @Inject constructor(
                     it.copy(
                         cosmeticsTemplates = cosmetics,
                         professionalTemplates = professional,
+                        newestTemplates = newest,
                         otherSections = otherSections,
                         isLoadingTemplates = false,
                         isOffline = !hasInternet
