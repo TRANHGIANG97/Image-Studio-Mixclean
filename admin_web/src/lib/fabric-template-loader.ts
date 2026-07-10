@@ -79,6 +79,34 @@ export async function loadTemplateIntoCanvas(options: LoadTemplateOptions) {
           canvasInstance.backgroundColor = '#ffffff';
         }
 
+        // Force-restore custom properties directly from the raw JSON objects to the Fabric objects by index
+        if (state && Array.isArray(state.objects)) {
+          const fabricObjects = canvasInstance.getObjects();
+          state.objects.forEach((stateObj: any, index: number) => {
+            const obj = fabricObjects[index];
+            if (obj && stateObj) {
+              const customKeys = [
+                'layerId',
+                'layerType',
+                'layerName',
+                '_isBackground',
+                'isReplaceable',
+                'defaultImageUrl',
+                'cropRatio',
+                'clipShape',
+                'sourceKind',
+                'isShadowRegion',
+                'blendMode'
+              ];
+              customKeys.forEach((key) => {
+                if (stateObj[key] !== undefined) {
+                  obj[key] = stateObj[key];
+                }
+              });
+            }
+          });
+        }
+
         // Restore template background image if missing in fabric_state
         const canvasData = template.canvas_data;
         if (!canvasInstance.backgroundImage && canvasData?.canvas?.backgroundUrl) {
