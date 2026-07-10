@@ -480,14 +480,14 @@ private fun HomeThemeplateSlider(
                         .padding(8.dp)
                         .align(Alignment.TopStart)
                         .background(
-                            color = Color(0xFFFF3D00), // Vibrant Red-Orange
+                            color = Color(0xFFE8F5E9), // Softer pastel green
                             shape = RoundedCornerShape(4.dp)
                         )
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
                         text = "NEW",
-                        color = Color.White,
+                        color = Color(0xFF2E7D32), // Softer dark green
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp
