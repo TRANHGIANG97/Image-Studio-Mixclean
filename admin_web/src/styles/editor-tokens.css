@@ -1,0 +1,63 @@
+:root {
+  --editor-workspace-bg: #ebebeb;
+  --editor-artboard-bg: #ffffff;
+  --editor-artboard-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --editor-accent: #6366f1;
+  --editor-accent-soft: rgba(99, 102, 241, 0.12);
+  --editor-text-primary: #1e293b;
+  --editor-text-secondary: #64748b;
+  --editor-border: #e2e8f0;
+  --editor-dock-bg: #ffffff;
+  --editor-panel-bg: rgba(255, 255, 255, 0.95);
+  --editor-selection: #6366f1;
+  --editor-layer-rail-collapsed: 72px;
+  --editor-layer-rail-expanded: 280px;
+  --editor-bottom-dock-h: 64px;
+  --editor-topbar-h: 48px;
+  --editor-context-peek: 44px;
+  --editor-context-expanded: 280px;
+  --editor-motion-spring-panel: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --editor-motion-spring-emphasized: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --editor-motion-fade-quick: 120ms ease-out;
+}
+
+.editor-workspace {
+  background-color: var(--editor-workspace-bg);
+}
+
+.editor-artboard {
+  background-color: var(--editor-artboard-bg);
+  box-shadow: var(--editor-artboard-shadow);
+}
+
+.editor-accent {
+  color: var(--editor-accent);
+}
+
+.editor-accent-bg {
+  background-color: var(--editor-accent);
+}
+
+.editor-accent-soft-bg {
+  background-color: var(--editor-accent-soft);
+}
+
+.editor-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--editor-workspace-bg) 0%,
+    #f5f5f5 50%,
+    var(--editor-workspace-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: editor-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes editor-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

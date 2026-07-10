@@ -58,6 +58,7 @@
     <string name="studio_shape_tab_stroke">枠線</string>
     <string name="studio_shape_tab_shadow">影</string>
     <string name="studio_shape_tab_elevation">立体</string>
+    <string name="studio_shape_tab_arrange">配置</string>
     <string name="studio_shape_tab_shape">形状</string>
     <string name="studio_shape_collapse">折りたたむ</string>
     <string name="studio_shape_expand">展開</string>

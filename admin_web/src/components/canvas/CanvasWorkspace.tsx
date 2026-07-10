@@ -7,7 +7,7 @@ import { loadTemplateIntoCanvas } from '@/lib/fabric-template-loader';
 import { CanvasContextMenu } from './CanvasContextMenu';
 import { useCanvasSnapping } from '@/hooks/useCanvasSnapping';
 import { useCanvasViewport } from '@/hooks/useCanvasViewport';
-import { extractActiveObjectProps } from '@/lib/canvas-object-props';
+import { extractActiveObjectProps, resolveLayerType } from '@/lib/canvas-object-props';
 import { injectFontFace, invalidateFontsManifestCache } from '@/lib/fonts-manifest';
 
 initFabricEditorDefaults();
@@ -31,6 +31,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/store/editor.store';
 import EditorToolbar from './toolbar/EditorToolbar';
+import { FloatingObjectToolbar, computeFloatingToolbarPosition, type ToolbarPosition } from './FloatingObjectToolbar';
+import { useEditorUiStore } from '@/store/editor-ui.store';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLayersStore } from '@/store/layers.store';
 import { useCropStore } from '@/store/crop.store';
@@ -73,12 +75,14 @@ interface CanvasWorkspaceProps {
   /** Fired once when template was loaded from canvas_data only (no fabric_state). */
   onLoadedWithoutFabricState?: () => void;
   onLayerLoadError?: (error: string) => void;
+  /** V2 canvas-first layout hides legacy top toolbar. */
+  layoutMode?: 'legacy' | 'v2';
 }
 
 // Module-level variable to serialize canvas initialization and disposal across strict mode double mounts
 let activeDisposalPromise: Promise<void> | null = null;
 
-export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty, onLoadedWithoutFabricState, onLayerLoadError }: CanvasWorkspaceProps) {
+export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty, onLoadedWithoutFabricState, onLayerLoadError, layoutMode = 'legacy' }: CanvasWorkspaceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<any>(null);
@@ -147,6 +151,14 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
   const [isShapeDropdownOpen, setIsShapeDropdownOpen] = useState(false);
   const [isFileDragOver, setIsFileDragOver] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; visible: boolean } | null>(null);
+  const [floatingToolbarPos, setFloatingToolbarPos] = useState<ToolbarPosition | null>(null);
+
+  const registerCanvasActions = useEditorUiStore((s) => s.registerCanvasActions);
+  const setAssetDrawerOpen = useEditorUiStore((s) => s.setAssetDrawerOpen);
+
+  const repositionFloatingToolbar = (canvasInstance: any) => {
+    setFloatingToolbarPos(computeFloatingToolbarPosition(canvasInstance));
+  };
 
   const [guides, setGuides] = useState<{ type: 'h' | 'v'; position: number }[]>([]);
   const guidesRef = useRef(guides);
@@ -236,6 +248,29 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     factoryAddShape(canvas, type, baseWidth, baseHeight, factoryHandlers);
   };
 
+  const startTextEditOnCanvas = () => {
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return;
+    const activeObj = canvas.getActiveObject() as {
+      type?: string;
+      layerType?: string;
+      enterEditing?: () => void;
+      hiddenTextarea?: HTMLTextAreaElement;
+    } | null;
+    if (!activeObj) return;
+    const isText =
+      activeObj.type === 'i-text' ||
+      activeObj.layerType === 'TEXT' ||
+      resolveLayerType(activeObj) === 'TEXT';
+    if (!isText || typeof activeObj.enterEditing !== 'function') return;
+    canvas.setActiveObject(activeObj);
+    activeObj.enterEditing();
+    if (activeObj.hiddenTextarea) {
+      activeObj.hiddenTextarea.focus({ preventScroll: true });
+    }
+    canvas.renderAll();
+  };
+
   const addImageFromUrl = async (url: string) => {
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
@@ -311,6 +346,73 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     return bg ? (bg.src || bg._originalElement?.src || bg.defaultImageUrl || '') : '';
   };
 
+  const duplicateSelection = () => {
+    const canvas = fabricCanvasRef.current;
+    const activeObj = canvas?.getActiveObject();
+    if (!canvas || !activeObj || activeObj._isBackground) return;
+    activeObj.clone().then((cloned: any) => {
+      canvas.discardActiveObject();
+      cloned.set({
+        left: activeObj.left + 30,
+        top: activeObj.top + 30,
+        layerId: createLayerId(),
+        layerName: `${activeObj.layerName || 'Layer'} Copy`,
+        selectable: true,
+      });
+      canvas.add(cloned);
+      canvas.setActiveObject(cloned);
+      commitCanvasAdd(canvas, cloned);
+      repositionFloatingToolbar(canvas);
+    });
+  };
+
+  const deleteSelection = () => {
+    const canvas = fabricCanvasRef.current;
+    const activeObj = canvas?.getActiveObject();
+    if (!canvas || !activeObj || activeObj._isBackground) return;
+    canvas.remove(activeObj);
+    canvas.discardActiveObject();
+    canvas.renderAll();
+    pushState();
+    setIsDirty(true);
+    syncLayersFromCanvas(canvas);
+    setFloatingToolbarPos(null);
+  };
+
+  const canvasActionsRef = useRef({
+    addText: addTextToCanvas,
+    addShape: addShapeToCanvas,
+    startTextEdit: startTextEditOnCanvas,
+    openCrop: openCropForCurrentTarget,
+    duplicateSelection,
+    deleteSelection,
+    openReplace: () => setAssetDrawerOpen(true),
+    openAssets: () => setAssetDrawerOpen(true),
+  });
+  canvasActionsRef.current = {
+    addText: addTextToCanvas,
+    addShape: addShapeToCanvas,
+    startTextEdit: startTextEditOnCanvas,
+    openCrop: openCropForCurrentTarget,
+    duplicateSelection,
+    deleteSelection,
+    openReplace: () => setAssetDrawerOpen(true),
+    openAssets: () => setAssetDrawerOpen(true),
+  };
+
+  useEffect(() => {
+    registerCanvasActions({
+      addText: () => canvasActionsRef.current.addText(),
+      addShape: (type) => canvasActionsRef.current.addShape(type),
+      startTextEdit: () => canvasActionsRef.current.startTextEdit(),
+      openCrop: () => canvasActionsRef.current.openCrop(),
+      duplicateSelection: () => canvasActionsRef.current.duplicateSelection(),
+      deleteSelection: () => canvasActionsRef.current.deleteSelection(),
+      openReplace: () => canvasActionsRef.current.openReplace(),
+      openAssets: () => canvasActionsRef.current.openAssets(),
+    });
+  }, [registerCanvasActions]);
+
   // 1. Initialize Fabric.js Canvas
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
@@ -329,6 +431,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       const objAny = selectedObj as any;
       setActiveObjectId(objAny.layerId || null);
       syncActiveObjectProps(selectedObj);
+      repositionFloatingToolbar(currentCanvas);
 
       if (objAny.type === 'i-text' || objAny.layerType === 'TEXT') {
         lastActiveTextObj = objAny;
@@ -340,6 +443,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
     const onClear = () => {
       setActiveObjectId(null);
       setActiveObjectProps(null);
+      setFloatingToolbarPos(null);
     };
 
     const onMouseDown = (options: any) => {
@@ -482,7 +586,10 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
       newCanvas.on('text:changed', onTextChanged);
       newCanvas.on('mouse:down', onMouseDown);
       
-      newCanvas.on('object:moving', handleObjectMoving);
+      newCanvas.on('object:moving', (e: any) => {
+        handleObjectMoving(e);
+        repositionFloatingToolbar(newCanvas);
+      });
       newCanvas.on('object:modified', clearGuides);
       newCanvas.on('mouse:up', clearGuides);
       newCanvas.on('selection:cleared', clearGuides);
@@ -759,9 +866,9 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-100 overflow-hidden relative" ref={containerRef}>
+    <div className={`flex flex-col h-full overflow-hidden relative ${layoutMode === 'v2' ? 'editor-workspace' : 'bg-slate-100'}`} ref={containerRef}>
       
-      {/* Toolbar Component */}
+      {layoutMode === 'legacy' && (
       <EditorToolbar
         zoomPercent={zoomPercent}
         onZoomIn={() => handleZoom(1.1)}
@@ -780,6 +887,7 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
         onToggleSnapping={() => setSnappingEnabled(!snappingEnabled)}
         onShapeSelect={addShapeToCanvas}
       />
+      )}
 
       {/* Loading Overlay */}
       {loadingLayers && (
@@ -882,10 +990,21 @@ export default function CanvasWorkspace({ template, onSave, isSaving, setIsDirty
               transform: `scale(${zoom})`,
               transition: 'transform 0.15s ease-out',
             }}
-            className="shadow-xl ring-1 ring-slate-300 bg-white"
+            className="shadow-xl ring-1 ring-slate-300 editor-artboard"
           >
             {/* Fabric.js canvas element */}
             <canvas ref={canvasRef} id="fabric-canvas" />
+
+            <FloatingObjectToolbar
+              position={floatingToolbarPos}
+              fabricCanvasRef={fabricCanvasRef}
+              onCopy={copyToClipboard}
+              onDirty={() => setIsDirty(true)}
+              onPushState={pushState}
+              onSyncLayers={syncLayersFromCanvas}
+              onSyncProps={setActiveObjectProps}
+              onReposition={repositionFloatingToolbar}
+            />
 
             {/* Smart Snapping Guides and Grid Overlay */}
             <svg className="absolute inset-0 pointer-events-none w-full h-full z-30">

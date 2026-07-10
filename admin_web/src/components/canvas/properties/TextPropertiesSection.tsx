@@ -30,11 +30,24 @@ import type { FontManifestEntry } from '@/domains/fonts/font.types';
 import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore } from '@/store/layers.store';
 
+export type TextPropertySection =
+  | 'all'
+  | 'font'
+  | 'size'
+  | 'style'
+  | 'format'
+  | 'align'
+  | 'bg';
+
 interface TextPropertiesSectionProps {
   showContent: boolean;
   activeObjectProps: Record<string, any>;
   onPropChange: (name: string, value: any) => void;
   onRecordChange: () => void;
+  /** Phase 2: show only one tab slice for LabelToolPanel */
+  section?: TextPropertySection;
+  /** Skip CollapsibleSection wrapper (context panel tabs) */
+  flat?: boolean;
 }
 
 export function TextPropertiesSection({
@@ -42,6 +55,8 @@ export function TextPropertiesSection({
   activeObjectProps,
   onPropChange,
   onRecordChange,
+  section = 'all',
+  flat = false,
 }: TextPropertiesSectionProps) {
   const { canvas } = useEditorStore();
   const { updateActiveObject } = useLayersStore();
@@ -204,13 +219,11 @@ export function TextPropertiesSection({
 
   if (!showContent || !isTextLayer) return null;
 
-  return (
-    <CollapsibleSection
-      id="text-style"
-      icon={<span className="text-[10px]">🔤</span>}
-      title="Kiểu chữ"
-      defaultOpen={true}
-    >
+  const show = (part: TextPropertySection) => section === 'all' || section === part;
+
+  const inner = (
+    <>
+      {show('all') && (
       <div className="space-y-1">
         <span className="text-[9px] font-semibold text-slate-400">Nội dung văn bản</span>
         <textarea
@@ -221,6 +234,8 @@ export function TextPropertiesSection({
           placeholder="Nhập nội dung chữ..."
         />
       </div>
+      )}
+      {show('style') && (
       <div className="space-y-1.5">
         <span className="text-[9px] font-semibold text-slate-400">Định dạng</span>
         <div className="grid grid-cols-5 gap-1.5">
@@ -290,6 +305,8 @@ export function TextPropertiesSection({
           </Button>
         </div>
       </div>
+      )}
+      {show('align') && (
       <div className="space-y-1.5">
         <span className="text-[9px] font-semibold text-slate-400">Căn lề</span>
         <div className="flex gap-1.5">
@@ -316,6 +333,8 @@ export function TextPropertiesSection({
           ))}
         </div>
       </div>
+      )}
+      {show('size') && (
       <div className="space-y-1">
         <span className="text-[9px] font-semibold text-slate-400">Font Size</span>
         <Input
@@ -325,6 +344,9 @@ export function TextPropertiesSection({
           className="bg-white border-slate-200 text-xs text-slate-400 rounded-xl h-8"
         />
       </div>
+      )}
+      {show('format') && (
+      <>
       <div className="space-y-1">
         <div className="flex justify-between text-[9px] font-semibold text-slate-400">
           <span>Line Height</span>
@@ -357,6 +379,9 @@ export function TextPropertiesSection({
           className="w-full h-1 bg-white rounded-lg appearance-none cursor-pointer accent-indigo-600"
         />
       </div>
+      </>
+      )}
+      {show('font') && (
       <div className="space-y-1 relative" id="font-family-selector-container">
         <span className="text-[9px] font-semibold text-slate-400">Font Family</span>
         <button
@@ -466,6 +491,8 @@ export function TextPropertiesSection({
             document.body
           )}
       </div>
+      )}
+      {show('bg') && (
       <div className="space-y-1 pt-2 border-t border-slate-200/30">
         <span className="text-[9px] font-semibold text-slate-400">Màu nền chữ</span>
         <div className="flex gap-2">
@@ -493,6 +520,8 @@ export function TextPropertiesSection({
           )}
         </div>
       </div>
+      )}
+      {show('style') && (
       <div className="space-y-2 pt-2 border-t border-slate-200/30">
         <span className="text-[9px] font-semibold text-slate-400 block">Mẫu chữ nhanh (Presets)</span>
         <div className="grid grid-cols-2 gap-1.5">
@@ -563,6 +592,8 @@ export function TextPropertiesSection({
           + Lưu định dạng hiện tại làm mẫu
         </Button>
       </div>
+      )}
+      {show('all') && (
       <div className="flex items-center justify-between pt-2 border-t border-slate-200/30">
         <div className="flex flex-col">
           <span className="text-[10px] font-semibold text-slate-400">Co chữ vừa khung</span>
@@ -589,6 +620,22 @@ export function TextPropertiesSection({
           className="rounded text-indigo-600 focus:ring-indigo-600 bg-white border-slate-200 cursor-pointer"
         />
       </div>
+      )}
+    </>
+  );
+
+  if (flat) {
+    return <div className="space-y-3">{inner}</div>;
+  }
+
+  return (
+    <CollapsibleSection
+      id="text-style"
+      icon={<span className="text-[10px]">🔤</span>}
+      title="Kiểu chữ"
+      defaultOpen={true}
+    >
+      {inner}
     </CollapsibleSection>
   );
 }

@@ -34,8 +34,12 @@ open class EditorLayerMutationHost(
 
     protected inline fun updateActiveLabelLayer(noinline block: (EditorLayer) -> EditorLayer) {
         updateActiveLayerWhen({ it.isLabelLayer }, block)
-        shapeFitFlow.tryEmit(Unit)
+        requestShapeFit()
         requestHistoryPush()
+    }
+
+    protected fun requestShapeFit() {
+        shapeFitFlow.tryEmit(Unit)
     }
 
     protected inline fun updateActiveFrameLayer(noinline block: (EditorLayer) -> EditorLayer) {
@@ -52,6 +56,7 @@ open class EditorLayerMutationHost(
                 val newLayers = state.layers.map { if (it.id == frameLayer.id) updatedFrame else it }
                 updateState { copy(layers = newLayers) }
                 requestHistoryPush()
+                requestShapeFit()
                 return
             }
         }
@@ -59,5 +64,8 @@ open class EditorLayerMutationHost(
         // Otherwise (standalone frame layer, text layer, etc.), update the selected layer directly
         updateActiveLayerWhen({ it.id == selectedId }, block)
         requestHistoryPush()
+        if (selectedLayer.isLabelLayer) {
+            requestShapeFit()
+        }
     }
 }

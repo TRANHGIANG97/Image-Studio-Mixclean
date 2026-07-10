@@ -78,6 +78,8 @@ fun EditorCanvasV2(
     templateSize: IntSize = IntSize(1000, 1000),
     layers: List<EditorLayer>,
     selectedLayerId: String?,
+    selectedLayerIds: Set<String> = emptySet(),
+    isCropToolActive: Boolean = false,
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     onPickImage: (layerId: String?) -> Unit,
@@ -114,11 +116,19 @@ fun EditorCanvasV2(
 
     var layerPickerHits by remember { mutableStateOf<List<EditorLayer>?>(null) }
     var quickActionsOffset by remember { mutableStateOf(Offset.Zero) }
+    var isLayerGestureActive by remember { mutableStateOf(false) }
+    val reportGestureActive: (Boolean) -> Unit = { active ->
+        isLayerGestureActive = active
+        onGestureActiveChanged(active)
+    }
 
     // Helper: switch inline editing to a specific label layer
     val onStartTextEdit: (String) -> Unit = { layerId ->
         onEvent(EditorEvent.StartTextEdit(layerId))
     }
+
+    fun isLayerSelected(layerId: String): Boolean =
+        SelectionState.isSelected(layers, selectedLayerId, selectedLayerIds, layerId)
 
     if (layerPickerHits != null) {
         LayerPickerSheet(
@@ -152,6 +162,15 @@ fun EditorCanvasV2(
 
         val displayWidth  = templateWidth  * calculatedScale
         val displayHeight = templateHeight * calculatedScale
+
+    val currentLayers by rememberUpdatedState(layers)
+    val currentSelectedLayerId by rememberUpdatedState(selectedLayerId)
+    val currentSelectedLayerIds by rememberUpdatedState(selectedLayerIds)
+    val currentIsCropToolActive by rememberUpdatedState(isCropToolActive)
+        val currentIsLabelToolActive by rememberUpdatedState(isLabelToolActive)
+        val currentIsShapeToolActive by rememberUpdatedState(isShapeToolActive)
+        val currentCanvasScale by rememberUpdatedState(canvasScale)
+        val currentCanvasOffset by rememberUpdatedState(canvasOffset)
 
         val isImeVisible = WindowInsets.isImeVisible
         val imeHeight = WindowInsets.ime.getBottom(density)
@@ -331,13 +350,13 @@ fun EditorCanvasV2(
                         }
                     }
                 }
-                .pointerInput(layers, selectedLayerId, templateSize, isLabelToolActive, isShapeToolActive, layerPickerHits, canvasScale, canvasOffset) {
+                .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { tap ->
                             val cx = size.width / 2f
                             val cy = size.height / 2f
-                            val untransformedTapX = cx + (tap.x - cx - canvasOffset.x) / canvasScale
-                            val untransformedTapY = cy + (tap.y - cy - canvasOffset.y) / canvasScale
+                            val untransformedTapX = cx + (tap.x - cx - currentCanvasOffset.x) / currentCanvasScale
+                            val untransformedTapY = cy + (tap.y - cy - currentCanvasOffset.y) / currentCanvasScale
 
                             val displayWidthPx = with(density) { displayWidth.toPx() }
                             val displayHeightPx = with(density) { displayHeight.toPx() }
@@ -355,15 +374,15 @@ fun EditorCanvasV2(
                                 calculatedScale = calculatedScale,
                                 selectionHitPaddingPx = selectionHitPaddingPx,
                             )
-                            val rawHits = LayerHitTest.hitLayersAtPoint(layers, hitContext)
-                            val hits = LayerGroupOps.collapseHits(rawHits, layers)
+                            val rawHits = LayerHitTest.hitLayersAtPoint(currentLayers, hitContext)
+                            val hits = LayerGroupOps.collapseHits(rawHits, currentLayers)
                             when {
                                 hits.isEmpty() -> onSelectLayer(null)
                                 hits.size == 1 -> {
                                     val hit = hits.first()
                                     val selectId = when {
-                                        isShapeToolActive && hit.groupId != null ->
-                                            layers.frameInGroup(hit)?.id ?: hit.id
+                                        currentIsShapeToolActive && hit.groupId != null ->
+                                            currentLayers.frameInGroup(hit)?.id ?: hit.id
                                         else -> hit.id
                                     }
                                     onSelectLayer(selectId)
@@ -374,8 +393,8 @@ fun EditorCanvasV2(
                         onDoubleTap = { tap ->
                             val cx = size.width / 2f
                             val cy = size.height / 2f
-                            val untransformedTapX = cx + (tap.x - cx - canvasOffset.x) / canvasScale
-                            val untransformedTapY = cy + (tap.y - cy - canvasOffset.y) / canvasScale
+                            val untransformedTapX = cx + (tap.x - cx - currentCanvasOffset.x) / currentCanvasScale
+                            val untransformedTapY = cy + (tap.y - cy - currentCanvasOffset.y) / currentCanvasScale
 
                             val displayWidthPx = with(density) { displayWidth.toPx() }
                             val displayHeightPx = with(density) { displayHeight.toPx() }
@@ -394,8 +413,8 @@ fun EditorCanvasV2(
                                 selectionHitPaddingPx = selectionHitPaddingPx,
                             )
                             val doubleHits = LayerGroupOps.collapseHits(
-                                LayerHitTest.hitLayersAtPoint(layers, hitContext),
-                                layers,
+                                LayerHitTest.hitLayersAtPoint(currentLayers, hitContext),
+                                currentLayers,
                             )
                             if (doubleHits.size == 1 && doubleHits.first().isLabelLayer) {
                                 onStartTextEdit(doubleHits.first().id)
@@ -449,7 +468,37 @@ fun EditorCanvasV2(
                                     }
                                 }
                             }
-                        }
+                        },
+                        onLongPress = { tap ->
+                            val cx = size.width / 2f
+                            val cy = size.height / 2f
+                            val untransformedTapX = cx + (tap.x - cx - currentCanvasOffset.x) / currentCanvasScale
+                            val untransformedTapY = cy + (tap.y - cy - currentCanvasOffset.y) / currentCanvasScale
+
+                            val displayWidthPx = with(density) { displayWidth.toPx() }
+                            val displayHeightPx = with(density) { displayHeight.toPx() }
+                            val selectionHitPaddingPx = with(density) { 24.dp.toPx() }
+                            val templateLeftPx = (size.width - displayWidthPx) / 2f
+                            val templateTopPx = (size.height - displayHeightPx) / 2f
+
+                            val hitContext = LayerHitTestContext(
+                                tapX = untransformedTapX,
+                                tapY = untransformedTapY,
+                                displayWidthPx = displayWidthPx,
+                                displayHeightPx = displayHeightPx,
+                                templateLeftPx = templateLeftPx,
+                                templateTopPx = templateTopPx,
+                                calculatedScale = calculatedScale,
+                                selectionHitPaddingPx = selectionHitPaddingPx,
+                            )
+                            val longHits = LayerGroupOps.collapseHits(
+                                LayerHitTest.hitLayersAtPoint(currentLayers, hitContext),
+                                currentLayers,
+                            )
+                            if (longHits.size == 1) {
+                                onEvent(EditorEvent.ToggleLayerSelection(longHits.first().id))
+                            }
+                        },
                     )
                 }
         ) {
@@ -537,9 +586,10 @@ fun EditorCanvasV2(
                 } else {
                     layers.forEach { layer ->
                         if (!layer.isVisible) return@forEach
+                        key(layer.id) {
                         when {
                             layer.isVectorContentLayer -> {
-                                val isSelected = layers.isSelectedAsGroup(selectedLayerId, layer.id)
+                                val isSelected = isLayerSelected(layer.id)
                                 val isEditingThisLayer = editingLayerId == layer.id && layer.shouldRenderLabelContent
                                 ShapeTextLayer(
                                     layer         = layer,
@@ -569,34 +619,45 @@ fun EditorCanvasV2(
                                         }
                                     },
                                     allLayers = layers,
-                                    onGestureActiveChanged = onGestureActiveChanged,
+                                    onGestureActiveChanged = reportGestureActive,
                                     modifier      = Modifier.align(Alignment.Center)
                                 )
                             }
                             layer.type == LayerType.IMAGE -> {
+                                val isSelected = isLayerSelected(layer.id)
+                                val showCropOverlay = isCropToolActive && isSelected && layer.id == selectedLayerId
                                 if (layer.product.isBackgroundRemoved && layer.product.foregroundUri != null) {
                                     ProductLayerV2(
                                         layer = layer,
                                         displayScale = calculatedScale,
                                         templateSize = templateSize,
                                         layerBlendMode = layer.blendMode,
+                                        suppressLiveShadowBlur = isLayerGestureActive && isSelected,
+                                        onGestureActiveChanged = reportGestureActive,
                                         onGesture = { delta ->
-                                            if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
+                                            if (isSelected && !layer.isLocked && !isCropToolActive) onGesture(delta)
                                         },
                                         onGestureEnd = {
-                                            if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
+                                            if (isSelected && !layer.isLocked && !isCropToolActive) onGestureEnd()
                                         },
-                                        showOverlay = showOverlay && layer.id == selectedLayerId,
-                                        showBoundingBox = layer.id == selectedLayerId,
+                                        showOverlay = showOverlay && isSelected,
+                                        showBoundingBox = isSelected && !showCropOverlay,
                                         onBoundingBoxVisible = { visible ->
-                                            if (visible) {
-                                                onSelectLayer(layer.id)
-                                            }
+                                            if (visible) onSelectLayer(layer.id)
                                         },
                                         onPickImage = onPickImage,
                                         allLayers = layers,
                                         modifier = Modifier.align(Alignment.Center)
                                     )
+                                    if (showCropOverlay) {
+                                        CropOverlay(
+                                            layer = layer,
+                                            displayScale = calculatedScale,
+                                            onCropPan = { delta -> onEvent(EditorEvent.UpdateCropPan(delta)) },
+                                            onCropPanEnd = { onEvent(EditorEvent.CommitCrop) },
+                                            modifier = Modifier.align(Alignment.Center),
+                                        )
+                                    }
                                 } else if (layer.product.processing) {
                                     Box(
                                         modifier = Modifier
@@ -609,22 +670,24 @@ fun EditorCanvasV2(
                                 }
                             }
                             layer.type == LayerType.SHADOW_REGION -> {
+                                val isSelected = isLayerSelected(layer.id)
                                 ShadowRegionLayer(
                                     layer = layer,
                                     displayScale = calculatedScale,
                                     templateSize = templateSize,
                                     onGesture = { delta ->
-                                        if (layer.id == selectedLayerId && !layer.isLocked) onGesture(delta)
+                                        if (isSelected && !layer.isLocked) onGesture(delta)
                                     },
                                     onGestureEnd = {
-                                        if (layer.id == selectedLayerId && !layer.isLocked) onGestureEnd()
+                                        if (isSelected && !layer.isLocked) onGestureEnd()
                                     },
-                                    showBoundingBox = layer.id == selectedLayerId,
+                                    showBoundingBox = isSelected,
                                     isLocked = layer.isLocked,
                                     allLayers = layers,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             }
+                        }
                         }
                     }
                 }

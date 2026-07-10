@@ -18,6 +18,8 @@ interface ShapePropertiesSectionProps {
   onPropChange: (name: string, value: any) => void;
   onRecordChange: () => void;
   addRecentColor: (color: string) => void;
+  section?: 'all' | 'fill' | 'stroke' | 'corner';
+  flat?: boolean;
 }
 
 export function ShapePropertiesSection({
@@ -27,6 +29,8 @@ export function ShapePropertiesSection({
   onPropChange,
   onRecordChange,
   addRecentColor,
+  section = 'all',
+  flat = false,
 }: ShapePropertiesSectionProps) {
   const { canvas } = useEditorStore();
   const { updateActiveObject } = useLayersStore();
@@ -89,9 +93,11 @@ export function ShapePropertiesSection({
 
   if (!showBasic) return null;
 
-  return (
+  const show = (part: 'fill' | 'stroke' | 'corner') => section === 'all' || section === part;
+
+  const inner = (
     <>
-      {activeObjectProps.fill !== undefined && activeObjectProps.fill !== null && (
+      {show('fill') && activeObjectProps.fill !== undefined && activeObjectProps.fill !== null && (
         <CollapsibleSection
           id="fill-stroke"
           icon={<Palette className="w-3 h-3" />}
@@ -223,7 +229,7 @@ export function ShapePropertiesSection({
         </CollapsibleSection>
       )}
 
-      {activeObjectProps.rx !== undefined && (
+      {show('corner') && activeObjectProps.rx !== undefined && (
         <CollapsibleSection id="corner-radius" icon={<Maximize2 className="w-3 h-3" />} title="Bo góc">
           <div className="space-y-1.5">
             <div className="flex justify-between text-[9px] font-semibold text-slate-400">
@@ -261,7 +267,7 @@ export function ShapePropertiesSection({
         </CollapsibleSection>
       )}
 
-      {(activeObjectProps.layerType === 'TEXT' || activeObjectProps.layerType === 'DECORATION') && (
+      {show('stroke') && (activeObjectProps.layerType === 'TEXT' || activeObjectProps.layerType === 'DECORATION') && (
         <CollapsibleSection id="stroke" icon={<Settings className="w-3 h-3" />} title="Viền (Stroke)">
           <div className="space-y-1">
             <span className="text-[9px] font-semibold text-slate-400">Màu viền</span>
@@ -328,4 +334,10 @@ export function ShapePropertiesSection({
       )}
     </>
   );
+
+  if (flat) {
+    return <div className="space-y-3">{inner}</div>;
+  }
+
+  return inner;
 }

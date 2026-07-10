@@ -63,6 +63,7 @@ fun ThemeplateEditorScreen(
     viewModel: ThemeplateEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val gesturePreview by viewModel.gesturePreview.collectAsState()
     val templateAssetPath = state.template.assetPath
     val canUndo by viewModel.canUndo.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()
@@ -166,7 +167,6 @@ fun ThemeplateEditorScreen(
         var isExitingLabelEdit by remember { mutableStateOf(false) }
         var isCanvasGestureActive by remember { mutableStateOf(false) }
         var showLayersPanel by rememberSaveable { mutableStateOf(false) }
-        var controlsExpanded by rememberSaveable { mutableStateOf(false) }
 
         val showControls = state.template.loaded &&
             selectedToolForUi != null &&
@@ -178,10 +178,6 @@ fun ThemeplateEditorScreen(
                 selectedToolForUi is EditorTool.Shape)
 
         val bottomToolbarVisible = !isImeVisible && !isLabelEditing && !isLabelSelected
-
-        LaunchedEffect(selectedToolForUi) {
-            controlsExpanded = false
-        }
 
         fun exitLabelEditing(dismissKeyboard: Boolean = true) {
             if (state.editingLayerId == null || isExitingLabelEdit) return
@@ -258,8 +254,10 @@ fun ThemeplateEditorScreen(
                     templateAssetPath = state.template.assetPath,
                     templateBackgroundColor = Color(state.template.backgroundColorArgb),
                     templateSize = state.template.originalSize,
-                    layers = state.layers,
+                    layers = gesturePreview?.layers ?: state.layers,
                     selectedLayerId = state.selectedLayerId,
+                    selectedLayerIds = state.selectedLayerIds,
+                    isCropToolActive = selectedToolForUi is EditorTool.Crop,
                     isLabelToolActive = selectedToolForUi is EditorTool.Label,
                     isShapeToolActive = selectedToolForUi is EditorTool.Shape,
                     editingLayerId = state.editingLayerId,
@@ -273,8 +271,7 @@ fun ThemeplateEditorScreen(
                         } else {
                             when {
                                 isLabelSelected -> 220.dp + navBarHeight
-                                showControls && controlsExpanded -> 260.dp + navBarHeight
-                                showControls -> 72.dp + navBarHeight
+                                showControls -> 260.dp + navBarHeight
                                 bottomToolbarVisible -> toolbarHeight + navBarHeight
                                 else -> navBarHeight
                             }
@@ -345,6 +342,7 @@ fun ThemeplateEditorScreen(
                 EditorObjectListVertical(
                     layers = state.layers,
                     selectedLayerId = state.selectedLayerId,
+                    selectedLayerIds = state.selectedLayerIds,
                     onSelectLayer = { id -> viewModel.onEvent(EditorEvent.SelectLayer(id)) },
                     layersOffset = layersOffset,
                     onLayersOffsetChange = { layersOffset = it },
@@ -556,7 +554,11 @@ fun ThemeplateEditorScreen(
                     exit = slideOutVertically(MotionTokens.springPanel()) { it } + fadeOut(MotionTokens.fadeQuick),
                 ) {
                     val layer = activeLayer ?: return@AnimatedVisibility
-                    Column(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White)
+                    ) {
                         LabelSelectionToolbar(
                             activeTab = activeLabelTab,
                             onTabSelected = { tab ->
@@ -593,8 +595,6 @@ fun ThemeplateEditorScreen(
                             appearance = activeLayer?.appearance ?: EditorAppearance(shadowIntensity = 0f),
                             cropRatio = activeLayer?.cropRatio ?: CropRatio.ORIGINAL,
                             selectedLayer = activeLayer,
-                            peekExpanded = controlsExpanded,
-                            onPeekExpandedChange = { controlsExpanded = it },
                             onUpdateShadow = { viewModel.onEvent(EditorEvent.UpdateShadow(it)) },
                             onUpdateShadowAngle = { viewModel.onEvent(EditorEvent.UpdateShadowAngle(it)) },
                             onUpdateShadowDistance = { viewModel.onEvent(EditorEvent.UpdateShadowDistance(it)) },

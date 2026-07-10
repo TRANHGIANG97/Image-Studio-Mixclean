@@ -2,30 +2,19 @@
 package com.thgiang.image.studio.ui.editor.label.panel
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,13 +24,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.EditorEvent
 import com.thgiang.image.studio.ui.editor.mapper.supportsFrameElevationUi
@@ -71,7 +57,6 @@ fun ShapePanel(
     tokens: EditorTokens = LocalEditorTokens.current,
 ) {
     var activeTab by rememberSaveable { mutableStateOf(ShapeEditTab.FILL) }
-    var isExpanded by rememberSaveable { mutableStateOf(true) }
     var isSubTabActive by remember { mutableStateOf(false) }
 
     val isFrameLayer = selectedLayer?.isFrameLayer == true
@@ -93,20 +78,14 @@ fun ShapePanel(
         if (isFrameLayer && selectedLayer != null) {
             // ── EDITING MODE ─────────────────────────────────────────────
 
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically(animationSpec = MotionTokens.springPanel()) + fadeIn(MotionTokens.fadeDefault),
-                exit = shrinkVertically(animationSpec = MotionTokens.springPanel()) + fadeOut(MotionTokens.fadeQuick),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 8.dp),
             ) {
-                // Tab Content (scrollable)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
-                        .verticalScroll(rememberScrollState())
-                        .padding(bottom = 8.dp),
-                ) {
-                    AnimatedContent(
+                AnimatedContent(
                         targetState = activeTab,
                         transitionSpec = {
                             fadeIn(MotionTokens.fadeDefault) togetherWith fadeOut(MotionTokens.fadeQuick)
@@ -179,48 +158,28 @@ fun ShapePanel(
                                         onLayoutEvent = onLayoutEvent,
                                     )
                                 }
+                                ShapeEditTab.ARRANGE -> {
+                                    ShapeArrangeSection(
+                                        tokens = tokens,
+                                        onLayoutEvent = onLayoutEvent,
+                                    )
+                                }
                             }
                         }
                     }
-                }
             }
 
-            // Row holding Icon Tab Bar + Expand/Collapse Button
             if (!isSubTabActive) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    ShapeIconTabBar(
-                        tabs = shapeTabs,
-                        selected = activeTab,
-                        tokens = tokens,
-                        onTabSelected = { 
-                            activeTab = it 
-                            isExpanded = true
-                            isSubTabActive = false
-                        },
-                        modifier = Modifier.weight(1f),
-                    )
-
-                    IconButton(
-                        onClick = { isExpanded = !isExpanded },
-                        modifier = Modifier
-                            .size(40.dp)
-                            .padding(end = 4.dp),
-                    ) {
-                        Icon(
-                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
-                            contentDescription = stringResource(
-                                if (isExpanded) R.string.studio_shape_collapse else R.string.studio_shape_expand,
-                            ),
-                            tint = tokens.textSecondary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
+                ShapeIconTabBar(
+                    tabs = shapeTabs,
+                    selected = activeTab,
+                    tokens = tokens,
+                    onTabSelected = {
+                        activeTab = it
+                        isSubTabActive = false
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         } else {
             // ── CREATION MODE ─────────────────────────────────────────────

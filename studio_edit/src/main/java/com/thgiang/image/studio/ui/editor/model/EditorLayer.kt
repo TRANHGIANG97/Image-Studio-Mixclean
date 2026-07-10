@@ -10,6 +10,9 @@ data class EditorLayer(
     // ── IMAGE layer properties ──────────────────────────────
     val product: EditorProduct = EditorProduct(),
     val cropRatio: CropRatio = CropRatio.ORIGINAL,
+    /** Pan offset inside crop window (template pixels). */
+    val cropOffsetX: Float = 0f,
+    val cropOffsetY: Float = 0f,
 
     // ── SHAPE_TEXT layer properties ─────────────────────────
     /** Displayed text content */

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useFolders, useCreateFolder, useRenameFolder, useDeleteFolder } from '@/hooks/useAssets';
 import { toSlug } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface AssetFilterProps {
   search: string;
@@ -63,6 +64,9 @@ export function AssetFilter({
   const [renameValue, setRenameValue] = useState('');
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
   const [deleteFiles, setDeleteFiles] = useState(false);
+  
+  // Wipe selected folder assets state
+  const [isWipeDialogOpen, setIsWipeDialogOpen] = useState(false);
 
   // Reset helper states when manager closes/opens
   useEffect(() => {
@@ -134,6 +138,19 @@ export function AssetFilter({
     );
   };
 
+  const handleWipeFolder = () => {
+    if (!folder) return;
+    deleteFolderMutation.mutate(
+      { folderName: folder, deleteFiles: true },
+      {
+        onSuccess: () => {
+          setIsWipeDialogOpen(false);
+          toast.success(`Đã xóa sạch tài nguyên trong thư mục "${getFolderLabel(folder)}"!`);
+        },
+      }
+    );
+  };
+
   return (
     <>
       <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-4 bg-white/60 border border-slate-200/80 p-4 rounded-3xl backdrop-blur-md shadow-xl transition-all duration-300">
@@ -178,6 +195,18 @@ export function AssetFilter({
             >
               <Settings className="w-4 h-4" />
             </button>
+
+            {/* Wipe Selected Folder Assets Button */}
+            {folder && (
+              <button
+                type="button"
+                onClick={() => setIsWipeDialogOpen(true)}
+                className="flex items-center justify-center p-2 bg-white/80 border border-rose-200 hover:border-rose-300 hover:bg-rose-50 text-rose-500 rounded-2xl transition-all h-8 w-8"
+                title={`Xóa sạch tài nguyên trong thư mục ${getFolderLabel(folder)}`}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* MimeType Format Filter */}
@@ -389,6 +418,50 @@ export function AssetFilter({
                 )}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- WIPE FOLDER ASSETS DIALOG --- */}
+      <Dialog open={isWipeDialogOpen} onOpenChange={(open) => { if (!open) setIsWipeDialogOpen(false); }}>
+        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-md p-6">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold flex items-center gap-2 text-rose-600">
+              <Trash2 className="w-5 h-5" />
+              Xóa sạch tài nguyên thư mục
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-500 mt-2">
+              Bạn có chắc chắn muốn xóa vĩnh viễn toàn bộ tài nguyên trong thư mục <strong className="text-slate-800">"{getFolderLabel(folder)}"</strong>?
+              <br />
+              <span className="text-rose-500 font-medium mt-1 block">⚠️ Hành động này sẽ xóa tất cả tệp tin vật lý trên R2 Cloudflare và các bản ghi trong cơ sở dữ liệu. Không thể khôi phục!</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setIsWipeDialogOpen(false)}
+              className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50"
+              disabled={deleteFolderMutation.isPending}
+            >
+              Hủy bỏ
+            </Button>
+            <Button
+              onClick={handleWipeFolder}
+              className="bg-rose-600 hover:bg-rose-500 text-white rounded-xl flex items-center gap-2 font-semibold"
+              disabled={deleteFolderMutation.isPending}
+            >
+              {deleteFolderMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Đang xóa...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  Xác nhận xóa sạch
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

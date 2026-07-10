@@ -308,6 +308,7 @@
     <string name="studio_shape_tab_stroke">Viền</string>
     <string name="studio_shape_tab_shadow">Đổ bóng</string>
     <string name="studio_shape_tab_elevation">Hiệu ứng 3D</string>
+    <string name="studio_shape_tab_arrange">Sắp xếp</string>
     <string name="studio_shape_tab_shape">Hình dạng</string>
     <string name="studio_shape_collapse">Thu gọn</string>
     <string name="studio_shape_expand">Mở rộng</string>

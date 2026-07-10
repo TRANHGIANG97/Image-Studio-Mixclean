@@ -103,6 +103,7 @@
     <string name="studio_shape_tab_stroke">Border</string>
     <string name="studio_shape_tab_shadow">Shadow</string>
     <string name="studio_shape_tab_elevation">3D effect</string>
+    <string name="studio_shape_tab_arrange">Arrange</string>
     <string name="studio_shape_tab_shape">Shape</string>
     <string name="studio_shape_collapse">Collapse panel</string>
     <string name="studio_shape_expand">Expand panel</string>

@@ -38,7 +38,7 @@ import com.thgiang.image.studio.ui.editor.canvas.LayerAlignment
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 
 @Composable
-internal fun ShapeArrangeSection(
+fun ShapeArrangeSection(
     tokens: EditorTokens,
     onLayoutEvent: (EditorEvent) -> Unit,
 ) {

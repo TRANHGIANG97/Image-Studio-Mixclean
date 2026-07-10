@@ -75,16 +75,7 @@ object TextFormLayoutEngine {
         if (displayText.isBlank()) return
 
         val textSizePx = layer.textSizeSp * renderScale
-        val fillPaint = buildTextPaint(layer, textSizePx, alpha, context, Paint.Style.FILL).apply {
-            EditorGradientMapper.toAndroidShader(
-                layer.textColorGradient,
-                gradientLeft,
-                gradientTop,
-                gradientWidth,
-                gradientHeight,
-                layer.textColorArgb,
-            )?.let { shader = it }
-        }
+        val measurePaint = buildTextPaint(layer, textSizePx, alpha, context, Paint.Style.FILL)
 
         val glyphs = computeGlyphs(
             text = displayText,
@@ -93,21 +84,26 @@ object TextFormLayoutEngine {
             reversePath = layer.textForm.reversePath,
             boxWidth = width,
             boxHeight = height,
-            paint = fillPaint,
+            paint = measurePaint,
             charSpacingEm = layer.charSpacing,
             textSizePx = textSizePx,
         )
 
-        canvas.save()
-        canvas.translate(left, top)
-        glyphs.forEach { spec ->
-            canvas.save()
-            canvas.translate(spec.x, spec.y)
-            canvas.rotate(spec.rotationDeg)
-            canvas.drawText(spec.char, 0f, 0f, fillPaint)
-            canvas.restore()
-        }
-        canvas.restore()
+        EditorTextRenderMapper.drawGlyphsOnCanvas(
+            canvas = canvas,
+            glyphs = glyphs,
+            layer = layer,
+            left = left,
+            top = top,
+            renderScale = renderScale,
+            context = context,
+            alpha = alpha,
+            rotationDeg = layer.viewport.rotation,
+            gradientLeft = gradientLeft,
+            gradientTop = gradientTop,
+            gradientWidth = gradientWidth,
+            gradientHeight = gradientHeight,
+        )
     }
 
     fun computeGlyphs(

@@ -131,6 +131,10 @@ class EditorRenderer(
                                 val top = (foreground.height - croppedSize.height) / 2f
                                 clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
 
+                                val ox = layer.cropOffsetX * (foreground.width / layer.shapeWidthPx.coerceAtLeast(1f))
+                                val oy = layer.cropOffsetY * (foreground.height / layer.shapeHeightPx.coerceAtLeast(1f))
+                                translate(ox, oy)
+
                                 val fgX = if (state.flippedH) -foreground.width.toFloat() else 0f
                                 val fgY = if (state.flippedV) -foreground.height.toFloat() else 0f
                                 drawBitmap(foreground, fgX, fgY, paint)
@@ -411,9 +415,10 @@ class EditorRenderer(
                 }
 
                 if (canDrawShapeShadow && layer.appearance.shadowIntensity > 0.05f) {
-                    val (shadowDx, shadowDy) = shadowOffset(
-                        layer.appearance.shadowAngle,
-                        layer.appearance.shadowDistance,
+                    val (shadowDx, shadowDy) = EditorShadowMapper.shadowOffsetLocalPx(
+                        layer.appearance,
+                        state.scale,
+                        state.rotation,
                     )
                     val shadowPaint = EditorShadowMapper.configureDropShadowPaint(
                         layer.appearance,
@@ -544,101 +549,31 @@ class EditorRenderer(
         shapeH: Float,
         alpha: Int,
     ) {
-        val density = context.resources.displayMetrics.density
-        val fontScale = context.resources.displayMetrics.scaledDensity / density
-        val textSizePx = layer.textSizeSp * fontScale * state.scale
-
-        fun buildTextPaint(style: Paint.Style): TextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (style == Paint.Style.STROKE) layer.strokeColorArgb ?: layer.textColorArgb else layer.textColorArgb
-            this.alpha = alpha
-            textSize = textSizePx
-            this.style = style
-            if (style == Paint.Style.STROKE) {
-                strokeWidth = layer.strokeWidthPx * state.scale
-            }
-            if (style == Paint.Style.FILL) {
-                EditorGradientMapper.toAndroidShader(
-                    layer.textColorGradient,
-                    left,
-                    top,
-                    shapeW,
-                    shapeH,
-                    layer.textColorArgb,
-                )?.let { shader = it }
-            }
-            textAlign = when (EditorTextStyleMapper.resolveLayoutAlignment(layer.textAlign)) {
-                android.text.Layout.Alignment.ALIGN_NORMAL -> Align.LEFT
-                android.text.Layout.Alignment.ALIGN_OPPOSITE -> Align.RIGHT
-                else -> Align.CENTER
-            }
-            layer.fontFamily?.let { familyName ->
-                val customTf = kotlinx.coroutines.runBlocking {
-                    com.thgiang.image.studio.util.FontDownloader.getTypeface(context, familyName)
-                }
-                EditorTextStyleMapper.configureTextPaint(
-                    paint = this,
-                    fontWeight = layer.fontWeight,
-                    fontStyle = layer.fontStyle,
-                    underline = layer.underline,
-                    linethrough = layer.linethrough,
-                    baseTypeface = customTf,
-                )
-            } ?: EditorTextStyleMapper.configureTextPaint(
-                paint = this,
-                fontWeight = layer.fontWeight,
-                fontStyle = layer.fontStyle,
-                underline = layer.underline,
-                linethrough = layer.linethrough,
-            )
-            letterSpacing = EditorTextStyleMapper.resolveLetterSpacingEm(layer.charSpacing, textSizePx)
+        val shouldRenderShape = layer.shouldRenderFrameContent
+        val paddingX = if (shouldRenderShape) {
+            val calcX = 12f * layer.viewport.scale * state.scale
+            if (calcX > shapeW / 4f) shapeW / 4f else calcX
+        } else {
+            0f
+        }
+        val paddingY = if (shouldRenderShape) {
+            val calcY = 6f * layer.viewport.scale * state.scale
+            if (calcY > shapeH / 4f) shapeH / 4f else calcY
+        } else {
+            0f
         }
 
-        val paddingH = shapeW * 0.08f
-        val textWidth = (shapeW - paddingH * 2).toInt().coerceAtLeast(1)
-        val lineSpacing = EditorTextStyleMapper.resolveLineSpacingMultiplier(layer.lineHeight)
-        val alignment = EditorTextStyleMapper.resolveLayoutAlignment(layer.textAlign)
-        val translateX = when (alignment) {
-            android.text.Layout.Alignment.ALIGN_NORMAL -> left + paddingH
-            android.text.Layout.Alignment.ALIGN_OPPOSITE -> left + paddingH + textWidth
-            else -> left + paddingH + textWidth / 2f
-        }
-
-        val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
-
-        @Suppress("DEPRECATION")
-        val fillLayout = StaticLayout(
-            displayText,
-            buildTextPaint(Paint.Style.FILL),
-            textWidth,
-            alignment,
-            lineSpacing,
-            0f,
-            true,
+        EditorTextRenderMapper.drawFlatTextOnCanvas(
+            canvas = canvas,
+            layer = layer,
+            left = left + paddingX,
+            top = top + paddingY,
+            width = shapeW - paddingX * 2f,
+            height = shapeH - paddingY * 2f,
+            renderScale = state.scale,
+            context = context,
+            alpha = alpha,
+            rotationDeg = state.rotation,
         )
-        val textTop = top + (shapeH - fillLayout.height.toFloat()) / 2f
-
-        if (layer.textBackgroundColorArgb != null) {
-            val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = layer.textBackgroundColorArgb
-                style = Paint.Style.FILL
-                this.alpha = alpha
-            }
-            val textHeight = fillLayout.height.toFloat()
-            val localLeft = when (alignment) {
-                android.text.Layout.Alignment.ALIGN_NORMAL -> 0f
-                android.text.Layout.Alignment.ALIGN_OPPOSITE -> -textWidth.toFloat()
-                else -> -textWidth / 2f
-            }
-            val localRight = localLeft + textWidth
-            canvas.withSave {
-                translate(translateX, textTop)
-                drawRect(localLeft, 0f, localRight, textHeight, bgPaint)
-            }
-        }
-
-        canvas.withSave {
-            translate(translateX, textTop)
-            fillLayout.draw(this)
-        }
     }
 }

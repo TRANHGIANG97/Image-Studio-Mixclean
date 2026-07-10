@@ -76,6 +76,7 @@ import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 fun EditorObjectList(
     layers: List<EditorLayer>,
     selectedLayerId: String?,
+    selectedLayerIds: Set<String> = emptySet(),
     onSelectLayer: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -176,7 +177,7 @@ fun EditorObjectList(
 
                         ObjectLayerCard(
                             layer = layer,
-                            isSelected = layers.isSelectedAsGroup(selectedLayerId, layer.id),
+                            isSelected = SelectionState.isSelected(layers, selectedLayerId, selectedLayerIds, layer.id),
                             displayIndex = displayIndex,
                             accentColor = tokens.accent,
                             accentSoftColor = tokens.accentSoft,
@@ -474,6 +475,7 @@ fun LayersIcon(
 fun EditorObjectListVertical(
     layers: List<EditorLayer>,
     selectedLayerId: String?,
+    selectedLayerIds: Set<String> = emptySet(),
     onSelectLayer: (String) -> Unit,
     layersOffset: Offset,
     onLayersOffsetChange: (Offset) -> Unit,
@@ -522,7 +524,7 @@ fun EditorObjectListVertical(
 
                         ObjectLayerCardCompact(
                             layer = layer,
-                            isSelected = layers.isSelectedAsGroup(selectedLayerId, layer.id),
+                            isSelected = SelectionState.isSelected(layers, selectedLayerId, selectedLayerIds, layer.id),
                             displayIndex = displayIndex,
                             accentColor = tokens.accent,
                             accentSoftColor = tokens.accentSoft,

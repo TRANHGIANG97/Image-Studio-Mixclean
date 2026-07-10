@@ -4,6 +4,8 @@ data class EditorState(
     val template: EditorTemplate = EditorTemplate(),
     val layers: List<EditorLayer> = emptyList(),
     val selectedLayerId: String? = null,
+    /** Multi-select set (Phase 5). Always includes [selectedLayerId] when non-null. */
+    val selectedLayerIds: Set<String> = emptySet(),
     /** Layer currently in inline text-edit mode (thin frame, no BB). */
     val editingLayerId: String? = null,
     val selectedTool: EditorTool? = null,

@@ -99,6 +99,8 @@ interface FabricObjectLike {
   src?: string;
   defaultImageUrl?: string;
   cropRatio?: string;
+  cropOffsetX?: number;
+  cropOffsetY?: number;
   imageFilters?: unknown;
   shapeSubtype?: string;
   path?: unknown;
@@ -407,6 +409,12 @@ function extractImagePayload(obj: FabricObjectLike, isShadowRegion: boolean): Co
   if (obj.cropRatio) {
     payload.cropRatio = obj.cropRatio;
   }
+  if (obj.cropOffsetX != null && obj.cropOffsetX !== 0) {
+    payload.cropOffsetX = obj.cropOffsetX;
+  }
+  if (obj.cropOffsetY != null && obj.cropOffsetY !== 0) {
+    payload.cropOffsetY = obj.cropOffsetY;
+  }
   if (obj.imageFilters) {
     payload.imageFilters = obj.imageFilters;
   }
@@ -542,15 +550,16 @@ function buildCloudTemplate(
       const obj = objects.filter((o) => o._isBackground !== true)[index];
       if (!obj) return true;
       if (layer.type === 'TEXT' || layer.type === 'SHADOW_REGION') return true;
+      const w = Math.round((obj.width ?? layer.payload.baseWidth ?? 0) * (obj.scaleX || 1));
+      const h = Math.round((obj.height ?? layer.payload.baseHeight ?? 0) * (obj.scaleY || 1));
+      if (w <= 1 && h <= 1) return false;
       const isShape =
         ['rect', 'circle', 'triangle', 'line', 'polygon', 'path', 'ellipse'].includes(obj.type ?? '') ||
         obj.shapeSubtype ||
         layer.payload.shapeType;
       if (isShape) return true;
       if (layer.payload.imageUrl || layer.payload.defaultImageUrl) return true;
-      const w = Math.round(obj.width * (obj.scaleX || 1));
-      const h = Math.round(obj.height * (obj.scaleY || 1));
-      return !(w <= 1 && h <= 1);
+      return true;
     });
 
   return removeCDN({

@@ -24,12 +24,16 @@ import { resolveLayerType } from '@/lib/canvas-object-props';
 import { recordCanvasHistory, scheduleHistoryCommit, shouldDebounceProp } from '@/lib/canvas-commands';
 import { getCompositeOperation } from '@/lib/blend-mode-utils';
 
+import { EDITOR_TOKENS } from '@/lib/editor-tokens';
+
 interface PropertiesPanelProps {
   onDirty?: () => void;
+  /** Phase 1: contextual tool from bottom dock (full panel until Phase 2 tab split). */
+  toolFilter?: string | null;
 }
 
 // ==================== Main Component ====================
-export default function PropertiesPanel({ onDirty }: PropertiesPanelProps) {
+export default function PropertiesPanel({ onDirty, toolFilter }: PropertiesPanelProps) {
   const { canvas, copyToClipboard, copyStyle, pasteStyle, copiedStyle } = useEditorStore();
   const { activeObjectId, activeObjectProps, updateActiveObject } = useLayersStore();
 

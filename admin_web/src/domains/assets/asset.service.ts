@@ -484,10 +484,13 @@ export async function deleteAssetFolder(folderName: string, deleteFiles: boolean
 
   if (deleteFiles) {
     // Hard delete: Fetch all assets in this folder and delete them
-    const { data: assets, error: fetchError } = await supabaseAdmin
-      .from('assets')
-      .select('id')
-      .eq('folder', slug);
+    let query = supabaseAdmin.from('assets').select('id');
+    if (slug === 'stickers') {
+      query = query.in('folder', ['stickers', 'sticker']);
+    } else {
+      query = query.eq('folder', slug);
+    }
+    const { data: assets, error: fetchError } = await query;
 
     if (fetchError) throw fetchError;
 
@@ -497,20 +500,32 @@ export async function deleteAssetFolder(folderName: string, deleteFiles: boolean
     }
   } else {
     // Soft delete: Move non-placeholder assets to 'uncategorized'
-    const { error: moveError } = await supabaseAdmin
+    let moveQuery = supabaseAdmin
       .from('assets')
       .update({ folder: 'uncategorized' })
-      .eq('folder', slug)
       .not('name', 'eq', '.folder_placeholder');
+
+    if (slug === 'stickers') {
+      moveQuery = moveQuery.in('folder', ['stickers', 'sticker']);
+    } else {
+      moveQuery = moveQuery.eq('folder', slug);
+    }
+    const { error: moveError } = await moveQuery;
 
     if (moveError) throw moveError;
 
     // Delete the placeholder assets
-    const { error: deleteError } = await supabaseAdmin
+    let deleteQuery = supabaseAdmin
       .from('assets')
       .delete()
-      .eq('folder', slug)
       .eq('name', '.folder_placeholder');
+
+    if (slug === 'stickers') {
+      deleteQuery = deleteQuery.in('folder', ['stickers', 'sticker']);
+    } else {
+      deleteQuery = deleteQuery.eq('folder', slug);
+    }
+    const { error: deleteError } = await deleteQuery;
 
     if (deleteError) throw deleteError;
   }

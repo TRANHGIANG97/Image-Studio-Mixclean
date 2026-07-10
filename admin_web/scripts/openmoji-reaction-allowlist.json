@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "name": "sticker_meme_reaction_pack",
+  "description": "Curated OpenMoji subset for mobile sticker_meme tab — smileys, gestures, hearts, shopping, fire/stars. Excludes brand logos and Private Use Area (E000–F8FF).",
+  "license": "CC BY-SA 4.0",
+  "source": "https://openmoji.org",
+  "categories": {
+    "smileys": {
+      "label": "Mặt cười & biểu cảm",
+      "hexcodes": [
+        "1F600", "1F603", "1F604", "1F601", "1F606", "1F602", "1F923", "1F60D",
+        "1F618", "1F617", "1F61A", "1F619", "1F60A", "1F60E", "1F929", "1F973",
+        "1F60F", "1F612", "1F644", "1F914", "1F928"
+      ]
+    },
+    "strong_reactions": {
+      "label": "Reaction mạnh",
+      "hexcodes": [
+        "1F631", "1F622", "1F62D", "1F624", "1F621", "1F92F", "1F480", "1F635",
+        "1F634", "1F92C"
+      ]
+    },
+    "gestures": {
+      "label": "Tay & cử chỉ",
+      "hexcodes": [
+        "1F44D", "1F44E", "1F44F", "1F64F", "1F44A", "1F91D", "1F91F", "270A",
+        "270B", "261D"
+      ]
+    },
+    "hearts": {
+      "label": "Tim & love",
+      "hexcodes": [
+        "2764", "1F495", "1F496", "1F497", "1F49D", "1F498", "1F49E", "1F48B"
+      ]
+    },
+    "trending": {
+      "label": "Trending — fire, stars, party",
+      "hexcodes": [
+        "1F525", "1F4AF", "2728", "1F31F", "2B50", "1F4A5", "1F389", "1F38A"
+      ]
+    },
+    "shopping": {
+      "label": "Shopping & promo",
+      "hexcodes": [
+        "1F6D2", "1F4B0", "1F381", "1F4E6", "1F4B8", "1F3C6"
+      ]
+    },
+    "cute_fun": {
+      "label": "Vui & cute (không nhân vật bản quyền)",
+      "hexcodes": [
+        "1F921", "1F47B", "1F47D", "1F916", "1F451", "1F431", "1F436", "1F98A",
+        "1F981", "1F428"
+      ]
+    },
+    "symbols": {
+      "label": "Ký hiệu an toàn",
+      "hexcodes": [
+        "26A1", "1F4A1", "2705", "274C", "1F6A8", "1F4E3"
+      ]
+    }
+  },
+  "exclude": {
+    "groups": ["extras-openmoji", "extras-unicode", "flags"],
+    "subgroups": ["brand"],
+    "hexPrefixes": ["E", "F"],
+    "knownBrandHexcodes": [
+      "F8FF", "F000", "E0FF", "E040", "E041", "E042", "E043", "E044", "E045",
+      "E046", "E047", "E048", "E049", "E04A", "E04B", "E04C", "E04D", "E04E",
+      "E04F", "E050", "E051", "E052", "E053", "E054", "E055", "E056", "E057",
+      "E058", "E059", "E05A", "E05B", "E05C", "E05D", "E05E", "E05F", "E060",
+      "E061", "E062", "E063", "E064", "E065", "E066", "E067", "E068", "E069",
+      "E06A", "E06B", "E06C", "E06D", "E06E", "E06F", "E070", "E071", "E072",
+      "E073", "E074", "E075", "E076", "E077", "E078", "E079", "E07A", "E07B",
+      "E07C", "E07D", "E07E", "E07F", "E080"
+    ],
+    "tagKeywords": ["brand", "logo", "apple", "windows", "microsoft", "ubuntu", "github", "octocat"]
+  }
+}

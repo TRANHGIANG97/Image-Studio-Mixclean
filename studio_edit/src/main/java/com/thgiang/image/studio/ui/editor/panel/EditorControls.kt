@@ -68,8 +68,6 @@ fun EditorControlsV2(
     appearance: EditorAppearance,
     cropRatio: CropRatio,
     selectedLayer: EditorLayer? = null,
-    peekExpanded: Boolean = false,
-    onPeekExpandedChange: (Boolean) -> Unit = {},
     onUpdateShadow: (Float) -> Unit,
     onUpdateShadowAngle: (Float) -> Unit,
     onUpdateShadowDistance: (Float) -> Unit,
@@ -92,44 +90,18 @@ fun EditorControlsV2(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (tool != null) {
-                    val chevronRotation by animateFloatAsState(
-                        targetValue = if (peekExpanded) 180f else 0f,
-                        animationSpec = tween(durationMillis = 200),
-                        label = "panelPeekChevron",
-                    )
-                    Row(
+                    Text(
+                        text = toolPanelTitle(tool),
+                        color = tokens.textPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) { onPeekExpandedChange(!peekExpanded) }
                             .padding(horizontal = 16.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = toolPanelTitle(tool),
-                            color = tokens.textPrimary,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Icon(
-                            imageVector = Icons.Filled.KeyboardDoubleArrowDown,
-                            contentDescription = null,
-                            tint = tokens.textSecondary,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .graphicsLayer { rotationZ = chevronRotation },
-                        )
-                    }
+                    )
                 }
 
-                AnimatedVisibility(
-                    visible = tool != null && peekExpanded,
-                    enter = expandVertically(animationSpec = MotionTokens.springPanel()),
-                    exit = shrinkVertically(animationSpec = MotionTokens.springPanel()),
-                ) {
+                if (tool != null) {
                 AnimatedContent(
                     targetState = tool,
                     transitionSpec = {

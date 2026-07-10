@@ -38,6 +38,8 @@ export interface CloudPayload {
   shadowColorArgb?: number | null;
   shadowBlur?: number | null;
   cropRatio?: string | null;
+  cropOffsetX?: number | null;
+  cropOffsetY?: number | null;
   flippedH?: boolean | null;
   flippedV?: boolean | null;
   baseWidth?: number | null;
@@ -64,6 +66,7 @@ export interface CloudPayload {
   ry?: number | null;
   blendMode?: string | null;
   pathData?: string | null;
+  strokeWidth?: number | null;
   polygonPoints?: number[] | null;
   /** When true, Android studio_edit shows the Replace button on this layer. */
   replaceable?: boolean | null;

@@ -22,6 +22,9 @@ object ShapeTextBoundsResolver {
     private const val MIN_WIDTH_PX = 60f
     private const val MIN_HEIGHT_PX = 30f
 
+    /** Must match [EditorTextRenderMapper] StaticLayout includePad setting. */
+    internal const val TEXT_LAYOUT_INCLUDE_PAD = false
+
     private data class FlatTextMetrics(
         val textWidth: Float,
         val textHeight: Float,
@@ -94,15 +97,16 @@ object ShapeTextBoundsResolver {
         val paddingH = PADDING_H_DP * density
         val paddingV = PADDING_V_DP * density
         val strokePad = shapeStrokePadding(layer)
+        val bleedPad = shadowBleedPad(layer)
         val factors = textFormAspectFactors(layer.textForm.preset)
 
-        var candidateW = (flat.textWidth * factors.widthMultiplier + 2f * paddingH + strokePad)
+        var candidateW = (flat.textWidth * factors.widthMultiplier + 2f * paddingH + strokePad + 2f * bleedPad)
             .coerceAtLeast(MIN_WIDTH_PX)
-        var candidateH = (flat.textHeight * factors.heightMultiplier + 2f * paddingV + strokePad)
+        var candidateH = (flat.textHeight * factors.heightMultiplier + 2f * paddingV + strokePad + 2f * bleedPad)
             .coerceAtLeast(MIN_HEIGHT_PX)
 
         if (factors.minHeightFromWidthRatio > 0f) {
-            val minH = flat.textWidth * factors.minHeightFromWidthRatio + 2f * paddingV + strokePad
+            val minH = flat.textWidth * factors.minHeightFromWidthRatio + 2f * paddingV + strokePad + 2f * bleedPad
             candidateH = max(candidateH, minH)
         }
 
@@ -114,8 +118,8 @@ object ShapeTextBoundsResolver {
             context = context,
         )
         if (extents != null) {
-            candidateW = (extents.width() + 2f * paddingH + strokePad).coerceAtLeast(MIN_WIDTH_PX)
-            candidateH = (extents.height() + 2f * paddingV + strokePad).coerceAtLeast(MIN_HEIGHT_PX)
+            candidateW = (extents.width() + 2f * paddingH + strokePad + 2f * bleedPad).coerceAtLeast(MIN_WIDTH_PX)
+            candidateH = (extents.height() + 2f * paddingV + strokePad + 2f * bleedPad).coerceAtLeast(MIN_HEIGHT_PX)
         }
 
         return if (EditorShapeGeometry.isLineShape(layer.shapeType)) {
@@ -138,19 +142,20 @@ object ShapeTextBoundsResolver {
         val paddingH = if (layer.shouldRenderFrameContent) PADDING_H_DP * density else 0f
         val paddingV = if (layer.shouldRenderFrameContent) PADDING_V_DP * density else 0f
         val strokePad = shapeStrokePadding(layer)
+        val bleedPad = shadowBleedPad(layer)
         val slackV = density
 
         if (EditorShapeGeometry.isTextOnlyShape(layer.shapeType)) {
-            val fittedW = preserveWidth ?: (textWidth + 2f * paddingH).coerceAtLeast(MIN_WIDTH_PX)
-            val fittedH = (textHeight + 2f * paddingV + slackV).coerceAtLeast(MIN_HEIGHT_PX)
+            val fittedW = preserveWidth ?: (textWidth + 2f * paddingH + 2f * bleedPad).coerceAtLeast(MIN_WIDTH_PX)
+            val fittedH = (textHeight + 2f * paddingV + slackV + 2f * bleedPad).coerceAtLeast(MIN_HEIGHT_PX)
             return layer.copy(
                 shapeWidthPx = fittedW,
                 shapeHeightPx = fittedH,
             )
         }
 
-        val fittedW = preserveWidth ?: (textWidth + 2f * paddingH + strokePad).coerceAtLeast(MIN_WIDTH_PX)
-        val fittedH = (textHeight + 2f * paddingV + strokePad + slackV).coerceAtLeast(MIN_HEIGHT_PX)
+        val fittedW = preserveWidth ?: (textWidth + 2f * paddingH + strokePad + 2f * bleedPad).coerceAtLeast(MIN_WIDTH_PX)
+        val fittedH = (textHeight + 2f * paddingV + strokePad + slackV + 2f * bleedPad).coerceAtLeast(MIN_HEIGHT_PX)
 
         return if (EditorShapeGeometry.isLineShape(layer.shapeType)) {
             layer.copy(shapeWidthPx = fittedW)
@@ -238,6 +243,17 @@ object ShapeTextBoundsResolver {
         return layer.resolveStrokeWidthPx() * 2f
     }
 
+    internal fun shadowBleedPad(layer: EditorLayer): Float {
+        if (layer.appearance.shadowIntensity <= 0.05f) return 0f
+        val strokePad = shapeStrokePadding(layer)
+        return EditorShadowMapper.computeShadowBleedPx(
+            appearance = layer.appearance,
+            scale = layer.viewport.scale,
+            rotationDeg = layer.viewport.rotation,
+            extraStrokePx = strokePad,
+        ) - strokePad
+    }
+
     private fun buildTextPaint(layer: EditorLayer, textSizePx: Float, context: Context): TextPaint {
         return TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             textSize = textSizePx
@@ -269,11 +285,11 @@ object ShapeTextBoundsResolver {
             StaticLayout.Builder.obtain(text, 0, text.length, paint, maxWidth)
                 .setAlignment(alignment)
                 .setLineSpacing(0f, spacingMult)
-                .setIncludePad(false)
+                .setIncludePad(TEXT_LAYOUT_INCLUDE_PAD)
                 .build()
         } else {
             @Suppress("DEPRECATION")
-            StaticLayout(text, paint, maxWidth, alignment, spacingMult, 0f, false)
+            StaticLayout(text, paint, maxWidth, alignment, spacingMult, 0f, TEXT_LAYOUT_INCLUDE_PAD)
         }
     }
 }

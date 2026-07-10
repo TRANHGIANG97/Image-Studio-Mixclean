@@ -70,6 +70,8 @@ fun ProductLayerV2(
     onBoundingBoxVisible: (Boolean) -> Unit = {},
     onPickImage: (layerId: String) -> Unit = {},
     allLayers: List<EditorLayer> = emptyList(),
+    suppressLiveShadowBlur: Boolean = false,
+    onGestureActiveChanged: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -142,6 +144,8 @@ fun ProductLayerV2(
     val displayStrokeWidth = strokeWidthPx * viewport.scale * displayScale
     val hasStroke = strokeWidthPx > 0f && strokeColorArgb != null
     val blurRadius = appearance.resolvedShadowBlurRadius() * displayScale
+    val cropTranslationX = layer.cropOffsetX * viewport.scale * displayScale
+    val cropTranslationY = layer.cropOffsetY * viewport.scale * displayScale
 
     val cropShape = remember(actualSize) {
         object : androidx.compose.ui.graphics.Shape {
@@ -193,7 +197,9 @@ fun ProductLayerV2(
                         .graphicsLayer {
                             alpha = graphicsSpec.shadowAlpha
                             rotationZ = graphicsSpec.rotation
-                            if (blurRadius > 0.5f) {
+                            translationX = cropTranslationX
+                            translationY = cropTranslationY
+                            if (!suppressLiveShadowBlur && blurRadius > 0.5f) {
                                 renderEffect = BlurEffect(
                                     radiusX = blurRadius,
                                     radiusY = blurRadius,
@@ -241,6 +247,8 @@ fun ProductLayerV2(
                     .graphicsLayer {
                         alpha = graphicsSpec.alpha
                         rotationZ = graphicsSpec.rotation
+                        translationX = cropTranslationX
+                        translationY = cropTranslationY
                         blendMode = EditorBlendModeMapper.toComposeBlendMode(layerBlendMode)
                         compositingStrategy = if (EditorBlendModeMapper.needsOffscreenCompositing(layerBlendMode)) {
                             CompositingStrategy.Offscreen
@@ -313,7 +321,8 @@ fun ProductLayerV2(
             showBoundingBox = showBoundingBox,
             onBoundingBoxVisible = onBoundingBoxVisible,
             isLocked = isLocked,
-            otherLayers = allLayers.filter { it.id != layer.id }
+            otherLayers = allLayers.filter { it.id != layer.id },
+            onGestureActiveChanged = onGestureActiveChanged,
         )
 
         // 2-directional horizontal arrow replace button, compact, transparent background

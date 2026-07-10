@@ -90,16 +90,21 @@ class ThemeplateEditorViewModel @Inject constructor(
                 restored.editingLayerId,
                 layers,
             )
+            val (_, ids) = SelectionState.singleSelect(layers, sel)
             restored.copy(
                 template = restored.template ?: EditorTemplate(),
                 selectedTool = restored.selectedTool,
                 layers = layers,
                 selectedLayerId = sel,
+                selectedLayerIds = ids,
                 editingLayerId = edit,
             )
         }
     )
     val state: StateFlow<EditorState> = _state.asStateFlow()
+
+    private val _gesturePreview = MutableStateFlow<GesturePreview?>(null)
+    val gesturePreview: StateFlow<GesturePreview?> = _gesturePreview.asStateFlow()
 
     val canUndo: StateFlow<Boolean> = historyManager.canUndo
     val canRedo: StateFlow<Boolean> = historyManager.canRedo
@@ -166,7 +171,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             gestureThrottleFlow
                 .throttleLatest(GESTURE_THROTTLE_MS)
                 .collect { delta ->
-                    applyGestureDelta(delta)
+                    applyGesturePreview(delta)
                 }
         }
 
@@ -205,6 +210,13 @@ class ThemeplateEditorViewModel @Inject constructor(
             } else {
                 layer
             }
+        }
+    }
+
+    private fun requestShapeFitForActiveLabel() {
+        val layer = _state.value.layers.find { it.id == _state.value.selectedLayerId }
+        if (layer?.isLabelLayer == true) {
+            shapeFitFlow.tryEmit(Unit)
         }
     }
 
@@ -320,18 +332,22 @@ class ThemeplateEditorViewModel @Inject constructor(
             }
             is EditorEvent.UpdateShadow -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowIntensity = event.intensity.coerceIn(0f, 1f))) }
+                requestShapeFitForActiveLabel()
             }
             is EditorEvent.UpdateShadowAngle -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowAngle = event.angle.coerceIn(0f, 360f))) }
+                requestShapeFitForActiveLabel()
             }
             is EditorEvent.UpdateShadowDistance -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowDistance = event.distance.coerceIn(0f, 50f))) }
+                requestShapeFitForActiveLabel()
             }
             is EditorEvent.UpdateShadowColor -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowColorArgb = event.argb)) }
             }
             is EditorEvent.UpdateShadowBlur -> {
                 updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowBlur = event.blurPx)) }
+                requestShapeFitForActiveLabel()
             }
             is EditorEvent.UpdateElevation -> {
                 val intensity = event.intensity.coerceIn(0f, 1f)
@@ -400,16 +416,24 @@ class ThemeplateEditorViewModel @Inject constructor(
                 }
             }
             is EditorEvent.SelectCropRatio -> {
-                updateActiveLayer { it.copy(cropRatio = event.ratio) }
+                updateActiveLayer { CropMath.resetOffsetForRatio(it, event.ratio) }
                 pushHistory()
             }
+            is EditorEvent.UpdateCropPan -> {
+                updateActiveLayer { CropMath.applyPanDelta(it, event.delta) }
+            }
+            EditorEvent.CommitCrop -> pushHistory()
             is EditorEvent.SelectLayer -> {
-                val targetLayer = _state.value.layers.find { it.id == event.layerId }
+                clearGesturePreview()
+                val layers = _state.value.layers
+                val targetLayer = layers.find { it.id == event.layerId }
                 val (rawSel, rawEdit) = LabelInteractionState.onSelectLayer(event.layerId)
-                val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, _state.value.layers)
+                val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, layers)
+                val (_, ids) = SelectionState.singleSelect(layers, sel)
                 _state.update {
                     it.copy(
                         selectedLayerId = sel,
+                        selectedLayerIds = ids,
                         editingLayerId = edit,
                         selectedTool = targetLayer?.preferredEditorTool()
                             ?: if (it.selectedTool == EditorTool.Shape || it.selectedTool == EditorTool.Label) {
@@ -420,44 +444,79 @@ class ThemeplateEditorViewModel @Inject constructor(
                     )
                 }
             }
+            is EditorEvent.ToggleLayerSelection -> {
+                clearGesturePreview()
+                val current = _state.value
+                val (anchor, ids) = SelectionState.toggle(
+                    current.layers,
+                    current.selectedLayerIds,
+                    current.selectedLayerId,
+                    event.layerId,
+                )
+                val (sel, edit) = LabelInteractionState.normalize(anchor, null, current.layers)
+                _state.update {
+                    it.copy(
+                        selectedLayerId = sel,
+                        selectedLayerIds = ids,
+                        editingLayerId = edit,
+                    )
+                }
+            }
             EditorEvent.DuplicateLayer -> {
                 val current = _state.value
-                if (current.selectedLayerId == null) {
+                val ids = SelectionState.effectiveIds(current)
+                if (ids.isEmpty()) {
                     _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
                     return
                 }
-                val (newLayers, primaryId) = LayerGroupOps.duplicate(
-                    current.layers,
-                    current.selectedLayerId!!,
-                )
+                val roots = SelectionState.selectionRoots(current.layers, ids)
+                var newLayers = current.layers
+                var primaryId: String? = null
+                for (rootId in roots) {
+                    val (duplicated, pid) = LayerGroupOps.duplicate(newLayers, rootId)
+                    newLayers = duplicated
+                    if (primaryId == null) primaryId = pid
+                }
                 if (primaryId != null) {
-                    _state.update { it.copy(layers = newLayers, selectedLayerId = primaryId) }
+                    val (_, newIds) = SelectionState.singleSelect(newLayers, primaryId)
+                    _state.update {
+                        it.copy(layers = newLayers, selectedLayerId = primaryId, selectedLayerIds = newIds)
+                    }
                     pushHistory()
                 }
             }
             EditorEvent.DeleteLayer -> {
-                val currentLayerId = _state.value.selectedLayerId
-                if (currentLayerId != null) {
-                    val removeIds = LayerGroupOps.deleteIds(_state.value.layers, currentLayerId)
-                    _state.update {
-                        it.copy(
-                            layers = it.layers.filterNot { layer -> layer.id in removeIds },
-                            selectedLayerId = null,
-                            editingLayerId = null,
-                        )
-                    }
-                    pushHistory()
-                } else {
+                val current = _state.value
+                val ids = SelectionState.effectiveIds(current)
+                if (ids.isEmpty()) {
                     _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
+                    return
                 }
+                val removeIds = SelectionState.deleteIds(current.layers, ids)
+                _state.update {
+                    it.copy(
+                        layers = it.layers.filterNot { layer -> layer.id in removeIds },
+                        selectedLayerId = null,
+                        selectedLayerIds = emptySet(),
+                        editingLayerId = null,
+                    )
+                }
+                pushHistory()
             }
             EditorEvent.CommitTransform -> {
+                commitGesturePreview()
                 bakeViewportScaleForSelection()
                 refitActiveLabelHeightToText()
                 pushHistory()
             }
-            EditorEvent.Undo -> undo()
-            EditorEvent.Redo -> redo()
+            EditorEvent.Undo -> {
+                clearGesturePreview()
+                undo()
+            }
+            EditorEvent.Redo -> {
+                clearGesturePreview()
+                redo()
+            }
             EditorEvent.MoveLayerUp -> moveLayer(up = true)
             EditorEvent.MoveLayerDown -> moveLayer(up = false)
             EditorEvent.MoveLayerToTop -> moveLayerToEdge(toTop = true)
@@ -469,7 +528,10 @@ class ThemeplateEditorViewModel @Inject constructor(
             EditorEvent.SaveDraft -> saveDraft()
             is EditorEvent.RequestTextEdit -> startTextEdit(event.layerId)
             is EditorEvent.StartTextEdit -> startTextEdit(event.layerId)
-            EditorEvent.DeselectLayer -> deselectLayer()
+            EditorEvent.DeselectLayer -> {
+                clearGesturePreview()
+                deselectLayer()
+            }
             EditorEvent.FinishTextEdit -> finishTextEdit()
             EditorEvent.ClearError -> _state.update { it.copy(errorMessage = null) }
             is EditorEvent.Export -> export(event.templateAssetPath)
@@ -481,9 +543,11 @@ class ThemeplateEditorViewModel @Inject constructor(
         if (!layer.isLabelLayer) return
         val (rawSel, rawEdit) = LabelInteractionState.onStartTextEdit(layerId)
         val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, _state.value.layers)
+        val (_, ids) = SelectionState.singleSelect(_state.value.layers, sel)
         _state.update {
             it.copy(
                 selectedLayerId = sel,
+                selectedLayerIds = ids,
                 editingLayerId = edit,
                 selectedTool = layer.preferredEditorTool(),
             )
@@ -506,7 +570,7 @@ class ThemeplateEditorViewModel @Inject constructor(
         _state.update { state ->
             val (rawSel, rawEdit) = LabelInteractionState.onDeselectLayer()
             val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, state.layers)
-            state.copy(selectedLayerId = sel, editingLayerId = edit)
+            state.copy(selectedLayerId = sel, selectedLayerIds = emptySet(), editingLayerId = edit)
         }
     }
 
@@ -599,12 +663,16 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private fun applyLoadedTemplate(loaded: com.thgiang.image.studio.ui.editor.load.LoadedEditorTemplate) {
-
+        clearGesturePreview()
         _state.update {
+            val layers = EditorLayerNormalizer.normalize(loaded.layers.ifEmpty { it.layers })
+            val sel = loaded.selectedLayerId ?: it.selectedLayerId
+            val (_, ids) = SelectionState.singleSelect(layers, sel)
             it.copy(
                 template = loaded.template,
-                layers = EditorLayerNormalizer.normalize(loaded.layers.ifEmpty { it.layers }),
-                selectedLayerId = loaded.selectedLayerId ?: it.selectedLayerId,
+                layers = layers,
+                selectedLayerId = sel,
+                selectedLayerIds = ids,
                 errorMessage = null,
             )
         }
@@ -681,9 +749,11 @@ class ThemeplateEditorViewModel @Inject constructor(
         sampleObjectLoadJob?.cancel()
         val processingId = productWorkflow.newProcessingId()
         _state.update {
+            val (_, ids) = SelectionState.singleSelect(it.layers, processingId)
             it.copy(
                 layers = it.layers + productWorkflow.buildSampleProcessingLayer(processingId),
                 selectedLayerId = processingId,
+                selectedLayerIds = ids,
             )
         }
         sampleObjectLoadJob = viewModelScope.launch {
@@ -766,9 +836,11 @@ class ThemeplateEditorViewModel @Inject constructor(
                 when (val result = productWorkflow.buildStickerLayer(assetPath, _state.value.template.originalSize)) {
                     is StickerResult.Ready -> {
                         _state.update { state ->
+                            val (_, ids) = SelectionState.singleSelect(state.layers + result.layer, result.layer.id)
                             state.copy(
                                 layers = state.layers + result.layer,
                                 selectedLayerId = result.layer.id,
+                                selectedLayerIds = ids,
                                 showBoundingBox = true,
                                 errorMessage = null,
                             )
@@ -793,9 +865,11 @@ class ThemeplateEditorViewModel @Inject constructor(
 
         val update = productWorkflow.buildProcessingLayerUpdate(uri, replaceLayerId, _state.value.layers)
         _state.update {
+            val (_, ids) = SelectionState.singleSelect(update.layers, update.processingId)
             it.copy(
                 layers = update.layers,
                 selectedLayerId = update.processingId,
+                selectedLayerIds = ids,
                 exportResult = null,
                 errorMessage = null,
                 showBoundingBox = false,
@@ -871,9 +945,16 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     private fun removeProcessingLayer(processingId: String, errorMessage: String? = null) {
         _state.update { state ->
+            val newSel = if (state.selectedLayerId == processingId) null else state.selectedLayerId
+            val newIds = if (processingId in state.selectedLayerIds) {
+                state.selectedLayerIds - processingId
+            } else {
+                state.selectedLayerIds
+            }
             state.copy(
                 layers = state.layers.filterNot { it.id == processingId },
-                selectedLayerId = if (state.selectedLayerId == processingId) null else state.selectedLayerId,
+                selectedLayerId = newSel,
+                selectedLayerIds = newIds,
                 errorMessage = errorMessage ?: state.errorMessage,
             )
         }
@@ -921,47 +1002,31 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
-    private fun applyGestureDelta(delta: GestureDelta) {
-        updateActiveLayer { layer ->
-            var newViewport = layer.viewport
-            
-            if (delta.pan != Offset.Zero) {
-                newViewport = newViewport.withOffset(newViewport.offset + delta.pan)
-            }
-            
-            var updatedLayer = layer
-            if (layer.isLabelLayer) {
-                if (delta.scale != 1f) {
-                    val newTextSize = (layer.textSizeSp * delta.scale).coerceIn(1f, ShapeLabelDefaults.MAX_TEXT_SIZE_SP)
-                    val newW = (layer.shapeWidthPx * delta.scale).coerceAtLeast(60f)
-                    val newH = (layer.shapeHeightPx * delta.scale).coerceAtLeast(30f)
-                    updatedLayer = updatedLayer.copy(
-                        textSizeSp = newTextSize,
-                        shapeWidthPx = newW,
-                        shapeHeightPx = newH,
-                    )
-                }
-            } else {
-                if (delta.scale != 1f) {
-                    val newScale = (newViewport.scale * delta.scale).coerceIn(MIN_SCALE, MAX_SCALE)
-                    newViewport = newViewport.withScale(newScale)
-                }
-            }
+    private fun clearGesturePreview() {
+        _gesturePreview.value = null
+    }
 
-            if (delta.rotation != 0f) {
-                var newRotation = (newViewport.rotation + delta.rotation) % 360f
-                if (newRotation < 0) newRotation += 360f
-                newViewport = newViewport.withRotation(newRotation)
+    private fun commitGesturePreview() {
+        val preview = _gesturePreview.value ?: return
+        _state.update { it.copy(layers = preview.layers) }
+        clearGesturePreview()
+    }
+
+    private fun applyGesturePreview(delta: GestureDelta) {
+        val state = _state.value
+        val ids = SelectionState.effectiveIds(state)
+        val anchorId = state.selectedLayerId ?: ids.firstOrNull() ?: return
+        val baseLayers = _gesturePreview.value?.layers ?: state.layers
+        val updatedLayers = if (ids.size <= 1) {
+            LayerGroupSync.apply(baseLayers, anchorId) { layer ->
+                GestureLayerOps.applyDelta(layer, delta)
             }
-            
-            updatedLayer = updatedLayer.copy(viewport = newViewport)
-            if (delta.deltaWidth != 0f || delta.deltaHeight != 0f) {
-                val newW = (updatedLayer.shapeWidthPx + delta.deltaWidth).coerceAtLeast(60f)
-                val newH = (updatedLayer.shapeHeightPx + delta.deltaHeight).coerceAtLeast(30f)
-                updatedLayer = updatedLayer.copy(shapeWidthPx = newW, shapeHeightPx = newH)
+        } else {
+            baseLayers.map { layer ->
+                if (layer.id in ids) GestureLayerOps.applyDelta(layer, delta) else layer
             }
-            updatedLayer
         }
+        _gesturePreview.value = GesturePreview(anchorLayerId = anchorId, layers = updatedLayers)
     }
 
     // ============ History with Debounce ============
@@ -1071,6 +1136,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun persistState() {
         savedStateHandle["editor_state_template_path"] = _state.value.template.assetPath
         savedStateHandle["editor_state_selected_layer_id"] = _state.value.selectedLayerId
+        savedStateHandle["editor_state_selected_layer_ids"] = _state.value.selectedLayerIds.toList()
         savedStateHandle["editor_state_editing_layer_id"] = _state.value.editingLayerId
         savedStateHandle["editor_state_selected_tool"] = _state.value.selectedTool?.javaClass?.name
         savedStateHandle["editor_state_show_overlay"] = _state.value.showOverlay

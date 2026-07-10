@@ -7,17 +7,20 @@ import {
   controlsUtils,
 } from 'fabric';
 
+import { EDITOR_TOKENS } from '@/lib/editor-tokens';
+
 /** Side-effect: configure Fabric defaults and custom controls. Call once on editor load. */
 export function initFabricEditorDefaults(): void {
+  const accent = EDITOR_TOKENS.selectionColor;
   if (typeof window !== 'undefined' && FabricImage) {
     (FabricImage as any).ownDefaults = (FabricImage as any).ownDefaults || {};
     (FabricImage as any).ownDefaults.crossOrigin = 'anonymous';
   }
 
-  FabricObject.ownDefaults.borderColor = '#6366f1';
+  FabricObject.ownDefaults.borderColor = accent;
   FabricObject.ownDefaults.borderScaleFactor = 2.5;
   FabricObject.ownDefaults.cornerColor = '#ffffff';
-  FabricObject.ownDefaults.cornerStrokeColor = '#6366f1';
+  FabricObject.ownDefaults.cornerStrokeColor = accent;
   FabricObject.ownDefaults.cornerSize = 32;
   FabricObject.ownDefaults.touchCornerSize = 48;
   FabricObject.ownDefaults.cornerStyle = 'circle';
@@ -59,7 +62,7 @@ export function initFabricEditorDefaults(): void {
     ctx.fillStyle = '#ffffff';
     ctx.fill();
     ctx.lineWidth = 1.5;
-    ctx.strokeStyle = '#6366f1';
+    ctx.strokeStyle = accent;
     ctx.stroke();
     ctx.restore();
   };

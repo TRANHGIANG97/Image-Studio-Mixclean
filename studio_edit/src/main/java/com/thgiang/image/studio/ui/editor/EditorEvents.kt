@@ -94,7 +94,11 @@ sealed class EditorEvent {
     data class UpdateAlpha(val alpha: Float) : EditorEvent()
     data class SelectTool(val tool: EditorTool) : EditorEvent()
     data class SelectCropRatio(val ratio: CropRatio) : EditorEvent()
+    data class UpdateCropPan(val delta: Offset) : EditorEvent()
+    data object CommitCrop : EditorEvent()
     data class SelectLayer(val layerId: String?) : EditorEvent()
+    /** Long-press: add/remove layer from multi-selection (Phase 5). */
+    data class ToggleLayerSelection(val layerId: String) : EditorEvent()
     data object DuplicateLayer : EditorEvent()
     data object DeleteLayer : EditorEvent()
     data object CommitTransform : EditorEvent()

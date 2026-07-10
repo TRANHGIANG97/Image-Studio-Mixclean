@@ -33,7 +33,7 @@ class StickerRemoteRepository @Inject constructor(
 
     companion object {
         private const val TAG = "StickerRemoteRepo"
-        const val FOLDER_MEME = "sticker_meme"
+        const val FOLDER_MEME = "svg_undraw"
         const val FOLDER_DECOR = "sticker_decor"
         const val PREVIEW_LIMIT = 10
         const val PAGE_LIMIT = 30

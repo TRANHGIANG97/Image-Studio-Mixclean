@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "name": "sticker_decor_curated_pack",
+  "description": "Curated OpenMoji decor subset for mobile sticker_decor tab — flowers, badges, ribbons, seasonal, effects. No flags, no people, no brand.",
+  "license": "CC BY-SA 4.0",
+  "source": "https://openmoji.org",
+  "categories": {
+    "flowers_nature": {
+      "label": "Hoa & lá",
+      "hexcodes": [
+        "1F338", "1F33B", "1F33C", "1F33A", "1F340", "1F341", "1F342", "1F343",
+        "1F33F", "1F335", "1F334", "1F331", "1F33E", "1F490", "1F339"
+      ]
+    },
+    "sale_badges": {
+      "label": "Badge giảm giá & promo",
+      "hexcodes": [
+        "1F3F7", "1F4E2", "1F4B2", "1F48E", "1F3C5", "1F947", "1F948", "1F949",
+        "1F3AF", "1F4E3", "1F6A8", "1F198"
+      ]
+    },
+    "rating_trust": {
+      "label": "Rating & trust",
+      "hexcodes": [
+        "2B50", "1F31F", "2728", "1F4A0", "1F3C6", "2705", "1F48B"
+      ]
+    },
+    "ribbon_party": {
+      "label": "Khung & ribbon",
+      "hexcodes": [
+        "1F380", "1F381", "1F388", "1F389", "1F38A", "1F38B", "1F390", "1F3EE",
+        "1F38D", "1F384"
+      ]
+    },
+    "seasonal": {
+      "label": "Seasonal",
+      "hexcodes": [
+        "2744", "26C4", "1F319", "1F31E", "1F337", "1F33B", "1F342", "1F490"
+      ]
+    },
+    "effects": {
+      "label": "Hiệu ứng",
+      "hexcodes": [
+        "1F4A5", "26A1", "1F4A1", "1F525", "1F4AB", "1F573", "2B06", "1F4A8"
+      ]
+    }
+  },
+  "exclude": {
+    "groups": ["extras-openmoji", "extras-unicode", "flags"],
+    "subgroups": ["country-flag", "flag", "brand"],
+    "hexPrefixes": ["E", "F"],
+    "tagKeywords": ["brand", "logo", "flag"]
+  }
+}

@@ -32,7 +32,10 @@ import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/store/editor.store';
 import { useLayersStore } from '@/store/layers.store';
 import { CANVAS_SERIALIZE_PROPS } from '@/store/canvas-serialize.constants';
-import { fabricToCloudTemplate } from '@/lib/template-converter';
+import { prepareTemplateForSave } from '@/lib/template-persist';
+import { isEditorV2LayoutEnabled } from '@/lib/editor-feature-flags';
+import EditorShell from '@/components/editor/EditorShell';
+import EditorLoadingShimmer from '@/components/editor/EditorLoadingShimmer';
 import { validateTemplateForPublish } from '@/lib/template-validate';
 import { uploadInlineImageLayers, dataUrlToBlob } from '@/lib/canvas-upload';
 import CanvasWorkspace from '@/components/canvas/CanvasWorkspace';
@@ -81,6 +84,12 @@ export default function TemplateEditPage() {
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [missingFonts, setMissingFonts] = useState<string[]>([]);
   const [layerErrors, setLayerErrors] = useState<string[]>([]);
+  const [v2Layout, setV2Layout] = useState(false);
+
+  useEffect(() => {
+    setV2Layout(isEditorV2LayoutEnabled());
+  }, []);
+  const saveBlocked = layerErrors.length > 0;
 
   const savingLockRef = useRef(false);
   const handleSaveRef = useRef<(silent?: boolean, status?: 'draft' | 'published', env?: 'debug' | 'release' | 'all') => Promise<boolean>>(async () => false);
@@ -394,20 +403,14 @@ export default function TemplateEditPage() {
     if (!canvas || !template) return false;
     if (savingLockRef.current) return false;
 
-    // Prevent saving if there are layer loading errors to avoid deleting original layers
+    // Block all saves while layer assets failed to load (W2 — no destructive confirm)
     if (layerErrors.length > 0) {
       if (!silent) {
-        const confirmSave = window.confirm(
-          "CẢNH BÁO CỰC KỲ QUAN TRỌNG:\n" +
-          "Đang có lỗi xảy ra khi tải một số layer của template này.\n" +
-          "Nếu bạn tiếp tục lưu, các layer bị lỗi sẽ bị XÓA VĨNH VIỄN khỏi database!\n\n" +
-          "Bạn có chắc chắn muốn tiếp tục lưu hay không?"
+        toast.error(
+          'Không thể lưu: một số layer chưa tải xong. Hãy F5 tải lại trang trước khi lưu.'
         );
-        if (!confirmSave) return false;
-      } else {
-        // Stop autosave to protect database template integrity
-        return false;
       }
+      return false;
     }
 
     savingLockRef.current = true;
@@ -437,11 +440,28 @@ export default function TemplateEditPage() {
 
       await uploadInlineImageLayers(canvas, template.template_id);
 
-      const serializedTemplate = fabricToCloudTemplate(
-        canvas, baseWidth, baseHeight,
-        template.template_id, template.category_id,
-        template.title, newStatus
-      );
+      const prepared = prepareTemplateForSave(canvas, {
+        canvasBaseWidth: baseWidth,
+        canvasBaseHeight: baseHeight,
+        templateId: template.template_id,
+        categoryId: template.category_id,
+        title: template.title,
+        status: newStatus,
+        thumbnailUrl: template.thumbnail_url,
+        silent,
+      });
+
+      const serializedTemplate = prepared.template;
+
+      if (prepared.driftWarnings.length > 0) {
+        console.warn('[save] Fabric ↔ cloud drift:', prepared.driftWarnings);
+      }
+      if (prepared.layerCountDiff) {
+        console.warn('[save] Layer count diff:', prepared.layerCountDiff);
+      }
+      if (prepared.parityGaps.length > 0) {
+        console.warn('[save] Mobile parity gaps:', prepared.parityGaps);
+      }
 
       if (serializedTemplate.metadata) {
         serializedTemplate.metadata.status = newStatus;
@@ -533,12 +553,12 @@ export default function TemplateEditPage() {
   handleSaveRef.current = handleSave;
 
   useEffect(() => {
-    if (!isDirty || isSaving || !canvas || !template) return;
+    if (!isDirty || isSaving || saveBlocked || !canvas || !template) return;
     const timer = setTimeout(() => {
       void handleSaveRef.current(true);
     }, AUTOSAVE_MS);
     return () => clearTimeout(timer);
-  }, [isDirty, isSaving, canvas, template]);
+  }, [isDirty, isSaving, saveBlocked, canvas, template]);
 
   const handleBootstrapFabricState = async () => {
     if (fabricStateBootstrappedRef.current || isSaving) return;
@@ -614,6 +634,7 @@ export default function TemplateEditPage() {
   const baseHeight = template?.canvas_data?.canvas?.baseHeight || 1920;
 
   if (loading) {
+    if (v2Layout) return <EditorLoadingShimmer />;
     return (
       <div className="flex flex-col items-center justify-center py-40 gap-3 text-slate-400">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
@@ -636,6 +657,96 @@ export default function TemplateEditPage() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  const editorDialogs = (
+    <>
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-slate-800 text-center">Quét QR Code để xem thử</DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 text-center">
+              Mở camera trên thiết bị Android hoặc ứng dụng quét mã QR để bắt đầu xem thử trực tiếp mẫu thiết kế này.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-6 flex flex-col items-center justify-center space-y-4">
+            <div className="bg-white p-3 rounded-2xl">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`quickedit://preview?templateId=${template?.template_id || template?.id}`)}`}
+                alt="QR Code Preview"
+                className="w-[200px] h-[200px]"
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-xs font-bold text-slate-400">Deep Link URL:</p>
+              <p className="text-[10px] font-mono text-slate-500 select-all mt-1 bg-white px-3 py-1.5 rounded-lg break-all">
+                quickedit://preview?templateId={template?.template_id || template?.id}
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-slate-800">Xóa template?</DialogTitle>
+            <DialogDescription className="text-xs text-slate-500">
+              Bạn có chắc chắn muốn xóa template này? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} disabled={isSaving}>
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={isSaving}
+              onClick={async () => {
+                await handleDeleteTemplate();
+                setIsDeleteOpen(false);
+              }}
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Xóa template'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+
+  if (v2Layout) {
+    return (
+      <EditorShell
+        template={template}
+        templateRouteId={String(id)}
+        isSaving={isSaving}
+        isDirty={isDirty}
+        lastSavedAt={lastSavedAt}
+        layerErrors={layerErrors}
+        missingFonts={missingFonts}
+        cursorPos={cursorPos}
+        onSave={() => { void handleSave(); }}
+        onReloadThumbnail={handleReloadThumbnail}
+        onExportPNG={handleExportPNG}
+        onExportWEBP={handleExportWEBP}
+        onPreview={() => setIsPreviewOpen(true)}
+        onPublishDebug={async () => { await handleSave(false, 'published', 'debug'); }}
+        onPublishRelease={async () => { await handleSave(false, 'published', 'release'); }}
+        onRevertDraft={async () => { await handleSave(false, 'draft', 'all'); }}
+        onDelete={() => setIsDeleteOpen(true)}
+        onDirty={() => setIsDirty(true)}
+        onLayerLoadError={(err) => {
+          setLayerErrors((prev) => (prev.includes(err) ? prev : [...prev, err]));
+        }}
+        onBootstrapFabricState={() => { void handleBootstrapFabricState(); }}
+        onDismissLayerErrors={() => setLayerErrors([])}
+        onDismissMissingFonts={() => setMissingFonts([])}
+        formatSavedTime={formatSavedTime}
+      >
+        {editorDialogs}
+      </EditorShell>
     );
   }
 
@@ -748,7 +859,8 @@ export default function TemplateEditPage() {
                       setIsActionsOpen(false);
                       await handleSave();
                     }}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-100 transition-colors cursor-pointer"
+                    disabled={saveBlocked || isSaving}
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   >
                     <Check className="w-4 h-4 text-indigo-400" /> Lưu Thiết kế (Ctrl+S)
                   </button>
@@ -767,7 +879,8 @@ export default function TemplateEditPage() {
                       const ok = await handleSave(false, 'published', 'debug');
                       if (!ok) return;
                     }}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-amber-300 hover:bg-amber-500/10 transition-colors cursor-pointer"
+                    disabled={saveBlocked || isSaving}
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-amber-300 hover:bg-amber-500/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Smartphone className="w-4 h-4" /> Publish (App Debug)
                   </button>
@@ -777,7 +890,8 @@ export default function TemplateEditPage() {
                       const ok = await handleSave(false, 'published', 'release');
                       if (!ok) return;
                     }}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                    disabled={saveBlocked || isSaving}
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Globe className="w-4 h-4" /> Publish (App Release)
                   </button>
@@ -786,7 +900,8 @@ export default function TemplateEditPage() {
                       setIsActionsOpen(false);
                       await handleSave(false, 'draft', 'all');
                     }}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
+                    disabled={saveBlocked || isSaving}
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-medium text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Ban className="w-4 h-4" /> Thu hồi về Nháp (Draft)
                   </button>
@@ -842,27 +957,21 @@ export default function TemplateEditPage() {
 
       {/* Layer Loading Errors Warning Bar */}
       {layerErrors.length > 0 && (
-        <div className="bg-rose-50 border-b border-rose-200/60 px-4 py-2.5 shrink-0 flex items-center justify-between z-20 text-rose-800 text-xs">
+        <div className="bg-rose-50 border-b border-rose-200/60 px-4 py-2.5 shrink-0 flex items-center z-20 text-rose-800 text-xs">
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5 animate-pulse" />
             <div className="space-y-1">
-              <span className="font-bold text-rose-700 block">Lỗi tải tài nguyên Layer:</span>
+              <span className="font-bold text-rose-700 block">Lỗi tải tài nguyên Layer — lưu bị chặn:</span>
               <ul className="list-disc list-inside space-y-0.5 pl-1 text-[11px] text-rose-600">
                 {layerErrors.map((err, idx) => (
                   <li key={idx}>{err}</li>
                 ))}
               </ul>
               <span className="text-[10px] text-rose-500 font-semibold block pt-1">
-                Lưu ý: Không nên lưu thiết kế lúc này để tránh làm mất các layer bị lỗi trên! Vui lòng F5 tải lại trang để thử lại.
+                Vui lòng F5 tải lại trang. Lưu thủ công, autosave và publish đều bị vô hiệu cho đến khi lỗi được khắc phục.
               </span>
             </div>
           </div>
-          <button 
-            onClick={() => setLayerErrors([])} 
-            className="text-rose-500 hover:text-rose-700 font-bold px-1.5 py-0.5 hover:bg-rose-100 rounded transition-colors cursor-pointer self-start"
-          >
-            Đóng
-          </button>
         </div>
       )}
 
@@ -1076,58 +1185,7 @@ export default function TemplateEditPage() {
         </>
       )}
 
-      {/* QR Code Preview Dialog */}
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-slate-800 text-center">Quét QR Code để xem thử</DialogTitle>
-            <DialogDescription className="text-xs text-slate-500 text-center">
-              Mở camera trên thiết bị Android hoặc ứng dụng quét mã QR để bắt đầu xem thử trực tiếp mẫu thiết kế này.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-6 flex flex-col items-center justify-center space-y-4">
-            <div className="bg-white p-3 rounded-2xl">
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`quickedit://preview?templateId=${template?.template_id || template?.id}`)}`}
-                alt="QR Code Preview"
-                className="w-[200px] h-[200px]"
-              />
-            </div>
-            <div className="text-center">
-              <p className="text-xs font-bold text-slate-400">Deep Link URL:</p>
-              <p className="text-[10px] font-mono text-slate-500 select-all mt-1 bg-white px-3 py-1.5 rounded-lg break-all">
-                quickedit://preview?templateId={template?.template_id || template?.id}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-slate-800">Xóa template?</DialogTitle>
-            <DialogDescription className="text-xs text-slate-500">
-              Bạn có chắc chắn muốn xóa template này? Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} disabled={isSaving}>
-              Hủy
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={isSaving}
-              onClick={async () => {
-                await handleDeleteTemplate();
-                setIsDeleteOpen(false);
-              }}
-            >
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Xóa template'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {editorDialogs}
     </div>
   );
 }

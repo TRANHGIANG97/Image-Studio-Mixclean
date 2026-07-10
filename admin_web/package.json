@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "sync:studio-assets": "node scripts/sync-studio-assets.mjs",
     "sync:default-categories": "node scripts/sync-default-categories.mjs",
-    "migrate:templates": "tsx scripts/migrate-validate-templates.ts"
+    "migrate:templates": "tsx scripts/migrate-validate-templates.ts",
+    "delete:folder": "node scripts/bulk-delete-folder.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1063.0",

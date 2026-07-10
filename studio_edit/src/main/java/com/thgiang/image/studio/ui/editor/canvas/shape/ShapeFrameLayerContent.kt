@@ -72,6 +72,7 @@ internal fun ShapeFrameLayerContent(
                         cornerRadiusY = layer.cornerRadiusY,
                         pathData = layer.pathData,
                         polygonPoints = layer.polygonPoints,
+                        rotationDeg = layer.viewport.rotation,
                     )
                 }
             },

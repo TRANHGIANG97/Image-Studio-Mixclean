@@ -20,6 +20,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { validateCloudTemplate } from '../src/lib/schema/template-contract';
+import { auditMobileParityFields } from '../src/lib/mobile-parity';
+import type { CloudTemplate } from '../src/types/cloud-template';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 config({ path: path.resolve(__dirname, '..', '.env.local') });
@@ -54,11 +56,17 @@ interface ReportEntry {
   outcome: 'ok' | 'fixed' | 'error' | 'skipped';
   errors: string[];
   warnings: string[];
+  parityGaps: string[];
   applied: boolean;
 }
 
 function stableEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function auditParity(data: CloudTemplate | null | undefined): string[] {
+  if (!data) return [];
+  return auditMobileParityFields(data);
 }
 
 async function fetchAllTemplates(): Promise<TemplateRow[]> {
@@ -95,6 +103,7 @@ async function run() {
   let errorCount = 0;
   let skippedCount = 0;
   let appliedCount = 0;
+  let parityGapCount = 0;
 
   for (const row of rows) {
     const label = `${row.template_id ?? row.id} — "${row.title ?? '(không tên)'}"`;
@@ -109,6 +118,7 @@ async function run() {
         outcome: 'skipped',
         errors: ['canvas_data trống hoặc không phải object.'],
         warnings: [],
+        parityGaps: [],
         applied: false,
       });
       console.log(`[SKIP] ${label}: canvas_data trống.`);
@@ -116,6 +126,11 @@ async function run() {
     }
 
     const result = validateCloudTemplate(row.canvas_data);
+    const parityGaps = auditParity(result.data as CloudTemplate | undefined);
+
+    if (parityGaps.length > 0) {
+      parityGapCount++;
+    }
 
     if (!result.data) {
       errorCount++;
@@ -127,10 +142,15 @@ async function run() {
         outcome: 'error',
         errors: result.errors,
         warnings: result.warnings,
+        parityGaps,
         applied: false,
       });
       console.log(`[ERROR] ${label}:`);
       result.errors.forEach((e) => console.log(`    - ${e}`));
+      if (parityGaps.length > 0) {
+        console.log(`    [parity] ${parityGaps.length} gap(s):`);
+        parityGaps.forEach((g) => console.log(`      - ${g}`));
+      }
       continue;
     }
 
@@ -146,8 +166,13 @@ async function run() {
         outcome: 'ok',
         errors: [],
         warnings: result.warnings,
+        parityGaps,
         applied: false,
       });
+      if (parityGaps.length > 0) {
+        console.log(`[OK+PARITY] ${label}: ${parityGaps.length} mobile parity gap(s)`);
+        parityGaps.forEach((g) => console.log(`    - ${g}`));
+      }
       continue;
     }
 
@@ -174,6 +199,7 @@ async function run() {
       outcome: 'fixed',
       errors: [],
       warnings: result.warnings,
+      parityGaps,
       applied,
     });
 
@@ -183,6 +209,10 @@ async function run() {
     } else {
       console.log('    - Chuẩn hóa default/schemaVersion (không có warning riêng).');
     }
+    if (parityGaps.length > 0) {
+      console.log(`    [parity] ${parityGaps.length} gap(s):`);
+      parityGaps.forEach((g) => console.log(`      - ${g}`));
+    }
   }
 
   const reportPath = path.resolve(
@@ -191,7 +221,7 @@ async function run() {
   );
   fs.writeFileSync(
     reportPath,
-    JSON.stringify({ apply: APPLY, includeDrafts: INCLUDE_DRAFTS, summary: { total: rows.length, ok: okCount, fixed: fixedCount, errors: errorCount, skipped: skippedCount, applied: appliedCount }, entries: report }, null, 2),
+    JSON.stringify({ apply: APPLY, includeDrafts: INCLUDE_DRAFTS, summary: { total: rows.length, ok: okCount, fixed: fixedCount, errors: errorCount, skipped: skippedCount, applied: appliedCount, parityGaps: parityGapCount }, entries: report }, null, 2),
     'utf8'
   );
 
@@ -200,6 +230,7 @@ async function run() {
   console.log(`  Cần fix (data thay đổi): ${fixedCount}${APPLY ? ` — đã ghi DB: ${appliedCount}` : ' — dry-run, chưa ghi'}`);
   console.log(`  Lỗi chặn (cần sửa tay): ${errorCount}`);
   console.log(`  Bỏ qua (canvas_data trống): ${skippedCount}`);
+  console.log(`  Mobile parity gaps: ${parityGapCount}`);
   console.log(`\nBáo cáo chi tiết: ${reportPath}`);
 
   if (!APPLY && fixedCount > 0) {

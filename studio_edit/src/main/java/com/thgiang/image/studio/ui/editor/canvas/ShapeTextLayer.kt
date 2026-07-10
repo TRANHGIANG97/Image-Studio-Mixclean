@@ -224,8 +224,18 @@ fun ShapeTextLayer(
 
     val commitInlineEdit = { onCommitInlineEdit(inlineTextDraft.text) }
 
-    val paddingExtra = 40.dp
-    val paddingExtraPx = with(density) { paddingExtra.toPx() }
+    val strokePad = if (layer.hasShapeBorder) {
+        layer.resolveStrokeWidthPx() * templateScale
+    } else {
+        0f
+    }
+    val bleedPx = com.thgiang.image.studio.ui.editor.mapper.EditorShadowMapper.computeShadowBleedPx(
+        appearance = layer.appearance,
+        scale = templateScale,
+        rotationDeg = layer.viewport.rotation,
+        extraStrokePx = strokePad,
+    )
+    val paddingExtra = with(density) { bleedPx.toDp() }.coerceAtLeast(16.dp)
 
     Box(
         modifier = modifier
@@ -240,7 +250,7 @@ fun ShapeTextLayer(
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
-                .requiredSize(displayW, displayH)
+                .requiredSize(displayW + paddingExtra * 2, displayH + paddingExtra * 2)
                 .then(
                     if (!showBoundingBox && !isInlineEditing && !isLocked) {
                         Modifier.pointerInput(layer.id) {
@@ -273,6 +283,7 @@ fun ShapeTextLayer(
                     hasShapeFill = hasShapeFill,
                     effectiveShapeHeightPx = effectiveShapeHeightPx,
                     radiusScale = radiusScale,
+                    modifier = Modifier.align(Alignment.Center).requiredSize(displayW, displayH),
                 )
             }
 
@@ -296,17 +307,19 @@ fun ShapeTextLayer(
                     onCommitInlineEdit = commitInlineEdit,
                     onTextLayout = { textLayoutResult = it },
                     textLayoutResult = textLayoutResult,
+                    modifier = Modifier.align(Alignment.Center).requiredSize(displayW, displayH),
                 )
             }
         }
 
+        val overlayMargin = paddingExtra * 2 + 16.dp
         if (showBoundingBox || isInlineEditing) {
             BoundingBoxOverlayV6(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .requiredSize(
-                        width = displayW + 80.dp,
-                        height = displayH + 80.dp,
+                        width = displayW + overlayMargin,
+                        height = displayH + overlayMargin,
                     ),
                 contentWidth = effectiveShapeWidthPx,
                 contentHeight = effectiveShapeHeightPx,
@@ -339,7 +352,7 @@ fun ShapeTextLayer(
                 displayScale = displayScale,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .requiredSize(displayW + 80.dp, displayH + 80.dp)
+                    .requiredSize(displayW + overlayMargin, displayH + overlayMargin)
                     .zIndex(2f),
             )
         }

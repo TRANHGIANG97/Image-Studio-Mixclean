@@ -120,6 +120,8 @@ export const CloudPayloadSchema = z.looseObject({
   shadowColorArgb: ArgbInt.nullish(),
   shadowBlur: bounded(PAYLOAD_BOUNDS.shadowBlur).nullish().default(15),
   cropRatio: z.string().nullish(),
+  cropOffsetX: z.number().nullish(),
+  cropOffsetY: z.number().nullish(),
   flippedH: z.boolean().nullish().default(false),
   flippedV: z.boolean().nullish().default(false),
   baseWidth: bounded(PAYLOAD_BOUNDS.baseWidth).nullish(),

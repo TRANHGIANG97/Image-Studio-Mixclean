@@ -181,6 +181,7 @@ internal fun LabelGradientSection(
                         ),
                     )
                 },
+                appearanceAlpha = layer.appearance.alpha,
                 onLayoutEvent = onLayoutEvent,
                 onSubTabActiveChanged = onSubTabActiveChanged,
             )
@@ -276,11 +277,10 @@ private fun FillColorEditor(
     onGradientColor2: () -> Unit,
     onAngleChange: (Float) -> Unit,
     onPresetSelected: (Float) -> Unit,
+    appearanceAlpha: Float,
     onLayoutEvent: (EditorEvent) -> Unit,
     onSubTabActiveChanged: (Boolean) -> Unit,
 ) {
-    val fillAlpha = (solidArgb ushr 24) and 0xFF
-    val fillRgb = solidArgb and 0x00FFFFFF
     var activeSubTab by rememberSaveable { mutableStateOf<FillSubTab?>(null) }
     var isEditingGradientDetail by rememberSaveable { mutableStateOf(false) }
     var gradientDetailTab by rememberSaveable { mutableStateOf(0) }
@@ -462,14 +462,16 @@ private fun FillColorEditor(
                         }
                     }
                     FillSubTab.OPACITY -> {
-                        val transparencyPct = (100 - (fillAlpha / 255f * 100)).toInt().coerceIn(0, 100)
+                        val transparencyPct = ((1f - appearanceAlpha.coerceIn(0f, 1f)) * 100f)
+                            .toInt()
+                            .coerceIn(0, 100)
                         PrecisionSlider(
                             label = stringResource(R.string.studio_label_opacity_tab),
                             value = transparencyPct.toFloat(),
                             valueRange = 0f..100f,
                             onValueChange = { pct ->
-                                val newAlpha = ((100f - pct) / 100f * 255f).toInt().coerceIn(0, 255)
-                                onSolidColor((newAlpha shl 24) or fillRgb)
+                                val alpha = ((100f - pct) / 100f).coerceIn(0.1f, 1f)
+                                onLayoutEvent(EditorEvent.UpdateAlpha(alpha))
                             },
                             valueFormatter = { "${it.toInt()}%" },
                             colors = sliderColors,

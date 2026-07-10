@@ -39,6 +39,8 @@ import com.thgiang.image.studio.ui.editor.model.appliesTextElevation
 import com.thgiang.image.studio.ui.editor.model.isLabelLayer
 import androidx.compose.ui.res.stringResource
 import com.thgiang.image.studio.R
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 
 @Composable
 internal fun TextLabelLayerContent(
@@ -117,30 +119,46 @@ internal fun TextLabelLayerContent(
                     .padding(horizontal = paddingX, vertical = paddingY),
             )
         } else if (layer.text.isNotBlank()) {
-            if (layer.textForm.isActive) {
+            val hasShadow = layer.appearance.shadowIntensity > 0.05f
+            val hasStroke = layer.strokeWidthPx > 0f
+            if (layer.textForm.isActive || hasShadow || hasStroke) {
                 Canvas(
                     modifier = Modifier
                         .fillMaxSize()
-                        .drawBehind {
-                            if (canDrawTextElevation) {
-                                drawTextElevation(
-                                    layer = layer,
-                                    renderScale = templateScale,
-                                    context = context,
-                                )
-                            }
-                        }
                         .padding(horizontal = paddingX, vertical = paddingY),
                 ) {
-                    drawTextForm(
-                        layer = layer,
-                        renderScale = templateScale,
-                        context = context,
-                        gradientLeft = 0f,
-                        gradientTop = 0f,
-                        gradientWidth = size.width,
-                        gradientHeight = size.height,
-                    )
+                    if (canDrawTextElevation && layer.textForm.isActive) {
+                        drawTextElevation(
+                            layer = layer,
+                            renderScale = templateScale,
+                            context = context,
+                        )
+                    }
+                    if (layer.textForm.isActive) {
+                        drawTextForm(
+                            layer = layer,
+                            renderScale = templateScale,
+                            context = context,
+                            gradientLeft = 0f,
+                            gradientTop = 0f,
+                            gradientWidth = size.width,
+                            gradientHeight = size.height,
+                        )
+                    } else {
+                        drawIntoCanvas { composeCanvas ->
+                            com.thgiang.image.studio.ui.editor.mapper.EditorTextRenderMapper.drawFlatTextOnCanvas(
+                                canvas = composeCanvas.nativeCanvas,
+                                layer = layer,
+                                left = 0f,
+                                top = 0f,
+                                width = size.width,
+                                height = size.height,
+                                renderScale = templateScale,
+                                context = context,
+                                rotationDeg = layer.viewport.rotation,
+                            )
+                        }
+                    }
                 }
             } else {
                 val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
