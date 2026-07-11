@@ -313,8 +313,8 @@
     <string name="studio_color_presets">إعدادات الألوان المسبقة</string>
     <string name="studio_text_default_placeholder">انقر نقرًا مزدوجًا للكتابة</string>
     <string name="studio_sticker_library_title">مكتبة الملصقات</string>
-    <string name="studio_sticker_tab_decor">ديكور</string>
-    <string name="studio_sticker_tab_meme">ميمي</string>
+    <string name="studio_sticker_tab_decor">أيقونات</string>
+    <string name="studio_sticker_tab_meme">رسومات توضيحية</string>
     <string name="studio_label_color_presets_tab">إعدادات الألوان المسبقة</string>
     <string name="studio_label_bg_color_tab">لون التعبئة</string>
     <string name="studio_label_opacity_tab">العتامة</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_direction_tab">اتجاه</string>
     <string name="studio_label_gradient_angle_tab">زاوية</string>
     <string name="studio_back_button">خلف</string>
+    <string name="themeplate_section_christmas">عيد الميلاد</string>
+    <string name="themeplate_section_memories">الذكريات</string>
+    <string name="studio_tool_add_image">إضافة صورة</string>
+    <string name="studio_tool_remove_bg">إزالة الخلفية</string>
+    <string name="studio_shape_tab_arrange">ترتيب</string>
+    <string name="studio_draft_save_failed">تعذر حفظ المسودة. يرجى المحاولة مرة أخرى.</string>
+    <string name="studio_gallery_load_failed">تعذر تحميل القوالب. تحقق من الاتصال وحاول مرة أخرى.</string>
+    <string name="studio_retry">إعادة المحاولة</string>
+    <string name="studio_hide_keyboard">إخفاء لوحة المفاتيح</string>
+    <string name="studio_layers_toggle">الطبقات</string>
 </resources>
 
 

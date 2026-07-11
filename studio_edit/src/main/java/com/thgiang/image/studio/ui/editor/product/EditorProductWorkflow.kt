@@ -90,10 +90,33 @@ class EditorProductWorkflow @Inject constructor(
     fun buildSampleProcessingLayer(processingId: String): EditorLayer =
         EditorLayer(id = processingId, product = EditorProduct(processing = true, isSample = true))
 
-    suspend fun processUserImage(uri: Uri): ProductImageResult {
+    suspend fun processUserImage(uri: Uri, removeBg: Boolean = true): ProductImageResult {
         val decoded = withContext(Dispatchers.Default) {
             ProcessorUtils.decodeBitmapFromUri(context, uri)
         } ?: return ProductImageResult.Failed(null)
+
+        if (!removeBg) {
+            return try {
+                val cachedUri = withContext(Dispatchers.IO) {
+                    imageSaveRepository.cacheBitmap(decoded).getOrNull()
+                } ?: return ProductImageResult.Failed(null)
+
+                ProductImageResult.Ready(
+                    EditorProduct(
+                        originalUriString = uri.toString(),
+                        foregroundUriString = cachedUri.toString(),
+                        isBackgroundRemoved = false,
+                        baseWidth = decoded.width,
+                        baseHeight = decoded.height,
+                        processing = false,
+                    ),
+                )
+            } catch (e: Exception) {
+                ProductImageResult.Failed(e.message ?: context.getString(R.string.studio_error_process_image))
+            } finally {
+                decoded.recycle()
+            }
+        }
 
         return try {
             val foreground = withContext(Dispatchers.Default) {

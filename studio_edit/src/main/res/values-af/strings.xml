@@ -312,8 +312,8 @@
     <string name="studio_color_presets">Kleurvoorinstellings</string>
     <string name="studio_text_default_placeholder">Dubbeltik om te tik</string>
     <string name="studio_sticker_library_title">Plakkerbiblioteek</string>
-    <string name="studio_sticker_tab_decor">Dekoratief</string>
-    <string name="studio_sticker_tab_meme">Meme</string>
+    <string name="studio_sticker_tab_decor">Ikone</string>
+    <string name="studio_sticker_tab_meme">Illustrasies</string>
     <string name="studio_label_color_presets_tab">Kleurvoorinstellings</string>
     <string name="studio_label_bg_color_tab">Vul kleur</string>
     <string name="studio_label_opacity_tab">Ondeursigtigheid</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_angle_tab">Hoek</string>
     <string name="studio_back_button">Terug</string>
     <string name="studio_dash_dash_dot_dot">Streeppunt kolletjie</string>
+    <string name="themeplate_section_christmas">Kersfees</string>
+    <string name="themeplate_section_memories">Herinneringe</string>
+    <string name="studio_tool_add_image">Voeg prent by</string>
+    <string name="studio_tool_remove_bg">Verwyder agtergrond</string>
+    <string name="studio_shape_tab_arrange">Rangskik</string>
+    <string name="studio_draft_save_failed">Kon nie konsep stoor nie. Probeer asseblief weer.</string>
+    <string name="studio_gallery_load_failed">Kon nie sjablone laai nie. Kontroleer jou verbinding en probeer weer.</string>
+    <string name="studio_retry">Probeer weer</string>
+    <string name="studio_hide_keyboard">Versteek sleutelbord</string>
+    <string name="studio_layers_toggle">Lae</string>
 </resources>
 
 

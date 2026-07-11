@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
@@ -27,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -46,11 +48,13 @@ import com.thgiang.image.R
 @Composable
 fun ReviewPromptDialog(
     onRateNow: () -> Unit,
-    onLater: () -> Unit
+    onLater: () -> Unit,
+    onNeverShowAgain: () -> Unit = {}
 ) {
     val accentBlue = Color(0xFF2F6DE1)
     val appName = stringResource(R.string.app_name)
     var selectedStars by rememberSaveable { mutableIntStateOf(5) }
+    var dontShowAgain by rememberSaveable { mutableStateOf(false) }
 
     Dialog(
         onDismissRequest = onLater,
@@ -132,6 +136,34 @@ fun ReviewPromptDialog(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { dontShowAgain = !dontShowAgain }
+                            .padding(vertical = 8.dp, horizontal = 20.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        androidx.compose.material3.Checkbox(
+                            checked = dontShowAgain,
+                            onCheckedChange = { dontShowAgain = it },
+                            colors = androidx.compose.material3.CheckboxDefaults.colors(
+                                checkedColor = accentBlue,
+                                uncheckedColor = Color(0xFF9CA3AF)
+                            ),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.review_prompt_never_show),
+                            color = Color(0xFF4B5563),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     HorizontalDivider(color = Color(0xFFE5E7EB))
 
                     Row(
@@ -139,7 +171,12 @@ fun ReviewPromptDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TextButton(
-                            onClick = onLater,
+                            onClick = {
+                                if (dontShowAgain) {
+                                    onNeverShowAgain()
+                                }
+                                onLater()
+                            },
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(

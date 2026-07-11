@@ -313,8 +313,8 @@
     <string name="studio_color_presets">Preajustos de colors</string>
     <string name="studio_text_default_placeholder">Fes doble toc per escriure</string>
     <string name="studio_sticker_library_title">Biblioteca d\'adhesius</string>
-    <string name="studio_sticker_tab_decor">Decoratius</string>
-    <string name="studio_sticker_tab_meme">Meme</string>
+    <string name="studio_sticker_tab_decor">Icones</string>
+    <string name="studio_sticker_tab_meme">Il·lustracions</string>
     <string name="studio_label_color_presets_tab">Preajustos de colors</string>
     <string name="studio_label_bg_color_tab">Color de farciment</string>
     <string name="studio_label_opacity_tab">Opacitat</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_direction_tab">Direcció</string>
     <string name="studio_label_gradient_angle_tab">Angle</string>
     <string name="studio_back_button">Enrere</string>
+    <string name="themeplate_section_christmas">Nadal</string>
+    <string name="themeplate_section_memories">Records</string>
+    <string name="studio_tool_add_image">Afegeix imatge</string>
+    <string name="studio_tool_remove_bg">Elimina fons</string>
+    <string name="studio_shape_tab_arrange">Organitza</string>
+    <string name="studio_draft_save_failed">No s\'ha pogut desar l\'esborrany. Torneu-ho a provar.</string>
+    <string name="studio_gallery_load_failed">No s\'han pogut carregar les plantilles. Comproveu la connexió i torneu-ho a provar.</string>
+    <string name="studio_retry">Tornar a provar</string>
+    <string name="studio_hide_keyboard">Amaga el teclat</string>
+    <string name="studio_layers_toggle">Capes</string>
 </resources>
 
 

@@ -153,7 +153,8 @@
     <string name="review_prompt_title">Enjoying %1$s?</string>
     <string name="review_prompt_message">Tap a star to rate it on Google Play.</string>
     <string name="review_prompt_rate_now">Submit</string>
-    <string name="review_prompt_later">Cancel</string>
+    <string name="review_prompt_later">Later</string>
+    <string name="review_prompt_never_show">Don\'t show again</string>
     <string name="home_see_all">See All</string>
 
     <string name="home_background_presets">Background Presets</string>

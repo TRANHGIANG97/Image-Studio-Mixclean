@@ -3,6 +3,7 @@ package com.thgiang.image.studio.ui.editor.label
 import android.content.Context
 import com.thgiang.image.core.domain.model.template.CloudGradient
 import com.thgiang.image.studio.ui.editor.label.factory.EditorLayerFactory
+import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import com.thgiang.image.studio.ui.editor.label.model.applyShapeTypeChange
 import com.thgiang.image.studio.ui.editor.label.model.withShapeFittedToText
@@ -30,7 +31,8 @@ class LabelViewModelDelegate(
 ) : EditorLayerMutationHost(shapeFitFlow, readState, updateState, requestHistoryPush, pushHistory) {
 
     fun addTextLayer(templateWidth: Float) {
-        val layer = layerFactory.createTextLayer(templateWidth).withShapeFittedToText(context)
+        val defaultText = context.getString(R.string.studio_text_default_placeholder)
+        val layer = layerFactory.createTextLayer(templateWidth, defaultText).withShapeFittedToText(context)
         val layerId = layer.id
         updateState {
             copy(

@@ -28,7 +28,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.animation.core.Animatable
@@ -98,6 +100,8 @@ fun EditorCanvasV2(
     val context = LocalContext.current
     val density = LocalDensity.current
     val tokens = LocalEditorTokens.current
+
+    val defaultPlaceholder = stringResource(R.string.studio_text_default_placeholder)
 
     val coroutineScope = rememberCoroutineScope()
     // ── Canvas-level pinch-to-zoom + pan ──────────────────
@@ -607,7 +611,7 @@ fun EditorCanvasV2(
                                     onRequestInlineEdit = { onStartTextEdit(layer.id) },
                                     onTapToSelect = { onSelectLayer(layer.id) },
                                     onCommitInlineEdit = { text ->
-                                        onShapeTextCommit(text.ifBlank { "Nhập chữ..." })
+                                        onShapeTextCommit(text.ifBlank { defaultPlaceholder })
                                         onEvent(EditorEvent.FinishTextEdit)
                                     },
                                     onUpdateInlineEdit = { text ->
@@ -626,7 +630,7 @@ fun EditorCanvasV2(
                             layer.type == LayerType.IMAGE -> {
                                 val isSelected = isLayerSelected(layer.id)
                                 val showCropOverlay = isCropToolActive && isSelected && layer.id == selectedLayerId
-                                if (layer.product.isBackgroundRemoved && layer.product.foregroundUri != null) {
+                                if (layer.product.foregroundUri != null) {
                                     ProductLayerV2(
                                         layer = layer,
                                         displayScale = calculatedScale,
@@ -688,6 +692,43 @@ fun EditorCanvasV2(
                                 )
                             }
                         }
+                        }
+                    }
+                }
+
+                // ── Top-most Replace Buttons for Sample/Replaceable layers ──
+                layers.forEach { layer ->
+                    if (layer.product.isSample && !layer.product.processing && !layer.isLocked && layer.isVisible) {
+                        val actualSize = layer.cropRatio.calculateSize(layer.shapeWidthPx, layer.shapeHeightPx)
+                        val originalWidth = with(density) { (actualSize.width * layer.viewport.scale * calculatedScale).toInt().toDp() }
+                        val originalHeight = with(density) { (actualSize.height * layer.viewport.scale * calculatedScale).toInt().toDp() }
+                        val displayOffset = IntOffset(
+                            (layer.viewport.offsetX * calculatedScale).roundToInt(),
+                            (layer.viewport.offsetY * calculatedScale).roundToInt()
+                        )
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .requiredSize(originalWidth, originalHeight)
+                                .offset { displayOffset }
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(36.dp)
+                                    .shadow(elevation = 6.dp, shape = CircleShape)
+                                    .background(Color.White, CircleShape)
+                                    .border(width = 1.dp, color = Color(0xFFE5E7EB), shape = CircleShape)
+                                    .clickable { onPickImage(layer.id) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.SwapHoriz,
+                                    contentDescription = stringResource(R.string.studio_action_replace),
+                                    tint = Color(0xFF2F6DE1), // Accent blue
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
                         }
                     }
                 }

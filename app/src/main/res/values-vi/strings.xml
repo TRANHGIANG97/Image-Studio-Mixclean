@@ -153,7 +153,8 @@
     <string name="review_prompt_title">Thích %1$s?</string>
     <string name="review_prompt_message">Chạm vào sao để đánh giá trên Google Play.</string>
     <string name="review_prompt_rate_now">Gửi</string>
-    <string name="review_prompt_later">Hủy</string>
+    <string name="review_prompt_later">Để sau</string>
+    <string name="review_prompt_never_show">Không hiển thị lại</string>
     <string name="home_see_all">Xem tất cả</string>
 
     <string name="home_background_presets">Mẫu nền</string>

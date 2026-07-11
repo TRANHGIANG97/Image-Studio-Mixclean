@@ -690,7 +690,7 @@ fun AppRoot(
                             themeplate = themeplate,
                             onBack = { navController.popBackStack() },
                             onDone = { _ ->
-                                navController.popBackStack(Screen.Home.route, inclusive = false)
+                                // Stay on studio_edit screen
                             },
                             onRequireExportAd = { action -> requestSaveVideoAd(action) },
                             onExportSuccess = {
@@ -779,6 +779,9 @@ fun AppRoot(
                 if (reviewPromptSource == ReviewPromptSource.Auto) {
                     appViewModel.markReviewDeclined()
                 }
+            },
+            onNeverShowAgain = {
+                appViewModel.disableReviewPromptForever()
             }
         )
     }

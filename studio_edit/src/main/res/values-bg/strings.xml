@@ -311,8 +311,8 @@
     <string name="studio_color_presets">Предварително зададени цветове</string>
     <string name="studio_text_default_placeholder">Докоснете два пъти, за да пишете</string>
     <string name="studio_sticker_library_title">Библиотека със стикери</string>
-    <string name="studio_sticker_tab_decor">Декоративен</string>
-    <string name="studio_sticker_tab_meme">мем</string>
+    <string name="studio_sticker_tab_decor">Икони</string>
+    <string name="studio_sticker_tab_meme">Илюстрации</string>
     <string name="studio_label_color_presets_tab">Предварително зададени цветове</string>
     <string name="studio_label_bg_color_tab">Цвят на запълване</string>
     <string name="studio_label_opacity_tab">Непрозрачност</string>
@@ -322,6 +322,16 @@
     <string name="studio_back_button">Назад</string>
     <string name="studio_shape_expand">Разширяване</string>
     <string name="studio_stroke_none">Без граница</string>
+    <string name="themeplate_section_christmas">Коледа</string>
+    <string name="themeplate_section_memories">Спомени</string>
+    <string name="studio_tool_add_image">Добавяне на изображение</string>
+    <string name="studio_tool_remove_bg">Премахване на фона</string>
+    <string name="studio_shape_tab_arrange">Подредба</string>
+    <string name="studio_draft_save_failed">Неуспешно запазване на черновата. Моля, опитайте отново.</string>
+    <string name="studio_gallery_load_failed">Шаблоните не можаха да се заредят. Проверете връзката си и опитайте отново.</string>
+    <string name="studio_retry">Повторен опит</string>
+    <string name="studio_hide_keyboard">Скриване на клавиатурата</string>
+    <string name="studio_layers_toggle">Слоеве</string>
 </resources>
 
 

@@ -6,7 +6,7 @@
     <string name="studio_category_cosmetics">Cosmetics</string>
     <string name="studio_category_home">Home &amp; Living</string>
 
-    <!-- Themeplate -->
+    <!-- Templates -->
     <string name="themeplate_cosmetics_01">Cosmetics Studio 1</string>
     <string name="themeplate_cosmetics_02">Cosmetics Studio 2</string>
     <string name="themeplate_cosmetics_03">Cosmetics Studio 3</string>
@@ -40,10 +40,12 @@
     <string name="themeplate_professional_digital_life">Digital Life</string>
     <string name="themeplate_professional_phone_mode">Phone Mode</string>
     <string name="themeplate_professional_food_selfie">Selfie &amp; Food</string>
-    <string name="studio_category_professional">Fashion</string>
+    <string name="studio_category_professional">Professional</string> <!-- SỬA: Tránh trùng với Fashion -->
     <string name="themeplate_section_digital_life">Digital Life</string>
     <string name="themeplate_section_phone_mode">Phone Mode</string>
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_section_christmas">Christmas</string>
+    <string name="themeplate_section_memories">Memories</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -64,8 +66,8 @@
     <string name="studio_tool_sticker">Sticker</string>
     <string name="studio_tool_duplicate">Duplicate</string>
     <string name="studio_tool_delete">Delete</string>
-    <string name="studio_tool_add_image">Thêm ảnh</string>
-    <string name="studio_tool_remove_bg">Xóa nền</string>
+    <string name="studio_tool_add_image">Add image</string>
+    <string name="studio_tool_remove_bg">Remove BG</string>
     <string name="studio_badge_sample">Sample</string>
     <string name="studio_action_replace">Replace</string>
     <string name="studio_gallery_no_templates">No templates available</string>
@@ -177,13 +179,13 @@
     <string name="studio_tool_shape">Frame</string>
     <string name="studio_label_add_label">Add label</string>
     <string name="studio_label_add_text">Add text</string>
-    <string name="studio_label_add_shape">Add Label</string>
+    <string name="studio_label_add_shape">Add Shape</string> <!-- SỬA: Tránh trùng với Add Label -->
     <string name="studio_label_create_hint">Pick a shape below or add a default label.</string>
     <string name="studio_label_select_hint">Tap a label on the canvas or in Objects to edit it.</string>
     <string name="studio_label_shape_pill">Pill</string>
     <string name="studio_label_shape_card">Card</string>
     <string name="studio_label_shape_text_only">Text only</string>
-    <string name="studio_label_shape_parallelogram">Quadrilateral</string>
+    <string name="studio_label_shape_parallelogram">Parallelogram</string> <!-- SỬA: Đúng hình bình hành -->
     <string name="studio_label_shape_teardrop">Bubble</string>
     <string name="studio_label_shape_circle">Circle</string>
     <string name="studio_label_shape_star">Star</string>
@@ -253,7 +255,7 @@
     <string name="studio_elevation_lighting_angle">Lighting angle</string>
     <string name="studio_elevation_custom">Customize</string>
     <string name="studio_elevation_shadow_blur">Shadow blur</string>
-    <string name="studio_label_shape_frame_tab">Frame</string>
+    <string name="studio_label_shape_frame_tab">Border</string> <!-- GỢI Ý: Đổi thành Border nếu là tab viền -->
     <string name="studio_text_form_tab">Transform</string>
     <string name="studio_text_form_follow_path">Follow Path</string>
     <string name="studio_text_form_warp">Warp</string>
@@ -289,7 +291,7 @@
     <string name="studio_label_copy_style">Copy Style</string>
     <string name="studio_label_paste_style">Paste Style</string>
     <string name="studio_label_bring_forward">Bring Forward</string>
-    <string name="studio_label_send_backward">Send Back</string>
+    <string name="studio_label_send_backward">Send Backward</string> <!-- SỬA: Đồng bộ với Quick Action -->
     <string name="studio_label_align_left">Left</string>
     <string name="studio_label_align_center">Center</string>
     <string name="studio_label_align_right">Right</string>
@@ -337,8 +339,8 @@
 
     <!-- Sticker Picker -->
     <string name="studio_sticker_library_title">Sticker Library</string>
-    <string name="studio_sticker_tab_decor">Decorative</string>
-    <string name="studio_sticker_tab_meme">Meme</string>
+    <string name="studio_sticker_tab_decor">Icons</string>
+    <string name="studio_sticker_tab_meme">Illustrations</string>
 
     <!-- Gradient sub-section tabs -->
     <string name="studio_label_color_presets_tab">Color Presets</string>
@@ -349,5 +351,3 @@
     <string name="studio_label_gradient_angle_tab">Angle</string>
     <string name="studio_back_button">Back</string>
 </resources>
-
-

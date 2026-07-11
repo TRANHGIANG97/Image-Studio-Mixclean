@@ -313,8 +313,8 @@
     <string name="studio_color_presets">የቀለም ቅድመ-ቅምጦች</string>
     <string name="studio_text_default_placeholder">ለመተየብ ሁለቴ መታ ያድርጉ</string>
     <string name="studio_sticker_library_title">ተለጣፊ ቤተ መጻሕፍት</string>
-    <string name="studio_sticker_tab_decor">ማስጌጥ</string>
-    <string name="studio_sticker_tab_meme">ሜም</string>
+    <string name="studio_sticker_tab_decor">አይኮኖች</string>
+    <string name="studio_sticker_tab_meme">ምስላዊ መግለጫዎች</string>
     <string name="studio_label_color_presets_tab">የቀለም ቅድመ-ቅምጦች</string>
     <string name="studio_label_bg_color_tab">ቀለም መሙላት</string>
     <string name="studio_label_opacity_tab">ግልጽነት</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_direction_tab">አቅጣጫ</string>
     <string name="studio_label_gradient_angle_tab">አንግል</string>
     <string name="studio_back_button">ተመለስ</string>
+    <string name="themeplate_section_christmas">የገና በዓል</string>
+    <string name="themeplate_section_memories">ትዝታዎች</string>
+    <string name="studio_tool_add_image">ምስል አክል</string>
+    <string name="studio_tool_remove_bg">ዳራ አስወግድ</string>
+    <string name="studio_shape_tab_arrange">አደራጅ</string>
+    <string name="studio_draft_save_failed">ረቂቅ መቆጠብ አልተቻለም። እባክዎ እንደገና ይሞክሩ።</string>
+    <string name="studio_gallery_load_failed">አብነቶችን መጫን አልተቻለም። ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ።</string>
+    <string name="studio_retry">እንደገና ሞክር</string>
+    <string name="studio_hide_keyboard">ቁልፍ ሰሌዳ ደብቅ</string>
+    <string name="studio_layers_toggle">ንብርብሮች</string>
 </resources>
 
 

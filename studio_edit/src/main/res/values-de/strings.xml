@@ -313,8 +313,8 @@
     <string name="studio_color_presets">Farbvoreinstellungen</string>
     <string name="studio_text_default_placeholder">Doppeltippen, um etwas einzugeben</string>
     <string name="studio_sticker_library_title">Aufkleberbibliothek</string>
-    <string name="studio_sticker_tab_decor">Dekorativ</string>
-    <string name="studio_sticker_tab_meme">Meme</string>
+    <string name="studio_sticker_tab_decor">Symbole</string>
+    <string name="studio_sticker_tab_meme">Illustrationen</string>
     <string name="studio_label_color_presets_tab">Farbvoreinstellungen</string>
     <string name="studio_label_bg_color_tab">Füllfarbe</string>
     <string name="studio_label_opacity_tab">Opazität</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_direction_tab">Richtung</string>
     <string name="studio_label_gradient_angle_tab">Winkel</string>
     <string name="studio_back_button">Zurück</string>
+    <string name="themeplate_section_christmas">Weihnachten</string>
+    <string name="themeplate_section_memories">Erinnerungen</string>
+    <string name="studio_tool_add_image">Bild hinzufügen</string>
+    <string name="studio_tool_remove_bg">Hintergrund entfernen</string>
+    <string name="studio_shape_tab_arrange">Anordnen</string>
+    <string name="studio_draft_save_failed">Entwurf konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.</string>
+    <string name="studio_gallery_load_failed">Vorlagen konnten nicht geladen werden. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.</string>
+    <string name="studio_retry">Wiederholen</string>
+    <string name="studio_hide_keyboard">Tastatur ausblenden</string>
+    <string name="studio_layers_toggle">Ebenen</string>
 </resources>
 
 

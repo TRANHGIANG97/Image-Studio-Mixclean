@@ -313,8 +313,8 @@
     <string name="studio_color_presets">Прасэты колеру</string>
     <string name="studio_text_default_placeholder">Двойчы націсніце, каб увесці</string>
     <string name="studio_sticker_library_title">Бібліятэка стыкераў</string>
-    <string name="studio_sticker_tab_decor">Дэкаратыўная</string>
-    <string name="studio_sticker_tab_meme">мем</string>
+    <string name="studio_sticker_tab_decor">Іконкі</string>
+    <string name="studio_sticker_tab_meme">Ілюстрацыі</string>
     <string name="studio_label_color_presets_tab">Прасэты колеру</string>
     <string name="studio_label_bg_color_tab">Колер залівання</string>
     <string name="studio_label_opacity_tab">Непразрыстасць</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_direction_tab">Напрамак</string>
     <string name="studio_label_gradient_angle_tab">Вугал</string>
     <string name="studio_back_button">Назад</string>
+    <string name="themeplate_section_christmas">Каляды</string>
+    <string name="themeplate_section_memories">Успаміны</string>
+    <string name="studio_tool_add_image">Дадаць малюнак</string>
+    <string name="studio_tool_remove_bg">Выдаліць фон</string>
+    <string name="studio_shape_tab_arrange">Упарадкаваць</string>
+    <string name="studio_draft_save_failed">Не ўдалося захаваць чарнавік. Паўтарыце спробу.</string>
+    <string name="studio_gallery_load_failed">Не ўдалося загрузіць шаблоны. Праверце падключэнне і паспрабуйце зноў.</string>
+    <string name="studio_retry">Паўтарыць</string>
+    <string name="studio_hide_keyboard">Схаваць клавіятуру</string>
+    <string name="studio_layers_toggle">Слаі</string>
 </resources>
 
 

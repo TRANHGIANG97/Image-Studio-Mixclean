@@ -134,6 +134,12 @@ class AppViewModel @Inject constructor(
         }
     }
 
+    fun disableReviewPromptForever() {
+        viewModelScope.launch {
+            preferencesRepository.disableReviewPromptForever()
+        }
+    }
+
     fun setBatchUris(uris: List<android.net.Uri>) {
         _uiState.value = _uiState.value.copy(batchUris = uris)
     }

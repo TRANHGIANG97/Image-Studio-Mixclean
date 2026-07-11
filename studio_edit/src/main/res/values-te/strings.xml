@@ -83,6 +83,8 @@
     <string name="themeplate_section_digital_life">డిజిటల్ లైఫ్</string>
     <string name="themeplate_section_phone_mode">ఫోన్ మోడ్</string>
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
+    <string name="themeplate_section_christmas">క్రిస్మస్</string>
+    <string name="themeplate_section_memories">జ్ఞాపకాలు</string>
     <string name="themeplate_selfie_food_01">సెల్ఫీ ఫుడ్ 1</string>
     <string name="themeplate_selfie_food_02">సెల్ఫీ ఫుడ్ 2</string>
     <string name="themeplate_selfie_food_03">సెల్ఫీ ఫుడ్ 3</string>
@@ -93,6 +95,8 @@
     <string name="themeplate_selfie_food_08">సెల్ఫీ ఫుడ్ 8</string>
     <string name="studio_tool_duplicate">నకిలీ</string>
     <string name="studio_tool_delete">తొలగించు</string>
+    <string name="studio_tool_add_image">చిత్రం జోడించండి</string>
+    <string name="studio_tool_remove_bg">బ్యాక్‌గ్రౌండ్ తొలగించు</string>
     <string name="studio_badge_sample">నమూనా</string>
     <string name="studio_action_replace">భర్తీ చేయండి</string>
     <string name="studio_gallery_no_templates">టెంప్లేట్‌లు ఏవీ అందుబాటులో లేవు</string>
@@ -119,6 +123,11 @@
     <string name="studio_save_draft_dialog_message">తర్వాత కొనసాగించడానికి ఈ డిజైన్‌ను డ్రాఫ్ట్‌గా సేవ్ చేయాలా?</string>
     <string name="studio_save_draft_confirm">చిత్తుప్రతిని సేవ్ చేయండి</string>
     <string name="studio_draft_saved">డ్రాఫ్ట్ సేవ్ చేయబడింది</string>
+    <string name="studio_draft_save_failed">డ్రాఫ్ట్‌ను సేవ్ చేయడం సాధ్యపడలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.</string>
+    <string name="studio_gallery_load_failed">టెంప్లేట్‌లను లోడ్ చేయడం సాధ్యపడలేదు. మీ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.</string>
+    <string name="studio_retry">మళ్లీ ప్రయత్నించండి</string>
+    <string name="studio_hide_keyboard">కీబోర్డ్‌ను దాచు</string>
+    <string name="studio_layers_toggle">పొరలు</string>
     <string name="studio_reset_zoom">రీసెట్ చేయండి</string>
     <string name="studio_tool_label">లేబుల్</string>
     <string name="studio_tool_shape">ఫ్రేమ్</string>
@@ -251,6 +260,7 @@
     <string name="studio_shape_tab_stroke">స్ట్రోక్</string>
     <string name="studio_shape_tab_shadow">నీడ</string>
     <string name="studio_shape_tab_elevation">3D</string>
+    <string name="studio_shape_tab_arrange">అమర్చు</string>
     <string name="studio_shape_tab_shape">ఆకారం</string>
     <string name="studio_shape_collapse">కుదించు</string>
     <string name="studio_shape_expand">విస్తరించు</string>

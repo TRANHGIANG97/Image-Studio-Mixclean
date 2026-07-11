@@ -166,7 +166,7 @@ fun ThemeplateEditorScreen(
         var wasEditingImeVisible by remember { mutableStateOf(false) }
         var isExitingLabelEdit by remember { mutableStateOf(false) }
         var isCanvasGestureActive by remember { mutableStateOf(false) }
-        var showLayersPanel by rememberSaveable { mutableStateOf(false) }
+        var showLayersPanel by rememberSaveable { mutableStateOf(true) }
 
         val showControls = state.template.loaded &&
             selectedToolForUi != null &&
@@ -640,6 +640,7 @@ fun ThemeplateEditorScreen(
                             activeLayer.product.isSample &&
                             !activeLayer.isLocked,
                         canRemoveBg = activeLayer?.type == LayerType.IMAGE &&
+                            !activeLayer.product.isSample &&
                             !activeLayer.isLocked,
                         toolsLocked = !editingToolsUnlocked,
                         labelLayerActive = selectedToolForUi is EditorTool.Label ||

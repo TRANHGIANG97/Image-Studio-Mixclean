@@ -277,11 +277,30 @@ class HomeViewModel @Inject constructor(
                 val newest = newestJob.await()
 
                 val otherSections = otherJobs.map { (category, job) ->
+                    val rawKey = (category.slug ?: category.name ?: "")
+                    val normalizedKey = java.text.Normalizer.normalize(rawKey, java.text.Normalizer.Form.NFD)
+                        .replace(Regex("\\p{M}+"), "")
+                        .replace("đ", "d")
+                        .replace("Đ", "D")
+                        .lowercase()
                     com.thgiang.image.studio.model.StudioThemeplateSection(
                         id = category.id,
-                        titleResId = when (category.id) {
-                            "digital_life" -> com.thgiang.image.studio.R.string.themeplate_professional_digital_life
-                            "selfie_food" -> com.thgiang.image.studio.R.string.themeplate_professional_food_selfie
+                        titleResId = when {
+                            normalizedKey.contains("digital_life") || normalizedKey.contains("doi song so") -> {
+                                com.thgiang.image.studio.R.string.themeplate_section_digital_life
+                            }
+                            normalizedKey.contains("selfie_food") || normalizedKey.contains("me an uong") -> {
+                                com.thgiang.image.studio.R.string.themeplate_section_food_selfie
+                            }
+                            normalizedKey.contains("christmas") || normalizedKey.contains("giang sinh") -> {
+                                com.thgiang.image.studio.R.string.themeplate_section_christmas
+                            }
+                            normalizedKey.contains("memories") || normalizedKey.contains("ky niem") -> {
+                                com.thgiang.image.studio.R.string.themeplate_section_memories
+                            }
+                            normalizedKey.contains("phone") || normalizedKey.contains("dien thoai") -> {
+                                com.thgiang.image.studio.R.string.themeplate_section_phone_mode
+                            }
                             else -> 0
                         },
                         titleString = category.name,

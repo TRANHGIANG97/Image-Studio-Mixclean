@@ -880,7 +880,7 @@ class ThemeplateEditorViewModel @Inject constructor(
 
         bgRemoveJob = viewModelScope.launch {
             try {
-                when (val result = productWorkflow.processUserImage(uri)) {
+                when (val result = productWorkflow.processUserImage(uri, removeBg = replaceLayerId != null)) {
                     is ProductImageResult.Ready -> {
                         _state.update { state ->
                             val updatedLayers = state.layers.map {

@@ -12,17 +12,15 @@ if (!supabaseUrl || !supabaseKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function main() {
-  console.log('Querying assets table...');
+  console.log('Querying categories table...');
   const { data, error } = await supabase
-    .from('assets')
-    .select('*')
-    .limit(10);
+    .from('categories')
+    .select('id, name, slug');
 
   if (error) {
     console.error('Error:', error);
   } else {
-    console.log('Assets count:', data.length);
-    console.log('Sample data:', JSON.stringify(data, null, 2));
+    console.log('Categories:', JSON.stringify(data, null, 2));
   }
 }
 

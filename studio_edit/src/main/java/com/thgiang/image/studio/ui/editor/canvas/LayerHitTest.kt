@@ -79,7 +79,7 @@ object LayerHitTest {
             }
 
             LayerType.IMAGE -> {
-                if (!layer.product.isBackgroundRemoved || layer.product.foregroundUriString.isNullOrBlank()) {
+                if (layer.product.foregroundUriString.isNullOrBlank()) {
                     return null
                 }
                 val croppedSize = layer.cropRatio.calculateSize(

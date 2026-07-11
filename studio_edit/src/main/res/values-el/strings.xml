@@ -313,8 +313,8 @@
     <string name="studio_color_presets">Προεπιλογές χρωμάτων</string>
     <string name="studio_text_default_placeholder">Πατήστε δύο φορές για να πληκτρολογήσετε</string>
     <string name="studio_sticker_library_title">Βιβλιοθήκη αυτοκόλλητων</string>
-    <string name="studio_sticker_tab_decor">Διακοσμητικός</string>
-    <string name="studio_sticker_tab_meme">Meme</string>
+    <string name="studio_sticker_tab_decor">Εικονίδια</string>
+    <string name="studio_sticker_tab_meme">Εικονογραφήσεις</string>
     <string name="studio_label_color_presets_tab">Προεπιλογές χρωμάτων</string>
     <string name="studio_label_bg_color_tab">Χρώμα πλήρωσης</string>
     <string name="studio_label_opacity_tab">Αδιαφάνεια</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_direction_tab">Κατεύθυνση</string>
     <string name="studio_label_gradient_angle_tab">Γωνία</string>
     <string name="studio_back_button">Πίσω</string>
+    <string name="themeplate_section_christmas">Χριστούγεννα</string>
+    <string name="themeplate_section_memories">Αναμνήσεις</string>
+    <string name="studio_tool_add_image">Προσθήκη εικόνας</string>
+    <string name="studio_tool_remove_bg">Αφαίρεση φόντου</string>
+    <string name="studio_shape_tab_arrange">Διάταξη</string>
+    <string name="studio_draft_save_failed">Δεν ήταν δυνατή η αποθήκευση του σχεδίου. Παρακαλώ δοκιμάστε ξανά.</string>
+    <string name="studio_gallery_load_failed">Δεν ήταν δυνατή η φόρτωση των προτύπων. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
+    <string name="studio_retry">Δοκιμάστε ξανά</string>
+    <string name="studio_hide_keyboard">Απόκρυψη πληκτρολογίου</string>
+    <string name="studio_layers_toggle">Επίπεδα</string>
 </resources>
 
 

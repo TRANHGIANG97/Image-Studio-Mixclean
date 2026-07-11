@@ -312,8 +312,8 @@
     <string name="studio_color_presets">Farveforudindstillinger</string>
     <string name="studio_text_default_placeholder">Dobbelttryk for at skrive</string>
     <string name="studio_sticker_library_title">Klistermærkebibliotek</string>
-    <string name="studio_sticker_tab_decor">Dekorative</string>
-    <string name="studio_sticker_tab_meme">Meme</string>
+    <string name="studio_sticker_tab_decor">Ikoner</string>
+    <string name="studio_sticker_tab_meme">Illustrationer</string>
     <string name="studio_label_color_presets_tab">Farveforudindstillinger</string>
     <string name="studio_label_bg_color_tab">Fyld farve</string>
     <string name="studio_label_opacity_tab">Opacitet</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_angle_tab">Vinkel</string>
     <string name="studio_back_button">Tilbage</string>
     <string name="studio_stroke_tab_color">Kantfarve</string>
+    <string name="themeplate_section_christmas">Jul</string>
+    <string name="themeplate_section_memories">Minder</string>
+    <string name="studio_tool_add_image">Tilføj billede</string>
+    <string name="studio_tool_remove_bg">Fjern baggrund</string>
+    <string name="studio_shape_tab_arrange">Arranger</string>
+    <string name="studio_draft_save_failed">Kunne ikke gemme kladde. Prøv igen.</string>
+    <string name="studio_gallery_load_failed">Kunne ikke indlæse skabeloner. Kontroller din forbindelse, og prøv igen.</string>
+    <string name="studio_retry">Prøv igen</string>
+    <string name="studio_hide_keyboard">Skjul tastatur</string>
+    <string name="studio_layers_toggle">Lag</string>
 </resources>
 
 

@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.thgiang.image.studio.R
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.zIndex
@@ -185,8 +187,10 @@ fun ShapeTextLayer(
 
     // Auto-fit on text change is handled in LabelViewModelDelegate.updateShapeText.
 
+    val defaultPlaceholder = stringResource(R.string.studio_text_default_placeholder)
+
     var inlineTextDraft by remember(layer.id) {
-        val initialText = if (layer.text == "Nhập chữ...") "" else layer.text
+        val initialText = if (layer.text == "Nhập chữ..." || layer.text == defaultPlaceholder) "" else layer.text
         mutableStateOf(
             TextFieldValue(
                 text = initialText,
@@ -200,7 +204,7 @@ fun ShapeTextLayer(
  
     LaunchedEffect(isInlineEditing) {
         if (isInlineEditing) {
-            val initialText = if (layer.text == "Nhập chữ...") "" else layer.text
+            val initialText = if (layer.text == "Nhập chữ..." || layer.text == defaultPlaceholder) "" else layer.text
             inlineTextDraft = TextFieldValue(
                 text = initialText,
                 selection = TextRange(initialText.length),
@@ -212,7 +216,7 @@ fun ShapeTextLayer(
 
     LaunchedEffect(layer.text, isInlineEditing) {
         if (isInlineEditing) {
-            val normalizedText = if (layer.text == "Nhập chữ...") "" else layer.text
+            val normalizedText = if (layer.text == "Nhập chữ..." || layer.text == defaultPlaceholder) "" else layer.text
             if (inlineTextDraft.text != normalizedText) {
                 inlineTextDraft = TextFieldValue(
                     text = normalizedText,

@@ -483,7 +483,7 @@ fun EditorObjectListVertical(
 ) {
     val tokens = LocalEditorTokens.current
     val density = LocalDensity.current
-    var expanded by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(true) }
 
     val currentLayersOffset by rememberUpdatedState(layersOffset)
     val currentOnLayersOffsetChange by rememberUpdatedState(onLayersOffsetChange)
@@ -537,22 +537,22 @@ fun EditorObjectListVertical(
         }
 
         // Toggle Button at the bottom (Handles both Tap to toggle and Drag to move entire widget)
-        val toggleAlpha = if (expanded) 1f else 0.5f
+        val toggleAlpha = 1f
         var totalDrag by remember { mutableStateOf(Offset.Zero) }
         Box(
             modifier = Modifier
                 .size(46.dp)
                 .graphicsLayer { alpha = toggleAlpha }
                 .shadow(
-                    elevation = 4.dp,
+                    elevation = 6.dp,
                     shape = CircleShape,
-                    ambientColor = Color.Black.copy(alpha = 0.15f),
-                    spotColor = Color.Black.copy(alpha = 0.25f)
+                    ambientColor = Color.Black.copy(alpha = 0.20f),
+                    spotColor = Color.Black.copy(alpha = 0.30f)
                 )
                 .background(Color.White, CircleShape)
                 .border(
-                    width = 1.dp,
-                    color = if (expanded) tokens.accent.copy(alpha = 0.5f) else Color(0xFFE5E7EB),
+                    width = 1.5.dp,
+                    color = if (expanded) tokens.accent else Color(0xFF9CA3AF),
                     shape = CircleShape
                 )
                 .pointerInput(Unit) {

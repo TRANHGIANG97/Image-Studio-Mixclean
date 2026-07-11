@@ -300,4 +300,10 @@ class QuickEditViewModel @Inject constructor(
             _uiState.update { it.copy(showReviewPrompt = false) }
         }
     }
+
+    fun disableReviewPromptForever() {
+        viewModelScope.launch {
+            userPreferencesRepository.disableReviewPromptForever()
+        }
+    }
 }

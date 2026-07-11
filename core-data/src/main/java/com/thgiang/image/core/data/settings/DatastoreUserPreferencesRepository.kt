@@ -88,24 +88,8 @@ class DatastoreUserPreferencesRepository(
                 return@edit
             }
 
-            val saveCount = (prefs[REVIEW_SUCCESSFUL_SAVE_COUNT_KEY] ?: 0) + 1
-            prefs[REVIEW_SUCCESSFUL_SAVE_COUNT_KEY] = saveCount
-
-            val promptShownCount = prefs[REVIEW_PROMPT_SHOWN_COUNT_KEY] ?: 0
-            val lastPromptAt = prefs[REVIEW_PROMPT_LAST_SHOWN_AT_MILLIS_KEY] ?: 0L
-
-            val shouldPrompt = when (promptShownCount) {
-                0 -> saveCount >= REVIEW_PROMPT_THRESHOLD
-                1 -> saveCount >= REVIEW_PROMPT_THRESHOLD * 2 &&
-                    nowMillis - lastPromptAt >= REVIEW_PROMPT_INTERVAL_MILLIS
-                else -> false
-            }
-
-            if (shouldPrompt) {
-                prefs[REVIEW_PROMPT_SHOWN_COUNT_KEY] = promptShownCount + 1
-                prefs[REVIEW_PROMPT_LAST_SHOWN_AT_MILLIS_KEY] = nowMillis
-                decision = ReviewPromptDecision.ShowPrompt
-            }
+            // Always show the prompt on successful save per user request
+            decision = ReviewPromptDecision.ShowPrompt
         }
 
         return decision
@@ -119,11 +103,13 @@ class DatastoreUserPreferencesRepository(
     }
 
     override suspend fun markReviewDeclined() {
+        // Keep shownCount intact but don't disable automatically here anymore,
+        // it is managed by the user selecting "Không hiển thị lại" checkbox.
+    }
+
+    override suspend fun disableReviewPromptForever() {
         context.dataStore.edit { prefs ->
-            val shownCount = prefs[REVIEW_PROMPT_SHOWN_COUNT_KEY] ?: 0
-            if (shownCount >= 2) {
-                prefs[REVIEW_PROMPT_DISABLED_KEY] = true
-            }
+            prefs[REVIEW_PROMPT_DISABLED_KEY] = true
         }
     }
 

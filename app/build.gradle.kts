@@ -52,8 +52,8 @@ android {
         applicationId = "com.thgiang.image"
         minSdk = 24
         targetSdk = 35
-        versionCode = 206
-        versionName = "2.0.6"
+        versionCode = 207
+        versionName = "2.0.7"
         buildConfigField("String", "ADMIN_WEB_BASE_URL", "\"${localProperty("ADMIN_WEB_BASE_URL") ?: "http://10.0.2.2:3000"}\"")
         buildConfigField("String", "CDN_BASE_URL", "\"${localProperty("CDN_BASE_URL") ?: ""}\"")
 

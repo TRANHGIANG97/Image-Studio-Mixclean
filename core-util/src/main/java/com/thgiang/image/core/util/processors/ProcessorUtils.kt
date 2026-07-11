@@ -23,22 +23,28 @@ object ProcessorUtils {
         withContext(Dispatchers.IO) {
             runCatching {
                 val maxSide = MemoryUtil.maxDecodeSide(context)
+                val scheme = uri.scheme?.lowercase()
+                val isWebUri = scheme == "http" || scheme == "https"
+
+                val bytes = if (isWebUri) {
+                    java.net.URL(uri.toString()).openStream().use { it.readBytes() }
+                } else {
+                    context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                } ?: return@runCatching null
+
                 val opts = BitmapFactory.Options().apply {
                     inMutable = false
                     if (maxSide > 0) {
                         inJustDecodeBounds = true
-                        context.contentResolver.openInputStream(uri)?.use { stream ->
-                            BitmapFactory.decodeStream(stream, null, this)
-                        }
+                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, this)
                         inSampleSize = MemoryUtil.calculateInSampleSize(this, maxSide)
                         inJustDecodeBounds = false
                     }
                 }
-                val bitmap = context.contentResolver.openInputStream(uri)?.use { stream ->
-                    BitmapFactory.decodeStream(stream, null, opts)
-                }
-                // Apply EXIF orientation
-                val rotation = getExifRotation(context, uri)
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+
+                // Apply EXIF orientation only for local URIs
+                val rotation = if (isWebUri) 0 else getExifRotation(context, uri)
                 (if (rotation != 0 && bitmap != null) {
                     rotateBitmap(bitmap, rotation)
                 } else {
@@ -46,6 +52,7 @@ object ProcessorUtils {
                 })?.toArgbBitmap()
             }.onFailure { e ->
                 if (e is OutOfMemoryError) Log.e(TAG, "OOM decoding bitmap from URI", e)
+                else Log.e(TAG, "Error decoding bitmap from URI: $uri", e)
             }.getOrNull()
         }
 

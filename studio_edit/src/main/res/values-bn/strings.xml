@@ -313,8 +313,8 @@
     <string name="studio_color_presets">কালার প্রিসেট</string>
     <string name="studio_text_default_placeholder">টাইপ করতে ডবল ট্যাপ করুন</string>
     <string name="studio_sticker_library_title">স্টিকার লাইব্রেরি</string>
-    <string name="studio_sticker_tab_decor">আলংকারিক</string>
-    <string name="studio_sticker_tab_meme">মেমে</string>
+    <string name="studio_sticker_tab_decor">আইকন</string>
+    <string name="studio_sticker_tab_meme">চিত্রাবলী</string>
     <string name="studio_label_color_presets_tab">কালার প্রিসেট</string>
     <string name="studio_label_bg_color_tab">রঙ পূরণ করুন</string>
     <string name="studio_label_opacity_tab">অস্বচ্ছতা</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_direction_tab">দিকনির্দেশনা</string>
     <string name="studio_label_gradient_angle_tab">কোণ</string>
     <string name="studio_back_button">ফিরে</string>
+    <string name="themeplate_section_christmas">বড়দিন</string>
+    <string name="themeplate_section_memories">স্মৃতিসমূহ</string>
+    <string name="studio_tool_add_image">ছবি যোগ করুন</string>
+    <string name="studio_tool_remove_bg">ব্যাকগ্রাউন্ড মুছে ফেলুন</string>
+    <string name="studio_shape_tab_arrange">সাজান</string>
+    <string name="studio_draft_save_failed">খসড়া সংরক্ষণ করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</string>
+    <string name="studio_gallery_load_failed">টেমপ্লেট লোড করা যায়নি। আপনার সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।</string>
+    <string name="studio_retry">আবার চেষ্টা করুন</string>
+    <string name="studio_hide_keyboard">কীবোর্ড লুকান</string>
+    <string name="studio_layers_toggle">লেয়ার</string>
 </resources>
 
 

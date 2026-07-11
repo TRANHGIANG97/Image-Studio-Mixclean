@@ -90,10 +90,10 @@ class EditorLayerFactory @Inject constructor() {
         )
     }
 
-    fun createTextLayer(templateWidth: Float): EditorLayer {
+    fun createTextLayer(templateWidth: Float, defaultText: String = "Nhập chữ..."): EditorLayer {
         return EditorLayer(
             type = LayerType.TEXT,
-            text = "Nhập chữ...",
+            text = defaultText,
             textColorArgb = 0xFF5B21B6.toInt(),
             textSizeSp = ShapeLabelDefaults.DEFAULT_TEXT_SIZE_SP,
             shapeType = ShapeType.TEXT_ONLY,

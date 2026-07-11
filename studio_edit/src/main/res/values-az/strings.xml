@@ -313,8 +313,8 @@
     <string name="studio_color_presets">Rəng Əvvəlcədən təyinatları</string>
     <string name="studio_text_default_placeholder">Yazmaq üçün iki dəfə klikləyin</string>
     <string name="studio_sticker_library_title">Stiker Kitabxanası</string>
-    <string name="studio_sticker_tab_decor">Dekorativ</string>
-    <string name="studio_sticker_tab_meme">Meme</string>
+    <string name="studio_sticker_tab_decor">İkonlar</string>
+    <string name="studio_sticker_tab_meme">İllüstrasiyalar</string>
     <string name="studio_label_color_presets_tab">Rəng Əvvəlcədən təyinatları</string>
     <string name="studio_label_bg_color_tab">Doldur Rəngi</string>
     <string name="studio_label_opacity_tab">Qeyri-şəffaflıq</string>
@@ -322,6 +322,16 @@
     <string name="studio_label_gradient_direction_tab">İstiqamət</string>
     <string name="studio_label_gradient_angle_tab">Bucaq</string>
     <string name="studio_back_button">Geri</string>
+    <string name="themeplate_section_christmas">Milad</string>
+    <string name="themeplate_section_memories">Xatirələr</string>
+    <string name="studio_tool_add_image">Şəkil əlavə et</string>
+    <string name="studio_tool_remove_bg">Fonu sil</string>
+    <string name="studio_shape_tab_arrange">Düzülüş</string>
+    <string name="studio_draft_save_failed">Qaralama saxlanıla bilmədi. Zəhmət olmasa yenidən cəhd edin.</string>
+    <string name="studio_gallery_load_failed">Şablonlar yüklənə bilmədi. Bağlantınızı yoxlayın və yenidən cəhd edin.</string>
+    <string name="studio_retry">Yenidən cəhd et</string>
+    <string name="studio_hide_keyboard">Klaviaturanı gizlət</string>
+    <string name="studio_layers_toggle">Qatlar</string>
 </resources>
 
 

@@ -35,6 +35,7 @@ interface UserPreferencesRepository {
     suspend fun recordSuccessfulSave(nowMillis: Long = System.currentTimeMillis()): ReviewPromptDecision
     suspend fun markReviewAccepted()
     suspend fun markReviewDeclined()
+    suspend fun disableReviewPromptForever()
     suspend fun checkPremiumTemplateLimit(templateId: String, todayDateString: String, limit: Int = 3): PremiumLimitResult
     suspend fun grantExtraPremiumSlot(templateId: String, todayDateString: String)
 }

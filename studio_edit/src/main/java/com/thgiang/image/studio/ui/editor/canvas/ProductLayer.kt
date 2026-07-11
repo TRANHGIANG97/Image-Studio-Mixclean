@@ -325,31 +325,5 @@ fun ProductLayerV2(
             onGestureActiveChanged = onGestureActiveChanged,
         )
 
-        // 2-directional horizontal arrow replace button, compact, transparent background
-        if (product.isSample && !product.processing && !isLocked) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(36.dp)
-                    .background(Color.Transparent)
-                    .clickable { onPickImage(layer.id) },
-                contentAlignment = Alignment.Center
-            ) {
-                // Drop shadow for prominence
-                Icon(
-                    imageVector = Icons.Default.SwapHoriz,
-                    contentDescription = null,
-                    tint = Color.Black.copy(alpha = 0.6f),
-                    modifier = Modifier.size(30.dp).offset(y = 1.dp)
-                )
-                // Main icon
-                Icon(
-                    imageVector = Icons.Default.SwapHoriz,
-                    contentDescription = stringResource(R.string.studio_action_replace),
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        }
     }
 }

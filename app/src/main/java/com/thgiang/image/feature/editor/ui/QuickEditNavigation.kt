@@ -580,6 +580,9 @@ fun QuickEditEditorNavigation(
             },
             onLater = {
                 viewModel.recordReviewDeclined()
+            },
+            onNeverShowAgain = {
+                viewModel.disableReviewPromptForever()
             }
         )
     }

@@ -18,7 +18,7 @@ data class EditorState(
     val showBoundingBox: Boolean = false
 ) : java.io.Serializable {
     val canExport: Boolean
-        get() = layers.any { it.product.isBackgroundRemoved } && !isExporting && template.loaded
+        get() = layers.any { it.type == LayerType.IMAGE && it.product.foregroundUriString != null } && !isExporting && template.loaded
 
     val labelPhase: LabelInteractionPhase
         get() = LabelInteractionState.phase(selectedLayerId, editingLayerId)

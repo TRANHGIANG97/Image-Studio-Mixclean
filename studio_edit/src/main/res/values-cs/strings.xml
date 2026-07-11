@@ -313,15 +313,25 @@
     <string name="studio_color_presets">Předvolby barev</string>
     <string name="studio_text_default_placeholder">Dvojitým klepnutím můžete psát</string>
     <string name="studio_sticker_library_title">Knihovna nálepek</string>
-    <string name="studio_sticker_tab_decor">Dekorativní</string>
-    <string name="studio_sticker_tab_meme">meme</string>
+    <string name="studio_sticker_tab_decor">Ikony</string>
+    <string name="studio_sticker_tab_meme">Ilustrace</string>
     <string name="studio_label_color_presets_tab">Předvolby barev</string>
     <string name="studio_label_bg_color_tab">Barva výplně</string>
     <string name="studio_label_opacity_tab">Neprůhlednost</string>
     <string name="studio_label_gradient_colors_tab">Barevný rozsah</string>
     <string name="studio_label_gradient_direction_tab">Směr</string>
     <string name="studio_label_gradient_angle_tab">Úhel</string>
-    <string name="studio_back_button">Zadní</string>
+    <string name="studio_back_button">Zpět</string>
+    <string name="themeplate_section_christmas">Vánoce</string>
+    <string name="themeplate_section_memories">Vzpomínky</string>
+    <string name="studio_tool_add_image">Přidat obrázek</string>
+    <string name="studio_tool_remove_bg">Odebrat pozadí</string>
+    <string name="studio_shape_tab_arrange">Uspořádat</string>
+    <string name="studio_draft_save_failed">Návrh se nepodařilo uložit. Zkuste to prosím znovu.</string>
+    <string name="studio_gallery_load_failed">Šablony se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.</string>
+    <string name="studio_retry">Opakovat</string>
+    <string name="studio_hide_keyboard">Skrýt klávesnici</string>
+    <string name="studio_layers_toggle">Vrstvy</string>
 </resources>
 
 
