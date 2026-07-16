@@ -33,9 +33,17 @@ class RewardedAdManagerImpl @Inject constructor(
     private val isDebug: Boolean
         get() = (appContext.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
+    private val shouldBypass: Boolean
+        get() = !adConfig.rewardedAdsEnabled || isDebug
+
     override fun loadAd(onLoaded: (() -> Unit)?, onFailed: ((String) -> Unit)?) {
-        if (isDebug) {
-            adLogger.d(TAG, "Debug build: skip loading real AdMob rewarded ad")
+        if (shouldBypass) {
+            adLogger.d(TAG, "Rewarded ads disabled: skip loading")
+            onLoaded?.invoke()
+            return
+        }
+        if (!NewUserAdPolicy.shouldPreloadAds(appContext)) {
+            adLogger.d(TAG, "Low-trust user, skip loading rewarded ad")
             onLoaded?.invoke()
             return
         }
@@ -86,8 +94,16 @@ class RewardedAdManagerImpl @Inject constructor(
         onAdClosed: () -> Unit,
         onFailedToShow: ((String) -> Unit)?
     ) {
-        if (isDebug) {
-            adLogger.d(TAG, "Debug build: bypass rewarded ad showing and grant reward immediately")
+        if (shouldBypass) {
+            adLogger.d(TAG, "Rewarded ads disabled: grant reward immediately")
+            onRewardReceived()
+            onAdClosed()
+            return
+        }
+
+        if (NewUserAdPolicy.shouldBypassRewarded(appContext)) {
+            adLogger.d(TAG, "Rewarded bypass: low-trust user or daily cap")
+            NewUserAdPolicy.reportBypassIfNeeded(appContext, "rewarded")
             onRewardReceived()
             onAdClosed()
             return
@@ -122,6 +138,7 @@ class RewardedAdManagerImpl @Inject constructor(
 
             ad.show(activity, OnUserEarnedRewardListener {
                 adLogger.d(TAG, "User earned reward")
+                NewUserAdPolicy.recordRewardedShown(appContext)
                 onRewardReceived()
             })
         } else {
@@ -132,7 +149,7 @@ class RewardedAdManagerImpl @Inject constructor(
         }
     }
 
-    override fun isAdAvailable(): Boolean = isDebug || rewardedAd != null
+    override fun isAdAvailable(): Boolean = shouldBypass || rewardedAd != null
 
     private fun scheduleRetry() {
         if (retryCount >= adConfig.maxRetries) {

@@ -4,6 +4,7 @@ import com.thgiang.image.studio.ui.editor.mapper.*
 
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
 import com.thgiang.image.studio.ui.editor.model.ShapeType
+import com.thgiang.image.studio.ui.editor.model.hasTextOnlyBackgroundDecor
 import com.thgiang.image.studio.ui.editor.model.isFrameLayer
 import com.thgiang.image.studio.ui.editor.model.isLabelLayer
 
@@ -18,14 +19,19 @@ val EditorLayer.hasStroke: Boolean
     get() = hasShapeBorder
 
 val EditorLayer.hasShapeBorder: Boolean
-    get() = !EditorShapeGeometry.isTextOnlyShape(shapeType) &&
-        strokeColorArgb != null &&
-        resolveStrokeWidthPx() > 0f
+    get() {
+        if (strokeColorArgb == null || resolveStrokeWidthPx() <= 0f) return false
+        if (!EditorShapeGeometry.isTextOnlyShape(shapeType)) return true
+        val strokeAlpha = (strokeColorArgb!! ushr 24) and 0xFF
+        return strokeAlpha > 0
+    }
 
 /** Shape drop shadow needs a visible outline or fill to render against. */
 val EditorLayer.supportsShapeShadow: Boolean
     get() {
-        if (EditorShapeGeometry.isTextOnlyShape(shapeType)) return false
+        if (EditorShapeGeometry.isTextOnlyShape(shapeType)) {
+            return hasTextOnlyBackgroundDecor
+        }
         if (hasShapeBorder) return true
         val fillAlpha = (shapeColorArgb ushr 24) and 0xFF
         return EditorShapeGeometry.isFilledShape(shapeType, fillAlpha, fillGradient != null)
@@ -67,7 +73,13 @@ fun EditorLayer.resolveTextElevationColorArgb(): Int {
 }
 
 fun EditorLayer.resolveShapeBorderColorArgb(): Int? {
-    if (EditorShapeGeometry.isTextOnlyShape(shapeType)) return null
+    if (EditorShapeGeometry.isTextOnlyShape(shapeType)) {
+        if (strokeColorArgb != null && resolveStrokeWidthPx() > 0f) {
+            val alpha = (strokeColorArgb!! ushr 24) and 0xFF
+            if (alpha > 0) return strokeColorArgb
+        }
+        return null
+    }
     strokeColorArgb?.let { return it }
     if (!EditorShapeGeometry.isLineShape(shapeType)) return null
     if (fillGradient != null) {
@@ -88,7 +100,24 @@ fun EditorLayer.resolveStrokeWidthPx(): Float {
 fun EditorLayer.resolveStrokeColorArgb(): Int? = resolveShapeBorderColorArgb()
 
 object EditorStrokeMapper {
-    /** Scale dash intervals to match [strokeWidthPx] when both are rendered at the same viewport scale. */
+    fun extractDashGap(strokeDashArray: List<Float>, fallbackGapPx: Float = 6f): Float =
+        strokeDashArray.getOrNull(1)?.takeIf { strokeDashArray.size >= 2 } ?: fallbackGapPx
+
+    /** Build dash intervals: on-lengths from [strokeDashArray], gaps from [strokeDashGapPx] only. */
+    fun resolveDashIntervals(
+        strokeDashArray: List<Float>,
+        strokeDashGapPx: Float,
+        renderScale: Float = 1f,
+    ): FloatArray? {
+        if (strokeDashArray.size < 2) return null
+        val gap = strokeDashGapPx.coerceAtLeast(0f)
+        val intervals = strokeDashArray.mapIndexed { index, length ->
+            if (index % 2 == 1) gap else length
+        }
+        return dashIntervalsForRender(intervals, renderScale)
+    }
+
+    /** Scale dash intervals for viewport zoom; independent of stroke width. */
     fun dashIntervalsForRender(
         strokeDashArray: List<Float>,
         renderScale: Float = 1f,
@@ -104,9 +133,10 @@ object EditorStrokeMapper {
 
     fun composeDashPathEffect(
         strokeDashArray: List<Float>,
+        strokeDashGapPx: Float,
         renderScale: Float = 1f,
     ): PathEffect? {
-        val intervals = dashIntervalsForRender(strokeDashArray, renderScale) ?: return null
+        val intervals = resolveDashIntervals(strokeDashArray, strokeDashGapPx, renderScale) ?: return null
         return PathEffect.dashPathEffect(intervals, 0f)
     }
 
@@ -115,6 +145,7 @@ object EditorStrokeMapper {
         strokeColorArgb: Int,
         strokeWidthPx: Float,
         strokeDashArray: List<Float>,
+        strokeDashGapPx: Float,
         alpha: Int,
         renderScale: Float = 1f,
     ) {
@@ -125,7 +156,7 @@ object EditorStrokeMapper {
         paint.strokeCap = Paint.Cap.BUTT
         paint.strokeJoin = Paint.Join.MITER
         paint.strokeMiter = 4f
-        paint.pathEffect = dashIntervalsForRender(strokeDashArray, renderScale)?.let { intervals ->
+        paint.pathEffect = resolveDashIntervals(strokeDashArray, strokeDashGapPx, renderScale)?.let { intervals ->
             DashPathEffect(intervals, 0f)
         }
     }

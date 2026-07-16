@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">חג המולד</string>
     <string name="themeplate_section_memories">זיכרונות</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">סלפי אוכל 1</string>
     <string name="themeplate_selfie_food_02">סלפי אוכל 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">צבע מסגרת</string>
     <string name="studio_stroke_tab_style">סגנון קו</string>
     <string name="studio_stroke_tab_width">עובי</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">ללא מסגרת</string>
     <string name="studio_dash_solid">קו רציף</string>
     <string name="studio_dash_round_dot">נקודות עגולות</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">עקוב אחר נתיב</string>
     <string name="studio_text_form_warp">עיוות גיאומטרי</string>
     <string name="studio_text_form_amount">עוצמת האפקט</string>
+    <string name="studio_text_form_letter_spacing">ריווח אותיות</string>
     <string name="studio_text_form_none">ללא</string>
     <string name="studio_text_form_path_wave">גלי</string>
     <string name="studio_text_form_path_arc_up">קשת למעלה</string>
     <string name="studio_text_form_path_arc_down">קשת למטה</string>
     <string name="studio_text_form_path_circle">מעגלי</string>
-    <string name="studio_text_form_path_ring">טבעתי</string>
-    <string name="studio_text_form_warp_arch_up">קשת למעלה</string>
+<string name="studio_text_form_warp_arch_up">קשת למעלה</string>
     <string name="studio_text_form_warp_arch_down">קשת למטה</string>
     <string name="studio_text_form_warp_bulge">תפוח</string>
     <string name="studio_text_form_warp_wave">גל</string>
     <string name="studio_text_form_warp_flag">דגל</string>
     <string name="studio_text_form_warp_rise">עולה</string>
     <string name="studio_text_form_warp_fall">יורד</string>
-    <string name="studio_text_form_warp_inflate">ניפוח</string>
-    <string name="studio_text_form_warp_deflate">כיווץ</string>
     <string name="studio_text_form_warp_chevron_up">חץ כפול למעלה</string>
     <string name="studio_text_form_warp_chevron_down">חץ כפול למטה</string>
     <string name="studio_objects_label">אובייקטים ושכבות</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">אפקט נפח</string>
     <string name="studio_label_tab_text_form">עיצוב אמנותי</string>
     <string name="studio_label_tab_shape">מסגרת היקפית</string>
+    <string name="studio_label_tab_text_template">תבניות</string>
+    <string name="studio_label_tab_more">עוד</string>
+    <string name="studio_text_template_classic">קלאסי</string>
+    <string name="studio_text_template_gradient">מעבר צבע</string>
+    <string name="studio_text_template_sale">מבצע</string>
+    <string name="studio_text_template_arc">קשת</string>
+    <string name="studio_text_template_outline">מתאר</string>
+    <string name="studio_text_template_neon">ניאון</string>
+    <string name="studio_text_template_soft">רך</string>
+    <string name="studio_text_template_poster">פוסטר</string>
+    <string name="studio_text_template_minimal">מינימלי</string>
+    <string name="studio_text_template_gold">זהב</string>
+    <string name="studio_text_template_retro">רטרו</string>
+    <string name="studio_text_template_ocean">אוקיינוס</string>
+    <string name="studio_label_elevation_disabled_by_text_form">אפקט הבליטה אינו זמין כשצורת הטקסט האמנותית פעילה.</string>
+    <string name="studio_text_form_path_hint">גררו את העוצמה כדי לכופף את נתיב הטקסט. ריווח האותיות עוזר למנוע חפיפת גליפים.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">מערכת</string>

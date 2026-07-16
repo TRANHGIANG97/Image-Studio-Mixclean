@@ -11,11 +11,14 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
 import com.thgiang.image.studio.ui.editor.model.TextFormCategory
+import com.thgiang.image.studio.ui.editor.model.TextFormEffect
 import com.thgiang.image.studio.ui.editor.model.TextFormPreset
 import com.thgiang.image.studio.util.FontDownloader
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sin
 
 data class GlyphDrawSpec(
@@ -145,14 +148,20 @@ object TextFormLayoutEngine {
         }
 
         val transformed = when (preset.category) {
-            TextFormCategory.FOLLOW_PATH -> transformFollowPath(
-                preset = preset,
-                centers = centers,
-                totalWidth = totalWidth,
+            TextFormCategory.FOLLOW_PATH -> centerGlyphsInBox(
+                glyphs = transformFollowPath(
+                    preset = preset,
+                    centers = centers,
+                    startX = startX,
+                    totalWidth = totalWidth,
+                    boxWidth = boxWidth,
+                    boxHeight = boxHeight,
+                    amount = amount,
+                    reversePath = reversePath,
+                ),
                 boxWidth = boxWidth,
                 boxHeight = boxHeight,
-                amount = amount,
-                reversePath = reversePath,
+                fontMetrics = fm,
             )
             TextFormCategory.WARP -> transformWarp(
                 preset = preset,
@@ -225,9 +234,17 @@ object TextFormLayoutEngine {
         )
     }
 
+    /**
+     * Maps slider amount (0..MAX_AMOUNT) to warp/path curvature (0..1).
+     * At 0 the text stays flat with natural glyph spacing; only deformation scales up.
+     */
+    private fun curvatureFactor(amount: Float): Float =
+        (amount / TextFormEffect.MAX_AMOUNT).coerceIn(0f, 1f)
+
     private fun transformFollowPath(
         preset: TextFormPreset,
         centers: List<Pair<Float, Float>>,
+        startX: Float,
         totalWidth: Float,
         boxWidth: Float,
         boxHeight: Float,
@@ -239,92 +256,150 @@ object TextFormLayoutEngine {
 
         val cx = boxWidth / 2f
         val cy = boxHeight / 2f
-        val intensity = amount.coerceIn(0f, 1f)
+        val curve = curvatureFactor(amount)
+        if (curve <= 0.001f) return centers.map { it to 0f }
 
         return when (preset) {
             TextFormPreset.PATH_WAVE -> {
-                val amplitude = boxHeight * 0.22f * intensity
+                val amplitude = boxHeight * 0.22f * curve
                 val cycles = 1.5f
+                val safeWidth = totalWidth.coerceAtLeast(1f)
                 centers.mapIndexed { i, (x, y) ->
-                    val u = if (n <= 1) 0.5f else i.toFloat() / (n - 1)
+                    val u = ((x - startX) / safeWidth).coerceIn(0f, 1f)
                     val waveY = y + amplitude * sin(2f * PI.toFloat() * cycles * u)
                     val rot = Math.toDegrees(
-                        (amplitude * 2f * PI.toFloat() * cycles * cos(2f * PI.toFloat() * cycles * u) / totalWidth).toDouble(),
-                    ).toFloat().coerceIn(-45f, 45f)
+                        (amplitude * 2f * PI.toFloat() * cycles * cos(2f * PI.toFloat() * cycles * u) / safeWidth).toDouble(),
+                    ).toFloat().coerceIn(-45f, 45f) * curve
                     (x to waveY) to rot
                 }
             }
 
             TextFormPreset.PATH_ARC_UP -> {
-                val radius = (totalWidth / PI.toFloat()).coerceAtLeast(boxHeight * 0.15f) * (0.55f + intensity * 0.65f)
-                val arcCenterY = cy + radius * 0.35f
-                arcAlongSemicircle(centers, cx, arcCenterY, radius, up = true, reversePath)
+                val sweep = PI.toFloat() * curve
+                val radius = totalWidth / sweep.coerceAtLeast(0.001f)
+                // Circle center sits below the frame; upper arc peak aligns with vertical center at full bend.
+                val arcCenterY = cy + radius
+                placeAlongArc(
+                    centers = centers,
+                    startX = startX,
+                    totalWidth = totalWidth,
+                    arcCenterX = cx,
+                    arcCenterY = arcCenterY,
+                    radius = radius,
+                    sweepRadians = sweep,
+                    startAngle = PI.toFloat(),
+                    flipVertical = false,
+                    reversePath = reversePath,
+                    blend = curve,
+                )
             }
 
             TextFormPreset.PATH_ARC_DOWN -> {
-                val radius = (totalWidth / PI.toFloat()).coerceAtLeast(boxHeight * 0.15f) * (0.55f + intensity * 0.65f)
-                val arcCenterY = cy - radius * 0.35f
-                arcAlongSemicircle(centers, cx, arcCenterY, radius, up = false, reversePath)
+                val sweep = PI.toFloat() * curve
+                val radius = totalWidth / sweep.coerceAtLeast(0.001f)
+                val arcCenterY = cy - radius
+                placeAlongArc(
+                    centers = centers,
+                    startX = startX,
+                    totalWidth = totalWidth,
+                    arcCenterX = cx,
+                    arcCenterY = arcCenterY,
+                    radius = radius,
+                    sweepRadians = sweep,
+                    startAngle = 0f,
+                    flipVertical = false,
+                    reversePath = reversePath,
+                    blend = curve,
+                )
             }
 
             TextFormPreset.PATH_CIRCLE -> {
-                val radius = minOf(boxWidth, boxHeight) * 0.32f * (0.45f + intensity * 0.55f)
-                circleAlongRing(centers, cx, cy, radius, fullCircle = true, reversePath)
-            }
-
-            TextFormPreset.PATH_RING -> {
-                val radius = minOf(boxWidth, boxHeight) * 0.28f * (0.35f + intensity * 0.5f)
-                circleAlongRing(centers, cx, cy, radius, fullCircle = false, reversePath)
+                val sweep = 2f * PI.toFloat() * curve
+                // Circumference 2πr; spacing widens totalWidth, intensity opens the ring further.
+                val intensityExpansion = 1f + curve * 1.5f
+                val radius = (totalWidth / (2f * PI.toFloat())).coerceAtLeast(1f) * intensityExpansion
+                placeAlongArc(
+                    centers = centers,
+                    startX = startX,
+                    totalWidth = totalWidth,
+                    arcCenterX = cx,
+                    arcCenterY = cy,
+                    radius = radius,
+                    sweepRadians = sweep,
+                    startAngle = -PI.toFloat() / 2f - sweep / 2f,
+                    flipVertical = false,
+                    reversePath = reversePath,
+                    blend = curve,
+                )
             }
 
             else -> centers.map { it to 0f }
         }
     }
 
-    private fun arcAlongSemicircle(
+    /**
+     * Places glyphs along a circular arc using advance-based horizontal position (u),
+     * then blends toward flat layout so low intensity reduces bend — not letter spacing.
+     */
+    private fun placeAlongArc(
         centers: List<Pair<Float, Float>>,
-        centerX: Float,
-        centerY: Float,
+        startX: Float,
+        totalWidth: Float,
+        arcCenterX: Float,
+        arcCenterY: Float,
         radius: Float,
-        up: Boolean,
+        sweepRadians: Float,
+        startAngle: Float,
+        flipVertical: Boolean,
         reversePath: Boolean,
+        blend: Float,
     ): List<Pair<Pair<Float, Float>, Float>> {
-        val n = centers.size
-        val startAngle = if (up) PI.toFloat() else 0f
-        val endAngle = if (up) 0f else PI.toFloat()
-        val step = if (n <= 1) 0f else (endAngle - startAngle) / (n - 1)
+        val safeWidth = totalWidth.coerceAtLeast(1f)
+        val verticalSign = if (flipVertical) -1f else 1f
 
-        return centers.mapIndexed { i, _ ->
-            val t = if (reversePath) (n - 1 - i) else i
-            val angle = startAngle + step * t
-            val px = centerX + radius * cos(angle)
-            val py = centerY + radius * sin(angle) * if (up) -1f else 1f
-            val tangent = angle + (if (up) -PI.toFloat() / 2f else PI.toFloat() / 2f)
-            val rot = Math.toDegrees(tangent.toDouble()).toFloat()
-            (px to py) to rot
+        return centers.map { flat ->
+            val u = ((flat.first - startX) / safeWidth).coerceIn(0f, 1f)
+            val t = if (reversePath) 1f - u else u
+            val angle = startAngle + sweepRadians * t
+            val px = arcCenterX + radius * cos(angle)
+            val py = arcCenterY + radius * sin(angle) * verticalSign
+            val tangent = angle + PI.toFloat() / 2f * verticalSign
+            val rot = Math.toDegrees(tangent.toDouble()).toFloat() * blend
+            val x = flat.first + (px - flat.first) * blend
+            val y = flat.second + (py - flat.second) * blend
+            (x to y) to rot
         }
     }
 
-    private fun circleAlongRing(
-        centers: List<Pair<Float, Float>>,
-        centerX: Float,
-        centerY: Float,
-        radius: Float,
-        fullCircle: Boolean,
-        reversePath: Boolean,
+    /** Centers warped glyph baselines inside the shape box using font-metric extents. */
+    private fun centerGlyphsInBox(
+        glyphs: List<Pair<Pair<Float, Float>, Float>>,
+        boxWidth: Float,
+        boxHeight: Float,
+        fontMetrics: Paint.FontMetrics,
     ): List<Pair<Pair<Float, Float>, Float>> {
-        val n = centers.size
-        val sweep = if (fullCircle) 2f * PI.toFloat() else PI.toFloat() * 1.35f
-        val start = -PI.toFloat() / 2f - sweep / 2f
-        val step = if (n <= 1) 0f else sweep / (n - 1)
+        if (glyphs.isEmpty()) return glyphs
 
-        return centers.mapIndexed { i, _ ->
-            val t = if (reversePath) (n - 1 - i) else i
-            val angle = start + step * t
-            val px = centerX + radius * cos(angle)
-            val py = centerY + radius * sin(angle)
-            val rot = Math.toDegrees((angle + PI.toFloat() / 2f).toDouble()).toFloat()
-            (px to py) to rot
+        var minX = Float.MAX_VALUE
+        var maxX = Float.MIN_VALUE
+        var minY = Float.MAX_VALUE
+        var maxY = Float.MIN_VALUE
+        val halfWidth = max(-fontMetrics.ascent, fontMetrics.descent)
+
+        glyphs.forEach { (point, _) ->
+            val (x, baselineY) = point
+            minX = min(minX, x - halfWidth)
+            maxX = max(maxX, x + halfWidth)
+            minY = min(minY, baselineY + fontMetrics.ascent)
+            maxY = max(maxY, baselineY + fontMetrics.descent)
+        }
+
+        val dx = (boxWidth - (maxX - minX)) / 2f - minX
+        val dy = (boxHeight - (maxY - minY)) / 2f - minY
+        if (kotlin.math.abs(dx) < 0.5f && kotlin.math.abs(dy) < 0.5f) return glyphs
+
+        return glyphs.map { (point, rotation) ->
+            (point.first + dx to point.second + dy) to rotation
         }
     }
 
@@ -336,25 +411,31 @@ object TextFormLayoutEngine {
         boxHeight: Float,
         amount: Float,
     ): List<Pair<Pair<Float, Float>, Float>> {
-        val intensity = amount.coerceIn(0f, 1f)
-        val n = centers.size
+        val curve = curvatureFactor(amount)
+        if (curve <= 0.001f) return centers.map { it to 0f }
 
-        fun uAt(index: Int): Float =
-            if (n <= 1) 0.5f else index.toFloat() / (n - 1)
+        val n = centers.size
+        val safeWidth = totalWidth.coerceAtLeast(1f)
+
+        fun uAt(index: Int): Float {
+            if (n <= 1) return 0.5f
+            val x = centers[index].first
+            return ((x - startX) / safeWidth).coerceIn(0f, 1f)
+        }
 
         return centers.mapIndexed { i, (cx, cy) ->
             val u = uAt(i)
             val v = 0.5f
-            val (dx, dy) = warpDelta(preset, u, v, totalWidth, boxHeight, intensity)
+            val (dx, dy) = warpDelta(preset, u, v, totalWidth, boxHeight, curve)
             val newX = cx + dx
             val newY = cy + dy
 
             val uPrev = uAt((i - 1).coerceAtLeast(0))
             val uNext = uAt((i + 1).coerceAtMost(n - 1))
-            val (_, dyPrev) = warpDelta(preset, uPrev, v, totalWidth, boxHeight, intensity)
-            val (_, dyNext) = warpDelta(preset, uNext, v, totalWidth, boxHeight, intensity)
+            val (_, dyPrev) = warpDelta(preset, uPrev, v, totalWidth, boxHeight, curve)
+            val (_, dyNext) = warpDelta(preset, uNext, v, totalWidth, boxHeight, curve)
             val slope = if (uNext - uPrev != 0f) {
-                (dyNext - dyPrev) / ((uNext - uPrev) * totalWidth.coerceAtLeast(1f))
+                (dyNext - dyPrev) / ((uNext - uPrev) * safeWidth)
             } else {
                 0f
             }
@@ -369,45 +450,37 @@ object TextFormLayoutEngine {
         v: Float,
         width: Float,
         height: Float,
-        intensity: Float,
+        curve: Float,
     ): Pair<Float, Float> {
         val arch = 4f * u * (1f - u)
         return when (preset) {
             TextFormPreset.WARP_ARCH_UP ->
-                0f to (-height * 0.38f * intensity * arch)
+                0f to (-height * 0.38f * curve * arch)
             TextFormPreset.WARP_ARCH_DOWN ->
-                0f to (height * 0.38f * intensity * arch)
+                0f to (height * 0.38f * curve * arch)
             TextFormPreset.WARP_BULGE -> {
-                val bulge = sin(u * PI.toFloat()) * intensity
+                val bulge = sin(u * PI.toFloat()) * curve
                 val dx = (u - 0.5f) * width * 0.08f * bulge
                 val dy = -height * 0.12f * bulge
                 dx to dy
             }
             TextFormPreset.WARP_WAVE ->
-                0f to (height * 0.22f * intensity * sin(u * 2f * PI.toFloat() * 2f))
+                0f to (height * 0.22f * curve * sin(u * 2f * PI.toFloat() * 2f))
             TextFormPreset.WARP_FLAG -> {
-                val wave = sin(u * PI.toFloat() * 3f) * intensity
+                val wave = sin(u * PI.toFloat() * 3f) * curve
                 (width * 0.06f * wave) to (height * 0.08f * wave)
             }
             TextFormPreset.WARP_RISE ->
-                0f to (-height * 0.35f * intensity * (u - 0.5f))
+                0f to (-height * 0.35f * curve * (u - 0.5f))
             TextFormPreset.WARP_FALL ->
-                0f to (height * 0.35f * intensity * (u - 0.5f))
-            TextFormPreset.WARP_INFLATE -> {
-                val scale = 1f + intensity * 0.35f * (1f - 2f * kotlin.math.abs(u - 0.5f))
-                0f to (-height * 0.08f * (scale - 1f))
-            }
-            TextFormPreset.WARP_DEFLATE -> {
-                val scale = 1f - intensity * 0.3f * (1f - 2f * kotlin.math.abs(u - 0.5f))
-                0f to (height * 0.08f * (1f - scale))
-            }
+                0f to (height * 0.35f * curve * (u - 0.5f))
             TextFormPreset.WARP_CHEVRON_UP -> {
                 val chevron = if (u < 0.5f) u * 2f else (1f - u) * 2f
-                0f to (-height * 0.32f * intensity * chevron)
+                0f to (-height * 0.32f * curve * chevron)
             }
             TextFormPreset.WARP_CHEVRON_DOWN -> {
                 val chevron = if (u < 0.5f) u * 2f else (1f - u) * 2f
-                0f to (height * 0.32f * intensity * chevron)
+                0f to (height * 0.32f * curve * chevron)
             }
             else -> 0f to 0f
         }
@@ -428,6 +501,24 @@ object TextFormLayoutEngine {
             extents.right.coerceAtMost(boxWidth),
             extents.bottom.coerceAtMost(boxHeight),
         )
+    }
+
+    /** Union of glyph draw positions in local box space (matches [computeGlyphs] coordinates). */
+    fun glyphContentBounds(glyphs: List<GlyphDrawSpec>, textSizePx: Float): RectF? {
+        if (glyphs.isEmpty()) return null
+
+        var left = Float.MAX_VALUE
+        var top = Float.MAX_VALUE
+        var right = Float.MIN_VALUE
+        var bottom = Float.MIN_VALUE
+        val half = textSizePx * 0.55f
+        glyphs.forEach { glyph ->
+            left = minOf(left, glyph.x - half)
+            top = minOf(top, glyph.y - textSizePx)
+            right = maxOf(right, glyph.x + half)
+            bottom = maxOf(bottom, glyph.y + textSizePx * 0.2f)
+        }
+        return RectF(left, top, right, bottom)
     }
 
     /** Unclamped glyph union used for text-form shape fitting. */
@@ -454,19 +545,7 @@ object TextFormLayoutEngine {
             textSizePx = textSizePx,
         )
         if (glyphs.isEmpty()) return null
-
-        var left = Float.MAX_VALUE
-        var top = Float.MAX_VALUE
-        var right = Float.MIN_VALUE
-        var bottom = Float.MIN_VALUE
-        val half = textSizePx * 0.55f
-        glyphs.forEach { g ->
-            left = minOf(left, g.x - half)
-            top = minOf(top, g.y - textSizePx)
-            right = maxOf(right, g.x + half)
-            bottom = maxOf(bottom, g.y + textSizePx * 0.2f)
-        }
-        return RectF(left, top, right, bottom)
+        return glyphContentBounds(glyphs, textSizePx)
     }
 
     private fun buildTextPaint(

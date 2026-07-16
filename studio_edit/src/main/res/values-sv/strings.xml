@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Jul</string>
     <string name="themeplate_section_memories">Minnen</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Mat-selfie 1</string>
     <string name="themeplate_selfie_food_02">Mat-selfie 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Ramfärg</string>
     <string name="studio_stroke_tab_style">Linjestil</string>
     <string name="studio_stroke_tab_width">Tjocklek</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Ingen ram</string>
     <string name="studio_dash_solid">Heldragen linje</string>
     <string name="studio_dash_round_dot">Runda punkter</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Följ bana</string>
     <string name="studio_text_form_warp">Förvrid</string>
     <string name="studio_text_form_amount">Intensitet</string>
+    <string name="studio_text_form_letter_spacing">Teckenavstånd</string>
     <string name="studio_text_form_none">Ingen</string>
     <string name="studio_text_form_path_wave">Våg</string>
     <string name="studio_text_form_path_arc_up">Båge uppåt</string>
     <string name="studio_text_form_path_arc_down">Båge nedåt</string>
     <string name="studio_text_form_path_circle">Cirkel</string>
-    <string name="studio_text_form_path_ring">Ring</string>
-    <string name="studio_text_form_warp_arch_up">Valv uppåt</string>
+<string name="studio_text_form_warp_arch_up">Valv uppåt</string>
     <string name="studio_text_form_warp_arch_down">Valv nedåt</string>
     <string name="studio_text_form_warp_bulge">Bula</string>
     <string name="studio_text_form_warp_wave">Våg</string>
     <string name="studio_text_form_warp_flag">Flagga</string>
     <string name="studio_text_form_warp_rise">Stigning</string>
     <string name="studio_text_form_warp_fall">Fall</string>
-    <string name="studio_text_form_warp_inflate">Blås upp</string>
-    <string name="studio_text_form_warp_deflate">Töm på luft</string>
     <string name="studio_text_form_warp_chevron_up">Chevron uppåt</string>
     <string name="studio_text_form_warp_chevron_down">Chevron nedåt</string>
     <string name="studio_objects_label">Objekt</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Konstnärlig</string>
     <string name="studio_label_tab_shape">Ram</string>
+    <string name="studio_label_tab_text_template">Mallar</string>
+    <string name="studio_label_tab_more">Mer</string>
+    <string name="studio_text_template_classic">Klassisk</string>
+    <string name="studio_text_template_gradient">Övertoning</string>
+    <string name="studio_text_template_sale">Rea</string>
+    <string name="studio_text_template_arc">Båge</string>
+    <string name="studio_text_template_outline">Kontur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Mjuk</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Guld</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ocean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Relief är inte tillgängligt när konstnärlig textform är aktiv.</string>
+    <string name="studio_text_form_path_hint">Dra intensiteten för att böja textbanan. Teckenavstånd hjälper till att undvika överlappande glyfer.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">System</string>

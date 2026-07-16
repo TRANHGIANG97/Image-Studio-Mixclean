@@ -23,6 +23,11 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import com.thgiang.image.core.data.backgroundremove.GooglePlayServicesHelper
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +65,30 @@ fun RemoveBgModeScreen(
     val context = LocalContext.current
     val viewModel: RemoveBgModeViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.playServicesUpdateRecommended, state.selfieFallbackUsed) {
+        when {
+            state.playServicesUpdateRecommended -> {
+                val result = snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.play_services_update_message),
+                    actionLabel = context.getString(R.string.play_services_update_action),
+                    duration = SnackbarDuration.Long,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    GooglePlayServicesHelper.openUpdatePage(context)
+                }
+                viewModel.clearUserNotices()
+            }
+            state.selfieFallbackUsed -> {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.remove_bg_selfie_fallback_warning),
+                    duration = SnackbarDuration.Long,
+                )
+                viewModel.clearUserNotices()
+            }
+        }
+    }
 
     // Tooltip preference
     val prefs = remember { context.getSharedPreferences("remove_bg_prefs", Context.MODE_PRIVATE) }
@@ -88,12 +117,15 @@ fun RemoveBgModeScreen(
         Unit
     } }
 
-    ConstraintLayout(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .statusBarsPadding()
+            .statusBarsPadding(),
     ) {
+        ConstraintLayout(
+            modifier = Modifier.fillMaxSize(),
+        ) {
         val (topToolBar, mainImage, bottomToolbar, navBarZone, tooltipRef) = createRefs()
 
         Spacer(
@@ -251,5 +283,12 @@ fun RemoveBgModeScreen(
             }
         }
 
+        }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 96.dp),
+        )
     }
 }

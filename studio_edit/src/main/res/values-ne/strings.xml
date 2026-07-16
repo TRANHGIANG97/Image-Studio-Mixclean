@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">क्रिसमस</string>
     <string name="themeplate_section_memories">यादहरू</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">सेल्फी फूड १</string>
     <string name="themeplate_selfie_food_02">सेल्फी फूड २</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">बोर्डरको रङ</string>
     <string name="studio_stroke_tab_style">लाइनको शैली</string>
     <string name="studio_stroke_tab_width">मोटाई</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">कुनै बोर्डर छैन</string>
     <string name="studio_dash_solid">ठोस लाइन</string>
     <string name="studio_dash_round_dot">गोलो थोप्लाहरू</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">मार्ग पछ्याउनुहोस्</string>
     <string name="studio_text_form_warp">बङ्ग्याउनुहोस् (वार्प)</string>
     <string name="studio_text_form_amount">तीव्रता</string>
+    <string name="studio_text_form_letter_spacing">अक्षर दूरी</string>
     <string name="studio_text_form_none">कुनै पनि होइन</string>
     <string name="studio_text_form_path_wave">तरङ्ग (वेभ)</string>
     <string name="studio_text_form_path_arc_up">माथि चाप (आर्क)</string>
     <string name="studio_text_form_path_arc_down">तल चाप (आर्क)</string>
     <string name="studio_text_form_path_circle">वृत्त</string>
-    <string name="studio_text_form_path_ring">औंठी आकार</string>
-    <string name="studio_text_form_warp_arch_up">माथि आर्च</string>
+<string name="studio_text_form_warp_arch_up">माथि आर्च</string>
     <string name="studio_text_form_warp_arch_down">तल आर्च</string>
     <string name="studio_text_form_warp_bulge">उत्तल (बल्ज)</string>
     <string name="studio_text_form_warp_wave">तरङ्ग</string>
     <string name="studio_text_form_warp_flag">झण्डा</string>
     <string name="studio_text_form_warp_rise">उदय (राइज)</string>
     <string name="studio_text_form_warp_fall">पतन (फल)</string>
-    <string name="studio_text_form_warp_inflate">फुलाउनुहोस्</string>
-    <string name="studio_text_form_warp_deflate">खुम्च्याउनुहोस्</string>
     <string name="studio_text_form_warp_chevron_up">माथि चेभरन</string>
     <string name="studio_text_form_warp_chevron_down">तल चेभरन</string>
     <string name="studio_objects_label">वस्तुहरू</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">प्रभाव</string>
     <string name="studio_label_tab_text_form">कलात्मक</string>
     <string name="studio_label_tab_shape">फ्रेम</string>
+    <string name="studio_label_tab_text_template">टेम्प्लेट</string>
+    <string name="studio_label_tab_more">थप</string>
+    <string name="studio_text_template_classic">क्लासिक</string>
+    <string name="studio_text_template_gradient">ग्रेडियन्ट</string>
+    <string name="studio_text_template_sale">सेल</string>
+    <string name="studio_text_template_arc">चाप</string>
+    <string name="studio_text_template_outline">आउटलाइन</string>
+    <string name="studio_text_template_neon">नियोन</string>
+    <string name="studio_text_template_soft">नरम</string>
+    <string name="studio_text_template_poster">पोस्टर</string>
+    <string name="studio_text_template_minimal">मिनिमल</string>
+    <string name="studio_text_template_gold">सुनौलो</string>
+    <string name="studio_text_template_retro">रेट्रो</string>
+    <string name="studio_text_template_ocean">सागर</string>
+    <string name="studio_label_elevation_disabled_by_text_form">कलात्मक पाठ फारम सक्रिय हुँदा उचाइ प्रभाव उपलब्ध हुँदैन।</string>
+    <string name="studio_text_form_path_hint">बाटो मोड्न तीव्रता स्लाइडर तान्नुहोस्। अक्षर दूरीले ग्लिफ ओभरल्याप हुनबाट जोगाउन मद्दत गर्छ।</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">सिस्टम</string>

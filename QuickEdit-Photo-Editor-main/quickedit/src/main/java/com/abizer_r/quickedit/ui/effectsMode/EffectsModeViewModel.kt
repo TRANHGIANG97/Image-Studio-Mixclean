@@ -1,9 +1,11 @@
 package com.abizer_r.quickedit.ui.effectsMode
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.abizer_r.quickedit.ui.effectsMode.effectsPreview.EffectItem
+import com.abizer_r.quickedit.ui.effectsMode.effectsPreview.EffectRecipe
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,16 +49,35 @@ class EffectsModeViewModel @Inject constructor(
 
     fun selectEffect(selectedIndex: Int) {
         if (selectedIndex < 0 || selectedIndex >= state.value.effectsList.size) {
-            Log.e("EffectsModeViewModel", "selectEffect: index out of bound, selectedIndex = $selectedIndex", )
+            Log.e("EffectsModeViewModel", "selectEffect: index out of bound, selectedIndex = $selectedIndex")
             return
         }
-        _state.update { it.copy(
-            selectedEffectIndex = selectedIndex,
-            filteredBitmap = state.value.effectsList[selectedIndex].ogBitmap
-        ) }
+        _state.update {
+            it.copy(
+                selectedEffectIndex = selectedIndex,
+                filteredBitmap = state.value.effectsList[selectedIndex].ogBitmap
+            )
+        }
+    }
+
+    fun selectedRecipe(): EffectRecipe {
+        val list = _state.value.effectsList
+        val index = _state.value.selectedEffectIndex
+        return list.getOrNull(index)?.recipe ?: EffectRecipe.Original
     }
 
     override fun onCleared() {
         super.onCleared()
+        val items = _state.value.effectsList
+        val recycled = mutableSetOf<Bitmap>()
+        items.forEach { item ->
+            listOf(item.ogBitmap, item.previewBitmap).forEach { bmp ->
+                if (bmp !in recycled && !bmp.isRecycled) {
+                    recycled.add(bmp)
+                    bmp.recycle()
+                }
+            }
+        }
+        _state.value = EffectsModeState()
     }
 }

@@ -7,6 +7,10 @@ package com.thgiang.image.studio.ui.editor.model
 data class GesturePreview(
     val anchorLayerId: String,
     val layers: List<EditorLayer>,
+    /** True when a label layer was corner-scaled (textSizeSp changed) during this gesture. */
+    val labelTextScaled: Boolean = false,
+    /** True when width-edge resize ran (commit should hug height). */
+    val labelWidthResized: Boolean = false,
 ) {
     fun layersForRender(base: List<EditorLayer>): List<EditorLayer> = layers
 }

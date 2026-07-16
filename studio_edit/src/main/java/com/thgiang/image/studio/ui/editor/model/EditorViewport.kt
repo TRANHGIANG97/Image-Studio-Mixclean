@@ -22,7 +22,7 @@ data class EditorViewport(
 
     fun isIdentity(): Boolean = this == IDENTITY
 
-    fun withScale(newScale: Float): EditorViewport = copy(scale = newScale.coerceIn(0.1f, 5f))
+    fun withScale(newScale: Float): EditorViewport = copy(scale = newScale.coerceIn(0.05f, 40f))
 
     fun withOffset(newOffset: Offset): EditorViewport = copy(offsetX = newOffset.x, offsetY = newOffset.y)
 

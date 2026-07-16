@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">නත්තල්</string>
     <string name="themeplate_section_memories">මතකයන්</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">ආහාර සෙල්ෆි 1</string>
     <string name="themeplate_selfie_food_02">ආහාර සෙල්ෆි 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">දාරයේ වර්ණය</string>
     <string name="studio_stroke_tab_style">රේඛා විලාසය</string>
     <string name="studio_stroke_tab_width">ඝනකම</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">දාරයක් නැත</string>
     <string name="studio_dash_solid">ඝන රේඛාව</string>
     <string name="studio_dash_round_dot">වටකුරු තිත්</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">පථය අනුගමනය කරන්න</string>
     <string name="studio_text_form_warp">වක්‍ර කරන්න (Warp)</string>
     <string name="studio_text_form_amount">තීව්‍රතාව</string>
+    <string name="studio_text_form_letter_spacing">අකුරු පරතරය</string>
     <string name="studio_text_form_none">නැත</string>
     <string name="studio_text_form_path_wave">රැල්ල</string>
     <string name="studio_text_form_path_arc_up">ඉහළට චාපය</string>
     <string name="studio_text_form_path_arc_down">පහළට චාපය</string>
     <string name="studio_text_form_path_circle">වෘත්තය</string>
-    <string name="studio_text_form_path_ring">මුදුව</string>
-    <string name="studio_text_form_warp_arch_up">ඉහළට ආරුක්කුව</string>
+<string name="studio_text_form_warp_arch_up">ඉහළට ආරුක්කුව</string>
     <string name="studio_text_form_warp_arch_down">පහළට ආරුක්කුව</string>
     <string name="studio_text_form_warp_bulge">පිම්බීම</string>
     <string name="studio_text_form_warp_wave">රැල්ල</string>
     <string name="studio_text_form_warp_flag">කොඩිය</string>
     <string name="studio_text_form_warp_rise">නැගීම</string>
     <string name="studio_text_form_warp_fall">බැසීම</string>
-    <string name="studio_text_form_warp_inflate">පිම්බවීම</string>
-    <string name="studio_text_form_warp_deflate">හැකිලීම</string>
     <string name="studio_text_form_warp_chevron_up">ඉහළට ෂෙව්රොන් හැඩය</string>
     <string name="studio_text_form_warp_chevron_down">පහළට ෂෙව්රොන් හැඩය</string>
     <string name="studio_objects_label">වස්තූන්</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">බලපෑම</string>
     <string name="studio_label_tab_text_form">කලාත්මක</string>
     <string name="studio_label_tab_shape">රාමුව</string>
+    <string name="studio_label_tab_text_template">සැකිලි</string>
+    <string name="studio_label_tab_more">තවත්</string>
+    <string name="studio_text_template_classic">සම්ප්‍රදායික</string>
+    <string name="studio_text_template_gradient">ග්‍රේඩියන්ට්</string>
+    <string name="studio_text_template_sale">විකුණුම්</string>
+    <string name="studio_text_template_arc">චාපය</string>
+    <string name="studio_text_template_outline">දාරය</string>
+    <string name="studio_text_template_neon">නියෝන්</string>
+    <string name="studio_text_template_soft">මෘදු</string>
+    <string name="studio_text_template_poster">පෝස්ටර්</string>
+    <string name="studio_text_template_minimal">අවම</string>
+    <string name="studio_text_template_gold">රන්</string>
+    <string name="studio_text_template_retro">රෙට්රෝ</string>
+    <string name="studio_text_template_ocean">සාගර</string>
+    <string name="studio_label_elevation_disabled_by_text_form">කලාත්මක පෙළ සක්රිය විට උසස් කිරීම භාවිතා කළ නොහැක.</string>
+    <string name="studio_text_form_path_hint">මාර්ගය නැමීමට තීව්රතාව ඇදන්න. අකුරු පරතරය අතිච්ඡාදනය වළක්වයි.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">පද්ධතිය</string>

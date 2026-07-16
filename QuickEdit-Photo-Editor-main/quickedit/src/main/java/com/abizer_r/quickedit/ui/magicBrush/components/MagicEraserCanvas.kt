@@ -369,7 +369,7 @@ private fun DrawScope.drawBrushIndicator(
 @Composable
 private fun rememberCheckerboardBrush(density: Density): ShaderBrush {
     val bmp = remember(density) { createCheckerboardBitmap(density) }
-    DisposableEffect(bmp) { onDispose { if (!bmp.isRecycled) bmp.recycle() } }
+    // Do not recycle — ImageShader may still reference this bitmap during disposal.
     return remember(bmp) {
         ShaderBrush(ImageShader(bmp.asImageBitmap(), TileMode.Repeated, TileMode.Repeated))
     }

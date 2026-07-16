@@ -53,7 +53,7 @@
     <string name="studio_zoom_label">%1$d%%</string>
     <string name="studio_pick_product_title">Produktbild hinzufügen</string>
     <string name="studio_pick_product_subtitle">Hintergrund wird automatisch entfernt</string>
-    <string name="studio_export">Exportieren</string>
+    <string name="studio_export">Export</string>
     <string name="studio_crop_ratio_original">Original</string>
     <string name="themeplate_professional_watch">Betrachten</string>
     <string name="themeplate_professional_perfume">Parfüm</string>
@@ -114,7 +114,7 @@
     <string name="studio_confirm_exit_action">Verwerfen</string>
     <string name="studio_confirm_exit_cancel">Bearbeiten Sie weiter</string>
     <string name="studio_share">Aktie</string>
-    <string name="studio_save_draft">Entwurf speichern</string>
+    <string name="studio_save_draft">Entwurf</string>
     <string name="studio_save_draft_dialog_title">Aktuelle Arbeit speichern?</string>
     <string name="studio_save_draft_dialog_message">Dieses Design als Entwurf speichern, um später fortzufahren?</string>
     <string name="studio_save_draft_confirm">Entwurf speichern</string>
@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">Folgen Sie dem Pfad</string>
     <string name="studio_text_form_warp">Kette</string>
     <string name="studio_text_form_amount">Intensität</string>
+    <string name="studio_text_form_letter_spacing">Zeichenabstand</string>
     <string name="studio_text_form_none">Keiner</string>
     <string name="studio_text_form_path_wave">Welle</string>
     <string name="studio_text_form_path_arc_up">Bogen hoch</string>
     <string name="studio_text_form_path_arc_down">Bogen nach unten</string>
     <string name="studio_text_form_path_circle">Kreis</string>
-    <string name="studio_text_form_path_ring">Ring</string>
-    <string name="studio_text_form_warp_arch_up">Bogen hoch</string>
+<string name="studio_text_form_warp_arch_up">Bogen hoch</string>
     <string name="studio_text_form_warp_arch_down">Bogen nach unten</string>
     <string name="studio_text_form_warp_bulge">Ausbuchtung</string>
     <string name="studio_text_form_warp_wave">Welle</string>
     <string name="studio_text_form_warp_flag">Flagge</string>
     <string name="studio_text_form_warp_rise">Erheben</string>
     <string name="studio_text_form_warp_fall">Fallen</string>
-    <string name="studio_text_form_warp_inflate">Aufblasen</string>
-    <string name="studio_text_form_warp_deflate">Luft ablassen</string>
     <string name="studio_text_form_warp_chevron_up">Chevron hoch</string>
     <string name="studio_text_form_warp_chevron_down">Chevron nach unten</string>
     <string name="studio_objects_label">Objekte</string>
@@ -257,6 +255,8 @@
     <string name="studio_stroke_tab_color">Randfarbe</string>
     <string name="studio_stroke_tab_style">Linienstil</string>
     <string name="studio_stroke_tab_width">Dicke</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Keine Grenze</string>
     <string name="studio_dash_solid">Solide</string>
     <string name="studio_dash_round_dot">Runde Punkte</string>
@@ -286,10 +286,10 @@
     <string name="studio_color_blue_gray">Blaugrau</string>
     <string name="studio_color_gray">Grau</string>
     <string name="studio_color_black">Schwarz</string>
-    <string name="studio_action_collapse">Zusammenbruch</string>
-    <string name="studio_action_duplicate">Duplikat</string>
-    <string name="studio_action_bring_forward">Vorwärts bringen</string>
-    <string name="studio_action_send_backward">Nach hinten senden</string>
+    <string name="studio_action_collapse">Einklappen</string>
+    <string name="studio_action_duplicate">Duplizieren</string>
+    <string name="studio_action_bring_forward">Nach vorne</string>
+    <string name="studio_action_send_backward">Nach hinten</string>
     <string name="studio_action_lock">Sperren</string>
     <string name="studio_action_unlock">Entsperren</string>
     <string name="studio_action_delete">Löschen</string>
@@ -305,6 +305,22 @@
     <string name="studio_label_tab_elevation">Wirkung</string>
     <string name="studio_label_tab_text_form">Künstlerisch</string>
     <string name="studio_label_tab_shape">Rahmen</string>
+    <string name="studio_label_tab_text_template">Vorlagen</string>
+    <string name="studio_label_tab_more">Mehr</string>
+    <string name="studio_text_template_classic">Klassisch</string>
+    <string name="studio_text_template_gradient">Verlauf</string>
+    <string name="studio_text_template_sale">Sale</string>
+    <string name="studio_text_template_arc">Bogen</string>
+    <string name="studio_text_template_outline">Kontur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Weich</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Gold</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ozean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Die Tiefenwirkung ist nicht verfügbar, solange die künstlerische Textform aktiv ist.</string>
+    <string name="studio_text_form_path_hint">Ziehen Sie die Intensität, um den Textpfad zu biegen. Der Zeichenabstand hilft, Überlappungen zu vermeiden.</string>
     <string name="studio_font_category_system">System</string>
     <string name="studio_label_document_styles">Dokumentstile</string>
     <string name="studio_label_style_title">Titel</string>
@@ -324,6 +340,8 @@
     <string name="studio_back_button">Zurück</string>
     <string name="themeplate_section_christmas">Weihnachten</string>
     <string name="themeplate_section_memories">Erinnerungen</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">Bild hinzufügen</string>
     <string name="studio_tool_remove_bg">Hintergrund entfernen</string>
     <string name="studio_shape_tab_arrange">Anordnen</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">Tastatur ausblenden</string>
     <string name="studio_layers_toggle">Ebenen</string>
 </resources>
-
-

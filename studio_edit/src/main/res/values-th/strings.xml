@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">คริสต์มาส</string>
     <string name="themeplate_section_memories">ความทรงจำ</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">สีเส้นขอบ</string>
     <string name="studio_stroke_tab_style">รูปแบบเส้น</string>
     <string name="studio_stroke_tab_width">ความหนา</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">ไม่มีเส้นขอบ</string>
     <string name="studio_dash_solid">เส้นทึบ</string>
     <string name="studio_dash_round_dot">จุดกลม</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">ตามเส้นทาง</string>
     <string name="studio_text_form_warp">ดัดโค้งข้อความ</string>
     <string name="studio_text_form_amount">ความเข้ม</string>
+    <string name="studio_text_form_letter_spacing">ระยะห่างตัวอักษร</string>
     <string name="studio_text_form_none">ไม่มี</string>
     <string name="studio_text_form_path_wave">คลื่น</string>
     <string name="studio_text_form_path_arc_up">ส่วนโค้งหงาย</string>
     <string name="studio_text_form_path_arc_down">ส่วนโค้งคว่ำ</string>
     <string name="studio_text_form_path_circle">วงกลม</string>
-    <string name="studio_text_form_path_ring">วงแหวน</string>
-    <string name="studio_text_form_warp_arch_up">ส่วนโค้งโค้งขึ้น</string>
+<string name="studio_text_form_warp_arch_up">ส่วนโค้งโค้งขึ้น</string>
     <string name="studio_text_form_warp_arch_down">ส่วนโค้งโค้งลง</string>
     <string name="studio_text_form_warp_bulge">โป่งออก</string>
     <string name="studio_text_form_warp_wave">คลื่น</string>
     <string name="studio_text_form_warp_flag">ธง</string>
     <string name="studio_text_form_warp_rise">ลาดขึ้น</string>
     <string name="studio_text_form_warp_fall">ลาดลง</string>
-    <string name="studio_text_form_warp_inflate">ขยายพอง</string>
-    <string name="studio_text_form_warp_deflate">ยุบแฟบ</string>
     <string name="studio_text_form_warp_chevron_up">บั้งชี้ขึ้น</string>
     <string name="studio_text_form_warp_chevron_down">บั้งชี้ลง</string>
     <string name="studio_objects_label">วัตถุ</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">เอฟเฟกต์</string>
     <string name="studio_label_tab_text_form">งานศิลป์</string>
     <string name="studio_label_tab_shape">กรอบ</string>
+    <string name="studio_label_tab_text_template">แม่แบบ</string>
+    <string name="studio_label_tab_more">เพิ่มเติม</string>
+    <string name="studio_text_template_classic">คลาสสิก</string>
+    <string name="studio_text_template_gradient">ไล่สี</string>
+    <string name="studio_text_template_sale">เซล</string>
+    <string name="studio_text_template_arc">โค้ง</string>
+    <string name="studio_text_template_outline">ขอบ</string>
+    <string name="studio_text_template_neon">นีออน</string>
+    <string name="studio_text_template_soft">นุ่มนวล</string>
+    <string name="studio_text_template_poster">โปสเตอร์</string>
+    <string name="studio_text_template_minimal">มินิมอล</string>
+    <string name="studio_text_template_gold">ทอง</string>
+    <string name="studio_text_template_retro">เรโทร</string>
+    <string name="studio_text_template_ocean">มหาสมุทร</string>
+    <string name="studio_label_elevation_disabled_by_text_form">ไม่สามารถใช้เอฟเฟกต์นูนได้เมื่อเปิดรูปแบบตัวอักษรศิลป์</string>
+    <string name="studio_text_form_path_hint">ลากความเข้มเพื่อดัดเส้นตัวอักษร ระยะห่างตัวอักษรช่วยลดการทับซ้อนของรูปอักษร</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">ระบบ</string>

@@ -264,9 +264,10 @@ class HomeViewModel @Inject constructor(
                 val professionalJob = async { fetchRemoteTemplates(professionalId) }
                 val newestJob = async { fetchRemoteTemplates("") }
 
-                // Tải song song toàn bộ các danh mục khác có cấu hình slug
+                // Cùng tiêu chí với ThemeplateGalleryViewModel: order > 0, loại trừ Mỹ phẩm/Thời trang.
+                // Không yêu cầu slug — category tạo từ admin có thể chưa có slug (vd. Giáng sinh).
                 val otherCategories = categories.filter {
-                    it.id != cosmeticsId && it.id != professionalId && it.slug?.isNotBlank() == true
+                    it.id != cosmeticsId && it.id != professionalId && it.order > 0
                 }
                 val otherJobs = otherCategories.map { category ->
                     category to async { fetchRemoteTemplates(category.id) }
@@ -277,32 +278,9 @@ class HomeViewModel @Inject constructor(
                 val newest = newestJob.await()
 
                 val otherSections = otherJobs.map { (category, job) ->
-                    val rawKey = (category.slug ?: category.name ?: "")
-                    val normalizedKey = java.text.Normalizer.normalize(rawKey, java.text.Normalizer.Form.NFD)
-                        .replace(Regex("\\p{M}+"), "")
-                        .replace("đ", "d")
-                        .replace("Đ", "D")
-                        .lowercase()
                     com.thgiang.image.studio.model.StudioThemeplateSection(
                         id = category.id,
-                        titleResId = when {
-                            normalizedKey.contains("digital_life") || normalizedKey.contains("doi song so") -> {
-                                com.thgiang.image.studio.R.string.themeplate_section_digital_life
-                            }
-                            normalizedKey.contains("selfie_food") || normalizedKey.contains("me an uong") -> {
-                                com.thgiang.image.studio.R.string.themeplate_section_food_selfie
-                            }
-                            normalizedKey.contains("christmas") || normalizedKey.contains("giang sinh") -> {
-                                com.thgiang.image.studio.R.string.themeplate_section_christmas
-                            }
-                            normalizedKey.contains("memories") || normalizedKey.contains("ky niem") -> {
-                                com.thgiang.image.studio.R.string.themeplate_section_memories
-                            }
-                            normalizedKey.contains("phone") || normalizedKey.contains("dien thoai") -> {
-                                com.thgiang.image.studio.R.string.themeplate_section_phone_mode
-                            }
-                            else -> 0
-                        },
+                        titleResId = com.thgiang.image.studio.util.TemplateCategoryTitleResolver.titleResId(category),
                         titleString = category.name,
                         themeplates = job.await()
                     )

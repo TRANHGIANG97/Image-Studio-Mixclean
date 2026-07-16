@@ -6,7 +6,6 @@ import com.thgiang.image.studio.ui.editor.mapper.*
 import com.thgiang.image.studio.ui.editor.mapper.EditorElevationMapper.drawShapeElevation
 import com.thgiang.image.studio.ui.editor.mapper.hasShape3DDepth
 import com.thgiang.image.studio.ui.editor.mapper.supportsTextElevation
-import com.thgiang.image.studio.ui.editor.mapper.TextElevationMapper
 import com.thgiang.image.studio.ui.editor.mapper.EditorShadowMapper.drawShapeDropShadow
 
 import com.thgiang.image.studio.ui.editor.model.*
@@ -18,7 +17,6 @@ import android.net.Uri
 import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.core.graphics.withSave
-import com.thgiang.image.core.util.processors.PortraitProcessor
 import com.thgiang.image.core.util.processors.ProcessorUtils
 import com.thgiang.image.studio.util.openAssetSourceInputStream
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -45,6 +43,7 @@ class EditorRenderer(
         val sourceUri: Uri,
         val intensity: Float,
         val blurRadius: Float,
+        val colorArgb: Int,
         val shadowBitmap: Bitmap,
         val timestamp: Long = System.currentTimeMillis()
     )
@@ -100,22 +99,24 @@ class EditorRenderer(
                         val drawX = centerX + state.offset.x
                         val drawY = centerY + state.offset.y
 
-                        canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
-                            if (layer.appearance.shadowIntensity > 0.05f) {
-                                renderShadowCached(
-                                    canvas = this,
-                                    foreground = foreground,
-                                    state = state,
-                                    cropRatio = layer.cropRatio,
-                                    baseW = baseW,
-                                    baseH = baseH,
-                                    drawX = drawX,
-                                    drawY = drawY,
-                                    appearance = layer.appearance,
-                                    sourceUri = fgUri,
-                                )
-                            }
+                        // Drop shadow must use normal compositing (not the layer blend mode),
+                        // otherwise fringe colors / lighten-screen modes turn it neon.
+                        if (layer.appearance.shadowIntensity > 0.05f) {
+                            renderShadowCached(
+                                canvas = canvas,
+                                foreground = foreground,
+                                state = state,
+                                cropRatio = layer.cropRatio,
+                                baseW = baseW,
+                                baseH = baseH,
+                                drawX = drawX,
+                                drawY = drawY,
+                                appearance = layer.appearance,
+                                sourceUri = fgUri,
+                            )
+                        }
 
+                        canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
                             paint.alpha = 255
 
                             val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
@@ -164,6 +165,7 @@ class EditorRenderer(
         sourceUri: Uri
     ) {
         val blurRadius = appearance.resolvedShadowBlurRadius()
+        val opaqueShadowColor = appearance.opaqueShadowColorArgb()
         // Check cache validity
         val cached = synchronized(shadowCacheLock) {
             val current = shadowCache
@@ -171,6 +173,7 @@ class EditorRenderer(
                 current.sourceUri == sourceUri &&
                 current.intensity == appearance.shadowIntensity &&
                 current.blurRadius == blurRadius &&
+                current.colorArgb == opaqueShadowColor &&
                 System.currentTimeMillis() - current.timestamp < maxShadowCacheAgeMs) {
                 current.shadowBitmap
             } else {
@@ -179,29 +182,35 @@ class EditorRenderer(
         }
 
         val shadow = cached ?: run {
-            // Generate new shadow
-            val newShadow = PortraitProcessor.applyBlurOnly(
-                foreground,
-                blurRadius
-            )
-                ?: return
+            // Alpha-mask silhouette + alpha-aware blur (never tint a blurred full-color cutout).
+            val newShadow = EditorShadowMapper.buildProductDropShadowBitmap(
+                foreground = foreground,
+                blurRadius = blurRadius,
+                shadowColorArgb = opaqueShadowColor,
+            ) ?: return
 
             synchronized(shadowCacheLock) {
                 // Evict old cache
                 shadowCache?.shadowBitmap?.let {
                     if (!it.isRecycled) bitmapPool.recycle(it)
                 }
-                shadowCache = ShadowCache(sourceUri, appearance.shadowIntensity, blurRadius, newShadow)
+                shadowCache = ShadowCache(
+                    sourceUri = sourceUri,
+                    intensity = appearance.shadowIntensity,
+                    blurRadius = blurRadius,
+                    colorArgb = opaqueShadowColor,
+                    shadowBitmap = newShadow,
+                )
             }
             newShadow
         }
 
         if (shadow.isRecycled) return
 
+        // Bitmap is already colored; only modulate opacity here.
         val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
             alpha = (shadowOpacityFromIntensity(appearance.shadowIntensity) * appearance.alpha * 255f)
                 .toInt().coerceIn(0, 255)
-            colorFilter = PorterDuffColorFilter(appearance.shadowColorArgb, PorterDuff.Mode.SRC_ATOP)
         }
 
         val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
@@ -210,6 +219,9 @@ class EditorRenderer(
         // Calculate dynamic shadow offsets using trigonometry
         val (dx, dy) = shadowOffset(appearance.shadowAngle, appearance.shadowDistance)
 
+        // Expand clip slightly so soft blur is not hard-cropped into a neon ring.
+        val blurPad = (blurRadius * 3f).coerceAtLeast(0f)
+
         canvas.withSave {
             translate(drawX + dx, drawY + dy)
             scale(scaleX, scaleY)
@@ -217,9 +229,14 @@ class EditorRenderer(
 
             // Crop clipping (local coordinates)
             val croppedSize = cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
-            val left = (foreground.width - croppedSize.width) / 2f
-            val top = (foreground.height - croppedSize.height) / 2f
-            clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
+            val left = (foreground.width - croppedSize.width) / 2f - blurPad
+            val top = (foreground.height - croppedSize.height) / 2f - blurPad
+            clipRect(
+                left,
+                top,
+                left + croppedSize.width + blurPad * 2f,
+                top + croppedSize.height + blurPad * 2f,
+            )
 
             val sdX = if (state.flippedH) -foreground.width.toFloat() else 0f
             val sdY = if (state.flippedV) -foreground.height.toFloat() else 0f
@@ -375,13 +392,19 @@ class EditorRenderer(
 
         val shapeAlpha = (layer.shapeColorArgb ushr 24) and 0xFF
         val shouldRenderShape = layer.shouldRenderFrameContent
+        val shouldRenderTextOnlyDecor = layer.hasTextOnlyBackgroundDecor
+        val drawShapeType = layer.backgroundDecorShapeType
         val hasShapeFill = EditorShapeGeometry.isFilledShape(
             layer.shapeType,
             shapeAlpha,
             layer.fillGradient != null,
         )
-        val canDrawShapeShadow = shouldRenderShape &&
-            (hasShapeFill || layer.hasShapeBorder || layer.appearance.shadowIntensity > 0.05f)
+        val canDrawShapeShadow = (shouldRenderShape || shouldRenderTextOnlyDecor) &&
+            if (EditorShapeGeometry.isTextOnlyShape(layer.shapeType)) {
+                hasShapeFill || layer.hasShapeBorder
+            } else {
+                hasShapeFill || layer.hasShapeBorder || layer.appearance.shadowIntensity > 0.05f
+            }
 
         canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
             withSave {
@@ -393,6 +416,7 @@ class EditorRenderer(
                 }
 
                 if (
+                    shouldRenderShape &&
                     layer.isFrameLayer &&
                     layer.supportsShapeElevation &&
                     layer.appearance.hasShape3DDepth(state.scale) &&
@@ -425,7 +449,7 @@ class EditorRenderer(
                         renderScale = state.scale,
                     )
                     drawShapeGeometry(
-                        shapeType = layer.shapeType,
+                        shapeType = drawShapeType,
                         left = left + shadowDx,
                         top = top + shadowDy,
                         shapeW = shapeW,
@@ -439,7 +463,7 @@ class EditorRenderer(
                 }
 
                 val alpha = (layer.appearance.alpha * 255).toInt().coerceIn(0, 255)
-                if (shouldRenderShape && hasShapeFill) {
+                if ((shouldRenderShape || shouldRenderTextOnlyDecor) && hasShapeFill) {
                     val shapePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         style = Paint.Style.FILL
                         color = layer.shapeColorArgb
@@ -458,7 +482,7 @@ class EditorRenderer(
                         )?.let { shader = it }
                     }
                     drawShapeGeometry(
-                        shapeType = layer.shapeType,
+                        shapeType = drawShapeType,
                         left = left,
                         top = top,
                         shapeW = shapeW,
@@ -471,19 +495,20 @@ class EditorRenderer(
                     )
                 }
 
-                if (layer.hasShapeBorder) {
+                if ((shouldRenderShape || shouldRenderTextOnlyDecor) && layer.hasShapeBorder) {
                     val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         EditorStrokeMapper.configureStrokePaint(
                             paint = this,
                             strokeColorArgb = layer.resolveShapeBorderColorArgb()!!,
                             strokeWidthPx = layer.resolveStrokeWidthPx() * state.scale,
                             strokeDashArray = layer.strokeDashArray,
+                            strokeDashGapPx = layer.strokeDashGapPx,
                             alpha = alpha,
                             renderScale = state.scale,
                         )
                     }
                     drawShapeGeometry(
-                        shapeType = layer.shapeType,
+                        shapeType = drawShapeType,
                         left = left,
                         top = top,
                         shapeW = shapeW,
@@ -496,40 +521,17 @@ class EditorRenderer(
                     )
                 }
 
-                if (
-                    layer.isLabelLayer &&
-                    layer.supportsTextElevation &&
-                    layer.appearance.hasShape3DDepth(state.scale) &&
-                    layer.appearance.appliesTextElevation()
-                ) {
-                    TextElevationMapper.drawOnCanvas(
-                        canvas = canvas,
-                        layer = layer,
-                        left = left,
-                        top = top,
-                        width = shapeW,
-                        height = shapeH,
-                        renderScale = state.scale,
-                        context = context,
-                    )
-                }
-
                 if (layer.text.isNotBlank() && layer.shouldRenderLabelContent) {
                     if (layer.textForm.isActive) {
-                        TextFormLayoutEngine.drawOnCanvas(
+                        com.thgiang.image.studio.ui.editor.document.render.DocumentRenderPipeline.drawTextLayer(
                             canvas = canvas,
+                            context = context,
                             layer = layer,
                             left = left,
                             top = top,
                             width = shapeW,
                             height = shapeH,
                             renderScale = state.scale,
-                            context = context,
-                            alpha = alpha,
-                            gradientLeft = left,
-                            gradientTop = top,
-                            gradientWidth = shapeW,
-                            gradientHeight = shapeH,
                         )
                     } else {
                         drawShapeTextContent(canvas, layer, state, left, top, shapeW, shapeH, alpha)

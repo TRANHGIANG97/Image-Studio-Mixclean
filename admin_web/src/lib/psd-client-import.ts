@@ -2,6 +2,12 @@ import Psd from '@webtoon/psd';
 import { CloudLayer } from '@/types/cloud-template';
 import { classifyPsdLayer, PsdLayerSignals } from '@/lib/psd/layer-classifier';
 import { pixelsToBlob, pixelsToThumbnailBlob } from '@/lib/psd/rasterize-service';
+import {
+  createTimedPsdLogger,
+  formatBytes,
+  formatDurationMs,
+  type PsdImportLogger,
+} from '@/lib/psd/import-log';
 
 export interface ExtractedLayer {
   layerId: string;
@@ -370,8 +376,8 @@ function tryExtractDropShadow(node: any): {
       const r = Math.round((clr['Rd  ']?.value ?? clr.Rd ?? 0));
       const g = Math.round((clr['Grn ']?.value ?? clr.Grn ?? 0));
       const b = Math.round((clr['Bl  ']?.value ?? clr.Bl ?? 0));
-      const a = Math.round((opacity / 100) * 255);
-      shadowColorArgb = ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+      // Store opaque RGB; opacity is carried by shadowIntensity.
+      shadowColorArgb = (0xff << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
     }
 
     return {
@@ -472,52 +478,115 @@ async function tryExtractBackgroundLayer(node: any, canvasWidth: number, canvasH
   }
 }
 
+function countPsdNodes(nodes: any[] | undefined): { layers: number; groups: number } {
+  let layers = 0;
+  let groups = 0;
+  const visit = (list: any[] | undefined) => {
+    for (const node of list || []) {
+      if (node?.type === 'Group') {
+        groups += 1;
+        visit(node.children);
+      } else if (node?.type === 'Layer') {
+        layers += 1;
+      }
+    }
+  };
+  visit(nodes);
+  return { layers, groups };
+}
+
 export async function parsePsdOnClient(
   file: File,
   categoryId?: string,
   templateId?: string,
-  title?: string
+  title?: string,
+  onLog?: PsdImportLogger
 ): Promise<ClientPsdImportResult> {
-  const fileBuffer = await file.arrayBuffer();
-  const psd = Psd.parse(fileBuffer);
-  
+  const { log, step } = createTimedPsdLogger(onLog);
+  const parseStartedAt = Date.now();
+
+  await log(`File: "${file.name}" (${formatBytes(file.size)}) — file từ AI→PSD thường rất lớn, bước parse có thể mất vài phút`);
+
+  const fileBuffer = await step('Đọc dữ liệu file vào bộ nhớ', () => file.arrayBuffer());
+  await log(`Buffer sẵn sàng: ${formatBytes(fileBuffer.byteLength)}`);
+
+  // Psd.parse is synchronous and often the slowest step for AI-exported PSDs.
+  await log('→ Phân tích cấu trúc PSD (Psd.parse) — UI có thể tạm đứng trong lúc này...');
+  const parseT0 = Date.now();
+  let psd: Awaited<ReturnType<typeof Psd.parse>>;
+  try {
+    psd = Psd.parse(fileBuffer);
+  } catch (error) {
+    await log(`✗ Psd.parse thất bại sau ${formatDurationMs(Date.now() - parseT0)}: ${(error as Error)?.message || error}`);
+    throw error;
+  }
+  await log(`✓ Psd.parse xong (${formatDurationMs(Date.now() - parseT0)})`);
+
   const canvasWidth = Math.max(1, psd.width || 1080);
   const canvasHeight = Math.max(1, psd.height || 1080);
   const divisor = gcd(canvasWidth, canvasHeight);
   const aspectRatio = `${canvasWidth / divisor}:${canvasHeight / divisor}`;
+  const treeStats = countPsdNodes(psd.children as any[]);
+  await log(
+    `Canvas ${canvasWidth}×${canvasHeight} (${aspectRatio}), colorMode=${psd.colorMode}, ` +
+      `${treeStats.layers} layer / ${treeStats.groups} group trong cây PSD`,
+  );
 
   const warnings: string[] = [];
 
   // Warn if color mode is not RGB (3)
   if (psd.colorMode !== 3) {
-    warnings.push(`Cảnh báo: Template này dường như không phải hệ màu RGB (Color Mode: ${psd.colorMode}). Nó có thể sẽ hiển thị sai màu (ví dụ chuyển thành màu xám) hoặc không trích xuất được layer. Vui lòng vào Photoshop chọn Image > Mode > RGB Color và lưu lại.`);
+    const warn =
+      `Cảnh báo: Template này dường như không phải hệ màu RGB (Color Mode: ${psd.colorMode}). ` +
+      `Nó có thể sẽ hiển thị sai màu (ví dụ chuyển thành màu xám) hoặc không trích xuất được layer. ` +
+      `Vui lòng vào Photoshop chọn Image > Mode > RGB Color và lưu lại.`;
+    warnings.push(warn);
+    await log(`⚠ ${warn}`);
   }
-  
+
   const baseName = sanitizeLabel(title || file.name, 'Imported PSD Template');
   const finalTemplateId = (templateId?.trim() || `TPL_${uuidv4().replace(/-/g, '').slice(0, 8).toUpperCase()}`).toUpperCase();
   const slug = baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'psd';
-  
+
   let backgroundBlob: Blob | null = null;
   let backgroundName = 'Background';
   let backgroundLayerNode: any = null;
 
   // 1. Try finding background layer
+  await log('→ Kiểm tra và trích xuất layer nền (Background)...');
+  const bgT0 = Date.now();
   for (const child of [...(psd.children || [])]) {
     const bg = await tryExtractBackgroundLayer(child, canvasWidth, canvasHeight);
     if (bg && bg.blob) {
       backgroundBlob = bg.blob;
       backgroundName = bg.name;
       backgroundLayerNode = child;
+      await log(`✓ Đã trích xuất layer nền "${bg.name}" (${formatBytes(bg.blob.size)}, ${formatDurationMs(Date.now() - bgT0)})`);
       break;
     }
   }
+  if (!backgroundBlob) {
+    await log(`Không tìm thấy layer nền riêng (${formatDurationMs(Date.now() - bgT0)})`);
+  }
 
   // 2. Generate composite thumbnail
-  const compositePixels = await psd.composite();
-  const thumbnailBlob = await createThumbnailBlob(compositePixels, canvasWidth, canvasHeight);
+  const compositePixels = await step('Tạo thumbnail (psd.composite — bước nặng với file AI)', () => psd.composite());
+  const thumbnailBlob = await step('Encode thumbnail WebP', () =>
+    createThumbnailBlob(compositePixels, canvasWidth, canvasHeight),
+  );
+  if (thumbnailBlob) {
+    await log(`Thumbnail: ${formatBytes(thumbnailBlob.size)}`);
+  }
 
   const layers: ExtractedLayer[] = [];
   let order = 0;
+  let skippedZeroSize = 0;
+  let skippedEmptyAdjustment = 0;
+  let textKept = 0;
+  let imageLayers = 0;
+  let rasterizedText = 0;
+
+  await log(`→ Bắt đầu xử lý chi tiết ${treeStats.layers} layer...`);
 
   const walk = async (node: any, path: string[] = []) => {
     if (!node) return;
@@ -525,6 +594,7 @@ export async function parsePsdOnClient(
 
     if (node.type === 'Group') {
       const nextPath = [...path, node.name || 'Group'];
+      await log(`Nhóm: "${node.name || 'Group'}" (${(node.children || []).length} phần tử)`);
       for (const child of [...(node.children || [])].reverse()) {
         await walk(child, nextPath);
       }
@@ -533,6 +603,8 @@ export async function parsePsdOnClient(
 
     if (node.type !== 'Layer') return;
     if (!node.width || !node.height) {
+      skippedZeroSize += 1;
+      await log(`⏭ Bỏ qua layer kích thước 0: "${node.name || 'Layer'}"`);
       console.warn(`[PSD_IMPORT_DEBUG] skip zero-size layer name=${node.name || 'Layer'}`);
       return;
     }
@@ -546,12 +618,14 @@ export async function parsePsdOnClient(
     const centerY = top + height / 2;
     const layerName = node.name || '';
     const nameLower = layerName.toLowerCase().trim();
-    const forceImage = nameLower.startsWith('[img]') || 
-                       nameLower.startsWith('[image]') || 
-                       nameLower.startsWith('img:') || 
+    const forceImage = nameLower.startsWith('[img]') ||
+                       nameLower.startsWith('[image]') ||
+                       nameLower.startsWith('img:') ||
                        nameLower.startsWith('image:');
 
     const rawIsText = typeof node.text === 'string' && node.text.trim().length > 0 && !forceImage;
+    const layerT0 = Date.now();
+    await log(`→ Layer "${layerName}" ${width}×${height} (${rawIsText ? 'Chữ' : 'Ảnh'})`);
 
     // --- FIX 1: Correct warp detection ---
     const tySh = node.additionalProperties?.TySh;
@@ -628,6 +702,7 @@ export async function parsePsdOnClient(
       const desc = `Layer "${node.name || 'Layer'}" (${typeLabel}): ${layerWarnings.join(', ')}`;
       warnings.push(desc);
       console.warn(`[PSD_IMPORT_WARNING] ${desc}`);
+      await log(`⚠ ${desc}`);
     }
 
     // --- FIX 2: Apply Drop Shadow from PSD to canvas payload ---
@@ -659,6 +734,7 @@ export async function parsePsdOnClient(
         textPixels = await node.composite(false);
       } catch (error) {
         console.warn(`[PSD_IMPORT_DEBUG] text composite failed name=${node.name || 'Text'}`, error);
+        await log(`⚠ Composite chữ thất bại cho "${layerName}": ${(error as Error)?.message || error}`);
       }
 
       const textColorArgb = textPixels ? inferTextColor(textPixels) : toArgb(0, 0, 0, 255);
@@ -700,6 +776,8 @@ export async function parsePsdOnClient(
         payload,
         name: node.name || 'Text',
       });
+      textKept += 1;
+      await log(`✓ Giữ chữ editable "${layerName}" (${formatDurationMs(Date.now() - layerT0)})`);
     } else {
       // Image layer (includes rasterized text, smart objects, adjustment/fill layers, shapes)
       let imageBlob: Blob | null = null;
@@ -707,14 +785,24 @@ export async function parsePsdOnClient(
         // FIX 3: Adjustment/Fill layers must use composite(true) to bake their color effects.
         // Rasterized text layers also use composite(true) to capture Drop Shadow / Glow effects.
         const includeBackground = isAdjustment || shouldRasterizeText;
+        await log(
+          `  Rasterize "${layerName}" (composite${includeBackground ? '+bg' : ''} → WebP)...`,
+        );
+        const rasterT0 = Date.now();
         const rawPixels = await node.composite(includeBackground);
         imageBlob = await pixelsToWebpBlob(rawPixels, width, height);
+        await log(
+          `  Rasterize xong (${formatBytes(imageBlob?.size || 0)}, ${formatDurationMs(Date.now() - rasterT0)})`,
+        );
       } catch (error) {
         console.warn(`[PSD_IMPORT_DEBUG] image composite failed name=${node.name || 'Layer'}`, error);
+        await log(`✗ Rasterize thất bại "${layerName}": ${(error as Error)?.message || error}`);
       }
 
       // If adjustment layer produced empty/null blob, skip silently (e.g. invisible layer)
       if (isAdjustment && !imageBlob) {
+        skippedEmptyAdjustment += 1;
+        await log(`⏭ Bỏ qua adjustment layer rỗng: "${layerName}"`);
         console.warn(`[PSD_IMPORT_DEBUG] skip empty adjustment layer name=${node.name || 'Layer'}`);
         return;
       }
@@ -738,6 +826,9 @@ export async function parsePsdOnClient(
         fileName: `${slug}_layer_${String(layerIdx + 1).padStart(2, '0')}.webp`,
         name: node.name || 'Layer',
       });
+      if (shouldRasterizeText) rasterizedText += 1;
+      else imageLayers += 1;
+      await log(`✓ Layer ảnh "${layerName}" (${formatDurationMs(Date.now() - layerT0)})`);
     }
   };
 
@@ -747,10 +838,19 @@ export async function parsePsdOnClient(
 
   // Handle fallback if no layers parsed
   if (layers.length === 0 && !backgroundBlob) {
+    await log('Không có layer — flatten toàn bộ PSD làm nền...');
     const rawPixels = await psd.composite();
     backgroundBlob = await pixelsToWebpBlob(rawPixels, canvasWidth, canvasHeight);
     backgroundName = 'Flattened PSD';
+    await log(`✓ Flatten xong (${formatBytes(backgroundBlob?.size || 0)})`);
   }
+
+  await log(
+    `Parse xong trong ${formatDurationMs(Date.now() - parseStartedAt)}: ` +
+      `${textKept} chữ, ${imageLayers} ảnh, ${rasterizedText} chữ→ảnh, ` +
+      `bỏ qua ${skippedZeroSize} size-0 / ${skippedEmptyAdjustment} adjustment rỗng` +
+      (warnings.length ? `, ${warnings.length} cảnh báo` : ''),
+  );
 
   return {
     templateId: finalTemplateId,

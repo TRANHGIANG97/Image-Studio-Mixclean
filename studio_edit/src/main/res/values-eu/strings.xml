@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Eguberriak</string>
     <string name="themeplate_section_memories">Oroitzapenak</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
 
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Janari selfie-a 1</string>
@@ -116,6 +118,8 @@
     <string name="studio_stroke_tab_color">Ertzaren kolorea</string>
     <string name="studio_stroke_tab_style">Marra estiloa</string>
     <string name="studio_stroke_tab_width">Lodiera</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Ertzik gabe</string>
     <string name="studio_dash_solid">Marra jarraitua</string>
     <string name="studio_dash_round_dot">Puntu biribilak</string>
@@ -263,21 +267,19 @@
     <string name="studio_text_form_follow_path">Jarraitu bidea</string>
     <string name="studio_text_form_warp">Deformatu</string>
     <string name="studio_text_form_amount">Intentsitatea</string>
+    <string name="studio_text_form_letter_spacing">Letren tartea</string>
     <string name="studio_text_form_none">Ezer ez</string>
     <string name="studio_text_form_path_wave">Uhin</string>
     <string name="studio_text_form_path_arc_up">Arku gora</string>
     <string name="studio_text_form_path_arc_down">Arku behera</string>
     <string name="studio_text_form_path_circle">Zirkulua</string>
-    <string name="studio_text_form_path_ring">Eraztuna</string>
-    <string name="studio_text_form_warp_arch_up">Arku gora</string>
+<string name="studio_text_form_warp_arch_up">Arku gora</string>
     <string name="studio_text_form_warp_arch_down">Arku behera</string>
     <string name="studio_text_form_warp_bulge">Irtenunea</string>
     <string name="studio_text_form_warp_wave">Uhin</string>
     <string name="studio_text_form_warp_flag">Bandera</string>
     <string name="studio_text_form_warp_rise">Igoera</string>
     <string name="studio_text_form_warp_fall">Jaitsiera</string>
-    <string name="studio_text_form_warp_inflate">Puztu</string>
-    <string name="studio_text_form_warp_deflate">Despuztu</string>
     <string name="studio_text_form_warp_chevron_up">Chevron gora</string>
     <string name="studio_text_form_warp_chevron_down">Chevron behera</string>
     <string name="studio_objects_label">Objektuak</string>
@@ -324,6 +326,22 @@
     <string name="studio_label_tab_elevation">Efektua</string>
     <string name="studio_label_tab_text_form">Artistikoa</string>
     <string name="studio_label_tab_shape">Markoa</string>
+    <string name="studio_label_tab_text_template">Txantiloiak</string>
+    <string name="studio_label_tab_more">Gehiago</string>
+    <string name="studio_text_template_classic">Klasikoa</string>
+    <string name="studio_text_template_gradient">Gradientea</string>
+    <string name="studio_text_template_sale">Salmenta</string>
+    <string name="studio_text_template_arc">Arku</string>
+    <string name="studio_text_template_outline">Eskema</string>
+    <string name="studio_text_template_neon">Neona</string>
+    <string name="studio_text_template_soft">Biguna</string>
+    <string name="studio_text_template_poster">Kartela</string>
+    <string name="studio_text_template_minimal">Minimala</string>
+    <string name="studio_text_template_gold">Urrea</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ozeanoa</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Erliebe-efektua ez dago erabilgarri testu-forma artistikoa aktibo dagoen bitartean.</string>
+    <string name="studio_text_form_path_hint">Arrastatu intentsitatea testuaren bidea okertzeko. Letren tarteak glifoen gainjartzea saihesten laguntzen du.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistema</string>

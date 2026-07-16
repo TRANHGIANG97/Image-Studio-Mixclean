@@ -38,6 +38,8 @@ sealed class EditorEvent {
     data object DismissShapeTool : EditorEvent()
     /** Update the text content of the selected SHAPE_TEXT layer */
     data class UpdateShapeText(val text: String) : EditorEvent()
+    /** Caret / selection while inline editing. */
+    data class UpdateInlineTextSelection(val start: Int, val end: Int) : EditorEvent()
     /** Update the fill color (ARGB) of the selected SHAPE_TEXT layer */
     data class UpdateShapeColor(val argb: Int) : EditorEvent()
     /** Update the text color (ARGB) of the selected SHAPE_TEXT layer */
@@ -64,9 +66,12 @@ sealed class EditorEvent {
         val textSizeSp: Float,
         val textTransform: String?,
     ) : EditorEvent()
+    /** Apply a bundled text style template (fill, color, shadow, form, etc.). */
+    data class ApplyTextStyleTemplate(val templateId: String) : EditorEvent()
     data class UpdateStrokeColor(val argb: Int) : EditorEvent()
     data class UpdateStrokeWidth(val widthPx: Float) : EditorEvent()
     data class UpdateStrokeDash(val dashArray: List<Float>) : EditorEvent()
+    data class UpdateStrokeDashGap(val gapPx: Float) : EditorEvent()
     data class UpdateCornerRadius(val radiusPx: Float) : EditorEvent()
     /** Keep shape dimensions in sync with rendered text (no history entry). */
     data class SyncShapeSize(val widthPx: Float, val heightPx: Float) : EditorEvent()
@@ -85,6 +90,7 @@ sealed class EditorEvent {
     data class UpdateShadowDistance(val distance: Float) : EditorEvent()
     data class UpdateShadowColor(val argb: Int) : EditorEvent()
     data class UpdateShadowBlur(val blurPx: Float?) : EditorEvent()
+    data class UpdateElevationShadowBlur(val blurPx: Float?) : EditorEvent()
     data class UpdateElevation(val intensity: Float) : EditorEvent()
     data class UpdateDepthSize(val sizePx: Float) : EditorEvent()
     data class UpdateDepthColor(val argb: Int?) : EditorEvent()
@@ -92,6 +98,8 @@ sealed class EditorEvent {
     data class UpdateElevationStyle(val style: ShapeElevationStyle) : EditorEvent()
     data class UpdateElevationTarget(val target: ElevationTarget) : EditorEvent()
     data class UpdateAlpha(val alpha: Float) : EditorEvent()
+    /** Opacity of the shape/text background fill only (not text glyphs or whole layer). */
+    data class UpdateShapeFillOpacity(val alpha: Float) : EditorEvent()
     data class SelectTool(val tool: EditorTool) : EditorEvent()
     data class SelectCropRatio(val ratio: CropRatio) : EditorEvent()
     data class UpdateCropPan(val delta: Offset) : EditorEvent()
@@ -131,6 +139,8 @@ sealed class EditorEvent {
     data object InsertTextNewline : EditorEvent()
     /** Acknowledge the currently shown error so it never re-shows on recompose. */
     data object ClearError : EditorEvent()
+    /** Clear exportResult after the success UI has been shown. */
+    data object ClearExportResult : EditorEvent()
     data class Export(val templateAssetPath: String) : EditorEvent()
     data class RemoveBackground(val layerId: String) : EditorEvent()
 }

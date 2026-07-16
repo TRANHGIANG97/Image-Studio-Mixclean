@@ -3,11 +3,11 @@ package com.abizer_r.quickedit.ui
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.LruCache
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abizer_r.quickedit.ui.editorScreen.EditorScreenState
+import com.thgiang.image.core.util.MemoryUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -29,9 +29,11 @@ class SharedEditorViewModel @Inject constructor(
 ): ViewModel() {
 
     companion object {
-        const val MAX_BITMAP_STACK_SIZE = 10
-        const val MAX_BITMAP_DIMENSION = 2048
+        const val MAX_BITMAP_DIMENSION = 2048 // fallback when context unavailable
     }
+
+    private val maxStackSize = MemoryUtil.maxEditorStackSize(context)
+    private val maxBitmapDimension = MemoryUtil.maxEditorBitmapSide(context)
 
     var useTransition = false
 
@@ -52,14 +54,7 @@ class SharedEditorViewModel @Inject constructor(
 
     private val cacheDir = File(context.cacheDir, "editor_cache")
 
-    private val ramCache = object : LruCache<String, Bitmap>(3) {
-        override fun entryRemoved(evicted: Boolean, key: String, oldValue: Bitmap, newValue: Bitmap?) {
-            // Do NOT call oldValue.recycle() here. 
-            // Compose UI might still be holding a reference to the evicted bitmap (e.g., during transitions or in ImageBitmap wrappers).
-            // Manually recycling it causes 'Canvas: trying to use a recycled bitmap' crashes.
-            // Let the GC handle Bitmap memory.
-        }
-    }
+    private val ramCache = MemoryUtil.createBitmapByteCache(context)
 
     private fun saveBitmapToCache(bitmap: Bitmap): String? {
         if (!cacheDir.exists()) cacheDir.mkdirs()
@@ -77,19 +72,20 @@ class SharedEditorViewModel @Inject constructor(
         }
     }
 
-    private fun loadBitmapFromCache(path: String): Bitmap {
+    private fun loadBitmapFromCache(path: String): Bitmap? {
         val file = File(path)
         if (!file.exists()) {
-            throw IllegalStateException("Cache file does not exist: $path")
+            android.util.Log.e("SharedEditorVM", "Cache file does not exist: $path")
+            return null
         }
         var bitmap = BitmapFactory.decodeFile(path)
         if (bitmap == null) {
-            // Try clearing RAM cache to free up memory and decode again
             ramCache.evictAll()
             System.gc()
             bitmap = BitmapFactory.decodeFile(path)
             if (bitmap == null) {
-                throw IllegalStateException("Failed to decode cache file (corrupted or OOM): $path")
+                android.util.Log.e("SharedEditorVM", "Failed to decode cache file: $path")
+                return null
             }
         }
         return bitmap
@@ -104,19 +100,22 @@ class SharedEditorViewModel @Inject constructor(
         }
     }
 
-    @Throws(Exception::class)
-    fun getCurrentBitmap(): Bitmap {
-        if (_bitmapStack.isEmpty()) {
-            throw Exception("EmptyStackException: The bitmapStack should contain at least one bitmap")
-        }
+    fun getCurrentBitmapOrNull(): Bitmap? {
+        if (_bitmapStack.isEmpty()) return null
         val path = _bitmapStack.last()
         val cached = ramCache.get(path)
         if (cached != null && !cached.isRecycled) {
             return cached
         }
-        val loaded = loadBitmapFromCache(path)
+        val loaded = loadBitmapFromCache(path) ?: return null
         ramCache.put(path, loaded)
         return loaded
+    }
+
+    @Throws(Exception::class)
+    fun getCurrentBitmap(): Bitmap {
+        return getCurrentBitmapOrNull()
+            ?: throw Exception("EmptyStackException: The bitmapStack should contain at least one bitmap")
     }
 
     fun resetStacks() {
@@ -136,16 +135,22 @@ class SharedEditorViewModel @Inject constructor(
         bitmap: Bitmap,
         triggerRecomposition: Boolean = false,
         addSafelyWithoutMultipleTriggers: Boolean = true
-    ) {
+    ): Boolean {
         val currTime = System.currentTimeMillis()
         if (addSafelyWithoutMultipleTriggers) {
             val timeDiff = currTime - latestTimeForAddingBitmapToStack
-            if (timeDiff < 1000) return
+            if (timeDiff < 1000) {
+                // Debounced duplicate call — treat as OK only if stack already has content.
+                return _bitmapStack.isNotEmpty()
+            }
         }
         latestTimeForAddingBitmapToStack = currTime
 
-        val optimizedBitmap = optimizeBitmap(bitmap)
-        val path = saveBitmapToCache(optimizedBitmap) ?: return // Abort if saving failed
+        val optimizedBitmap = runCatching { optimizeBitmap(bitmap) }.getOrElse {
+            android.util.Log.e("SharedEditorVM", "optimizeBitmap failed", it)
+            return false
+        }
+        val path = saveBitmapToCache(optimizedBitmap) ?: return false
         ramCache.put(path, optimizedBitmap)
         
         _bitmapRedoStack.forEach { deleteCacheFile(it) }
@@ -153,8 +158,15 @@ class SharedEditorViewModel @Inject constructor(
 
         _bitmapStack.add(path)
         
-        while (_bitmapStack.size > MAX_BITMAP_STACK_SIZE) {
+        while (_bitmapStack.size > maxStackSize) {
             val removedPath = _bitmapStack.removeAt(0)
+            deleteCacheFile(removedPath)
+            ramCache.remove(removedPath)
+        }
+
+        // Cap redo as well (should already be cleared, but keep invariant).
+        while (_bitmapRedoStack.size > maxStackSize) {
+            val removedPath = _bitmapRedoStack.removeAt(0)
             deleteCacheFile(removedPath)
             ramCache.remove(removedPath)
         }
@@ -162,6 +174,7 @@ class SharedEditorViewModel @Inject constructor(
         if (triggerRecomposition) {
             _recompositionTrigger.update { it + 1 }
         }
+        return true
     }
 
     fun undo(): Boolean {
@@ -182,7 +195,7 @@ class SharedEditorViewModel @Inject constructor(
 
     private fun optimizeBitmap(bitmap: Bitmap): Bitmap {
         val maxDim = maxOf(bitmap.width, bitmap.height)
-        if (maxDim <= MAX_BITMAP_DIMENSION) {
+        if (maxDim <= maxBitmapDimension) {
             return if (bitmap.config == Bitmap.Config.ARGB_8888 && bitmap.isMutable) {
                 bitmap
             } else {
@@ -190,7 +203,7 @@ class SharedEditorViewModel @Inject constructor(
             }
         }
         
-        val scale = MAX_BITMAP_DIMENSION.toFloat() / maxDim
+        val scale = maxBitmapDimension.toFloat() / maxDim
         val newWidth = (bitmap.width * scale).toInt()
         val newHeight = (bitmap.height * scale).toInt()
         
@@ -204,7 +217,9 @@ class SharedEditorViewModel @Inject constructor(
     }
 
     fun updateStacksFromEditorState(finalEditorState: EditorScreenState) {
-        val newPaths = (finalEditorState.bitmapStack + finalEditorState.bitmapRedoStack).toSet()
+        val trimmedStack = finalEditorState.bitmapStack.takeLast(maxStackSize)
+        val trimmedRedo = finalEditorState.bitmapRedoStack.takeLast(maxStackSize)
+        val newPaths = (trimmedStack + trimmedRedo).toSet()
         val oldPaths = (_bitmapStack + _bitmapRedoStack).toSet()
         oldPaths.forEach { path ->
             if (path !in newPaths) {
@@ -212,10 +227,15 @@ class SharedEditorViewModel @Inject constructor(
                 ramCache.remove(path)
             }
         }
+        // Drop excess local-history paths that won't be kept.
+        (finalEditorState.bitmapStack + finalEditorState.bitmapRedoStack)
+            .filter { it !in newPaths }
+            .forEach { deleteCacheFile(it) }
+
         _bitmapStack.clear()
-        _bitmapStack.addAll(finalEditorState.bitmapStack)
+        _bitmapStack.addAll(trimmedStack)
         _bitmapRedoStack.clear()
-        _bitmapRedoStack.addAll(finalEditorState.bitmapRedoStack)
+        _bitmapRedoStack.addAll(trimmedRedo)
     }
 
     override fun onCleared() {

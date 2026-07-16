@@ -158,12 +158,6 @@ fun ShapePanel(
                                         onLayoutEvent = onLayoutEvent,
                                     )
                                 }
-                                ShapeEditTab.ARRANGE -> {
-                                    ShapeArrangeSection(
-                                        tokens = tokens,
-                                        onLayoutEvent = onLayoutEvent,
-                                    )
-                                }
                             }
                         }
                     }

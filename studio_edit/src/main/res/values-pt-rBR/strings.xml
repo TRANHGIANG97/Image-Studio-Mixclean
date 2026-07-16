@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Natal</string>
     <string name="themeplate_section_memories">Memórias</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie com Comida 1</string>
     <string name="themeplate_selfie_food_02">Selfie com Comida 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Cor da borda</string>
     <string name="studio_stroke_tab_style">Estilo da linha</string>
     <string name="studio_stroke_tab_width">Espessura</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Sem borda</string>
     <string name="studio_dash_solid">Linha sólida</string>
     <string name="studio_dash_round_dot">Pontos redondos</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Seguir Caminho</string>
     <string name="studio_text_form_warp">Distorcer</string>
     <string name="studio_text_form_amount">Intensidade</string>
+    <string name="studio_text_form_letter_spacing">Espaçamento entre letras</string>
     <string name="studio_text_form_none">Nenhum</string>
     <string name="studio_text_form_path_wave">Onda</string>
     <string name="studio_text_form_path_arc_up">Arco para Cima</string>
     <string name="studio_text_form_path_arc_down">Arco para Baixo</string>
     <string name="studio_text_form_path_circle">Círculo</string>
-    <string name="studio_text_form_path_ring">Anel</string>
-    <string name="studio_text_form_warp_arch_up">Arqueado para Cima</string>
+<string name="studio_text_form_warp_arch_up">Arqueado para Cima</string>
     <string name="studio_text_form_warp_arch_down">Arqueado para Baixo</string>
     <string name="studio_text_form_warp_bulge">Estufar</string>
     <string name="studio_text_form_warp_wave">Onda</string>
     <string name="studio_text_form_warp_flag">Bandeira</string>
     <string name="studio_text_form_warp_rise">Ascendente</string>
     <string name="studio_text_form_warp_fall">Descendente</string>
-    <string name="studio_text_form_warp_inflate">Inflar</string>
-    <string name="studio_text_form_warp_deflate">Desinflar</string>
     <string name="studio_text_form_warp_chevron_up">Chevron para Cima</string>
     <string name="studio_text_form_warp_chevron_down">Chevron para Baixo</string>
     <string name="studio_objects_label">Objetos</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Efeito</string>
     <string name="studio_label_tab_text_form">Artístico</string>
     <string name="studio_label_tab_shape">Moldura</string>
+    <string name="studio_label_tab_text_template">Modelos</string>
+    <string name="studio_label_tab_more">Mais</string>
+    <string name="studio_text_template_classic">Clássico</string>
+    <string name="studio_text_template_gradient">Gradiente</string>
+    <string name="studio_text_template_sale">Sale</string>
+    <string name="studio_text_template_arc">Arco</string>
+    <string name="studio_text_template_outline">Contorno</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Suave</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Dourado</string>
+    <string name="studio_text_template_retro">Retrô</string>
+    <string name="studio_text_template_ocean">Oceano</string>
+    <string name="studio_label_elevation_disabled_by_text_form">O relevo não está disponível enquanto a forma artística estiver ativa.</string>
+    <string name="studio_text_form_path_hint">Arraste a intensidade para curvar o caminho do texto. O espaçamento ajuda a evitar sobreposição de glifos.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistema</string>

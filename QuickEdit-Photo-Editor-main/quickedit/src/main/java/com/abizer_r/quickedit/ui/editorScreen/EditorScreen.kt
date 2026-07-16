@@ -134,8 +134,13 @@ fun EditorScreen(
     onRequireSaveAd: ((() -> Unit) -> Unit)? = null,
     onSaveSuccess: (android.net.Uri?, java.io.File?) -> Unit = { _, _ -> }
 ) {
+    // Empty stack used to throw and crash QuickEditNavigation during races
+    // (bitmapLoaded=true while cache save failed / debounce skipped / stacks reset).
     if (initialEditorScreenState.bitmapStack.isEmpty()) {
-        throw Exception("EmptyStackException: The bitmapStack of initial state should contain at least one bitmap")
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Keep UI stable; caller should show loading or navigate away.
+        }
+        return
     }
 
     val context = LocalContext.current
@@ -158,7 +163,7 @@ fun EditorScreen(
     if (state.bitmapStack.isNotEmpty()) {
         // Adding this check because the default state in viewModel will have empty stack
         // After updating the initialEditorScreenState, we will have non-empty stack
-        val currentBitmap = viewModel.getCurrentBitmap()
+        val currentBitmap = viewModel.getCurrentBitmapOrNull() ?: return
 
         val onBottomToolbarEvent = remember { { toolbarEvent: BottomToolbarEvent ->
             if (toolbarEvent is BottomToolbarEvent.OnItemClicked) {
@@ -250,6 +255,8 @@ private fun EditorScreenLayout(
     val coroutineScope = rememberCoroutineScope()
     var showSaveDraftDialog by remember { mutableStateOf(false) }
     var showExitConfirmDialog by remember { mutableStateOf(false) }
+    // Identity of the bitmap that was last saved to gallery; used to skip "unsaved" dialog.
+    var savedBitmapRef by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
 
     val bottomToolbarItems = remember {
         ImmutableList(EditorScreenUtils.getDefaultBottomToolbarItemsList())
@@ -275,6 +282,7 @@ private fun EditorScreenLayout(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    var toolbarNavJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     val mOnBottomToolbarEvent = remember(currentBitmap) { { toolbarEvent: BottomToolbarEvent ->
         if (toolbarEvent is BottomToolbarEvent.OnItemClicked) {
             android.util.Log.d("RotateDebug", "Toolbar item clicked: ${toolbarEvent.toolbarItem}")
@@ -289,7 +297,9 @@ private fun EditorScreenLayout(
             if (toolbarEvent.toolbarItem == BottomToolbarItem.RemoveBg) {
                 onBottomToolbarEvent(toolbarEvent)
             } else {
-                coroutineScope.launch(Dispatchers.Main) {
+                // Single-flight: ignore rapid multi-tool taps that previously queued many navigations.
+                if (toolbarNavJob?.isActive == true) return@remember
+                toolbarNavJob = coroutineScope.launch(Dispatchers.Main) {
                     toolbarVisible = false
                     android.util.Log.d("RotateDebug", "Toolbar hidden, waiting ${AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST}ms")
                     delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
@@ -300,8 +310,9 @@ private fun EditorScreenLayout(
         }
     } }
 
-    val onCloseClickedLambda = remember(undoEnabled) { {
-        if (undoEnabled) {
+    val onCloseClickedLambda = remember(undoEnabled, currentBitmap, savedBitmapRef) { {
+        // After save, only warn if the user continued editing past the saved bitmap.
+        if (undoEnabled && currentBitmap !== savedBitmapRef) {
             showExitConfirmDialog = true
         } else {
             goToMainScreen()
@@ -323,6 +334,7 @@ private fun EditorScreenLayout(
                 context = context,
                 file = imgFile,
                 onSuccess = {
+                    savedBitmapRef = currentBitmap
                     val savedUri = FileUtils.getUriForFile(context, imgFile)
                     onSaveSuccess(savedUri, imgFile)
                 },
@@ -442,6 +454,7 @@ private fun EditorScreenLayout(
         val aspectRatio = remember(currentBitmap) {
             currentBitmap.width.toFloat() / currentBitmap.height.toFloat()
         }
+        val displayImageBitmap = remember(currentBitmap) { currentBitmap.asImageBitmap() }
         Box(
             modifier = Modifier
                 .constrainAs(bgImage) {
@@ -472,7 +485,7 @@ private fun EditorScreenLayout(
             Image(
                 modifier = Modifier
                     .fillMaxSize(),
-                bitmap = currentBitmap.asImageBitmap(),
+                bitmap = displayImageBitmap,
                 contentScale = ContentScale.Fit,
                 contentDescription = null,
                 alpha = 1f
@@ -487,7 +500,7 @@ private fun EditorScreenLayout(
             ) {
                 Image(
                     modifier = Modifier.fillMaxSize(),
-                    bitmap = currentBitmap.asImageBitmap(),
+                    bitmap = displayImageBitmap,
                     contentScale = ContentScale.Fit,
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(Color(0xFFFF2D55).copy(alpha = 0.6f))

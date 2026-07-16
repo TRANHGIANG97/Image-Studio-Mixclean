@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BorderColor
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.FormatAlignCenter
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.WbSunny
@@ -56,7 +55,6 @@ enum class ShapeEditTab(
     STROKE(Icons.Default.BorderColor, R.string.studio_shape_tab_stroke),
     SHADOW(Icons.Default.WbSunny, R.string.studio_shape_tab_shadow),
     ELEVATION(Icons.Default.Layers, R.string.studio_shape_tab_elevation),
-    ARRANGE(Icons.Default.FormatAlignCenter, R.string.studio_shape_tab_arrange),
     SHAPE(Icons.Default.Category, R.string.studio_shape_tab_shape),
 }
 
@@ -66,7 +64,6 @@ val shapeDefaultTabs = listOf(
     ShapeEditTab.STROKE,
     ShapeEditTab.SHADOW,
     ShapeEditTab.ELEVATION,
-    ShapeEditTab.ARRANGE,
     ShapeEditTab.SHAPE,
 )
 

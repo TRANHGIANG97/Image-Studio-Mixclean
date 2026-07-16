@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">পথ অনুসরণ করুন</string>
     <string name="studio_text_form_warp">ওয়ার্প</string>
     <string name="studio_text_form_amount">তীব্রতা</string>
+    <string name="studio_text_form_letter_spacing">অক্ষর ব্যবধান</string>
     <string name="studio_text_form_none">কোনোটিই নয়</string>
     <string name="studio_text_form_path_wave">তরঙ্গ</string>
     <string name="studio_text_form_path_arc_up">আর্ক আপ</string>
     <string name="studio_text_form_path_arc_down">আর্ক ডাউন</string>
     <string name="studio_text_form_path_circle">বৃত্ত</string>
-    <string name="studio_text_form_path_ring">রিং</string>
-    <string name="studio_text_form_warp_arch_up">আর্চ আপ</string>
+<string name="studio_text_form_warp_arch_up">আর্চ আপ</string>
     <string name="studio_text_form_warp_arch_down">আর্চ ডাউন</string>
     <string name="studio_text_form_warp_bulge">স্ফীতি</string>
     <string name="studio_text_form_warp_wave">তরঙ্গ</string>
     <string name="studio_text_form_warp_flag">পতাকা</string>
     <string name="studio_text_form_warp_rise">উত্থান</string>
     <string name="studio_text_form_warp_fall">পতন</string>
-    <string name="studio_text_form_warp_inflate">স্ফীত</string>
-    <string name="studio_text_form_warp_deflate">ডিফ্লেট</string>
     <string name="studio_text_form_warp_chevron_up">শেভরন আপ</string>
     <string name="studio_text_form_warp_chevron_down">শেভরন ডাউন</string>
     <string name="studio_objects_label">বস্তু</string>
@@ -257,6 +255,8 @@
     <string name="studio_stroke_tab_color">বর্ডার রঙ</string>
     <string name="studio_stroke_tab_style">লাইন শৈলী</string>
     <string name="studio_stroke_tab_width">পুরুত্ব</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">সীমানা নেই</string>
     <string name="studio_dash_solid">কঠিন</string>
     <string name="studio_dash_round_dot">গোলাকার বিন্দু</string>
@@ -305,6 +305,22 @@
     <string name="studio_label_tab_elevation">প্রভাব</string>
     <string name="studio_label_tab_text_form">শৈল্পিক</string>
     <string name="studio_label_tab_shape">ফ্রেম</string>
+    <string name="studio_label_tab_text_template">টেমপ্লেট</string>
+    <string name="studio_label_tab_more">আরও</string>
+    <string name="studio_text_template_classic">ক্লাসিক</string>
+    <string name="studio_text_template_gradient">গ্রেডিয়েন্ট</string>
+    <string name="studio_text_template_sale">সেল</string>
+    <string name="studio_text_template_arc">চাপ</string>
+    <string name="studio_text_template_outline">আউটলাইন</string>
+    <string name="studio_text_template_neon">নিয়ন</string>
+    <string name="studio_text_template_soft">নরম</string>
+    <string name="studio_text_template_poster">পোস্টার</string>
+    <string name="studio_text_template_minimal">মিনিমাল</string>
+    <string name="studio_text_template_gold">সোনালি</string>
+    <string name="studio_text_template_retro">রেট্রো</string>
+    <string name="studio_text_template_ocean">মহাসাগর</string>
+    <string name="studio_label_elevation_disabled_by_text_form">শৈল্পিক টেক্সট ফর্ম চালু থাকলে উচ্চতার প্রভাব ব্যবহার করা যায় না।</string>
+    <string name="studio_text_form_path_hint">তীব্রতা টেনে টেক্সট পথ বাঁকান। অক্ষর ব্যবধান গ্লিফ ওভারল্যাপ এড়াতে সাহায্য করে।</string>
     <string name="studio_font_category_system">সিস্টেম</string>
     <string name="studio_label_document_styles">নথি শৈলী</string>
     <string name="studio_label_style_title">শিরোনাম</string>
@@ -324,6 +340,8 @@
     <string name="studio_back_button">ফিরে</string>
     <string name="themeplate_section_christmas">বড়দিন</string>
     <string name="themeplate_section_memories">স্মৃতিসমূহ</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">ছবি যোগ করুন</string>
     <string name="studio_tool_remove_bg">ব্যাকগ্রাউন্ড মুছে ফেলুন</string>
     <string name="studio_shape_tab_arrange">সাজান</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">কীবোর্ড লুকান</string>
     <string name="studio_layers_toggle">লেয়ার</string>
 </resources>
-
-

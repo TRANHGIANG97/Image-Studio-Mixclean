@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Ziemassvētki</string>
     <string name="themeplate_section_memories">Atmiņas</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Apmales krāsa</string>
     <string name="studio_stroke_tab_style">Līnijas stils</string>
     <string name="studio_stroke_tab_width">Biezums</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Bez apmales</string>
     <string name="studio_dash_solid">Nepārtraukta līnija</string>
     <string name="studio_dash_round_dot">Apaļi punkti</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Sekot ceļam</string>
     <string name="studio_text_form_warp">Vērpt</string>
     <string name="studio_text_form_amount">Intensitāte</string>
+    <string name="studio_text_form_letter_spacing">Burtu atstarpe</string>
     <string name="studio_text_form_none">Nav</string>
     <string name="studio_text_form_path_wave">Vilnis</string>
     <string name="studio_text_form_path_arc_up">Loks augšup</string>
     <string name="studio_text_form_path_arc_down">Loks lejup</string>
     <string name="studio_text_form_path_circle">Aplis</string>
-    <string name="studio_text_form_path_ring">Gredzens</string>
-    <string name="studio_text_form_warp_arch_up">Arka augšup</string>
+<string name="studio_text_form_warp_arch_up">Arka augšup</string>
     <string name="studio_text_form_warp_arch_down">Arka lejup</string>
     <string name="studio_text_form_warp_bulge">Izliekums</string>
     <string name="studio_text_form_warp_wave">Vilnis</string>
     <string name="studio_text_form_warp_flag">Karogs</string>
     <string name="studio_text_form_warp_rise">Pacēlums</string>
     <string name="studio_text_form_warp_fall">Kritums</string>
-    <string name="studio_text_form_warp_inflate">Piepūst</string>
-    <string name="studio_text_form_warp_deflate">Sazināt</string>
     <string name="studio_text_form_warp_chevron_up">Ševrons augšup</string>
     <string name="studio_text_form_warp_chevron_down">Ševrons lejup</string>
     <string name="studio_objects_label">Objekti</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Efekts</string>
     <string name="studio_label_tab_text_form">Māksliniecisks</string>
     <string name="studio_label_tab_shape">Rāmis</string>
+    <string name="studio_label_tab_text_template">Veidnes</string>
+    <string name="studio_label_tab_more">Vairāk</string>
+    <string name="studio_text_template_classic">Klasisks</string>
+    <string name="studio_text_template_gradient">Gradients</string>
+    <string name="studio_text_template_sale">Izpārdošana</string>
+    <string name="studio_text_template_arc">Loka</string>
+    <string name="studio_text_template_outline">Kontūra</string>
+    <string name="studio_text_template_neon">Neons</string>
+    <string name="studio_text_template_soft">Mīksts</string>
+    <string name="studio_text_template_poster">Plakāts</string>
+    <string name="studio_text_template_minimal">Minimāls</string>
+    <string name="studio_text_template_gold">Zelts</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Okeāns</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Izlīdzinājuma efekts nav pieejams, kamēr ir aktīva mākslinieciskā teksta forma.</string>
+    <string name="studio_text_form_path_hint">Velciet intensitāti, lai izliektu teksta ceļu. Burtu atstarpe palīdz izvairīties no glifu pārklāšanās.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistēma</string>

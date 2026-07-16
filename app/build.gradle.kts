@@ -52,8 +52,8 @@ android {
         applicationId = "com.thgiang.image"
         minSdk = 24
         targetSdk = 35
-        versionCode = 207
-        versionName = "2.0.7"
+        versionCode = 215
+        versionName = "2.0.15"
         buildConfigField("String", "ADMIN_WEB_BASE_URL", "\"${localProperty("ADMIN_WEB_BASE_URL") ?: "http://10.0.2.2:3000"}\"")
         buildConfigField("String", "CDN_BASE_URL", "\"${localProperty("CDN_BASE_URL") ?: ""}\"")
 
@@ -85,10 +85,9 @@ android {
             }
         }
         release {
-            // Chuyển thành true để tối ưu dung lượng và bảo mật code (rất quan trọng khi lên Store)
             isMinifyEnabled = true
+            isShrinkResources = true
 
-            // Gán cấu hình ký vừa tạo ở trên vào đây
             signingConfig = signingConfigs.getByName("release")
 
             proguardFiles(
@@ -211,6 +210,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.8")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("com.google.android.gms:play-services-ads:23.2.0")
+    implementation("com.google.android.play:integrity:1.4.0")
+    implementation("com.android.installreferrer:installreferrer:2.2")
     implementation("com.airbnb.android:lottie-compose:6.4.0")
     implementation("com.airbnb.android:lottie:6.4.0")
     implementation("androidx.core:core-splashscreen:1.0.1")

@@ -7,8 +7,10 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,6 +52,9 @@ import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
 import com.abizer_r.quickedit.utils.toast
 import com.thgiang.image.app.MainActivity
 import com.thgiang.image.app.navigation.Screen
+import com.thgiang.image.core.analytics.AppAnalytics
+import com.thgiang.image.core.data.backgroundremove.GooglePlayServicesHelper
+import com.thgiang.image.core.ad.NewUserAdPolicy
 import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.core.design.components.ReviewPromptDialog
 import com.thgiang.image.core.design.theme.ImageTheme
@@ -129,8 +134,19 @@ fun QuickEditEditorNavigation(
                 }
                 QuickEditUiEvent.ShowSelfieFallbackWarning -> {
                     snackbarHostState.showSnackbar(
-                        context.getString(com.thgiang.image.R.string.remove_bg_selfie_fallback_warning)
+                        context.getString(com.thgiang.image.R.string.remove_bg_selfie_fallback_warning),
+                        duration = SnackbarDuration.Long,
                     )
+                }
+                QuickEditUiEvent.ShowPlayServicesUpdatePrompt -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = context.getString(com.thgiang.image.R.string.play_services_update_message),
+                        actionLabel = context.getString(com.thgiang.image.R.string.play_services_update_action),
+                        duration = SnackbarDuration.Long,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        GooglePlayServicesHelper.openUpdatePage(context)
+                    }
                 }
                 is QuickEditUiEvent.NavigateToBackground -> {
                     navController.navigate(
@@ -154,6 +170,18 @@ fun QuickEditEditorNavigation(
                 }
             }
         }
+    }
+
+    if (uiState.loadError) {
+        LaunchedEffect(uiState.loadError) {
+            context.toast(context.getString(com.thgiang.image.R.string.edit_image_failed))
+            (context as? android.app.Activity)?.finish()
+        }
+        BackgroundRemovalLoadingOverlay(
+            modifier = Modifier.fillMaxSize(),
+            message = ""
+        )
+        return
     }
 
     if (!uiState.bitmapLoaded) {
@@ -238,11 +266,19 @@ fun QuickEditEditorNavigation(
         Unit
     } }
     val onDoneClicked = remember { { bitmap: Bitmap ->
-        sharedEditorViewModel.addBitmapToStack(
-            bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false),
-        )
-        navController.navigate(NavDestinations.EDITOR_SCREEN) {
-            popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+        val added = runCatching {
+            sharedEditorViewModel.addBitmapToStack(
+                bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false),
+                triggerRecomposition = true,
+                addSafelyWithoutMultipleTriggers = false,
+            )
+        }.getOrDefault(false)
+        if (added) {
+            navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+            }
+        } else {
+            context.toast(context.getString(com.thgiang.image.R.string.edit_image_failed))
         }
     } }
 
@@ -258,9 +294,17 @@ fun QuickEditEditorNavigation(
         }
     }
 
-    val requestSaveAd: ((() -> Unit) -> Unit) = remember {
+    val requestSaveAd: ((() -> Unit) -> Unit) = remember(isPremium, rewardedAdManager) {
         { action ->
-            action()
+            val bypassRewarded = isPremium ||
+                rewardedAdManager == null ||
+                NewUserAdPolicy.shouldBypassRewarded(context)
+            if (bypassRewarded) {
+                action()
+            } else {
+                pendingSaveAction = action
+                showSaveAdDialog = true
+            }
         }
     }
 
@@ -277,17 +321,34 @@ fun QuickEditEditorNavigation(
             val ctx = LocalContext.current
             LaunchedEffect(pickedAddImageUri) {
                 pickedAddImageUri?.let { uri ->
+                    var added = false
                     withContext(Dispatchers.IO) {
                         BitmapUtils.getScaledBitmap(ctx, uri).collect { status ->
-                            if (status is BitmapStatus.Success) {
-                                withContext(Dispatchers.Main) {
-                                    sharedEditorViewModel.addBitmapToStack(
-                                        bitmap = status.scaledBitmap.copy(Bitmap.Config.ARGB_8888, false),
-                                        triggerRecomposition = true,
-                                        addSafelyWithoutMultipleTriggers = false
-                                    )
+                            when (status) {
+                                is BitmapStatus.Success -> {
+                                    withContext(Dispatchers.Main) {
+                                        added = runCatching {
+                                            sharedEditorViewModel.addBitmapToStack(
+                                                bitmap = status.scaledBitmap,
+                                                triggerRecomposition = true,
+                                                addSafelyWithoutMultipleTriggers = false
+                                            )
+                                        }.getOrDefault(false)
+                                    }
                                 }
+                                is BitmapStatus.Failed -> {
+                                    withContext(Dispatchers.Main) {
+                                        ctx.toast(ctx.getString(com.thgiang.image.R.string.edit_image_failed))
+                                    }
+                                }
+                                else -> Unit
                             }
+                        }
+                    }
+                    if (!added) {
+                        withContext(Dispatchers.Main) {
+                            // Keep previous editor image; notify only if decode never succeeded.
+                            // (Success path already updated stack.)
                         }
                     }
                     entry.savedStateHandle.remove<Uri>("add_image_uri")
@@ -299,8 +360,17 @@ fun QuickEditEditorNavigation(
             val showOverlay by sharedEditorViewModel.showOverlay
                 .collectAsStateWithLifecycle()
 
+            val bitmapStack = sharedEditorViewModel.bitmapStack
+            if (bitmapStack.isEmpty()) {
+                BackgroundRemovalLoadingOverlay(
+                    modifier = Modifier.fillMaxSize(),
+                    message = ""
+                )
+                return@composable
+            }
+
             val initialEditorState = EditorScreenState(
-                sharedEditorViewModel.bitmapStack,
+                bitmapStack,
                 sharedEditorViewModel.bitmapRedoStack,
                 recompositionTrigger = visualState,
                 showOverlay = showOverlay
@@ -482,6 +552,7 @@ fun QuickEditEditorNavigation(
             ImageTheme(darkTheme = false) {
                 SingleImagePickerScreen(
                     onImageSelected = { uri ->
+                        AppAnalytics.onSelectImage(context, "editor_background")
                         navController.previousBackStackEntry
                             ?.savedStateHandle
                             ?.set("background_image_uri", uri)
@@ -498,6 +569,7 @@ fun QuickEditEditorNavigation(
             ImageTheme(darkTheme = false) {
                 SingleImagePickerScreen(
                     onImageSelected = { uri ->
+                        AppAnalytics.onSelectImage(context, "editor_add_image")
                         navController.previousBackStackEntry
                             ?.savedStateHandle
                             ?.set("add_image_uri", uri)
@@ -516,11 +588,19 @@ fun QuickEditEditorNavigation(
                     immutableBitmap = ImmutableBitmap(bmp),
                     onBackPressed = { navController.navigateUp() },
                     onDoneClicked = { resultBitmap: Bitmap ->
-                        sharedEditorViewModel.addBitmapToStack(
-                            bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
-                        )
-                        navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                            popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                        val added = runCatching {
+                            sharedEditorViewModel.addBitmapToStack(
+                                bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
+                                triggerRecomposition = true,
+                                addSafelyWithoutMultipleTriggers = false,
+                            )
+                        }.getOrDefault(false)
+                        if (added) {
+                            navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                                popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                            }
+                        } else {
+                            context.toast(context.getString(com.thgiang.image.R.string.edit_image_failed))
                         }
                     }
                 )
@@ -642,15 +722,17 @@ private fun SafeScreenWrapper(
     navController: androidx.navigation.NavController,
     content: @Composable (Bitmap) -> Unit
 ) {
-    val bitmap = remember {
-        runCatching { sharedEditorViewModel.getCurrentBitmap() }.getOrNull()
+    val trigger by sharedEditorViewModel.recompositionTrigger.collectAsStateWithLifecycle()
+    val bitmap = remember(trigger) {
+        sharedEditorViewModel.getCurrentBitmapOrNull()
     }
-    if (bitmap != null) {
+    if (bitmap != null && !bitmap.isRecycled) {
         content(bitmap)
     } else {
-        LaunchedEffect(Unit) {
+        LaunchedEffect(trigger) {
             navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                popUpTo(0) { inclusive = true }
+                popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = false }
+                launchSingleTop = true
             }
         }
         BackgroundRemovalLoadingOverlay(

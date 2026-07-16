@@ -22,6 +22,7 @@ fun detectHandleRotated(
     edgeHandleHeightPx: Float = 0f,
     handleTouchPaddingPx: Float = 0f,
     isInlineEditing: Boolean = false,
+    minimalTextHandles: Boolean = false,
 ): HandleZone {
     val local = inverseRotatePoint(touch, center, rotation)
 
@@ -29,9 +30,11 @@ fun detectHandleRotated(
     val hh = screenH / 2f
 
     if (isInlineEditing) {
-        val density = handleRadius / 6f
-        val movePos = Offset(center.x, center.y + hh + 20f * density)
-        val moveHitRadius = 18f * density // generous 18.dp target
+        // Keep move-handle geometry in dp-equivalent space (HandleRadiusDp is the visual reference).
+        val density = handleRadius / EditorDims.HandleRadiusDp.value
+        val moveGapPx = EditorDims.TextInlineMoveHandleGapDp.value * density
+        val movePos = Offset(center.x, center.y - hh - moveGapPx)
+        val moveHitRadius = EditorDims.TextInlineMoveHandleHitRadiusDp.value * density
         if (distance(local, movePos) <= moveHitRadius) {
             return HandleZone.Body
         }
@@ -50,12 +53,16 @@ fun detectHandleRotated(
     var bestZone: HandleZone = HandleZone.None
     var minDistance = Float.MAX_VALUE
 
-    val corners = listOf(
-        Offset(center.x - hw, center.y - hh) to HandleZone.Corner.TL,
-        Offset(center.x + hw, center.y - hh) to HandleZone.Corner.TR,
-        Offset(center.x - hw, center.y + hh) to HandleZone.Corner.BL,
-        Offset(center.x + hw, center.y + hh) to HandleZone.Corner.BR
-    )
+    val corners = if (minimalTextHandles) {
+        listOf(Offset(center.x - hw, center.y - hh) to HandleZone.Corner.TL)
+    } else {
+        listOf(
+            Offset(center.x - hw, center.y - hh) to HandleZone.Corner.TL,
+            Offset(center.x + hw, center.y - hh) to HandleZone.Corner.TR,
+            Offset(center.x - hw, center.y + hh) to HandleZone.Corner.BL,
+            Offset(center.x + hw, center.y + hh) to HandleZone.Corner.BR
+        )
+    }
 
     corners.forEach { (pos, zone) ->
         val dist = distance(local, pos)
@@ -65,15 +72,19 @@ fun detectHandleRotated(
         }
     }
 
-    if (!lockAspectRatio && edgeHandleWidthPx > 0f && edgeHandleHeightPx > 0f) {
-        val edges = listOf(
-            Offset(center.x - hw, center.y) to HandleZone.Edge.Left,
-            Offset(center.x + hw, center.y) to HandleZone.Edge.Right,
-            Offset(center.x, center.y - hh) to HandleZone.Edge.Top,
-            Offset(center.x, center.y + hh) to HandleZone.Edge.Bottom
-        )
+    if (!lockAspectRatio || minimalTextHandles) {
+        val edgeHandles = if (minimalTextHandles) {
+            listOf(Offset(center.x + hw, center.y) to HandleZone.Edge.Right)
+        } else {
+            listOf(
+                Offset(center.x - hw, center.y) to HandleZone.Edge.Left,
+                Offset(center.x + hw, center.y) to HandleZone.Edge.Right,
+                Offset(center.x, center.y - hh) to HandleZone.Edge.Top,
+                Offset(center.x, center.y + hh) to HandleZone.Edge.Bottom
+            )
+        }
 
-        edges.forEach { (pos, zone) ->
+        edgeHandles.forEach { (pos, zone) ->
             if (!hitEdgeHandle(local, pos, zone, edgeHandleWidthPx, edgeHandleHeightPx, handleTouchPaddingPx)) {
                 return@forEach
             }
@@ -452,6 +463,74 @@ fun calculateSnapV2(
         lockedSnapX = resolvedX,
         lockedSnapY = resolvedY,
     )
+}
+
+/**
+ * Visual-only snap guides: returns alignment lines near [offset] without locking/correcting position.
+ * Used for 1:1 finger-follow drag so purple guides never hitch the bounding box.
+ */
+fun calculateSnapGuidesOnly(
+    offset: Offset,
+    contentSize: IntSize,
+    templateSize: IntSize,
+    otherLayers: List<EditorLayer>,
+): List<SnapLine> {
+    val cw = contentSize.width.toFloat()
+    val ch = contentSize.height.toFloat()
+    val threshold = EditorConfig.SNAP_DISTANCE_PX
+
+    val centerX = offset.x
+    val centerY = offset.y
+    val left = centerX - cw / 2f
+    val top = centerY - ch / 2f
+    val right = centerX + cw / 2f
+    val bottom = centerY + ch / 2f
+    val tw = templateSize.width.toFloat()
+    val th = templateSize.height.toFloat()
+
+    val (xCandidates, yCandidates) = collectTemplateSnapCandidates(
+        centerX, centerY, left, top, right, bottom, cw, ch, tw, th,
+    ).let { it.first.toMutableList() to it.second.toMutableList() }
+
+    for (other in otherLayers) {
+        if (!other.isVisible) continue
+        val otherW = other.shapeWidthPx * other.viewport.scale
+        val otherH = other.shapeHeightPx * other.viewport.scale
+        val otherLeft = other.viewport.offset.x - otherW / 2f
+        val otherRight = other.viewport.offset.x + otherW / 2f
+        val otherCenterX = other.viewport.offset.x
+        val otherTop = other.viewport.offset.y - otherH / 2f
+        val otherBottom = other.viewport.offset.y + otherH / 2f
+        val otherCenterY = other.viewport.offset.y
+        val minY = minOf(top, otherTop)
+        val maxY = maxOf(bottom, otherBottom)
+        val minX = minOf(left, otherLeft)
+        val maxX = maxOf(right, otherRight)
+
+        fun addX(target: Float, line: SnapLine, dist: Float) {
+            if (dist < threshold) xCandidates += AxisSnapCandidate(target, line, dist)
+        }
+        fun addY(target: Float, line: SnapLine, dist: Float) {
+            if (dist < threshold) yCandidates += AxisSnapCandidate(target, line, dist)
+        }
+
+        addX(otherLeft + cw / 2f, SnapLine(Offset(otherLeft, minY), Offset(otherLeft, maxY), SnapType.VERTICAL), abs(left - otherLeft))
+        addX(otherRight - cw / 2f, SnapLine(Offset(otherRight, minY), Offset(otherRight, maxY), SnapType.VERTICAL), abs(right - otherRight))
+        addX(otherCenterX, SnapLine(Offset(otherCenterX, minY), Offset(otherCenterX, maxY), SnapType.CENTER_X), abs(centerX - otherCenterX))
+        addX(otherRight + cw / 2f, SnapLine(Offset(otherRight, minY), Offset(otherRight, maxY), SnapType.VERTICAL), abs(left - otherRight))
+        addX(otherLeft - cw / 2f, SnapLine(Offset(otherLeft, minY), Offset(otherLeft, maxY), SnapType.VERTICAL), abs(right - otherLeft))
+
+        addY(otherTop + ch / 2f, SnapLine(Offset(minX, otherTop), Offset(maxX, otherTop), SnapType.HORIZONTAL), abs(top - otherTop))
+        addY(otherBottom - ch / 2f, SnapLine(Offset(minX, otherBottom), Offset(maxX, otherBottom), SnapType.HORIZONTAL), abs(bottom - otherBottom))
+        addY(otherCenterY, SnapLine(Offset(minX, otherCenterY), Offset(maxX, otherCenterY), SnapType.CENTER_Y), abs(centerY - otherCenterY))
+        addY(otherBottom + ch / 2f, SnapLine(Offset(minX, otherBottom), Offset(maxX, otherBottom), SnapType.HORIZONTAL), abs(top - otherBottom))
+        addY(otherTop - ch / 2f, SnapLine(Offset(minX, otherTop), Offset(maxX, otherTop), SnapType.HORIZONTAL), abs(bottom - otherTop))
+    }
+
+    val lines = mutableListOf<SnapLine>()
+    xCandidates.minByOrNull { it.distance }?.line?.let { lines.add(it) }
+    yCandidates.minByOrNull { it.distance }?.line?.let { lines.add(it) }
+    return lines
 }
 
 data class SnapResult(

@@ -15,7 +15,6 @@ internal val textFormPathPresets: List<TextFormPresetItem> = listOf(
     TextFormPresetItem(TextFormPreset.PATH_ARC_UP, R.string.studio_text_form_path_arc_up, 0.55f),
     TextFormPresetItem(TextFormPreset.PATH_ARC_DOWN, R.string.studio_text_form_path_arc_down, 0.55f),
     TextFormPresetItem(TextFormPreset.PATH_CIRCLE, R.string.studio_text_form_path_circle, 0.6f),
-    TextFormPresetItem(TextFormPreset.PATH_RING, R.string.studio_text_form_path_ring, 0.5f),
 )
 
 internal val textFormWarpPresets: List<TextFormPresetItem> = listOf(
@@ -27,8 +26,6 @@ internal val textFormWarpPresets: List<TextFormPresetItem> = listOf(
     TextFormPresetItem(TextFormPreset.WARP_FLAG, R.string.studio_text_form_warp_flag),
     TextFormPresetItem(TextFormPreset.WARP_RISE, R.string.studio_text_form_warp_rise),
     TextFormPresetItem(TextFormPreset.WARP_FALL, R.string.studio_text_form_warp_fall),
-    TextFormPresetItem(TextFormPreset.WARP_INFLATE, R.string.studio_text_form_warp_inflate),
-    TextFormPresetItem(TextFormPreset.WARP_DEFLATE, R.string.studio_text_form_warp_deflate),
     TextFormPresetItem(TextFormPreset.WARP_CHEVRON_UP, R.string.studio_text_form_warp_chevron_up),
     TextFormPresetItem(TextFormPreset.WARP_CHEVRON_DOWN, R.string.studio_text_form_warp_chevron_down),
 )

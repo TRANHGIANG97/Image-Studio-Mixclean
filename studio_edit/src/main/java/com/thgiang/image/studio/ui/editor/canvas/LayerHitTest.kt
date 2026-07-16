@@ -68,7 +68,8 @@ object LayerHitTest {
                 val scale = layer.viewport.scale * context.calculatedScale
                 var w = layer.shapeWidthPx * scale + padding
                 var h = layer.shapeHeightPx * scale + padding
-                if (layer.isLabelLayer && layer.text.isNotBlank()) {
+                // Expand hit area for label layers only — frame layers keep shape bounds.
+                if (layer.isLabelLayer && !layer.isFrameLayer && layer.text.isNotBlank()) {
                     val textSizePx = layer.textSizeSp * scale
                     h = kotlin.math.max(h, textSizePx * 1.4f + padding)
                     val approxCharW = textSizePx * 0.55f

@@ -3,11 +3,12 @@ import com.thgiang.image.studio.ui.editor.mapper.*
 
 import com.thgiang.image.studio.ui.editor.model.*
 
-import android.graphics.BlurMaskFilter
+import android.graphics.Bitmap
 import android.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import com.thgiang.image.core.util.blurBitmapForPortraitExport
 
 object EditorShadowMapper {
 
@@ -18,18 +19,59 @@ object EditorShadowMapper {
     ): Paint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
-            color = appearance.shadowColorArgb
+            // Opaque RGB only — Paint.alpha below owns opacity.
+            color = appearance.opaqueShadowColorArgb()
             alpha = (
                 shadowOpacityFromIntensity(appearance.shadowIntensity) *
                     appearance.alpha *
                     layerAlpha *
                     255f
                 ).toInt().coerceIn(0, 255)
-            maskFilter = BlurMaskFilter(
-                appearance.resolvedShadowBlurRadius() * renderScale.coerceAtLeast(0.01f),
-                BlurMaskFilter.Blur.NORMAL,
-            )
+            val blurRadius = appearance.resolvedShadowBlurRadius() * renderScale.coerceAtLeast(0.01f)
+            setSafeBlurMaskFilter(blurRadius)
         }
+
+    /**
+     * Build a soft drop-shadow bitmap from a cutout/product layer.
+     *
+     * Important: do NOT blur the original RGBA then tint. FastBoxBlur only blurs RGB
+     * (alpha stays hard), and cutout fringe colors (often cyan/blue) leak through any
+     * imperfect tint — producing neon hard outlines on export.
+     *
+     * Pipeline: alpha mask → fill with opaque shadow RGB → alpha-aware blur.
+     */
+    suspend fun buildProductDropShadowBitmap(
+        foreground: Bitmap,
+        blurRadius: Float,
+        shadowColorArgb: Int,
+    ): Bitmap? {
+        if (foreground.width <= 0 || foreground.height <= 0 || foreground.isRecycled) return null
+
+        val w = foreground.width
+        val h = foreground.height
+        val shadowRgb = shadowColorArgb and 0x00FFFFFF
+        val pixels = IntArray(w * h)
+        foreground.getPixels(pixels, 0, w, 0, 0, w, h)
+        for (i in pixels.indices) {
+            val a = (pixels[i] ushr 24) and 0xFF
+            // Straight alpha silhouette in the intended shadow color (no source RGB).
+            pixels[i] = if (a == 0) 0 else (a shl 24) or shadowRgb
+        }
+
+        val silhouette = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        silhouette.setPixels(pixels, 0, w, 0, 0, w, h)
+
+        if (blurRadius <= 0.5f) return silhouette
+
+        // Premultiplied box blur includes alpha → soft edges (unlike native FastBoxBlur).
+        val blurred = runCatching {
+            blurBitmapForPortraitExport(silhouette, blurRadius.coerceIn(0f, 25f))
+        }.getOrNull()
+
+        if (blurred == null || blurred === silhouette) return silhouette
+        if (!silhouette.isRecycled) silhouette.recycle()
+        return blurred
+    }
 
     fun shadowOffsetPx(appearance: EditorAppearance, scale: Float = 1f): Pair<Float, Float> =
         shadowOffsetWorldPx(appearance, scale)

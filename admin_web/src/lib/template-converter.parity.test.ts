@@ -149,6 +149,8 @@ describe('template-converter pure functions', () => {
     expect(s.shadowBlur).toBe(22);
     expect(s.shadowDistance).toBeCloseTo(10, 1);
     expect(s.shadowIntensity).toBeCloseTo(0.4, 2);
+    // RGB opaque — alpha from rgba goes into intensity only
+    expect(s.shadowColorArgb).toBe(-16777216); // 0xFF000000
   });
 });
 

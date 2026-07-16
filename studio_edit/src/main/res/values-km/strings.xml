@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">បុណ្យណូអែល</string>
     <string name="themeplate_section_memories">ការចងចាំ</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">សែលហ្វីអាហារ ១</string>
     <string name="themeplate_selfie_food_02">សែលហ្វីអាហារ ២</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">ពណ៌បន្ទាត់ព្រំ</string>
     <string name="studio_stroke_tab_style">ទម្រង់បន្ទាត់</string>
     <string name="studio_stroke_tab_width">កម្រាស់</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">គ្មានបន្ទាត់ព្រំ</string>
     <string name="studio_dash_solid">បន្ទាត់ជាប់</string>
     <string name="studio_dash_round_dot">ចំណុចមូលៗ</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">រត់តាមខ្សែបន្ទាត់</string>
     <string name="studio_text_form_warp">ការពត់ពង្រីកអក្សរ</string>
     <string name="studio_text_form_amount">កម្រិតឥទ្ធិពល</string>
+    <string name="studio_text_form_letter_spacing">គម្លាតអក្សរ</string>
     <string name="studio_text_form_none">គ្មាន</string>
     <string name="studio_text_form_path_wave">រលក</string>
     <string name="studio_text_form_path_arc_up">រាងធ្នូឡើងលើ</string>
     <string name="studio_text_form_path_arc_down">រាងធ្នូចុះក្រោម</string>
     <string name="studio_text_form_path_circle">រាងរង្វង់មូល</string>
-    <string name="studio_text_form_path_ring">រាងចិញ្ចៀន</string>
-    <string name="studio_text_form_warp_arch_up">រាងធ្នូឡើងលើ</string>
+<string name="studio_text_form_warp_arch_up">រាងធ្នូឡើងលើ</string>
     <string name="studio_text_form_warp_arch_down">រាងធ្នូចុះក្រោម</string>
     <string name="studio_text_form_warp_bulge">ប៉ោងកណ្តាល</string>
     <string name="studio_text_form_warp_wave">រលក</string>
     <string name="studio_text_form_warp_flag">ទង់ជាតិ</string>
     <string name="studio_text_form_warp_rise">កោងឡើងលើ</string>
     <string name="studio_text_form_warp_fall">កោងចុះក្រោម</string>
-    <string name="studio_text_form_warp_inflate">ពង្រីកធំដូចកញ្ចក់ប៉ោង</string>
-    <string name="studio_text_form_warp_deflate">រួមតូចចំកណ្តាល</string>
     <string name="studio_text_form_warp_chevron_up">រាងព្រួញចង្អុលឡើងលើ</string>
     <string name="studio_text_form_warp_chevron_down">រាងព្រួញចង្អុលចុះក្រោម</string>
     <string name="studio_objects_label">វត្ថុ និងស្រទាប់</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">បែបផុសទំហំ</string>
     <string name="studio_label_tab_text_form">សិល្បៈអក្សរ</string>
     <string name="studio_label_tab_shape">ស៊ុមជុំវិញ</string>
+    <string name="studio_label_tab_text_template">គំរូ</string>
+    <string name="studio_label_tab_more">ច្រើនទៀត</string>
+    <string name="studio_text_template_classic">បុរាណ</string>
+    <string name="studio_text_template_gradient">ជម្រាលពណ៌</string>
+    <string name="studio_text_template_sale">បញ្ចុះតម្លៃ</string>
+    <string name="studio_text_template_arc">ធ្នូ</string>
+    <string name="studio_text_template_outline">ស៊ុមគូស</string>
+    <string name="studio_text_template_neon">នីអុង</string>
+    <string name="studio_text_template_soft">ទន់</string>
+    <string name="studio_text_template_poster">ផ្ទាំងរូប</string>
+    <string name="studio_text_template_minimal">សាមញ្ញ</string>
+    <string name="studio_text_template_gold">មាស</string>
+    <string name="studio_text_template_retro">រីត្រូ</string>
+    <string name="studio_text_template_ocean">មហាសមុទ្រ</string>
+    <string name="studio_label_elevation_disabled_by_text_form">មិនអាចប្រើបែបផែនលើកកម្ពស់បានទេ នៅពេលទម្រង់អក្សរសិល្បៈកំពុងបើក។</string>
+    <string name="studio_text_form_path_hint">អូសអាំងតង់ស៊ីតេដើម្បីកោងផ្លូវអក្សរ។ គម្លាតអក្សរជួយជៀសវាងការត្រួតគ្នារបស់ភ្លីហ្វ។</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">ប្រព័ន្ធ</string>

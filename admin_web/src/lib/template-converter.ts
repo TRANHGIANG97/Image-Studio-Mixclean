@@ -295,6 +295,9 @@ export function extractShadowParams(obj: FabricObjectLike): ShadowParams {
     if (shadowAngle < 0) shadowAngle += 360;
 
     shadowColorArgb = colorToArgbInt(shadow.color || 'rgba(0, 0, 0, 0.4)');
+    // Opacity lives in shadowIntensity only. Force opaque RGB so mobile never tints with a
+    // semi-transparent color (which can leak cutout fringe colors as neon outlines).
+    shadowColorArgb = (0xff << 24) | (shadowColorArgb & 0x00ffffff);
     shadowBlur = shadow.blur || 15;
 
     // Extract opacity from shadow color

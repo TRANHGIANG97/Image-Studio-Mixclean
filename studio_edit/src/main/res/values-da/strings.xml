@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">Følg Sti</string>
     <string name="studio_text_form_warp">Warp</string>
     <string name="studio_text_form_amount">Intensitet</string>
+    <string name="studio_text_form_letter_spacing">Bogstavafstand</string>
     <string name="studio_text_form_none">Ingen</string>
     <string name="studio_text_form_path_wave">Bølge</string>
     <string name="studio_text_form_path_arc_up">Bue op</string>
     <string name="studio_text_form_path_arc_down">Bue ned</string>
     <string name="studio_text_form_path_circle">Cirkel</string>
-    <string name="studio_text_form_path_ring">Ring</string>
-    <string name="studio_text_form_warp_arch_up">Bue op</string>
+<string name="studio_text_form_warp_arch_up">Bue op</string>
     <string name="studio_text_form_warp_arch_down">Bue ned</string>
     <string name="studio_text_form_warp_bulge">Bule</string>
     <string name="studio_text_form_warp_wave">Bølge</string>
     <string name="studio_text_form_warp_flag">Flag</string>
     <string name="studio_text_form_warp_rise">Stig op</string>
     <string name="studio_text_form_warp_fall">Falde</string>
-    <string name="studio_text_form_warp_inflate">Pust op</string>
-    <string name="studio_text_form_warp_deflate">Tøm luften ud</string>
     <string name="studio_text_form_warp_chevron_up">Chevron op</string>
     <string name="studio_text_form_warp_chevron_down">Chevron ned</string>
     <string name="studio_objects_label">Objekter</string>
@@ -256,6 +254,8 @@
     <string name="studio_shape_expand">Udvide</string>
     <string name="studio_stroke_tab_style">Linje stil</string>
     <string name="studio_stroke_tab_width">Tykkelse</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Ingen grænse</string>
     <string name="studio_dash_solid">Solid</string>
     <string name="studio_dash_round_dot">Runde prikker</string>
@@ -304,6 +304,22 @@
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Kunstnerisk</string>
     <string name="studio_label_tab_shape">Ramme</string>
+    <string name="studio_label_tab_text_template">Skabeloner</string>
+    <string name="studio_label_tab_more">Mere</string>
+    <string name="studio_text_template_classic">Klassisk</string>
+    <string name="studio_text_template_gradient">Gradient</string>
+    <string name="studio_text_template_sale">Udsalg</string>
+    <string name="studio_text_template_arc">Bue</string>
+    <string name="studio_text_template_outline">Kontur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Blød</string>
+    <string name="studio_text_template_poster">Plakat</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Guld</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ocean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Højdeeffekt er ikke tilgængelig, mens kunstnerisk tekstform er aktiv.</string>
+    <string name="studio_text_form_path_hint">Træk intensiteten for at bøje tekstbanen. Bogstavafstand hjælper med at undgå overlap af glyffer.</string>
     <string name="studio_font_category_system">System</string>
     <string name="studio_label_document_styles">Dokumentstile</string>
     <string name="studio_label_style_title">Titel</string>
@@ -324,6 +340,8 @@
     <string name="studio_stroke_tab_color">Kantfarve</string>
     <string name="themeplate_section_christmas">Jul</string>
     <string name="themeplate_section_memories">Minder</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">Tilføj billede</string>
     <string name="studio_tool_remove_bg">Fjern baggrund</string>
     <string name="studio_shape_tab_arrange">Arranger</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">Skjul tastatur</string>
     <string name="studio_layers_toggle">Lag</string>
 </resources>
-
-

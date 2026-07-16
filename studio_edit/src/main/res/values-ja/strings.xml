@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">クリスマス</string>
     <string name="themeplate_section_memories">思い出</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">フード自撮り 1</string>
     <string name="themeplate_selfie_food_02">フード自撮り 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">境界線の色</string>
     <string name="studio_stroke_tab_style">線のスタイル</string>
     <string name="studio_stroke_tab_width">線の太さ</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">枠線なし</string>
     <string name="studio_dash_solid">実線</string>
     <string name="studio_dash_round_dot">丸点線</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">パスに沿わせる</string>
     <string name="studio_text_form_warp">ワープ変形</string>
     <string name="studio_text_form_amount">強度</string>
+    <string name="studio_text_form_letter_spacing">文字間隔</string>
     <string name="studio_text_form_none">なし</string>
     <string name="studio_text_form_path_wave">波型</string>
     <string name="studio_text_form_path_arc_up">上アーチ</string>
     <string name="studio_text_form_path_arc_down">下アーチ</string>
     <string name="studio_text_form_path_circle">円周</string>
-    <string name="studio_text_form_path_ring">リング</string>
-    <string name="studio_text_form_warp_arch_up">上アーチ</string>
+<string name="studio_text_form_warp_arch_up">上アーチ</string>
     <string name="studio_text_form_warp_arch_down">下アーチ</string>
     <string name="studio_text_form_warp_bulge">膨張</string>
     <string name="studio_text_form_warp_wave">波</string>
     <string name="studio_text_form_warp_flag">フラッグ</string>
     <string name="studio_text_form_warp_rise">上昇</string>
     <string name="studio_text_form_warp_fall">下降</string>
-    <string name="studio_text_form_warp_inflate">魚眼レンズ風</string>
-    <string name="studio_text_form_warp_deflate">中央しぼみ</string>
     <string name="studio_text_form_warp_chevron_up">山型矢印上</string>
     <string name="studio_text_form_warp_chevron_down">山型矢印下</string>
     <string name="studio_objects_label">オブジェクト</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">立体効果</string>
     <string name="studio_label_tab_text_form">テキストアート</string>
     <string name="studio_label_tab_shape">フレーム</string>
+    <string name="studio_label_tab_text_template">テンプレート</string>
+    <string name="studio_label_tab_more">その他</string>
+    <string name="studio_text_template_classic">クラシック</string>
+    <string name="studio_text_template_gradient">グラデーション</string>
+    <string name="studio_text_template_sale">セール</string>
+    <string name="studio_text_template_arc">アーク</string>
+    <string name="studio_text_template_outline">アウトライン</string>
+    <string name="studio_text_template_neon">ネオン</string>
+    <string name="studio_text_template_soft">ソフト</string>
+    <string name="studio_text_template_poster">ポスター</string>
+    <string name="studio_text_template_minimal">ミニマル</string>
+    <string name="studio_text_template_gold">ゴールド</string>
+    <string name="studio_text_template_retro">レトロ</string>
+    <string name="studio_text_template_ocean">オーシャン</string>
+    <string name="studio_label_elevation_disabled_by_text_form">テキストアート使用中は立体効果を利用できません。</string>
+    <string name="studio_text_form_path_hint">強度をドラッグして文字の線を曲げます。文字間隔で字形の重なりを防げます。</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">システム</string>

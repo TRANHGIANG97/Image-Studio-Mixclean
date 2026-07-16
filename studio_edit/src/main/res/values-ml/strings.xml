@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">ക്രിസ്തുമസ്</string>
     <string name="themeplate_section_memories">ഓർമ്മകൾ</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">ബോർഡർ നിറം</string>
     <string name="studio_stroke_tab_style">ലൈൻ സ്റ്റൈൽ</string>
     <string name="studio_stroke_tab_width">വണ്ണം</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">ബോർഡർ ഇല്ല</string>
     <string name="studio_dash_solid">സോളിഡ് ലൈൻ</string>
     <string name="studio_dash_round_dot">റൗണ്ട് ഡോട്ട്സ്</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">പാത്ത് പിന്തുടരുക</string>
     <string name="studio_text_form_warp">വാർപ്പ്</string>
     <string name="studio_text_form_amount">തീവ്രത</string>
+    <string name="studio_text_form_letter_spacing">അക്ഷര അകലം</string>
     <string name="studio_text_form_none">ഒന്നുമില്ല</string>
     <string name="studio_text_form_path_wave">വേവ്</string>
     <string name="studio_text_form_path_arc_up">ആർക്ക് അപ്പ്</string>
     <string name="studio_text_form_path_arc_down">ആർക്ക് ഡൗൺ</string>
     <string name="studio_text_form_path_circle">വട്ടം</string>
-    <string name="studio_text_form_path_ring">റിംഗ്</string>
-    <string name="studio_text_form_warp_arch_up">ആർച്ച് അപ്പ്</string>
+<string name="studio_text_form_warp_arch_up">ആർച്ച് അപ്പ്</string>
     <string name="studio_text_form_warp_arch_down">ആർച്ച് ഡൗൺ</string>
     <string name="studio_text_form_warp_bulge">ബൾജ്</string>
     <string name="studio_text_form_warp_wave">വേവ്</string>
     <string name="studio_text_form_warp_flag">ഫ്ലാഗ്</string>
     <string name="studio_text_form_warp_rise">റൈസ്</string>
     <string name="studio_text_form_warp_fall">ഫോൾ</string>
-    <string name="studio_text_form_warp_inflate">ഇൻഫ്ലേറ്റ്</string>
-    <string name="studio_text_form_warp_deflate">ഡിഫ്ലേറ്റ്</string>
     <string name="studio_text_form_warp_chevron_up">ഷെവ്റോൺ അപ്പ്</string>
     <string name="studio_text_form_warp_chevron_down">ഷെവ്റോൺ ഡൗൺ</string>
     <string name="studio_objects_label">ഒബ്ജക്റ്റുകൾ</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">ഇഫക്റ്റ്</string>
     <string name="studio_label_tab_text_form">ആർട്ടിസ്റ്റിക്</string>
     <string name="studio_label_tab_shape">ഫ്രെയിം</string>
+    <string name="studio_label_tab_text_template">ടെംപ്ലേറ്റുകൾ</string>
+    <string name="studio_label_tab_more">കൂടുതൽ</string>
+    <string name="studio_text_template_classic">ക്ലാസിക്</string>
+    <string name="studio_text_template_gradient">ഗ്രേഡിയന്റ്</string>
+    <string name="studio_text_template_sale">സെയിൽ</string>
+    <string name="studio_text_template_arc">ചാപം</string>
+    <string name="studio_text_template_outline">ഔട്ട്‌ലൈൻ</string>
+    <string name="studio_text_template_neon">നിയോൺ</string>
+    <string name="studio_text_template_soft">മൃദു</string>
+    <string name="studio_text_template_poster">പോസ്റ്റർ</string>
+    <string name="studio_text_template_minimal">മിനിമൽ</string>
+    <string name="studio_text_template_gold">സ്വർണ്ണം</string>
+    <string name="studio_text_template_retro">റെട്രോ</string>
+    <string name="studio_text_template_ocean">സമുദ്രം</string>
+    <string name="studio_label_elevation_disabled_by_text_form">ആർട്ടിസ്റ്റിക് ടെക്സ്റ്റ് ഫോം സജീവമായിരിക്കുമ്പോൾ എലിവേഷൻ ഇഫക്റ്റ് ലഭ്യമല്ല.</string>
+    <string name="studio_text_form_path_hint">ടെക്സ്റ്റ് പാത വളയ്ക്കാൻ തീവ്രത വലിക്കുക. അക്ഷര അകലം ഗ്ലിഫ് ഓവർലാപ്പ് ഒഴിവാക്കാൻ സഹായിക്കുന്നു.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">സിസ്റ്റം</string>

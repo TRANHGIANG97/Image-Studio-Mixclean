@@ -1,46 +1,43 @@
 package com.thgiang.image.studio.ui.editor.canvas.text
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.thgiang.image.studio.ui.editor.mapper.EditorTextStyleMapper
-import com.thgiang.image.studio.ui.editor.mapper.TextElevationMapper.drawTextElevation
-import com.thgiang.image.studio.ui.editor.mapper.TextFormLayoutEngine.drawTextForm
-import com.thgiang.image.studio.ui.editor.mapper.hasShape3DDepth
-import com.thgiang.image.studio.ui.editor.mapper.supportsTextElevation
-import com.thgiang.image.studio.ui.editor.model.EditorLayer
-import com.thgiang.image.studio.ui.editor.model.appliesTextElevation
-import com.thgiang.image.studio.ui.editor.model.isLabelLayer
-import androidx.compose.ui.res.stringResource
 import com.thgiang.image.studio.R
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
+import com.thgiang.image.studio.ui.editor.model.EditorLayer
+import com.thgiang.image.studio.ui.editor.model.TextRunOps
+import com.thgiang.image.studio.ui.editor.model.isLabelLayer
+import com.thgiang.image.studio.ui.editor.model.withTextSpans
+
+/** Visible caret while inline-editing (matches text edit frame accent). */
+private val InlineCaretBrush = SolidColor(Color(0xFF7C3AED))
 
 @Composable
 internal fun TextLabelLayerContent(
@@ -64,31 +61,56 @@ internal fun TextLabelLayerContent(
     if (!layer.isLabelLayer || (layer.text.isBlank() && !isInlineEditing)) return
 
     val context = LocalContext.current
-    val canDrawTextElevation = layer.supportsTextElevation &&
-        layer.appearance.hasShape3DDepth(templateScale) &&
-        layer.appearance.appliesTextElevation()
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .drawBehind {
-                if (canDrawTextElevation && !layer.textForm.isActive) {
-                    drawTextElevation(
-                        layer = layer,
-                        renderScale = templateScale,
-                        context = context,
-                    )
-                }
-            },
+        modifier = modifier.fillMaxSize(),
         contentAlignment = if (layer.textForm.isActive) Alignment.Center else Alignment.TopCenter,
     ) {
         if (isInlineEditing) {
+            val annotated = remember(
+                layer.text,
+                layer.textSpans,
+                layer.fontWeight,
+                layer.fontStyle,
+                layer.textColorArgb,
+                layer.underline,
+                layer.linethrough,
+                inlineTextDraft.text,
+            ) {
+                val displayLayer = if (inlineTextDraft.text == layer.text) {
+                    layer
+                } else {
+                    val reflowed = TextRunOps.reflow(
+                        TextRunOps.effectiveSpans(layer),
+                        layer.text,
+                        inlineTextDraft.text,
+                    )
+                    layer.withTextSpans(reflowed)
+                }
+                TextRunOps.toAnnotatedString(displayLayer)
+            }
+            val styledDraft = remember(annotated, inlineTextDraft.selection, inlineTextDraft.composition) {
+                TextFieldValue(
+                    annotatedString = annotated,
+                    selection = inlineTextDraft.selection,
+                    composition = inlineTextDraft.composition,
+                )
+            }
             BasicTextField(
-                value = inlineTextDraft,
-                onValueChange = onInlineTextDraftChange,
+                value = styledDraft,
+                onValueChange = { next ->
+                    onInlineTextDraftChange(
+                        TextFieldValue(
+                            text = next.text,
+                            selection = next.selection,
+                            composition = next.composition,
+                        ),
+                    )
+                },
                 textStyle = textStyle,
                 singleLine = false,
                 maxLines = 6,
+                cursorBrush = InlineCaretBrush,
                 onTextLayout = onTextLayout,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
                 decorationBox = { innerTextField ->
@@ -119,66 +141,24 @@ internal fun TextLabelLayerContent(
                     .padding(horizontal = paddingX, vertical = paddingY),
             )
         } else if (layer.text.isNotBlank()) {
-            val hasShadow = layer.appearance.shadowIntensity > 0.05f
-            val hasStroke = layer.strokeWidthPx > 0f
-            if (layer.textForm.isActive || hasShadow || hasStroke) {
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = paddingX, vertical = paddingY),
-                ) {
-                    if (canDrawTextElevation && layer.textForm.isActive) {
-                        drawTextElevation(
-                            layer = layer,
-                            renderScale = templateScale,
-                            context = context,
-                        )
-                    }
-                    if (layer.textForm.isActive) {
-                        drawTextForm(
-                            layer = layer,
-                            renderScale = templateScale,
-                            context = context,
-                            gradientLeft = 0f,
-                            gradientTop = 0f,
-                            gradientWidth = size.width,
-                            gradientHeight = size.height,
-                        )
-                    } else {
-                        drawIntoCanvas { composeCanvas ->
-                            com.thgiang.image.studio.ui.editor.mapper.EditorTextRenderMapper.drawFlatTextOnCanvas(
-                                canvas = composeCanvas.nativeCanvas,
-                                layer = layer,
-                                left = 0f,
-                                top = 0f,
-                                width = size.width,
-                                height = size.height,
-                                renderScale = templateScale,
-                                context = context,
-                                rotationDeg = layer.viewport.rotation,
-                            )
-                        }
-                    }
+            // Always use DocumentRenderPipeline so preview metrics match export (I6).
+            Canvas(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = paddingX, vertical = paddingY),
+            ) {
+                drawIntoCanvas { composeCanvas ->
+                    com.thgiang.image.studio.ui.editor.document.render.DocumentRenderPipeline.drawTextLayer(
+                        canvas = composeCanvas.nativeCanvas,
+                        context = context,
+                        layer = layer,
+                        left = 0f,
+                        top = 0f,
+                        width = size.width,
+                        height = size.height,
+                        renderScale = templateScale,
+                    )
                 }
-            } else {
-                val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
-                Text(
-                    text = displayText,
-                    style = textStyle,
-                    onTextLayout = onTextLayout,
-                    overflow = TextOverflow.Visible,
-                    softWrap = true,
-                    modifier = Modifier
-                        .width(displaySize.width)
-                        .then(
-                            if (layer.textBackgroundColorArgb != null) {
-                                Modifier.background(Color(layer.textBackgroundColorArgb))
-                            } else {
-                                Modifier
-                            },
-                        )
-                        .padding(horizontal = paddingX, vertical = paddingY),
-                )
             }
         }
     }

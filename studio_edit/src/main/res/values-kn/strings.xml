@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">ಕ್ರಿಸ್‌ಮಸ್</string>
     <string name="themeplate_section_memories">ನೆನಪುಗಳು</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
 
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">ಫುಡ್ ಸೆಲ್ಫಿ 1</string>
@@ -116,6 +118,8 @@
     <string name="studio_stroke_tab_color">ಬಾರ್ಡರ್ ಬಣ್ಣ</string>
     <string name="studio_stroke_tab_style">ಲೈನ್ ಶೈಲಿ</string>
     <string name="studio_stroke_tab_width">ದಪ್ಪ</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">ಬಾರ್ಡರ್ ಇಲ್ಲ</string>
     <string name="studio_dash_solid">ಸಾಲಿಡ್ ಲೈನ್</string>
     <string name="studio_dash_round_dot">ದುಂಡಗಿನ ಚುಕ್ಕೆಗಳು</string>
@@ -263,13 +267,13 @@
     <string name="studio_text_form_follow_path">ಪಾತ್ ಅನುಸರಿಸಿ</string>
     <string name="studio_text_form_warp">ವಾರ್ಪ್ (ತಿರುಚು)</string>
     <string name="studio_text_form_amount">ತೀವ್ರತೆ</string>
+    <string name="studio_text_form_letter_spacing">ಅಕ್ಷರ ಅಂತರ</string>
     <string name="studio_text_form_none">ಯಾವುದೂ ಇಲ್ಲ</string>
     <string name="studio_text_form_path_wave">ಅಲೆ</string>
     <string name="studio_text_form_path_arc_up">ಆರ್ಕ್ ಮೇಲೆ</string>
     <string name="studio_text_form_path_arc_down">ಆರ್ಕ್ ಕೆಳಗೆ</string>
     <string name="studio_text_form_path_circle">ವೃತ್ತಾಕಾರ</string>
-    <string name="studio_text_form_path_ring">ರಿಂಗ್</string>
-    <string name="studio_text_form_warp_arch_up">ಆರ್ಚ್ ಮೇಲೆ</string>
+<string name="studio_text_form_warp_arch_up">ಆರ್ಚ್ ಮೇಲೆ</string>
     <string name="studio_text_form_warp_arch_down">ಆರ್ಚ್ ಕೆಳಗೆ</string>
     <string name="studio_text_form_warp_bulge">ಉಬ್ಬು</string>
     <string name="studio_text_form_warp_wave">ಅಲೆ</string>
@@ -277,8 +281,6 @@
     <string name="studio_text_form_warp_rise">ಎತ್ತು</string>
     <string name="studio_text_form_warp_rose">ಏರಿಕೆ</string>
     <string name="studio_text_form_warp_fall">ಇಳಿಕೆ</string>
-    <string name="studio_text_form_warp_inflate">ಉಬ್ಬಿಸು</string>
-    <string name="studio_text_form_warp_deflate">ಕುಗ್ಗಿಸು</string>
     <string name="studio_text_form_warp_chevron_up">ಚೆವ್ರಾನ್ ಮೇಲೆ</string>
     <string name="studio_text_form_warp_chevron_down">ಚೆವ್ರಾನ್ ಕೆಳಗೆ</string>
     <string name="studio_objects_label">ಆಬ್ಜೆಕ್ಟ್ಸ್</string>
@@ -325,6 +327,22 @@
     <string name="studio_label_tab_elevation">ಎಫೆಕ್ಟ್</string>
     <string name="studio_label_tab_text_form">ಕಲಾತ್ಮಕ</string>
     <string name="studio_label_tab_shape">ಫ್ರೇಮ್</string>
+    <string name="studio_label_tab_text_template">ಟೆಂಪ್ಲೇಟ್‌ಗಳು</string>
+    <string name="studio_label_tab_more">ಇನ್ನಷ್ಟು</string>
+    <string name="studio_text_template_classic">ಕ್ಲಾಸಿಕ್</string>
+    <string name="studio_text_template_gradient">ಗ್ರೇಡಿಯಂಟ್</string>
+    <string name="studio_text_template_sale">ಮಾರಾಟ</string>
+    <string name="studio_text_template_arc">ಚಾಪ</string>
+    <string name="studio_text_template_outline">ರೂಪರೇಖೆ</string>
+    <string name="studio_text_template_neon">ನಿಯಾನ್</string>
+    <string name="studio_text_template_soft">ಮೃದು</string>
+    <string name="studio_text_template_poster">ಪೋಸ್ಟರ್</string>
+    <string name="studio_text_template_minimal">ಮಿನಿಮಲ್</string>
+    <string name="studio_text_template_gold">ಚಿನ್ನ</string>
+    <string name="studio_text_template_retro">ರೆಟ್ರೋ</string>
+    <string name="studio_text_template_ocean">ಸಾಗರ</string>
+    <string name="studio_label_elevation_disabled_by_text_form">ಕಲಾತ್ಮಕ ಪಠ್ಯ ರೂಪ ಸಕ್ರಿಯವಾಗಿರುವಾಗ ಎತ್ತರದ ಪರಿಣಾಮ ಲಭ್ಯವಿಲ್ಲ.</string>
+    <string name="studio_text_form_path_hint">ಪಠ್ಯ ಮಾರ್ಗವನ್ನು ಬಾಗಿಸಲು ತೀವ್ರತೆಯನ್ನು ಎಳೆಯಿರಿ. ಅಕ್ಷರ ಅಂತರವು ಗ್ಲಿಫ್ ಅತಿಕ್ರಮಣವನ್ನು ತಪ್ಪಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">ಸಿಸ್ಟಮ್</string>

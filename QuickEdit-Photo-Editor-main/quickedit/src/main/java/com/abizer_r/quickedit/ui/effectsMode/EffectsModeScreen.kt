@@ -117,13 +117,22 @@ fun EffectsModeScreen(
         onCloseClickedLambda()
     }
 
-    val onDoneClickedLambda = remember<() -> Unit> { {
-        coroutineScope.launch(Dispatchers.Main) {
-            toolbarVisible = false
-            delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
-            onDoneClicked(currentBitmap)
+    val onDoneClickedLambda = remember<() -> Unit>(state.selectedEffectIndex, state.effectsList.size) {
+        {
+            coroutineScope.launch(Dispatchers.Main) {
+                toolbarVisible = false
+                delay(AnimUtils.TOOLBAR_COLLAPSE_ANIM_DURATION_FAST.toLong())
+                val recipe = viewModel.selectedRecipe()
+                val fullRes = runCatching {
+                    withContext(Dispatchers.Default) {
+                        EffectsModeUtils.applyFullResolution(context, bitmap, recipe)
+                    }
+                }.getOrElse { bitmap }
+                onDoneClicked(fullRes)
+            }
+            Unit
         }
-    }}
+    }
 
     val onEffectItemClicked = remember<(Int, EffectItem) -> Unit> {{ index, effectItem ->
         viewModel.selectEffect(index)

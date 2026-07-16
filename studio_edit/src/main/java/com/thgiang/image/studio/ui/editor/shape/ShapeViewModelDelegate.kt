@@ -4,20 +4,19 @@ import com.thgiang.image.core.domain.model.template.CloudGradient
 import com.thgiang.image.studio.ui.editor.label.EditorLayerMutationHost
 import com.thgiang.image.studio.ui.editor.label.factory.EditorLayerFactory
 import com.thgiang.image.studio.ui.editor.label.model.applyShapeTypeChange
-import com.thgiang.image.studio.ui.editor.model.EditorLayer
+import com.thgiang.image.studio.ui.editor.mapper.EditorStrokeMapper
 import com.thgiang.image.studio.ui.editor.model.EditorState
 import com.thgiang.image.studio.ui.editor.model.EditorTool
 import com.thgiang.image.studio.ui.editor.model.ShapeType
-import kotlinx.coroutines.flow.MutableSharedFlow
 
+/** Legacy fallback when DocumentSession is disabled. */
 class ShapeViewModelDelegate(
     private val layerFactory: EditorLayerFactory,
-    shapeFitFlow: MutableSharedFlow<Unit>,
     readState: () -> EditorState,
     updateState: (EditorState.() -> EditorState) -> Unit,
     requestHistoryPush: () -> Unit,
     pushHistory: () -> Unit,
-) : EditorLayerMutationHost(shapeFitFlow, readState, updateState, requestHistoryPush, pushHistory) {
+) : EditorLayerMutationHost(readState, updateState, requestHistoryPush, pushHistory) {
 
     fun addShapeLayer(shapeType: ShapeType, templateWidth: Float) {
         val layer = layerFactory.createShapeLayer(templateWidth, shapeType)
@@ -51,28 +50,20 @@ class ShapeViewModelDelegate(
 
     fun updateShapeColor(argb: Int) {
         updateActiveFrameLayer {
-            val alpha = (argb ushr 24) and 0xFF
-            val targetShape = if (alpha > 0) {
-                if (it.shapeType == ShapeType.TEXT_ONLY) ShapeType.CARD else it.shapeType
-            } else {
-                ShapeType.TEXT_ONLY
-            }
-            it.copy(
-                shapeColorArgb = argb,
-                fillGradient = null,
-                shapeType = targetShape
-            )
+            it.copy(shapeColorArgb = argb, fillGradient = null)
+        }
+    }
+
+    fun updateShapeFillOpacity(alpha: Float) {
+        val alphaByte = (alpha.coerceIn(0.1f, 1f) * 255f).toInt().coerceIn(0, 255)
+        updateActiveFrameLayer { layer ->
+            layer.copy(shapeColorArgb = (alphaByte shl 24) or (layer.shapeColorArgb and 0x00FFFFFF))
         }
     }
 
     fun updateFillGradient(gradient: CloudGradient?) {
         updateActiveFrameLayer {
-            val targetShape = if (gradient != null) {
-                if (it.shapeType == ShapeType.TEXT_ONLY) ShapeType.CARD else it.shapeType
-            } else {
-                it.shapeType
-            }
-            it.copy(fillGradient = gradient, shapeType = targetShape)
+            it.copy(fillGradient = gradient)
         }
     }
 
@@ -98,7 +89,22 @@ class ShapeViewModelDelegate(
     }
 
     fun updateStrokeDash(dashArray: List<Float>) {
-        updateActiveFrameLayer { it.copy(strokeDashArray = dashArray) }
+        val gap = EditorStrokeMapper.extractDashGap(dashArray)
+        updateActiveFrameLayer { it.copy(strokeDashArray = dashArray, strokeDashGapPx = gap) }
+    }
+
+    fun updateStrokeDashGap(gapPx: Float) {
+        val gap = gapPx.coerceIn(0f, 40f)
+        updateActiveFrameLayer { layer ->
+            val updatedArray = if (layer.strokeDashArray.size >= 2) {
+                layer.strokeDashArray.mapIndexed { index, length ->
+                    if (index % 2 == 1) gap else length
+                }
+            } else {
+                layer.strokeDashArray
+            }
+            layer.copy(strokeDashArray = updatedArray, strokeDashGapPx = gap)
+        }
     }
 
     fun updateCornerRadius(radiusPx: Float) {

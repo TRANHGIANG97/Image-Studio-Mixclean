@@ -1,18 +1,8 @@
 package com.thgiang.image.studio.ui.editor.canvas
 
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.shadow
-import androidx.compose.foundation.border
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.OpenWith
-import androidx.compose.material3.Icon
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
@@ -46,6 +35,9 @@ import androidx.compose.ui.zIndex
 import com.thgiang.image.studio.ui.editor.canvas.GestureDelta
 import com.thgiang.image.studio.ui.editor.canvas.shape.ShapeFrameLayerContent
 import com.thgiang.image.studio.ui.editor.canvas.text.TextLabelLayerContent
+import com.thgiang.image.studio.ui.editor.canvas.text.isTapInsideInlineTextBounds
+import com.thgiang.image.studio.ui.editor.canvas.text.mapOverlayTapToTextOffset
+import com.thgiang.image.studio.ui.editor.canvas.text.textSelectionRange
 import com.thgiang.image.studio.ui.editor.label.geometry.EditorShapeGeometry
 import com.thgiang.image.studio.ui.editor.mapper.EditorBlendModeMapper
 import com.thgiang.image.studio.ui.editor.mapper.EditorGradientMapper
@@ -54,7 +46,7 @@ import com.thgiang.image.studio.ui.editor.model.EditorLayer
 import androidx.compose.foundation.layout.offset
 import com.thgiang.image.studio.ui.editor.mapper.hasShapeBorder
 import com.thgiang.image.studio.ui.editor.mapper.resolveStrokeWidthPx
-import com.thgiang.image.studio.ui.editor.model.isLabelLayer
+import com.thgiang.image.studio.ui.editor.model.hasTextOnlyBackgroundDecor
 import com.thgiang.image.studio.ui.editor.model.shouldRenderFrameContent
 import com.thgiang.image.studio.ui.editor.model.shouldRenderLabelContent
 import kotlin.math.roundToInt
@@ -76,6 +68,7 @@ fun ShapeTextLayer(
     onTapToSelect: () -> Unit = {},
     onCommitInlineEdit: (String) -> Unit = {},
     onUpdateInlineEdit: (String) -> Unit = {},
+    onInlineSelectionChange: (start: Int, end: Int) -> Unit = { _, _ -> },
     onSyncShapeSize: (widthPx: Float, heightPx: Float) -> Unit = { _, _ -> },
     allLayers: List<EditorLayer> = emptyList(),
     onGestureActiveChanged: (Boolean) -> Unit = {},
@@ -118,12 +111,14 @@ fun ShapeTextLayer(
         (layer.shapeColorArgb ushr 24) and 0xFF,
         layer.fillGradient != null,
     )
+    val fillOpacity = EditorGradientMapper.shapeFillOpacity(layer.shapeColorArgb)
     val fillBrush = remember(layer.fillGradient, layer.shapeColorArgb, shapeWidthPx, shapeHeightPx) {
         EditorGradientMapper.toComposeBrush(
             gradient = layer.fillGradient,
             width = shapeWidthPx,
             height = shapeHeightPx,
             fallbackColor = shapeColor,
+            opacityMultiplier = if (layer.fillGradient != null) fillOpacity else 1f,
         )
     }
     val textColor = Color(layer.textColorArgb)
@@ -218,9 +213,13 @@ fun ShapeTextLayer(
         if (isInlineEditing) {
             val normalizedText = if (layer.text == "Nhập chữ..." || layer.text == defaultPlaceholder) "" else layer.text
             if (inlineTextDraft.text != normalizedText) {
+                // Keep caret / selection when parent syncs text (avoid jumping to end).
+                val max = normalizedText.length
+                val start = inlineTextDraft.selection.start.coerceIn(0, max)
+                val end = inlineTextDraft.selection.end.coerceIn(0, max)
                 inlineTextDraft = TextFieldValue(
                     text = normalizedText,
-                    selection = TextRange(normalizedText.length),
+                    selection = TextRange(start, end),
                 )
             }
         }
@@ -228,18 +227,82 @@ fun ShapeTextLayer(
 
     val commitInlineEdit = { onCommitInlineEdit(inlineTextDraft.text) }
 
-    val strokePad = if (layer.hasShapeBorder) {
+    val isTextOnlyLayer = EditorShapeGeometry.isTextOnlyShape(layer.shapeType)
+    val strokePad = if (!isTextOnlyLayer && layer.hasShapeBorder) {
         layer.resolveStrokeWidthPx() * templateScale
     } else {
         0f
     }
-    val bleedPx = com.thgiang.image.studio.ui.editor.mapper.EditorShadowMapper.computeShadowBleedPx(
-        appearance = layer.appearance,
-        scale = templateScale,
-        rotationDeg = layer.viewport.rotation,
-        extraStrokePx = strokePad,
-    )
-    val paddingExtra = with(density) { bleedPx.toDp() }.coerceAtLeast(16.dp)
+    val bleedPx = if (isTextOnlyLayer) {
+        0f
+    } else {
+        com.thgiang.image.studio.ui.editor.mapper.EditorShadowMapper.computeShadowBleedPx(
+            appearance = layer.appearance,
+            scale = templateScale,
+            rotationDeg = layer.viewport.rotation,
+            extraStrokePx = strokePad,
+        )
+    }
+    val paddingExtra = if (isTextOnlyLayer) {
+        16.dp
+    } else {
+        with(density) { bleedPx.toDp() }.coerceAtLeast(16.dp)
+    }
+
+    val overlayMargin = paddingExtra * 2 + 16.dp
+    val moveHandleExtraTop = if (isInlineEditing) {
+        EditorDims.TextInlineMoveHandleGapDp +
+            EditorDims.TextInlineMoveHandleHitRadiusDp + 8.dp
+    } else {
+        0.dp
+    }
+
+    val applyInlineTextPointer: (Offset, Offset?, Boolean) -> Unit = fn@ { tapStart, tapEnd, isDragSelect ->
+        val layout = textLayoutResult ?: return@fn
+        val overlayW = with(density) { (displayW + overlayMargin).toPx() }
+        val overlayH = with(density) { (displayH + overlayMargin + moveHandleExtraTop).toPx() }
+        // Overlay box is Alignment.Center with the text layer — use geometric center.
+        val contentCenter = Offset(overlayW / 2f, overlayH / 2f)
+        val screenW = with(density) { displayW.toPx() }
+        val screenH = with(density) { displayH.toPx() }
+        val paddingXPx = with(density) { paddingX.toPx() }
+        val paddingYPx = with(density) { paddingY.toPx() }
+        val rotation = layer.viewport.rotation
+
+        if (!isTapInsideInlineTextBounds(tapStart, contentCenter, screenW, screenH, rotation)) {
+            return@fn
+        }
+
+        if (isDragSelect && tapEnd != null &&
+            isTapInsideInlineTextBounds(tapEnd, contentCenter, screenW, screenH, rotation)
+        ) {
+            val startOffset = mapOverlayTapToTextOffset(
+                tapStart, contentCenter, screenW, screenH, rotation,
+                paddingXPx, paddingYPx, layout,
+            )
+            val endOffset = mapOverlayTapToTextOffset(
+                tapEnd, contentCenter, screenW, screenH, rotation,
+                paddingXPx, paddingYPx, layout,
+            )
+            val (selStart, selEnd) = textSelectionRange(startOffset, endOffset)
+            inlineTextDraft = TextFieldValue(
+                text = inlineTextDraft.text,
+                selection = TextRange(selStart, selEnd),
+            )
+            onInlineSelectionChange(selStart, selEnd)
+        } else {
+            val offset = mapOverlayTapToTextOffset(
+                tapStart, contentCenter, screenW, screenH, rotation,
+                paddingXPx, paddingYPx, layout,
+            )
+            inlineTextDraft = TextFieldValue(
+                text = inlineTextDraft.text,
+                selection = TextRange(offset),
+            )
+            onInlineSelectionChange(offset, offset)
+        }
+        focusRequester.requestFocus()
+    }
 
     Box(
         modifier = modifier
@@ -255,16 +318,7 @@ fun ShapeTextLayer(
             modifier = Modifier
                 .align(Alignment.Center)
                 .requiredSize(displayW + paddingExtra * 2, displayH + paddingExtra * 2)
-                .then(
-                    if (!showBoundingBox && !isInlineEditing && !isLocked) {
-                        Modifier.pointerInput(layer.id) {
-                            detectTapGestures(onTap = { onTapToSelect() })
-                        }
-                    } else {
-                        Modifier
-                    },
-                )
-                .zIndex(if (isInlineEditing) 1f else 0f)
+                .zIndex(if (isInlineEditing) 3f else 0f)
                 .graphicsLayer {
                     rotationZ = layer.viewport.rotation
                     scaleX = if (layer.viewport.flippedH) -1f else 1f
@@ -278,7 +332,7 @@ fun ShapeTextLayer(
                     }
                 },
         ) {
-            if (layer.shouldRenderFrameContent) {
+            if (shouldRenderShape || layer.hasTextOnlyBackgroundDecor) {
                 ShapeFrameLayerContent(
                     layer = layer,
                     displayScale = displayScale,
@@ -304,6 +358,7 @@ fun ShapeTextLayer(
                     onInlineTextDraftChange = { text ->
                         inlineTextDraft = text
                         onUpdateInlineEdit(text.text)
+                        onInlineSelectionChange(text.selection.min, text.selection.max)
                     },
                     focusRequester = focusRequester,
                     inlineEditHadFocus = inlineEditHadFocus,
@@ -316,36 +371,44 @@ fun ShapeTextLayer(
             }
         }
 
-        val overlayMargin = paddingExtra * 2 + 16.dp
         if (showBoundingBox || isInlineEditing) {
-            BoundingBoxOverlayV6(
+            Box(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .requiredSize(
                         width = displayW + overlayMargin,
-                        height = displayH + overlayMargin,
-                    ),
-                contentWidth = effectiveShapeWidthPx,
-                contentHeight = effectiveShapeHeightPx,
-                viewport = layer.viewport,
-                displayScale = displayScale,
-                templateSize = templateSize,
-                lockAspectRatio = false,
-                onGesture = onGesture,
-                onGestureEnd = onGestureEnd,
-                onBodyClick = {
-                    if (!isLocked) onRequestInlineEdit()
-                },
-                onBodyDoubleTap = {
-                    if (!isLocked) onRequestInlineEdit()
-                },
-                showBoundingBox = true,
-                onBoundingBoxVisible = {},
-                isLocked = isLocked,
-                otherLayers = allLayers.filter { it.id != layer.id },
-                isInlineEditing = isInlineEditing,
-                onGestureActiveChanged = onGestureActiveChanged,
-            )
+                        height = displayH + overlayMargin + moveHandleExtraTop,
+                    )
+                    .zIndex(if (isInlineEditing) 4f else 0f),
+            ) {
+                val moveHandleExtraTopPx = with(density) { moveHandleExtraTop.toPx() }
+                BoundingBoxOverlayV6(
+                    modifier = Modifier.fillMaxSize(),
+                    contentWidth = effectiveShapeWidthPx,
+                    contentHeight = effectiveShapeHeightPx,
+                    viewport = layer.viewport,
+                    displayScale = displayScale,
+                    templateSize = templateSize,
+                    lockAspectRatio = false,
+                    onGesture = onGesture,
+                    onGestureEnd = onGestureEnd,
+                    onBodyClick = {
+                        if (!isLocked && layer.shouldRenderLabelContent) onRequestInlineEdit()
+                    },
+                    onBodyDoubleTap = {
+                        if (!isLocked && layer.shouldRenderLabelContent) onRequestInlineEdit()
+                    },
+                    showBoundingBox = true,
+                    onBoundingBoxVisible = {},
+                    isLocked = isLocked,
+                    otherLayers = allLayers.filter { it.id != layer.id },
+                    isInlineEditing = isInlineEditing,
+                    inlineEditTopInsetPx = if (isInlineEditing) moveHandleExtraTopPx else 0f,
+                    minimalTextHandles = layer.shouldRenderLabelContent && !isInlineEditing,
+                    onInlineTextPointer = applyInlineTextPointer,
+                    onGestureActiveChanged = onGestureActiveChanged,
+                )
+            }
         }
 
         if (isInlineEditing) {

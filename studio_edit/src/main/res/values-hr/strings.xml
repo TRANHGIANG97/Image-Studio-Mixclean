@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Božić</string>
     <string name="themeplate_section_memories">Uspomene</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
 
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie s hranom 1</string>
@@ -116,6 +118,8 @@
     <string name="studio_stroke_tab_color">Boja ruba</string>
     <string name="studio_stroke_tab_style">Stil linije</string>
     <string name="studio_stroke_tab_width">Debljina</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Bez ruba</string>
     <string name="studio_dash_solid">Puna linija</string>
     <string name="studio_dash_round_dot">Okrugle točke</string>
@@ -263,21 +267,19 @@
     <string name="studio_text_form_follow_path">Prati putanju</string>
     <string name="studio_text_form_warp">Izobliči</string>
     <string name="studio_text_form_amount">Intenzitet</string>
+    <string name="studio_text_form_letter_spacing">Razmak slova</string>
     <string name="studio_text_form_none">Nijedno</string>
     <string name="studio_text_form_path_wave">Val</string>
     <string name="studio_text_form_path_arc_up">Luk prema gore</string>
     <string name="studio_text_form_path_arc_down">Luk prema dolje</string>
     <string name="studio_text_form_path_circle">Krug</string>
-    <string name="studio_text_form_path_ring">Prsten</string>
-    <string name="studio_text_form_warp_arch_up">Svod prema gore</string>
+<string name="studio_text_form_warp_arch_up">Svod prema gore</string>
     <string name="studio_text_form_warp_arch_down">Svod prema dolje</string>
     <string name="studio_text_form_warp_bulge">Ispupčenje</string>
     <string name="studio_text_form_warp_wave">Val</string>
     <string name="studio_text_form_warp_flag">Zastava</string>
     <string name="studio_text_form_warp_rise">Uspon</string>
     <string name="studio_text_form_warp_fall">Pad</string>
-    <string name="studio_text_form_warp_inflate">Napuhaj</string>
-    <string name="studio_text_form_warp_deflate">Ispuhaj</string>
     <string name="studio_text_form_warp_chevron_up">Kutni znak prema gore</string>
     <string name="studio_text_form_warp_chevron_down">Kutni znak prema dolje</string>
     <string name="studio_objects_label">Objekti</string>
@@ -324,6 +326,22 @@
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Umjetnički</string>
     <string name="studio_label_tab_shape">Okvir</string>
+    <string name="studio_label_tab_text_template">Predlošci</string>
+    <string name="studio_label_tab_more">Više</string>
+    <string name="studio_text_template_classic">Klasično</string>
+    <string name="studio_text_template_gradient">Gradijent</string>
+    <string name="studio_text_template_sale">Rasprodaja</string>
+    <string name="studio_text_template_arc">Luk</string>
+    <string name="studio_text_template_outline">Obrub</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Meko</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimalno</string>
+    <string name="studio_text_template_gold">Zlatno</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ocean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Efekt ispupčenja nije dostupan dok je aktivna umjetnička forma teksta.</string>
+    <string name="studio_text_form_path_hint">Povucite intenzitet da savijete putanju teksta. Razmak slova pomaže izbjeći preklapanje glifova.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sustav</string>

@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Krismas</string>
     <string name="themeplate_section_memories">Kenangan</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Swafoto Makanan 1</string>
     <string name="themeplate_selfie_food_02">Swafoto Makanan 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Warna bingkai</string>
     <string name="studio_stroke_tab_style">Gaya garisan</string>
     <string name="studio_stroke_tab_width">Ketebalan</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Tiada bingkai</string>
     <string name="studio_dash_solid">Garisan padu</string>
     <string name="studio_dash_round_dot">Titik bulat</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Ikut Laluan</string>
     <string name="studio_text_form_warp">Lengkung</string>
     <string name="studio_text_form_amount">Intensiti</string>
+    <string name="studio_text_form_letter_spacing">Jarak huruf</string>
     <string name="studio_text_form_none">Tiada</string>
     <string name="studio_text_form_path_wave">Ombak</string>
     <string name="studio_text_form_path_arc_up">Lengkung Ke Atas</string>
     <string name="studio_text_form_path_arc_down">Lengkung Ke Bawah</string>
     <string name="studio_text_form_path_circle">Bulatan</string>
-    <string name="studio_text_form_path_ring">Cincin</string>
-    <string name="studio_text_form_warp_arch_up">Gerbang Ke Atas</string>
+<string name="studio_text_form_warp_arch_up">Gerbang Ke Atas</string>
     <string name="studio_text_form_warp_arch_down">Gerbang Ke Bawah</string>
     <string name="studio_text_form_warp_bulge">Kembung</string>
     <string name="studio_text_form_warp_wave">Ombak</string>
     <string name="studio_text_form_warp_flag">Bendera</string>
     <string name="studio_text_form_warp_rise">Menaik</string>
     <string name="studio_text_form_warp_fall">Menurun</string>
-    <string name="studio_text_form_warp_inflate">Mengembung</string>
-    <string name="studio_text_form_warp_deflate">Mengempis</string>
     <string name="studio_text_form_warp_chevron_up">Chevron Ke Atas</string>
     <string name="studio_text_form_warp_chevron_down">Chevron Ke Bawah</string>
     <string name="studio_objects_label">Objek</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Kesan</string>
     <string name="studio_label_tab_text_form">Artistik</string>
     <string name="studio_label_tab_shape">Bingkai</string>
+    <string name="studio_label_tab_text_template">Templat</string>
+    <string name="studio_label_tab_more">Lagi</string>
+    <string name="studio_text_template_classic">Klasik</string>
+    <string name="studio_text_template_gradient">Kecerunan</string>
+    <string name="studio_text_template_sale">Jualan</string>
+    <string name="studio_text_template_arc">Lengkung</string>
+    <string name="studio_text_template_outline">Garisan</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Lembut</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Emas</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Lautan</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Kesan timbul tidak tersedia semasa bentuk teks artistik aktif.</string>
+    <string name="studio_text_form_path_hint">Seret keamatan untuk melengkungkan laluan teks. Jarak huruf membantu elak glyph bertindih.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistem</string>

@@ -1,11 +1,9 @@
 package com.thgiang.image.studio.ui.editor.mapper
 
 import android.content.Context
-import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.Align
-import android.graphics.Path
 import android.os.Build
 import android.text.Layout
 import android.text.StaticLayout
@@ -17,12 +15,87 @@ import com.thgiang.image.studio.ui.editor.model.EditorLayer
 import com.thgiang.image.studio.ui.editor.model.appliesTextElevation
 import com.thgiang.image.studio.ui.editor.model.depthShadowBlurPx
 import com.thgiang.image.studio.util.FontDownloader
-import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 
 object TextElevationMapper {
+
+    private const val TEXT_LAYOUT_INCLUDE_PAD = false
+
+    /** Draw extrusion using the same StaticLayout metrics as [EditorTextRenderMapper.drawFlatTextOnCanvas]. */
+    fun drawExtrusionBehindLayout(
+        canvas: Canvas,
+        displayText: String,
+        translateX: Float,
+        translateY: Float,
+        textWidth: Int,
+        alignment: Layout.Alignment,
+        lineSpacing: Float,
+        layer: EditorLayer,
+        renderScale: Float,
+        context: Context,
+        textSizePx: Float,
+        alpha: Int,
+        referencePaint: TextPaint,
+    ) {
+        if (!layer.supportsTextElevation) return
+        if (!layer.appearance.appliesTextElevation()) return
+        val appearance = layer.appearance
+        val depthPx = appearance.resolvedDepthSizePx(renderScale)
+        if (depthPx <= 0.5f) return
+        if (displayText.isBlank()) return
+
+        val extrusionPaint = buildFillPaint(layer, textSizePx, alpha, context).apply {
+            textSize = referencePaint.textSize
+            letterSpacing = referencePaint.letterSpacing
+            typeface = referencePaint.typeface
+            textAlign = referencePaint.textAlign
+        }
+        val layout = createTextLayout(
+            text = displayText,
+            paint = extrusionPaint,
+            maxWidth = textWidth,
+            textAlign = layer.textAlign,
+            lineHeight = layer.lineHeight,
+        )
+
+        val angleRad = Math.toRadians(appearance.resolvedExtrusionAngleDeg().toDouble())
+        val dx = (cos(angleRad) * depthPx).toFloat()
+        val dy = (sin(angleRad) * depthPx).toFloat()
+
+        val faceColor = layer.resolveTextElevationColorArgb()
+        val sideColor = resolveShapeDepthColor(faceColor, appearance.depthColorArgb)
+        val backColor = resolveShapeDepthBackColor(sideColor)
+
+        appearance.depthShadowBlurPx(renderScale)?.takeIf { it > 0.5f }?.let { blurPx ->
+            drawSoftTextShadow(
+                canvas = canvas,
+                displayText = displayText,
+                translateX = translateX,
+                translateY = translateY,
+                dx = dx * 0.35f,
+                dy = dy * 0.35f,
+                textWidth = textWidth,
+                textAlign = layer.textAlign,
+                lineHeight = layer.lineHeight,
+                referencePaint = extrusionPaint,
+                color = sideColor,
+                alpha = (alpha * 0.45f).toInt().coerceIn(0, 255),
+                blurPx = blurPx,
+            )
+        }
+
+        val steps = max((depthPx / 1.5f).toInt(), 8).coerceAtMost(48)
+        for (step in steps downTo 1) {
+            val t = step.toFloat() / steps
+            extrusionPaint.color = blendArgb(backColor, sideColor, t)
+            canvas.save()
+            canvas.translate(translateX + dx * t, translateY + dy * t)
+            layout.draw(canvas)
+            canvas.restore()
+        }
+    }
 
     fun DrawScope.drawTextElevation(
         layer: EditorLayer,
@@ -88,72 +161,31 @@ object TextElevationMapper {
         val displayText = EditorTextStyleMapper.applyTextTransform(layer.text, layer.textTransform)
         if (displayText.isBlank()) return
 
-        val textSizePx = layer.textSizeSp * renderScale
+        val metrics = context.resources.displayMetrics
+        val fontScale = metrics.scaledDensity / metrics.density
+        val textSizePx = layer.textSizeSp * fontScale * renderScale
+        val layoutWidth = textLayoutWidth?.toInt()?.coerceAtLeast(1) ?: width.toInt().coerceAtLeast(1)
+        val lineSpacing = EditorTextStyleMapper.resolveLineSpacingMultiplier(layer.lineHeight)
+        val alignment = EditorTextStyleMapper.resolveLayoutAlignment(layer.textAlign)
+        val translateX = left
+        val translateY = top
 
-        val fillPaint = buildFillPaint(layer, textSizePx, alpha, context)
-        val measuredLayout = createTextLayout(
-            displayText,
-            fillPaint,
-            Int.MAX_VALUE / 4,
-            layer.textAlign,
-            layer.lineHeight,
+        val referencePaint = buildFillPaint(layer, textSizePx, alpha, context)
+        drawExtrusionBehindLayout(
+            canvas = canvas,
+            displayText = displayText,
+            translateX = translateX,
+            translateY = translateY,
+            textWidth = layoutWidth,
+            alignment = alignment,
+            lineSpacing = lineSpacing,
+            layer = layer,
+            renderScale = renderScale,
+            context = context,
+            textSizePx = textSizePx,
+            alpha = alpha,
+            referencePaint = referencePaint,
         )
-        val intrinsicWidth = (0 until measuredLayout.lineCount)
-            .maxOf { measuredLayout.getLineWidth(it) }
-            .let { ceil(it).toInt() }
-            .coerceAtLeast(1)
-        val layoutWidth = textLayoutWidth?.toInt()?.coerceAtLeast(1) ?: intrinsicWidth
-        val layoutHeight = textLayoutHeight?.toInt()?.coerceAtLeast(1) ?: measuredLayout.height
-
-        val layout = if (layoutWidth == intrinsicWidth) {
-            measuredLayout
-        } else {
-            createTextLayout(displayText, fillPaint, layoutWidth, layer.textAlign, layer.lineHeight)
-        }
-
-        val translateX = left + (width - layoutWidth) / 2f
-        val translateY = top + (height - layoutHeight) / 2f
-
-        val angleRad = Math.toRadians(appearance.resolvedExtrusionAngleDeg().toDouble())
-        val dx = (cos(angleRad) * depthPx).toFloat()
-        val dy = (sin(angleRad) * depthPx).toFloat()
-
-        val faceColor = layer.resolveTextElevationColorArgb()
-        val sideColor = resolveShapeDepthColor(faceColor, appearance.depthColorArgb)
-        val backColor = resolveShapeDepthBackColor(sideColor)
-
-        appearance.depthShadowBlurPx(renderScale)?.takeIf { it > 0.5f }?.let { blurPx ->
-            drawSoftTextShadow(
-                canvas = canvas,
-                layout = layout,
-                translateX = translateX,
-                translateY = translateY,
-                dx = dx,
-                dy = dy,
-                color = sideColor,
-                alpha = (alpha * 0.55f).toInt().coerceIn(0, 255),
-                blurPx = blurPx,
-            )
-        }
-
-        val steps = max((depthPx / 1.5f).toInt(), 8).coerceAtMost(48)
-        val extrusionPaint = buildFillPaint(layer, textSizePx, alpha, context)
-        val extrusionLayout = createTextLayout(
-            displayText,
-            extrusionPaint,
-            layoutWidth,
-            layer.textAlign,
-            layer.lineHeight,
-        )
-
-        for (step in steps downTo 1) {
-            val t = step.toFloat() / steps
-            extrusionPaint.color = blendArgb(backColor, sideColor, t)
-            canvas.save()
-            canvas.translate(translateX + dx * t, translateY + dy * t)
-            extrusionLayout.draw(canvas)
-            canvas.restore()
-        }
     }
 
     private fun drawWarpedExtrusion(
@@ -178,7 +210,9 @@ object TextElevationMapper {
         )
         if (glyphs.isEmpty()) return
 
-        val textSizePx = layer.textSizeSp * renderScale
+        val metrics = context.resources.displayMetrics
+        val fontScale = metrics.scaledDensity / metrics.density
+        val textSizePx = layer.textSizeSp * fontScale * renderScale
         val angleRad = Math.toRadians(appearance.resolvedExtrusionAngleDeg().toDouble())
         val dx = (cos(angleRad) * depthPx).toFloat()
         val dy = (sin(angleRad) * depthPx).toFloat()
@@ -192,7 +226,7 @@ object TextElevationMapper {
                 style = Paint.Style.FILL
                 color = sideColor
                 this.alpha = (alpha * 0.55f).toInt().coerceIn(0, 255)
-                maskFilter = BlurMaskFilter(blurPx, BlurMaskFilter.Blur.NORMAL)
+                setSafeBlurMaskFilter(blurPx)
                 textSize = textSizePx
                 textAlign = Align.CENTER
             }
@@ -232,25 +266,38 @@ object TextElevationMapper {
 
     private fun drawSoftTextShadow(
         canvas: Canvas,
-        layout: Layout,
+        displayText: String,
         translateX: Float,
         translateY: Float,
         dx: Float,
         dy: Float,
+        textWidth: Int,
+        textAlign: String?,
+        lineHeight: Float?,
+        referencePaint: TextPaint,
         color: Int,
         alpha: Int,
         blurPx: Float,
     ) {
-        val path = Path()
-        layout.getSelectionPath(0, layout.text.length, path)
-        path.offset(translateX + dx, translateY + dy)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        val shadowPaint = TextPaint(referencePaint).apply {
             style = Paint.Style.FILL
             this.color = color
             this.alpha = alpha
-            maskFilter = BlurMaskFilter(blurPx, BlurMaskFilter.Blur.NORMAL)
+            shader = null
+            maskFilter = null
+            setSafeBlurMaskFilter(blurPx)
         }
-        canvas.drawPath(path, paint)
+        val shadowLayout = createTextLayout(
+            text = displayText,
+            paint = shadowPaint,
+            maxWidth = textWidth,
+            textAlign = textAlign,
+            lineHeight = lineHeight,
+        )
+        canvas.save()
+        canvas.translate(translateX + dx, translateY + dy)
+        shadowLayout.draw(canvas)
+        canvas.restore()
     }
 
     private fun buildFillPaint(
@@ -264,6 +311,7 @@ object TextElevationMapper {
         textSize = textSizePx
         style = Paint.Style.FILL
         letterSpacing = EditorTextStyleMapper.resolveLetterSpacingEm(layer.charSpacing, textSizePx)
+        textAlign = Paint.Align.LEFT
         configureTypeface(layer, context, this)
     }
 
@@ -296,7 +344,7 @@ object TextElevationMapper {
             StaticLayout.Builder.obtain(text, 0, text.length, paint, maxWidth)
                 .setAlignment(alignment)
                 .setLineSpacing(0f, spacingMult)
-                .setIncludePad(false)
+                .setIncludePad(TEXT_LAYOUT_INCLUDE_PAD)
                 .build()
         } else {
             @Suppress("DEPRECATION")

@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Boże Narodzenie</string>
     <string name="themeplate_section_memories">Wspomnienia</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie z jedzeniem 1</string>
     <string name="themeplate_selfie_food_02">Selfie z jedzeniem 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Kolor obramowania</string>
     <string name="studio_stroke_tab_style">Styl linii</string>
     <string name="studio_stroke_tab_width">Grubość</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Brak obramowania</string>
     <string name="studio_dash_solid">Linia ciągła</string>
     <string name="studio_dash_round_dot">Okrągłe kropki</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Wzdłuż ścieżki</string>
     <string name="studio_text_form_warp">Deformacja</string>
     <string name="studio_text_form_amount">Intensywność</string>
+    <string name="studio_text_form_letter_spacing">Odstępy między znakami</string>
     <string name="studio_text_form_none">Brak</string>
     <string name="studio_text_form_path_wave">Fala</string>
     <string name="studio_text_form_path_arc_up">Łuk w górę</string>
     <string name="studio_text_form_path_arc_down">Łuk w dół</string>
     <string name="studio_text_form_path_circle">Koło</string>
-    <string name="studio_text_form_path_ring">Pierścień</string>
-    <string name="studio_text_form_warp_arch_up">Sklepienie w górę</string>
+<string name="studio_text_form_warp_arch_up">Sklepienie w górę</string>
     <string name="studio_text_form_warp_arch_down">Sklepienie w dół</string>
     <string name="studio_text_form_warp_bulge">Wybrzuszenie</string>
     <string name="studio_text_form_warp_wave">Fala</string>
     <string name="studio_text_form_warp_flag">Flaga</string>
     <string name="studio_text_form_warp_rise">Uniesienie</string>
     <string name="studio_text_form_warp_fall">Opadanie</string>
-    <string name="studio_text_form_warp_inflate">Nadmuchanie</string>
-    <string name="studio_text_form_warp_deflate">Spuszczenie powietrza</string>
     <string name="studio_text_form_warp_chevron_up">Krokiew w górę</string>
     <string name="studio_text_form_warp_chevron_down">Krokiew w dół</string>
     <string name="studio_objects_label">Obiekty</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Artystyczny</string>
     <string name="studio_label_tab_shape">Ramka</string>
+    <string name="studio_label_tab_text_template">Szablony</string>
+    <string name="studio_label_tab_more">Więcej</string>
+    <string name="studio_text_template_classic">Klasyczny</string>
+    <string name="studio_text_template_gradient">Gradient</string>
+    <string name="studio_text_template_sale">Wyprzedaż</string>
+    <string name="studio_text_template_arc">Łuk</string>
+    <string name="studio_text_template_outline">Kontur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Miękki</string>
+    <string name="studio_text_template_poster">Plakat</string>
+    <string name="studio_text_template_minimal">Minimalny</string>
+    <string name="studio_text_template_gold">Złoty</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ocean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Efekt wypukłości jest niedostępny, gdy aktywna jest artystyczna forma tekstu.</string>
+    <string name="studio_text_form_path_hint">Przeciągnij intensywność, aby wygiąć ścieżkę tekstu. Odstępy między znakami pomagają uniknąć nakładania się glifów.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Systemowe</string>

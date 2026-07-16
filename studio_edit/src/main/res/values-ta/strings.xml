@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">கிறிஸ்துமஸ்</string>
     <string name="themeplate_section_memories">நினைவுகள்</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">செல்ஃபி உணவு 1</string>
     <string name="themeplate_selfie_food_02">செல்ஃபி உணவு 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">பார்டர் நிறம்</string>
     <string name="studio_stroke_tab_style">கோட்டின் பாணி</string>
     <string name="studio_stroke_tab_width">தடிமன்</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">பார்டர் இல்லை</string>
     <string name="studio_dash_solid">திடக் கோடு</string>
     <string name="studio_dash_round_dot">வட்டப் புள்ளிகள்</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">பாதையைப் பின்பற்று</string>
     <string name="studio_text_form_warp">வளைத்தல் (Warp)</string>
     <string name="studio_text_form_amount">தீவிரம்</string>
+    <string name="studio_text_form_letter_spacing">எழுத்து இடைவெளி</string>
     <string name="studio_text_form_none">ஏதுமில்லை</string>
     <string name="studio_text_form_path_wave">அலை</string>
     <string name="studio_text_form_path_arc_up">மேல் வில்வடிவம்</string>
     <string name="studio_text_form_path_arc_down">கீழ் வில்வடிவம்</string>
     <string name="studio_text_form_path_circle">வட்டம்</string>
-    <string name="studio_text_form_path_ring">வளையம்</string>
-    <string name="studio_text_form_warp_arch_up">மேல் வளைவு</string>
+<string name="studio_text_form_warp_arch_up">மேல் வளைவு</string>
     <string name="studio_text_form_warp_arch_down">கீழ் வளைவு</string>
     <string name="studio_text_form_warp_bulge">குவிவு</string>
     <string name="studio_text_form_warp_wave">அலை</string>
     <string name="studio_text_form_warp_flag">கொடி</string>
     <string name="studio_text_form_warp_rise">உயர்வு</string>
     <string name="studio_text_form_warp_fall">வீழ்ச்சி</string>
-    <string name="studio_text_form_warp_inflate">உப்பச் செய்தல்</string>
-    <string name="studio_text_form_warp_deflate">சுருங்கச் செய்தல்</string>
     <string name="studio_text_form_warp_chevron_up">மேல் செவ்ரான்</string>
     <string name="studio_text_form_warp_chevron_down">கீழ் செவ்ரான்</string>
     <string name="studio_objects_label">பொருட்கள்</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">விளைவு</string>
     <string name="studio_label_tab_text_form">கலைநயம்</string>
     <string name="studio_label_tab_shape">சட்டகம்</string>
+    <string name="studio_label_tab_text_template">வார்ப்புருக்கள்</string>
+    <string name="studio_label_tab_more">மேலும்</string>
+    <string name="studio_text_template_classic">பாரம்பரியம்</string>
+    <string name="studio_text_template_gradient">சாய்வு நிறம்</string>
+    <string name="studio_text_template_sale">விற்பனை</string>
+    <string name="studio_text_template_arc">வில்</string>
+    <string name="studio_text_template_outline">வெளிக்கோடு</string>
+    <string name="studio_text_template_neon">நியான்</string>
+    <string name="studio_text_template_soft">மென்மை</string>
+    <string name="studio_text_template_poster">சுவரொட்டி</string>
+    <string name="studio_text_template_minimal">குறைந்தபட்சம்</string>
+    <string name="studio_text_template_gold">தங்கம்</string>
+    <string name="studio_text_template_retro">ரெட்ரோ</string>
+    <string name="studio_text_template_ocean">கடல்</string>
+    <string name="studio_label_elevation_disabled_by_text_form">கலைநயமான உரை வடிவம் இயங்கும்போது உயர்வு விளைவைப் பயன்படுத்த முடியாது.</string>
+    <string name="studio_text_form_path_hint">பாதையை வளைக்க தீவிர ஸ்லைடரை இழுக்கவும். எழுத்து இடைவெளி எழுத்துகள் மேற்பொருள்வதைத் தவிர்க்க உதவும்.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">முறைமை</string>

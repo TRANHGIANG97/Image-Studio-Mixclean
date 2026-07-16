@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,6 +77,12 @@ val shadowColorPalette = listOf(
     Color(0xFFE53935), Color(0xFF1E88E5), Color(0xFF43A047), Color(0xFFFB8C00)
 )
 
+private enum class ShapeShadowSubTab {
+    SHADOW,
+    BLUR,
+    COLOR,
+}
+
 @Composable
 fun ShapeShadowSection(
     appearance: EditorAppearance,
@@ -83,7 +90,9 @@ fun ShapeShadowSection(
     onLayoutEvent: (EditorEvent) -> Unit,
 ) {
     var showColorPicker by remember { mutableStateOf(false) }
+    var activeSubTab by rememberSaveable { mutableStateOf(ShapeShadowSubTab.SHADOW) }
     val displayShadowColorArgb = appearance.shadowColorArgb
+    val sliderColors = remember(tokens) { tokens.toSliderColors() }
 
     if (showColorPicker) {
         ColorPickerDialog(
@@ -97,78 +106,149 @@ fun ShapeShadowSection(
         )
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        // Shadow Presets Gallery
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            shadowPresets.forEach { preset ->
-                val isSelected = if (preset.intensity == 0f) {
-                    appearance.shadowIntensity <= 0.05f
-                } else {
-                    appearance.shadowIntensity > 0.05f &&
-                            kotlin.math.abs(appearance.shadowIntensity - preset.intensity) < 0.05f &&
-                            kotlin.math.abs(appearance.shadowAngle - preset.angle) < 5f &&
-                            kotlin.math.abs(appearance.shadowDistance - preset.distance) < 2f
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        ShadowSubTabRow(
+            shadowLabel = stringResource(R.string.studio_shadow_tab_intensity),
+            blurLabel = stringResource(R.string.studio_elevation_shadow_blur),
+            colorLabel = stringResource(R.string.studio_shadow_tab_color),
+            activeSubTab = activeSubTab,
+            tokens = tokens,
+            onSelectShadow = { activeSubTab = ShapeShadowSubTab.SHADOW },
+            onSelectBlur = { activeSubTab = ShapeShadowSubTab.BLUR },
+            onSelectColor = { activeSubTab = ShapeShadowSubTab.COLOR },
+        )
+
+        when (activeSubTab) {
+            ShapeShadowSubTab.SHADOW -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    shadowPresets.forEach { preset ->
+                        val isSelected = if (preset.intensity == 0f) {
+                            appearance.shadowIntensity <= 0.05f
+                        } else {
+                            appearance.shadowIntensity > 0.05f &&
+                                kotlin.math.abs(appearance.shadowIntensity - preset.intensity) < 0.05f &&
+                                kotlin.math.abs(appearance.shadowAngle - preset.angle) < 5f &&
+                                kotlin.math.abs(appearance.shadowDistance - preset.distance) < 2f
+                        }
+
+                        ShadowPresetCard(
+                            preset = preset,
+                            selected = isSelected,
+                            onClick = {
+                                onLayoutEvent(EditorEvent.UpdateShadow(preset.intensity))
+                                onLayoutEvent(EditorEvent.UpdateShadowAngle(preset.angle))
+                                onLayoutEvent(EditorEvent.UpdateShadowDistance(preset.distance))
+                                onLayoutEvent(EditorEvent.UpdateShadowBlur(preset.blur))
+                            },
+                            tokens = tokens,
+                        )
+                    }
                 }
 
-                ShadowPresetCard(
-                    preset = preset,
-                    selected = isSelected,
-                    onClick = {
-                        onLayoutEvent(EditorEvent.UpdateShadow(preset.intensity))
-                        onLayoutEvent(EditorEvent.UpdateShadowAngle(preset.angle))
-                        onLayoutEvent(EditorEvent.UpdateShadowDistance(preset.distance))
-                        onLayoutEvent(EditorEvent.UpdateShadowBlur(preset.blur))
-                    },
+                if (appearance.shadowIntensity > 0.05f) {
+                    PrecisionSlider(
+                        label = stringResource(R.string.studio_shadow_tab_intensity),
+                        value = appearance.shadowIntensity,
+                        valueRange = 0f..1f,
+                        onValueChange = { onLayoutEvent(EditorEvent.UpdateShadow(it)) },
+                        valueFormatter = { "${(it * 100).toInt()}%" },
+                        colors = sliderColors,
+                    )
+                }
+            }
+            ShapeShadowSubTab.BLUR -> {
+                val currentBlur = appearance.shadowBlur ?: 8f
+                PrecisionSlider(
+                    label = stringResource(R.string.studio_elevation_shadow_blur),
+                    value = currentBlur,
+                    valueRange = 0f..50f,
+                    onValueChange = { onLayoutEvent(EditorEvent.UpdateShadowBlur(it)) },
+                    valueFormatter = { "${it.toInt()}px" },
+                    colors = sliderColors,
+                )
+            }
+            ShapeShadowSubTab.COLOR -> {
+                LabelColorRow(
+                    currentArgb = displayShadowColorArgb,
+                    palette = shadowColorPalette,
+                    onSelectColor = { onLayoutEvent(EditorEvent.UpdateShadowColor(it)) },
+                    onCustomColorClick = { showColorPicker = true },
                     tokens = tokens,
                 )
             }
         }
-
-        if (appearance.shadowIntensity > 0.05f) {
-            // Intensity Slider
-            PrecisionSlider(
-                label = stringResource(R.string.studio_shadow_tab_intensity),
-                value = appearance.shadowIntensity,
-                valueRange = 0f..1f,
-                onValueChange = { onLayoutEvent(EditorEvent.UpdateShadow(it)) },
-                valueFormatter = { "${(it * 100).toInt()}%" },
-                colors = remember(tokens) { tokens.toSliderColors() },
-            )
-
-            // Blur Slider
-            val currentBlur = appearance.shadowBlur ?: 8f // fallback static default if null
-            PrecisionSlider(
-                label = stringResource(R.string.studio_elevation_shadow_blur),
-                value = currentBlur,
-                valueRange = 0f..50f,
-                onValueChange = { onLayoutEvent(EditorEvent.UpdateShadowBlur(it)) },
-                valueFormatter = { "${it.toInt()}px" },
-                colors = remember(tokens) { tokens.toSliderColors() },
-            )
-
-            // Shadow Color Row
-            Text(
-                text = stringResource(R.string.studio_shadow_tab_color),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = tokens.textPrimary,
-            )
-            LabelColorRow(
-                currentArgb = displayShadowColorArgb,
-                palette = shadowColorPalette,
-                onSelectColor = { onLayoutEvent(EditorEvent.UpdateShadowColor(it)) },
-                onCustomColorClick = { showColorPicker = true },
-                tokens = tokens,
-            )
-        }
     }
+}
+
+@Composable
+private fun ShadowSubTabRow(
+    shadowLabel: String,
+    blurLabel: String,
+    colorLabel: String,
+    activeSubTab: ShapeShadowSubTab,
+    tokens: EditorTokens,
+    onSelectShadow: () -> Unit,
+    onSelectBlur: () -> Unit,
+    onSelectColor: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(vertical = 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        ShadowSubTabChip(
+            label = shadowLabel,
+            selected = activeSubTab == ShapeShadowSubTab.SHADOW,
+            tokens = tokens,
+            onClick = onSelectShadow,
+        )
+        ShadowSubTabChip(
+            label = blurLabel,
+            selected = activeSubTab == ShapeShadowSubTab.BLUR,
+            tokens = tokens,
+            onClick = onSelectBlur,
+        )
+        ShadowSubTabChip(
+            label = colorLabel,
+            selected = activeSubTab == ShapeShadowSubTab.COLOR,
+            tokens = tokens,
+            onClick = onSelectColor,
+        )
+    }
+}
+
+@Composable
+private fun ShadowSubTabChip(
+    label: String,
+    selected: Boolean,
+    tokens: EditorTokens,
+    onClick: () -> Unit,
+) {
+    Text(
+        text = label,
+        fontSize = 12.sp,
+        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+        color = if (selected) tokens.accent else tokens.textSecondary,
+        modifier = Modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(vertical = 2.dp),
+        maxLines = 1,
+        softWrap = false,
+    )
 }
 
 @Composable

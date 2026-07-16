@@ -47,7 +47,7 @@
     <string name="studio_transparency_label">Độ mờ: %1$d%%</string>
     <string name="studio_crop_label">Tỷ lệ khung hình</string>
     <string name="studio_processing">Đang xóa nền…</string>
-    <string name="studio_export_success">Đã lưu vào thư viện</string>
+    <string name="studio_export_success">Đã xuất và lưu ảnh thành công!</string>
     <string name="studio_export_error">Xuất thất bại</string>
     <string name="studio_layout_rotate_left">Xoay trái</string>
     <string name="studio_layout_rotate_right">Xoay phải</string>
@@ -84,6 +84,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Giáng sinh</string>
     <string name="themeplate_section_memories">Kỷ niệm</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_category_professional">Thời trang</string>
     <string name="studio_tool_duplicate">Sao chép</string>
     <string name="studio_tool_delete">Xóa</string>
@@ -202,21 +204,19 @@
     <string name="studio_text_form_follow_path">Theo đường</string>
     <string name="studio_text_form_warp">Biến dạng</string>
     <string name="studio_text_form_amount">Cường độ</string>
+    <string name="studio_text_form_letter_spacing">Khoảng cách chữ</string>
     <string name="studio_text_form_none">Không</string>
     <string name="studio_text_form_path_wave">Sóng</string>
     <string name="studio_text_form_path_arc_up">Cung lên</string>
     <string name="studio_text_form_path_arc_down">Cung xuống</string>
     <string name="studio_text_form_path_circle">Vòng tròn</string>
-    <string name="studio_text_form_path_ring">Vòng</string>
-    <string name="studio_text_form_warp_arch_up">Vòm lên</string>
+<string name="studio_text_form_warp_arch_up">Vòm lên</string>
     <string name="studio_text_form_warp_arch_down">Vòm xuống</string>
     <string name="studio_text_form_warp_bulge">Phồng</string>
     <string name="studio_text_form_warp_wave">Sóng</string>
     <string name="studio_text_form_warp_flag">Cờ</string>
     <string name="studio_text_form_warp_rise">Dốc lên</string>
     <string name="studio_text_form_warp_fall">Dốc xuống</string>
-    <string name="studio_text_form_warp_inflate">Phình</string>
-    <string name="studio_text_form_warp_deflate">Co</string>
     <string name="studio_text_form_warp_chevron_up">Mũi lên</string>
     <string name="studio_text_form_warp_chevron_down">Mũi xuống</string>
     <string name="studio_label_corner_not_applicable">Không áp dụng cho hình này</string>
@@ -271,6 +271,7 @@
     <string name="studio_label_tab_format">Định dạng</string>
     <string name="studio_label_tab_align">Căn lề</string>
     <string name="studio_label_tab_text_color">Màu sắc</string>
+    <string name="studio_label_tab_text_template">Mẫu chữ</string>
     <string name="studio_label_tab_bg_color">Màu nền</string>
     <string name="studio_label_tab_elevation">Hiệu ứng</string>
     <string name="studio_label_tab_text_form">Nghệ thuật</string>
@@ -290,6 +291,21 @@
 
     <!-- Text Placeholder -->
     <string name="studio_text_default_placeholder">Nhập chữ...</string>
+    <string name="studio_text_template_classic">Cổ điển</string>
+    <string name="studio_text_template_gradient">Gradient</string>
+    <string name="studio_text_template_sale">Sale</string>
+    <string name="studio_text_template_arc">Cung</string>
+    <string name="studio_text_template_outline">Viền</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Mềm</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Tối giản</string>
+    <string name="studio_text_template_gold">Vàng</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Đại dương</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Không dùng được Độ nổi khi đang bật hình dạng chữ nghệ thuật.</string>
+    <string name="studio_label_tab_more">Thêm</string>
+    <string name="studio_text_form_path_hint">Kéo cường độ để uốn đường chữ. Khoảng cách chữ giúp tránh chồng glyph.</string>
 
     <!-- Sticker Picker -->
     <string name="studio_sticker_library_title">Thư viện nhãn dán</string>
@@ -319,6 +335,8 @@
     <string name="studio_stroke_tab_color">Màu viền</string>
     <string name="studio_stroke_tab_style">Kiểu nét</string>
     <string name="studio_stroke_tab_width">Độ dày</string>
+    <string name="studio_stroke_tab_spacing">Khoảng cách</string>
+    <string name="studio_stroke_spacing_requires_dash">Hãy chọn kiểu nét đứt trước.</string>
     <string name="studio_stroke_none">Không viền</string>
     <string name="studio_dash_solid">Nét liền</string>
     <string name="studio_dash_round_dot">Chấm tròn</string>

@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +48,7 @@ import com.thgiang.image.studio.ui.editor.label.panel.LabelEditingKeyboardToolba
 import com.thgiang.image.studio.ui.editor.label.panel.LabelSelectionToolbar
 import com.thgiang.image.studio.ui.editor.label.panel.LabelShapePanel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -88,13 +90,24 @@ fun ThemeplateEditorScreen(
         }
     }
 
-    val saveSuccessMessage = stringResource(R.string.studio_save_image_success)
+    val exportSuccessMessage = stringResource(R.string.studio_export_success)
     LaunchedEffect(state.exportResult) {
-        state.exportResult?.let { uri ->
-            snackbarHostState.showSnackbar(saveSuccessMessage)
-            onExportSuccess()
-            onDone(uri)
+        val uri = state.exportResult ?: return@LaunchedEffect
+        // One green snackbar only (no top banner duplicate). Hold ~4s for readability.
+        // Do not ClearExportResult before dismiss — that would cancel this effect early.
+        val snackbarJob = launch {
+            snackbarHostState.showSnackbar(
+                message = exportSuccessMessage,
+                duration = SnackbarDuration.Indefinite,
+            )
         }
+        delay(4_000)
+        snackbarHostState.currentSnackbarData?.dismiss()
+        snackbarJob.join()
+        viewModel.onEvent(EditorEvent.ClearExportResult)
+        // Review prompt / analytics after feedback so they do not hide it.
+        onExportSuccess()
+        onDone(uri)
     }
 
     LaunchedEffect(state.errorMessage) {
@@ -107,7 +120,10 @@ fun ThemeplateEditorScreen(
     val draftSavedMessage = stringResource(R.string.studio_draft_saved)
     LaunchedEffect(state.draftSavedAt) {
         if (state.draftSavedAt != null) {
-            snackbarHostState.showSnackbar(draftSavedMessage)
+            snackbarHostState.showSnackbar(
+                message = draftSavedMessage,
+                duration = SnackbarDuration.Long,
+            )
         }
     }
 
@@ -135,6 +151,12 @@ fun ThemeplateEditorScreen(
         var shouldAutoEditNextLabel by remember { mutableStateOf(false) }
         var activeLabelTab by rememberSaveable {
             mutableStateOf(LabelEditTab.FONT)
+        }
+        // Migrate away from removed label-frame tab if restored from process death.
+        LaunchedEffect(activeLabelTab) {
+            if (activeLabelTab == LabelEditTab.SHAPE) {
+                activeLabelTab = LabelEditTab.FONT
+            }
         }
         val editingLayer = state.layers.find { it.id == state.editingLayerId }
         val isLabelEditing = state.labelPhase == LabelInteractionPhase.Editing && editingLayer != null
@@ -373,13 +395,13 @@ fun ThemeplateEditorScreen(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Back + Undo + Redo
+                    // Back + Undo + Redo (fixed width; actions claim remaining space)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         IconButton(
                             onClick = onBack,
@@ -393,7 +415,7 @@ fun ThemeplateEditorScreen(
                                 tint = tokens.textPrimary
                             )
                         }
-                        
+
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             IconButton(
                                 onClick = { viewModel.onEvent(EditorEvent.Undo) },
@@ -437,36 +459,42 @@ fun ThemeplateEditorScreen(
                         }
                     }
 
-                    // Save draft + Export
+                    // Save draft + Export — flexible so long locales ellipsize instead of clip/wrap
                     Row(
+                        modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
                     ) {
                         if (state.isExporting) {
                             Box(
                                 modifier = Modifier
                                     .height(36.dp)
-                                    .padding(end = 8.dp),
+                                    .padding(end = 4.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 StudioLottieLoader(modifier = Modifier.size(36.dp))
                             }
                         } else {
-                            // Save Draft Button
                             Text(
                                 text = stringResource(R.string.studio_save_draft),
                                 color = tokens.textPrimary,
-                                fontSize = 15.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
+                                    .weight(1f, fill = false)
+                                    .widthIn(min = 48.dp)
                                     .clip(RoundedCornerShape(999.dp))
                                     .clickable { viewModel.onEvent(EditorEvent.SaveDraft) }
-                                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                                    .padding(horizontal = 6.dp, vertical = 8.dp)
                             )
-                            
+
                             Box(
                                 modifier = Modifier
                                     .height(40.dp)
+                                    .widthIn(min = 64.dp, max = 148.dp)
                                     .clip(RoundedCornerShape(999.dp))
                                     .background(
                                         if (state.canExport) tokens.accent
@@ -478,14 +506,18 @@ fun ThemeplateEditorScreen(
                                         }
                                         onRequireExportAd?.invoke(exportAction) ?: exportAction()
                                     }
-                                    .padding(horizontal = 20.dp),
+                                    .padding(horizontal = 14.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = stringResource(R.string.studio_export),
                                     color = if (state.canExport) Color.White else tokens.textDisabled,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Center,
                                 )
                             }
                         }
@@ -507,7 +539,12 @@ fun ThemeplateEditorScreen(
                             // Toggle the tool off only — keep the current layer selection.
                             viewModel.onEvent(EditorEvent.SelectTool(EditorTool.Shape))
                         } else {
-                            viewModel.onEvent(EditorEvent.SelectLayer(null))
+                            // Keep TextInShape / frame selection so tool Khung edits FRAME (NodePart).
+                            val keepSelection = activeLayer?.groupId != null ||
+                                activeLayer?.isFrameLayer == true
+                            if (!keepSelection) {
+                                viewModel.onEvent(EditorEvent.SelectLayer(null))
+                            }
                             viewModel.onEvent(EditorEvent.SelectTool(EditorTool.Shape))
                         }
                     } else if (tool == selectedToolForUi && activeLayer != null && tool is EditorTool.Label) {
@@ -521,11 +558,12 @@ fun ThemeplateEditorScreen(
                 }
             }
 
-            // Controls panel slides up with IME — placed BELOW canvas in z-order
+            // Controls panel slides up with IME — above layer list so hide-keyboard stays tappable.
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
+                    .zIndex(10f)
                     .windowInsetsPadding(
                         WindowInsets.ime.union(WindowInsets.safeDrawing)
                             .only(WindowInsetsSides.Bottom),
@@ -544,6 +582,8 @@ fun ThemeplateEditorScreen(
                         tokens = tokens,
                         onLayoutEvent = { viewModel.onEvent(it) },
                         onDismissKeyboard = { confirmLabelEdit() },
+                        selectionStart = state.inlineSelectionStart,
+                        selectionEnd = state.inlineSelectionEnd,
                     )
                 }
 
@@ -652,13 +692,22 @@ fun ThemeplateEditorScreen(
                 }
             }
 
-            // ── Layer 4: Snackbar ─────────────────────────────────────
+            // ── Layer 4: Snackbar (export / error / draft) ────────────
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
-            )
+                    .padding(bottom = 72.dp)
+                    .zIndex(50f)
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color(0xFF15803D),
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(12.dp),
+                )
+            }
         }
 
         if (showCustomPicker && onPickImage != null) {

@@ -11,6 +11,7 @@ export type Template = {
   template_id: string;
   title: string;
   status: 'draft' | 'published';
+  environment?: 'debug' | 'release' | 'all';
   thumbnail_url: string | null;
   canvas_data: CloudTemplate;       // was `any` — now strict
   updated_at: string;
@@ -279,18 +280,37 @@ export function useImportPsdTemplate() {
       exportLayers?: boolean;
       exportFolderName?: string;
       preParsedResult?: ClientPsdImportResult;
+      onLog?: (msg: string) => void | Promise<void>;
     }) => {
+      const startedAt = Date.now();
+      const log = async (msg: string) => {
+        const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+        await payload.onLog?.(`[${elapsed}s] ${msg}`);
+      };
+
       // 1. Parse PSD on the client-side or use pre-parsed result
+      await log(payload.preParsedResult ? 'Dùng kết quả parse sẵn...' : 'Bắt đầu parse PSD trên trình duyệt...');
       const importResult = payload.preParsedResult || await parsePsdOnClient(
         payload.file!,
         payload.categoryId,
         payload.templateId,
-        payload.title
+        payload.title,
+        payload.onLog
       );
+
+      await log(
+        `Parse hoàn tất: ${importResult.canvasWidth}×${importResult.canvasHeight}, ` +
+          `${importResult.layers.length} layer` +
+          (importResult.backgroundBlob ? ', có background' : ', không có background'),
+      );
+      for (const warning of importResult.warnings ?? []) {
+        await log(`⚠ ${warning}`);
+      }
 
       // 2. Upload composite thumbnail
       let thumbnailUrl = '';
       if (importResult.thumbnailBlob) {
+        await log(`Đang tải thumbnail lên server (${(importResult.thumbnailBlob.size / 1024).toFixed(1)} KB)...`);
         const thumbFormData = new FormData();
         const slug = importResult.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
         thumbFormData.append('file', new File([importResult.thumbnailBlob], `${slug}_thumbnail.webp`, { type: 'image/webp' }));
@@ -298,17 +318,20 @@ export function useImportPsdTemplate() {
         thumbFormData.append('registerAsset', 'false'); // Don't show in gallery
         const uploadThumbRes = await apiClient.upload<{ fileUrl: string }>('/api/upload', thumbFormData);
         thumbnailUrl = uploadThumbRes.fileUrl;
+        await log('✓ Đã tải xong thumbnail.');
       }
 
       // 3. Upload background if it exists
       let backgroundUrl = '';
       if (importResult.backgroundBlob) {
+        await log(`Đang tải background lên server (${(importResult.backgroundBlob.size / 1024).toFixed(1)} KB)...`);
         const bgFormData = new FormData();
         bgFormData.append('file', new File([importResult.backgroundBlob], `psd_background_${Date.now()}.webp`, { type: 'image/webp' }));
         bgFormData.append('folder', 'imported-psd');
         bgFormData.append('registerAsset', 'false');
         const uploadBgRes = await apiClient.upload<{ fileUrl: string }>('/api/upload', bgFormData);
         backgroundUrl = uploadBgRes.fileUrl;
+        await log('✓ Đã tải xong background.');
       }
 
       // 4. Upload each image layer
@@ -317,8 +340,17 @@ export function useImportPsdTemplate() {
         ? payload.exportFolderName.trim().replace(/\//g, '_')
         : '';
 
+      const totalLayers = importResult.layers.filter(l => l.type === 'IMAGE' && l.imageBlob).length;
+      let uploadedCount = 0;
+      if (totalLayers > 0) {
+        await log(`Bắt đầu upload ${totalLayers} layer ảnh lên server...`);
+      }
+
       for (const layer of importResult.layers) {
         if (layer.type === 'IMAGE' && layer.imageBlob) {
+          uploadedCount++;
+          const sizeKb = (layer.imageBlob.size / 1024).toFixed(1);
+          await log(`[${uploadedCount}/${totalLayers}] Upload "${layer.name}" (${sizeKb} KB)...`);
           const layerFormData = new FormData();
           layerFormData.append('file', new File([layer.imageBlob], layer.fileName || 'layer.webp', { type: 'image/webp' }));
           
@@ -337,8 +369,10 @@ export function useImportPsdTemplate() {
             const uploadLayerRes = await apiClient.upload<{ fileUrl: string }>('/api/upload', layerFormData);
             layer.payload.imageUrl = uploadLayerRes.fileUrl;
             layer.payload.defaultImageUrl = uploadLayerRes.fileUrl;
+            await log(`[${uploadedCount}/${totalLayers}] Thành công: "${layer.name}"`);
           } catch (uploadErr) {
             console.error(`Failed to upload PSD layer image "${layer.name}":`, uploadErr);
+            await log(`[${uploadedCount}/${totalLayers}] Lỗi upload "${layer.name}": ${(uploadErr as any).message || uploadErr}`);
           }
         }
 
@@ -370,7 +404,8 @@ export function useImportPsdTemplate() {
       };
 
       // 6. Create the template database record via backend API
-      return apiClient.post('/api/templates', {
+      await log('Đang lưu template vào database...');
+      const created = await apiClient.post('/api/templates', {
         templateId: importResult.templateId,
         categoryId: importResult.categoryId,
         title: importResult.title,
@@ -380,6 +415,8 @@ export function useImportPsdTemplate() {
         thumbnailUrl: thumbnailUrl || null,
         canvasData,
       });
+      await log(`Hoàn thành nhập template! Tổng thời gian ${((Date.now() - startedAt) / 1000).toFixed(1)}s`);
+      return created;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] });

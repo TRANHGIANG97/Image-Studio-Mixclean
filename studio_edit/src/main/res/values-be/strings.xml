@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">Выконвайце шлях</string>
     <string name="studio_text_form_warp">Дэфармацыя</string>
     <string name="studio_text_form_amount">Інтэнсіўнасць</string>
+    <string name="studio_text_form_letter_spacing">Міжлітарны інтэрвал</string>
     <string name="studio_text_form_none">Няма</string>
     <string name="studio_text_form_path_wave">Хваля</string>
     <string name="studio_text_form_path_arc_up">Дуга ўверх</string>
     <string name="studio_text_form_path_arc_down">Дуга ўніз</string>
     <string name="studio_text_form_path_circle">Круг</string>
-    <string name="studio_text_form_path_ring">Кольца</string>
-    <string name="studio_text_form_warp_arch_up">Арка ўверх</string>
+<string name="studio_text_form_warp_arch_up">Арка ўверх</string>
     <string name="studio_text_form_warp_arch_down">Арка ўніз</string>
     <string name="studio_text_form_warp_bulge">Выпукласць</string>
     <string name="studio_text_form_warp_wave">Хваля</string>
     <string name="studio_text_form_warp_flag">Сцяг</string>
     <string name="studio_text_form_warp_rise">Падняцца</string>
     <string name="studio_text_form_warp_fall">Падаць</string>
-    <string name="studio_text_form_warp_inflate">Надзьмуць</string>
-    <string name="studio_text_form_warp_deflate">Выпампаваць</string>
     <string name="studio_text_form_warp_chevron_up">Шаўрон уверх</string>
     <string name="studio_text_form_warp_chevron_down">Шаўрон уніз</string>
     <string name="studio_objects_label">Аб\'екты</string>
@@ -257,6 +255,8 @@
     <string name="studio_stroke_tab_color">Колер мяжы</string>
     <string name="studio_stroke_tab_style">Стыль лініі</string>
     <string name="studio_stroke_tab_width">Таўшчыня</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Без мяжы</string>
     <string name="studio_dash_solid">Цвёрды</string>
     <string name="studio_dash_round_dot">Круглыя ​​кропкі</string>
@@ -305,6 +305,22 @@
     <string name="studio_label_tab_elevation">Эфект</string>
     <string name="studio_label_tab_text_form">Мастацкі</string>
     <string name="studio_label_tab_shape">Каркас</string>
+    <string name="studio_label_tab_text_template">Шаблоны</string>
+    <string name="studio_label_tab_more">Яшчэ</string>
+    <string name="studio_text_template_classic">Класіка</string>
+    <string name="studio_text_template_gradient">Градыент</string>
+    <string name="studio_text_template_sale">Распродаж</string>
+    <string name="studio_text_template_arc">Дуга</string>
+    <string name="studio_text_template_outline">Контур</string>
+    <string name="studio_text_template_neon">Неон</string>
+    <string name="studio_text_template_soft">Мяккі</string>
+    <string name="studio_text_template_poster">Плакат</string>
+    <string name="studio_text_template_minimal">Мінімалізм</string>
+    <string name="studio_text_template_gold">Золата</string>
+    <string name="studio_text_template_retro">Рэтра</string>
+    <string name="studio_text_template_ocean">Акіян</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Эфект аб’ёму недаступны, пакуль актыўная мастацкая форма тэксту.</string>
+    <string name="studio_text_form_path_hint">Перацягніце інтэнсіўнасць, каб сагнуць шлях тэксту. Міжлітарны інтэрвал дапамагае пазбегнуць накладання гліфаў.</string>
     <string name="studio_font_category_system">сістэма</string>
     <string name="studio_label_document_styles">Стылі дакументаў</string>
     <string name="studio_label_style_title">Назва</string>
@@ -324,6 +340,8 @@
     <string name="studio_back_button">Назад</string>
     <string name="themeplate_section_christmas">Каляды</string>
     <string name="themeplate_section_memories">Успаміны</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">Дадаць малюнак</string>
     <string name="studio_tool_remove_bg">Выдаліць фон</string>
     <string name="studio_shape_tab_arrange">Упарадкаваць</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">Схаваць клавіятуру</string>
     <string name="studio_layers_toggle">Слаі</string>
 </resources>
-
-

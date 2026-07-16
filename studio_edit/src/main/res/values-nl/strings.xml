@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Kerstmis</string>
     <string name="themeplate_section_memories">Herinneringen</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Food Selfie 1</string>
     <string name="themeplate_selfie_food_02">Food Selfie 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Randkleur</string>
     <string name="studio_stroke_tab_style">Lijnstijl</string>
     <string name="studio_stroke_tab_width">Dikte</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Geen rand</string>
     <string name="studio_dash_solid">Ononderbroken lijn</string>
     <string name="studio_dash_round_dot">Ronde stippen</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Pad volgen</string>
     <string name="studio_text_form_warp">Vervormen</string>
     <string name="studio_text_form_amount">Intensiteit</string>
+    <string name="studio_text_form_letter_spacing">Letterspatiëring</string>
     <string name="studio_text_form_none">Geen</string>
     <string name="studio_text_form_path_wave">Golf</string>
     <string name="studio_text_form_path_arc_up">Boog omhoog</string>
     <string name="studio_text_form_path_arc_down">Boog omlaag</string>
     <string name="studio_text_form_path_circle">Cirkel</string>
-    <string name="studio_text_form_path_ring">Ring</string>
-    <string name="studio_text_form_warp_arch_up">Boog omhoog</string>
+<string name="studio_text_form_warp_arch_up">Boog omhoog</string>
     <string name="studio_text_form_warp_arch_down">Boog omlaag</string>
     <string name="studio_text_form_warp_bulge">Bolling</string>
     <string name="studio_text_form_warp_wave">Golf</string>
     <string name="studio_text_form_warp_flag">Vlag</string>
     <string name="studio_text_form_warp_rise">Stijgend</string>
     <string name="studio_text_form_warp_fall">Dalend</string>
-    <string name="studio_text_form_warp_inflate">Opblazen</string>
-    <string name="studio_text_form_warp_deflate">Leeglopen</string>
     <string name="studio_text_form_warp_chevron_up">Chevron omhoog</string>
     <string name="studio_text_form_warp_chevron_down">Chevron omlaag</string>
     <string name="studio_objects_label">Objecten</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Effect</string>
     <string name="studio_label_tab_text_form">Artistiek</string>
     <string name="studio_label_tab_shape">Kader</string>
+    <string name="studio_label_tab_text_template">Sjablonen</string>
+    <string name="studio_label_tab_more">Meer</string>
+    <string name="studio_text_template_classic">Klassiek</string>
+    <string name="studio_text_template_gradient">Verloop</string>
+    <string name="studio_text_template_sale">Sale</string>
+    <string name="studio_text_template_arc">Boog</string>
+    <string name="studio_text_template_outline">Contour</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Zacht</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Goud</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Oceaan</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Reliëf is niet beschikbaar terwijl artistieke tekstvorm actief is.</string>
+    <string name="studio_text_form_path_hint">Sleep de intensiteit om het tekstpad te buigen. Letterspatiëring helpt overlapping van glyphs te voorkomen.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Systeem</string>

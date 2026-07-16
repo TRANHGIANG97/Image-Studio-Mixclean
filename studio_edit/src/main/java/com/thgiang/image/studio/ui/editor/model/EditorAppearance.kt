@@ -6,8 +6,10 @@ data class EditorAppearance(
     val shadowAngle: Float = 45f,
     val shadowDistance: Float = 12f,
     val shadowColorArgb: Int = 0xFF000000.toInt(),
-    /** When set, overrides [shadowBlurRadiusFromIntensity] (from admin_web shadowBlur). */
+    /** Drop-shadow blur px (tab Bóng → Độ mờ). Overrides [shadowBlurRadiusFromIntensity] when set. */
     val shadowBlur: Float? = null,
+    /** 3-D depth soft-shadow blur px (tab Hiệu ứng → Độ mờ bóng). Independent from drop shadow. */
+    val elevationShadowBlur: Float? = null,
     /** Normalized depth (0 = flat). Maps to up to 60px extrusion at render time. */
     val elevationIntensity: Float = 0f,
     val elevationStyle: ShapeElevationStyle = ShapeElevationStyle.RAISED,
@@ -43,9 +45,17 @@ fun shadowBlurRadiusFromIntensity(intensity: Float): Float {
 fun EditorAppearance.resolvedShadowBlurRadius(): Float =
     shadowBlur?.coerceAtLeast(0f) ?: shadowBlurRadiusFromIntensity(shadowIntensity)
 
-/** Explicit blur for 3-D depth shadow (tab Độ mờ bóng). Null = no soft depth shadow. */
+/**
+ * RGB of the drop shadow with alpha forced to opaque.
+ * Opacity is applied separately via [shadowOpacityFromIntensity] / Paint.alpha
+ * so color filters never inherit a semi-transparent tint that can leak cutout fringe colors.
+ */
+fun EditorAppearance.opaqueShadowColorArgb(): Int =
+    (shadowColorArgb and 0x00FFFFFF) or 0xFF000000.toInt()
+
+/** Explicit blur for 3-D depth shadow (tab Hiệu ứng → Độ mờ bóng). Null = no soft depth shadow. */
 fun EditorAppearance.depthShadowBlurPx(scale: Float = 1f): Float? {
-    val blur = shadowBlur ?: return null
+    val blur = elevationShadowBlur ?: shadowBlur ?: return null
     return blur.coerceAtLeast(0f) * scale.coerceAtLeast(0.01f)
 }
 

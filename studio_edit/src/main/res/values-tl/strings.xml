@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Pasko</string>
     <string name="themeplate_section_memories">Mga Alaala</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Pagkain 1</string>
     <string name="themeplate_selfie_food_02">Selfie Pagkain 2</string>
@@ -115,6 +117,8 @@
     <string name="studio_stroke_tab_color">Kulay ng border</string>
     <string name="studio_stroke_tab_style">Estilo ng linya</string>
     <string name="studio_stroke_tab_width">Kapal</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Walang border</string>
     <string name="studio_dash_solid">Solid na linya</string>
     <string name="studio_dash_round_dot">Mga bilog na tuldok</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">Sundin ang Path</string>
     <string name="studio_text_form_warp">I-warp</string>
     <string name="studio_text_form_amount">Katindihan</string>
+    <string name="studio_text_form_letter_spacing">Agwat ng letra</string>
     <string name="studio_text_form_none">Wala</string>
     <string name="studio_text_form_path_wave">Wave</string>
     <string name="studio_text_form_path_arc_up">Arc Up</string>
     <string name="studio_text_form_path_arc_down">Arc Down</string>
     <string name="studio_text_form_path_circle">Bilog</string>
-    <string name="studio_text_form_path_ring">Singsing</string>
-    <string name="studio_text_form_warp_arch_up">Arch Up</string>
+<string name="studio_text_form_warp_arch_up">Arch Up</string>
     <string name="studio_text_form_warp_arch_down">Arch Down</string>
     <string name="studio_text_form_warp_bulge">Bulge</string>
     <string name="studio_text_form_warp_wave">Wave</string>
     <string name="studio_text_form_warp_flag">Watawat</string>
     <string name="studio_text_form_warp_rise">Rise</string>
     <string name="studio_text_form_warp_fall">Fall</string>
-    <string name="studio_text_form_warp_inflate">Inflate</string>
-    <string name="studio_text_form_warp_deflate">Deflate</string>
     <string name="studio_text_form_warp_chevron_up">Chevron Up</string>
     <string name="studio_text_form_warp_chevron_down">Chevron Down</string>
     <string name="studio_objects_label">Mga Object</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">Epekto</string>
     <string name="studio_label_tab_text_form">Masining</string>
     <string name="studio_label_tab_shape">Frame</string>
+    <string name="studio_label_tab_text_template">Mga template</string>
+    <string name="studio_label_tab_more">Higit pa</string>
+    <string name="studio_text_template_classic">Klasiko</string>
+    <string name="studio_text_template_gradient">Gradient</string>
+    <string name="studio_text_template_sale">Sale</string>
+    <string name="studio_text_template_arc">Arko</string>
+    <string name="studio_text_template_outline">Balangkas</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Malambot</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Ginto</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Karagatan</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Hindi available ang elevation effect habang aktibo ang artistic text form.</string>
+    <string name="studio_text_form_path_hint">I-drag ang intensity para ibaluktot ang text path. Tumutulong ang letter spacing para maiwasan ang pagpapatong ng glyph.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">System</string>

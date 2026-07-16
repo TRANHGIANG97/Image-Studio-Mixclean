@@ -10,6 +10,7 @@ import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.core.domain.AppError
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.core.util.processors.ProcessorUtils
+import com.thgiang.image.core.analytics.AppAnalytics
 import com.thgiang.image.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,6 +45,7 @@ class BatchRemoveViewModel @Inject constructor(
             batchTotal = uris.size,
             snackbarEvent = null
         )
+        AppAnalytics.onBatchRemoveStart(context, uris.size)
         onProcessBatchImages()
     }
 
@@ -180,6 +182,7 @@ class BatchRemoveViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isSavingAll = false)
             result.fold(
                 onSuccess = {
+                    AppAnalytics.onBatchSave(context, _uiState.value.results.size)
                     _uiState.value = _uiState.value.copy(
                         snackbarEvent = BatchRemoveSnackbarEvent.SaveSuccess
                     )
@@ -208,7 +211,10 @@ class BatchRemoveViewModel @Inject constructor(
             val saveResult = imageSave.saveCachedToGallery(CachedImage(result.displayUri, result.hasAlpha))
             _uiState.value = _uiState.value.copy(
                 snackbarEvent = saveResult.fold(
-                    onSuccess = { BatchRemoveSnackbarEvent.SaveSuccess },
+                    onSuccess = {
+                        AppAnalytics.onSaveImage(context, "batch_remove")
+                        BatchRemoveSnackbarEvent.SaveSuccess
+                    },
                     onFailure = { BatchRemoveSnackbarEvent.Text(AppError.from(it).userMessage) }
                 )
             )

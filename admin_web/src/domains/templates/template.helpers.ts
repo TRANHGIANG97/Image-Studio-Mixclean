@@ -4,6 +4,44 @@
 
 import type { CloudTemplate } from '@/types/cloud-template';
 
+export type TemplatePublishEnvironment = 'debug' | 'release' | 'all';
+
+/** Resolve publish environment from DB column, falling back to canvas metadata. */
+export function resolveTemplateEnvironment(
+  environment?: TemplatePublishEnvironment | null,
+  canvasData?: CloudTemplate | null
+): TemplatePublishEnvironment | undefined {
+  return environment ?? canvasData?.metadata?.environment;
+}
+
+/** True when a template is published to the debug app channel. */
+export function isTemplateDebugPublished(
+  status: 'draft' | 'published',
+  environment?: TemplatePublishEnvironment | null,
+  canvasData?: CloudTemplate | null
+): boolean {
+  if (status !== 'published') return false;
+  return resolveTemplateEnvironment(environment, canvasData) === 'debug';
+}
+
+/** Keep canvas metadata status/environment aligned with top-level template fields. */
+export function syncCanvasMetadata(
+  canvasData: CloudTemplate,
+  updates: { status?: 'draft' | 'published'; environment?: TemplatePublishEnvironment }
+): CloudTemplate {
+  if (!canvasData.metadata) return canvasData;
+
+  return {
+    ...canvasData,
+    metadata: {
+      ...canvasData.metadata,
+      ...(updates.status !== undefined && { status: updates.status }),
+      ...(updates.environment !== undefined && { environment: updates.environment }),
+      updatedAt: Date.now(),
+    },
+  };
+}
+
 /** Calculate GCD for aspect ratio. */
 export function gcd(a: number, b: number): number {
   return b === 0 ? a : gcd(b, a % b);

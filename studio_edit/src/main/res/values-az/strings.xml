@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">Yolu izləyin</string>
     <string name="studio_text_form_warp">Çarpma</string>
     <string name="studio_text_form_amount">İntensivlik</string>
+    <string name="studio_text_form_letter_spacing">Hərf aralığı</string>
     <string name="studio_text_form_none">Heç biri</string>
     <string name="studio_text_form_path_wave">Dalğa</string>
     <string name="studio_text_form_path_arc_up">Qövs Yuxarı</string>
     <string name="studio_text_form_path_arc_down">Arc Down</string>
     <string name="studio_text_form_path_circle">Dairə</string>
-    <string name="studio_text_form_path_ring">Üzük</string>
-    <string name="studio_text_form_warp_arch_up">Arch Up</string>
+<string name="studio_text_form_warp_arch_up">Arch Up</string>
     <string name="studio_text_form_warp_arch_down">Arch Down</string>
     <string name="studio_text_form_warp_bulge">qabarıqlıq</string>
     <string name="studio_text_form_warp_wave">Dalğa</string>
     <string name="studio_text_form_warp_flag">bayraq</string>
     <string name="studio_text_form_warp_rise">Qalx</string>
     <string name="studio_text_form_warp_fall">payız</string>
-    <string name="studio_text_form_warp_inflate">Şişirmək</string>
-    <string name="studio_text_form_warp_deflate">Söndürmək</string>
     <string name="studio_text_form_warp_chevron_up">Chevron Up</string>
     <string name="studio_text_form_warp_chevron_down">Chevron Down</string>
     <string name="studio_objects_label">Obyektlər</string>
@@ -257,6 +255,8 @@
     <string name="studio_stroke_tab_color">Sərhəd rəngi</string>
     <string name="studio_stroke_tab_style">Xətt üslubu</string>
     <string name="studio_stroke_tab_width">Qalınlıq</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Sərhəd yoxdur</string>
     <string name="studio_dash_solid">Möhkəm</string>
     <string name="studio_dash_round_dot">Dairəvi nöqtələr</string>
@@ -305,6 +305,22 @@
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Bədii</string>
     <string name="studio_label_tab_shape">Çərçivə</string>
+    <string name="studio_label_tab_text_template">Şablonlar</string>
+    <string name="studio_label_tab_more">Daha çox</string>
+    <string name="studio_text_template_classic">Klassik</string>
+    <string name="studio_text_template_gradient">Qradient</string>
+    <string name="studio_text_template_sale">Endirim</string>
+    <string name="studio_text_template_arc">Qövs</string>
+    <string name="studio_text_template_outline">Kontur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Yumşaq</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Qızıl</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Okean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Bədii mətn forması aktiv olduqda qabarıqlıq effekti əlçatan deyil.</string>
+    <string name="studio_text_form_path_hint">Mətn yolunu əymək üçün intensivliyi sürüşdürün. Hərf aralığı qliflərin üst-üstə düşməsinin qarşısını almağa kömək edir.</string>
     <string name="studio_font_category_system">Sistem</string>
     <string name="studio_label_document_styles">Sənəd üslubları</string>
     <string name="studio_label_style_title">Başlıq</string>
@@ -324,6 +340,8 @@
     <string name="studio_back_button">Geri</string>
     <string name="themeplate_section_christmas">Milad</string>
     <string name="themeplate_section_memories">Xatirələr</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">Şəkil əlavə et</string>
     <string name="studio_tool_remove_bg">Fonu sil</string>
     <string name="studio_shape_tab_arrange">Düzülüş</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">Klaviaturanı gizlət</string>
     <string name="studio_layers_toggle">Qatlar</string>
 </resources>
-
-

@@ -5,7 +5,6 @@
     <string name="studio_category_fashion">ແຟຊັ່ນ</string>
     <string name="studio_category_cosmetics">ເຄື່ອງສຳອາງ</string>
     <string name="studio_category_home">ເຄື່ອງໃຊ້ໃນເຮືອນ</string>
-
     <!-- Templates -->
     <string name="themeplate_cosmetics_01">Cosmetics Studio 1</string>
     <string name="themeplate_cosmetics_02">Cosmetics Studio 2</string>
@@ -46,6 +45,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">ຄຣິສມາດ</string>
     <string name="themeplate_section_memories">ຄວາມຊົງຈຳ</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +115,8 @@
     <string name="studio_stroke_tab_color">ສີຂອບ</string>
     <string name="studio_stroke_tab_style">ຮູບແບບເສັ້ນ</string>
     <string name="studio_stroke_tab_width">ຄວາມໜາ</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">ບໍ່ມີຂອບ</string>
     <string name="studio_dash_solid">ເສັ້ນທຶບ</string>
     <string name="studio_dash_round_dot">ຈຸດມົນ</string>
@@ -260,21 +263,19 @@
     <string name="studio_text_form_follow_path">ຕາມເສັ້ນທາງ</string>
     <string name="studio_text_form_warp">ບິດເບືອນ</string>
     <string name="studio_text_form_amount">ຄວາມເຂັ້ມ</string>
+    <string name="studio_text_form_letter_spacing">ໄລຍະຫ່າງຕົວອັກສອນ</string>
     <string name="studio_text_form_none">ບໍ່ມີ</string>
     <string name="studio_text_form_path_wave">ຄື້ນ</string>
     <string name="studio_text_form_path_arc_up">ໂຄ້ງຂຶ້ນ</string>
     <string name="studio_text_form_path_arc_down">ໂຄ້ງລຸ່ມ</string>
     <string name="studio_text_form_path_circle">ວົງມົນ</string>
-    <string name="studio_text_form_path_ring">ວົງແຫວນ</string>
-    <string name="studio_text_form_warp_arch_up">ໂຄ້ງຂຶ້ນເທິງ</string>
+<string name="studio_text_form_warp_arch_up">ໂຄ້ງຂຶ້ນເທິງ</string>
     <string name="studio_text_form_warp_arch_down">ໂຄ້ງລົງລຸ່ມ</string>
     <string name="studio_text_form_warp_bulge">ໂນນຂຶ້ນ</string>
     <string name="studio_text_form_warp_wave">ຄື້ນ</string>
     <string name="studio_text_form_warp_flag">ທຸງ</string>
     <string name="studio_text_form_warp_rise">ລອຍຂຶ້ນ</string>
     <string name="studio_text_form_warp_fall">ຫຼຸດລົງ</string>
-    <string name="studio_text_form_warp_inflate">ພອງອອກ</string>
-    <string name="studio_text_form_warp_deflate">ແຟບລົງ</string>
     <string name="studio_text_form_warp_chevron_up">ລູກສອນຂຶ້ນ</string>
     <string name="studio_text_form_warp_chevron_down">ລູກສອນລົງ</string>
     <string name="studio_objects_label">ວັດຖຸ</string>
@@ -298,7 +299,6 @@
     <string name="studio_label_align_top">ເທິງ</string>
     <string name="studio_label_align_middle">ກາງແນວຕັ້ງ</string>
     <string name="studio_label_align_bottom">ລຸ່ມ</string>
-
     <!-- Quick Action Bar -->
     <string name="studio_action_collapse">ຍຸບ</string>
     <string name="studio_action_duplicate">ເຮັດຊ້ຳ</string>
@@ -308,7 +308,6 @@
     <string name="studio_action_unlock">ປົດລັອກ</string>
     <string name="studio_action_delete">ລຶប</string>
     <string name="studio_action_view_more">ເບິ່ງເພີ່ມເຕີມ</string>
-
     <!-- Label Toolbar Tabs -->
     <string name="studio_label_tab_edit">ແກ້ໄຂ</string>
     <string name="studio_label_tab_font">ຟອນ</string>
@@ -321,27 +320,38 @@
     <string name="studio_label_tab_elevation">ເອັບເຟັກ</string>
     <string name="studio_label_tab_text_form">ສິລະປະ</string>
     <string name="studio_label_tab_shape">ກອບ</string>
+    <string name="studio_label_tab_text_template">ແມ່ແບບ</string>
+    <string name="studio_label_tab_more">ເພີ່ມເຕີມ</string>
+    <string name="studio_text_template_classic">ຄລາສສິກ</string>
+    <string name="studio_text_template_gradient">ແກຣດເດຍນ</string>
+    <string name="studio_text_template_sale">ຂາຍ</string>
+    <string name="studio_text_template_arc">ໂຄ້ງ</string>
+    <string name="studio_text_template_outline">ເສັ້ນຂອບ</string>
+    <string name="studio_text_template_neon">ນີອອນ</string>
+    <string name="studio_text_template_soft">ນຸ່ມ</string>
+    <string name="studio_text_template_poster">ໂປສເຕີ</string>
+    <string name="studio_text_template_minimal">ມິນິມອລ</string>
+    <string name="studio_text_template_gold">ທອງ</string>
+    <string name="studio_text_template_retro">ເຣໂທຣ</string>
+    <string name="studio_text_template_ocean">ມະຫາສະໝຸດ</string>
+    <string name="studio_label_elevation_disabled_by_text_form">ບໍ່ສາມາດໃຊ້ເອັບເຟັກຍົກສູງໄດ້ເມື່ອຮູບແບບຕົວອັກສອນສິລະປະເປີດຢູ່</string>
+    <string name="studio_text_form_path_hint">ລາກຄວາມແຮງເພື່ອໂຄ້ງເສັ້ນທາງຕົວອັກສອນ. ໄລຍະຫ່າງຕົວອັກສອນຊ່ວຍຫຼີກເວັ້ນການທັບຊ້ອນຂອງຮູບຕົວອັກສອນ.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">ລະບົບ</string>
-
     <!-- Document Styles (Text Presets) -->
     <string name="studio_label_document_styles">ຮູບແບບເອກະສານ</string>
     <string name="studio_label_style_title">ຫົວຂໍ້</string>
     <string name="studio_label_style_subtitle">ຫົວຂໍ້ຍ່ອຍ</string>
     <string name="studio_label_style_body">ເນື້ອຫາ</string>
-
     <!-- Color Presets -->
     <string name="studio_color_presets">ສີທີ່ກຳນົດໄວ້</string>
-
     <!-- Text Placeholder -->
     <string name="studio_text_default_placeholder">ແຕະສອງຄັ້ງເພື່ອພິມ</string>
-
     <!-- Sticker Picker -->
     <string name="studio_sticker_library_title">ຄັງສະຕິກເກີ</string>
     <string name="studio_sticker_tab_decor">ໄອຄອນ</string>
     <string name="studio_sticker_tab_meme">ພາບປະກອບ</string>
-
     <!-- Gradient sub-section tabs -->
     <string name="studio_label_color_presets_tab">ສີທີ່ກຳນົດໄວ້</string>
     <string name="studio_label_bg_color_tab">ສີພື້ນ</string>

@@ -378,7 +378,8 @@ private suspend fun applyRotateFlip(
     val rotated = android.graphics.Bitmap.createBitmap(
         bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
     )
-    if (rotated !== bitmap && !bitmap.isRecycled) bitmap.recycle()
+    // Do NOT recycle the input bitmap — it may still be in SharedEditorViewModel
+    // RAM cache / previous Nav back-stack screens under stress testing.
     rotated
 }
 

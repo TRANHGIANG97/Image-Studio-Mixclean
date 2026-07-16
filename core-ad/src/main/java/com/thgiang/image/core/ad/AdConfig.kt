@@ -4,6 +4,7 @@ package com.thgiang.image.core.ad
  * Cấu hình quảng cáo tập trung — dễ thay đổi theo BuildVariant (Free/Premium).
  */
 data class AdConfig(
+    val rewardedAdsEnabled: Boolean = false,
     val interstitialAdUnitId: String = "ca-app-pub-5559226591525834/3123553059",
     val appOpenAdUnitId: String = "ca-app-pub-5559226591525834/5558144705",
     val rewardedAdUnitId: String = "ca-app-pub-5559226591525834/1096155511",

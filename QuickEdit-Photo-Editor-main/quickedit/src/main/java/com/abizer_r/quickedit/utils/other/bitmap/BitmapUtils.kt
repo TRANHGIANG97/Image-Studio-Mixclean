@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.media.ExifInterface
 import android.net.Uri
 import com.abizer_r.quickedit.utils.AppUtils
+import com.thgiang.image.core.util.MemoryUtil
 import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.io.FileOutputStream
@@ -40,7 +41,8 @@ object BitmapUtils {
         }
 
         val screenSize = AppUtils.getScreenWidthAndHeight(context)
-        val inSampleSize = calculateInSampleSize(screenSize, bitmapSize)
+        val maxSide = MemoryUtil.maxEditorBitmapSide(context)
+        val inSampleSize = calculateInSampleSize(screenSize, bitmapSize, maxSide)
 
         val options = BitmapFactory.Options().apply {
             this.inSampleSize = inSampleSize
@@ -92,43 +94,44 @@ object BitmapUtils {
     private fun calculateInSampleSize(
         screenSize: Pair<Int, Int>,
         bitmapSize: Pair<Int, Int>,
+        maxSidePx: Int,
     ): Int {
-        // Raw height and width of image
         val (reqWidth, reqHeight) = screenSize
         val (width, height) = bitmapSize
 
-        var inSampleSize = 0
-
-        do {
-            inSampleSize++
-            val compressedWidth = width / inSampleSize
-            val compressedHeight = height / inSampleSize
-
-        } while (compressedWidth > reqWidth && compressedHeight > reqHeight)
-
-        return inSampleSize
+        var inSampleSize = 1
+        while (width / inSampleSize > maxSidePx ||
+            height / inSampleSize > maxSidePx ||
+            width / inSampleSize > reqWidth ||
+            height / inSampleSize > reqHeight
+        ) {
+            inSampleSize *= 2
+        }
+        return inSampleSize.coerceAtLeast(1)
     }
 
     /**
      * Checks if the bitmap contains any pixels with alpha < 255.
-     * Uses a sampled approach for large bitmaps to maintain performance.
+     * Samples a grid of pixels to avoid allocating a full IntArray(w*h) (OOM risk).
      */
     fun hasTransparentPixels(bitmap: Bitmap?): Boolean {
-        if (bitmap == null) return false
+        if (bitmap == null || bitmap.isRecycled) return false
         if (!bitmap.hasAlpha()) return false
 
         val width = bitmap.width
         val height = bitmap.height
-        
-        // For very large bitmaps, checking every pixel might be slow.
-        // But for most mobile images, it's acceptable. 
-        // We'll check in blocks or use a subset if needed, but let's start with full check for accuracy.
-        val pixels = IntArray(width * height)
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
-        
-        for (pixel in pixels) {
-            if ((pixel ushr 24) < 255) {
-                return true
+        if (width <= 0 || height <= 0) return false
+
+        // Sample ~64x64 grid across the image (covers edges + interior).
+        val stepsX = minOf(64, width)
+        val stepsY = minOf(64, height)
+        for (sy in 0 until stepsY) {
+            val y = (sy * (height - 1)) / (stepsY - 1).coerceAtLeast(1)
+            for (sx in 0 until stepsX) {
+                val x = (sx * (width - 1)) / (stepsX - 1).coerceAtLeast(1)
+                if ((bitmap.getPixel(x, y) ushr 24) < 255) {
+                    return true
+                }
             }
         }
         return false
@@ -147,20 +150,7 @@ object BitmapUtils {
     }
 
     fun getBitmapFromUri(context: Context, uri: Uri): Bitmap? {
-        return try {
-            val bitmap = context.contentResolver.openInputStream(uri)?.use { stream ->
-                BitmapFactory.decodeStream(stream)
-            }
-            // Apply EXIF orientation for consistency
-            val rotation = getExifRotation(context, uri)
-            if (rotation != 0 && bitmap != null) {
-                rotateBitmap(bitmap, rotation)
-            } else {
-                bitmap
-            }
-        } catch (e: Exception) {
-            null
-        }
+        return getDownSampledBitmap(context, uri, MemoryUtil.maxEditorBitmapSide(context))
     }
 
     /**

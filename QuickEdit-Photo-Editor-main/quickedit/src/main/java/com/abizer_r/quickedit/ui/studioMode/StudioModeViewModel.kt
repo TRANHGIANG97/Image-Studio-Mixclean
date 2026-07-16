@@ -360,10 +360,17 @@ class StudioModeViewModel @Inject constructor(
     }
 
     /** Render final full-resolution result when user taps Check/Done. */
-    suspend fun renderFinalForExport(): Bitmap? = withContext(Dispatchers.Default) {
-        val original = originalBitmap ?: return@withContext null
-        val fg = foregroundBitmap
-        computeCumulativeEffect(original, fg, _state.value.intensities)
+    suspend fun renderFinalForExport(): Bitmap? {
+        intensityDebounceJob?.cancel()
+        intensityDebounceJob = null
+        processingJob?.cancel()
+        processingJob?.join()
+        currentRenderGen++
+        return withContext(Dispatchers.Default) {
+            val original = originalBitmap ?: return@withContext null
+            val fg = foregroundBitmap
+            computeCumulativeEffect(original, fg, _state.value.intensities)
+        }
     }
 
     override fun onCleared() {

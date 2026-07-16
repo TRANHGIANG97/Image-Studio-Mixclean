@@ -367,7 +367,7 @@ fun TextModeScreen(
 @Composable
 private fun rememberCheckerboardBrush(density: androidx.compose.ui.unit.Density): androidx.compose.ui.graphics.ShaderBrush {
     val bmp = remember(density) { createCheckerboardBitmap(density) }
-    DisposableEffect(bmp) { onDispose { if (!bmp.isRecycled) bmp.recycle() } }
+    // Do not recycle — ImageShader may still reference this bitmap during disposal.
     return remember(bmp) {
         androidx.compose.ui.graphics.ShaderBrush(
             androidx.compose.ui.graphics.ImageShader(

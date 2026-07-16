@@ -3,6 +3,8 @@ package com.thgiang.image.studio.ui.editor.label.panel
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +48,7 @@ internal fun LabelStrokeSection(
     onLayoutEvent: (EditorEvent) -> Unit,
 ) {
     var showColorPicker by remember { mutableStateOf(false) }
-    var activeSubTab by rememberSaveable { mutableStateOf(0) } // 0: Màu viền, 1: Kiểu viền, 2: Độ dày
+    var activeSubTab by rememberSaveable { mutableStateOf(0) } // 0: Màu viền, 1: Kiểu viền, 2: Độ dày, 3: Khoảng cách
     
     val displayStrokeColor = layer.strokeColorArgb ?: 0xFF212121.toInt()
     val hasStroke = layer.strokeColorArgb != null && layer.strokeWidthPx > 0f
@@ -73,7 +75,7 @@ internal fun LabelStrokeSection(
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        // Top navigation bar: 3 sub-tabs (Màu viền, Kiểu viền, Độ dày) + "Không viền" button
+        // Top navigation bar: 4 sub-tabs + "Không viền" button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -81,15 +83,18 @@ internal fun LabelStrokeSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 3 Sub-tabs
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val tabResIds = listOf(
                     R.string.studio_stroke_tab_color,
                     R.string.studio_stroke_tab_style,
                     R.string.studio_stroke_tab_width,
+                    R.string.studio_stroke_tab_spacing,
                 )
                 tabResIds.forEachIndexed { index, labelRes ->
                     val isSelected = activeSubTab == index
@@ -104,7 +109,7 @@ internal fun LabelStrokeSection(
                     )
                 }
             }
-            
+
             // "Không viền" button
             Box(
                 modifier = Modifier
@@ -178,6 +183,29 @@ internal fun LabelStrokeSection(
                         },
                         tokens = tokens,
                     )
+                }
+            }
+            3 -> {
+                val hasDashStyle = layer.strokeDashArray.size >= 2
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (hasDashStyle) {
+                        PrecisionSlider(
+                            label = stringResource(R.string.studio_stroke_tab_spacing),
+                            value = layer.strokeDashGapPx,
+                            valueRange = 0f..40f,
+                            onValueChange = { onLayoutEvent(EditorEvent.UpdateStrokeDashGap(it)) },
+                            valueFormatter = { "${it.toInt()}px" },
+                            colors = sliderColors,
+                            isCompact = true,
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.studio_stroke_spacing_requires_dash),
+                            fontSize = 11.sp,
+                            color = tokens.textSecondary,
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        )
+                    }
                 }
             }
         }

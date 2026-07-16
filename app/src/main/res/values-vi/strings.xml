@@ -59,6 +59,8 @@
     <string name="done_save_or_share">Hoàn thành! Bạn có thể lưu hoặc chia sẻ kết quả ngay.</string>
     <string name="removing_background_wait">Đang tách nền. Vui lòng chờ trong giây lát...</string>
     <string name="remove_bg_selfie_fallback_warning">Thiết bị này có thể không nhận diện tốt các thực thể ngoài người, điều này có thể ảnh hưởng đến chất lượng.</string>
+    <string name="play_services_update_message">Hãy cập nhật Google Play services để xóa nền ổn định và chính xác hơn.</string>
+    <string name="play_services_update_action">Cập nhật</string>
     <string name="loading_image">Đang tải ảnh...</string>
     <string name="tap_remove_background_to_start">Nhấn \"Xóa nền ảnh\" để bắt đầu.</string>
     <string name="step_choose_image">Bước 1: Chọn ảnh từ bộ sưu tập của bạn.</string>
@@ -318,6 +320,11 @@
     <string name="save_success_home">Trang chủ</string>
     <string name="save_success_saved_image">Ảnh đã lưu</string>
     <string name="save_success_share_with">Chia sẻ với…</string>
+    <string name="save_success_confirm_home_title">Quay lại trang chủ?</string>
+    <string name="save_success_confirm_home_message">Bạn có muốn quay lại trang chủ?</string>
+    <string name="save_success_confirm_home_confirm">Thoát</string>
+    <string name="save_success_tap_to_preview">Chạm để xem thử</string>
+    <string name="save_success_preview_close">Đóng xem thử</string>
     <string name="batch_remove_error_load_image">Không thể tải ảnh này.</string>
     <string name="drafts_error_load">Lỗi khi tải bản nháp: %1$s</string>
 </resources>

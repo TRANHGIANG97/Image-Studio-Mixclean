@@ -85,6 +85,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">క్రిస్మస్</string>
     <string name="themeplate_section_memories">జ్ఞాపకాలు</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="themeplate_selfie_food_01">సెల్ఫీ ఫుడ్ 1</string>
     <string name="themeplate_selfie_food_02">సెల్ఫీ ఫుడ్ 2</string>
     <string name="themeplate_selfie_food_03">సెల్ఫీ ఫుడ్ 3</string>
@@ -214,21 +216,19 @@
     <string name="studio_text_form_follow_path">మార్గాన్ని అనుసరించండి</string>
     <string name="studio_text_form_warp">వార్ప్</string>
     <string name="studio_text_form_amount">తీవ్రత</string>
+    <string name="studio_text_form_letter_spacing">అక్షర అంతరం</string>
     <string name="studio_text_form_none">ఏదీ లేదు</string>
     <string name="studio_text_form_path_wave">అల</string>
     <string name="studio_text_form_path_arc_up">ఆర్క్ అప్</string>
     <string name="studio_text_form_path_arc_down">ఆర్క్ డౌన్</string>
     <string name="studio_text_form_path_circle">సర్కిల్</string>
-    <string name="studio_text_form_path_ring">రింగ్</string>
-    <string name="studio_text_form_warp_arch_up">పైకి వంపు</string>
+<string name="studio_text_form_warp_arch_up">పైకి వంపు</string>
     <string name="studio_text_form_warp_arch_down">ఆర్చ్ డౌన్</string>
     <string name="studio_text_form_warp_bulge">ఉబ్బెత్తు</string>
     <string name="studio_text_form_warp_wave">అల</string>
     <string name="studio_text_form_warp_flag">జెండా</string>
     <string name="studio_text_form_warp_rise">ఎదుగు</string>
     <string name="studio_text_form_warp_fall">పతనం</string>
-    <string name="studio_text_form_warp_inflate">పెంచి</string>
-    <string name="studio_text_form_warp_deflate">తగ్గించు</string>
     <string name="studio_text_form_warp_chevron_up">చెవ్రాన్ అప్</string>
     <string name="studio_text_form_warp_chevron_down">చెవ్రాన్ డౌన్</string>
     <string name="studio_objects_label">వస్తువులు</string>
@@ -267,6 +267,8 @@
     <string name="studio_stroke_tab_color">అంచు రంగు</string>
     <string name="studio_stroke_tab_style">లైన్ శైలి</string>
     <string name="studio_stroke_tab_width">మందం</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">సరిహద్దు లేదు</string>
     <string name="studio_dash_solid">ఘనమైనది</string>
     <string name="studio_dash_round_dot">రౌండ్ చుక్కలు</string>
@@ -315,6 +317,22 @@
     <string name="studio_label_tab_elevation">ప్రభావం</string>
     <string name="studio_label_tab_text_form">కళాత్మకమైనది</string>
     <string name="studio_label_tab_shape">ఫ్రేమ్</string>
+    <string name="studio_label_tab_text_template">టెంప్లేట్లు</string>
+    <string name="studio_label_tab_more">మరిన్ని</string>
+    <string name="studio_text_template_classic">క్లాసిక్</string>
+    <string name="studio_text_template_gradient">గ్రేడియెంట్</string>
+    <string name="studio_text_template_sale">సేల్</string>
+    <string name="studio_text_template_arc">వంపు</string>
+    <string name="studio_text_template_outline">అవుట్లైన్</string>
+    <string name="studio_text_template_neon">నియాన్</string>
+    <string name="studio_text_template_soft">మెత్తని</string>
+    <string name="studio_text_template_poster">పోస్టర్</string>
+    <string name="studio_text_template_minimal">మినిమల్</string>
+    <string name="studio_text_template_gold">బంగారం</string>
+    <string name="studio_text_template_retro">రెట్రో</string>
+    <string name="studio_text_template_ocean">సముద్రం</string>
+    <string name="studio_label_elevation_disabled_by_text_form">కళాత్మక వచన రూపం చురుకుగా ఉన్నప్పుడు ఎలివేషన్ అందుబాటులో ఉండదు.</string>
+    <string name="studio_text_form_path_hint">మార్గాన్ని వంచడానికి తీవ్రతను లాగండి. అక్షర అంతరం అతివ్యాప్తిని నివారిస్తుంది.</string>
     <string name="studio_font_category_system">వ్యవస్థ</string>
     <string name="studio_label_document_styles">డాక్యుమెంట్ శైలులు</string>
     <string name="studio_label_style_title">శీర్షిక</string>
@@ -333,5 +351,3 @@
     <string name="studio_label_gradient_angle_tab">కోణం</string>
     <string name="studio_back_button">వెనుకకు</string>
 </resources>
-
-

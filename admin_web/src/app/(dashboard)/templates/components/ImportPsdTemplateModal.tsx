@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,6 +11,7 @@ import { FileImage, Loader2 } from 'lucide-react';
 import { Category } from '@/hooks/useCategories';
 import { useImportPsdTemplate } from '@/hooks/useTemplates';
 import { fileStem } from '@/lib/image-file-utils';
+import { yieldToUi } from '@/lib/psd/import-log';
 
 interface ImportPsdTemplateModalProps {
   isOpen: boolean;
@@ -42,8 +43,26 @@ function psdFileStem(fileName: string) {
   return fileStem(fileName, /\.(psd|psb)$/i);
 }
 
+function logLineClass(log: string) {
+  if (log.includes('Lỗi') || log.includes('✗') || log.includes('thất bại')) return 'text-rose-400';
+  if (log.includes('⚠') || log.includes('Cảnh báo')) return 'text-amber-300';
+  if (
+    log.includes('Thành công') ||
+    log.includes('Hoàn thành') ||
+    log.includes('✓') ||
+    log.includes('xong')
+  ) {
+    return 'text-emerald-400';
+  }
+  if (log.includes('→') || log.includes('Đang')) return 'text-sky-300';
+  return 'text-slate-300';
+}
+
 export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPsdTemplateModalProps) {
   const [psdFile, setPsdFile] = useState<File | null>(null);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [importPhase, setImportPhase] = useState<'idle' | 'running' | 'error' | 'done'>('idle');
+  const logContainerRef = useRef<HTMLDivElement>(null);
   const importMutation = useImportPsdTemplate();
 
   const form = useForm<FormValues>({
@@ -58,6 +77,15 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
   });
 
   const exportLayers = useWatch({ control: form.control, name: 'exportLayers' });
+  const showLogPanel = importPhase === 'running' || importPhase === 'error' || importPhase === 'done';
+  const isBusy = importPhase === 'running' || importMutation.isPending;
+
+  // Auto-scroll log console to bottom
+  useEffect(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   useEffect(() => {
     if (isOpen) {
@@ -69,8 +97,15 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
         exportFolderName: '',
       });
       setPsdFile(null);
+      setLogs([]);
+      setImportPhase('idle');
     }
   }, [isOpen, categories, form]);
+
+  const appendLog = async (msg: string) => {
+    setLogs((prev) => [...prev, msg]);
+    await yieldToUi();
+  };
 
   const handleFileChange = (file: File | null) => {
     setPsdFile(file);
@@ -90,121 +125,182 @@ export function ImportPsdTemplateModal({ isOpen, onClose, categories }: ImportPs
     if (!psdFile) return;
 
     const resolvedTitle = values.title?.trim() || psdFileStem(psdFile.name) || 'Imported PSD Template';
+    setImportPhase('running');
+    setLogs([`Bắt đầu nhập PSD: "${psdFile.name}" (${(psdFile.size / (1024 * 1024)).toFixed(2)} MB)`]);
+    // Let React paint the log panel before heavy parse work blocks the main thread.
+    await yieldToUi();
+    await yieldToUi();
 
-    await importMutation.mutateAsync({
-      file: psdFile,
-      categoryId: values.categoryId.trim(),
-      templateId: values.templateId.trim(),
-      title: resolvedTitle,
-      exportLayers: values.exportLayers,
-      exportFolderName: values.exportFolderName,
-    });
-
-    setPsdFile(null);
-    onClose();
+    try {
+      await importMutation.mutateAsync({
+        file: psdFile,
+        categoryId: values.categoryId.trim(),
+        templateId: values.templateId.trim(),
+        title: resolvedTitle,
+        exportLayers: values.exportLayers,
+        exportFolderName: values.exportFolderName,
+        onLog: appendLog,
+      });
+      setImportPhase('done');
+      await appendLog('Hoàn thành! Đóng hộp thoại sau 1.2s...');
+      await new Promise((r) => setTimeout(r, 1200));
+      setPsdFile(null);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      setImportPhase('error');
+      await appendLog(`Lỗi: ${(err as any).message || err}`);
+    }
   });
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) {
+      if (!open && !isBusy) {
         setPsdFile(null);
         onClose();
       }
     }}>
-      <DialogContent className="bg-white border border-slate-200 text-slate-800 rounded-2xl sm:max-w-md">
+      <DialogContent className={`bg-white border border-slate-200 text-slate-800 rounded-2xl ${showLogPanel ? 'sm:max-w-2xl' : 'sm:max-w-md'}`}>
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <FileImage className="w-5 h-5 text-indigo-400" /> Nhập Template từ PSD
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
             Import file .psd hoặc .psb nhiều layer để giữ từng layer có thể chỉnh sửa trong trình thiết kế.
+            File chuyển từ AI thường parse lâu — theo dõi log bên dưới để biết đang kẹt ở bước nào.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-600">ID Template</label>
-            <Input
-              {...form.register('templateId')}
-              className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
-            />
-            {form.formState.errors.templateId && <p className="text-xs text-rose-500">{form.formState.errors.templateId.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-600">Tiêu đề template</label>
-            <Input
-              {...form.register('title')}
-              placeholder="Để trống sẽ lấy tên file PSD"
-              className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
-            />
-            {form.formState.errors.title && <p className="text-xs text-rose-500">{form.formState.errors.title.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-600">Danh mục</label>
-            <select
-              {...form.register('categoryId')}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-indigo-600"
+
+        {showLogPanel ? (
+          <div className="space-y-4 py-2">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 text-indigo-600 font-semibold text-sm">
+                {importPhase === 'running' && <Loader2 className="w-5 h-5 animate-spin shrink-0" />}
+                {importPhase === 'running' && 'Đang nhập file PSD...'}
+                {importPhase === 'error' && <span className="text-rose-600">Import thất bại — xem log để biết nguyên nhân</span>}
+                {importPhase === 'done' && <span className="text-emerald-600">Import thành công</span>}
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono">{logs.length} dòng</span>
+            </div>
+            <div
+              ref={logContainerRef}
+              className="bg-slate-900 border border-slate-800 text-slate-200 rounded-xl p-3 font-mono text-[11px] leading-relaxed h-80 overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-slate-700"
             >
-              <option value="" disabled>Chọn danh mục</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            {form.formState.errors.categoryId && <p className="text-xs text-rose-500">{form.formState.errors.categoryId.message}</p>}
+              {logs.length === 0 ? (
+                <div className="text-slate-500">Chờ log...</div>
+              ) : (
+                logs.map((log, index) => (
+                  <div key={`${index}-${log.slice(0, 24)}`} className="flex gap-2">
+                    <span className="text-slate-500 select-none shrink-0">[{index + 1}]</span>
+                    <span className={`break-all ${logLineClass(log)}`}>{log}</span>
+                  </div>
+                ))
+              )}
+            </div>
+            {(importPhase === 'error' || importPhase === 'done') && (
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setImportPhase('idle');
+                    setLogs([]);
+                    if (importPhase === 'done') onClose();
+                  }}
+                  className="text-slate-500 hover:text-slate-800 rounded-xl"
+                >
+                  {importPhase === 'error' ? 'Quay lại form' : 'Đóng'}
+                </Button>
+              </DialogFooter>
+            )}
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-600">Chọn file PSD/PSB</label>
-            <Input
-              type="file"
-              accept=".psd,.psb"
-              onChange={(e) => handleFileChange(e.target.files ? e.target.files[0] : null)}
-              className="bg-white border-slate-200 text-slate-500 file:text-xs file:font-semibold file:text-indigo-400 file:bg-indigo-600/10 file:border-0 file:rounded-lg file:px-3 file:py-1 cursor-pointer rounded-xl"
-              required
-            />
-          </div>
-
-          <div className="flex items-center space-x-2 pt-2">
-            <input
-              type="checkbox"
-              id="exportLayers"
-              {...form.register('exportLayers')}
-              className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
-            />
-            <label htmlFor="exportLayers" className="text-xs font-semibold text-slate-600 cursor-pointer select-none">
-              Xuất các layer ảnh vào Thư viện tài nguyên (Asset Library)
-            </label>
-          </div>
-
-          {exportLayers && (
-            <div className="space-y-2 pl-6 animate-in fade-in slide-in-from-top-1 duration-200">
-              <label className="text-xs font-semibold text-slate-600">Tên thư mục lưu trữ tài nguyên</label>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-600">ID Template</label>
               <Input
-                {...form.register('exportFolderName')}
-                placeholder="Ví dụ: psd-layer-summer"
+                {...form.register('templateId')}
                 className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
+              />
+              {form.formState.errors.templateId && <p className="text-xs text-rose-500">{form.formState.errors.templateId.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-600">Tiêu đề template</label>
+              <Input
+                {...form.register('title')}
+                placeholder="Để trống sẽ lấy tên file PSD"
+                className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
+              />
+              {form.formState.errors.title && <p className="text-xs text-rose-500">{form.formState.errors.title.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-600">Danh mục</label>
+              <select
+                {...form.register('categoryId')}
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-indigo-600"
+              >
+                <option value="" disabled>Chọn danh mục</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              {form.formState.errors.categoryId && <p className="text-xs text-rose-500">{form.formState.errors.categoryId.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-600">Chọn file PSD/PSB</label>
+              <Input
+                type="file"
+                accept=".psd,.psb"
+                onChange={(e) => handleFileChange(e.target.files ? e.target.files[0] : null)}
+                className="bg-white border-slate-200 text-slate-500 file:text-xs file:font-semibold file:text-indigo-400 file:bg-indigo-600/10 file:border-0 file:rounded-lg file:px-3 file:py-1 cursor-pointer rounded-xl"
                 required
               />
-              <p className="text-[10px] text-slate-400">
-                Các lớp ảnh con của file PSD sẽ được đăng ký vào thư mục này để bạn tái sử dụng ở các template khác.
-              </p>
             </div>
-          )}
 
-          <DialogFooter className="mt-6">
-            <Button type="button" variant="ghost" onClick={onClose} className="text-slate-500 hover:text-slate-800 rounded-xl">
-              Hủy
-            </Button>
-            <Button
-              type="submit"
-              disabled={importMutation.isPending || !psdFile}
-              className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white"
-            >
-              {importMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-              Tiến hành Nhập
-            </Button>
-          </DialogFooter>
-        </form>
+            <div className="flex items-center space-x-2 pt-2">
+              <input
+                type="checkbox"
+                id="exportLayers"
+                {...form.register('exportLayers')}
+                className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+              />
+              <label htmlFor="exportLayers" className="text-xs font-semibold text-slate-600 cursor-pointer select-none">
+                Xuất các layer ảnh vào Thư viện tài nguyên (Asset Library)
+              </label>
+            </div>
+
+            {exportLayers && (
+              <div className="space-y-2 pl-6 animate-in fade-in slide-in-from-top-1 duration-200">
+                <label className="text-xs font-semibold text-slate-600">Tên thư mục lưu trữ tài nguyên</label>
+                <Input
+                  {...form.register('exportFolderName')}
+                  placeholder="Ví dụ: psd-layer-summer"
+                  className="bg-white border-slate-200 text-slate-700 focus-visible:ring-indigo-600 rounded-xl"
+                  required
+                />
+                <p className="text-[10px] text-slate-400">
+                  Các lớp ảnh con của file PSD sẽ được đăng ký vào thư mục này để bạn tái sử dụng ở các template khác.
+                </p>
+              </div>
+            )}
+
+            <DialogFooter className="mt-6">
+              <Button type="button" variant="ghost" onClick={onClose} className="text-slate-500 hover:text-slate-800 rounded-xl">
+                Hủy
+              </Button>
+              <Button
+                type="submit"
+                disabled={isBusy || !psdFile}
+                className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 text-white"
+              >
+                {isBusy && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                Tiến hành Nhập
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );

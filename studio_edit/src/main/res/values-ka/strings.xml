@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">შობა</string>
     <string name="themeplate_section_memories">მოგონებები</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">საკვების სელფი 1</string>
     <string name="themeplate_selfie_food_02">საკვების სელფი 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">ჩარჩოს ფერი</string>
     <string name="studio_stroke_tab_style">ხაზის სტილი</string>
     <string name="studio_stroke_tab_width">სისქე</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">ჩარჩოს გარეშე</string>
     <string name="studio_dash_solid">უწყვეტი ხაზი</string>
     <string name="studio_dash_round_dot">მრგვალი წერტილები</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">მიჰყევით კონტურს</string>
     <string name="studio_text_form_warp">დეფორმაცია</string>
     <string name="studio_text_form_amount">ინტენსივობა</string>
+    <string name="studio_text_form_letter_spacing">ასოების დაშორება</string>
     <string name="studio_text_form_none">არცერთი</string>
     <string name="studio_text_form_path_wave">ტალღა</string>
     <string name="studio_text_form_path_arc_up">რკალი ზემოთ</string>
     <string name="studio_text_form_path_arc_down">რკალი ქვემოთ</string>
     <string name="studio_text_form_path_circle">წრე</string>
-    <string name="studio_text_form_path_ring">რგოლი</string>
-    <string name="studio_text_form_warp_arch_up">რკალი ზემოთ</string>
+<string name="studio_text_form_warp_arch_up">რკალი ზემოთ</string>
     <string name="studio_text_form_warp_arch_down">რკალი ქვემოთ</string>
     <string name="studio_text_form_warp_bulge">ამობურცულობა</string>
     <string name="studio_text_form_warp_wave">ტალღა</string>
     <string name="studio_text_form_warp_flag">დროშა</string>
     <string name="studio_text_form_warp_rise">აღმასვლა</string>
     <string name="studio_text_form_warp_fall">დაღმასვლა</string>
-    <string name="studio_text_form_warp_inflate">გაბერვა</string>
-    <string name="studio_text_form_warp_deflate">დაცლა</string>
     <string name="studio_text_form_warp_chevron_up">შევრონი ზემოთ</string>
     <string name="studio_text_form_warp_chevron_down">შევრონი ქვემოთ</string>
     <string name="studio_objects_label">ობიექტები</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">ეფექტი</string>
     <string name="studio_label_tab_text_form">მხატვრული</string>
     <string name="studio_label_tab_shape">ჩარჩო</string>
+    <string name="studio_label_tab_text_template">შაბლონები</string>
+    <string name="studio_label_tab_more">მეტი</string>
+    <string name="studio_text_template_classic">კლასიკური</string>
+    <string name="studio_text_template_gradient">გრადიენტი</string>
+    <string name="studio_text_template_sale">ფასდაკლება</string>
+    <string name="studio_text_template_arc">თაღი</string>
+    <string name="studio_text_template_outline">კონტური</string>
+    <string name="studio_text_template_neon">ნეონი</string>
+    <string name="studio_text_template_soft">რბილი</string>
+    <string name="studio_text_template_poster">პოსტერი</string>
+    <string name="studio_text_template_minimal">მინიმალური</string>
+    <string name="studio_text_template_gold">ოქრო</string>
+    <string name="studio_text_template_retro">რეტრო</string>
+    <string name="studio_text_template_ocean">ოკეანე</string>
+    <string name="studio_label_elevation_disabled_by_text_form">ამოზნექის ეფექტი მიუწვდომელია, სანამ მხატვრული ტექსტის ფორმა აქტიურია.</string>
+    <string name="studio_text_form_path_hint">გადაათრიეთ ინტენსივობა ტექსტის გზის მოსახრელად. ასოების დაშორება ეხმარება გლიფების გადაფარვის თავიდან აცილებას.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">სისტემური</string>

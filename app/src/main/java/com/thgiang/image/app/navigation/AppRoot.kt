@@ -2,7 +2,7 @@ package com.thgiang.image.app.navigation
 
 import android.app.Activity
 import android.content.Context
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.thgiang.image.core.analytics.AppAnalytics
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -562,11 +562,12 @@ fun AppRoot(
                     
                     SingleImagePickerScreen(
                         onImageSelected = { uri ->
-                            try {
-                                FirebaseAnalytics.getInstance(context).logEvent("select_image", null)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
+                            val source = when {
+                                autoRemove -> "picker_auto_remove"
+                                !targetTool.isNullOrBlank() -> "picker_$targetTool"
+                                else -> "picker"
                             }
+                            AppAnalytics.onSelectImage(context, source)
                             if (isPresetModeForPicker) {
                                 navController.previousBackStackEntry?.savedStateHandle?.set("picked_uri", uri)
                                 navController.popBackStack()
@@ -596,6 +597,9 @@ fun AppRoot(
                 composable(Screen.BatchPicker.route) {
                     MultiImagePickerScreen(
                         onImagesSelected = { uris ->
+                            if (uris.isNotEmpty()) {
+                                AppAnalytics.onBatchImagesSelected(context, uris.size)
+                            }
                             val merged = (appState.batchUris + uris).distinct()
                             appViewModel.setBatchUris(merged)
                             if (!navController.popBackStack(
@@ -686,6 +690,9 @@ fun AppRoot(
                         accentColor = androidx.compose.ui.graphics.Color.Transparent
                     )
                     if (true) {
+                        LaunchedEffect(themeplateId) {
+                            AppAnalytics.onStudioOpened(context, themeplateId)
+                        }
                         ThemeplateEditorScreen(
                             themeplate = themeplate,
                             onBack = { navController.popBackStack() },
@@ -694,11 +701,15 @@ fun AppRoot(
                             },
                             onRequireExportAd = { action -> requestSaveVideoAd(action) },
                             onExportSuccess = {
+                                AppAnalytics.onSaveImage(context, "studio")
                                 appViewModel.recordSuccessfulSave { showReviewPrompt(ReviewPromptSource.Auto) }
                             },
                             onPickImage = { onSelected, onCancel ->
                                 SingleImagePickerScreen(
-                                    onImageSelected = onSelected,
+                                    onImageSelected = { uri ->
+                                        AppAnalytics.onSelectImage(context, "studio_editor")
+                                        onSelected(uri)
+                                    },
                                     onCancel = onCancel
                                 )
                             }

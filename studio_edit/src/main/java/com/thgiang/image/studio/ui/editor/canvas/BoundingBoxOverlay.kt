@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -101,10 +100,13 @@ object EditorColors {
 }
 
 object EditorDims {
-    val HandleRadiusDp = 6.dp
-    val TouchRadiusDp = 16.dp
+    /** Visual radius of corner scale handles. */
+    val HandleVisualRadiusDp = 8.dp
+    /** Hit-test base radius for corner handles (unchanged when visual shrinks). */
+    val HandleRadiusDp = 12.dp
+    val TouchRadiusDp = 32.dp
     /** Extra hit slop around handle visuals — forgiving taps a few px off-center. */
-    val HandleTouchPaddingDp = 4.dp
+    val HandleTouchPaddingDp = 8.dp
     val RotateLineDp = 28.dp
     val RotateHandleOffsetDp = 5.dp
     val BorderStrokeDp = 1.2.dp
@@ -113,14 +115,19 @@ object EditorDims {
     val RotateRadiusActiveDp = 14.dp
     val CrosshairSizeDp = 5.dp
 
+    /** Inline text edit: move handle sits above the bbox top edge (clears sample replace button). */
+    val TextInlineMoveHandleGapDp = 52.dp
+    val TextInlineMoveHandleRadiusDp = 14.dp
+    val TextInlineMoveHandleHitRadiusDp = 18.dp
+
     const val CORNER_GLOW_RADIUS = 2f
     const val ROTATE_GLOW_RADIUS = 3f
     const val HAPTIC_DEBOUNCE_MS = 80L
 }
 
 object EditorConfig {
-    const val MIN_SCALE = 0.1f
-    const val MAX_SCALE = 5f
+    const val MIN_SCALE = 0.05f
+    const val MAX_SCALE = 40f
     const val SNAP_ANGLE_THRESHOLD = 6f
     /** Distance to engage snap guides (template px). */
     const val SNAP_DISTANCE_PX = 8f
@@ -167,6 +174,7 @@ sealed class HandleZone {
 enum class GestureMode { IDLE, DRAG, SCALE_CORNER, SCALE_EDGE, ROTATE, PINCH }
 
 data class CachedDimensions(
+    val handleVisualRadiusPx: Float,
     val handleRadiusPx: Float,
     val touchRadiusPx: Float,
     val rotateLinePx: Float,
@@ -200,6 +208,12 @@ fun BoundingBoxOverlayV6(
     isLocked: Boolean = false,
     otherLayers: List<EditorLayer> = emptyList(),
     isInlineEditing: Boolean = false,
+    /** Text label: only TL scale + right-edge width handles (Canva-style). */
+    minimalTextHandles: Boolean = false,
+    /** Extra top space (px) reserved for the inline text move handle hit target. */
+    inlineEditTopInsetPx: Float = 0f,
+    /** Tap or drag inside the text frame while inline editing — reposition caret / selection. */
+    onInlineTextPointer: (tapStart: Offset, tapEnd: Offset?, isDragSelect: Boolean) -> Unit = { _, _, _ -> },
     onGestureActiveChanged: (Boolean) -> Unit = {}
 ) {
     if (contentWidth <= 0f || contentHeight <= 0f || displayScale <= 0f) {
@@ -220,10 +234,19 @@ fun BoundingBoxOverlayV6(
     val currentTemplateSize by rememberUpdatedState(templateSize)
     val currentOtherLayers by rememberUpdatedState(otherLayers)
     val currentIsInlineEditing by rememberUpdatedState(isInlineEditing)
+    val currentMinimalTextHandles by rememberUpdatedState(minimalTextHandles)
+    val currentOnInlineTextPointer by rememberUpdatedState(onInlineTextPointer)
     val currentOnGestureActiveChanged by rememberUpdatedState(onGestureActiveChanged)
+
+    fun overlayCenter(width: Float, height: Float): Offset {
+        // Geometric center of the overlay box. The overlay is center-aligned with the
+        // text content; shifting Y for the move-handle inset misaligned caret hit-tests.
+        return Offset(width / 2f, height / 2f)
+    }
 
     val dimensions = remember(density) {
         CachedDimensions(
+            handleVisualRadiusPx = with(density) { EditorDims.HandleVisualRadiusDp.toPx() },
             handleRadiusPx = with(density) { EditorDims.HandleRadiusDp.toPx() },
             touchRadiusPx = with(density) { EditorDims.TouchRadiusDp.toPx() },
             rotateLinePx = with(density) { EditorDims.RotateLineDp.toPx() },
@@ -275,7 +298,7 @@ fun BoundingBoxOverlayV6(
                 val touchSlop = viewConfiguration.touchSlop
                 try {
                     val down = awaitFirstDown(requireUnconsumed = false)
-                    val center = Offset(size.width / 2f, size.height / 2f)
+                    val center = overlayCenter(size.width.toFloat(), size.height.toFloat())
 
                     val screenW = currentContentWidth * currentViewport.scale * currentDisplayScale + 2 * EditorConfig.BB_PADDING_PX
                     val screenH = currentContentHeight * currentViewport.scale * currentDisplayScale + 2 * EditorConfig.BB_PADDING_PX
@@ -293,8 +316,9 @@ fun BoundingBoxOverlayV6(
                         lockAspectRatio = lockAspectRatio,
                         edgeHandleWidthPx = dimensions.edgeHandleWidthPx,
                         edgeHandleHeightPx = dimensions.edgeHandleHeightPx,
-                        handleTouchPaddingPx = 0f,
+                        handleTouchPaddingPx = dimensions.handleTouchPaddingPx,
                         isInlineEditing = currentIsInlineEditing,
+                        minimalTextHandles = currentMinimalTextHandles,
                     )
 
                     gestureMode = when (activeHandle) {
@@ -310,7 +334,35 @@ fun BoundingBoxOverlayV6(
                         currentOnBoundingBoxVisible(true)
                     }
 
-                    if (gestureMode == GestureMode.IDLE) return@awaitEachGesture
+                    if (gestureMode == GestureMode.IDLE) {
+                        if (currentIsInlineEditing) {
+                            down.consume()
+                            val startPos = down.position
+                            val pointerId = down.id
+                            var currentPos = startPos
+                            var isDragSelect = false
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Main)
+                                val change = event.changes.firstOrNull { it.id == pointerId }
+                                if (change == null || !change.pressed) {
+                                    currentOnInlineTextPointer(
+                                        startPos,
+                                        if (isDragSelect) currentPos else null,
+                                        isDragSelect,
+                                    )
+                                    break
+                                }
+                                change.consume()
+                                currentPos = change.position
+                                if (!isDragSelect &&
+                                    (currentPos - startPos).getDistance() > touchSlop
+                                ) {
+                                    isDragSelect = true
+                                }
+                            }
+                        }
+                        return@awaitEachGesture
+                    }
 
                     currentOnGestureActiveChanged(true)
                     val isBodyDrag = gestureMode == GestureMode.DRAG
@@ -320,23 +372,8 @@ fun BoundingBoxOverlayV6(
                     }
 
                     // ── LOCAL VARIABLES ──
-                    var localStartTransform = currentViewport
                     var localStartTouch = down.position
-                    var localLastTouch = down.position
                     var localLastSnappedAngle = Float.NaN
-
-                    // Pinch-specific locals
-                    var localPinchId1: PointerId? = null
-                    var localPinchId2: PointerId? = null
-                    var localPinchStartDist = 1f
-                    var localPinchStartAngle = 0f
-                    var localPinchStartScale = 1f
-                    var localPinchStartRotation = 0f
-                    var localPinchStartCentroid = Offset.Zero
-
-                    // V6.1: Smoothed centroid
-                    var localSmoothedCentroid = Offset.Zero
-                    var localLastRawCentroid = Offset.Zero
 
                     // Rotation-specific locals
                     var localRotateStartAngleRad = 0f
@@ -346,12 +383,7 @@ fun BoundingBoxOverlayV6(
                     var localScaleStartScale = 1f
                     var localScaleHandle: HandleZone.Corner? = null
 
-                    // Snap lock — survives across drag frames to allow break-away
-                    var lockedSnapX: Float? = null
-                    var lockedSnapY: Float? = null
-
                     // Incremental tracking locals
-                    var lastSentPan = Offset.Zero
                     var lastSentScale = currentViewport.scale
                     var lastSentRotation = currentViewport.rotation
 
@@ -379,161 +411,21 @@ fun BoundingBoxOverlayV6(
                         if (pressed.isEmpty()) break
 
                         // Dynamic layout-shift correction relative to the start center
-                        val currentCenter = Offset(size.width / 2f, size.height / 2f)
+                        val currentCenter = overlayCenter(size.width.toFloat(), size.height.toFloat())
                         val correction = center - currentCenter
 
-                        // Detect pinch: 2+ fingers (disabled during inline editing)
-                        if (pressed.size >= 2 && gestureMode != GestureMode.PINCH && !currentIsInlineEditing) {
-                            val p1 = pressed[0]
-                            val p2 = pressed[1]
-                            localPinchId1 = p1.id
-                            localPinchId2 = p2.id
-                            
-                            val p1Pos = p1.position + correction
-                            val p2Pos = p2.position + correction
-                            localPinchStartDist = distance(p1Pos, p2Pos).coerceAtLeast(1f)
-                            localPinchStartAngle = angleBetween(p1Pos, p2Pos)
-                            localPinchStartScale = currentViewport.scale
-                            localPinchStartRotation = currentViewport.rotation
-
-                            val initialCentroid = (p1Pos + p2Pos) / 2f
-                            localPinchStartCentroid = initialCentroid
-                            localSmoothedCentroid = initialCentroid
-                            localLastRawCentroid = initialCentroid
-
-                            gestureMode = GestureMode.PINCH
-                            performDebouncedHaptic(haptic, lastHapticTime) { lastHapticTime = it }
-                            continue
-                        }
-
-                        // Drop to 1 finger from pinch → re-detect handle zone for the remaining finger
-                        if (pressed.size == 1 && gestureMode == GestureMode.PINCH) {
-                            val remaining = pressed.first()
+                        // Two-finger pinch zooms the canvas, not the object — exit object gesture.
+                        if (pressed.size >= 2 && !currentIsInlineEditing) {
                             if (hasMoved) {
                                 showSnap = false
                                 snapLines = emptyList()
                                 currentOnGestureEnd()
                             }
-                            // Re-detect handle for the remaining finger so gesture continues
-                            val newHandle = detectHandleRotated(
-                                touch = remaining.position + correction,
-                                center = center,
-                                screenW = screenW,
-                                screenH = screenH,
-                                rotation = currentViewport.rotation,
-                                handleRadius = dimensions.handleRadiusPx,
-                                rotateOffset = dimensions.rotateLinePx,
-                                rotateRadiusPx = dimensions.rotateRadiusPx,
-                                rotateHandleOffset = dimensions.rotateHandleOffsetPx,
-                                lockAspectRatio = lockAspectRatio,
-                                edgeHandleWidthPx = dimensions.edgeHandleWidthPx,
-                                edgeHandleHeightPx = dimensions.edgeHandleHeightPx,
-                                handleTouchPaddingPx = 0f,
-                                isInlineEditing = currentIsInlineEditing,
-                            )
-                            gestureMode = when (newHandle) {
-                                HandleZone.Body -> GestureMode.DRAG
-                                HandleZone.BodyInner -> GestureMode.DRAG
-                                HandleZone.Rotate -> GestureMode.ROTATE
-                                is HandleZone.Corner -> GestureMode.SCALE_CORNER
-                                is HandleZone.Edge -> GestureMode.SCALE_EDGE
-                                HandleZone.None -> GestureMode.IDLE
-                            }
-                            activeHandle = newHandle
-                            localStartTouch = remaining.position + correction
-                            localLastTouch = remaining.position + correction
-                            localStartTransform = currentViewport
-                            lastSentPan = Offset.Zero
-                            lastSentScale = currentViewport.scale
-                            lastSentRotation = currentViewport.rotation
-                            pastTouchSlop = gestureMode != GestureMode.DRAG
-                            if (gestureMode == GestureMode.IDLE) hasMoved = false
-                            continue
+                            break
                         }
 
                         when (gestureMode) {
-                            GestureMode.PINCH -> {
-                                val c1 = event.changes.find { it.id == localPinchId1 } ?: continue
-                                val c2 = event.changes.find { it.id == localPinchId2 } ?: continue
-                                if (!c1.positionChanged() && !c2.positionChanged()) continue
-
-                                val p1 = c1.position + correction
-                                val p2 = c2.position + correction
-
-                                val currentDist = distance(p1, p2).coerceAtLeast(1f)
-                                val rawScaleFactor = currentDist / localPinchStartDist
-
-                                val clampedScaleFactor = if (abs(rawScaleFactor - 1f) < EditorConfig.PINCH_SCALE_THRESHOLD) {
-                                    1f
-                                } else {
-                                    rawScaleFactor
-                                }
-
-                                val newScale = (localPinchStartScale * clampedScaleFactor)
-                                    .coerceIn(EditorConfig.MIN_SCALE, EditorConfig.MAX_SCALE)
-
-                                val currentAngle = angleBetween(p1, p2)
-                                val rawRotationDelta = normalizeAngleDelta(
-                                    Math.toDegrees((currentAngle - localPinchStartAngle).toDouble()).toFloat()
-                                )
-
-                                val clampedRotationDelta = if (abs(rawRotationDelta) < EditorConfig.PINCH_ROTATION_THRESHOLD) {
-                                    0f
-                                } else {
-                                    rawRotationDelta
-                                }
-
-                                val rawRotation = (localPinchStartRotation + clampedRotationDelta) % 360f
-                                val snappedRotation = snapAngle(rawRotation, SNAP_ANGLES, EditorConfig.SNAP_ANGLE_THRESHOLD)
-
-                                val rawCentroid = (p1 + p2) / 2f
-                                val centroidDelta = rawCentroid - localLastRawCentroid
-
-                                val filteredDelta = if (centroidDelta.getDistance() < EditorConfig.PINCH_DEADZONE_PX) {
-                                    Offset.Zero
-                                } else {
-                                    centroidDelta
-                                }
-
-                                localSmoothedCentroid = Offset(
-                                    localSmoothedCentroid.x + EditorConfig.PINCH_CENTROID_SMOOTHING * filteredDelta.x,
-                                    localSmoothedCentroid.y + EditorConfig.PINCH_CENTROID_SMOOTHING * filteredDelta.y
-                                )
-
-                                val screenCentroidDelta = localSmoothedCentroid - localPinchStartCentroid
-                                val templateCentroidDelta = Offset(
-                                    screenCentroidDelta.x / currentDisplayScale,
-                                    screenCentroidDelta.y / currentDisplayScale
-                                )
-
-                                if (snappedRotation != rawRotation &&
-                                    (localLastSnappedAngle.isNaN() || abs(snappedRotation - localLastSnappedAngle) > 0.5f)
-                                ) {
-                                    performDebouncedHaptic(haptic, lastHapticTime, HapticFeedbackType.LongPress) {
-                                        lastHapticTime = it
-                                    }
-                                    localLastSnappedAngle = snappedRotation
-                                }
-
-                                c1.consume()
-                                c2.consume()
-                                localLastRawCentroid = rawCentroid
-                                hasMoved = true
-
-                                val panDelta = templateCentroidDelta - lastSentPan
-                                val scaleFactor = newScale / lastSentScale
-                                val rotationDelta = snappedRotation - lastSentRotation
-
-                                lastSentPan = templateCentroidDelta
-                                lastSentScale = newScale
-                                lastSentRotation = snappedRotation
-
-                                currentOnGesture(GestureDelta(
-                                    pan = panDelta,
-                                    scale = scaleFactor,
-                                    rotation = rotationDelta
-                                ))
-                            }
+                            GestureMode.PINCH -> { /* Pinch is canvas-level only */ }
 
                             GestureMode.DRAG -> {
                                 val change = pressed.firstOrNull() ?: continue
@@ -547,39 +439,30 @@ fun BoundingBoxOverlayV6(
                                 }
 
                                 val screenDelta = change.position - change.previousPosition
-                                val localDragDelta = screenDelta
                                 val templateDelta = Offset(
-                                    localDragDelta.x / currentDisplayScale,
-                                    localDragDelta.y / currentDisplayScale
+                                    screenDelta.x / currentDisplayScale,
+                                    screenDelta.y / currentDisplayScale
                                 )
 
+                                // 1:1 finger follow — snap guides are visual-only (never lock position).
                                 val tentativeOffset = currentViewport.offset + templateDelta
                                 val scaledContentSize = IntSize(
                                     (currentContentWidth * currentViewport.scale).toInt(),
                                     (currentContentHeight * currentViewport.scale).toInt()
                                 )
-
-                                val snapResult = calculateSnapV2(
+                                val guide = calculateSnapGuidesOnly(
                                     offset = tentativeOffset,
                                     contentSize = scaledContentSize,
                                     templateSize = currentTemplateSize,
                                     otherLayers = currentOtherLayers,
-                                    dragDelta = templateDelta,
-                                    lockedSnapX = lockedSnapX,
-                                    lockedSnapY = lockedSnapY,
                                 )
-                                lockedSnapX = snapResult.lockedSnapX
-                                lockedSnapY = snapResult.lockedSnapY
-
-                                showSnap = snapResult.lines.isNotEmpty()
-                                snapLines = snapResult.lines
+                                showSnap = guide.isNotEmpty()
+                                snapLines = guide
 
                                 change.consume()
                                 hasMoved = true
 
-                                currentOnGesture(GestureDelta(
-                                    pan = snapResult.offset - currentViewport.offset
-                                ))
+                                currentOnGesture(GestureDelta(pan = templateDelta))
                             }
 
                             GestureMode.ROTATE -> {
@@ -761,7 +644,7 @@ fun BoundingBoxOverlayV6(
             .then(gestureModifier)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val center = Offset(size.width / 2f, size.height / 2f)
+            val center = overlayCenter(size.width, size.height)
             val cx = center.x
             val cy = center.y
 
@@ -798,7 +681,8 @@ fun BoundingBoxOverlayV6(
                     isGestureActive = gestureMode != GestureMode.IDLE,
                     isLocked = isLocked,
                     lockAspectRatio = lockAspectRatio,
-                    isInlineEditing = currentIsInlineEditing
+                    isInlineEditing = currentIsInlineEditing,
+                    minimalTextHandles = currentMinimalTextHandles
                 )
 
                 if (tooltipText.isNotEmpty()) {

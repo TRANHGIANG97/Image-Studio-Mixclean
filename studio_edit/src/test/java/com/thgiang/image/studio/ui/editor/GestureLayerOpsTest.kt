@@ -26,7 +26,7 @@ class GestureLayerOpsTest {
 
     @Test
     fun `scale clamps image layer viewport scale`() {
-        val layer = imageLayer(viewport = EditorViewport(scale = 4.5f))
+        val layer = imageLayer(viewport = EditorViewport(scale = 25f))
         val delta = GestureDelta(scale = 2f)
 
         val result = GestureLayerOps.applyDelta(layer, delta)
@@ -45,7 +45,7 @@ class GestureLayerOpsTest {
     }
 
     @Test
-    fun `label layer scales text and shape dimensions`() {
+    fun `label layer scales via viewport like other layers`() {
         val layer = EditorLayer(
             id = "label",
             type = LayerType.SHAPE_TEXT,
@@ -58,10 +58,10 @@ class GestureLayerOpsTest {
 
         val result = GestureLayerOps.applyDelta(layer, delta)
 
-        assertEquals(30f, result.textSizeSp, 0.001f)
-        assertEquals(300f, result.shapeWidthPx, 0.001f)
-        assertEquals(120f, result.shapeHeightPx, 0.001f)
-        assertEquals(1f, result.viewport.scale, 0.001f)
+        assertEquals(20f, result.textSizeSp, 0.001f)
+        assertEquals(200f, result.shapeWidthPx, 0.001f)
+        assertEquals(80f, result.shapeHeightPx, 0.001f)
+        assertEquals(1.5f, result.viewport.scale, 0.001f)
     }
 
     @Test

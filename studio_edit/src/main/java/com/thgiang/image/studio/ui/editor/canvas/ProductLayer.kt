@@ -4,14 +4,11 @@ import com.thgiang.image.studio.ui.editor.mapper.*
 
 import androidx.compose.animation.*
 import com.thgiang.image.studio.ui.editor.model.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,24 +21,23 @@ import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Precision
 import com.thgiang.image.core.design.theme.AuroraCoral
-import com.thgiang.image.studio.R
-import androidx.compose.ui.res.stringResource
 import com.thgiang.image.studio.ui.editor.*
 import kotlin.math.roundToInt
 
@@ -57,6 +53,14 @@ data class EditorGraphicsSpec(
     val shadowColor: Color
 )
 
+/**
+ * Live canvas previously tinted a drop-shadow via ColorFilter on an Image that shared a
+ * Coil [AsyncImagePainter] with the product. Painter colorFilter state leaked across draws
+ * (and graphicsLayer Offscreen did not reliably isolate it), washing the product white.
+ *
+ * Preview: product painter is never tinted; shadow uses a separate painter + Image colorFilter.
+ * Export silhouette remains in [com.thgiang.image.studio.ui.editor.mapper.EditorShadowMapper].
+ */
 @Composable
 fun ProductLayerV2(
     layer: EditorLayer,
@@ -111,7 +115,9 @@ fun ProductLayerV2(
         val scaleX = if (viewport.flippedH) -1f else 1f
         val scaleY = if (viewport.flippedV) -1f else 1f
         val rotation = viewport.rotation
-        val shadowColor = Color(appearance.shadowColorArgb)
+        // Opaque tint — opacity is applied via graphicsLayer.alpha. Semi-transparent tint
+        // colors + BlurEffect can leak cutout fringe (neon cyan/blue rings) on export/preview.
+        val shadowColor = Color(appearance.opaqueShadowColorArgb())
         EditorGraphicsSpec(
             alpha = alpha,
             shadowAlpha = shadowAlpha,
@@ -133,19 +139,42 @@ fun ProductLayerV2(
     val imageContext = LocalContext.current
     val targetPxWidth = (actualSize.width * viewport.scale * displayScale).roundToInt().coerceAtLeast(1)
     val targetPxHeight = (actualSize.height * viewport.scale * displayScale).roundToInt().coerceAtLeast(1)
-    val foregroundRequest = remember(product.foregroundUri, targetPxWidth, targetPxHeight) {
+    val foregroundUri = product.foregroundUri
+    // Product request — never paired with a tint ColorFilter on its painter.
+    val productRequest = remember(foregroundUri, targetPxWidth, targetPxHeight) {
         ImageRequest.Builder(imageContext)
-            .data(product.foregroundUri)
+            .data(foregroundUri)
             .size(targetPxWidth, targetPxHeight)
             .precision(Precision.INEXACT)
             .crossfade(true)
             .build()
+    }
+    // Separate request + painter for shadow silhouette. Distinct memory key avoids any
+    // accidental coupling through Coil's request/painter bookkeeping; disk cache still hits
+    // via the same data URI.
+    val shadowRequest = remember(foregroundUri, targetPxWidth, targetPxHeight) {
+        ImageRequest.Builder(imageContext)
+            .data(foregroundUri)
+            .size(targetPxWidth, targetPxHeight)
+            .precision(Precision.INEXACT)
+            .crossfade(false)
+            .memoryCacheKey("editor-product-shadow:$foregroundUri:${targetPxWidth}x$targetPxHeight")
+            .build()
+    }
+    val productPainter = rememberAsyncImagePainter(model = productRequest)
+    val shadowPainter = rememberAsyncImagePainter(model = shadowRequest)
+    val productPainterState = productPainter.state
+    val shadowTintFilter = remember(graphicsSpec.shadowColor) {
+        ColorFilter.tint(graphicsSpec.shadowColor, blendMode = BlendMode.SrcIn)
     }
     val displayStrokeWidth = strokeWidthPx * viewport.scale * displayScale
     val hasStroke = strokeWidthPx > 0f && strokeColorArgb != null
     val blurRadius = appearance.resolvedShadowBlurRadius() * displayScale
     val cropTranslationX = layer.cropOffsetX * viewport.scale * displayScale
     val cropTranslationY = layer.cropOffsetY * viewport.scale * displayScale
+    val productBlendMode = EditorBlendModeMapper.toComposeBlendModeOrNull(layerBlendMode)
+    val showLiveShadow = appearance.shadowIntensity > 0.05f &&
+        shadowPainter.state is AsyncImagePainter.State.Success
 
     val cropShape = remember(actualSize) {
         object : androidx.compose.ui.graphics.Shape {
@@ -173,7 +202,6 @@ fun ProductLayerV2(
     }
 
     val paddingExtra = 40.dp
-    val paddingExtraPx = with(density) { paddingExtra.toPx() }
 
     Box(
         modifier = modifier
@@ -187,85 +215,15 @@ fun ProductLayerV2(
                 .align(Alignment.Center)
                 .requiredSize(originalWidth, originalHeight)
         ) {
-            // Shadow Layer
-            if (appearance.shadowIntensity > 0.05f) {
-                SubcomposeAsyncImage(
-                    model = foregroundRequest,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            alpha = graphicsSpec.shadowAlpha
-                            rotationZ = graphicsSpec.rotation
-                            translationX = cropTranslationX
-                            translationY = cropTranslationY
-                            if (!suppressLiveShadowBlur && blurRadius > 0.5f) {
-                                renderEffect = BlurEffect(
-                                    radiusX = blurRadius,
-                                    radiusY = blurRadius,
-                                    edgeTreatment = TileMode.Decal,
-                                )
-                            }
-                        }
-                        .clip(cropShape)
-                        .offset {
-                            IntOffset(
-                                (graphicsSpec.shadowDx * displayScale).roundToInt(),
-                                (graphicsSpec.shadowDy * displayScale).roundToInt()
-                            )
-                        },
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(graphicsSpec.shadowColor),
-                    loading = { Box(Modifier.fillMaxSize().background(Color.Transparent)) }
-                )
-            }
-
-            // Foreground Image Layer
-            SubcomposeAsyncImage(
-                model = foregroundRequest,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(
-                        if (hasStroke) {
-                            Modifier.drawBehind {
-                                val inset = displayStrokeWidth / 2f
-                                drawRect(
-                                    color = Color(strokeColorArgb!!),
-                                    topLeft = Offset(inset, inset),
-                                    size = Size(
-                                        width = size.width - displayStrokeWidth,
-                                        height = size.height - displayStrokeWidth,
-                                    ),
-                                    style = Stroke(width = displayStrokeWidth),
-                                )
-                            }
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .graphicsLayer {
-                        alpha = graphicsSpec.alpha
-                        rotationZ = graphicsSpec.rotation
-                        translationX = cropTranslationX
-                        translationY = cropTranslationY
-                        blendMode = EditorBlendModeMapper.toComposeBlendMode(layerBlendMode)
-                        compositingStrategy = if (EditorBlendModeMapper.needsOffscreenCompositing(layerBlendMode)) {
-                            CompositingStrategy.Offscreen
-                        } else {
-                            CompositingStrategy.Auto
-                        }
-                    }
-                    .clip(cropShape),
-                contentScale = ContentScale.Fit,
-                loading = {
-                    Box(Modifier.fillMaxSize().background(Color.Transparent))
-                },
-                error = { state ->
+            when (productPainterState) {
+                is AsyncImagePainter.State.Loading, AsyncImagePainter.State.Empty -> {
+                    Box(modifier.fillMaxSize().background(Color.Transparent))
+                }
+                is AsyncImagePainter.State.Error -> {
                     android.util.Log.e(
                         "ProductLayer",
-                        "Failed to load foreground image. URL/Uri: ${product.foregroundUri}, error: ${state.result.throwable.message}",
-                        state.result.throwable
+                        "Failed to load foreground image. URL/Uri: ${product.foregroundUri}, error: ${productPainterState.result.throwable.message}",
+                        productPainterState.result.throwable
                     )
                     Box(
                         Modifier.fillMaxSize().background(Color.Red.copy(alpha = 0.1f)),
@@ -278,17 +236,95 @@ fun ProductLayerV2(
                         )
                     }
                 }
-            )
+                is AsyncImagePainter.State.Success -> {
+                    // Drop shadow — dedicated painter + Image colorFilter only (never product painter).
+                    if (showLiveShadow) {
+                        Image(
+                            painter = shadowPainter,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            colorFilter = shadowTintFilter,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .zIndex(0f)
+                                .graphicsLayer {
+                                    alpha = graphicsSpec.shadowAlpha
+                                    rotationZ = graphicsSpec.rotation
+                                    translationX = cropTranslationX
+                                    translationY = cropTranslationY
+                                    // Blur only — do not put ColorFilter on graphicsLayer; that path
+                                    // previously contaminated the shared product draw.
+                                    compositingStrategy = CompositingStrategy.Offscreen
+                                    if (!suppressLiveShadowBlur && blurRadius > 0.5f) {
+                                        renderEffect = BlurEffect(
+                                            radiusX = blurRadius,
+                                            radiusY = blurRadius,
+                                            edgeTreatment = TileMode.Decal,
+                                        )
+                                    }
+                                }
+                                .clip(cropShape)
+                                .offset {
+                                    IntOffset(
+                                        (graphicsSpec.shadowDx * displayScale).roundToInt(),
+                                        (graphicsSpec.shadowDy * displayScale).roundToInt()
+                                    )
+                                },
+                        )
+                    }
 
-            // Pink Overlay (Subject Mask)
+                    // Product — dedicated painter, never tinted.
+                    Image(
+                        painter = productPainter,
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .zIndex(1f)
+                            .then(
+                                if (hasStroke) {
+                                    Modifier.drawBehind {
+                                        val inset = displayStrokeWidth / 2f
+                                        drawRect(
+                                            color = Color(strokeColorArgb!!),
+                                            topLeft = Offset(inset, inset),
+                                            size = Size(
+                                                width = size.width - displayStrokeWidth,
+                                                height = size.height - displayStrokeWidth,
+                                            ),
+                                            style = Stroke(width = displayStrokeWidth),
+                                        )
+                                    }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .graphicsLayer {
+                                alpha = graphicsSpec.alpha
+                                rotationZ = graphicsSpec.rotation
+                                translationX = cropTranslationX
+                                translationY = cropTranslationY
+                                if (productBlendMode != null) {
+                                    blendMode = productBlendMode
+                                    compositingStrategy = CompositingStrategy.Offscreen
+                                }
+                            }
+                            .clip(cropShape),
+                    )
+                }
+            }
+
+            // Pink Overlay (Subject Mask) — own AsyncImage instance; only when visible.
             AnimatedVisibility(
                 visible = showOverlay,
                 enter = fadeIn(),
                 exit = fadeOut(),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(2f)
             ) {
                 AsyncImage(
-                    model = product.foregroundUri,
+                    model = productRequest,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()

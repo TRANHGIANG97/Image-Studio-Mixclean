@@ -35,6 +35,7 @@ import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.EditorEvent
 import com.thgiang.image.studio.ui.editor.mapper.TextFormLayoutEngine
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
+import com.thgiang.image.studio.ui.editor.model.TextFormEffect
 import com.thgiang.image.studio.ui.editor.model.TextFormPreset
 import com.thgiang.image.studio.ui.editor.panel.toSliderColors
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
@@ -81,12 +82,27 @@ internal fun TextFormSection(
         }
 
         if (showAmount) {
+            Text(
+                text = stringResource(R.string.studio_text_form_path_hint),
+                fontSize = 11.sp,
+                color = tokens.textSecondary,
+                modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 2.dp),
+            )
             PrecisionSlider(
                 label = stringResource(R.string.studio_text_form_amount),
                 value = layer.textForm.amount * 100f,
                 onValueChange = { onLayoutEvent(EditorEvent.UpdateTextFormAmount(it / 100f)) },
-                valueRange = 0f..100f,
+                valueRange = 0f..(TextFormEffect.MAX_AMOUNT * 100f),
                 valueFormatter = { "${it.toInt()}%" },
+                colors = sliderColors,
+                isCompact = true,
+            )
+            PrecisionSlider(
+                label = stringResource(R.string.studio_text_form_letter_spacing),
+                value = layer.charSpacing,
+                valueRange = -5f..40f,
+                onValueChange = { onLayoutEvent(EditorEvent.UpdateCharSpacing(it)) },
+                valueFormatter = { "${it.toInt()}px" },
                 colors = sliderColors,
                 isCompact = true,
             )

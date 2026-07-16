@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
@@ -115,6 +116,8 @@ fun EditorToolButton(
                 color = contentColor,
                 fontWeight = FontWeight.Normal,
                 maxLines = if (compact) 1 else 2,
+                softWrap = !compact,
+                overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
             )
         }

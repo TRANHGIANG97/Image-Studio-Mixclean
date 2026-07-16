@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Krismasi</string>
     <string name="themeplate_section_memories">Kumbukumbu</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Rangi ya ukingo</string>
     <string name="studio_stroke_tab_style">Mtindo wa mstari</string>
     <string name="studio_stroke_tab_width">Unene</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Bila ukingo</string>
     <string name="studio_dash_solid">Mstari thabiti</string>
     <string name="studio_dash_round_dot">Nukta za duara</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Fuata Njia</string>
     <string name="studio_text_form_warp">Pinda</string>
     <string name="studio_text_form_amount">Ukali</string>
+    <string name="studio_text_form_letter_spacing">Nafasi ya herufi</string>
     <string name="studio_text_form_none">Bila</string>
     <string name="studio_text_form_path_wave">Wimbi</string>
     <string name="studio_text_form_path_arc_up">Tao Juu</string>
     <string name="studio_text_form_path_arc_down">Tao Chini</string>
     <string name="studio_text_form_path_circle">Duara</string>
-    <string name="studio_text_form_path_ring">Pete</string>
-    <string name="studio_text_form_warp_arch_up">Tao la Juu</string>
+<string name="studio_text_form_warp_arch_up">Tao la Juu</string>
     <string name="studio_text_form_warp_arch_down">Tao la Chini</string>
     <string name="studio_text_form_warp_bulge">Mbenuko</string>
     <string name="studio_text_form_warp_wave">Wimbi</string>
     <string name="studio_text_form_warp_flag">Bendera</string>
     <string name="studio_text_form_warp_rise">Inuka</string>
     <string name="studio_text_form_warp_fall">Anguka</string>
-    <string name="studio_text_form_warp_inflate">Vimba</string>
-    <string name="studio_text_form_warp_deflate">Popoka</string>
     <string name="studio_text_form_warp_chevron_up">Mshale Juu</string>
     <string name="studio_text_form_warp_chevron_down">Mshale Chini</string>
     <string name="studio_objects_label">Vitu</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Athari</string>
     <string name="studio_label_tab_text_form">Usanii</string>
     <string name="studio_label_tab_shape">Fremu</string>
+    <string name="studio_label_tab_text_template">Violezo</string>
+    <string name="studio_label_tab_more">Zaidi</string>
+    <string name="studio_text_template_classic">Klasiki</string>
+    <string name="studio_text_template_gradient">Gradianti</string>
+    <string name="studio_text_template_sale">Uuzaji</string>
+    <string name="studio_text_template_arc">Arki</string>
+    <string name="studio_text_template_outline">Mstari</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Laini</string>
+    <string name="studio_text_template_poster">Bango</string>
+    <string name="studio_text_template_minimal">Rahisi</string>
+    <string name="studio_text_template_gold">Dhahabu</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Bahari</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Athari ya kuinuliwa haipatikani wakati umbo la maandishi ya kisanii linafanya kazi.</string>
+    <string name="studio_text_form_path_hint">Buruta ukali ili kuinamisha njia ya maandishi. Nafasi ya herufi husaidia kuepuka kuingiliana kwa glifu.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Mfumo</string>

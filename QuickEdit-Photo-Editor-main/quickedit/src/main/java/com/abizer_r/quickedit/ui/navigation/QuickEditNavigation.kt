@@ -130,9 +130,17 @@ fun QuickEditNavigation(
     }}
     val onDoneClickedLambda = remember<(Bitmap) -> Unit> {{ resultBitmap ->
         android.util.Log.d("RotateDebug", "onDoneClickedLambda: adding bitmap to stack")
-        sharedEditorViewModel.addBitmapToStack(
-            bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
-        )
+        val added = runCatching {
+            sharedEditorViewModel.addBitmapToStack(
+                bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
+                triggerRecomposition = true,
+                addSafelyWithoutMultipleTriggers = false,
+            )
+        }.getOrDefault(false)
+        if (!added) {
+            android.util.Log.e("RotateDebug", "onDoneClickedLambda: failed to add bitmap")
+            return@remember
+        }
         android.util.Log.d("RotateDebug", "onDoneClickedLambda: navigating back to EDITOR_SCREEN")
         navController.navigate(
             NavDestinations.EDITOR_SCREEN,
@@ -141,6 +149,24 @@ fun QuickEditNavigation(
                 .build()
         )
     }}
+
+    @Composable
+    fun RequireCurrentBitmap(content: @Composable (Bitmap) -> Unit) {
+        val bmp = sharedEditorViewModel.getCurrentBitmapOrNull()
+        if (bmp != null && !bmp.isRecycled) {
+            content(bmp)
+        } else {
+            LaunchedEffect(Unit) {
+                navController.navigate(
+                    NavDestinations.EDITOR_SCREEN,
+                    navOptions = NavOptions.Builder()
+                        .setPopUpTo(route = NavDestinations.EDITOR_SCREEN, inclusive = false)
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            }
+        }
+    }
 
 
     NavHost(
@@ -220,15 +246,17 @@ fun QuickEditNavigation(
                 }
             }
 
-            com.abizer_r.quickedit.ui.backgroundMode.BackgroundModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressedLambda,
-                onDoneClicked = onDoneClickedLambda,
-                onPickImageRequest = {
-                    navController.navigate(NavDestinations.SINGLE_IMAGE_PICKER_SCREEN)
-                },
-                pickedImage = pickedBitmap
-            )
+            RequireCurrentBitmap { bmp ->
+                com.abizer_r.quickedit.ui.backgroundMode.BackgroundModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressedLambda,
+                    onDoneClicked = onDoneClickedLambda,
+                    onPickImageRequest = {
+                        navController.navigate(NavDestinations.SINGLE_IMAGE_PICKER_SCREEN)
+                    },
+                    pickedImage = pickedBitmap
+                )
+            }
         }
 
         composable(route = NavDestinations.SINGLE_IMAGE_PICKER_SCREEN) {
@@ -246,67 +274,86 @@ fun QuickEditNavigation(
         }
 
         composable(route = NavDestinations.MAGIC_BRUSH_SCREEN) {
-            val context = androidx.compose.ui.platform.LocalContext.current
-            MagicBrushScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = { navController.navigateUp() },
-                onDoneClicked = { resultBitmap: Bitmap ->
-                    sharedEditorViewModel.addBitmapToStack(
-                        bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
-                    )
-                    navController.navigate(NavDestinations.EDITOR_SCREEN) {
-                        popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+            RequireCurrentBitmap { bmp ->
+                MagicBrushScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = { navController.navigateUp() },
+                    onDoneClicked = { resultBitmap: Bitmap ->
+                        val added = runCatching {
+                            sharedEditorViewModel.addBitmapToStack(
+                                bitmap = resultBitmap.copy(Bitmap.Config.ARGB_8888, false),
+                                triggerRecomposition = true,
+                                addSafelyWithoutMultipleTriggers = false,
+                            )
+                        }.getOrDefault(false)
+                        if (added) {
+                            navController.navigate(NavDestinations.EDITOR_SCREEN) {
+                                popUpTo(NavDestinations.EDITOR_SCREEN) { inclusive = true }
+                            }
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         composable(route = NavDestinations.CROPPER_SCREEN) { entry ->
-            CropperScreen(
-                immutableBitmap = ImmutableBitmap((sharedEditorViewModel.getCurrentBitmap())),
-                onBackPressed = onBackPressedLambda,
-                onDoneClicked = onDoneClickedLambda,
-            )
+            RequireCurrentBitmap { bmp ->
+                CropperScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressedLambda,
+                    onDoneClicked = onDoneClickedLambda,
+                )
+            }
         }
 
         composable(route = NavDestinations.DRAW_MODE_SCREEN) { entry ->
-            DrawModeScreen(
-                immutableBitmap = ImmutableBitmap((sharedEditorViewModel.getCurrentBitmap())),
-                onBackPressed = onBackPressedLambda,
-                onDoneClicked = onDoneClickedLambda,
-            )
+            RequireCurrentBitmap { bmp ->
+                DrawModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressedLambda,
+                    onDoneClicked = onDoneClickedLambda,
+                )
+            }
         }
 
         composable(route = NavDestinations.TEXT_MODE_SCREEN) { entry ->
-            TextModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressedLambda,
-                onDoneClicked = onDoneClickedLambda,
-            )
+            RequireCurrentBitmap { bmp ->
+                TextModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressedLambda,
+                    onDoneClicked = onDoneClickedLambda,
+                )
+            }
         }
 
         composable(route = NavDestinations.EFFECTS_MODE_SCREEN) { entry ->
-            EffectsModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressedLambda,
-                onDoneClicked = onDoneClickedLambda,
-            )
+            RequireCurrentBitmap { bmp ->
+                EffectsModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressedLambda,
+                    onDoneClicked = onDoneClickedLambda,
+                )
+            }
         }
 
         composable(route = NavDestinations.BORDER_MODE_SCREEN) { entry ->
-            BorderModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressedLambda,
-                onDoneClicked = onDoneClickedLambda,
-            )
+            RequireCurrentBitmap { bmp ->
+                BorderModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressedLambda,
+                    onDoneClicked = onDoneClickedLambda,
+                )
+            }
         }
 
         composable(route = NavDestinations.STUDIO_MODE_SCREEN) { entry ->
-            StudioModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressedLambda,
-                onDoneClicked = onDoneClickedLambda,
-            )
+            RequireCurrentBitmap { bmp ->
+                StudioModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressedLambda,
+                    onDoneClicked = onDoneClickedLambda,
+                )
+            }
         }
 
         composable(
@@ -331,11 +378,13 @@ fun QuickEditNavigation(
 
         composable(route = NavDestinations.ROTATE_SCREEN) {
             android.util.Log.d("RotateDebug", "ROTATE_SCREEN composable: rendering RotateModeScreen")
-            RotateModeScreen(
-                immutableBitmap = ImmutableBitmap(sharedEditorViewModel.getCurrentBitmap()),
-                onBackPressed = onBackPressedLambda,
-                onDoneClicked = onDoneClickedLambda,
-            )
+            RequireCurrentBitmap { bmp ->
+                RotateModeScreen(
+                    immutableBitmap = ImmutableBitmap(bmp),
+                    onBackPressed = onBackPressedLambda,
+                    onDoneClicked = onDoneClickedLambda,
+                )
+            }
         }
 
 

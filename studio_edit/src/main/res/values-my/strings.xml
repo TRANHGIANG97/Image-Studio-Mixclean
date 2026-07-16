@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">ခရစ္စမတ်</string>
     <string name="themeplate_section_memories">အမှတ်တရများ</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">ဘောင်အရောင်</string>
     <string name="studio_stroke_tab_style">လိုင်းပုံစံ</string>
     <string name="studio_stroke_tab_width">အထူ</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">ဘောင်မရှိ</string>
     <string name="studio_dash_solid">မျဉ်းဖြောင့်</string>
     <string name="studio_dash_round_dot">အစက်ဝိုင်းလေးများ</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">လမ်းကြောင်းအတိုင်းသွားရန်</string>
     <string name="studio_text_form_warp">ကွေးညွတ်ရန်</string>
     <string name="studio_text_form_amount">ပြင်းအား</string>
+    <string name="studio_text_form_letter_spacing">စာလုံးအကွာအဝေး</string>
     <string name="studio_text_form_none">မရှိ</string>
     <string name="studio_text_form_path_wave">လှိုင်းပုံစံ</string>
     <string name="studio_text_form_path_arc_up">အပေါ်ခုံး</string>
     <string name="studio_text_form_path_arc_down">အောက်ခုံး</string>
     <string name="studio_text_form_path_circle">အဝိုင်း</string>
-    <string name="studio_text_form_path_ring">လက်စွပ်ပုံစံ</string>
-    <string name="studio_text_form_warp_arch_up">အပေါ်ခုံးတံတား</string>
+<string name="studio_text_form_warp_arch_up">အပေါ်ခုံးတံတား</string>
     <string name="studio_text_form_warp_arch_down">အောက်ခုံးတံတား</string>
     <string name="studio_text_form_warp_bulge">ဖောင်းကြွပုံစံ</string>
     <string name="studio_text_form_warp_wave">လှိုင်းပုံစံ</string>
     <string name="studio_text_form_warp_flag">အလံပုံစံ</string>
     <string name="studio_text_form_warp_rise">မြင့်တက်ပုံစံ</string>
     <string name="studio_text_form_warp_fall">နိမ့်ဆင်းပုံစံ</string>
-    <string name="studio_text_form_warp_inflate">လေမှုတ်သွင်းပုံစံ</string>
-    <string name="studio_text_form_warp_deflate">လေလျှော့ပုံစံ</string>
     <string name="studio_text_form_warp_chevron_up">အပေါ်မြှားခေါင်းပုံစံ</string>
     <string name="studio_text_form_warp_chevron_down">အောက်မြှားခေါင်းပုံစံ</string>
     <string name="studio_objects_label">အရာဝတ္ထုများ</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">အထူးပြုလုပ်ချက်</string>
     <string name="studio_label_tab_text_form">အနုပညာဆန်သော</string>
     <string name="studio_label_tab_shape">ဘောင်</string>
+    <string name="studio_label_tab_text_template">တမ်းပလိတ်များ</string>
+    <string name="studio_label_tab_more">ပို၍</string>
+    <string name="studio_text_template_classic">ဂန္ထဝင်</string>
+    <string name="studio_text_template_gradient">အရောင်ဆင်း</string>
+    <string name="studio_text_template_sale">လျှော့စျေး</string>
+    <string name="studio_text_template_arc">ခုံး</string>
+    <string name="studio_text_template_outline">အကြမ်း</string>
+    <string name="studio_text_template_neon">နီယွန်</string>
+    <string name="studio_text_template_soft">နူးညံ့</string>
+    <string name="studio_text_template_poster">ပိုစတာ</string>
+    <string name="studio_text_template_minimal">ရိုးရှင်း</string>
+    <string name="studio_text_template_gold">ရွှေ</string>
+    <string name="studio_text_template_retro">ရေထရို</string>
+    <string name="studio_text_template_ocean">သမုဒ္ဒရာ</string>
+    <string name="studio_label_elevation_disabled_by_text_form">အနုပညာစာသားပုံစံဖွင့်ထားစဉ် အမြင့်အထူးပြုလုပ်ချက်ကို အသုံးမပြုနိုင်ပါ။</string>
+    <string name="studio_text_form_path_hint">စာသားလမ်းကြောင်းကို ကွေးရန် ပြင်းအားကို ဆွဲပါ။ စာလုံးအကွာအဝေးသည် ဂလစ်ဖ်ထပ်နေခြင်းကို ရှောင်ရှားရန် ကူညီသည်။</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">စနစ်</string>

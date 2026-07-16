@@ -25,7 +25,12 @@ import com.thgiang.image.studio.ui.editor.model.ShapeType
 import com.thgiang.image.studio.ui.editor.mapper.hasShapeBorder
 import com.thgiang.image.studio.ui.editor.mapper.resolveStrokeWidthPx
 import com.thgiang.image.studio.ui.editor.model.appliesShapeElevation
+import com.thgiang.image.studio.ui.editor.model.backgroundDecorShapeType
+import com.thgiang.image.studio.ui.editor.model.hasTextOnlyBackgroundDecor
 import com.thgiang.image.studio.ui.editor.model.hasVisibleFrameGeometry
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import com.thgiang.image.studio.ui.editor.mapper.EditorStrokeMapper
 import com.thgiang.image.studio.ui.editor.mapper.resolveShapeBorderColorArgb
 import androidx.compose.ui.draw.clip
 
@@ -40,9 +45,14 @@ internal fun ShapeFrameLayerContent(
     radiusScale: Float,
     modifier: Modifier = Modifier,
 ) {
-    if (!layer.hasVisibleFrameGeometry) return
+    if (!layer.hasVisibleFrameGeometry && !layer.hasTextOnlyBackgroundDecor) return
 
-    val canDrawShapeShadow = hasShapeFill || layer.hasShapeBorder || layer.appearance.shadowIntensity > 0.05f
+    val drawShapeType = layer.backgroundDecorShapeType
+    val canDrawShapeShadow = if (EditorShapeGeometry.isTextOnlyShape(layer.shapeType)) {
+        hasShapeFill || layer.hasShapeBorder
+    } else {
+        hasShapeFill || layer.hasShapeBorder || layer.appearance.shadowIntensity > 0.05f
+    }
     val canDrawShapeElevation = layer.hasVisibleFrameGeometry &&
         layer.appearance.hasShape3DDepth(templateScale) &&
         layer.appearance.appliesShapeElevation()
@@ -53,7 +63,7 @@ internal fun ShapeFrameLayerContent(
             .drawBehind {
                 if (canDrawShapeElevation) {
                     drawShapeElevation(
-                        shapeType = layer.shapeType,
+                        shapeType = drawShapeType,
                         appearance = layer.appearance,
                         fillColorArgb = layer.shapeColorArgb,
                         scale = displayScale,
@@ -65,7 +75,7 @@ internal fun ShapeFrameLayerContent(
                 }
                 if (canDrawShapeShadow) {
                     drawShapeDropShadow(
-                        shapeType = layer.shapeType,
+                        shapeType = drawShapeType,
                         appearance = layer.appearance,
                         scale = displayScale,
                         cornerRadiusX = layer.cornerRadiusX,
@@ -79,7 +89,7 @@ internal fun ShapeFrameLayerContent(
         contentAlignment = Alignment.Center,
     ) {
         ShapeFrameBackground(
-            shapeType = layer.shapeType,
+            shapeType = drawShapeType,
             fillBrush = fillBrush,
             cornerRadiusX = layer.cornerRadiusX,
             cornerRadiusY = layer.cornerRadiusY,
@@ -88,6 +98,7 @@ internal fun ShapeFrameLayerContent(
             strokeColorArgb = layer.resolveShapeBorderColorArgb(),
             strokeWidthPx = layer.resolveStrokeWidthPx() * layer.viewport.scale * displayScale,
             strokeDashArray = layer.strokeDashArray,
+            strokeDashGapPx = layer.strokeDashGapPx,
             pathData = layer.pathData,
             polygonPoints = layer.polygonPoints,
             drawFill = hasShapeFill,
@@ -107,6 +118,7 @@ internal fun ShapeFrameBackground(
     strokeColorArgb: Int?,
     strokeWidthPx: Float,
     strokeDashArray: List<Float>,
+    strokeDashGapPx: Float,
     pathData: String?,
     polygonPoints: List<Float>,
     drawFill: Boolean = true,
@@ -130,6 +142,8 @@ internal fun ShapeFrameBackground(
                     shapeType = shapeType,
                     strokeColor = strokeColorArgb!!,
                     strokeWidthPx = strokeWidthPx,
+                    strokeDashArray = strokeDashArray,
+                    strokeDashGapPx = strokeDashGapPx,
                     cornerRadiusX = cornerRadiusX,
                     cornerRadiusY = cornerRadiusY,
                     shapeHeightPx = shapeHeightPx,
@@ -146,11 +160,16 @@ internal fun ShapeFrameBackground(
                     modifier = Modifier
                         .fillMaxSize()
                         .drawBehind {
+                            val pathEffect = EditorStrokeMapper.composeDashPathEffect(
+                                strokeDashArray = strokeDashArray,
+                                strokeDashGapPx = strokeDashGapPx,
+                            )
                             drawLine(
                                 color = Color(strokeColorArgb),
                                 start = Offset(0f, size.height / 2f),
                                 end = Offset(size.width, size.height / 2f),
                                 strokeWidth = strokeWidthPx,
+                                pathEffect = pathEffect,
                             )
                         },
                 )
@@ -202,13 +221,25 @@ private fun DrawScope.drawShapeOutline(
     shapeType: ShapeType,
     strokeColor: Int,
     strokeWidthPx: Float,
+    strokeDashArray: List<Float>,
+    strokeDashGapPx: Float,
     cornerRadiusX: Float? = null,
     cornerRadiusY: Float? = null,
     shapeHeightPx: Float = size.height,
     pathData: String? = null,
     polygonPoints: List<Float> = emptyList(),
 ) {
-    val paint = Stroke(width = strokeWidthPx)
+    val pathEffect = EditorStrokeMapper.composeDashPathEffect(
+        strokeDashArray = strokeDashArray,
+        strokeDashGapPx = strokeDashGapPx,
+    )
+    val paint = Stroke(
+        width = strokeWidthPx,
+        pathEffect = pathEffect,
+        cap = StrokeCap.Butt,
+        join = StrokeJoin.Miter,
+        miter = 4f,
+    )
     val color = Color(strokeColor)
 
     if (EditorShapeGeometry.isLineShape(shapeType)) {
@@ -217,6 +248,7 @@ private fun DrawScope.drawShapeOutline(
             start = Offset(0f, size.height / 2f),
             end = Offset(size.width, size.height / 2f),
             strokeWidth = strokeWidthPx,
+            pathEffect = pathEffect,
         )
         return
     }

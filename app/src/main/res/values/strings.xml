@@ -59,6 +59,8 @@
     <string name="done_save_or_share">Done! You can now save or share the result.</string>
     <string name="removing_background_wait">Removing background. Please wait a few seconds...</string>
     <string name="remove_bg_selfie_fallback_warning">This device does not support non-human object detection, which may affect quality.</string>
+    <string name="play_services_update_message">Update Google Play services for better background removal.</string>
+    <string name="play_services_update_action">Update</string>
     <string name="loading_image">Loading image...</string>
     <string name="tap_remove_background_to_start">Tap \"Remove Background\" to start processing.</string>
     <string name="step_choose_image">Step 1: Select an image from the gallery.</string>
@@ -318,6 +320,11 @@
     <string name="save_success_home">Home</string>
     <string name="save_success_saved_image">Saved image</string>
     <string name="save_success_share_with">Share with…</string>
+    <string name="save_success_confirm_home_title">Return to home?</string>
+    <string name="save_success_confirm_home_message">Do you want to return to the home page?</string>
+    <string name="save_success_confirm_home_confirm">Exit</string>
+    <string name="save_success_tap_to_preview">Tap to preview</string>
+    <string name="save_success_preview_close">Close preview</string>
     <string name="batch_remove_error_load_image">Cannot load this image.</string>
     <string name="drafts_error_load">Error loading drafts: %1$s</string>
 </resources>

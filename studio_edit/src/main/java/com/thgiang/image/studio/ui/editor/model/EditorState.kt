@@ -8,6 +8,9 @@ data class EditorState(
     val selectedLayerIds: Set<String> = emptySet(),
     /** Layer currently in inline text-edit mode (thin frame, no BB). */
     val editingLayerId: String? = null,
+    /** Inline caret / selection while editing (exclusive end). */
+    val inlineSelectionStart: Int = 0,
+    val inlineSelectionEnd: Int = 0,
     val selectedTool: EditorTool? = null,
     val isExporting: Boolean = false,
     val isSavingDraft: Boolean = false,

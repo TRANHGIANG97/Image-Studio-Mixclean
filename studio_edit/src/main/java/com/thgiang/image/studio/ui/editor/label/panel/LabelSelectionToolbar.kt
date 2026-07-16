@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.CropFree
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,18 +35,19 @@ import androidx.compose.ui.unit.sp
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 
+/** All label tabs in one scroll row (no "More" expand control). */
 internal val labelSelectionTabs: List<LabelEditTab> = listOf(
     LabelEditTab.EDIT,
+    LabelEditTab.TEXT_TEMPLATE,
     LabelEditTab.FONT,
     LabelEditTab.SIZE,
-    LabelEditTab.TEXT_STYLE,
     LabelEditTab.FORMAT,
+    LabelEditTab.TEXT_STYLE,
     LabelEditTab.ALIGN,
     LabelEditTab.TEXT_COLOR,
     LabelEditTab.BG_COLOR,
     LabelEditTab.ELEVATION,
     LabelEditTab.TEXT_FORM,
-    LabelEditTab.SHAPE,
 )
 
 @Composable
@@ -61,6 +61,7 @@ internal fun labelTabTitle(tab: LabelEditTab): String = when (tab) {
     LabelEditTab.ALIGN -> stringResource(R.string.studio_label_tab_align)
     LabelEditTab.BG_COLOR -> stringResource(R.string.studio_label_tab_bg_color)
     LabelEditTab.TEXT_COLOR -> stringResource(R.string.studio_label_tab_text_color)
+    LabelEditTab.TEXT_TEMPLATE -> stringResource(R.string.studio_label_tab_text_template)
     LabelEditTab.ELEVATION -> stringResource(R.string.studio_label_tab_elevation)
     LabelEditTab.TEXT_FORM -> stringResource(R.string.studio_label_tab_text_form)
     LabelEditTab.SHAPE -> stringResource(R.string.studio_label_tab_shape)
@@ -166,6 +167,14 @@ internal fun LabelSelectionToolbar(
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
+                            LabelEditTab.TEXT_TEMPLATE -> {
+                                Text(
+                                    text = "Aa",
+                                    color = color,
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
                             LabelEditTab.BG_COLOR -> {
                                 Icon(
                                     imageVector = Icons.Filled.FormatColorFill,
@@ -185,14 +194,6 @@ internal fun LabelSelectionToolbar(
                             LabelEditTab.TEXT_FORM -> {
                                 Icon(
                                     imageVector = Icons.Filled.AutoAwesome,
-                                    contentDescription = null,
-                                    tint = color,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                            LabelEditTab.SHAPE -> {
-                                Icon(
-                                    imageVector = Icons.Filled.CropFree,
                                     contentDescription = null,
                                     tint = color,
                                     modifier = Modifier.size(20.dp)

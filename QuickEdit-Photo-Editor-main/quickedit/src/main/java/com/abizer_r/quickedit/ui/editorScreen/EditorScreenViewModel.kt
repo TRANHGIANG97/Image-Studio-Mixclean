@@ -3,10 +3,10 @@ package com.abizer_r.quickedit.ui.editorScreen
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.LruCache
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thgiang.image.core.util.MemoryUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -26,6 +26,8 @@ class EditorScreenViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private val maxStackSize = MemoryUtil.maxEditorStackSize(context)
+
     private val _state = MutableStateFlow(EditorScreenState())
     val state: StateFlow<EditorScreenState> = _state
 
@@ -33,11 +35,8 @@ class EditorScreenViewModel @Inject constructor(
 
     private val cacheDir = File(context.cacheDir, "editor_cache")
 
-    private val ramCache = object : LruCache<String, Bitmap>(3) {
-        override fun entryRemoved(evicted: Boolean, key: String, oldValue: Bitmap, newValue: Bitmap?) {
-            // Do NOT call oldValue.recycle() here. Let GC handle it.
-        }
-    }
+    // Smaller budget than SharedEditorViewModel — avoids duplicating large bitmaps in RAM.
+    private val ramCache = MemoryUtil.createBitmapByteCache(context, budgetFraction = 0.12f)
 
     private fun saveBitmapToCache(bitmap: Bitmap): String? {
         if (!cacheDir.exists()) cacheDir.mkdirs()
@@ -55,10 +54,11 @@ class EditorScreenViewModel @Inject constructor(
         }
     }
 
-    private fun loadBitmapFromCache(path: String): Bitmap {
+    private fun loadBitmapFromCache(path: String): Bitmap? {
         val file = File(path)
         if (!file.exists()) {
-            throw IllegalStateException("Cache file does not exist: $path")
+            android.util.Log.e("EditorScreenVM", "Cache file does not exist: $path")
+            return null
         }
         var bitmap = BitmapFactory.decodeFile(path)
         if (bitmap == null) {
@@ -66,7 +66,8 @@ class EditorScreenViewModel @Inject constructor(
             System.gc()
             bitmap = BitmapFactory.decodeFile(path)
             if (bitmap == null) {
-                throw IllegalStateException("Failed to decode cache file (corrupted or OOM): $path")
+                android.util.Log.e("EditorScreenVM", "Failed to decode cache file: $path")
+                return null
             }
         }
         return bitmap
@@ -81,19 +82,22 @@ class EditorScreenViewModel @Inject constructor(
         }
     }
 
-    fun getCurrentBitmap(): Bitmap {
+    fun getCurrentBitmapOrNull(): Bitmap? {
         val stack = _state.value.bitmapStack
-        if (stack.isEmpty()) {
-            throw Exception("EmptyStackException")
-        }
+        if (stack.isEmpty()) return null
         val path = stack.last()
         val cached = ramCache.get(path)
         if (cached != null && !cached.isRecycled) {
             return cached
         }
-        val loaded = loadBitmapFromCache(path)
+        val loaded = loadBitmapFromCache(path) ?: return null
         ramCache.put(path, loaded)
         return loaded
+    }
+
+    fun getCurrentBitmap(): Bitmap {
+        return getCurrentBitmapOrNull()
+            ?: throw Exception("EmptyStackException")
     }
 
     fun undoEnabled() = _state.value.bitmapStack.size > 1
@@ -107,6 +111,11 @@ class EditorScreenViewModel @Inject constructor(
             current.bitmapRedoStack.forEach { deleteCacheFile(it) }
             val newStack = current.bitmapStack.toMutableList()
             newStack.add(path)
+            while (newStack.size > maxStackSize) {
+                val removed = newStack.removeAt(0)
+                deleteCacheFile(removed)
+                ramCache.remove(removed)
+            }
             current.copy(
                 bitmapStack = newStack,
                 bitmapRedoStack = emptyList(),
@@ -117,7 +126,13 @@ class EditorScreenViewModel @Inject constructor(
 
     fun updateInitialState(initialState: EditorScreenState) {
         _state.update { current ->
-            val newPaths = (initialState.bitmapStack + initialState.bitmapRedoStack).toSet()
+            val trimmedStack = initialState.bitmapStack.takeLast(maxStackSize)
+            val trimmedRedo = initialState.bitmapRedoStack.takeLast(maxStackSize)
+            val trimmed = initialState.copy(
+                bitmapStack = trimmedStack,
+                bitmapRedoStack = trimmedRedo,
+            )
+            val newPaths = (trimmed.bitmapStack + trimmed.bitmapRedoStack).toSet()
             val oldPaths = (current.bitmapStack + current.bitmapRedoStack).toSet()
             oldPaths.forEach { path ->
                 if (path !in newPaths) {
@@ -125,7 +140,10 @@ class EditorScreenViewModel @Inject constructor(
                     ramCache.remove(path)
                 }
             }
-            initialState
+            (initialState.bitmapStack + initialState.bitmapRedoStack)
+                .filter { it !in newPaths }
+                .forEach { deleteCacheFile(it) }
+            trimmed
         }
     }
 

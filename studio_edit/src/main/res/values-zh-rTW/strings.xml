@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">聖誕節</string>
     <string name="themeplate_section_memories">美好回憶</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">美食自拍 1</string>
     <string name="themeplate_selfie_food_02">美食自拍 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">邊框顏色</string>
     <string name="studio_stroke_tab_style">線條樣式</string>
     <string name="studio_stroke_tab_width">線條粗細</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">無邊框</string>
     <string name="studio_dash_solid">實線</string>
     <string name="studio_dash_round_dot">圓點線</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">沿著路徑曲線</string>
     <string name="studio_text_form_warp">藝術文字變形</string>
     <string name="studio_text_form_amount">變形強度微調</string>
+    <string name="studio_text_form_letter_spacing">字距</string>
     <string name="studio_text_form_none">無變形</string>
     <string name="studio_text_form_path_wave">文字波浪</string>
     <string name="studio_text_form_path_arc_up">上方弧形</string>
     <string name="studio_text_form_path_arc_down">下方弧形</string>
     <string name="studio_text_form_path_circle">繞圈圓形</string>
-    <string name="studio_text_form_path_ring">繞圈環形</string>
-    <string name="studio_text_form_warp_arch_up">文字拱形向上</string>
+<string name="studio_text_form_warp_arch_up">文字拱形向上</string>
     <string name="studio_text_form_warp_arch_down">文字拱形向下</string>
     <string name="studio_text_form_warp_bulge">文字中央膨脹</string>
     <string name="studio_text_form_warp_wave">藝術波浪</string>
     <string name="studio_text_form_warp_flag">旗幟飄揚</string>
     <string name="studio_text_form_warp_rise">左低右高漸增</string>
     <string name="studio_text_form_warp_fall">左高右低漸減</string>
-    <string name="studio_text_form_warp_inflate">文字整體充氣</string>
-    <string name="studio_text_form_warp_deflate">文字整體扁平</string>
     <string name="studio_text_form_warp_chevron_up">倒 V 字折線向上</string>
     <string name="studio_text_form_warp_chevron_down">V 字折線向下</string>
     <string name="studio_objects_label">物件列表</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">特效樣式</string>
     <string name="studio_label_tab_text_form">藝術外型變形</string>
     <string name="studio_label_tab_shape">外框形狀</string>
+    <string name="studio_label_tab_text_template">文字範本</string>
+    <string name="studio_label_tab_more">更多</string>
+    <string name="studio_text_template_classic">經典</string>
+    <string name="studio_text_template_gradient">漸層</string>
+    <string name="studio_text_template_sale">促銷</string>
+    <string name="studio_text_template_arc">弧形</string>
+    <string name="studio_text_template_outline">描邊</string>
+    <string name="studio_text_template_neon">霓虹</string>
+    <string name="studio_text_template_soft">柔和</string>
+    <string name="studio_text_template_poster">海報</string>
+    <string name="studio_text_template_minimal">極簡</string>
+    <string name="studio_text_template_gold">金色</string>
+    <string name="studio_text_template_retro">復古</string>
+    <string name="studio_text_template_ocean">海洋</string>
+    <string name="studio_label_elevation_disabled_by_text_form">啟用藝術外型變形時無法使用立體效果。</string>
+    <string name="studio_text_form_path_hint">拖曳強度可彎曲文字路徑。字距有助於避免字形重疊。</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">系統預設常用字體</string>

@@ -28,7 +28,7 @@ import com.thgiang.image.studio.R
 import com.thgiang.image.studio.data.RemoteTemplateRow
 import com.thgiang.image.studio.ui.components.ShimmerBox
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.thgiang.image.core.domain.model.template.CloudCategory
+import com.thgiang.image.studio.util.TemplateCategoryTitleResolver
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,13 +49,15 @@ fun ThemeplateGalleryScreen(
         if (categories.isNotEmpty()) {
             val resolvedIndex = categories.indexOfFirst {
                 it.id.equals(initialCategoryId, ignoreCase = true) ||
-                it.slug?.equals(initialCategoryId, ignoreCase = true) == true
+                    it.slug?.equals(initialCategoryId, ignoreCase = true) == true
             }
-            if (resolvedIndex >= 0) {
-                selectedTabIndex = resolvedIndex
-            } else if (selectedTabIndex >= categories.size) {
-                selectedTabIndex = 0
+            selectedTabIndex = when {
+                resolvedIndex >= 0 -> resolvedIndex
+                selectedTabIndex >= categories.size -> 0
+                else -> selectedTabIndex
             }
+        } else {
+            selectedTabIndex = 0
         }
     }
 
@@ -118,12 +120,11 @@ fun ThemeplateGalleryScreen(
                                 if (selected) Color(0xFFFF2D55) else Color(0xFFFF2D55).copy(alpha = 0.08f)
                             ),
                         text = {
-                            val categoryName = when (category.id) {
-                                "professional" -> stringResource(R.string.studio_category_professional)
-                                "cosmetics" -> stringResource(R.string.studio_category_cosmetics)
-                                "digital_life" -> stringResource(R.string.themeplate_professional_digital_life)
-                                "selfie_food" -> stringResource(R.string.themeplate_professional_food_selfie)
-                                else -> category.name
+                            val titleResId = TemplateCategoryTitleResolver.titleResId(category)
+                            val categoryName = if (titleResId != 0) {
+                                stringResource(titleResId)
+                            } else {
+                                category.name
                             }
                             Text(
                                 text = categoryName,
@@ -272,7 +273,7 @@ private fun RemoteThemeplateCard(
         ) {
             com.thgiang.image.studio.util.CloudFirstSubcomposeAsyncImage(
                 sourcePath = template.thumbnailUrl,
-                contentDescription = template.title,
+                contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 loading = {
@@ -291,23 +292,6 @@ private fun RemoteThemeplateCard(
                     }
                 }
             )
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.Black.copy(alpha = 0.35f))
-                    .padding(horizontal = 8.dp, vertical = 5.dp)
-            ) {
-                Text(
-                    text = template.title,
-                    color = Color.White,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2
-                )
-            }
 
             if (template.status != "published") {
                 Box(

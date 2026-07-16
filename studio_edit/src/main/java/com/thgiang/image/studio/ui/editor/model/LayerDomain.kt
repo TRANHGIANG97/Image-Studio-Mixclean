@@ -1,6 +1,7 @@
 package com.thgiang.image.studio.ui.editor.model
 
 import com.thgiang.image.studio.ui.editor.label.geometry.EditorShapeGeometry
+import com.thgiang.image.studio.ui.editor.mapper.resolveStrokeWidthPx
 
 /**
  * Domain split for vector layers (Phase 0–2).
@@ -27,6 +28,21 @@ val EditorLayer.isLabelLayer: Boolean
 /** Layer has drawable shape geometry (not TEXT_ONLY). */
 val EditorLayer.hasVisibleFrameGeometry: Boolean
     get() = !EditorShapeGeometry.isTextOnlyShape(shapeType)
+
+/** TEXT_ONLY label with user-applied fill or stroke — render decor without layout refit. */
+val EditorLayer.hasTextOnlyBackgroundDecor: Boolean
+    get() {
+        if (!EditorShapeGeometry.isTextOnlyShape(shapeType)) return false
+        val fillAlpha = (shapeColorArgb ushr 24) and 0xFF
+        if (fillAlpha > 0 || fillGradient != null) return true
+        val stroke = strokeColorArgb
+        if (stroke != null && resolveStrokeWidthPx() > 0f && ((stroke ushr 24) and 0xFF) > 0) return true
+        return false
+    }
+
+/** Shape type used when drawing background decor on TEXT_ONLY layers. */
+val EditorLayer.backgroundDecorShapeType: ShapeType
+    get() = if (hasTextOnlyBackgroundDecor) ShapeType.CARD else shapeType
 
 /** Canvas/export: draw shape fill, stroke, frame shadow/elevation. */
 val EditorLayer.shouldRenderFrameContent: Boolean

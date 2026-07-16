@@ -534,7 +534,13 @@ export default function TemplateEditPage() {
         toast.success(
           statusOverride || envOverride
             ? 'Cập nhật trạng thái template thành công!'
-            : 'Đã lưu thiết kế và cập nhật ảnh xem trước thành công!'
+            : 'Đã lưu template thành công!',
+          {
+            duration: 4500,
+            description: statusOverride || envOverride
+              ? 'Trạng thái publish/draft đã được cập nhật trên server.'
+              : 'Thiết kế và ảnh xem trước đã được lưu trên server.',
+          }
         );
       }
       return true;
@@ -594,40 +600,106 @@ export default function TemplateEditPage() {
     }
   };
 
-  const handleExportPNG = () => {
-    if (!canvas) { toast.error('Canvas chưa sẵn sàng để xuất!'); return; }
+  const waitForSaveUnlock = async (maxMs = 20000): Promise<boolean> => {
+    const started = Date.now();
+    while (savingLockRef.current) {
+      if (Date.now() - started > maxMs) return false;
+      await new Promise((resolve) => setTimeout(resolve, 120));
+    }
+    return true;
+  };
+
+  const downloadBlobFile = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = url;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    // Keep object URL briefly so the browser can start the download before revoke.
+    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+  };
+
+  const exportCanvasImage = async (format: 'png' | 'webp') => {
+    if (!canvas) {
+      toast.error('Canvas chưa sẵn sàng để xuất!');
+      return;
+    }
+
+    const label = format.toUpperCase();
+    const quality = format === 'png' ? 1.0 : 0.92;
+    const toastId = toast.loading(`Đang lưu template và xuất ${label}...`);
+    const hadUnsavedChanges = isDirty;
+    let didSave = false;
+
     try {
+      // Persist before export. Wait out autosave lock so we don't race mid-save.
+      const unlocked = await waitForSaveUnlock();
+      if (!unlocked && hadUnsavedChanges) {
+        toast.error(`Đang lưu template — thử xuất ${label} lại sau vài giây.`, {
+          id: toastId,
+          duration: 6500,
+        });
+        return;
+      }
+
+      if (unlocked) {
+        const saved = await handleSaveRef.current(true);
+        if (saved) {
+          didSave = true;
+        } else if (hadUnsavedChanges) {
+          toast.error(`Không thể lưu template trước khi xuất ${label}.`, {
+            id: toastId,
+            duration: 6500,
+          });
+          return;
+        }
+      }
+
       const activeObject = canvas.getActiveObject();
       canvas.discardActiveObject();
       canvas.renderAll();
-      const dataUrl = canvas.toDataURL({ format: 'png', quality: 1.0 });
-      if (activeObject) { canvas.setActiveObject(activeObject); canvas.renderAll(); }
-      const link = document.createElement('a');
-      link.download = `${template?.title || 'template'}_export.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success('Đã xuất file PNG thành công!');
+      const dataUrl = canvas.toDataURL({ format, quality });
+      if (activeObject) {
+        canvas.setActiveObject(activeObject);
+        canvas.renderAll();
+      }
+
+      const filename = `${template?.title || 'template'}_export.${format}`;
+      // Use blob:// download — data: URLs can navigate the SPA away and kill toasts.
+      downloadBlobFile(dataUrlToBlob(dataUrl), filename);
+
+      // Fresh toast (not only id-replace) so success is unmistakable after long saves.
+      toast.dismiss(toastId);
+      toast.success(
+        didSave || hadUnsavedChanges
+          ? 'Đã lưu template thành công!'
+          : `Đã xuất file ${label} thành công!`,
+        {
+          duration: 7000,
+          description: didSave || hadUnsavedChanges
+            ? `Đã xuất file ${label}: ${filename}`
+            : `File ${filename} đã được tải xuống.`,
+        }
+      );
     } catch (err: any) {
-      toast.error(`Lỗi xuất PNG: ${err.message}`);
+      toast.error(
+        didSave
+          ? `Đã lưu template nhưng lỗi xuất ${label}: ${err.message}`
+          : `Lỗi xuất ${label}: ${err.message}`,
+        { id: toastId, duration: 6500 }
+      );
     }
   };
 
+  const handleExportPNG = () => {
+    void exportCanvasImage('png');
+  };
+
   const handleExportWEBP = () => {
-    if (!canvas) { toast.error('Canvas chưa sẵn sàng để xuất!'); return; }
-    try {
-      const activeObject = canvas.getActiveObject();
-      canvas.discardActiveObject();
-      canvas.renderAll();
-      const dataUrl = canvas.toDataURL({ format: 'webp', quality: 0.92 });
-      if (activeObject) { canvas.setActiveObject(activeObject); canvas.renderAll(); }
-      const link = document.createElement('a');
-      link.download = `${template?.title || 'template'}_export.webp`;
-      link.href = dataUrl;
-      link.click();
-      toast.success('Đã xuất file WEBP thành công!');
-    } catch (err: any) {
-      toast.error(`Lỗi xuất WEBP: ${err.message}`);
-    }
+    void exportCanvasImage('webp');
   };
 
   const baseWidth = template?.canvas_data?.canvas?.baseWidth || 1080;

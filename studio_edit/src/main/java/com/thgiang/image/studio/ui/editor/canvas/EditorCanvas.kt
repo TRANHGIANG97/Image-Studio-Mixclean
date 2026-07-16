@@ -4,7 +4,6 @@ import com.thgiang.image.studio.ui.editor.mapper.*
 
 import androidx.compose.foundation.background
 import com.thgiang.image.studio.ui.editor.model.*
-import androidx.compose.foundation.border
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -30,7 +29,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.rounded.RestartAlt
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.animation.core.Animatable
@@ -41,6 +39,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -175,6 +174,8 @@ fun EditorCanvasV2(
         val currentIsShapeToolActive by rememberUpdatedState(isShapeToolActive)
         val currentCanvasScale by rememberUpdatedState(canvasScale)
         val currentCanvasOffset by rememberUpdatedState(canvasOffset)
+        val currentIsLayerGestureActive by rememberUpdatedState(isLayerGestureActive)
+        val currentEditingLayerId by rememberUpdatedState(editingLayerId)
 
         val isImeVisible = WindowInsets.isImeVisible
         val imeHeight = WindowInsets.ime.getBottom(density)
@@ -251,37 +252,32 @@ fun EditorCanvasV2(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                // Canvas pinch/pan only when no layer is selected — avoids stealing BB corner drags
-                .pointerInput(selectedLayerId) {
-                    if (selectedLayerId != null) return@pointerInput
+                // Two-finger pinch always zooms/pans the whole canvas (even with a selection).
+                // Single-finger is left to the bounding-box overlay when a layer is selected.
+                .pointerInput(Unit) {
                     val velocityTracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
-                    
+
                     awaitEachGesture {
-                        // Stop any running animation as soon as the user touches the canvas
                         coroutineScope.launch { canvasOffsetAnim.stop() }
-                        
+
                         var zoom = 1f
                         var pan = Offset.Zero
                         var pastTouchSlop = false
                         val touchSlop = viewConfiguration.touchSlop
-                        
+                        var didCanvasTransform = false
+
                         val down = awaitFirstDown(requireUnconsumed = false)
                         velocityTracker.resetTracking()
                         velocityTracker.addPosition(down.uptimeMillis, down.position)
-                        
-                        var activePointers = 1
-                        
+
                         while (true) {
-                            val event = awaitPointerEvent()
-                            val canceled = event.changes.any { it.isConsumed }
-                            if (canceled) break
-                            
-                            val changes = event.changes
-                            activePointers = changes.count { it.pressed }
-                            
+                            // Final pass: BB handles 1-finger first; we still see 2-finger pinches.
+                            val event = awaitPointerEvent(PointerEventPass.Final)
+                            val pressed = event.changes.filter { it.pressed }
+                            val activePointers = pressed.size
+
                             if (activePointers == 0) {
-                                // All fingers released
-                                if (event.changes.size == 1 && pastTouchSlop) {
+                                if (didCanvasTransform && event.changes.size == 1 && pastTouchSlop) {
                                     val velocity = velocityTracker.calculateVelocity()
                                     if (kotlin.math.hypot(velocity.x, velocity.y) > 200f) {
                                         coroutineScope.launch {
@@ -294,40 +290,51 @@ fun EditorCanvasV2(
                                 }
                                 break
                             }
-                            
+
+                            // With a selection, ignore 1-finger so corner/body drags stay on the object.
+                            // Keep waiting so a second finger can start canvas zoom.
+                            if (activePointers < 2) {
+                                if (currentSelectedLayerId != null || currentIsLayerGestureActive) {
+                                    continue
+                                }
+                                if (event.changes.any { it.isConsumed }) break
+                            }
+
                             if (activePointers == 1) {
-                                val change = changes.first { it.pressed }
+                                val change = pressed.first()
                                 velocityTracker.addPosition(change.uptimeMillis, change.position)
                             }
-                            
+
                             val panChange = event.calculatePan()
                             val zoomChange = event.calculateZoom()
-                            
+
                             if (!pastTouchSlop) {
                                 zoom *= zoomChange
                                 pan += panChange
                                 val centroidSize = event.calculateCentroidSize(useCurrent = false)
                                 val zoomMotion = kotlin.math.abs(1f - zoom) * centroidSize
                                 val panMotion = pan.getDistance()
-                                
+
                                 if (zoomMotion > touchSlop || panMotion > touchSlop) {
                                     pastTouchSlop = true
                                 }
                             }
-                            
+
                             if (pastTouchSlop) {
                                 if (zoomChange != 1f || panChange != Offset.Zero) {
+                                    didCanvasTransform = true
                                     coroutineScope.launch {
-                                        // Allow soft elastic limits during pinch gesture (0.12x to 5.8x)
-                                        canvasScaleAnim.snapTo((canvasScaleAnim.value * zoomChange).coerceIn(0.12f, 5.8f))
+                                        canvasScaleAnim.snapTo(
+                                            (canvasScaleAnim.value * zoomChange).coerceIn(0.12f, 5.8f)
+                                        )
                                         canvasOffsetAnim.snapTo(canvasOffsetAnim.value + panChange)
                                     }
                                 }
                                 event.changes.forEach { it.consume() }
                             }
                         }
-                        
-                        // Bounce back smoothly if scale is out of hard limits [0.2f, 5.0f]
+
+                        // Bounce back if canvas scale is outside hard limits [0.2f, 5.0f]
                         val currentScale = canvasScaleAnim.value
                         if (currentScale < 0.2f || currentScale > 5.0f) {
                             val targetScale = currentScale.coerceIn(0.2f, 5.0f)
@@ -357,6 +364,7 @@ fun EditorCanvasV2(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { tap ->
+                            if (currentEditingLayerId != null || currentIsLayerGestureActive) return@detectTapGestures
                             val cx = size.width / 2f
                             val cy = size.height / 2f
                             val untransformedTapX = cx + (tap.x - cx - currentCanvasOffset.x) / currentCanvasScale
@@ -379,13 +387,16 @@ fun EditorCanvasV2(
                                 selectionHitPaddingPx = selectionHitPaddingPx,
                             )
                             val rawHits = LayerHitTest.hitLayersAtPoint(currentLayers, hitContext)
-                            val hits = LayerGroupOps.collapseHits(rawHits, currentLayers)
+                            val preferFrame = currentIsShapeToolActive ||
+                                (!currentIsLabelToolActive &&
+                                    currentLayers.find { it.id == currentSelectedLayerId }?.isFrameLayer == true)
+                            val hits = LayerGroupOps.collapseHits(rawHits, currentLayers, preferFrame = preferFrame)
                             when {
                                 hits.isEmpty() -> onSelectLayer(null)
                                 hits.size == 1 -> {
                                     val hit = hits.first()
                                     val selectId = when {
-                                        currentIsShapeToolActive && hit.groupId != null ->
+                                        preferFrame && hit.groupId != null ->
                                             currentLayers.frameInGroup(hit)?.id ?: hit.id
                                         else -> hit.id
                                     }
@@ -395,6 +406,7 @@ fun EditorCanvasV2(
                             }
                         },
                         onDoubleTap = { tap ->
+                            if (currentEditingLayerId != null || currentIsLayerGestureActive) return@detectTapGestures
                             val cx = size.width / 2f
                             val cy = size.height / 2f
                             val untransformedTapX = cx + (tap.x - cx - currentCanvasOffset.x) / currentCanvasScale
@@ -419,6 +431,7 @@ fun EditorCanvasV2(
                             val doubleHits = LayerGroupOps.collapseHits(
                                 LayerHitTest.hitLayersAtPoint(currentLayers, hitContext),
                                 currentLayers,
+                                preferFrame = currentIsShapeToolActive,
                             )
                             if (doubleHits.size == 1 && doubleHits.first().isLabelLayer) {
                                 onStartTextEdit(doubleHits.first().id)
@@ -474,6 +487,7 @@ fun EditorCanvasV2(
                             }
                         },
                         onLongPress = { tap ->
+                            if (currentEditingLayerId != null || currentIsLayerGestureActive) return@detectTapGestures
                             val cx = size.width / 2f
                             val cy = size.height / 2f
                             val untransformedTapX = cx + (tap.x - cx - currentCanvasOffset.x) / currentCanvasScale
@@ -495,9 +509,13 @@ fun EditorCanvasV2(
                                 calculatedScale = calculatedScale,
                                 selectionHitPaddingPx = selectionHitPaddingPx,
                             )
+                            val longPreferFrame = currentIsShapeToolActive ||
+                                (!currentIsLabelToolActive &&
+                                    currentLayers.find { it.id == currentSelectedLayerId }?.isFrameLayer == true)
                             val longHits = LayerGroupOps.collapseHits(
                                 LayerHitTest.hitLayersAtPoint(currentLayers, hitContext),
                                 currentLayers,
+                                preferFrame = longPreferFrame,
                             )
                             if (longHits.size == 1) {
                                 onEvent(EditorEvent.ToggleLayerSelection(longHits.first().id))
@@ -617,6 +635,9 @@ fun EditorCanvasV2(
                                     onUpdateInlineEdit = { text ->
                                         onShapeTextCommit(text)
                                     },
+                                    onInlineSelectionChange = { start, end ->
+                                        onEvent(EditorEvent.UpdateInlineTextSelection(start, end))
+                                    },
                                     onSyncShapeSize = { widthPx, heightPx ->
                                         if (isSelected && !layer.isLocked) {
                                             onSyncShapeSize(widthPx, heightPx)
@@ -645,7 +666,7 @@ fun EditorCanvasV2(
                                             if (isSelected && !layer.isLocked && !isCropToolActive) onGestureEnd()
                                         },
                                         showOverlay = showOverlay && isSelected,
-                                        showBoundingBox = isSelected && !showCropOverlay,
+                                        showBoundingBox = isSelected && !showCropOverlay && editingLayerId == null,
                                         onBoundingBoxVisible = { visible ->
                                             if (visible) onSelectLayer(layer.id)
                                         },
@@ -697,6 +718,8 @@ fun EditorCanvasV2(
                 }
 
                 // ── Top-most Replace Buttons for Sample/Replaceable layers ──
+                // Hide while inline text edit is active — center replace icon steals taps from the text move handle.
+                if (editingLayerId == null) {
                 layers.forEach { layer ->
                     if (layer.product.isSample && !layer.product.processing && !layer.isLocked && layer.isVisible) {
                         val actualSize = layer.cropRatio.calculateSize(layer.shapeWidthPx, layer.shapeHeightPx)
@@ -716,21 +739,19 @@ fun EditorCanvasV2(
                                 modifier = Modifier
                                     .align(Alignment.Center)
                                     .size(36.dp)
-                                    .shadow(elevation = 6.dp, shape = CircleShape)
-                                    .background(Color.White, CircleShape)
-                                    .border(width = 1.dp, color = Color(0xFFE5E7EB), shape = CircleShape)
                                     .clickable { onPickImage(layer.id) },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.SwapHoriz,
                                     contentDescription = stringResource(R.string.studio_action_replace),
-                                    tint = Color(0xFF2F6DE1), // Accent blue
+                                    tint = Color(0xFF2F6DE1),
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
                         }
                     }
+                }
                 }
 
             }

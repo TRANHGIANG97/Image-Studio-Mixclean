@@ -19,17 +19,28 @@ import kotlin.math.max
 
 object EditorGradientMapper {
 
+    fun shapeFillOpacity(shapeColorArgb: Int): Float =
+        ((shapeColorArgb ushr 24) and 0xFF) / 255f
+
     fun toComposeBrush(
         gradient: CloudGradient?,
         width: Float,
         height: Float,
         fallbackColor: Color,
+        opacityMultiplier: Float = 1f,
     ): Brush {
         val parsed = parseStops(gradient) ?: return SolidColor(fallbackColor)
         val (colors, offsets) = parsed
         val coords = gradient!!.coords
+        val scaledColors = if (opacityMultiplier >= 0.999f) {
+            colors
+        } else {
+            colors.map { color ->
+                color.copy(alpha = (color.alpha * opacityMultiplier).coerceIn(0f, 1f))
+            }
+        }
 
-        val colorStops = colors.zip(offsets) { color, offset -> offset to color }.toTypedArray()
+        val colorStops = scaledColors.zip(offsets) { color, offset -> offset to color }.toTypedArray()
 
         return if (gradient.type.equals("radial", ignoreCase = true)) {
             val cx = coords.x2 * width
@@ -90,13 +101,20 @@ object EditorGradientMapper {
 
     private fun parseStops(gradient: CloudGradient?): Pair<List<Color>, List<Float>>? {
         if (gradient == null || gradient.colorStops.isEmpty()) return null
-        val colors = gradient.colorStops.mapNotNull { stop ->
-            ColorArgbParser.parseOrNull(stop.color)?.let(::Color)
+        val parsed = gradient.colorStops.mapNotNull { stop ->
+            ColorArgbParser.parseOrNull(stop.color)?.let { argb ->
+                stop.offset.coerceIn(0f, 1f) to Color(argb)
+            }
         }
-        if (colors.isEmpty()) return null
-        val offsets = gradient.colorStops.map { it.offset.coerceIn(0f, 1f) }
+        if (parsed.isEmpty()) return null
+        val offsets = parsed.map { it.first }
+        val colors = parsed.map { it.second }
         val resolvedColors = if (colors.size == 1) listOf(colors.first(), colors.first()) else colors
-        val resolvedOffsets = if (offsets.size == 1) listOf(0f, 1f) else offsets
+        val resolvedOffsets = if (offsets.size == 1) {
+            listOf(0f, 1f)
+        } else {
+            offsets.take(resolvedColors.size)
+        }
         return resolvedColors to resolvedOffsets
     }
 

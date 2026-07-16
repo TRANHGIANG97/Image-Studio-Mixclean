@@ -13,6 +13,7 @@ data class LabelStyleClipboard(
     val strokeColorArgb: Int?,
     val strokeWidthPx: Float,
     val strokeDashArray: List<Float>,
+    val strokeDashGapPx: Float,
     val cornerRadiusX: Float?,
     val cornerRadiusY: Float?,
     val appearance: EditorAppearance,

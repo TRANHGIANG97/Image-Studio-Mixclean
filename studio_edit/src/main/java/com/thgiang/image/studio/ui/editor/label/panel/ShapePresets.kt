@@ -1,6 +1,7 @@
 @file:Suppress("OPT_IN_USAGE", "OPT_IN_USAGE_ERROR")
 package com.thgiang.image.studio.ui.editor.label.panel
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,15 +26,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import com.thgiang.image.studio.R
+import com.thgiang.image.studio.ui.editor.canvas.rememberCheckerboardBrush
+import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
+import com.thgiang.image.studio.ui.editor.label.model.hasTransparentFill
 
 /**
  * Data class for a Shape Style preset — matches Microsoft Word's "Shape Styles" gallery.
@@ -128,6 +134,7 @@ fun ShapeStyleGallery(
     events: ShapeStyleEvents,
     modifier: Modifier = Modifier,
     currentFillArgb: Int = 0,
+    showNoneOption: Boolean = true,
 ) {
     val coloredFill = shapeStylePresets.take(16)
     val subtleEffect = shapeStylePresets.drop(16)
@@ -150,6 +157,19 @@ fun ShapeStyleGallery(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
         ) {
+            if (showNoneOption) {
+                item(key = "none_preset") {
+                    NoneStyleChip(
+                        isSelected = currentFillArgb.hasTransparentFill(),
+                        onClick = {
+                            events.updateShapeColor(ShapeLabelDefaults.TRANSPARENT_FILL_ARGB)
+                            events.updateStrokeColor(0x00000000)
+                            events.updateStrokeWidth(0f)
+                            events.updateShadow(0f)
+                        },
+                    )
+                }
+            }
             items(allItems) { item ->
                 if (item.isDivider) {
                     // Inline category separator
@@ -188,6 +208,48 @@ fun ShapeStyleGallery(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun NoneStyleChip(
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val checkerboard = rememberCheckerboardBrush()
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (isSelected) Color(0xFFE8F0FE) else Color(0xFFF5F5F5))
+            .then(
+                if (isSelected) Modifier.border(2.dp, Color(0xFF1565C0), RoundedCornerShape(10.dp))
+                else Modifier
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(modifier = Modifier.size(24.dp)) {
+            val radius = size.minDimension / 2f
+            val center = Offset(size.width / 2f, size.height / 2f)
+            drawCircle(brush = checkerboard, radius = radius, center = center)
+            drawLine(
+                color = Color(0xFFE53935),
+                start = Offset(size.width * 0.2f, size.height * 0.8f),
+                end = Offset(size.width * 0.8f, size.height * 0.2f),
+                strokeWidth = 2.dp.toPx(),
+                cap = StrokeCap.Round,
+            )
+            drawCircle(
+                color = Color(0xFFBDBDBD),
+                radius = radius - 0.5.dp.toPx(),
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 0.5.dp.toPx()),
+            )
         }
     }
 }

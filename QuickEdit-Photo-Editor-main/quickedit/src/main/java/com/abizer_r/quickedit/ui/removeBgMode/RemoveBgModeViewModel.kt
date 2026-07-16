@@ -30,7 +30,9 @@ class RemoveBgModeViewModel @Inject constructor(
         val processedBitmap: Bitmap? = null,
         val isProcessing: Boolean = false,
         val error: String? = null,
-        val showOverlay: Boolean = false
+        val showOverlay: Boolean = false,
+        val playServicesUpdateRecommended: Boolean = false,
+        val selfieFallbackUsed: Boolean = false,
     )
 
     private val _state = MutableStateFlow(RemoveBgState())
@@ -83,7 +85,9 @@ class RemoveBgModeViewModel @Inject constructor(
                         _state.value = _state.value.copy(
                             processedBitmap = finalResult,
                             isProcessing = false,
-                            showOverlay = true
+                            showOverlay = true,
+                            playServicesUpdateRecommended = mlKitRemover.consumePlayServicesUpdateRecommended(),
+                            selfieFallbackUsed = mlKitRemover.consumeSelfieFallbackWarning(),
                         )
 
                         // Hide overlay after 2 seconds
@@ -95,14 +99,16 @@ class RemoveBgModeViewModel @Inject constructor(
                     } else {
                         _state.value = _state.value.copy(
                             isProcessing = false,
-                            error = context.getString(R.string.error_apply_effect)
+                            error = context.getString(R.string.error_apply_effect),
+                            playServicesUpdateRecommended = mlKitRemover.consumePlayServicesUpdateRecommended(),
                         )
                     }
                 },
                 onFailure = {
                     _state.value = _state.value.copy(
                         isProcessing = false,
-                        error = context.getString(R.string.error_apply_effect)
+                        error = context.getString(R.string.error_apply_effect),
+                        playServicesUpdateRecommended = mlKitRemover.consumePlayServicesUpdateRecommended(),
                     )
                 }
             )
@@ -119,6 +125,13 @@ class RemoveBgModeViewModel @Inject constructor(
             cachedBitmap = result
         }
         return result
+    }
+
+    fun clearUserNotices() {
+        _state.value = _state.value.copy(
+            playServicesUpdateRecommended = false,
+            selfieFallbackUsed = false,
+        )
     }
 
     override fun onCleared() {

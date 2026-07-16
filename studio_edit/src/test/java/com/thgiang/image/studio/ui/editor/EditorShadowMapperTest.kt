@@ -1,8 +1,12 @@
 package com.thgiang.image.studio.ui.editor
 
 import com.thgiang.image.studio.ui.editor.mapper.EditorShadowMapper
+import com.thgiang.image.studio.ui.editor.mapper.SafeBlurMaskFilter
 import com.thgiang.image.studio.ui.editor.model.EditorAppearance
+import com.thgiang.image.studio.ui.editor.model.opaqueShadowColorArgb
+import com.thgiang.image.studio.ui.editor.model.resolvedShadowBlurRadius
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -77,5 +81,30 @@ class EditorShadowMapperTest {
         // bleed = extentX + 2f = 76.14
         assertTrue(bleed > 70f)
         assertTrue(bleed < 80f)
+    }
+
+    @Test
+    fun configureDropShadowPaint_zeroBlur_doesNotSetMaskFilter() {
+        val appearance = EditorAppearance(
+            shadowIntensity = 0.5f,
+            shadowBlur = 0f,
+        )
+        assertNull(SafeBlurMaskFilter.sanitizeBlurRadius(appearance.resolvedShadowBlurRadius()))
+        val paint = EditorShadowMapper.configureDropShadowPaint(appearance)
+        assertNull(paint.maskFilter)
+    }
+
+    @Test
+    fun opaqueShadowColorArgb_stripsEmbeddedAlpha() {
+        val appearance = EditorAppearance(
+            shadowIntensity = 0.4f,
+            shadowColorArgb = 0x66000000.toInt(), // semi-transparent black from admin rgba
+        )
+        assertEquals(0xFF000000.toInt(), appearance.opaqueShadowColorArgb())
+        val paint = EditorShadowMapper.configureDropShadowPaint(appearance)
+        // Paint.color alpha is overwritten by setAlpha, but RGB must stay black.
+        assertEquals(0, android.graphics.Color.red(paint.color))
+        assertEquals(0, android.graphics.Color.green(paint.color))
+        assertEquals(0, android.graphics.Color.blue(paint.color))
     }
 }

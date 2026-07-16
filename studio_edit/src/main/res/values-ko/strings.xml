@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">크리스마스</string>
     <string name="themeplate_section_memories">추억</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">셀카 음식 1</string>
     <string name="themeplate_selfie_food_02">셀카 음식 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">테두리 색상</string>
     <string name="studio_stroke_tab_style">선 스타일</string>
     <string name="studio_stroke_tab_width">두께</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">테두리 없음</string>
     <string name="studio_dash_solid">실선</string>
     <string name="studio_dash_round_dot">둥근 점선</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">패스 따라가기</string>
     <string name="studio_text_form_warp">왜곡</string>
     <string name="studio_text_form_amount">강도</string>
+    <string name="studio_text_form_letter_spacing">자간</string>
     <string name="studio_text_form_none">없음</string>
     <string name="studio_text_form_path_wave">물결</string>
     <string name="studio_text_form_path_arc_up">위로 부채꼴</string>
     <string name="studio_text_form_path_arc_down">아래로 부채꼴</string>
     <string name="studio_text_form_path_circle">원형</string>
-    <string name="studio_text_form_path_ring">고리형</string>
-    <string name="studio_text_form_warp_arch_up">위로 아치</string>
+<string name="studio_text_form_warp_arch_up">위로 아치</string>
     <string name="studio_text_form_warp_arch_down">아래로 아치</string>
     <string name="studio_text_form_warp_bulge">볼록</string>
     <string name="studio_text_form_warp_wave">물결</string>
     <string name="studio_text_form_warp_flag">깃발</string>
     <string name="studio_text_form_warp_rise">상승</string>
     <string name="studio_text_form_warp_fall">하강</string>
-    <string name="studio_text_form_warp_inflate">팽창</string>
-    <string name="studio_text_form_warp_deflate">수축</string>
     <string name="studio_text_form_warp_chevron_up">위로 갈매기형</string>
     <string name="studio_text_form_warp_chevron_down">아래로 갈매기형</string>
     <string name="studio_objects_label">개체</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">효과</string>
     <string name="studio_label_tab_text_form">아트 텍스트</string>
     <string name="studio_label_tab_shape">프레임</string>
+    <string name="studio_label_tab_text_template">템플릿</string>
+    <string name="studio_label_tab_more">더보기</string>
+    <string name="studio_text_template_classic">클래식</string>
+    <string name="studio_text_template_gradient">그라데이션</string>
+    <string name="studio_text_template_sale">세일</string>
+    <string name="studio_text_template_arc">아크</string>
+    <string name="studio_text_template_outline">외곽선</string>
+    <string name="studio_text_template_neon">네온</string>
+    <string name="studio_text_template_soft">소프트</string>
+    <string name="studio_text_template_poster">포스터</string>
+    <string name="studio_text_template_minimal">미니멀</string>
+    <string name="studio_text_template_gold">골드</string>
+    <string name="studio_text_template_retro">레트로</string>
+    <string name="studio_text_template_ocean">오션</string>
+    <string name="studio_label_elevation_disabled_by_text_form">아트 텍스트가 켜져 있을 때는 입체 효과를 사용할 수 없습니다.</string>
+    <string name="studio_text_form_path_hint">강도를 조절해 글자 경로를 구부리세요. 자간으로 글자 겹침을 줄일 수 있습니다.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">시스템</string>

@@ -142,7 +142,10 @@ object EditorShapeGeometry {
     fun isTextOnlyShape(shapeType: ShapeType): Boolean = shapeType == ShapeType.TEXT_ONLY
 
     fun isFilledShape(shapeType: ShapeType, shapeColorAlpha: Int, hasGradient: Boolean): Boolean {
-        if (shapeType == ShapeType.LINE || shapeType == ShapeType.TEXT_ONLY) return false
+        if (shapeType == ShapeType.LINE) return false
+        if (shapeType == ShapeType.TEXT_ONLY) {
+            return shapeColorAlpha > 0 || hasGradient
+        }
         return shapeColorAlpha > 0 || hasGradient ||
             shapeType == ShapeType.PATH ||
             shapeType == ShapeType.ARROW

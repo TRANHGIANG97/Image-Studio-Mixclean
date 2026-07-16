@@ -36,6 +36,7 @@ import coil.compose.AsyncImage
 import com.thgiang.image.core.design.components.BackgroundRemovalLoadingOverlay
 import com.thgiang.image.feature.drafts.viewmodel.DraftsViewModel
 import com.thgiang.image.feature.editor.model.DraftMetadata
+import com.thgiang.image.studio.util.toAssetModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -305,16 +306,7 @@ fun DraftItem(
 
     val draftId = draft.id ?: ""
     val draftName = draft.name ?: "Untitled"
-    val thumbnailFile = remember(draftId) {
-        val cacheDir = context.cacheDir
-        if (cacheDir != null && draftId.isNotEmpty()) {
-            val draftsDir = File(cacheDir, "drafts")
-            val draftDir = File(draftsDir, draftId)
-            if (draftDir.exists() && draftDir.isDirectory) {
-                draftDir.listFiles { f -> f?.name?.startsWith("layer_") == true }?.firstOrNull()
-            } else null
-        } else null
-    }
+    val thumbnailModel = remember(draft) { resolveDraftThumbnailModel(context, draft) }
 
     val borderColor = if (isSelected) {
         MaterialTheme.colorScheme.primary
@@ -352,7 +344,7 @@ fun DraftItem(
                     .background(Color.Black.copy(alpha = 0.05f))
             ) {
                 AsyncImage(
-                    model = thumbnailFile,
+                    model = thumbnailModel,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
@@ -503,5 +495,42 @@ fun DraftItem(
             }
         }
     }
+}
+
+private fun resolveDraftThumbnailModel(context: android.content.Context, draft: DraftMetadata): Any? {
+    val draftId = draft.id?.takeIf { it.isNotEmpty() } ?: return null
+    val draftDir = File(context.filesDir, "drafts/$draftId")
+    if (!draftDir.exists()) return null
+
+    draft.thumbnailPath?.let { path ->
+        when {
+            path.startsWith("file://") -> {
+                val filePath = android.net.Uri.parse(path).path
+                if (!filePath.isNullOrEmpty()) {
+                    val file = File(filePath)
+                    if (file.exists()) return file
+                }
+            }
+            else -> {
+                val file = File(path)
+                if (file.exists()) return file
+            }
+        }
+    }
+
+    val previewFile = File(draftDir, "preview.png")
+    if (previewFile.exists()) return previewFile
+
+    draftDir.listFiles { file -> file?.name?.startsWith("layer_") == true }
+        ?.firstOrNull()
+        ?.let { return it }
+
+    if (draft.isTemplate) {
+        draft.templateAssetPath
+            ?.takeIf { it.isNotBlank() && it != "null" }
+            ?.let { return it.toAssetModel() }
+    }
+
+    return null
 }
 

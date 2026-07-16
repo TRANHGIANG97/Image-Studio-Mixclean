@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Template, useUpdateTemplateStatus } from '@/hooks/useTemplates';
 import { useDashboardStore } from '@/store/dashboard.store';
+import { isTemplateDebugPublished } from '@/domains/templates/template.helpers';
 
 interface TemplateCardProps {
   template: Template;
@@ -30,6 +31,7 @@ export function TemplateCard({
   const updateStatusMutation = useUpdateTemplateStatus();
   const { activeDropdownId, setActiveDropdownId, toggleTemplateSelection } =
     useDashboardStore();
+  const isDebugPublished = isTemplateDebugPublished(tpl.status, tpl.environment, tpl.canvas_data);
 
 
   const handleUpdateStatus = (newStatus: 'draft' | 'published', newEnvironment: 'debug' | 'release' | 'all') => {
@@ -111,14 +113,14 @@ export function TemplateCard({
         <span
           className={`absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider shadow-sm ${
             tpl.status === 'published'
-              ? tpl.canvas_data?.metadata?.environment === 'debug'
+              ? isDebugPublished
                 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                 : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
               : 'bg-white/85 backdrop-blur-sm border border-slate-200 text-slate-500'
           }`}
         >
           {tpl.status === 'published'
-            ? tpl.canvas_data?.metadata?.environment === 'debug'
+            ? isDebugPublished
               ? 'PUBLISHED (DEBUG)'
               : 'PUBLISHED'
             : tpl.status}

@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">መንገድን ተከተል</string>
     <string name="studio_text_form_warp">ዋርፕ</string>
     <string name="studio_text_form_amount">ጥንካሬ</string>
+    <string name="studio_text_form_letter_spacing">የፊደል ክፍተት</string>
     <string name="studio_text_form_none">ምንም</string>
     <string name="studio_text_form_path_wave">ሞገድ</string>
     <string name="studio_text_form_path_arc_up">አርክ ወደ ላይ</string>
     <string name="studio_text_form_path_arc_down">አርክ ዳውን</string>
     <string name="studio_text_form_path_circle">ክብ</string>
-    <string name="studio_text_form_path_ring">ደውል</string>
-    <string name="studio_text_form_warp_arch_up">ቅስት ወደ ላይ</string>
+<string name="studio_text_form_warp_arch_up">ቅስት ወደ ላይ</string>
     <string name="studio_text_form_warp_arch_down">ወደ ታች ቅስት</string>
     <string name="studio_text_form_warp_bulge">ቡልጋ</string>
     <string name="studio_text_form_warp_wave">ሞገድ</string>
     <string name="studio_text_form_warp_flag">ባንዲራ</string>
     <string name="studio_text_form_warp_rise">ተነሳ</string>
     <string name="studio_text_form_warp_fall">ውድቀት</string>
-    <string name="studio_text_form_warp_inflate">ንፋሱ</string>
-    <string name="studio_text_form_warp_deflate">አጥፋ</string>
     <string name="studio_text_form_warp_chevron_up">Chevron Up</string>
     <string name="studio_text_form_warp_chevron_down">Chevron ዳውን</string>
     <string name="studio_objects_label">እቃዎች</string>
@@ -257,6 +255,8 @@
     <string name="studio_stroke_tab_color">የድንበር ቀለም</string>
     <string name="studio_stroke_tab_style">የመስመር ዘይቤ</string>
     <string name="studio_stroke_tab_width">ውፍረት</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">ድንበር የለም።</string>
     <string name="studio_dash_solid">ድፍን</string>
     <string name="studio_dash_round_dot">ክብ ነጠብጣቦች</string>
@@ -305,6 +305,22 @@
     <string name="studio_label_tab_elevation">ውጤት</string>
     <string name="studio_label_tab_text_form">አርቲስቲክ</string>
     <string name="studio_label_tab_shape">ፍሬም</string>
+    <string name="studio_label_tab_text_template">አብነቶች</string>
+    <string name="studio_label_tab_more">ተጨማሪ</string>
+    <string name="studio_text_template_classic">ክላሲክ</string>
+    <string name="studio_text_template_gradient">ቀስተ ቀለም</string>
+    <string name="studio_text_template_sale">ቅናሽ</string>
+    <string name="studio_text_template_arc">ቅስት</string>
+    <string name="studio_text_template_outline">ንድፍ</string>
+    <string name="studio_text_template_neon">ኒዮን</string>
+    <string name="studio_text_template_soft">ለስላሳ</string>
+    <string name="studio_text_template_poster">ፖስተር</string>
+    <string name="studio_text_template_minimal">አነስተኛ</string>
+    <string name="studio_text_template_gold">ወርቅ</string>
+    <string name="studio_text_template_retro">ሬትሮ</string>
+    <string name="studio_text_template_ocean">ውቅያኖስ</string>
+    <string name="studio_label_elevation_disabled_by_text_form">ጥበባዊ የጽሁፍ ቅርጽ ሲነቃ የከፍታ ተጽዕኖ አይገኝም።</string>
+    <string name="studio_text_form_path_hint">የጽሁፍ መንገድ ለማጠፍ ጥንካሬውን ይጎትቱ። የፊደል ክፍተት የፊደል ቅርጾች እንዳይደራረቡ ይረዳል።</string>
     <string name="studio_font_category_system">ስርዓት</string>
     <string name="studio_label_document_styles">የሰነድ ቅጦች</string>
     <string name="studio_label_style_title">ርዕስ</string>
@@ -324,6 +340,8 @@
     <string name="studio_back_button">ተመለስ</string>
     <string name="themeplate_section_christmas">የገና በዓል</string>
     <string name="themeplate_section_memories">ትዝታዎች</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">ምስል አክል</string>
     <string name="studio_tool_remove_bg">ዳራ አስወግድ</string>
     <string name="studio_shape_tab_arrange">አደራጅ</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">ቁልፍ ሰሌዳ ደብቅ</string>
     <string name="studio_layers_toggle">ንብርብሮች</string>
 </resources>
-
-

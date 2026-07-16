@@ -1,17 +1,15 @@
 package com.thgiang.image.studio.ui.editor.canvas
 
 import androidx.compose.ui.geometry.Offset
-import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
-import com.thgiang.image.studio.ui.editor.model.LayerViewportScale
-import com.thgiang.image.studio.ui.editor.model.isLabelLayer
 
 /**
  * Pure transform math shared by gesture preview (Phase 4) and commit path.
  */
 object GestureLayerOps {
-    const val MIN_SCALE = 0.2f
-    const val MAX_SCALE = 5f
+    const val MIN_SCALE = 0.05f
+    /** High enough that "Thêm ảnh" on large PSD canvases can fill the frame. */
+    const val MAX_SCALE = 40f
 
     fun applyDelta(layer: EditorLayer, delta: GestureDelta): EditorLayer {
         var newViewport = layer.viewport
@@ -21,23 +19,11 @@ object GestureLayerOps {
         }
 
         var updatedLayer = layer
-        if (layer.isLabelLayer) {
-            if (delta.scale != 1f) {
-                val newTextSize = (layer.textSizeSp * delta.scale)
-                    .coerceIn(1f, ShapeLabelDefaults.MAX_TEXT_SIZE_SP)
-                val newW = (layer.shapeWidthPx * delta.scale).coerceAtLeast(60f)
-                val newH = (layer.shapeHeightPx * delta.scale).coerceAtLeast(30f)
-                updatedLayer = updatedLayer.copy(
-                    textSizeSp = newTextSize,
-                    shapeWidthPx = newW,
-                    shapeHeightPx = newH,
-                )
-            }
-        } else {
-            if (delta.scale != 1f) {
-                val newScale = (newViewport.scale * delta.scale).coerceIn(MIN_SCALE, MAX_SCALE)
-                newViewport = newViewport.withScale(newScale)
-            }
+        if (delta.scale != 1f) {
+            // Label + image layers share viewport.scale so frame, text, padding and stroke
+            // scale as one unit during the gesture; [LayerViewportScale.bake] commits sizes.
+            val newScale = (newViewport.scale * delta.scale).coerceIn(MIN_SCALE, MAX_SCALE)
+            newViewport = newViewport.withScale(newScale)
         }
 
         if (delta.rotation != 0f) {

@@ -78,8 +78,7 @@ object CloudTemplateParser {
                 baseHeight = canvasJson?.optInt("baseHeight", 1920) ?: 1920,
                 aspectRatio = canvasJson?.optNonBlankString("aspectRatio") ?: "9:16",
                 backgroundUrl = canvasJson?.optNonBlankString("backgroundUrl"),
-                backgroundColorArgb = canvasJson?.takeIf { it.has("backgroundColorArgb") }
-                    ?.optInt("backgroundColorArgb"),
+                backgroundColorArgb = canvasJson?.optArgbIntOrNull("backgroundColorArgb"),
             ),
             layers = parseLayers(canvasData.optJSONArray("layers")),
         )
@@ -127,7 +126,7 @@ object CloudTemplateParser {
             shadowDistance = payloadJson.optFloatOrNull("shadowDistance"),
             shadowBlur = payloadJson.optFloatOrNull("shadowBlur"),
             alpha = payloadJson.optFloatOrNull("alpha"),
-            shadowColorArgb = payloadJson.takeIf { it.has("shadowColorArgb") }?.optInt("shadowColorArgb"),
+            shadowColorArgb = payloadJson.optArgbIntOrNull("shadowColorArgb"),
             cropRatio = payloadJson.optNonBlankString("cropRatio"),
             flippedH = payloadJson.optBooleanOrNull("flippedH"),
             flippedV = payloadJson.optBooleanOrNull("flippedV"),
@@ -135,7 +134,7 @@ object CloudTemplateParser {
             baseHeight = payloadJson.optIntOrNull("baseHeight"),
             text = payloadJson.optNonBlankString("text"),
             font = payloadJson.optNonBlankString("font"),
-            textColorArgb = payloadJson.takeIf { it.has("textColorArgb") }?.optInt("textColorArgb"),
+            textColorArgb = payloadJson.optArgbIntOrNull("textColorArgb"),
             fontSize = payloadJson.optFloatOrNull("fontSize"),
             fill = payloadJson.optNonBlankString("fill"),
             fontWeight = payloadJson.optFontWeightOrNull(),
@@ -209,6 +208,19 @@ object CloudTemplateParser {
     private fun JSONObject.optIntOrNull(key: String): Int? {
         if (!has(key) || isNull(key)) return null
         return optInt(key)
+    }
+
+    /**
+     * Parse ARGB packed ints safely.
+     * JS may emit unsigned values (> Int.MAX_VALUE) for opaque colors; [optInt] via Double
+     * clamps those to Int.MAX_VALUE and corrupts the color. Prefer Long.intValue() wrap.
+     */
+    private fun JSONObject.optArgbIntOrNull(key: String): Int? {
+        if (!has(key) || isNull(key)) return null
+        return when (val raw = opt(key)) {
+            is Number -> raw.toLong().toInt()
+            else -> null
+        }
     }
 
     private fun JSONObject.optBooleanOrNull(key: String): Boolean? {

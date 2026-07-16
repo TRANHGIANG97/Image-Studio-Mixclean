@@ -99,6 +99,9 @@
     <string name="crop_custom">Tuỳ chỉnh</string>
     <string name="crop_square">Hình vuông</string>
     <string name="error_apply_effect">Lỗi áp dụng hiệu ứng</string>
+    <string name="play_services_update_message">Hãy cập nhật Google Play services để xóa nền ổn định và chính xác hơn.</string>
+    <string name="play_services_update_action">Cập nhật</string>
+    <string name="remove_bg_selfie_fallback_warning">Đã dùng chế độ chân dung. Viền vật thể có thể kém chính xác hơn.</string>
     <string name="error_apply_background">Lỗi áp dụng nền</string>
     <string name="error_auto_removal_failed">Tự động xóa nền thất bại: %1$s</string>
     <string name="error_recycled_bitmap">Dữ liệu ảnh đã bị giải phóng</string>

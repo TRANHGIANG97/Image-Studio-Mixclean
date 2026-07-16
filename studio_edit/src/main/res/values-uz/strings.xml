@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Rojdestvo</string>
     <string name="themeplate_section_memories">Xotiralar</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Hoshiya rangi</string>
     <string name="studio_stroke_tab_style">Chiziq uslubi</string>
     <string name="studio_stroke_tab_width">Qalinlik</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Hoshiyasiz</string>
     <string name="studio_dash_solid">Yaxlit chiziq</string>
     <string name="studio_dash_round_dot">Dumaloq nuqtalar</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Yoʻnalish boʻylab</string>
     <string name="studio_text_form_warp">Eshish (qiyshaytirish)</string>
     <string name="studio_text_form_amount">Jadallik</string>
+    <string name="studio_text_form_letter_spacing">Harf oralig‘i</string>
     <string name="studio_text_form_none">Yoʻq</string>
     <string name="studio_text_form_path_wave">Toʻlqin</string>
     <string name="studio_text_form_path_arc_up">Yuqoriga yoy</string>
     <string name="studio_text_form_path_arc_down">Pastga yoy</string>
     <string name="studio_text_form_path_circle">Aylana</string>
-    <string name="studio_text_form_path_ring">Uzuk shakli</string>
-    <string name="studio_text_form_warp_arch_up">Tepa ravoq</string>
+<string name="studio_text_form_warp_arch_up">Tepa ravoq</string>
     <string name="studio_text_form_warp_arch_down">Pastki ravoq</string>
     <string name="studio_text_form_warp_bulge">Boʻrtish</string>
     <string name="studio_text_form_warp_wave">Toʻlqin</string>
     <string name="studio_text_form_warp_flag">Bayroq shakli</string>
     <string name="studio_text_form_warp_rise">Koʻtarilish</string>
     <string name="studio_text_form_warp_fall">Pasayish</string>
-    <string name="studio_text_form_warp_inflate">Shishish</string>
-    <string name="studio_text_form_warp_deflate">Yassilanish</string>
     <string name="studio_text_form_warp_chevron_up">Yuqoriga qaratilgan koʻrsatkich</string>
     <string name="studio_text_form_warp_chevron_down">Pastga qaratilgan koʻrsatkich</string>
     <string name="studio_objects_label">Obyektlar</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Badiiy</string>
     <string name="studio_label_tab_shape">Ramka</string>
+    <string name="studio_label_tab_text_template">Andozalar</string>
+    <string name="studio_label_tab_more">Yana</string>
+    <string name="studio_text_template_classic">Klassik</string>
+    <string name="studio_text_template_gradient">Gradient</string>
+    <string name="studio_text_template_sale">Chegirma</string>
+    <string name="studio_text_template_arc">Yoy</string>
+    <string name="studio_text_template_outline">Kontur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Yumshoq</string>
+    <string name="studio_text_template_poster">Plakat</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Oltin</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Okean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Badiiy matn shakli faol bo‘lsa, bo‘rtma effekt mavjud emas.</string>
+    <string name="studio_text_form_path_hint">Matn yo‘lini egish uchun intensivlikni torting. Harf oralig‘i gliflarning ustma-ust tushishini oldini olishga yordam beradi.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Tizim</string>

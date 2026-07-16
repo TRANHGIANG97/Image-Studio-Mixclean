@@ -6,7 +6,6 @@ import com.thgiang.image.studio.ui.editor.canvas.*
 import android.content.Context
 import com.thgiang.image.studio.ui.editor.model.*
 import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
-import com.thgiang.image.studio.ui.editor.label.model.withShapeFittedToText
 import com.thgiang.image.studio.ui.editor.label.model.withShapeHeightFittedToText
 import com.thgiang.image.studio.ui.editor.model.preferredEditorTool
 import com.thgiang.image.studio.ui.editor.model.isLabelLayer
@@ -31,6 +30,7 @@ import com.thgiang.image.studio.ui.editor.product.EditorProductWorkflow
 import com.thgiang.image.studio.ui.editor.product.ProductImageResult
 import com.thgiang.image.studio.ui.editor.product.SampleObjectResult
 import com.thgiang.image.studio.ui.editor.product.StickerResult
+import com.thgiang.image.studio.ui.editor.document.DocumentSession
 import com.thgiang.image.studio.ui.editor.label.LabelViewModelDelegate
 import com.thgiang.image.studio.ui.editor.label.model.LabelStyleClipboard
 import com.thgiang.image.studio.ui.editor.shape.ShapeViewModelDelegate
@@ -68,13 +68,11 @@ class ThemeplateEditorViewModel @Inject constructor(
     companion object {
         private const val TAG = "EditorVM"
         private const val BG_DEBUG_TAG = "TPL_BG_DEBUG"
-        private const val MIN_SCALE = 0.2f
-        private const val MAX_SCALE = 5f
+        private const val MIN_SCALE = 0.05f
+        private const val MAX_SCALE = 40f
         private const val SNAP_ANGLE_THRESHOLD = 5f
         private val SNAP_ANGLES = listOf(0f, 90f, 180f, 270f)
         private const val HISTORY_DEBOUNCE_MS = 300L
-        private const val SHAPE_FIT_DEBOUNCE_MS = 200L
-        private const val GESTURE_THROTTLE_MS = 16L // ~60fps
     }
 
     // Clipboard: stores style of last copied layer (fill, stroke, shadow)
@@ -117,8 +115,6 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     // Debounced history push for gesture operations
     private val historyPushFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    private val shapeFitFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    private val gestureThrottleFlow = MutableSharedFlow<GestureDelta>(extraBufferCapacity = 1)
 
     private var templateLoadJob: Job? = null
     private var bgRemoveJob: Job? = null
@@ -129,11 +125,13 @@ class ThemeplateEditorViewModel @Inject constructor(
 
     val themeplateId: String? = savedStateHandle.get<String>("themeplateId")
 
+    /** Document v2 session (strangler) — drives text transform / templates / form via commands. */
+    private val documentSession by lazy { DocumentSession(context) }
+
     val labelDelegate by lazy {
         LabelViewModelDelegate(
             context = context,
             layerFactory = layerFactory,
-            shapeFitFlow = shapeFitFlow,
             readState = { _state.value },
             updateState = { block -> _state.update { s -> block(s) } },
             requestHistoryPush = { historyPushFlow.tryEmit(Unit) },
@@ -144,7 +142,6 @@ class ThemeplateEditorViewModel @Inject constructor(
     val shapeDelegate by lazy {
         ShapeViewModelDelegate(
             layerFactory = layerFactory,
-            shapeFitFlow = shapeFitFlow,
             readState = { _state.value },
             updateState = { block -> _state.update { s -> block(s) } },
             requestHistoryPush = { historyPushFlow.tryEmit(Unit) },
@@ -158,21 +155,6 @@ class ThemeplateEditorViewModel @Inject constructor(
             historyPushFlow
                 .debounce(HISTORY_DEBOUNCE_MS)
                 .collect { pushHistoryInternal() }
-        }
-
-        viewModelScope.launch {
-            shapeFitFlow
-                .debounce(SHAPE_FIT_DEBOUNCE_MS)
-                .collect { applyShapeFitToActiveLayer() }
-        }
-        
-        // Throttled gesture updates for smooth 60fps
-        viewModelScope.launch {
-            gestureThrottleFlow
-                .throttleLatest(GESTURE_THROTTLE_MS)
-                .collect { delta ->
-                    applyGesturePreview(delta)
-                }
         }
 
         // Auto-persist state to SavedStateHandle on every change to protect from process death
@@ -203,24 +185,69 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
-    private fun applyShapeFitToActiveLayer() {
-        updateActiveLayer { layer ->
-            if (layer.isLabelLayer) {
-                layer.withShapeFittedToText(context)
+    /**
+     * Sync EditorState → DocumentSession, run [block], project layers back.
+     * @return true if DocumentSession handled the mutation.
+     */
+    private fun applyDocument(
+        selectedLayerId: String? = _state.value.selectedLayerId,
+        debounceHistory: Boolean = true,
+        recordHistory: Boolean = true,
+        block: DocumentSession.(String?) -> List<EditorLayer>?,
+    ): Boolean {
+        if (!documentSession.enabled) return false
+        documentSession.syncFromState(_state.value)
+        val layers = documentSession.block(selectedLayerId) ?: return false
+        _state.update { it.copy(layers = layers) }
+        if (recordHistory) {
+            if (debounceHistory) {
+                historyPushFlow.tryEmit(Unit)
             } else {
-                layer
+                pushHistory()
             }
         }
+        return true
     }
 
-    private fun requestShapeFitForActiveLabel() {
-        val layer = _state.value.layers.find { it.id == _state.value.selectedLayerId }
-        if (layer?.isLabelLayer == true) {
-            shapeFitFlow.tryEmit(Unit)
+    private fun isLabelOrTextInShapeSelection(): Boolean {
+        val id = _state.value.selectedLayerId ?: return false
+        val layer = _state.value.layers.find { it.id == id } ?: return false
+        return layer.isLabelLayer ||
+            (layer.groupId != null && _state.value.layers.any { it.groupId == layer.groupId && it.isLabelLayer })
+    }
+
+    /** Select FRAME or LABEL sibling for Shape/Label tool and sync Document [NodePart]. */
+    private fun applyGroupPartSelection(layerId: String?, tool: EditorTool) {
+        val layers = _state.value.layers
+        val (_, ids) = SelectionState.singleSelect(layers, layerId)
+        _state.update {
+            it.copy(
+                selectedLayerId = layerId,
+                selectedLayerIds = ids,
+                selectedTool = tool,
+                editingLayerId = null,
+            )
         }
+        syncDocumentSelection(layerId)
+    }
+
+    private fun syncDocumentSelection(selectedLayerId: String?) {
+        if (!documentSession.enabled) return
+        documentSession.syncFromState(_state.value)
+        documentSession.selectForLayer(selectedLayerId)
+    }
+
+    /** Selection for rich-text style. null = collapsed caret during edit (no-op). */
+    private fun inlineStyleRange(): Pair<Int, Int>? {
+        val state = _state.value
+        if (state.editingLayerId == null) return 0 to Int.MAX_VALUE
+        val start = state.inlineSelectionStart
+        val end = state.inlineSelectionEnd
+        return if (end > start) start to end else null
     }
 
     private fun refitActiveLabelHeightToText() {
+        // LayoutEngine already hugs height for StyleOrCaseChange; keep as safety for legacy paths.
         updateActiveLayer { layer ->
             if (layer.isLabelLayer && !layer.textForm.isActive) {
                 layer.withShapeHeightFittedToText(context)
@@ -254,64 +281,223 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.ConfirmAddShape ->
                 shapeDelegate.confirmAddShape(event.shapeType, _state.value.template.originalSize.width.toFloat())
             EditorEvent.DismissShapeTool -> shapeDelegate.dismissShapeTool()
-            // ── Label edit events ─────────────────────────
-            is EditorEvent.UpdateShapeText -> labelDelegate.updateShapeText(event.text)
-            EditorEvent.InsertTextNewline -> labelDelegate.insertTextNewline()
-            is EditorEvent.UpdateShapeColor -> shapeDelegate.updateShapeColor(event.argb)
-            is EditorEvent.UpdateTextColor -> labelDelegate.updateTextColor(event.argb)
-            is EditorEvent.UpdateTextSize -> labelDelegate.updateTextSize(event.sizeSp)
-            is EditorEvent.UpdateTextFontFamily -> labelDelegate.updateTextFontFamily(event.fontFamily)
-            is EditorEvent.UpdateShapeType -> {
-                val layer = _state.value.layers.find { it.id == _state.value.selectedLayerId }
-                if (layer?.isLabelLayer == true) {
-                    labelDelegate.updateShapeType(event.shapeType)
-                } else {
-                    shapeDelegate.updateShapeType(event.shapeType)
+            // ── Label edit events (DocumentSession primary) ──
+            is EditorEvent.UpdateShapeText -> {
+                val inline = _state.value.editingLayerId == _state.value.selectedLayerId
+                if (!applyDocument { editText(it, event.text, inline) }) {
+                    labelDelegate.updateShapeText(event.text)
+                }
+                val len = event.text.length
+                _state.update {
+                    it.copy(
+                        inlineSelectionStart = it.inlineSelectionStart.coerceIn(0, len),
+                        inlineSelectionEnd = it.inlineSelectionEnd.coerceIn(0, len),
+                    )
                 }
             }
-            is EditorEvent.UpdateTextBold -> labelDelegate.updateTextBold(event.bold)
-            is EditorEvent.UpdateTextItalic -> labelDelegate.updateTextItalic(event.italic)
-            is EditorEvent.UpdateTextUnderline -> labelDelegate.updateTextUnderline(event.underline)
-            is EditorEvent.UpdateTextLinethrough -> labelDelegate.updateTextLinethrough(event.linethrough)
-            is EditorEvent.UpdateTextAlign -> labelDelegate.updateTextAlign(event.align)
-            is EditorEvent.UpdateLineHeight -> labelDelegate.updateLineHeight(event.multiplier)
-            is EditorEvent.UpdateCharSpacing -> labelDelegate.updateCharSpacing(event.spacing)
-            is EditorEvent.UpdateTextTransform -> labelDelegate.updateTextTransform(event.transform)
-            is EditorEvent.ApplyTextFormPreset -> labelDelegate.applyTextFormPreset(event.preset)
-            is EditorEvent.UpdateTextFormAmount -> labelDelegate.updateTextFormAmount(event.amount)
-            EditorEvent.ResetTextForm -> labelDelegate.resetTextForm()
-            is EditorEvent.UpdateFillGradient -> shapeDelegate.updateFillGradient(event.gradient)
-            is EditorEvent.UpdateTextColorGradient -> labelDelegate.updateTextColorGradient(event.gradient)
-            is EditorEvent.ApplyLabelTypographyPreset ->
-                labelDelegate.applyLabelTypographyPreset(event.fontWeight, event.textSizeSp, event.textTransform)
-            is EditorEvent.UpdateStrokeColor -> shapeDelegate.updateStrokeColor(event.argb)
-            is EditorEvent.UpdateStrokeWidth -> shapeDelegate.updateStrokeWidth(event.widthPx)
-            is EditorEvent.UpdateStrokeDash ->
-                shapeDelegate.updateStrokeDash(event.dashArray)
-            is EditorEvent.UpdateCornerRadius -> shapeDelegate.updateCornerRadius(event.radiusPx)
+            is EditorEvent.UpdateInlineTextSelection -> {
+                _state.update {
+                    it.copy(
+                        inlineSelectionStart = event.start.coerceAtLeast(0),
+                        inlineSelectionEnd = event.end.coerceAtLeast(0),
+                    )
+                }
+            }
+            EditorEvent.InsertTextNewline -> {
+                if (!applyDocument { insertNewline(it) }) {
+                    labelDelegate.insertTextNewline()
+                }
+            }
+            is EditorEvent.UpdateShapeColor -> {
+                if (!applyDocument { setShapeFill(it, event.argb) }) {
+                    shapeDelegate.updateShapeColor(event.argb)
+                }
+            }
+            is EditorEvent.UpdateTextColor -> {
+                val range = inlineStyleRange()
+                if (range == null) {
+                    // Collapsed caret while editing: skip (avoid restyling whole string).
+                } else if (!applyDocument { setTextColor(it, event.argb, range.first, range.second) }) {
+                    labelDelegate.updateTextColor(event.argb)
+                }
+            }
+            is EditorEvent.UpdateTextSize -> {
+                if (!applyDocument { setFontSize(it, event.sizeSp) }) {
+                    labelDelegate.updateTextSize(event.sizeSp)
+                }
+            }
+            is EditorEvent.UpdateTextFontFamily -> {
+                if (!applyDocument { setFontFamily(it, event.fontFamily) }) {
+                    labelDelegate.updateTextFontFamily(event.fontFamily)
+                }
+            }
+            is EditorEvent.UpdateShapeType -> {
+                if (!applyDocument { setShapeType(it, event.shapeType) }) {
+                    val layer = _state.value.layers.find { it.id == _state.value.selectedLayerId }
+                    if (layer?.isLabelLayer == true) {
+                        labelDelegate.updateShapeType(event.shapeType)
+                    } else {
+                        shapeDelegate.updateShapeType(event.shapeType)
+                    }
+                }
+            }
+            is EditorEvent.UpdateTextBold -> {
+                val range = inlineStyleRange()
+                if (range != null) {
+                    if (!applyDocument { setBold(it, event.bold, range.first, range.second) }) {
+                        labelDelegate.updateTextBold(event.bold)
+                    }
+                }
+            }
+            is EditorEvent.UpdateTextItalic -> {
+                val range = inlineStyleRange()
+                if (range != null) {
+                    if (!applyDocument { setItalic(it, event.italic, range.first, range.second) }) {
+                        labelDelegate.updateTextItalic(event.italic)
+                    }
+                }
+            }
+            is EditorEvent.UpdateTextUnderline -> {
+                val range = inlineStyleRange()
+                if (range != null) {
+                    if (!applyDocument { setUnderline(it, event.underline, range.first, range.second) }) {
+                        labelDelegate.updateTextUnderline(event.underline)
+                    }
+                }
+            }
+            is EditorEvent.UpdateTextLinethrough -> {
+                val range = inlineStyleRange()
+                if (range != null) {
+                    if (!applyDocument { setLinethrough(it, event.linethrough, range.first, range.second) }) {
+                        labelDelegate.updateTextLinethrough(event.linethrough)
+                    }
+                }
+            }
+            is EditorEvent.UpdateTextAlign -> {
+                if (!applyDocument { setAlign(it, event.align) }) {
+                    labelDelegate.updateTextAlign(event.align)
+                }
+            }
+            is EditorEvent.UpdateLineHeight -> {
+                if (!applyDocument { setLineHeight(it, event.multiplier) }) {
+                    labelDelegate.updateLineHeight(event.multiplier)
+                }
+            }
+            is EditorEvent.UpdateCharSpacing -> {
+                if (!applyDocument { setCharSpacing(it, event.spacing) }) {
+                    labelDelegate.updateCharSpacing(event.spacing)
+                }
+            }
+            is EditorEvent.UpdateTextTransform -> {
+                if (!applyDocument { applyTextTransform(it, event.transform) }) {
+                    labelDelegate.updateTextTransform(event.transform)
+                }
+            }
+            is EditorEvent.ApplyTextFormPreset -> {
+                if (!applyDocument { applyTextFormPreset(it, event.preset) }) {
+                    labelDelegate.applyTextFormPreset(event.preset)
+                }
+            }
+            is EditorEvent.UpdateTextFormAmount -> {
+                if (!applyDocument { setTextFormAmount(it, event.amount) }) {
+                    labelDelegate.updateTextFormAmount(event.amount)
+                }
+            }
+            EditorEvent.ResetTextForm -> {
+                if (!applyDocument { resetTextForm(it) }) {
+                    labelDelegate.resetTextForm()
+                }
+            }
+            is EditorEvent.UpdateFillGradient -> {
+                if (!applyDocument { setFillGradient(it, event.gradient) }) {
+                    shapeDelegate.updateFillGradient(event.gradient)
+                }
+            }
+            is EditorEvent.UpdateTextColorGradient -> {
+                if (!applyDocument { setTextColorGradient(it, event.gradient) }) {
+                    labelDelegate.updateTextColorGradient(event.gradient)
+                }
+            }
+            is EditorEvent.ApplyLabelTypographyPreset -> {
+                if (!applyDocument {
+                        applyTypographyPreset(it, event.fontWeight, event.textSizeSp, event.textTransform)
+                    }
+                ) {
+                    labelDelegate.applyLabelTypographyPreset(
+                        event.fontWeight,
+                        event.textSizeSp,
+                        event.textTransform,
+                    )
+                }
+            }
+            is EditorEvent.ApplyTextStyleTemplate -> {
+                if (!applyDocument { applyTextStyleTemplate(it, event.templateId) }) {
+                    labelDelegate.applyTextStyleTemplate(event.templateId)
+                }
+            }
+            is EditorEvent.UpdateStrokeColor -> {
+                if (!applyDocument { setStrokeColor(it, event.argb) }) {
+                    shapeDelegate.updateStrokeColor(event.argb)
+                }
+            }
+            is EditorEvent.UpdateStrokeWidth -> {
+                if (!applyDocument { setStrokeWidth(it, event.widthPx) }) {
+                    shapeDelegate.updateStrokeWidth(event.widthPx)
+                }
+            }
+            is EditorEvent.UpdateStrokeDash -> {
+                if (!applyDocument { setStrokeDash(it, event.dashArray) }) {
+                    shapeDelegate.updateStrokeDash(event.dashArray)
+                }
+            }
+            is EditorEvent.UpdateStrokeDashGap -> {
+                if (!applyDocument { setStrokeDashGap(it, event.gapPx) }) {
+                    shapeDelegate.updateStrokeDashGap(event.gapPx)
+                }
+            }
+            is EditorEvent.UpdateCornerRadius -> {
+                if (!applyDocument { setCornerRadius(it, event.radiusPx) }) {
+                    shapeDelegate.updateCornerRadius(event.radiusPx)
+                }
+            }
             is EditorEvent.SyncShapeSize -> {
                 val layer = _state.value.layers.find { it.id == _state.value.selectedLayerId }
                 if (layer?.isLabelLayer == true) {
-                    labelDelegate.syncShapeSize(event.widthPx, event.heightPx)
+                    if (!applyDocument { resizeBox(it, event.widthPx, event.heightPx) }) {
+                        labelDelegate.syncShapeSize(event.widthPx, event.heightPx)
+                    }
                 } else {
                     shapeDelegate.syncShapeSize(event.widthPx, event.heightPx)
                 }
             }
             is EditorEvent.UpdateGesture -> {
-                gestureThrottleFlow.tryEmit(event.delta)
+                // Apply immediately so drag follows the finger 1:1 (throttling dropped pan deltas).
+                applyGesturePreview(event.delta)
                 requestHistoryPush()
             }
             is EditorEvent.UpdateOffset -> {
-                updateActiveLayer { it.copy(viewport = it.viewport.withOffset(it.viewport.offset + event.delta)) }
+                if (isLabelOrTextInShapeSelection()) {
+                    applyLabelTransformDelta { vp -> vp.withOffset(vp.offset + event.delta) }
+                } else {
+                    updateActiveLayer { it.copy(viewport = it.viewport.withOffset(it.viewport.offset + event.delta)) }
+                }
                 requestHistoryPush()
             }
             is EditorEvent.SetOffset -> {
-                updateActiveLayer { it.copy(viewport = it.viewport.withOffset(event.offset)) }
+                if (isLabelOrTextInShapeSelection()) {
+                    applyLabelTransformDelta { vp -> vp.withOffset(event.offset) }
+                } else {
+                    updateActiveLayer { it.copy(viewport = it.viewport.withOffset(event.offset)) }
+                }
                 pushHistory()
             }
             is EditorEvent.UpdateScale -> updateScale(event.factor)
             is EditorEvent.SetScale -> {
-                updateActiveLayer { it.copy(viewport = it.viewport.withScale(event.scale)) }
+                if (isLabelOrTextInShapeSelection()) {
+                    applyLabelTransformDelta { vp -> vp.withScale(event.scale) }
+                } else {
+                    updateActiveLayer { it.copy(viewport = it.viewport.withScale(event.scale)) }
+                }
                 pushHistory()
             }
             is EditorEvent.UpdateRotation -> {
@@ -320,98 +506,268 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.SetRotation -> {
                 var normalized = event.degrees % 360f
                 if (normalized < 0) normalized += 360f
-                updateActiveLayer { it.copy(viewport = it.viewport.withRotation(normalized)) }
+                if (isLabelOrTextInShapeSelection()) {
+                    applyLabelTransformDelta { vp -> vp.withRotation(normalized) }
+                } else {
+                    updateActiveLayer { it.copy(viewport = it.viewport.withRotation(normalized)) }
+                }
                 pushHistory()
             }
             EditorEvent.FlipHorizontal -> {
-                updateActiveLayer { it.copy(viewport = it.viewport.copy(flippedH = !it.viewport.flippedH)) }
+                if (isLabelOrTextInShapeSelection()) {
+                    applyLabelTransformDelta { vp -> vp.copy(flippedH = !vp.flippedH) }
+                } else {
+                    updateActiveLayer { it.copy(viewport = it.viewport.copy(flippedH = !it.viewport.flippedH)) }
+                }
                 pushHistory()
             }
             EditorEvent.FlipVertical -> {
-                updateActiveLayer { it.copy(viewport = it.viewport.copy(flippedV = !it.viewport.flippedV)) }
+                if (isLabelOrTextInShapeSelection()) {
+                    applyLabelTransformDelta { vp -> vp.copy(flippedV = !vp.flippedV) }
+                } else {
+                    updateActiveLayer { it.copy(viewport = it.viewport.copy(flippedV = !it.viewport.flippedV)) }
+                }
                 pushHistory()
             }
             is EditorEvent.UpdateShadow -> {
-                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowIntensity = event.intensity.coerceIn(0f, 1f))) }
-                requestShapeFitForActiveLabel()
-            }
-            is EditorEvent.UpdateShadowAngle -> {
-                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowAngle = event.angle.coerceIn(0f, 360f))) }
-                requestShapeFitForActiveLabel()
-            }
-            is EditorEvent.UpdateShadowDistance -> {
-                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowDistance = event.distance.coerceIn(0f, 50f))) }
-                requestShapeFitForActiveLabel()
-            }
-            is EditorEvent.UpdateShadowColor -> {
-                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowColorArgb = event.argb)) }
-            }
-            is EditorEvent.UpdateShadowBlur -> {
-                updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowBlur = event.blurPx)) }
-                requestShapeFitForActiveLabel()
-            }
-            is EditorEvent.UpdateElevation -> {
-                val intensity = event.intensity.coerceIn(0f, 1f)
-                updateActiveLayer {
-                    it.copy(
-                        appearance = it.appearance.copy(
-                            elevationIntensity = intensity,
-                            depthSizePx = intensity * EditorAppearance.MAX_SHAPE_DEPTH_PX,
-                        ),
-                    )
-                }
-            }
-            is EditorEvent.UpdateDepthSize -> {
-                val size = event.sizePx.coerceIn(0f, EditorAppearance.MAX_SHAPE_DEPTH_PX)
-                updateActiveLayer {
-                    it.copy(
-                        appearance = it.appearance.copy(
-                            depthSizePx = size,
-                            elevationIntensity = size / EditorAppearance.MAX_SHAPE_DEPTH_PX,
-                        ),
-                    )
-                }
-            }
-            is EditorEvent.UpdateDepthColor -> {
-                updateActiveLayer {
-                    it.copy(appearance = it.appearance.copy(depthColorArgb = event.argb))
-                }
-            }
-            is EditorEvent.UpdateExtrusionAngle -> {
-                updateActiveLayer {
-                    it.copy(appearance = it.appearance.copy(extrusionAngle = event.angle % 360f))
-                }
-            }
-            is EditorEvent.UpdateElevationStyle -> {
-                updateActiveLayer { it.copy(appearance = it.appearance.copy(elevationStyle = event.style)) }
-            }
-            is EditorEvent.UpdateElevationTarget -> {
-                updateActiveLayer { it.copy(appearance = it.appearance.copy(elevationTarget = event.target)) }
-            }
-            is EditorEvent.UpdateAlpha -> {
-                updateActiveLayer { it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f))) }
-            }
-            is EditorEvent.SelectTool -> {
-                if (event.tool is EditorTool.Label) {
-                    val active = _state.value.layers.find { it.id == _state.value.selectedLayerId }
-                    if (active == null || !active.isLabelLayer) {
-                        labelDelegate.addTextLayer(_state.value.template.originalSize.width.toFloat())
-                    } else {
-                        _state.update {
-                            it.copy(selectedTool = EditorTool.Label)
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setShadowIntensity(it, event.intensity) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(shadowIntensity = event.intensity.coerceIn(0f, 1f)))
                         }
                     }
                 } else {
-                    val requiresLayer = event.tool is EditorTool.Rotate ||
+                    updateActiveLayer {
+                        it.copy(appearance = it.appearance.copy(shadowIntensity = event.intensity.coerceIn(0f, 1f)))
+                    }
+                }
+            }
+            is EditorEvent.UpdateShadowAngle -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setShadowAngle(it, event.angle) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(shadowAngle = event.angle.coerceIn(0f, 360f)))
+                        }
+                    }
+                } else {
+                    updateActiveLayer {
+                        it.copy(appearance = it.appearance.copy(shadowAngle = event.angle.coerceIn(0f, 360f)))
+                    }
+                }
+            }
+            is EditorEvent.UpdateShadowDistance -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setShadowDistance(it, event.distance) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(shadowDistance = event.distance.coerceIn(0f, 50f)))
+                        }
+                    }
+                } else {
+                    updateActiveLayer {
+                        it.copy(appearance = it.appearance.copy(shadowDistance = event.distance.coerceIn(0f, 50f)))
+                    }
+                }
+            }
+            is EditorEvent.UpdateShadowColor -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setShadowColor(it, event.argb) }) {
+                        updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowColorArgb = event.argb)) }
+                    }
+                } else {
+                    updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowColorArgb = event.argb)) }
+                }
+            }
+            is EditorEvent.UpdateShadowBlur -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setShadowBlur(it, event.blurPx) }) {
+                        updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowBlur = event.blurPx)) }
+                    }
+                } else {
+                    updateActiveLayer { it.copy(appearance = it.appearance.copy(shadowBlur = event.blurPx)) }
+                }
+            }
+            is EditorEvent.UpdateElevationShadowBlur -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setElevationShadowBlur(it, event.blurPx) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(elevationShadowBlur = event.blurPx))
+                        }
+                    }
+                } else {
+                    updateActiveLayer {
+                        it.copy(appearance = it.appearance.copy(elevationShadowBlur = event.blurPx))
+                    }
+                }
+            }
+            is EditorEvent.UpdateElevation -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setElevationIntensity(it, event.intensity) }) {
+                        val intensity = event.intensity.coerceIn(0f, 1f)
+                        updateActiveLayer {
+                            it.copy(
+                                appearance = it.appearance.copy(
+                                    elevationIntensity = intensity,
+                                    depthSizePx = intensity * EditorAppearance.MAX_SHAPE_DEPTH_PX,
+                                ),
+                            )
+                        }
+                    }
+                } else {
+                    val intensity = event.intensity.coerceIn(0f, 1f)
+                    updateActiveLayer {
+                        it.copy(
+                            appearance = it.appearance.copy(
+                                elevationIntensity = intensity,
+                                depthSizePx = intensity * EditorAppearance.MAX_SHAPE_DEPTH_PX,
+                            ),
+                        )
+                    }
+                }
+            }
+            is EditorEvent.UpdateDepthSize -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setDepthSize(it, event.sizePx) }) {
+                        val size = event.sizePx.coerceIn(0f, EditorAppearance.MAX_SHAPE_DEPTH_PX)
+                        updateActiveLayer {
+                            it.copy(
+                                appearance = it.appearance.copy(
+                                    depthSizePx = size,
+                                    elevationIntensity = size / EditorAppearance.MAX_SHAPE_DEPTH_PX,
+                                ),
+                            )
+                        }
+                    }
+                } else {
+                    val size = event.sizePx.coerceIn(0f, EditorAppearance.MAX_SHAPE_DEPTH_PX)
+                    updateActiveLayer {
+                        it.copy(
+                            appearance = it.appearance.copy(
+                                depthSizePx = size,
+                                elevationIntensity = size / EditorAppearance.MAX_SHAPE_DEPTH_PX,
+                            ),
+                        )
+                    }
+                }
+            }
+            is EditorEvent.UpdateDepthColor -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setDepthColor(it, event.argb) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(depthColorArgb = event.argb))
+                        }
+                    }
+                } else {
+                    updateActiveLayer {
+                        it.copy(appearance = it.appearance.copy(depthColorArgb = event.argb))
+                    }
+                }
+            }
+            is EditorEvent.UpdateExtrusionAngle -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setExtrusionAngle(it, event.angle) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(extrusionAngle = event.angle % 360f))
+                        }
+                    }
+                } else {
+                    updateActiveLayer {
+                        it.copy(appearance = it.appearance.copy(extrusionAngle = event.angle % 360f))
+                    }
+                }
+            }
+            is EditorEvent.UpdateElevationStyle -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setElevationStyle(it, event.style) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(elevationStyle = event.style))
+                        }
+                    }
+                } else {
+                    updateActiveLayer { it.copy(appearance = it.appearance.copy(elevationStyle = event.style)) }
+                }
+            }
+            is EditorEvent.UpdateElevationTarget -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setElevationTarget(it, event.target) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(elevationTarget = event.target))
+                        }
+                    }
+                } else {
+                    updateActiveLayer {
+                        it.copy(appearance = it.appearance.copy(elevationTarget = event.target))
+                    }
+                }
+            }
+            is EditorEvent.UpdateAlpha -> {
+                if (isLabelOrTextInShapeSelection()) {
+                    if (!applyDocument { setOpacity(it, event.alpha) }) {
+                        updateActiveLayer {
+                            it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f)))
+                        }
+                    }
+                } else {
+                    updateActiveLayer {
+                        it.copy(appearance = it.appearance.copy(alpha = event.alpha.coerceIn(0.1f, 1f)))
+                    }
+                }
+            }
+            is EditorEvent.UpdateShapeFillOpacity -> {
+                if (!applyDocument { setShapeFillOpacity(it, event.alpha) }) {
+                    shapeDelegate.updateShapeFillOpacity(event.alpha)
+                }
+            }
+            is EditorEvent.SelectTool -> {
+                when (event.tool) {
+                    is EditorTool.Label -> {
+                        val current = _state.value
+                        val retargetId = LayerGroupOps.retargetForTool(
+                            current.layers,
+                            current.selectedLayerId,
+                            preferFrame = false,
+                        )
+                        val active = current.layers.find { it.id == retargetId }
+                        if (active == null || !active.isLabelLayer) {
+                            labelDelegate.addTextLayer(current.template.originalSize.width.toFloat())
+                        } else {
+                            applyGroupPartSelection(
+                                layerId = retargetId,
+                                tool = EditorTool.Label,
+                            )
+                        }
+                    }
+                    is EditorTool.Shape -> {
+                        val current = _state.value
+                        val nextTool = if (current.selectedTool is EditorTool.Shape) null else EditorTool.Shape
+                        if (nextTool == null) {
+                            _state.update { it.copy(selectedTool = null) }
+                        } else {
+                            val retargetId = LayerGroupOps.retargetForTool(
+                                current.layers,
+                                current.selectedLayerId,
+                                preferFrame = true,
+                            )
+                            applyGroupPartSelection(
+                                layerId = retargetId,
+                                tool = EditorTool.Shape,
+                            )
+                        }
+                    }
+                    else -> {
+                        val requiresLayer = event.tool is EditorTool.Rotate ||
                             event.tool is EditorTool.Shadow ||
                             event.tool is EditorTool.Transparency
-                    
-                    if (requiresLayer && _state.value.selectedLayerId == null) {
-                        _state.update { it.copy(errorMessage = context.getString(R.string.studio_error_select_object)) }
-                    } else {
-                        _state.update {
-                            val nextTool = if (it.selectedTool?.javaClass == event.tool.javaClass) null else event.tool
-                            it.copy(selectedTool = nextTool)
+
+                        if (requiresLayer && _state.value.selectedLayerId == null) {
+                            _state.update {
+                                it.copy(errorMessage = context.getString(R.string.studio_error_select_object))
+                            }
+                        } else {
+                            _state.update {
+                                val nextTool =
+                                    if (it.selectedTool?.javaClass == event.tool.javaClass) null else event.tool
+                                it.copy(selectedTool = nextTool)
+                            }
                         }
                     }
                 }
@@ -427,9 +783,16 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.SelectLayer -> {
                 clearGesturePreview()
                 val layers = _state.value.layers
-                val targetLayer = layers.find { it.id == event.layerId }
+                val currentTool = _state.value.selectedTool
                 val (rawSel, rawEdit) = LabelInteractionState.onSelectLayer(event.layerId)
-                val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, layers)
+                val (normalizedSel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, layers)
+                // Keep FRAME/LABEL sibling aligned with the active tool (I3 / NodePart).
+                val sel = when (currentTool) {
+                    is EditorTool.Shape -> LayerGroupOps.retargetForTool(layers, normalizedSel, preferFrame = true)
+                    is EditorTool.Label -> LayerGroupOps.retargetForTool(layers, normalizedSel, preferFrame = false)
+                    else -> normalizedSel
+                }
+                val targetLayer = layers.find { it.id == sel }
                 val (_, ids) = SelectionState.singleSelect(layers, sel)
                 _state.update {
                     it.copy(
@@ -444,6 +807,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                             },
                     )
                 }
+                syncDocumentSelection(sel)
             }
             is EditorEvent.ToggleLayerSelection -> {
                 clearGesturePreview()
@@ -505,9 +869,18 @@ class ThemeplateEditorViewModel @Inject constructor(
                 pushHistory()
             }
             EditorEvent.CommitTransform -> {
+                val preview = _gesturePreview.value
+                val labelWasCornerScaled = preview?.labelTextScaled == true
+                val labelWidthResized = preview?.labelWidthResized == true
                 commitGesturePreview()
-                bakeViewportScaleForSelection()
-                refitActiveLabelHeightToText()
+                if (isLabelOrTextInShapeSelection()) {
+                    commitLabelGestureViaDocument(
+                        wasCornerScaled = labelWasCornerScaled,
+                        widthResized = labelWidthResized,
+                    )
+                } else {
+                    bakeViewportScaleForSelection()
+                }
                 pushHistory()
             }
             EditorEvent.Undo -> {
@@ -535,6 +908,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             }
             EditorEvent.FinishTextEdit -> finishTextEdit()
             EditorEvent.ClearError -> _state.update { it.copy(errorMessage = null) }
+            EditorEvent.ClearExportResult -> _state.update { it.copy(exportResult = null) }
             is EditorEvent.Export -> export(event.templateAssetPath)
         }
     }
@@ -556,8 +930,14 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private fun finishTextEdit() {
-        applyShapeFitToActiveLayer()
-        requestHistoryPush()
+        val editingId = _state.value.editingLayerId
+        val text = _state.value.layers.find { it.id == editingId }?.text
+        if (editingId != null && text != null) {
+            applyDocument(selectedLayerId = editingId) { editText(it, text, inline = false) }
+        } else {
+            refitActiveLabelHeightToText()
+            requestHistoryPush()
+        }
         _state.update { state ->
             val (sel, edit) = LabelInteractionState.onFinishTextEdit(
                 state.selectedLayerId,
@@ -640,6 +1020,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             strokeColorArgb = layer.strokeColorArgb,
             strokeWidthPx = layer.strokeWidthPx,
             strokeDashArray = layer.strokeDashArray,
+            strokeDashGapPx = layer.strokeDashGapPx,
             cornerRadiusX = layer.cornerRadiusX,
             cornerRadiusY = layer.cornerRadiusY,
             appearance = layer.appearance,
@@ -655,6 +1036,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                 strokeColorArgb = clip.strokeColorArgb,
                 strokeWidthPx = clip.strokeWidthPx,
                 strokeDashArray = clip.strokeDashArray,
+                strokeDashGapPx = clip.strokeDashGapPx,
                 cornerRadiusX = clip.cornerRadiusX,
                 cornerRadiusY = clip.cornerRadiusY,
                 appearance = clip.appearance,
@@ -904,16 +1286,24 @@ class ThemeplateEditorViewModel @Inject constructor(
                                             shapeHeightPx = newH,
                                         )
                                     } else {
-                                        // For new image insertions, use original aspect ratio and standard max scale
-                                        val newW = result.product.baseWidth.toFloat()
-                                        val newH = result.product.baseHeight.toFloat()
-                                        val maxDim = 400f
-                                        val scaleFactor = (maxDim / maxOf(newW, newH)).coerceAtMost(1f)
+                                        // Fit longest side to ~50% of template so "Thêm ảnh" is usable
+                                        // on large PSD canvases. Allow upscale when source pixels are small.
+                                        // Corner scale can still grow further (viewport MAX_SCALE = 40).
+                                        val newW = result.product.baseWidth.toFloat().coerceAtLeast(1f)
+                                        val newH = result.product.baseHeight.toFloat().coerceAtLeast(1f)
+                                        val templateSize = state.template.originalSize
+                                        val targetMax = if (templateSize.width > 0 && templateSize.height > 0) {
+                                            minOf(templateSize.width, templateSize.height) * 0.50f
+                                        } else {
+                                            800f
+                                        }
+                                        val scaleFactor = targetMax / maxOf(newW, newH)
 
                                         it.copy(
                                             product = result.product,
                                             shapeWidthPx = newW * scaleFactor,
                                             shapeHeightPx = newH * scaleFactor,
+                                            viewport = it.viewport.withScale(1f),
                                         )
                                     }
                                 } else {
@@ -1047,16 +1437,69 @@ class ThemeplateEditorViewModel @Inject constructor(
         }
     }
 
+    private fun applyLabelTransformDelta(block: (EditorViewport) -> EditorViewport) {
+        val id = _state.value.selectedLayerId ?: return
+        val layer = resolveLabelPreviewLayer(id) ?: return
+        val next = block(layer.viewport)
+        applyDocument(selectedLayerId = id, recordHistory = false) {
+            setTransform(it, com.thgiang.image.studio.ui.editor.document.model.NodeTransform.fromViewport(next))
+        }
+    }
+
+    private fun resolveLabelPreviewLayer(selectedId: String): EditorLayer? {
+        val layers = _state.value.layers
+        val selected = layers.find { it.id == selectedId } ?: return null
+        if (selected.isLabelLayer) return selected
+        val gid = selected.groupId ?: return selected
+        return layers.find { it.groupId == gid && it.isLabelLayer } ?: selected
+    }
+
+    /**
+     * After live gesture preview is merged into EditorState, bake / measure via DocumentSession
+     * so FRAME+LABEL stay in sync (I3) and box size comes from LayoutEngine (I2).
+     */
+    private fun commitLabelGestureViaDocument(
+        wasCornerScaled: Boolean,
+        widthResized: Boolean,
+    ) {
+        val id = _state.value.selectedLayerId ?: return
+        val preview = resolveLabelPreviewLayer(id) ?: return
+        // Only hug height after width-edge resize — never on pan/rotate/height-grow.
+        val hugHeight = widthResized &&
+            !wasCornerScaled &&
+            !preview.textForm.isActive &&
+            kotlin.math.abs(preview.viewport.scale - 1f) < 0.001f
+        if (!applyDocument(selectedLayerId = id, recordHistory = false) {
+                commitLabelGesture(it, preview, hugHeightAfterEdge = hugHeight)
+            }
+        ) {
+            bakeViewportScaleForSelection()
+            if (hugHeight) refitActiveLabelHeightToText()
+        }
+    }
+
     private fun updateRotation(delta: Float) {
+        if (isLabelOrTextInShapeSelection()) {
+            applyLabelTransformDelta { vp ->
+                var newRotation = (vp.rotation + delta) % 360f
+                if (newRotation < 0) newRotation += 360f
+                val snapped = SNAP_ANGLES.minByOrNull { angle -> abs(angle - newRotation) }
+                if (snapped != null && abs(snapped - newRotation) < SNAP_ANGLE_THRESHOLD) {
+                    newRotation = snapped
+                }
+                vp.withRotation(newRotation)
+            }
+            return
+        }
         updateActiveLayer { layer ->
             var newRotation = (layer.viewport.rotation + delta) % 360f
             if (newRotation < 0) newRotation += 360f
-            
+
             val snapped = SNAP_ANGLES.minByOrNull { angle -> abs(angle - newRotation) }
             if (snapped != null && abs(snapped - newRotation) < SNAP_ANGLE_THRESHOLD) {
                 newRotation = snapped
             }
-            
+
             layer.copy(viewport = layer.viewport.withRotation(newRotation))
         }
     }
@@ -1065,16 +1508,22 @@ class ThemeplateEditorViewModel @Inject constructor(
         val state = _state.value
         val layerId = state.selectedLayerId ?: return
         val selected = state.layers.find { it.id == layerId } ?: return
-        val targets = selected.groupId?.let { gid ->
-            state.layers.filter { it.groupId == gid }
-        } ?: listOf(selected)
-        if (targets.none { LayerViewportScale.needsBake(it) }) return
+        val groupId = selected.groupId
+        val anyNeedsBake = state.layers.any { layer ->
+            LayerViewportScale.needsBake(layer) &&
+                (layer.id == layerId || (groupId != null && layer.groupId == groupId))
+        }
+        if (!anyNeedsBake) return
 
-        val bakedIds = targets.map { it.id }.toSet()
+        // Bake from LABEL member so textSizeSp is multiplied (frame-only bake would desync glyphs).
+        val bakeId = groupId?.let { gid ->
+            state.layers.find { it.groupId == gid && it.isLabelLayer }?.id
+        } ?: layerId
+
         _state.update { current ->
             current.copy(
-                layers = current.layers.map { layer ->
-                    if (layer.id in bakedIds) LayerViewportScale.bake(layer) else layer
+                layers = LayerGroupSync.apply(current.layers, bakeId) { layer ->
+                    LayerViewportScale.bake(layer)
                 },
             )
         }
@@ -1090,6 +1539,19 @@ class ThemeplateEditorViewModel @Inject constructor(
         clearGesturePreview()
     }
 
+    private fun applyGestureDeltaToLayer(layer: EditorLayer, delta: GestureDelta): EditorLayer {
+        val transformed = GestureLayerOps.applyDelta(layer, delta)
+        if (
+            transformed.isLabelLayer &&
+            !transformed.textForm.isActive &&
+            delta.scale == 1f &&
+            (delta.deltaWidth != 0f || delta.deltaHeight < 0f)
+        ) {
+            return transformed.withShapeHeightFittedToText(context)
+        }
+        return transformed
+    }
+
     private fun applyGesturePreview(delta: GestureDelta) {
         val state = _state.value
         val ids = SelectionState.effectiveIds(state)
@@ -1097,14 +1559,23 @@ class ThemeplateEditorViewModel @Inject constructor(
         val baseLayers = _gesturePreview.value?.layers ?: state.layers
         val updatedLayers = if (ids.size <= 1) {
             LayerGroupSync.apply(baseLayers, anchorId) { layer ->
-                GestureLayerOps.applyDelta(layer, delta)
+                applyGestureDeltaToLayer(layer, delta)
             }
         } else {
             baseLayers.map { layer ->
-                if (layer.id in ids) GestureLayerOps.applyDelta(layer, delta) else layer
+                if (layer.id in ids) applyGestureDeltaToLayer(layer, delta) else layer
             }
         }
-        _gesturePreview.value = GesturePreview(anchorLayerId = anchorId, layers = updatedLayers)
+        val labelTextScaled = delta.scale != 1f &&
+            baseLayers.any { it.id in ids && it.isLabelLayer }
+        val labelWidthResized = delta.deltaWidth != 0f &&
+            baseLayers.any { it.id in ids && it.isLabelLayer }
+        _gesturePreview.value = GesturePreview(
+            anchorLayerId = anchorId,
+            layers = updatedLayers,
+            labelTextScaled = _gesturePreview.value?.labelTextScaled == true || labelTextScaled,
+            labelWidthResized = _gesturePreview.value?.labelWidthResized == true || labelWidthResized,
+        )
     }
 
     // ============ History with Debounce ============
@@ -1266,19 +1737,6 @@ class ThemeplateEditorViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
-}
-
-// Extension for throttling
-@OptIn(FlowPreview::class)
-private fun <T> Flow<T>.throttleLatest(periodMillis: Long): Flow<T> = flow {
-    var lastTime = 0L
-    collect { value ->
-        val now = System.currentTimeMillis()
-        if (now - lastTime >= periodMillis) {
-            lastTime = now
-            emit(value)
         }
     }
 }

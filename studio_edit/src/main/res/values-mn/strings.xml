@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Зул сар</string>
     <string name="themeplate_section_memories">Дурсамжууд</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Хоолны сэлфи 1</string>
     <string name="themeplate_selfie_food_02">Хоолны сэлфи 2</string>
@@ -115,6 +117,8 @@
     <string name="studio_stroke_tab_color">Хүрээний өнгө</string>
     <string name="studio_stroke_tab_style">Шугамын загвар</string>
     <string name="studio_stroke_tab_width">Өргөн</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Хүрээгүй</string>
     <string name="studio_dash_solid">Үргэлжилсэн шугам</string>
     <string name="studio_dash_round_dot">Бөөрөнхий цэгүүд</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">Зам дагах</string>
     <string name="studio_text_form_warp">Муруйлгах</string>
     <string name="studio_text_form_amount">Хүч чадал</string>
+    <string name="studio_text_form_letter_spacing">Үсгийн зай</string>
     <string name="studio_text_form_none">Байхгүй</string>
     <string name="studio_text_form_path_wave">Давалгаа</string>
     <string name="studio_text_form_path_arc_up">Дээш нумрах</string>
     <string name="studio_text_form_path_arc_down">Доош нумрах</string>
     <string name="studio_text_form_path_circle">Тойрог</string>
-    <string name="studio_text_form_path_ring">Цагираг</string>
-    <string name="studio_text_form_warp_arch_up">Дээш нуман хэлбэр</string>
+<string name="studio_text_form_warp_arch_up">Дээш нуман хэлбэр</string>
     <string name="studio_text_form_warp_arch_down">Доош нуман хэлбэр</string>
     <string name="studio_text_form_warp_bulge">Түнтийх</string>
     <string name="studio_text_form_warp_wave">Давалгаа</string>
     <string name="studio_text_form_warp_flag">Далбаа</string>
     <string name="studio_text_form_warp_rise">Өгсөх</string>
     <string name="studio_text_form_warp_fall">Уруудах</string>
-    <string name="studio_text_form_warp_inflate">Хөөх</string>
-    <string name="studio_text_form_warp_deflate">Шавших</string>
     <string name="studio_text_form_warp_chevron_up">Дээш чиглэсэн өнцөг</string>
     <string name="studio_text_form_warp_chevron_down">Доош чиглэсэн өнцөг</string>
     <string name="studio_objects_label">Объектууд</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">Эффект</string>
     <string name="studio_label_tab_text_form">Урлагжуулах</string>
     <string name="studio_label_tab_shape">Хүрээ</string>
+    <string name="studio_label_tab_text_template">Загварууд</string>
+    <string name="studio_label_tab_more">Илүү</string>
+    <string name="studio_text_template_classic">Сонгодог</string>
+    <string name="studio_text_template_gradient">Градиент</string>
+    <string name="studio_text_template_sale">Хямдрал</string>
+    <string name="studio_text_template_arc">Нуман</string>
+    <string name="studio_text_template_outline">Контур</string>
+    <string name="studio_text_template_neon">Неон</string>
+    <string name="studio_text_template_soft">Зөөлөн</string>
+    <string name="studio_text_template_poster">Плакат</string>
+    <string name="studio_text_template_minimal">Минимал</string>
+    <string name="studio_text_template_gold">Алт</string>
+    <string name="studio_text_template_retro">Ретро</string>
+    <string name="studio_text_template_ocean">Далай</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Уран сайхны текст хэлбэр идэвхтэй үед өргөлтийн эффект боломжгүй.</string>
+    <string name="studio_text_form_path_hint">Текстийн замыг нугалахад эрчмийг чирнэ үү. Үсгийн зай глиф давхцахаас сэргийлнэ.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Систем</string>

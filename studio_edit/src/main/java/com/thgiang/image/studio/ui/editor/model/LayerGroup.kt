@@ -67,6 +67,7 @@ fun EditorLayer.splitToGroup(): List<EditorLayer> {
         strokeColorArgb = null,
         strokeWidthPx = 0f,
         strokeDashArray = emptyList(),
+        strokeDashGapPx = 6f,
         appearance = appearance.copy(shadowIntensity = 0f),
     )
     return listOf(frame, label)
@@ -98,53 +99,83 @@ private fun EditorLayer.normalizeLayer(): List<EditorLayer> {
 }
 
 object LayerGroupSync {
+    /**
+     * Apply [transform] to the selected layer.
+     * For FRAME+LABEL groups, also sync [EditorViewport] and box size onto the sibling (I3).
+     */
     fun apply(
         layers: List<EditorLayer>,
         selectedId: String,
         transform: (EditorLayer) -> EditorLayer,
     ): List<EditorLayer> {
         val selected = layers.find { it.id == selectedId } ?: return layers
-        val transformed = transform(selected)
-        val gid = selected.groupId ?: return layers.map { if (it.id == selectedId) transformed else it }
-
+        val updatedSelected = transform(selected)
+        val gid = selected.groupId
+        if (gid == null || selected.groupRole == null) {
+            return layers.map { if (it.id == selectedId) updatedSelected else it }
+        }
         return layers.map { layer ->
             when {
-                layer.id == selectedId -> transformed
-                layer.groupId == gid -> syncSibling(transformed, layer, selected)
+                layer.id == selectedId -> updatedSelected
+                layer.groupId == gid -> layer.copy(
+                    viewport = updatedSelected.viewport,
+                    shapeWidthPx = updatedSelected.shapeWidthPx,
+                    shapeHeightPx = updatedSelected.shapeHeightPx,
+                    // I3+: both members share frame geometry (shapeType used for fit + render).
+                    shapeType = updatedSelected.shapeType,
+                    cornerRadiusX = updatedSelected.cornerRadiusX,
+                    cornerRadiusY = updatedSelected.cornerRadiusY,
+                    pathData = updatedSelected.pathData,
+                    polygonPoints = updatedSelected.polygonPoints,
+                )
                 else -> layer
             }
         }
     }
 
-    private fun syncSibling(
-        primary: EditorLayer,
-        sibling: EditorLayer,
-        original: EditorLayer,
-    ): EditorLayer {
-        var synced = sibling.copy(viewport = primary.viewport)
-        if (
-            primary.shapeWidthPx != original.shapeWidthPx ||
-            primary.shapeHeightPx != original.shapeHeightPx
-        ) {
-            synced = synced.copy(
-                shapeWidthPx = primary.shapeWidthPx,
-                shapeHeightPx = primary.shapeHeightPx,
+    /** Force both group members to share transform + box (call after fit). */
+    fun syncGroupGeometry(
+        layers: List<EditorLayer>,
+        groupId: String,
+        sourceId: String,
+    ): List<EditorLayer> {
+        val source = layers.find { it.id == sourceId } ?: return layers
+        return layers.map { layer ->
+            if (layer.groupId != groupId) layer
+            else layer.copy(
+                viewport = source.viewport,
+                shapeWidthPx = source.shapeWidthPx,
+                shapeHeightPx = source.shapeHeightPx,
+                shapeType = source.shapeType,
+                cornerRadiusX = source.cornerRadiusX,
+                cornerRadiusY = source.cornerRadiusY,
+                pathData = source.pathData,
+                polygonPoints = source.polygonPoints,
             )
         }
-        if (primary.shapeType != original.shapeType) {
-            synced = synced.copy(
-                shapeType = primary.shapeType,
-                cornerRadiusX = primary.cornerRadiusX,
-                cornerRadiusY = primary.cornerRadiusY,
-                pathData = primary.pathData,
-                polygonPoints = primary.polygonPoints,
-            )
-        }
-        return synced
     }
 }
 
 object LayerGroupOps {
+    /**
+     * Within a FRAME+LABEL group, resolve which sibling should be selected for the active tool.
+     * Standalone layers are returned unchanged.
+     */
+    fun retargetForTool(
+        layers: List<EditorLayer>,
+        selectedId: String?,
+        preferFrame: Boolean,
+    ): String? {
+        val layer = layers.find { it.id == selectedId } ?: return selectedId
+        if (layer.groupId == null || layer.groupRole == null) return selectedId
+        val target = if (preferFrame) {
+            layers.frameInGroup(layer)
+        } else {
+            layers.labelInGroup(layer)
+        }
+        return target?.id ?: selectedId
+    }
+
     fun duplicate(
         layers: List<EditorLayer>,
         selectedId: String,
@@ -180,7 +211,11 @@ object LayerGroupOps {
         }
     }
 
-    fun collapseHits(hits: List<EditorLayer>, allLayers: List<EditorLayer>): List<EditorLayer> {
+    fun collapseHits(
+        hits: List<EditorLayer>,
+        allLayers: List<EditorLayer>,
+        preferFrame: Boolean = false,
+    ): List<EditorLayer> {
         val seenGroups = mutableSetOf<String>()
         val result = mutableListOf<EditorLayer>()
         for (hit in hits) {
@@ -191,8 +226,12 @@ object LayerGroupOps {
             }
             if (gid in seenGroups) continue
             seenGroups += gid
-            val label = allLayers.labelInGroup(hit)
-            result += label ?: hit
+            val preferred = if (preferFrame) {
+                allLayers.frameInGroup(hit) ?: hit
+            } else {
+                allLayers.labelInGroup(hit) ?: hit
+            }
+            result += preferred
         }
         return result
     }

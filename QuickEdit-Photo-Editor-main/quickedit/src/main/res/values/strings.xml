@@ -99,6 +99,9 @@
     <string name="crop_custom">Custom</string>
     <string name="crop_square">Square</string>
     <string name="error_apply_effect">Failed to apply effect</string>
+    <string name="play_services_update_message">Update Google Play services for better background removal.</string>
+    <string name="play_services_update_action">Update</string>
+    <string name="remove_bg_selfie_fallback_warning">Background removal used portrait mode. Object edges may be less accurate.</string>
     <string name="error_apply_background">Failed to apply background</string>
     <string name="error_auto_removal_failed">Auto background removal failed: %1$s</string>
     <string name="error_recycled_bitmap">Bitmap already recycled</string>

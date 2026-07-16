@@ -55,6 +55,7 @@ import com.thgiang.image.core.design.components.PrecisionSliderColors
 import kotlin.math.abs
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.EditorEvent
+import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import com.thgiang.image.studio.ui.editor.panel.toSliderColors
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import io.mhssn.colorpicker.ColorPickerDialog
@@ -181,7 +182,6 @@ internal fun LabelGradientSection(
                         ),
                     )
                 },
-                appearanceAlpha = layer.appearance.alpha,
                 onLayoutEvent = onLayoutEvent,
                 onSubTabActiveChanged = onSubTabActiveChanged,
             )
@@ -277,13 +277,18 @@ private fun FillColorEditor(
     onGradientColor2: () -> Unit,
     onAngleChange: (Float) -> Unit,
     onPresetSelected: (Float) -> Unit,
-    appearanceAlpha: Float,
     onLayoutEvent: (EditorEvent) -> Unit,
     onSubTabActiveChanged: (Boolean) -> Unit,
 ) {
     var activeSubTab by rememberSaveable { mutableStateOf<FillSubTab?>(null) }
     var isEditingGradientDetail by rememberSaveable { mutableStateOf(false) }
     var gradientDetailTab by rememberSaveable { mutableStateOf(0) }
+
+    val clearFill: () -> Unit = {
+        onModeChange(FillColorMode.Solid)
+        isEditingGradientDetail = false
+        onLayoutEvent(EditorEvent.UpdateShapeColor(ShapeLabelDefaults.TRANSPARENT_FILL_ARGB))
+    }
 
     LaunchedEffect(activeSubTab) {
         onSubTabActiveChanged(activeSubTab != null)
@@ -349,6 +354,7 @@ private fun FillColorEditor(
                                 updateShadow = { onLayoutEvent(EditorEvent.UpdateShadow(it)) },
                             ),
                             currentFillArgb = solidArgb,
+                            showNoneOption = true,
                         )
                     }
                     FillSubTab.COLOR -> {
@@ -373,6 +379,8 @@ private fun FillColorEditor(
                                         onSelectColor = onSolidColor,
                                         onCustomColorClick = onCustomSolid,
                                         tokens = tokens,
+                                        showNoneOption = true,
+                                        onClearColor = clearFill,
                                     )
                                 } else {
                                     LaunchedEffect(Unit) {
@@ -462,7 +470,8 @@ private fun FillColorEditor(
                         }
                     }
                     FillSubTab.OPACITY -> {
-                        val transparencyPct = ((1f - appearanceAlpha.coerceIn(0f, 1f)) * 100f)
+                        val fillAlpha = EditorGradientMapper.shapeFillOpacity(solidArgb)
+                        val transparencyPct = ((1f - fillAlpha.coerceIn(0f, 1f)) * 100f)
                             .toInt()
                             .coerceIn(0, 100)
                         PrecisionSlider(
@@ -471,7 +480,7 @@ private fun FillColorEditor(
                             valueRange = 0f..100f,
                             onValueChange = { pct ->
                                 val alpha = ((100f - pct) / 100f).coerceIn(0.1f, 1f)
-                                onLayoutEvent(EditorEvent.UpdateAlpha(alpha))
+                                onLayoutEvent(EditorEvent.UpdateShapeFillOpacity(alpha))
                             },
                             valueFormatter = { "${it.toInt()}%" },
                             colors = sliderColors,

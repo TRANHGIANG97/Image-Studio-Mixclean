@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Natal</string>
     <string name="themeplate_section_memories">Kenangan</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Makanan 1</string>
@@ -116,6 +118,8 @@
     <string name="studio_stroke_tab_color">Warna bingkai</string>
     <string name="studio_stroke_tab_style">Gaya garis</string>
     <string name="studio_stroke_tab_width">Ketebalan</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Tanpa bingkai</string>
     <string name="studio_dash_solid">Garis lurus</string>
     <string name="studio_dash_round_dot">Titik bulat</string>
@@ -263,21 +267,19 @@
     <string name="studio_text_form_follow_path">Ikuti Jalur</string>
     <string name="studio_text_form_warp">Lengkungkan</string>
     <string name="studio_text_form_amount">Intensitas</string>
+    <string name="studio_text_form_letter_spacing">Jarak huruf</string>
     <string name="studio_text_form_none">Tidak ada</string>
     <string name="studio_text_form_path_wave">Gelombang</string>
     <string name="studio_text_form_path_arc_up">Busur Atas</string>
     <string name="studio_text_form_path_arc_down">Busur Bawah</string>
     <string name="studio_text_form_path_circle">Lingkaran</string>
-    <string name="studio_text_form_path_ring">Cincin</string>
-    <string name="studio_text_form_warp_arch_up">Lengkung Atas</string>
+<string name="studio_text_form_warp_arch_up">Lengkung Atas</string>
     <string name="studio_text_form_warp_arch_down">Lengkung Bawah</string>
     <string name="studio_text_form_warp_bulge">Cembung</string>
     <string name="studio_text_form_warp_wave">Gelombang</string>
     <string name="studio_text_form_warp_flag">Bendera</string>
     <string name="studio_text_form_warp_rise">Naik</string>
     <string name="studio_text_form_warp_fall">Turun</string>
-    <string name="studio_text_form_warp_inflate">Mengembang</string>
-    <string name="studio_text_form_warp_deflate">Mengempis</string>
     <string name="studio_text_form_warp_chevron_up">Chevron Atas</string>
     <string name="studio_text_form_warp_chevron_down">Chevron Bawah</string>
     <string name="studio_objects_label">Objek</string>
@@ -324,6 +326,22 @@
     <string name="studio_label_tab_elevation">Efek</string>
     <string name="studio_label_tab_text_form">Artistik</string>
     <string name="studio_label_tab_shape">Bingkai</string>
+    <string name="studio_label_tab_text_template">Template</string>
+    <string name="studio_label_tab_more">Lainnya</string>
+    <string name="studio_text_template_classic">Klasik</string>
+    <string name="studio_text_template_gradient">Gradien</string>
+    <string name="studio_text_template_sale">Sale</string>
+    <string name="studio_text_template_arc">Busur</string>
+    <string name="studio_text_template_outline">Garis tepi</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Lembut</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Emas</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Laut</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Efek timbul tidak tersedia saat bentuk teks artistik aktif.</string>
+    <string name="studio_text_form_path_hint">Seret intensitas untuk melengkungkan jalur teks. Jarak huruf membantu mencegah glyph saling tumpang tindih.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistem</string>

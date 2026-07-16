@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Natale</string>
     <string name="themeplate_section_memories">Ricordi</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
 
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Cibo 1</string>
@@ -116,6 +118,8 @@
     <string name="studio_stroke_tab_color">Colore del bordo</string>
     <string name="studio_stroke_tab_style">Stile linea</string>
     <string name="studio_stroke_tab_width">Spessore</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Nessun bordo</string>
     <string name="studio_dash_solid">Linea continua</string>
     <string name="studio_dash_round_dot">Punti rotondi</string>
@@ -263,21 +267,19 @@
     <string name="studio_text_form_follow_path">Segui Tracciato</string>
     <string name="studio_text_form_warp">Distorci</string>
     <string name="studio_text_form_amount">Intensità</string>
+    <string name="studio_text_form_letter_spacing">Spaziatura lettere</string>
     <string name="studio_text_form_none">Nessuno</string>
     <string name="studio_text_form_path_wave">Onda</string>
     <string name="studio_text_form_path_arc_up">Arco verso l\'alto</string>
     <string name="studio_text_form_path_arc_down">Arco verso il basso</string>
     <string name="studio_text_form_path_circle">Cerchio</string>
-    <string name="studio_text_form_path_ring">Anello</string>
-    <string name="studio_text_form_warp_arch_up">Arcata verso l\'alto</string>
+<string name="studio_text_form_warp_arch_up">Arcata verso l\'alto</string>
     <string name="studio_text_form_warp_arch_down">Arcata verso il basso</string>
     <string name="studio_text_form_warp_bulge">Rigonfiamento</string>
     <string name="studio_text_form_warp_wave">Onda</string>
     <string name="studio_text_form_warp_flag">Bandiera</string>
     <string name="studio_text_form_warp_rise">Salita</string>
     <string name="studio_text_form_warp_fall">Discesa</string>
-    <string name="studio_text_form_warp_inflate">Gonfia</string>
-    <string name="studio_text_form_warp_deflate">Sgonfia</string>
     <string name="studio_text_form_warp_chevron_up">Chevron verso l\'alto</string>
     <string name="studio_text_form_warp_chevron_down">Chevron verso il basso</string>
     <string name="studio_objects_label">Oggetti</string>
@@ -324,6 +326,22 @@
     <string name="studio_label_tab_elevation">Effetto</string>
     <string name="studio_label_tab_text_form">Artistico</string>
     <string name="studio_label_tab_shape">Cornice</string>
+    <string name="studio_label_tab_text_template">Modelli</string>
+    <string name="studio_label_tab_more">Altro</string>
+    <string name="studio_text_template_classic">Classico</string>
+    <string name="studio_text_template_gradient">Sfumatura</string>
+    <string name="studio_text_template_sale">Sale</string>
+    <string name="studio_text_template_arc">Arco</string>
+    <string name="studio_text_template_outline">Contorno</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Morbido</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimale</string>
+    <string name="studio_text_template_gold">Oro</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Oceano</string>
+    <string name="studio_label_elevation_disabled_by_text_form">L\'effetto rilievo non è disponibile mentre la forma artistica è attiva.</string>
+    <string name="studio_text_form_path_hint">Trascina l\'intensità per piegare il percorso del testo. La spaziatura aiuta a evitare la sovrapposizione dei glifi.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistema</string>

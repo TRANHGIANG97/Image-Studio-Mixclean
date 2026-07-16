@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.abizer_r.quickedit.ui.effectsMode.effectsPreview.EffectItem
-import com.abizer_r.quickedit.R
+import com.abizer_r.quickedit.ui.effectsMode.effectsPreview.EffectRecipe
 import com.abizer_r.quickedit.utils.AppUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -12,6 +12,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 
 object EffectsModeUtils {
 
@@ -24,28 +25,30 @@ object EffectsModeUtils {
         bitmap: Bitmap,
     ) = flow<ArrayList<EffectItem>> {
         val effectList = arrayListOf<EffectItem>()
-        val previewSourceBitmap = loadEffectPreviewSample(context) ?: bitmap
-        val previewSourceScaledBitmap = getScaledPreviewBitmap(context, previewSourceBitmap)
+        // Only generate small previews for the strip + main stage to avoid holding ~25 full-res bitmaps.
+        val previewSourceScaledBitmap = getScaledPreviewBitmap(context, bitmap)
+        val thumbSource = loadEffectPreviewSample(context)?.let {
+            getScaledPreviewBitmap(context, it)
+        } ?: previewSourceScaledBitmap
 
         effectList.add(
             EffectItem(
-                ogBitmap = bitmap,
-                previewBitmap = previewSourceScaledBitmap,
-                label = context.getString(com.abizer_r.quickedit.R.string.effect_original)
+                ogBitmap = previewSourceScaledBitmap,
+                previewBitmap = thumbSource,
+                label = context.getString(com.abizer_r.quickedit.R.string.effect_original),
+                recipe = EffectRecipe.Original,
             )
         )
 
         val filterDefs = mutableListOf<suspend () -> EffectItem?>()
 
-        // Grayscale
         filterDefs.add {
             try {
-                val grayBitmap = BitmapGrayscaleFilter.apply(bitmap)
-                val grayPreviewBitmap = BitmapGrayscaleFilter.apply(previewSourceScaledBitmap)
                 EffectItem(
-                    ogBitmap = grayBitmap,
-                    previewBitmap = grayPreviewBitmap,
-                    label = context.getString(com.abizer_r.quickedit.R.string.effect_grayscale)
+                    ogBitmap = BitmapGrayscaleFilter.apply(previewSourceScaledBitmap),
+                    previewBitmap = BitmapGrayscaleFilter.apply(thumbSource),
+                    label = context.getString(com.abizer_r.quickedit.R.string.effect_grayscale),
+                    recipe = EffectRecipe.Grayscale,
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -53,15 +56,13 @@ object EffectsModeUtils {
             }
         }
 
-        // Blur
         filterDefs.add {
             try {
-                val blurBitmap = BitmapBlurFilter.apply(context, bitmap)
-                val blurPreviewBitmap = BitmapBlurFilter.apply(context, previewSourceScaledBitmap)
                 EffectItem(
-                    ogBitmap = blurBitmap,
-                    previewBitmap = blurPreviewBitmap,
-                    label = context.getString(com.abizer_r.quickedit.R.string.effect_blur)
+                    ogBitmap = BitmapBlurFilter.apply(context, previewSourceScaledBitmap),
+                    previewBitmap = BitmapBlurFilter.apply(context, thumbSource),
+                    label = context.getString(com.abizer_r.quickedit.R.string.effect_blur),
+                    recipe = EffectRecipe.Blur,
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -69,7 +70,6 @@ object EffectsModeUtils {
             }
         }
 
-        // ACV filters
         val filterFiles = listOf(
             "acv/Fade.acv",
             "acv/Pistol.acv",
@@ -103,12 +103,11 @@ object EffectsModeUtils {
                     concurrencyLimit.withPermit {
                         context.assets.open(fileName).use { stream ->
                             val curve = AcvToneCurveParser.parse(stream)
-                            val filtered = BitmapToneCurveFilter.apply(bitmap, curve)
-                            val previewFiltered = BitmapToneCurveFilter.apply(previewSourceScaledBitmap, curve)
                             EffectItem(
-                                ogBitmap = filtered,
-                                previewBitmap = previewFiltered,
-                                label = fileName.drop(4).dropLast(4).replace("_", " ")
+                                ogBitmap = BitmapToneCurveFilter.apply(previewSourceScaledBitmap, curve),
+                                previewBitmap = BitmapToneCurveFilter.apply(thumbSource, curve),
+                                label = fileName.drop(4).dropLast(4).replace("_", " "),
+                                recipe = EffectRecipe.Acv(fileName),
                             )
                         }
                     }
@@ -119,7 +118,6 @@ object EffectsModeUtils {
             }
         }
 
-        // Apply all filters in parallel with concurrency limit
         coroutineScope {
             val deferredItems = filterDefs.map { filterDef ->
                 async(Dispatchers.Default) { filterDef() }
@@ -143,6 +141,25 @@ object EffectsModeUtils {
         }
     }
 
+    /** Apply selected recipe at full resolution when user taps Done. */
+    suspend fun applyFullResolution(
+        context: Context,
+        source: Bitmap,
+        recipe: EffectRecipe,
+    ): Bitmap = withContext(Dispatchers.Default) {
+        when (recipe) {
+            EffectRecipe.Original -> source
+            EffectRecipe.Grayscale -> BitmapGrayscaleFilter.apply(source)
+            EffectRecipe.Blur -> BitmapBlurFilter.apply(context, source)
+            is EffectRecipe.Acv -> {
+                context.assets.open(recipe.assetPath).use { stream ->
+                    val curve = AcvToneCurveParser.parse(stream)
+                    BitmapToneCurveFilter.apply(source, curve)
+                }
+            }
+        }
+    }
+
     private fun loadEffectPreviewSample(context: Context): Bitmap? {
         return try {
             context.assets.open(EFFECT_PREVIEW_SAMPLE_ASSET).use { input ->
@@ -157,8 +174,8 @@ object EffectsModeUtils {
     fun getScaledPreviewBitmap(context: Context, originalBitmap: Bitmap): Bitmap {
         val screenWidth = AppUtils.getScreenWidth(context)
         val aspectRatio = originalBitmap.width.toFloat() / originalBitmap.height.toFloat()
-        val reqWidth = screenWidth / 3
-        val reqHeight = (reqWidth / aspectRatio).toInt()
-        return Bitmap.createScaledBitmap(originalBitmap, reqWidth, reqHeight, false)
+        val reqWidth = (screenWidth / 3).coerceAtLeast(120)
+        val reqHeight = (reqWidth / aspectRatio).toInt().coerceAtLeast(120)
+        return Bitmap.createScaledBitmap(originalBitmap, reqWidth, reqHeight, true)
     }
 }

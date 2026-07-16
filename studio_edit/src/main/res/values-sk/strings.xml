@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Vianoce</string>
     <string name="themeplate_section_memories">Spomienky</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Farba ohraničenia</string>
     <string name="studio_stroke_tab_style">Štýl čiary</string>
     <string name="studio_stroke_tab_width">Hrúbka</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Bez ohraničenia</string>
     <string name="studio_dash_solid">Plná čiara</string>
     <string name="studio_dash_round_dot">Okrúhle bodky</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Sledovať cestu</string>
     <string name="studio_text_form_warp">Zakriviť</string>
     <string name="studio_text_form_amount">Intenzita</string>
+    <string name="studio_text_form_letter_spacing">Rozostup písmen</string>
     <string name="studio_text_form_none">Žiadny</string>
     <string name="studio_text_form_path_wave">Vlna</string>
     <string name="studio_text_form_path_arc_up">Oblúk nahor</string>
     <string name="studio_text_form_path_arc_down">Oblúk nadol</string>
     <string name="studio_text_form_path_circle">Kruh</string>
-    <string name="studio_text_form_path_ring">Prstenec</string>
-    <string name="studio_text_form_warp_arch_up">Klenba nahor</string>
+<string name="studio_text_form_warp_arch_up">Klenba nahor</string>
     <string name="studio_text_form_warp_arch_down">Klenba nadol</string>
     <string name="studio_text_form_warp_bulge">Vydutie</string>
     <string name="studio_text_form_warp_wave">Vlna</string>
     <string name="studio_text_form_warp_flag">Vlajka</string>
     <string name="studio_text_form_warp_rise">Vzostup</string>
     <string name="studio_text_form_warp_fall">Pokles</string>
-    <string name="studio_text_form_warp_inflate">Nafúknuť</string>
-    <string name="studio_text_form_warp_deflate">Sfúknuť</string>
     <string name="studio_text_form_warp_chevron_up">Krokvica nahor</string>
     <string name="studio_text_form_warp_chevron_down">Krokvica nadol</string>
     <string name="studio_objects_label">Objekty</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Umelecké</string>
     <string name="studio_label_tab_shape">Rám</string>
+    <string name="studio_label_tab_text_template">Šablóny</string>
+    <string name="studio_label_tab_more">Viac</string>
+    <string name="studio_text_template_classic">Klasický</string>
+    <string name="studio_text_template_gradient">Prechod</string>
+    <string name="studio_text_template_sale">Výpredaj</string>
+    <string name="studio_text_template_arc">Oblúk</string>
+    <string name="studio_text_template_outline">Obrys</string>
+    <string name="studio_text_template_neon">Neón</string>
+    <string name="studio_text_template_soft">Mäkký</string>
+    <string name="studio_text_template_poster">Plagát</string>
+    <string name="studio_text_template_minimal">Minimálny</string>
+    <string name="studio_text_template_gold">Zlatá</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Oceán</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Efekt hĺbky nie je dostupný, kým je aktívny umelecký tvar textu.</string>
+    <string name="studio_text_form_path_hint">Potiahnutím intenzity ohnite cestu textu. Rozostup písmen pomáha zabrániť prekrývaniu glyfov.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Systémové</string>

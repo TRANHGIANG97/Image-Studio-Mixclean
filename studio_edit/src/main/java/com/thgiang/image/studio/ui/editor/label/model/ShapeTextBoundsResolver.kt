@@ -19,6 +19,8 @@ import kotlin.math.max
 object ShapeTextBoundsResolver {
     private const val PADDING_H_DP = 12f
     private const val PADDING_V_DP = 6f
+    /** Minimal inset so the selection box hugs warped/path glyphs. */
+    private const val TEXT_FORM_PADDING_DP = 2f
     private const val MIN_WIDTH_PX = 60f
     private const val MIN_HEIGHT_PX = 30f
 
@@ -34,6 +36,7 @@ object ShapeTextBoundsResolver {
         val widthMultiplier: Float,
         val heightMultiplier: Float,
         val minHeightFromWidthRatio: Float = 0f,
+        val preferSquare: Boolean = false,
     )
 
     fun fitShapeToText(layer: EditorLayer, context: Context): EditorLayer {
@@ -94,32 +97,42 @@ object ShapeTextBoundsResolver {
         if (displayText.isBlank()) return layer
 
         val flat = measureFlatText(layer, displayText, textSizePx, context, maxLayoutWidth = Int.MAX_VALUE / 4)
-        val paddingH = PADDING_H_DP * density
-        val paddingV = PADDING_V_DP * density
-        val strokePad = shapeStrokePadding(layer)
-        val bleedPad = shadowBleedPad(layer)
-        val factors = textFormAspectFactors(layer.textForm.preset)
+        // Tight pad: artistic glyphs define the silhouette; avoid plate-like slack.
+        val paddingH = TEXT_FORM_PADDING_DP * density
+        val paddingV = TEXT_FORM_PADDING_DP * density
+        val factors = textFormAspectFactors(layer.textForm.preset, layer.textForm.normalizedAmount())
 
-        var candidateW = (flat.textWidth * factors.widthMultiplier + 2f * paddingH + strokePad + 2f * bleedPad)
+        var candidateW = (flat.textWidth * factors.widthMultiplier + 2f * paddingH)
             .coerceAtLeast(MIN_WIDTH_PX)
-        var candidateH = (flat.textHeight * factors.heightMultiplier + 2f * paddingV + strokePad + 2f * bleedPad)
+        var candidateH = (flat.textHeight * factors.heightMultiplier + 2f * paddingV)
             .coerceAtLeast(MIN_HEIGHT_PX)
 
         if (factors.minHeightFromWidthRatio > 0f) {
-            val minH = flat.textWidth * factors.minHeightFromWidthRatio + 2f * paddingV + strokePad + 2f * bleedPad
+            val minH = flat.textWidth * factors.minHeightFromWidthRatio + 2f * paddingV
             candidateH = max(candidateH, minH)
         }
+        if (factors.preferSquare) {
+            val side = max(candidateW, candidateH)
+            candidateW = side
+            candidateH = side
+        }
 
-        val extents = TextFormLayoutEngine.measureGlyphExtents(
-            layer = layer,
-            boxWidth = candidateW,
-            boxHeight = candidateH,
-            renderScale = fontScale,
-            context = context,
-        )
-        if (extents != null) {
-            candidateW = (extents.width() + 2f * paddingH + strokePad + 2f * bleedPad).coerceAtLeast(MIN_WIDTH_PX)
-            candidateH = (extents.height() + 2f * paddingV + strokePad + 2f * bleedPad).coerceAtLeast(MIN_HEIGHT_PX)
+        // Two measure passes: path/warp placement can depend on box size; refine after first extents.
+        repeat(2) {
+            val extents = TextFormLayoutEngine.measureGlyphExtents(
+                layer = layer,
+                boxWidth = candidateW,
+                boxHeight = candidateH,
+                renderScale = fontScale,
+                context = context,
+            ) ?: return@repeat
+            candidateW = (extents.width() + 2f * paddingH).coerceAtLeast(MIN_WIDTH_PX)
+            candidateH = (extents.height() + 2f * paddingV).coerceAtLeast(MIN_HEIGHT_PX)
+            if (factors.preferSquare) {
+                val side = max(candidateW, candidateH)
+                candidateW = side
+                candidateH = side
+            }
         }
 
         return if (EditorShapeGeometry.isLineShape(layer.shapeType)) {
@@ -132,6 +145,17 @@ object ShapeTextBoundsResolver {
         }
     }
 
+    /**
+     * TEXT_ONLY background decor (fill/stroke/shadow) is cosmetic — must not inflate fit bounds.
+     */
+    private fun decorInflatesFitBounds(layer: EditorLayer): Boolean =
+        !EditorShapeGeometry.isTextOnlyShape(layer.shapeType)
+
+    internal fun boundsDecorPadding(layer: EditorLayer): Pair<Float, Float> {
+        if (!decorInflatesFitBounds(layer)) return 0f to 0f
+        return shapeStrokePadding(layer) to shadowBleedPad(layer)
+    }
+
     private fun applyFlatFit(
         layer: EditorLayer,
         textWidth: Float,
@@ -141,12 +165,14 @@ object ShapeTextBoundsResolver {
     ): EditorLayer {
         val paddingH = if (layer.shouldRenderFrameContent) PADDING_H_DP * density else 0f
         val paddingV = if (layer.shouldRenderFrameContent) PADDING_V_DP * density else 0f
-        val strokePad = shapeStrokePadding(layer)
-        val bleedPad = shadowBleedPad(layer)
-        val slackV = density
+        val (strokePad, bleedPad) = boundsDecorPadding(layer)
+        // Height-only refit should match StaticLayout line bounds exactly; full fit keeps 1dp slack.
+        val slackV = if (preserveWidth != null) 0f else density
 
         if (EditorShapeGeometry.isTextOnlyShape(layer.shapeType)) {
-            val fittedW = preserveWidth ?: (textWidth + 2f * paddingH + 2f * bleedPad).coerceAtLeast(MIN_WIDTH_PX)
+            val widthSlack = density
+            val fittedW = preserveWidth ?: (textWidth + 2f * paddingH + 2f * bleedPad + widthSlack)
+                .coerceAtLeast(MIN_WIDTH_PX)
             val fittedH = (textHeight + 2f * paddingV + slackV + 2f * bleedPad).coerceAtLeast(MIN_HEIGHT_PX)
             return layer.copy(
                 shapeWidthPx = fittedW,
@@ -154,7 +180,9 @@ object ShapeTextBoundsResolver {
             )
         }
 
-        val fittedW = preserveWidth ?: (textWidth + 2f * paddingH + strokePad + 2f * bleedPad).coerceAtLeast(MIN_WIDTH_PX)
+        val widthSlack = density
+        val fittedW = preserveWidth ?: (textWidth + 2f * paddingH + strokePad + 2f * bleedPad + widthSlack)
+            .coerceAtLeast(MIN_WIDTH_PX)
         val fittedH = (textHeight + 2f * paddingV + strokePad + slackV + 2f * bleedPad).coerceAtLeast(MIN_HEIGHT_PX)
 
         return if (EditorShapeGeometry.isLineShape(layer.shapeType)) {
@@ -175,7 +203,7 @@ object ShapeTextBoundsResolver {
 
     private fun contentInnerWidthPx(layer: EditorLayer, density: Float): Int {
         val paddingH = if (layer.shouldRenderFrameContent) PADDING_H_DP * density else 0f
-        val strokePad = shapeStrokePadding(layer)
+        val (strokePad, _) = boundsDecorPadding(layer)
         return (layer.shapeWidthPx - 2f * paddingH - strokePad).coerceAtLeast(1f).toInt()
     }
 
@@ -210,32 +238,40 @@ object ShapeTextBoundsResolver {
         )
     }
 
-    private fun textFormAspectFactors(preset: TextFormPreset): TextFormAspectFactors = when (preset) {
-        TextFormPreset.PATH_ARC_UP,
-        TextFormPreset.PATH_ARC_DOWN ->
-            TextFormAspectFactors(widthMultiplier = 1.08f, heightMultiplier = 0.55f, minHeightFromWidthRatio = 0.62f)
-        TextFormPreset.PATH_CIRCLE,
-        TextFormPreset.PATH_RING ->
-            TextFormAspectFactors(widthMultiplier = 1.75f, heightMultiplier = 1.75f)
-        TextFormPreset.PATH_WAVE ->
-            TextFormAspectFactors(widthMultiplier = 1.15f, heightMultiplier = 1.65f)
-        TextFormPreset.WARP_ARCH_UP,
-        TextFormPreset.WARP_ARCH_DOWN ->
-            TextFormAspectFactors(widthMultiplier = 1.12f, heightMultiplier = 2.75f)
-        TextFormPreset.WARP_BULGE,
-        TextFormPreset.WARP_INFLATE,
-        TextFormPreset.WARP_DEFLATE ->
-            TextFormAspectFactors(widthMultiplier = 1.12f, heightMultiplier = 2.2f)
-        TextFormPreset.WARP_WAVE,
-        TextFormPreset.WARP_FLAG ->
-            TextFormAspectFactors(widthMultiplier = 1.15f, heightMultiplier = 2.0f)
-        TextFormPreset.WARP_RISE,
-        TextFormPreset.WARP_FALL,
-        TextFormPreset.WARP_CHEVRON_UP,
-        TextFormPreset.WARP_CHEVRON_DOWN ->
-            TextFormAspectFactors(widthMultiplier = 1.1f, heightMultiplier = 2.35f)
-        else ->
-            TextFormAspectFactors(widthMultiplier = 1.12f, heightMultiplier = 2.0f)
+    private fun textFormAspectFactors(preset: TextFormPreset, amount: Float): TextFormAspectFactors {
+        val curve = (amount / TextFormEffect.MAX_AMOUNT).coerceIn(0f, 1f)
+        return when (preset) {
+            TextFormPreset.PATH_ARC_UP,
+            TextFormPreset.PATH_ARC_DOWN ->
+                TextFormAspectFactors(widthMultiplier = 1.08f, heightMultiplier = 0.55f, minHeightFromWidthRatio = 0.62f)
+            TextFormPreset.PATH_CIRCLE -> {
+                // Matches TextFormLayoutEngine: diameter ≈ (totalWidth/π) * (1 + curve*1.5) + glyph pad.
+                val intensityExpansion = 1f + curve * 1.5f
+                val diameterMul = (intensityExpansion / Math.PI.toFloat()).coerceAtLeast(0.35f) * 1.15f
+                TextFormAspectFactors(
+                    widthMultiplier = diameterMul,
+                    heightMultiplier = diameterMul,
+                    preferSquare = true,
+                )
+            }
+            TextFormPreset.PATH_WAVE ->
+                TextFormAspectFactors(widthMultiplier = 1.15f, heightMultiplier = 1.65f)
+            TextFormPreset.WARP_ARCH_UP,
+            TextFormPreset.WARP_ARCH_DOWN ->
+                TextFormAspectFactors(widthMultiplier = 1.12f, heightMultiplier = 2.75f)
+            TextFormPreset.WARP_BULGE ->
+                TextFormAspectFactors(widthMultiplier = 1.12f, heightMultiplier = 2.2f)
+            TextFormPreset.WARP_WAVE,
+            TextFormPreset.WARP_FLAG ->
+                TextFormAspectFactors(widthMultiplier = 1.15f, heightMultiplier = 2.0f)
+            TextFormPreset.WARP_RISE,
+            TextFormPreset.WARP_FALL,
+            TextFormPreset.WARP_CHEVRON_UP,
+            TextFormPreset.WARP_CHEVRON_DOWN ->
+                TextFormAspectFactors(widthMultiplier = 1.1f, heightMultiplier = 2.35f)
+            else ->
+                TextFormAspectFactors(widthMultiplier = 1.12f, heightMultiplier = 2.0f)
+        }
     }
 
     private fun shapeStrokePadding(layer: EditorLayer): Float {
@@ -299,6 +335,18 @@ fun EditorLayer.withShapeFittedToText(context: Context): EditorLayer =
 
 fun EditorLayer.withShapeHeightFittedToText(context: Context): EditorLayer =
     ShapeTextBoundsResolver.fitShapePreservingWidth(this, context)
+
+/** Inline typing: grow the box when text needs more width; keep manual width when text is shorter. */
+fun EditorLayer.withShapeFittedForInlineEdit(context: Context): EditorLayer {
+    if (textForm.isActive) return withTextFormShapeFitted(context)
+    if (text.contains('\n')) return withShapeHeightFittedToText(context)
+    val natural = withShapeFittedToText(context)
+    return if (natural.shapeWidthPx >= shapeWidthPx - 0.5f) {
+        natural
+    } else {
+        withShapeHeightFittedToText(context)
+    }
+}
 
 fun EditorLayer.withTextFormShapeFitted(context: Context): EditorLayer =
     ShapeTextBoundsResolver.fitShapeToTextForm(this, context)

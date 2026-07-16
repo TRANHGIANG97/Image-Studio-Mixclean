@@ -603,7 +603,8 @@ fun rememberCheckerboardBrush(): ShaderBrush {
     }
     
     DisposableEffect(bmp) {
-        onDispose { if (!bmp.isRecycled) bmp.recycle() }
+        // Do not recycle — ImageShader may still reference this bitmap during disposal.
+        onDispose { }
     }
     
     return remember(bmp) {

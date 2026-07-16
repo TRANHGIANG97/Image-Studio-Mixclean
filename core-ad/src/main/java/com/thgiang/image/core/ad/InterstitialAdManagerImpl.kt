@@ -46,6 +46,13 @@ class InterstitialAdManagerImpl @Inject constructor(
             return
         }
 
+        if (NewUserAdPolicy.shouldBypassInterstitial(appContext)) {
+            adLogger.d(TAG, "Low-trust user, bypass interstitial")
+            NewUserAdPolicy.reportBypassIfNeeded(appContext, "interstitial")
+            onClosed?.invoke()
+            return
+        }
+
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastShownTime < adConfig.interstitialCooldownMs) {
             adLogger.d(TAG, "Ad cooldown in progress, bypassing")
@@ -79,6 +86,10 @@ class InterstitialAdManagerImpl @Inject constructor(
     private fun loadAd() {
         if (isPremiumUser) {
             adLogger.d(TAG, "User is premium, skip loading ads")
+            return
+        }
+        if (!NewUserAdPolicy.shouldPreloadAds(appContext)) {
+            adLogger.d(TAG, "Low-trust user, skip loading interstitial")
             return
         }
         if (Looper.myLooper() != Looper.getMainLooper()) {

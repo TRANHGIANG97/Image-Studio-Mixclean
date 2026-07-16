@@ -1,7 +1,8 @@
 package com.thgiang.image.feature.editor.ui
 
 import android.content.Context
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.thgiang.image.core.analytics.AppAnalytics
+import com.thgiang.image.core.analytics.SessionQualityTracker
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.SystemClock
@@ -13,6 +14,7 @@ import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapUtils
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
 import com.thgiang.image.core.diagnostics.ImageProcessingCrashReporter
+import com.thgiang.image.core.util.MemoryUtil
 import com.thgiang.image.core.domain.settings.ReviewPromptDecision
 import com.thgiang.image.core.domain.settings.UserPreferencesRepository
 import com.thgiang.image.core.util.processors.ProcessorUtils
@@ -45,6 +47,7 @@ private const val QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS = 45_000L
 sealed interface QuickEditUiEvent {
     data class ShowToast(val message: String) : QuickEditUiEvent
     object ShowSelfieFallbackWarning : QuickEditUiEvent
+    object ShowPlayServicesUpdatePrompt : QuickEditUiEvent
     data class NavigateToBackground(val presetId: String) : QuickEditUiEvent
     data class NavigateToBorder(val presetId: String) : QuickEditUiEvent
     data class NavigateToTool(val tool: String) : QuickEditUiEvent
@@ -102,14 +105,24 @@ class QuickEditViewModel @Inject constructor(
                     val bitmapFile = File(draftDir, layer.cacheFileName)
                     if (bitmapFile.exists()) {
                         val bitmap = withContext(Dispatchers.IO) {
-                            android.graphics.BitmapFactory.decodeFile(bitmapFile.absolutePath)
+                            BitmapUtils.getDownSampledBitmap(
+                                context,
+                                android.net.Uri.fromFile(bitmapFile),
+                                MemoryUtil.maxEditorBitmapSide(context),
+                            )
                         }
                         if (bitmap != null) {
-                            sharedViewModel.addBitmapToStack(
+                            val added = sharedViewModel.addBitmapToStack(
                                 bitmap = bitmap,
-                                triggerRecomposition = true
+                                triggerRecomposition = true,
+                                addSafelyWithoutMultipleTriggers = false,
                             )
-                            _uiState.update { it.copy(bitmapLoaded = true) }
+                            if (added) {
+                                _uiState.update { it.copy(bitmapLoaded = true) }
+                            } else {
+                                android.util.Log.w(TAG, "Failed to add draft bitmap to stack")
+                                _uiState.update { it.copy(loadError = true) }
+                            }
                             return@launch
                         }
                     }
@@ -124,11 +137,16 @@ class QuickEditViewModel @Inject constructor(
                 BitmapUtils.getScaledBitmap(context, uri).collect { status ->
                     when (status) {
                         is BitmapStatus.Success -> {
-                            sharedViewModel.addBitmapToStack(
-                                bitmap = status.scaledBitmap.copy(Bitmap.Config.ARGB_8888, false),
-                                triggerRecomposition = true
+                            val added = sharedViewModel.addBitmapToStack(
+                                bitmap = status.scaledBitmap,
+                                triggerRecomposition = true,
+                                addSafelyWithoutMultipleTriggers = false,
                             )
-                            _uiState.update { it.copy(bitmapLoaded = true) }
+                            if (added) {
+                                _uiState.update { it.copy(bitmapLoaded = true) }
+                            } else {
+                                _uiState.update { it.copy(loadError = true) }
+                            }
                         }
                         is BitmapStatus.Failed -> {
                             _uiState.update { it.copy(loadError = true) }
@@ -151,12 +169,16 @@ class QuickEditViewModel @Inject constructor(
             val subjectRemover = backgroundRemoverRepository
             _uiState.update { it.copy(isRemovingBg = true, autoRemoveStatusMessage = "") }
             try {
-                FirebaseAnalytics.getInstance(context).logEvent("remove_bg_start", null)
+                AppAnalytics.onRemoveBgStart(context)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to log remove_bg_start event", e)
             }
             try {
-                val bitmap = sharedViewModel.getCurrentBitmap()
+                val bitmap = sharedViewModel.getCurrentBitmapOrNull()
+                if (bitmap == null || bitmap.isRecycled) {
+                    _uiEvent.send(QuickEditUiEvent.ShowToast(context.getString(com.thgiang.image.R.string.bg_removal_failed)))
+                    return@launch
+                }
                 ImageProcessingCrashReporter.setActiveTool("quick_tools_remove_bg")
                 ImageProcessingCrashReporter.setBitmapInfo("input", bitmap)
                 ImageProcessingCrashReporter.setRemoveBgRoute(
@@ -186,20 +208,22 @@ class QuickEditViewModel @Inject constructor(
                 result.fold(
                     onSuccess = { resultBitmap ->
                         try {
-                            FirebaseAnalytics.getInstance(context).logEvent("remove_bg_success", null)
+                            AppAnalytics.onRemoveBgSuccess(context)
                         } catch (e: Exception) {
                             Log.e(TAG, "Failed to log remove_bg_success event", e)
                         }
                         ImageProcessingCrashReporter.setBitmapInfo("output", resultBitmap)
-                        sharedViewModel.addBitmapToStack(
+                        val added = sharedViewModel.addBitmapToStack(
                             bitmap = resultBitmap,
                             triggerRecomposition = true,
                             addSafelyWithoutMultipleTriggers = false
                         )
-                        sharedViewModel.triggerOverlay()
-                        if (subjectRemover.consumeSelfieFallbackWarning()) {
-                            _uiEvent.send(QuickEditUiEvent.ShowSelfieFallbackWarning)
+                        if (!added) {
+                            _uiEvent.send(QuickEditUiEvent.ShowToast(context.getString(com.thgiang.image.R.string.bg_removal_failed)))
+                            return@fold
                         }
+                        sharedViewModel.triggerOverlay()
+                        emitBackgroundRemovalNotices(subjectRemover)
                         if (isAutoRemove) {
                             if (!initialBackgroundGradientPresetId.isNullOrBlank()) {
                                 _uiEvent.send(QuickEditUiEvent.NavigateToBackground(initialBackgroundGradientPresetId))
@@ -213,8 +237,12 @@ class QuickEditViewModel @Inject constructor(
                     onFailure = {
                         Log.e(TAG, "autoRemoveBackground: remover failed", it)
                         ImageProcessingCrashReporter.recordNonFatal(it, "quick_tools_remove_bg")
-                        val failedMsg = context.getString(com.thgiang.image.R.string.bg_removal_failed)
-                        _uiEvent.send(QuickEditUiEvent.ShowToast(failedMsg))
+                        if (subjectRemover.consumePlayServicesUpdateRecommended()) {
+                            _uiEvent.send(QuickEditUiEvent.ShowPlayServicesUpdatePrompt)
+                        } else {
+                            val failedMsg = context.getString(com.thgiang.image.R.string.bg_removal_failed)
+                            _uiEvent.send(QuickEditUiEvent.ShowToast(failedMsg))
+                        }
                     }
                 )
             } catch (e: Exception) {
@@ -223,6 +251,17 @@ class QuickEditViewModel @Inject constructor(
                 _uiEvent.send(QuickEditUiEvent.ShowToast(failedMsg))
             } finally {
                 _uiState.update { it.copy(isRemovingBg = false, autoRemoveStatusMessage = null) }
+            }
+        }
+    }
+
+    private suspend fun emitBackgroundRemovalNotices(remover: BackgroundRemoverRepository) {
+        when {
+            remover.consumePlayServicesUpdateRecommended() -> {
+                _uiEvent.send(QuickEditUiEvent.ShowPlayServicesUpdatePrompt)
+            }
+            remover.consumeSelfieFallbackWarning() -> {
+                _uiEvent.send(QuickEditUiEvent.ShowSelfieFallbackWarning)
             }
         }
     }
@@ -261,7 +300,8 @@ class QuickEditViewModel @Inject constructor(
 
     fun onSaveSuccess(uri: Uri?, file: File?) {
         try {
-            FirebaseAnalytics.getInstance(context).logEvent("save_image", null)
+            SessionQualityTracker.onUserEngagement()
+            AppAnalytics.onSaveImage(context, "quickedit")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to log save_image event", e)
         }

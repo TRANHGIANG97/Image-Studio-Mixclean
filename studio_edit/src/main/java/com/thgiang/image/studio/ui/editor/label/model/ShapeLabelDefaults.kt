@@ -9,7 +9,11 @@ object ShapeLabelDefaults {
     const val BORDER_WIDTH_PX: Float = 2f
     const val DEFAULT_TEXT_SIZE_SP: Float = 65f
     const val MAX_TEXT_SIZE_SP: Float = 500f
+    /** Fully transparent shape fill (alpha = 0). */
+    const val TRANSPARENT_FILL_ARGB: Int = 0x00FFFFFF
 }
+
+fun Int.hasTransparentFill(): Boolean = ((this ushr 24) and 0xFF) == 0
 
 fun EditorLayer.applyShapeTypeChange(shapeType: ShapeType): EditorLayer {
     val cleared = when (shapeType) {

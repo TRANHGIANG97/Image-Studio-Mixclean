@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Karácsony</string>
     <string name="themeplate_section_memories">Emlékek</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Étel szelfi 1</string>
     <string name="themeplate_selfie_food_02">Étel szelfi 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Szegély színe</string>
     <string name="studio_stroke_tab_style">Vonalstílus</string>
     <string name="studio_stroke_tab_width">Vastagság</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Nincs szegély</string>
     <string name="studio_dash_solid">Folytonos vonal</string>
     <string name="studio_dash_round_dot">Kerek pontok</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">Vonal követése</string>
     <string name="studio_text_form_warp">Görbítés</string>
     <string name="studio_text_form_amount">Intenzitás</string>
+    <string name="studio_text_form_letter_spacing">Betűköz</string>
     <string name="studio_text_form_none">Nincs</string>
     <string name="studio_text_form_path_wave">Hullám</string>
     <string name="studio_text_form_path_arc_up">Ív felfelé</string>
     <string name="studio_text_form_path_arc_down">Ív lefelé</string>
     <string name="studio_text_form_path_circle">Kör</string>
-    <string name="studio_text_form_path_ring">Gyűrű</string>
-    <string name="studio_text_form_warp_arch_up">Ív felfelé</string>
+<string name="studio_text_form_warp_arch_up">Ív felfelé</string>
     <string name="studio_text_form_warp_arch_down">Ív lefelé</string>
     <string name="studio_text_form_warp_bulge">Dudorodás</string>
     <string name="studio_text_form_warp_wave">Hullám</string>
     <string name="studio_text_form_warp_flag">Zászló</string>
     <string name="studio_text_form_warp_rise">Emelkedés</string>
     <string name="studio_text_form_warp_fall">Süllyedés</string>
-    <string name="studio_text_form_warp_inflate">Felfújás</string>
-    <string name="studio_text_form_warp_deflate">Leeresztés</string>
     <string name="studio_text_form_warp_chevron_up">Chevron felfelé</string>
     <string name="studio_text_form_warp_chevron_down">Chevron lefelé</string>
     <string name="studio_objects_label">Objektumok</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">Hatás</string>
     <string name="studio_label_tab_text_form">Művészi</string>
     <string name="studio_label_tab_shape">Keret</string>
+    <string name="studio_label_tab_text_template">Sablonok</string>
+    <string name="studio_label_tab_more">Több</string>
+    <string name="studio_text_template_classic">Klasszikus</string>
+    <string name="studio_text_template_gradient">Gradiens</string>
+    <string name="studio_text_template_sale">Akció</string>
+    <string name="studio_text_template_arc">Ív</string>
+    <string name="studio_text_template_outline">Kontúr</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Lágy</string>
+    <string name="studio_text_template_poster">Poszter</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Arany</string>
+    <string name="studio_text_template_retro">Retró</string>
+    <string name="studio_text_template_ocean">Óceán</string>
+    <string name="studio_label_elevation_disabled_by_text_form">A kiemelés nem érhető el, amíg a művészi szövegforma aktív.</string>
+    <string name="studio_text_form_path_hint">Húzza az intenzitást a szövegút hajlításához. A betűköz segít elkerülni a glifák átfedését.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Rendszer</string>

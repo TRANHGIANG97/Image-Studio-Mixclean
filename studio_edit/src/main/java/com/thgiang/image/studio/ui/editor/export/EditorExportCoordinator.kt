@@ -3,6 +3,7 @@ import com.thgiang.image.studio.ui.editor.*
 
 import android.content.Context
 import com.thgiang.image.studio.ui.editor.model.*
+import android.graphics.Bitmap
 import android.net.Uri
 import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.studio.R
@@ -11,6 +12,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 sealed interface ExportOutcome {
@@ -88,7 +90,64 @@ class EditorExportCoordinator @Inject constructor(
                 // Lấy đúng objectAssetPath từ template thay vì hardcode null
                 templateObjectAssetPath = state.template.objectAssetPath,
             )
+            saveDraftPreview(state, templateAssetPath, newDraftId)
             SaveDraftOutcome.Success(newDraftId, System.currentTimeMillis())
         }.getOrElse { e -> SaveDraftOutcome.Failure(e) }
+    }
+
+    private suspend fun saveDraftPreview(
+        state: EditorState,
+        templateAssetPath: String,
+        draftId: String,
+    ) {
+        val templateSize = state.template.originalSize
+        if (templateSize.width == 0 || templateSize.height == 0) return
+
+        val rendered = renderer.renderLayers(
+            EditorRenderer.MultiLayerRenderRequest(
+                templateAssetPath = templateAssetPath,
+                templateSize = templateSize,
+                layers = state.layers.filter {
+                    it.isVectorContentLayer ||
+                        it.type == LayerType.SHADOW_REGION ||
+                        it.product.foregroundUri != null
+                },
+                backgroundColorArgb = state.template.backgroundColorArgb,
+            ),
+        ).getOrNull() ?: return
+
+        try {
+            val maxDim = 512
+            val scale = minOf(
+                maxDim.toFloat() / rendered.width,
+                maxDim.toFloat() / rendered.height,
+                1f,
+            )
+            val preview = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    rendered,
+                    (rendered.width * scale).toInt().coerceAtLeast(1),
+                    (rendered.height * scale).toInt().coerceAtLeast(1),
+                    true,
+                )
+            } else {
+                rendered
+            }
+
+            val previewFile = File(context.filesDir, "drafts/$draftId/preview.png")
+            previewFile.parentFile?.mkdirs()
+            previewFile.outputStream().use { output ->
+                preview.compress(Bitmap.CompressFormat.PNG, 85, output)
+            }
+            templateDraftRepository.updateThumbnailPath(draftId, previewFile.absolutePath)
+
+            if (preview !== rendered) {
+                preview.recycle()
+            }
+        } finally {
+            if (!rendered.isRecycled) {
+                rendered.recycle()
+            }
+        }
     }
 }

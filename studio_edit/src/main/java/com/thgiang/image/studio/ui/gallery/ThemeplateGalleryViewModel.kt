@@ -8,6 +8,9 @@ import com.thgiang.image.studio.data.CloudTemplateRemoteRepository
 import com.thgiang.image.studio.data.RemoteTemplateRow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -62,27 +65,62 @@ class ThemeplateGalleryViewModel @Inject constructor(
 
     private fun loadCategories() {
         viewModelScope.launch(Dispatchers.IO) {
+            _loadingRemoteTemplates.value = true
             runCatching {
                 cloudTemplateRepository.fetchCategories()
             }.onSuccess { remoteCategories ->
-                val filtered = remoteCategories.filter { it.order > 0 }
-                if (filtered.isNotEmpty()) {
-                    _categories.value = filtered
-                    loadTemplatesForCategory(filtered.first().id)
-                } else {
-                    loadFallbackData()
-                }
+                val candidates = remoteCategories.filter { it.order > 0 }
+                if (applyCategoriesWithTemplates(candidates)) return@onSuccess
+                loadFallbackData()
             }.onFailure { error ->
                 android.util.Log.e(TAG, "Failed to load remote categories", error)
                 loadFallbackData()
             }
+            _loadingRemoteTemplates.value = false
         }
     }
 
-    private fun loadFallbackData() {
-        val fallback = fallbackCategories()
-        _categories.value = fallback
-        loadTemplatesForCategory(fallback.firstOrNull()?.id.orEmpty())
+    private suspend fun applyCategoriesWithTemplates(
+        candidates: List<CloudCategory>,
+    ): Boolean {
+        val resolved = resolveCategoriesWithTemplates(candidates) ?: return false
+        val (categories, firstTemplates, firstCategoryId) = resolved
+        _categories.value = categories
+        _remoteTemplates.value = firstTemplates
+        _templatesLoadFailed.value = false
+        lastRequestedCategoryId = firstCategoryId
+        return true
+    }
+
+    private suspend fun resolveCategoriesWithTemplates(
+        candidates: List<CloudCategory>,
+    ): Triple<List<CloudCategory>, List<RemoteTemplateRow>, String>? {
+        if (candidates.isEmpty()) return null
+
+        val nonEmpty = coroutineScope {
+            candidates.map { category ->
+                async {
+                    val templates = runCatching {
+                        cloudTemplateRepository.fetchTemplatesForCategory(category.id)
+                    }.getOrDefault(emptyList())
+                    category to templates
+                }
+            }.awaitAll()
+        }.filter { (_, templates) -> templates.isNotEmpty() }
+
+        if (nonEmpty.isEmpty()) return null
+
+        val categories = nonEmpty.map { (category, _) -> category }
+        val firstCategory = nonEmpty.first()
+        return Triple(categories, firstCategory.second, firstCategory.first.id)
+    }
+
+    private suspend fun loadFallbackData() {
+        if (!applyCategoriesWithTemplates(fallbackCategories())) {
+            _categories.value = emptyList()
+            _remoteTemplates.value = emptyList()
+            lastRequestedCategoryId = null
+        }
     }
 
     private fun mergeWithFallbackCategories(remoteCategories: List<CloudCategory>): List<CloudCategory> {

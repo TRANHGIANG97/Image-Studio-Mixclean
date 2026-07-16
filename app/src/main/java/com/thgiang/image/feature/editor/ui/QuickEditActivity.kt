@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import com.thgiang.image.core.design.adaptive.AdaptiveEditorScaffold
+import com.thgiang.image.core.analytics.AppAnalytics
 import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -41,6 +42,14 @@ class QuickEditActivity : AppCompatActivity() {
         val backgroundGradientPresetId = intent.getStringExtra(EXTRA_BACKGROUND_GRADIENT_PRESET_ID)
         val borderGradientPresetId = intent.getStringExtra(EXTRA_BORDER_GRADIENT_PRESET_ID)
         val targetTool = intent.getStringExtra(EXTRA_TARGET_TOOL)
+
+        val editorSource = when {
+            draftId != null -> "draft"
+            autoRemoveBg -> "auto_remove_bg"
+            !targetTool.isNullOrBlank() -> targetTool
+            else -> "picker"
+        }
+        AppAnalytics.onEditorOpened(this, editorSource)
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)

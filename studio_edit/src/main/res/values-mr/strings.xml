@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">क्रिसमस</string>
     <string name="themeplate_section_memories">आठवणी</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">बॉर्डरचा रंग</string>
     <string name="studio_stroke_tab_style">लाईन स्टाईल</string>
     <string name="studio_stroke_tab_width">जाडी</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">बॉर्डर नाही</string>
     <string name="studio_dash_solid">सॉलिड लाईन</string>
     <string name="studio_dash_round_dot">गोल ठिपके</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">पाथ फॉलो करा</string>
     <string name="studio_text_form_warp">वॉरप</string>
     <string name="studio_text_form_amount">तीव्रता</string>
+    <string name="studio_text_form_letter_spacing">अक्षर अंतर</string>
     <string name="studio_text_form_none">काही नाही</string>
     <string name="studio_text_form_path_wave">वेव्ह</string>
     <string name="studio_text_form_path_arc_up">आर्क अप</string>
     <string name="studio_text_form_path_arc_down">आर्क डाऊन</string>
     <string name="studio_text_form_path_circle">वर्तुळ</string>
-    <string name="studio_text_form_path_ring">रिंग</string>
-    <string name="studio_text_form_warp_arch_up">आर्च अप</string>
+<string name="studio_text_form_warp_arch_up">आर्च अप</string>
     <string name="studio_text_form_warp_arch_down">आर्च डाऊन</string>
     <string name="studio_text_form_warp_bulge">बल्ज</string>
     <string name="studio_text_form_warp_wave">वेव्ह</string>
     <string name="studio_text_form_warp_flag">फ्लॅग</string>
     <string name="studio_text_form_warp_rise">राईज</string>
     <string name="studio_text_form_warp_fall">फॉल्ट</string>
-    <string name="studio_text_form_warp_inflate">इन्फ्लेट</string>
-    <string name="studio_text_form_warp_deflate">डिफ्लेट</string>
     <string name="studio_text_form_warp_chevron_up">शेवरॉन अप</string>
     <string name="studio_text_form_warp_chevron_down">शेवरॉन डाऊन</string>
     <string name="studio_objects_label">ऑब्जेक्ट्स</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">इफेक्ट</string>
     <string name="studio_label_tab_text_form">आर्टिस्टिक</string>
     <string name="studio_label_tab_shape">फ्रेम</string>
+    <string name="studio_label_tab_text_template">टेम्पलेट्स</string>
+    <string name="studio_label_tab_more">अधिक</string>
+    <string name="studio_text_template_classic">क्लासिक</string>
+    <string name="studio_text_template_gradient">ग्रेडिएंट</string>
+    <string name="studio_text_template_sale">सेल</string>
+    <string name="studio_text_template_arc">कंस</string>
+    <string name="studio_text_template_outline">आउटलाइन</string>
+    <string name="studio_text_template_neon">निऑन</string>
+    <string name="studio_text_template_soft">मऊ</string>
+    <string name="studio_text_template_poster">पोस्टर</string>
+    <string name="studio_text_template_minimal">मिनिमल</string>
+    <string name="studio_text_template_gold">सोन्याचा</string>
+    <string name="studio_text_template_retro">रेट्रो</string>
+    <string name="studio_text_template_ocean">महासागर</string>
+    <string name="studio_label_elevation_disabled_by_text_form">कलात्मक मजकूर फॉर्म सक्रिय असताना उंची प्रभाव उपलब्ध नाही.</string>
+    <string name="studio_text_form_path_hint">मजकूर मार्ग वाकवण्यासाठी तीव्रता ओढा. अक्षर अंतर ग्लिफ ओव्हरलॅप टाळण्यास मदत करते.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">सिस्टम</string>

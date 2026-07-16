@@ -18,6 +18,7 @@ import {
   Grid,
   Info
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -122,19 +123,55 @@ export default function TemplateDetailPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to update template settings');
 
       setTemplate(data.template);
-      // Show success briefly
-      alert('Đã cập nhật cấu hình template thành công!');
+      toast.success('Đã lưu cấu hình template thành công!', { duration: 4500 });
     } catch (err: any) {
       setError(err.message);
+      toast.error(`Lỗi lưu cấu hình: ${err.message}`);
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleExportZip = () => {
-    if (!template) return;
-    // Trigger download by opening export link
-    window.open(`/api/templates/${id}/export`, '_blank');
+  const handleExportZip = async () => {
+    if (!template || actionLoading) return;
+    const toastId = toast.loading('Đang xuất ZIP bundle...');
+    try {
+      setActionLoading(true);
+      setError(null);
+
+      const res = await fetch(`/api/templates/${id}/export`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Xuất ZIP thất bại');
+      }
+
+      const blob = await res.blob();
+      const disposition = res.headers.get('Content-Disposition') || '';
+      const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
+      const filename = filenameMatch?.[1]?.trim() || `${template.title || 'template'}.zip`;
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+      toast.dismiss(toastId);
+      toast.success('Xuất ZIP thành công!', {
+        duration: 7000,
+        description: `Đã tải xuống: ${filename}`,
+      });
+    } catch (err: any) {
+      const message = err?.message || 'Xuất ZIP thất bại';
+      setError(message);
+      toast.error(`Lỗi xuất ZIP: ${message}`, { id: toastId, duration: 6500 });
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleDeleteTemplate = async () => {
@@ -222,11 +259,17 @@ export default function TemplateDetailPage() {
         {/* Toolbar actions */}
         <div className="flex flex-wrap items-center gap-3">
           <Button 
-            onClick={handleExportZip}
+            onClick={() => { void handleExportZip(); }}
+            disabled={actionLoading}
             variant="outline"
             className="border-slate-200 bg-white text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl flex items-center gap-2 px-4"
           >
-            <FileArchive className="w-4 h-4 text-emerald-400" /> Xuất ZIP Bundle
+            {actionLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+            ) : (
+              <FileArchive className="w-4 h-4 text-emerald-400" />
+            )}
+            Xuất ZIP Bundle
           </Button>
           <Link href={`/templates/${template.id}/edit`}>
             <Button className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center gap-2 px-5">

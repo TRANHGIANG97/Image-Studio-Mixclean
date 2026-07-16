@@ -40,12 +40,14 @@
     <string name="themeplate_professional_digital_life">Digital Life</string>
     <string name="themeplate_professional_phone_mode">Phone Mode</string>
     <string name="themeplate_professional_food_selfie">Selfie &amp; Food</string>
-    <string name="studio_category_professional">Professional</string> <!-- SỬA: Tránh trùng với Fashion -->
+    <string name="studio_category_professional">Professional</string> <!-- Sá»¬A: TrÃ¡nh trÃ¹ng vá»›i Fashion -->
     <string name="themeplate_section_digital_life">Digital Life</string>
     <string name="themeplate_section_phone_mode">Phone Mode</string>
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Christmas</string>
     <string name="themeplate_section_memories">Memories</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -76,14 +78,14 @@
     <string name="studio_gallery_design_note">The design team is working hard to add more templates soon.</string>
     <string name="studio_tool_rotateflip">Rotate/Flip</string>
     <string name="studio_replace_hint">Tap Replace to choose a product photo from your gallery</string>
-    <string name="studio_layout_hint">Drag to move · Pinch to zoom · Two-finger rotate</string>
+    <string name="studio_layout_hint">Drag to move Â· Pinch to zoom Â· Two-finger rotate</string>
     <string name="studio_shadow_label">Shadow: %1$d%%</string>
-    <string name="studio_shadow_angle_label">Light Angle: %1$d°</string>
+    <string name="studio_shadow_angle_label">Light Angle: %1$dÂ°</string>
     <string name="studio_shadow_distance_label">Shadow Distance: %1$d dp</string>
     <string name="studio_transparency_label">Opacity: %1$d%%</string>
     <string name="studio_crop_label">Aspect ratio</string>
-    <string name="studio_processing">Removing background…</string>
-    <string name="studio_export_success">Saved to gallery</string>
+    <string name="studio_processing">Removing backgroundâ€¦</string>
+    <string name="studio_export_success">Exported and saved successfully!</string>
     <string name="studio_export_error">Export failed</string>
     <string name="studio_layout_rotate_left">Rotate Left</string>
     <string name="studio_layout_rotate_right">Rotate Right</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Border color</string>
     <string name="studio_stroke_tab_style">Line style</string>
     <string name="studio_stroke_tab_width">Thickness</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">No border</string>
     <string name="studio_dash_solid">Solid line</string>
     <string name="studio_dash_round_dot">Round dots</string>
@@ -179,13 +183,13 @@
     <string name="studio_tool_shape">Frame</string>
     <string name="studio_label_add_label">Add label</string>
     <string name="studio_label_add_text">Add text</string>
-    <string name="studio_label_add_shape">Add Shape</string> <!-- SỬA: Tránh trùng với Add Label -->
+    <string name="studio_label_add_shape">Add Shape</string> <!-- Sá»¬A: TrÃ¡nh trÃ¹ng vá»›i Add Label -->
     <string name="studio_label_create_hint">Pick a shape below or add a default label.</string>
     <string name="studio_label_select_hint">Tap a label on the canvas or in Objects to edit it.</string>
     <string name="studio_label_shape_pill">Pill</string>
     <string name="studio_label_shape_card">Card</string>
     <string name="studio_label_shape_text_only">Text only</string>
-    <string name="studio_label_shape_parallelogram">Parallelogram</string> <!-- SỬA: Đúng hình bình hành -->
+    <string name="studio_label_shape_parallelogram">Parallelogram</string> <!-- Sá»¬A: ÄÃºng hÃ¬nh bÃ¬nh hÃ nh -->
     <string name="studio_label_shape_teardrop">Bubble</string>
     <string name="studio_label_shape_circle">Circle</string>
     <string name="studio_label_shape_star">Star</string>
@@ -206,8 +210,8 @@
     <string name="studio_label_text_size">Text size</string>
     <string name="studio_label_font_family">Font</string>
     <string name="studio_label_font_picker_title">Choose font</string>
-    <string name="studio_label_font_search">Search fonts…</string>
-    <string name="studio_label_font_loading">Loading fonts…</string>
+    <string name="studio_label_font_search">Search fontsâ€¦</string>
+    <string name="studio_label_font_loading">Loading fontsâ€¦</string>
     <string name="studio_label_font_category_other">Other</string>
     <string name="studio_label_open_shadow">Shadow</string>
     <string name="studio_label_effects">Effects</string>
@@ -255,17 +259,17 @@
     <string name="studio_elevation_lighting_angle">Lighting angle</string>
     <string name="studio_elevation_custom">Customize</string>
     <string name="studio_elevation_shadow_blur">Shadow blur</string>
-    <string name="studio_label_shape_frame_tab">Border</string> <!-- GỢI Ý: Đổi thành Border nếu là tab viền -->
+    <string name="studio_label_shape_frame_tab">Border</string> <!-- Gá»¢I Ã: Äá»•i thÃ nh Border náº¿u lÃ  tab viá»n -->
     <string name="studio_text_form_tab">Transform</string>
     <string name="studio_text_form_follow_path">Follow Path</string>
     <string name="studio_text_form_warp">Warp</string>
     <string name="studio_text_form_amount">Intensity</string>
+    <string name="studio_text_form_letter_spacing">Letter spacing</string>
     <string name="studio_text_form_none">None</string>
     <string name="studio_text_form_path_wave">Wave</string>
     <string name="studio_text_form_path_arc_up">Arc Up</string>
     <string name="studio_text_form_path_arc_down">Arc Down</string>
     <string name="studio_text_form_path_circle">Circle</string>
-    <string name="studio_text_form_path_ring">Ring</string>
     <string name="studio_text_form_warp_arch_up">Arch Up</string>
     <string name="studio_text_form_warp_arch_down">Arch Down</string>
     <string name="studio_text_form_warp_bulge">Bulge</string>
@@ -273,8 +277,6 @@
     <string name="studio_text_form_warp_flag">Flag</string>
     <string name="studio_text_form_warp_rise">Rise</string>
     <string name="studio_text_form_warp_fall">Fall</string>
-    <string name="studio_text_form_warp_inflate">Inflate</string>
-    <string name="studio_text_form_warp_deflate">Deflate</string>
     <string name="studio_text_form_warp_chevron_up">Chevron Up</string>
     <string name="studio_text_form_warp_chevron_down">Chevron Down</string>
     <string name="studio_objects_label">Objects</string>
@@ -291,7 +293,7 @@
     <string name="studio_label_copy_style">Copy Style</string>
     <string name="studio_label_paste_style">Paste Style</string>
     <string name="studio_label_bring_forward">Bring Forward</string>
-    <string name="studio_label_send_backward">Send Backward</string> <!-- SỬA: Đồng bộ với Quick Action -->
+    <string name="studio_label_send_backward">Send Backward</string> <!-- Sá»¬A: Äá»“ng bá»™ vá»›i Quick Action -->
     <string name="studio_label_align_left">Left</string>
     <string name="studio_label_align_center">Center</string>
     <string name="studio_label_align_right">Right</string>
@@ -317,6 +319,7 @@
     <string name="studio_label_tab_format">Format</string>
     <string name="studio_label_tab_align">Align</string>
     <string name="studio_label_tab_text_color">Color</string>
+    <string name="studio_label_tab_text_template">Templates</string>
     <string name="studio_label_tab_bg_color">Background</string>
     <string name="studio_label_tab_elevation">Effect</string>
     <string name="studio_label_tab_text_form">Artistic</string>
@@ -336,6 +339,23 @@
 
     <!-- Text Placeholder -->
     <string name="studio_text_default_placeholder">Double tap to type</string>
+
+    <!-- Text style templates (Máº«u chá»¯) -->
+    <string name="studio_text_template_classic">Classic</string>
+    <string name="studio_text_template_gradient">Gradient</string>
+    <string name="studio_text_template_sale">Sale</string>
+    <string name="studio_text_template_arc">Arc</string>
+    <string name="studio_text_template_outline">Outline</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Soft</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Gold</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ocean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Elevation is unavailable while artistic text form is active.</string>
+    <string name="studio_label_tab_more">More</string>
+    <string name="studio_text_form_path_hint">Drag the intensity slider to bend the path. Letter spacing helps avoid glyph overlap.</string>
 
     <!-- Sticker Picker -->
     <string name="studio_sticker_library_title">Sticker Library</string>

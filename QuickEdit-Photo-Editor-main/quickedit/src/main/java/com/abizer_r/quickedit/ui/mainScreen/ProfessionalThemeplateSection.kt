@@ -77,7 +77,7 @@ fun ProfessionalThemeplateSection(
 
     Column(modifier = modifier.padding(horizontal = 11.dp)) {
         ProfessionalThemeplateGroup(
-            title = stringResource(R.string.professional_section_title),
+            title = stringResource(com.thgiang.image.studio.R.string.themeplate_section_fashion),
             themeplates = templates,
             onThemeplateSelected = onThemeplateSelected,
             onArrowClick = { onOpenGallery("professional") }

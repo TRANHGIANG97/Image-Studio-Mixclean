@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Božič</string>
     <string name="themeplate_section_memories">Spomini</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfi s hrano 1</string>
     <string name="themeplate_selfie_food_02">Selfi s hrano 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Barva roba</string>
     <string name="studio_stroke_tab_style">Slog črte</string>
     <string name="studio_stroke_tab_width">Debelina</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Brez roba</string>
     <string name="studio_dash_solid">Neprekinjena črta</string>
     <string name="studio_dash_round_dot">Okrogle pike</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Sledi poti</string>
     <string name="studio_text_form_warp">Deformiraj</string>
     <string name="studio_text_form_amount">Intenzivnost</string>
+    <string name="studio_text_form_letter_spacing">Razmik črk</string>
     <string name="studio_text_form_none">Brez</string>
     <string name="studio_text_form_path_wave">Val</string>
     <string name="studio_text_form_path_arc_up">Lok navzgor</string>
     <string name="studio_text_form_path_arc_down">Lok navzdol</string>
     <string name="studio_text_form_path_circle">Krog</string>
-    <string name="studio_text_form_path_ring">Obroč</string>
-    <string name="studio_text_form_warp_arch_up">Obok navzgor</string>
+<string name="studio_text_form_warp_arch_up">Obok navzgor</string>
     <string name="studio_text_form_warp_arch_down">Obok navzdol</string>
     <string name="studio_text_form_warp_bulge">Izboklina</string>
     <string name="studio_text_form_warp_wave">Val</string>
     <string name="studio_text_form_warp_flag">Zastava</string>
     <string name="studio_text_form_warp_rise">Dvig</string>
     <string name="studio_text_form_warp_fall">Padec</string>
-    <string name="studio_text_form_warp_inflate">Napihni</string>
-    <string name="studio_text_form_warp_deflate">Splošči</string>
     <string name="studio_text_form_warp_chevron_up">V-oblikovan lok navzgor</string>
     <string name="studio_text_form_warp_chevron_down">V-oblikovan lok navzdol</string>
     <string name="studio_objects_label">Predmeti</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Učinek</string>
     <string name="studio_label_tab_text_form">Umetniško</string>
     <string name="studio_label_tab_shape">Okvir</string>
+    <string name="studio_label_tab_text_template">Predloge</string>
+    <string name="studio_label_tab_more">Več</string>
+    <string name="studio_text_template_classic">Klasično</string>
+    <string name="studio_text_template_gradient">Preliv</string>
+    <string name="studio_text_template_sale">Razprodaja</string>
+    <string name="studio_text_template_arc">Lok</string>
+    <string name="studio_text_template_outline">Oris</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Mehko</string>
+    <string name="studio_text_template_poster">Plakat</string>
+    <string name="studio_text_template_minimal">Minimalno</string>
+    <string name="studio_text_template_gold">Zlato</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ocean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Učinek dviga ni na voljo, medtem ko je aktivna umetniška oblika besedila.</string>
+    <string name="studio_text_form_path_hint">Povlecite intenzivnost, da upognete pot besedila. Razmik črk pomaga preprečiti prekrivanje glifov.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistem</string>

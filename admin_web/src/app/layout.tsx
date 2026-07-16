@@ -32,7 +32,24 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <QueryProvider>
           {children}
-          <Toaster theme="light" closeButton richColors position="top-right" />
+          <Toaster
+            theme="light"
+            closeButton
+            richColors
+            position="top-center"
+            visibleToasts={5}
+            duration={6500}
+            offset={16}
+            toastOptions={{
+              duration: 6500,
+              classNames: {
+                toast: 'pointer-events-auto shadow-lg border',
+                title: 'font-semibold',
+                description: 'text-sm opacity-90',
+              },
+            }}
+            style={{ zIndex: 2147483647 }}
+          />
         </QueryProvider>
       </body>
     </html>

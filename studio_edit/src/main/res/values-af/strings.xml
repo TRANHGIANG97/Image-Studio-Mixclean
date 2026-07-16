@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">Volg Pad</string>
     <string name="studio_text_form_warp">Skerring</string>
     <string name="studio_text_form_amount">Intensiteit</string>
+    <string name="studio_text_form_letter_spacing">Letterspasiëring</string>
     <string name="studio_text_form_none">Geen</string>
     <string name="studio_text_form_path_wave">Golf</string>
     <string name="studio_text_form_path_arc_up">Boog op</string>
     <string name="studio_text_form_path_arc_down">Boog af</string>
     <string name="studio_text_form_path_circle">Sirkel</string>
-    <string name="studio_text_form_path_ring">Ring</string>
-    <string name="studio_text_form_warp_arch_up">Boog op</string>
+<string name="studio_text_form_warp_arch_up">Boog op</string>
     <string name="studio_text_form_warp_arch_down">Boog af</string>
     <string name="studio_text_form_warp_bulge">Bult</string>
     <string name="studio_text_form_warp_wave">Golf</string>
     <string name="studio_text_form_warp_flag">Vlag</string>
     <string name="studio_text_form_warp_rise">Staan op</string>
     <string name="studio_text_form_warp_fall">Val</string>
-    <string name="studio_text_form_warp_inflate">Blaas op</string>
-    <string name="studio_text_form_warp_deflate">Deflateer</string>
     <string name="studio_text_form_warp_chevron_up">Chevron op</string>
     <string name="studio_text_form_warp_chevron_down">Chevron af</string>
     <string name="studio_objects_label">Voorwerpe</string>
@@ -257,6 +255,8 @@
     <string name="studio_stroke_tab_color">Rand kleur</string>
     <string name="studio_stroke_tab_style">Lynstyl</string>
     <string name="studio_stroke_tab_width">Dikte</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Geen grens nie</string>
     <string name="studio_dash_solid">Solied</string>
     <string name="studio_dash_round_dot">Ronde kolletjies</string>
@@ -304,6 +304,22 @@
     <string name="studio_label_tab_elevation">Effek</string>
     <string name="studio_label_tab_text_form">Kunstig</string>
     <string name="studio_label_tab_shape">Raam</string>
+    <string name="studio_label_tab_text_template">Sjablone</string>
+    <string name="studio_label_tab_more">Meer</string>
+    <string name="studio_text_template_classic">Klassiek</string>
+    <string name="studio_text_template_gradient">Verloop</string>
+    <string name="studio_text_template_sale">Uitverkoping</string>
+    <string name="studio_text_template_arc">Boog</string>
+    <string name="studio_text_template_outline">Konteur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Sag</string>
+    <string name="studio_text_template_poster">Plakkaat</string>
+    <string name="studio_text_template_minimal">Minimaal</string>
+    <string name="studio_text_template_gold">Goud</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Oseaan</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Verheffingseffek is nie beskikbaar nie terwyl artistieke teksvorm aktief is.</string>
+    <string name="studio_text_form_path_hint">Sleep die intensiteit om die teksbaan te buig. Letterspasiëring help om oorvleueling van gliewe te vermy.</string>
     <string name="studio_font_category_system">Stelsel</string>
     <string name="studio_label_document_styles">Dokumentstyle</string>
     <string name="studio_label_style_title">Titel</string>
@@ -324,6 +340,8 @@
     <string name="studio_dash_dash_dot_dot">Streeppunt kolletjie</string>
     <string name="themeplate_section_christmas">Kersfees</string>
     <string name="themeplate_section_memories">Herinneringe</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">Voeg prent by</string>
     <string name="studio_tool_remove_bg">Verwyder agtergrond</string>
     <string name="studio_shape_tab_arrange">Rangskik</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">Versteek sleutelbord</string>
     <string name="studio_layers_toggle">Lae</string>
 </resources>
-
-

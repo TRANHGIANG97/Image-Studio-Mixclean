@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">کرسمس</string>
     <string name="themeplate_section_memories">یادیں</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">فوڈ سیلفی 1</string>
     <string name="themeplate_selfie_food_02">فوڈ سیلفی 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">بارڈر کا رنگ</string>
     <string name="studio_stroke_tab_style">لائن اسٹائل</string>
     <string name="studio_stroke_tab_width">موٹائی</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">کوئی بارڈر نہیں</string>
     <string name="studio_dash_solid">ٹھوس لائن</string>
     <string name="studio_dash_round_dot">گول نقطے</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">راستے پر چلیں</string>
     <string name="studio_text_form_warp">وارپ کریں</string>
     <string name="studio_text_form_amount">شدت</string>
+    <string name="studio_text_form_letter_spacing">حرفی فاصلہ</string>
     <string name="studio_text_form_none">کوئی نہیں</string>
     <string name="studio_text_form_path_wave">لہر (ویو)</string>
     <string name="studio_text_form_path_arc_up">اوپر کی طرف محراب</string>
     <string name="studio_text_form_path_arc_down">نیچے کی طرف محراب</string>
     <string name="studio_text_form_path_circle">دائرہ</string>
-    <string name="studio_text_form_path_ring">انگوٹھی/رنگ</string>
-    <string name="studio_text_form_warp_arch_up">اوپر محراب</string>
+<string name="studio_text_form_warp_arch_up">اوپر محراب</string>
     <string name="studio_text_form_warp_arch_down">نیچے محراب</string>
     <string name="studio_text_form_warp_bulge">ابھار</string>
     <string name="studio_text_form_warp_wave">لہر (ویو)</string>
     <string name="studio_text_form_warp_flag">جھنڈا</string>
     <string name="studio_text_form_warp_rise">چڑھاؤ</string>
     <string name="studio_text_form_warp_fall">اتار</string>
-    <string name="studio_text_form_warp_inflate">پھیلانا</string>
-    <string name="studio_text_form_warp_deflate">سکڑنا</string>
     <string name="studio_text_form_warp_chevron_up">شیویران اپ</string>
     <string name="studio_text_form_warp_chevron_down">شیویران ڈاؤن</string>
     <string name="studio_objects_label">آبجیکٹس</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">اثر (ایفیکٹ)</string>
     <string name="studio_label_tab_text_form">آرٹسٹک</string>
     <string name="studio_label_tab_shape">فریم</string>
+    <string name="studio_label_tab_text_template">ٹیمپلیٹس</string>
+    <string name="studio_label_tab_more">مزید</string>
+    <string name="studio_text_template_classic">کلاسک</string>
+    <string name="studio_text_template_gradient">گریڈینٹ</string>
+    <string name="studio_text_template_sale">سیل</string>
+    <string name="studio_text_template_arc">آرک</string>
+    <string name="studio_text_template_outline">آؤٹ لائن</string>
+    <string name="studio_text_template_neon">نیون</string>
+    <string name="studio_text_template_soft">نرم</string>
+    <string name="studio_text_template_poster">پوسٹر</string>
+    <string name="studio_text_template_minimal">منمل</string>
+    <string name="studio_text_template_gold">سنہری</string>
+    <string name="studio_text_template_retro">ریٹرو</string>
+    <string name="studio_text_template_ocean">سمندر</string>
+    <string name="studio_label_elevation_disabled_by_text_form">آرٹسٹک ٹیکسٹ فارم فعال ہونے پر ایلیویشن دستیاب نہیں۔</string>
+    <string name="studio_text_form_path_hint">راستہ موڑنے کے لیے شدت سلائیڈر کھینچیں۔ حرفی فاصلہ گلف اوورلیپ سے بچاتا ہے۔</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">سسٹم</string>

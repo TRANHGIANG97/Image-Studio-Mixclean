@@ -119,6 +119,9 @@ object CloudLayerToEditorMapper {
                     strokeColorArgb = EditorStrokeMapper.parseStrokeColor(cloudLayer.payload.stroke),
                     strokeWidthPx = cloudLayer.payload.strokeWidth ?: 0f,
                     strokeDashArray = cloudLayer.payload.strokeDashArray ?: emptyList(),
+                    strokeDashGapPx = EditorStrokeMapper.extractDashGap(
+                        cloudLayer.payload.strokeDashArray ?: emptyList(),
+                    ),
                 )
             }
 
@@ -152,6 +155,9 @@ object CloudLayerToEditorMapper {
                     strokeColorArgb = EditorStrokeMapper.parseStrokeColor(cloudLayer.payload.stroke),
                     strokeWidthPx = cloudLayer.payload.strokeWidth ?: 0f,
                     strokeDashArray = cloudLayer.payload.strokeDashArray ?: emptyList(),
+                    strokeDashGapPx = EditorStrokeMapper.extractDashGap(
+                        cloudLayer.payload.strokeDashArray ?: emptyList(),
+                    ),
                 )
             }
         }
@@ -232,6 +238,7 @@ object CloudLayerToEditorMapper {
                 payload.strokeWidth ?: 0f
             },
             strokeDashArray = payload.strokeDashArray ?: emptyList(),
+            strokeDashGapPx = EditorStrokeMapper.extractDashGap(payload.strokeDashArray ?: emptyList()),
             fillGradient = payload.fillGradient,
             textColorGradient = payload.textColorGradient,
             pathData = payload.pathData,
@@ -274,7 +281,10 @@ object CloudLayerToEditorMapper {
             alpha = cloudLayer.payload.alpha ?: 1f,
             shadowAngle = cloudLayer.payload.shadowAngle ?: 45f,
             shadowDistance = cloudLayer.payload.shadowDistance ?: 12f,
-            shadowColorArgb = cloudLayer.payload.shadowColorArgb ?: 0xFF000000.toInt(),
+            shadowColorArgb = cloudLayer.payload.shadowColorArgb?.let { argb ->
+                // Opacity is carried by shadowIntensity; keep RGB opaque for stable tinting.
+                (argb and 0x00FFFFFF) or 0xFF000000.toInt()
+            } ?: 0xFF000000.toInt(),
             shadowBlur = cloudLayer.payload.shadowBlur,
         )
     }
@@ -305,7 +315,7 @@ object CloudLayerToEditorMapper {
         return TextFormEffect(
             category = category,
             preset = preset,
-            amount = payload.textFormAmount?.coerceIn(0f, 1f) ?: 0.55f,
+            amount = payload.textFormAmount?.coerceIn(0f, TextFormEffect.MAX_AMOUNT) ?: 0.55f,
             reversePath = payload.textFormReversePath == true,
         )
     }

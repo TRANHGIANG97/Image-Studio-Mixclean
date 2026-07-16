@@ -1,6 +1,5 @@
 package com.thgiang.image.studio.ui.editor.mapper
 
-import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
@@ -116,7 +115,7 @@ internal object Shape3DExtrusion {
             color = sideColor
             alpha = layerAlpha
             depthBlurPx?.takeIf { it > 0.5f }?.let { blurPx ->
-                maskFilter = BlurMaskFilter(blurPx * 0.35f, BlurMaskFilter.Blur.NORMAL)
+                setSafeBlurMaskFilter(blurPx * 0.35f)
             }
         }
         val backPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -124,7 +123,7 @@ internal object Shape3DExtrusion {
             color = backColor
             alpha = layerAlpha
             depthBlurPx?.takeIf { it > 0.5f }?.let { blurPx ->
-                maskFilter = BlurMaskFilter(blurPx * 0.35f, BlurMaskFilter.Blur.NORMAL)
+                setSafeBlurMaskFilter(blurPx * 0.35f)
             }
         }
 
@@ -161,7 +160,7 @@ internal object Shape3DExtrusion {
             style = Paint.Style.FILL
             this.color = color
             this.alpha = alpha
-            maskFilter = BlurMaskFilter(blurPx, BlurMaskFilter.Blur.NORMAL)
+            setSafeBlurMaskFilter(blurPx)
         }
         canvas.drawPath(shadowPath, shadowPaint)
     }

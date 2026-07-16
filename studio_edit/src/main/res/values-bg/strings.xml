@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">Следвайте пътя</string>
     <string name="studio_text_form_warp">Деформация</string>
     <string name="studio_text_form_amount">Интензивност</string>
+    <string name="studio_text_form_letter_spacing">Разстояние между буквите</string>
     <string name="studio_text_form_none">Няма</string>
     <string name="studio_text_form_path_wave">вълна</string>
     <string name="studio_text_form_path_arc_up">Дъга нагоре</string>
     <string name="studio_text_form_path_arc_down">Дъга надолу</string>
     <string name="studio_text_form_path_circle">кръг</string>
-    <string name="studio_text_form_path_ring">Пръстен</string>
-    <string name="studio_text_form_warp_arch_up">Арка нагоре</string>
+<string name="studio_text_form_warp_arch_up">Арка нагоре</string>
     <string name="studio_text_form_warp_arch_down">Арка надолу</string>
     <string name="studio_text_form_warp_bulge">Издутина</string>
     <string name="studio_text_form_warp_wave">вълна</string>
     <string name="studio_text_form_warp_flag">Флаг</string>
     <string name="studio_text_form_warp_rise">Издигнете се</string>
     <string name="studio_text_form_warp_fall">падане</string>
-    <string name="studio_text_form_warp_inflate">Напомпайте</string>
-    <string name="studio_text_form_warp_deflate">Дефлирайте</string>
     <string name="studio_text_form_warp_chevron_up">Шеврон нагоре</string>
     <string name="studio_text_form_warp_chevron_down">Шеврон надолу</string>
     <string name="studio_objects_label">Обекти</string>
@@ -256,6 +254,8 @@
     <string name="studio_stroke_tab_color">Цвят на границата</string>
     <string name="studio_stroke_tab_style">Стил на линията</string>
     <string name="studio_stroke_tab_width">Дебелина</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_dash_solid">Твърди</string>
     <string name="studio_dash_round_dot">Кръгли точки</string>
     <string name="studio_dash_square_dot">Квадратни точки</string>
@@ -303,6 +303,22 @@
     <string name="studio_label_tab_elevation">Ефект</string>
     <string name="studio_label_tab_text_form">Артистичен</string>
     <string name="studio_label_tab_shape">Рамка</string>
+    <string name="studio_label_tab_text_template">Шаблони</string>
+    <string name="studio_label_tab_more">Още</string>
+    <string name="studio_text_template_classic">Класика</string>
+    <string name="studio_text_template_gradient">Градиент</string>
+    <string name="studio_text_template_sale">Разпродажба</string>
+    <string name="studio_text_template_arc">Дъга</string>
+    <string name="studio_text_template_outline">Контур</string>
+    <string name="studio_text_template_neon">Неон</string>
+    <string name="studio_text_template_soft">Мек</string>
+    <string name="studio_text_template_poster">Плакат</string>
+    <string name="studio_text_template_minimal">Минимализъм</string>
+    <string name="studio_text_template_gold">Злато</string>
+    <string name="studio_text_template_retro">Ретро</string>
+    <string name="studio_text_template_ocean">Океан</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Ефектът на релеф не е наличен, докато е активна художествената форма на текста.</string>
+    <string name="studio_text_form_path_hint">Плъзнете интензитета, за да огънете пътя на текста. Разстоянието между буквите помага да се избегне припокриване на глифове.</string>
     <string name="studio_font_category_system">система</string>
     <string name="studio_label_document_styles">Стилове на документи</string>
     <string name="studio_label_style_title">Заглавие</string>
@@ -324,6 +340,8 @@
     <string name="studio_stroke_none">Без граница</string>
     <string name="themeplate_section_christmas">Коледа</string>
     <string name="themeplate_section_memories">Спомени</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">Добавяне на изображение</string>
     <string name="studio_tool_remove_bg">Премахване на фона</string>
     <string name="studio_shape_tab_arrange">Подредба</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">Скриване на клавиатурата</string>
     <string name="studio_layers_toggle">Слоеве</string>
 </resources>
-
-

@@ -205,21 +205,19 @@
     <string name="studio_text_form_follow_path">Sledujte cestu</string>
     <string name="studio_text_form_warp">Warp</string>
     <string name="studio_text_form_amount">Intenzita</string>
+    <string name="studio_text_form_letter_spacing">Rozestup písmen</string>
     <string name="studio_text_form_none">Žádný</string>
     <string name="studio_text_form_path_wave">Vlna</string>
     <string name="studio_text_form_path_arc_up">Oblouk nahoru</string>
     <string name="studio_text_form_path_arc_down">Arc Down</string>
     <string name="studio_text_form_path_circle">Kruh</string>
-    <string name="studio_text_form_path_ring">Kroužek</string>
-    <string name="studio_text_form_warp_arch_up">Oblouk nahoru</string>
+<string name="studio_text_form_warp_arch_up">Oblouk nahoru</string>
     <string name="studio_text_form_warp_arch_down">Oblouk dolů</string>
     <string name="studio_text_form_warp_bulge">Boule</string>
     <string name="studio_text_form_warp_wave">Vlna</string>
     <string name="studio_text_form_warp_flag">Vlajka</string>
     <string name="studio_text_form_warp_rise">Vzestup</string>
     <string name="studio_text_form_warp_fall">Podzim</string>
-    <string name="studio_text_form_warp_inflate">Nahustit</string>
-    <string name="studio_text_form_warp_deflate">Vyfouknout</string>
     <string name="studio_text_form_warp_chevron_up">Šipka nahoru</string>
     <string name="studio_text_form_warp_chevron_down">Šipka dolů</string>
     <string name="studio_objects_label">Objekty</string>
@@ -257,6 +255,8 @@
     <string name="studio_stroke_tab_color">Barva ohraničení</string>
     <string name="studio_stroke_tab_style">Styl čáry</string>
     <string name="studio_stroke_tab_width">Tloušťka</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Bez hranic</string>
     <string name="studio_dash_solid">Solidní</string>
     <string name="studio_dash_round_dot">Kulaté tečky</string>
@@ -305,6 +305,22 @@
     <string name="studio_label_tab_elevation">Účinek</string>
     <string name="studio_label_tab_text_form">Umělecký</string>
     <string name="studio_label_tab_shape">Rám</string>
+    <string name="studio_label_tab_text_template">Šablony</string>
+    <string name="studio_label_tab_more">Více</string>
+    <string name="studio_text_template_classic">Klasický</string>
+    <string name="studio_text_template_gradient">Přechod</string>
+    <string name="studio_text_template_sale">Výprodej</string>
+    <string name="studio_text_template_arc">Oblouk</string>
+    <string name="studio_text_template_outline">Obrys</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Měkký</string>
+    <string name="studio_text_template_poster">Plakát</string>
+    <string name="studio_text_template_minimal">Minimální</string>
+    <string name="studio_text_template_gold">Zlatá</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Oceán</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Efekt hloubky není dostupný, dokud je aktivní umělecký tvar textu.</string>
+    <string name="studio_text_form_path_hint">Přetažením intenzity ohněte cestu textu. Rozestup písmen pomáhá zabránit překrývání glyfů.</string>
     <string name="studio_font_category_system">Systém</string>
     <string name="studio_label_document_styles">Styly dokumentů</string>
     <string name="studio_label_style_title">Titul</string>
@@ -324,6 +340,8 @@
     <string name="studio_back_button">Zpět</string>
     <string name="themeplate_section_christmas">Vánoce</string>
     <string name="themeplate_section_memories">Vzpomínky</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <string name="studio_tool_add_image">Přidat obrázek</string>
     <string name="studio_tool_remove_bg">Odebrat pozadí</string>
     <string name="studio_shape_tab_arrange">Uspořádat</string>
@@ -333,5 +351,3 @@
     <string name="studio_hide_keyboard">Skrýt klávesnici</string>
     <string name="studio_layers_toggle">Vrstvy</string>
 </resources>
-
-

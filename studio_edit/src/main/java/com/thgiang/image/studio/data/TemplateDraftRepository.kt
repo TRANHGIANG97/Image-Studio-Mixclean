@@ -86,6 +86,21 @@ class TemplateDraftRepository @Inject constructor(
         return id
     }
 
+    fun updateThumbnailPath(draftId: String, thumbnailAbsolutePath: String) {
+        val dir = File(draftsDir, draftId)
+        val metaFile = File(dir, "metadata.json")
+        if (!metaFile.exists()) return
+        try {
+            @Suppress("UNCHECKED_CAST")
+            val meta = gson.fromJson(metaFile.readText(), Map::class.java) as MutableMap<String, Any?>
+            meta["thumbnailPath"] = thumbnailAbsolutePath
+            meta["updatedAt"] = System.currentTimeMillis()
+            metaFile.writeText(gson.toJson(meta))
+        } catch (e: Exception) {
+            android.util.Log.w("TemplateDraftRepo", "Failed to update thumbnailPath: ${e.message}")
+        }
+    }
+
     /**
      * Sao chép ảnh trong [EditorProduct] từ URI tạm thời (content://) sang
      * file vĩnh viễn trong thư mục draft. Trả về bản copy của product với

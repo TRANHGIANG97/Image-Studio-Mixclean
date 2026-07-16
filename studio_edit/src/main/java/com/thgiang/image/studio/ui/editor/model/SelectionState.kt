@@ -26,10 +26,7 @@ object SelectionState {
         candidateId: String,
     ): Boolean {
         if (candidateId in selectedLayerIds) return true
-        if (selectedLayerIds.isEmpty() && selectedLayerId != null) {
-            return layers.isSelectedAsGroup(selectedLayerId, candidateId)
-        }
-        return false
+        return selectedLayerId == candidateId
     }
 
     fun selectionRoots(layers: List<EditorLayer>, ids: Set<String>): List<String> {
@@ -56,8 +53,8 @@ object SelectionState {
         val filtered = selectedLayerIds.filter { it in validIds }.toSet()
         val primary = selectedLayerId?.takeIf { it in validIds }
         val merged = when {
-            primary != null -> expandGroup(layers, primary) + filtered
-            filtered.isNotEmpty() -> filtered.flatMap { expandGroup(layers, it) }.toSet()
+            primary != null -> filtered + setOf(primary)
+            filtered.isNotEmpty() -> filtered
             else -> emptySet()
         }
         val anchor = primary ?: merged.firstOrNull()
@@ -66,7 +63,7 @@ object SelectionState {
 
     fun singleSelect(layers: List<EditorLayer>, layerId: String?): Pair<String?, Set<String>> =
         if (layerId == null) null to emptySet()
-        else layerId to expandGroup(layers, layerId)
+        else layerId to setOf(layerId)
 
     fun toggle(
         layers: List<EditorLayer>,
@@ -74,11 +71,11 @@ object SelectionState {
         anchorId: String?,
         layerId: String,
     ): Pair<String?, Set<String>> {
-        val expanded = expandGroup(layers, layerId)
+        val expanded = setOf(layerId)
         val base = if (currentIds.isNotEmpty()) currentIds
-        else anchorId?.let { expandGroup(layers, it) } ?: emptySet()
+        else anchorId?.let { setOf(it) } ?: emptySet()
 
-        val newIds = if (expanded.any { it in base }) base - expanded else base + expanded
+        val newIds = if (layerId in base) base - expanded else base + expanded
         if (newIds.isEmpty()) return null to emptySet()
         val anchor = if (anchorId != null && anchorId in newIds) anchorId else newIds.first()
         return anchor to newIds

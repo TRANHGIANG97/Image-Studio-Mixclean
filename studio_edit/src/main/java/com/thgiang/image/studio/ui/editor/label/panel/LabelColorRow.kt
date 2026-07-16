@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import com.thgiang.image.studio.ui.editor.canvas.rememberCheckerboardBrush
+import com.thgiang.image.studio.ui.editor.label.model.hasTransparentFill
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 
@@ -30,6 +32,8 @@ internal fun LabelColorRow(
     onSelectColor: (Int) -> Unit,
     onCustomColorClick: () -> Unit,
     tokens: EditorTokens = LocalEditorTokens.current,
+    showNoneOption: Boolean = false,
+    onClearColor: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
@@ -37,6 +41,13 @@ internal fun LabelColorRow(
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
+        if (showNoneOption && onClearColor != null) {
+            TransparentFillSwatch(
+                selected = currentArgb.hasTransparentFill(),
+                tokens = tokens,
+                onClick = onClearColor,
+            )
+        }
         palette.forEach { color ->
             val argb = color.toArgb()
             val isSelected = currentArgb == argb
@@ -212,6 +223,58 @@ internal fun LabelColorRow(
                 color = tokens.borderSubtle,
                 radius = radius - strokeWidth / 2f,
                 style = Stroke(width = strokeWidth)
+            )
+        }
+    }
+}
+
+@Composable
+internal fun TransparentFillSwatch(
+    selected: Boolean,
+    tokens: EditorTokens,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val checkerboard = rememberCheckerboardBrush()
+    Canvas(
+        modifier = modifier
+            .size(38.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+            ),
+    ) {
+        val width = size.width
+        val height = size.height
+        val radius = width / 2f
+        val center = Offset(radius, radius)
+
+        drawCircle(brush = checkerboard, radius = radius, center = center)
+
+        val slashColor = Color(0xFFE53935)
+        val slashStroke = 2.dp.toPx()
+        drawLine(
+            color = slashColor,
+            start = Offset(width * 0.22f, height * 0.78f),
+            end = Offset(width * 0.78f, height * 0.22f),
+            strokeWidth = slashStroke,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+        )
+
+        if (selected) {
+            val strokeWidth = 2.5.dp.toPx()
+            drawCircle(
+                color = tokens.accent,
+                radius = radius - strokeWidth / 2f,
+                style = Stroke(width = strokeWidth),
+            )
+        } else {
+            val strokeWidth = 0.5.dp.toPx()
+            drawCircle(
+                color = tokens.borderSubtle,
+                radius = radius - strokeWidth / 2f,
+                style = Stroke(width = strokeWidth),
             )
         }
     }

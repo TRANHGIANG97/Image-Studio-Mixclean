@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Crăciun</string>
     <string name="themeplate_section_memories">Amintiri</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfie Food 1</string>
     <string name="themeplate_selfie_food_02">Selfie Food 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Culoare bordură</string>
     <string name="studio_stroke_tab_style">Stil linie</string>
     <string name="studio_stroke_tab_width">Grosime</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Fără bordură</string>
     <string name="studio_dash_solid">Linie continuă</string>
     <string name="studio_dash_round_dot">Puncte rotunde</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Urmărire cale</string>
     <string name="studio_text_form_warp">Deformare</string>
     <string name="studio_text_form_amount">Intensitate</string>
+    <string name="studio_text_form_letter_spacing">Spațiere litere</string>
     <string name="studio_text_form_none">Fără</string>
     <string name="studio_text_form_path_wave">Val</string>
     <string name="studio_text_form_path_arc_up">Arc sus</string>
     <string name="studio_text_form_path_arc_down">Arc jos</string>
     <string name="studio_text_form_path_circle">Cerc</string>
-    <string name="studio_text_form_path_ring">Inel</string>
-    <string name="studio_text_form_warp_arch_up">Boltă sus</string>
+<string name="studio_text_form_warp_arch_up">Boltă sus</string>
     <string name="studio_text_form_warp_arch_down">Boltă jos</string>
     <string name="studio_text_form_warp_bulge">Bombare</string>
     <string name="studio_text_form_warp_wave">Val</string>
     <string name="studio_text_form_warp_flag">Steag</string>
     <string name="studio_text_form_warp_rise">Ascensiune</string>
     <string name="studio_text_form_warp_fall">Cădere</string>
-    <string name="studio_text_form_warp_inflate">Umflare</string>
-    <string name="studio_text_form_warp_deflate">Dezgonire</string>
     <string name="studio_text_form_warp_chevron_up">Chevron sus</string>
     <string name="studio_text_form_warp_chevron_down">Chevron jos</string>
     <string name="studio_objects_label">Obiecte</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Efect</string>
     <string name="studio_label_tab_text_form">Artistic</string>
     <string name="studio_label_tab_shape">Cadru</string>
+    <string name="studio_label_tab_text_template">Șabloane</string>
+    <string name="studio_label_tab_more">Mai mult</string>
+    <string name="studio_text_template_classic">Clasic</string>
+    <string name="studio_text_template_gradient">Gradient</string>
+    <string name="studio_text_template_sale">Reducere</string>
+    <string name="studio_text_template_arc">Arc</string>
+    <string name="studio_text_template_outline">Contur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Moale</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Auriu</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ocean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Efectul de relief nu este disponibil când forma artistică a textului este activă.</string>
+    <string name="studio_text_form_path_hint">Trageți intensitatea pentru a îndoi traseul textului. Spațierea literelor ajută la evitarea suprapunerii glifelor.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistem</string>

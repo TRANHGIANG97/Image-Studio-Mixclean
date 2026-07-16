@@ -8,7 +8,6 @@ import {
   Paintbrush,
   Layers,
   Sparkles,
-  Shapes,
   Type,
 } from 'lucide-react';
 import { EDITOR_MOTION } from '@/lib/editor-tokens';
@@ -24,8 +23,7 @@ export type LabelEditTabId =
   | 'TEXT_COLOR'
   | 'BG_COLOR'
   | 'ELEVATION'
-  | 'TEXT_FORM'
-  | 'SHAPE';
+  | 'TEXT_FORM';
 
 export const LABEL_EDIT_TABS: LabelEditTabId[] = [
   'EDIT',
@@ -38,7 +36,6 @@ export const LABEL_EDIT_TABS: LabelEditTabId[] = [
   'BG_COLOR',
   'ELEVATION',
   'TEXT_FORM',
-  'SHAPE',
 ];
 
 const TAB_LABEL_KEYS: Record<LabelEditTabId, Parameters<typeof t>[0]> = {
@@ -52,7 +49,6 @@ const TAB_LABEL_KEYS: Record<LabelEditTabId, Parameters<typeof t>[0]> = {
   BG_COLOR: 'studio_label_tab_bg_color',
   ELEVATION: 'studio_label_tab_elevation',
   TEXT_FORM: 'studio_label_tab_text_form',
-  SHAPE: 'studio_label_tab_shape',
 };
 
 function TabIcon({ tab, active }: { tab: LabelEditTabId; active: boolean }) {
@@ -91,8 +87,6 @@ function TabIcon({ tab, active }: { tab: LabelEditTabId; active: boolean }) {
       return <Layers className={size} style={{ color }} />;
     case 'TEXT_FORM':
       return <Sparkles className={size} style={{ color }} />;
-    case 'SHAPE':
-      return <Shapes className={size} style={{ color }} />;
     default:
       return null;
   }

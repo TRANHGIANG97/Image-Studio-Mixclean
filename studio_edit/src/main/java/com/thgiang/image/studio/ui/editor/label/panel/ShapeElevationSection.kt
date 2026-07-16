@@ -110,14 +110,14 @@ fun ShapeElevationSection(
         }
     }
 
-    LaunchedEffect(activeSubTab, depthPx, appearance.shadowBlur) {
+    LaunchedEffect(activeSubTab, depthPx, appearance.elevationShadowBlur) {
         onSubTabActiveChanged(activeSubTab != ElevationSubTab.PRESETS)
         if (
             activeSubTab == ElevationSubTab.SHADOW_BLUR &&
             depthPx > 0.5f &&
-            appearance.shadowBlur == null
+            appearance.elevationShadowBlur == null
         ) {
-            emitElevationEvent(EditorEvent.UpdateShadowBlur(8f))
+            emitElevationEvent(EditorEvent.UpdateElevationShadowBlur(8f))
         }
     }
 
@@ -220,12 +220,12 @@ fun ShapeElevationSection(
                 }
             }
             ElevationSubTab.SHADOW_BLUR -> {
-                val currentBlur = appearance.shadowBlur ?: 8f
+                val currentBlur = appearance.elevationShadowBlur ?: 8f
                 PrecisionSlider(
                     label = stringResource(R.string.studio_elevation_shadow_blur),
                     value = currentBlur,
                     valueRange = 0f..50f,
-                    onValueChange = { emitElevationEvent(EditorEvent.UpdateShadowBlur(it)) },
+                    onValueChange = { emitElevationEvent(EditorEvent.UpdateElevationShadowBlur(it)) },
                     valueFormatter = { "${it.toInt()}px" },
                     colors = sliderColors,
                     isCompact = true,

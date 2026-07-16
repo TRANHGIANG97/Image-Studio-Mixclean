@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Рождество</string>
     <string name="themeplate_section_memories">Воспоминания</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Селфи и еда 1</string>
     <string name="themeplate_selfie_food_02">Селфи и еда 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Цвет контура</string>
     <string name="studio_stroke_tab_style">Стиль линии</string>
     <string name="studio_stroke_tab_width">Толщина</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Без контура</string>
     <string name="studio_dash_solid">Сплошная линия</string>
     <string name="studio_dash_round_dot">Круглые точки</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">По контуру</string>
     <string name="studio_text_form_warp">Искажение</string>
     <string name="studio_text_form_amount">Интенсивность</string>
+    <string name="studio_text_form_letter_spacing">Межбуквенный интервал</string>
     <string name="studio_text_form_none">Нет</string>
     <string name="studio_text_form_path_wave">Волна</string>
     <string name="studio_text_form_path_arc_up">Дуга вверх</string>
     <string name="studio_text_form_path_arc_down">Дуга вниз</string>
     <string name="studio_text_form_path_circle">Круг</string>
-    <string name="studio_text_form_path_ring">Кольцо</string>
-    <string name="studio_text_form_warp_arch_up">Арка вверх</string>
+<string name="studio_text_form_warp_arch_up">Арка вверх</string>
     <string name="studio_text_form_warp_arch_down">Арка вниз</string>
     <string name="studio_text_form_warp_bulge">Выпуклость</string>
     <string name="studio_text_form_warp_wave">Волна</string>
     <string name="studio_text_form_warp_flag">Флаг</string>
     <string name="studio_text_form_warp_rise">Подъем</string>
     <string name="studio_text_form_warp_fall">Спад</string>
-    <string name="studio_text_form_warp_inflate">Раздувание</string>
-    <string name="studio_text_form_warp_deflate">Сжатие</string>
     <string name="studio_text_form_warp_chevron_up">Шеврон вверх</string>
     <string name="studio_text_form_warp_chevron_down">Шеврон вниз</string>
     <string name="studio_objects_label">Объекты</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Эффект</string>
     <string name="studio_label_tab_text_form">Худож.</string>
     <string name="studio_label_tab_shape">Рамка</string>
+    <string name="studio_label_tab_text_template">Шаблоны</string>
+    <string name="studio_label_tab_more">Ещё</string>
+    <string name="studio_text_template_classic">Классика</string>
+    <string name="studio_text_template_gradient">Градиент</string>
+    <string name="studio_text_template_sale">Распродажа</string>
+    <string name="studio_text_template_arc">Дуга</string>
+    <string name="studio_text_template_outline">Контур</string>
+    <string name="studio_text_template_neon">Неон</string>
+    <string name="studio_text_template_soft">Мягкий</string>
+    <string name="studio_text_template_poster">Постер</string>
+    <string name="studio_text_template_minimal">Минимализм</string>
+    <string name="studio_text_template_gold">Золото</string>
+    <string name="studio_text_template_retro">Ретро</string>
+    <string name="studio_text_template_ocean">Океан</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Эффект объёма недоступен, пока активна художественная форма текста.</string>
+    <string name="studio_text_form_path_hint">Перетащите интенсивность, чтобы изогнуть путь текста. Межбуквенный интервал помогает избежать наложения глифов.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Системные</string>

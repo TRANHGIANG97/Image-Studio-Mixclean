@@ -2,7 +2,7 @@ import { createSupabaseAdmin } from '@/lib/supabase';
 import { CloudTemplate } from '@/types/cloud-template';
 import { CURRENT_SCHEMA_VERSION } from '@/lib/schema/template-contract';
 import JSZip from 'jszip';
-import { gcd, buildInitialFabricState, remapClonedTemplateIds } from './template.helpers';
+import { gcd, buildInitialFabricState, remapClonedTemplateIds, syncCanvasMetadata } from './template.helpers';
 
 // ─── Types ────────────────────────────────────────────
 
@@ -326,26 +326,40 @@ export async function updateTemplatesBulk(
 ) {
   if (!ids || ids.length === 0) return 0;
 
-  const updateData: Record<string, any> = {
-    updated_at: new Date().toISOString(),
-  };
-
-  if (updates.status !== undefined) {
-    updateData.status = updates.status;
-  }
-
-  if (updates.environment !== undefined) {
-    updateData.environment = updates.environment;
-  }
-
-  const { data, error } = await DB()
+  const { data: templates, error: fetchError } = await DB()
     .from('templates')
-    .update(updateData)
-    .in('id', ids)
-    .select('id');
+    .select('id, canvas_data')
+    .in('id', ids);
 
-  if (error) throw error;
-  return data?.length || 0;
+  if (fetchError) throw fetchError;
+  if (!templates || templates.length === 0) return 0;
+
+  const updatedAt = new Date().toISOString();
+  let updatedCount = 0;
+
+  for (const template of templates) {
+    const updateData: Record<string, unknown> = { updated_at: updatedAt };
+
+    if (updates.status !== undefined) {
+      updateData.status = updates.status;
+    }
+    if (updates.environment !== undefined) {
+      updateData.environment = updates.environment;
+    }
+    if (template.canvas_data) {
+      updateData.canvas_data = syncCanvasMetadata(template.canvas_data as CloudTemplate, updates);
+    }
+
+    const { error } = await DB()
+      .from('templates')
+      .update(updateData)
+      .eq('id', template.id);
+
+    if (error) throw error;
+    updatedCount += 1;
+  }
+
+  return updatedCount;
 }
 
 /**

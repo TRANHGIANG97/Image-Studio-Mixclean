@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">کریسمس</string>
     <string name="themeplate_section_memories">خاطرات</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">سلفی غذا ۱</string>
     <string name="themeplate_selfie_food_02">سلفی غذا ۲</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">رنگ حاشیه</string>
     <string name="studio_stroke_tab_style">نوع خط</string>
     <string name="studio_stroke_tab_width">ضخامت</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">بدون حاشیه</string>
     <string name="studio_dash_solid">خط ممتد</string>
     <string name="studio_dash_round_dot">نقطه‌چین گرد</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">پیروی از مسیر</string>
     <string name="studio_text_form_warp">خمیدگی منحنی</string>
     <string name="studio_text_form_amount">شدت اثر</string>
+    <string name="studio_text_form_letter_spacing">فاصله حروف</string>
     <string name="studio_text_form_none">هیچکدام</string>
     <string name="studio_text_form_path_wave">موجی</string>
     <string name="studio_text_form_path_arc_up">قوس به بالا</string>
     <string name="studio_text_form_path_arc_down">قوس به پایین</string>
     <string name="studio_text_form_path_circle">دایره‌ای</string>
-    <string name="studio_text_form_path_ring">حلقه‌ای</string>
-    <string name="studio_text_form_warp_arch_up">قوس بالا</string>
+<string name="studio_text_form_warp_arch_up">قوس بالا</string>
     <string name="studio_text_form_warp_arch_down">قوس پایین</string>
     <string name="studio_text_form_warp_bulge">برآمده</string>
     <string name="studio_text_form_warp_wave">موج</string>
     <string name="studio_text_form_warp_flag">پرچمی</string>
     <string name="studio_text_form_warp_rise">صعودی</string>
     <string name="studio_text_form_warp_fall">نزولی</string>
-    <string name="studio_text_form_warp_inflate">تورم</string>
-    <string name="studio_text_form_warp_deflate">انقباض</string>
     <string name="studio_text_form_warp_chevron_up">فلش دوگانه به بالا</string>
     <string name="studio_text_form_warp_chevron_down">فلش دوگانه به پایین</string>
     <string name="studio_objects_label">اشیاء و لایه‌ها</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">افکت حجم</string>
     <string name="studio_label_tab_text_form">طراحی هنری</string>
     <string name="studio_label_tab_shape">فریم دور</string>
+    <string name="studio_label_tab_text_template">قالب‌ها</string>
+    <string name="studio_label_tab_more">بیشتر</string>
+    <string name="studio_text_template_classic">کلاسیک</string>
+    <string name="studio_text_template_gradient">گرادیان</string>
+    <string name="studio_text_template_sale">حراج</string>
+    <string name="studio_text_template_arc">قوس</string>
+    <string name="studio_text_template_outline">حاشیه</string>
+    <string name="studio_text_template_neon">نئون</string>
+    <string name="studio_text_template_soft">نرم</string>
+    <string name="studio_text_template_poster">پوستر</string>
+    <string name="studio_text_template_minimal">مینیمال</string>
+    <string name="studio_text_template_gold">طلایی</string>
+    <string name="studio_text_template_retro">رترو</string>
+    <string name="studio_text_template_ocean">اقیانوس</string>
+    <string name="studio_label_elevation_disabled_by_text_form">افکت برجستگی هنگام فعال بودن فرم هنری متن در دسترس نیست.</string>
+    <string name="studio_text_form_path_hint">شدت را بکشید تا مسیر متن خم شود. فاصله حروف به جلوگیری از همپوشانی گلیف‌ها کمک می‌کند.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">سیستمی</string>

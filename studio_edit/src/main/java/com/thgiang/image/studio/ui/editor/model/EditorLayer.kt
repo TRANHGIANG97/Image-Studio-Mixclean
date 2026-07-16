@@ -40,6 +40,11 @@ data class EditorLayer(
     val charSpacing: Float = 0f,
     val textBackgroundColorArgb: Int? = null,
     val textTransform: String? = null,
+    /**
+     * Rich-text runs (P2). When empty, style comes from flat fields ([fontWeight], …).
+     * When non-empty and concatenated text matches [text], runs are authoritative.
+     */
+    val textSpans: List<EditorTextSpan> = emptyList(),
     /** Word-style text path / warp transform (Follow Path + Warp). */
     val textForm: TextFormEffect = TextFormEffect(),
     /** Corner radius in template pixels (from cloud rx/ry) */
@@ -49,6 +54,8 @@ data class EditorLayer(
     val strokeColorArgb: Int? = null,
     val strokeWidthPx: Float = 0f,
     val strokeDashArray: List<Float> = emptyList(),
+    /** Gap between dash segments in template pixels (odd indices of [strokeDashArray]). */
+    val strokeDashGapPx: Float = 6f,
     val fillGradient: CloudGradient? = null,
     val textColorGradient: CloudGradient? = null,
     val pathData: String? = null,

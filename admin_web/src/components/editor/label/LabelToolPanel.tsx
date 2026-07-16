@@ -9,12 +9,10 @@ import { rgbaToHex } from '@/components/canvas/properties/color-utils';
 import { TextPropertiesSection } from '@/components/canvas/properties/TextPropertiesSection';
 import { useEditorPropertyActions } from '@/components/editor/useEditorPropertyActions';
 import { useEditorUiStore } from '@/store/editor-ui.store';
-import { useLayersStore } from '@/store/layers.store';
 import { resolveLayerType } from '@/lib/canvas-object-props';
 import { t } from '@/i18n/editor';
 import LabelIconTabBar, { type LabelEditTabId } from './LabelIconTabBar';
 import ShapeGalleryRow from '../shape/ShapeGalleryRow';
-import type { ShapeSubtype } from '@/lib/canvas-factory';
 
 interface LabelToolPanelProps {
   onDirty?: () => void;
@@ -91,8 +89,6 @@ function LabelTabContent({
   onRecordChange: () => void;
   onStartEdit: () => void;
 }) {
-  const { updateActiveObject } = useLayersStore();
-
   switch (tab) {
     case 'EDIT':
       return (
@@ -181,22 +177,6 @@ function LabelTabContent({
         <p className="text-[11px]" style={{ color: 'var(--editor-text-secondary)' }}>
           {t('studio_text_form_coming')}
         </p>
-      );
-
-    case 'SHAPE':
-      return (
-        <ShapeGalleryRow
-          selected={(activeObjectProps.shapeSubtype as ShapeSubtype) || null}
-          onSelect={(shape) => {
-            if (shape === 'text_only') return;
-            onPropChange('shapeSubtype', shape);
-            if (shape === 'rect' || shape === 'circle') {
-              const rx = shape === 'circle' ? 999 : 12;
-              updateActiveObject({ rx, ry: rx });
-              onRecordChange();
-            }
-          }}
-        />
       );
 
     default:

@@ -10,7 +10,6 @@ import com.thgiang.image.studio.ui.editor.label.model.ShapeLabelDefaults
 import com.thgiang.image.studio.ui.editor.model.EditorLayer
 import com.thgiang.image.studio.ui.editor.model.LayerViewportScale
 import com.thgiang.image.studio.ui.editor.model.ElevationTarget
-import com.thgiang.image.studio.ui.editor.model.ShapeType
 import com.thgiang.image.studio.ui.editor.model.isLabelLayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -110,20 +109,23 @@ enum class LabelEditTab {
     ALIGN,      // Căn lề
     BG_COLOR,   // Màu nền
     TEXT_COLOR, // Màu chữ
+    TEXT_TEMPLATE, // Mẫu chữ
     ELEVATION,  // Độ nổi
     TEXT_FORM,  // Hình dạng chữ (path / warp)
-    SHAPE       // Khung shape
+    /** @deprecated Removed from label toolbar; kept for rememberSaveable ordinal stability. */
+    SHAPE,
 }
 
 // ── Main Section ────────────────────────────────────────
 
 /**
  * Tab ordering inspired by Microsoft Word:
- * - [labelTextFirstTabs]: Text-first (Label tool)
- * - [LabelEditTab.values()]: Default (all tabs in enum order)
+ * - [labelTextFirstTabs]: Text-first (Label tool; no frame/shape tab)
+ * - [labelSelectionTabs]: Canvas-first selection toolbar (same tabs, includes BG_COLOR)
  */
 internal val labelTextFirstTabs: List<LabelEditTab> = listOf(
     LabelEditTab.EDIT,
+    LabelEditTab.TEXT_TEMPLATE,
     LabelEditTab.FONT,
     LabelEditTab.SIZE,
     LabelEditTab.TEXT_STYLE,
@@ -141,7 +143,7 @@ internal fun LabelEditSection(
     layer: EditorLayer,
     tokens: EditorTokens,
     onLayoutEvent: (EditorEvent) -> Unit,
-    tabOrder: List<LabelEditTab> = LabelEditTab.values().toList(),
+    tabOrder: List<LabelEditTab> = labelTextFirstTabs,
     showTabBar: Boolean = true,
     canvasFirstMode: Boolean = false,
     activeTabExternal: LabelEditTab? = null,
@@ -154,12 +156,25 @@ internal fun LabelEditSection(
     val sliderColors = remember(tokens) { tokens.toSliderColors() }
 
     var activeTabInternal by rememberSaveable(layer.id) { mutableStateOf(tabOrder.firstOrNull() ?: LabelEditTab.FONT) }
-    val activeTab = activeTabExternal ?: activeTabInternal
+    val rawActiveTab = activeTabExternal ?: activeTabInternal
+    // Migrate away from removed label-frame tab if restored from saveable state.
+    val activeTab = if (rawActiveTab == LabelEditTab.SHAPE) {
+        tabOrder.firstOrNull() ?: LabelEditTab.FONT
+    } else {
+        rawActiveTab
+    }
     fun setActiveTab(tab: LabelEditTab) {
+        if (tab == LabelEditTab.SHAPE) return
         if (activeTabExternal == null) {
             activeTabInternal = tab
         }
         onActiveTabChange(tab)
+    }
+
+    LaunchedEffect(rawActiveTab) {
+        if (rawActiveTab == LabelEditTab.SHAPE) {
+            setActiveTab(tabOrder.firstOrNull() ?: LabelEditTab.FONT)
+        }
     }
 
     // Tool-first mode: EDIT tab opens inline canvas editor — no duplicate panel TextField.
@@ -175,17 +190,6 @@ internal fun LabelEditSection(
     val isItalic = EditorTextStyleMapper.isItalicStyle(layer.fontStyle)
     val currentAlign = layer.textAlign?.lowercase() ?: "center"
     val currentTransform = layer.textTransform?.lowercase()
-
-    val editableShapes = remember(layer.shapeType) {
-        val base = defaultCreateShapes.toMutableList()
-        if (layer.shapeType == ShapeType.PATH && !base.contains(ShapeType.PATH)) {
-            base.add(ShapeType.PATH)
-        }
-        if (layer.shapeType == ShapeType.POLYGON && !base.contains(ShapeType.POLYGON)) {
-            base.add(ShapeType.POLYGON)
-        }
-        base
-    }
 
     LaunchedEffect(Unit) {
         manifestFonts = FontDownloader.getAvailableFonts()
@@ -297,14 +301,6 @@ internal fun LabelEditSection(
                         sliderColors = sliderColors,
                         tokens = tokens,
                     )
-                    if (layer.shapeType != ShapeType.TEXT_ONLY) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        ShapeSizeSection(
-                            layer = layer,
-                            tokens = tokens,
-                            onLayoutEvent = onLayoutEvent,
-                        )
-                    }
                 }
             }
             LabelEditTab.TEXT_STYLE -> {
@@ -507,22 +503,40 @@ internal fun LabelEditSection(
                     showMode = LabelColorTab.Text,
                 )
             }
+            LabelEditTab.TEXT_TEMPLATE -> {
+                TextStyleTemplateSection(
+                    layer = layer,
+                    tokens = tokens,
+                    onLayoutEvent = onLayoutEvent,
+                )
+            }
             LabelEditTab.ELEVATION -> {
-                if (layer.isLabelLayer && layer.supportsTextElevation) {
-                    ShapeElevationSection(
-                        appearance = layer.appearance,
-                        fillColorArgb = layer.resolveTextElevationColorArgb(),
-                        tokens = tokens,
-                        onLayoutEvent = onLayoutEvent,
-                        elevationTarget = ElevationTarget.TEXT,
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.studio_label_elevation_requires_text),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = tokens.textSecondary,
-                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
-                    )
+                when {
+                    layer.textForm.isActive -> {
+                        Text(
+                            text = stringResource(R.string.studio_label_elevation_disabled_by_text_form),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = tokens.textSecondary,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
+                        )
+                    }
+                    layer.isLabelLayer && layer.supportsTextElevation -> {
+                        ShapeElevationSection(
+                            appearance = layer.appearance,
+                            fillColorArgb = layer.resolveTextElevationColorArgb(),
+                            tokens = tokens,
+                            onLayoutEvent = onLayoutEvent,
+                            elevationTarget = ElevationTarget.TEXT,
+                        )
+                    }
+                    else -> {
+                        Text(
+                            text = stringResource(R.string.studio_label_elevation_requires_text),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = tokens.textSecondary,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
+                        )
+                    }
                 }
             }
             LabelEditTab.TEXT_FORM -> {
@@ -532,14 +546,8 @@ internal fun LabelEditSection(
                     onLayoutEvent = onLayoutEvent,
                 )
             }
-            LabelEditTab.SHAPE -> {
-                LabelShapeSection(
-                    layer = layer,
-                    editableShapes = editableShapes,
-                    tokens = tokens,
-                    onLayoutEvent = onLayoutEvent,
-                )
-            }
+            // Frame/shape editing inside Nhãn was removed; standalone Shape tool remains.
+            LabelEditTab.SHAPE -> Unit
         }
 
 

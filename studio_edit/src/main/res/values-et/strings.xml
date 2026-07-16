@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Jõulud</string>
     <string name="themeplate_section_memories">Mälestused</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Selfi toit 1</string>
     <string name="themeplate_selfie_food_02">Selfi toit 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Äärise värv</string>
     <string name="studio_stroke_tab_style">Joone stiil</string>
     <string name="studio_stroke_tab_width">Paksus</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Ääris puudub</string>
     <string name="studio_dash_solid">Pidev joon</string>
     <string name="studio_dash_round_dot">Ümarad täpid</string>
@@ -261,21 +265,19 @@
     <string name="studio_text_form_follow_path">Järgi trajektoori</string>
     <string name="studio_text_form_warp">Mähi</string>
     <string name="studio_text_form_amount">Intensiivsus</string>
+    <string name="studio_text_form_letter_spacing">Tähevahe</string>
     <string name="studio_text_form_none">Puudub</string>
     <string name="studio_text_form_path_wave">Laine</string>
     <string name="studio_text_form_path_arc_up">Kaar üles</string>
     <string name="studio_text_form_path_arc_down">Kaar alla</string>
     <string name="studio_text_form_path_circle">Ring</string>
-    <string name="studio_text_form_path_ring">Rõngas</string>
-    <string name="studio_text_form_warp_arch_up">Kaar üles</string>
+<string name="studio_text_form_warp_arch_up">Kaar üles</string>
     <string name="studio_text_form_warp_arch_down">Kaar alla</string>
     <string name="studio_text_form_warp_bulge">Kumerus</string>
     <string name="studio_text_form_warp_wave">Laine</string>
     <string name="studio_text_form_warp_flag">Lipp</string>
     <string name="studio_text_form_warp_rise">Tõus</string>
     <string name="studio_text_form_warp_fall">Laskumine</string>
-    <string name="studio_text_form_warp_inflate">Puhita</string>
-    <string name="studio_text_form_warp_deflate">Kahanda</string>
     <string name="studio_text_form_warp_chevron_up">Nool üles</string>
     <string name="studio_text_form_warp_chevron_down">Nool alla</string>
     <string name="studio_objects_label">Objektid</string>
@@ -322,6 +324,22 @@
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Kunstiline</string>
     <string name="studio_label_tab_shape">Raam</string>
+    <string name="studio_label_tab_text_template">Mallid</string>
+    <string name="studio_label_tab_more">Rohkem</string>
+    <string name="studio_text_template_classic">Klassikaline</string>
+    <string name="studio_text_template_gradient">Gradient</string>
+    <string name="studio_text_template_sale">Soodustus</string>
+    <string name="studio_text_template_arc">Kaar</string>
+    <string name="studio_text_template_outline">Kontuur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Pehme</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimaalne</string>
+    <string name="studio_text_template_gold">Kuld</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Ookean</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Kõrguse efekt pole saadaval, kui kunstiline tekstivorm on aktiivne.</string>
+    <string name="studio_text_form_path_hint">Lohistage intensiivsust, et painutada tekstiteed. Tähevahe aitab vältida glüüfide kattumist.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Süsteem</string>

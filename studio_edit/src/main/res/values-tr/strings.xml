@@ -46,6 +46,8 @@
     <string name="themeplate_section_food_selfie">@string/themeplate_professional_food_selfie</string>
     <string name="themeplate_section_christmas">Noel</string>
     <string name="themeplate_section_memories">Anılar</string>
+    <string name="themeplate_section_cosmetics">@string/studio_category_cosmetics</string>
+    <string name="themeplate_section_fashion">@string/studio_category_fashion</string>
     <!-- Selfie & Food Passion templates -->
     <string name="themeplate_selfie_food_01">Yemek Selfie\'si 1</string>
     <string name="themeplate_selfie_food_02">Yemek Selfie\'si 2</string>
@@ -114,6 +116,8 @@
     <string name="studio_stroke_tab_color">Kenarlık rengi</string>
     <string name="studio_stroke_tab_style">Çizgi stili</string>
     <string name="studio_stroke_tab_width">Kalınlık</string>
+    <string name="studio_stroke_tab_spacing">Spacing</string>
+    <string name="studio_stroke_spacing_requires_dash">Choose a dashed line style first.</string>
     <string name="studio_stroke_none">Kenarlık yok</string>
     <string name="studio_dash_solid">Düz çizgi</string>
     <string name="studio_dash_round_dot">Yuvarlak noktalar</string>
@@ -260,21 +264,19 @@
     <string name="studio_text_form_follow_path">Yolu Takip Et</string>
     <string name="studio_text_form_warp">Çarpıt</string>
     <string name="studio_text_form_amount">Yoğunluk</string>
+    <string name="studio_text_form_letter_spacing">Harf aralığı</string>
     <string name="studio_text_form_none">Yok</string>
     <string name="studio_text_form_path_wave">Dalga</string>
     <string name="studio_text_form_path_arc_up">Yukarı Yay</string>
     <string name="studio_text_form_path_arc_down">Aşağı Yay</string>
     <string name="studio_text_form_path_circle">Daire</string>
-    <string name="studio_text_form_path_ring">Halka</string>
-    <string name="studio_text_form_warp_arch_up">Yukarı Kemer</string>
+<string name="studio_text_form_warp_arch_up">Yukarı Kemer</string>
     <string name="studio_text_form_warp_arch_down">Aşağı Kemer</string>
     <string name="studio_text_form_warp_bulge">Şişme</string>
     <string name="studio_text_form_warp_wave">Dalga</string>
     <string name="studio_text_form_warp_flag">Bayrak</string>
     <string name="studio_text_form_warp_rise">Yükseliş</string>
     <string name="studio_text_form_warp_fall">Düşüş</string>
-    <string name="studio_text_form_warp_inflate">Şişir</string>
-    <string name="studio_text_form_warp_deflate">Söndür</string>
     <string name="studio_text_form_warp_chevron_up">Yukarı Çavuş Amblemi</string>
     <string name="studio_text_form_warp_chevron_down">Aşağı Çavuş Amblemi</string>
     <string name="studio_objects_label">Nesneler</string>
@@ -321,6 +323,22 @@
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Artistik</string>
     <string name="studio_label_tab_shape">Çerçeve</string>
+    <string name="studio_label_tab_text_template">Şablonlar</string>
+    <string name="studio_label_tab_more">Daha fazla</string>
+    <string name="studio_text_template_classic">Klasik</string>
+    <string name="studio_text_template_gradient">Degrade</string>
+    <string name="studio_text_template_sale">İndirim</string>
+    <string name="studio_text_template_arc">Kemer</string>
+    <string name="studio_text_template_outline">Kontur</string>
+    <string name="studio_text_template_neon">Neon</string>
+    <string name="studio_text_template_soft">Yumuşak</string>
+    <string name="studio_text_template_poster">Poster</string>
+    <string name="studio_text_template_minimal">Minimal</string>
+    <string name="studio_text_template_gold">Altın</string>
+    <string name="studio_text_template_retro">Retro</string>
+    <string name="studio_text_template_ocean">Okyanus</string>
+    <string name="studio_label_elevation_disabled_by_text_form">Sanatsal metin formu açıkken kabartma efekti kullanılamaz.</string>
+    <string name="studio_text_form_path_hint">Yoğunluğu sürükleyerek metin yolunu bükün. Harf aralığı glif örtüşmesini önlemeye yardımcı olur.</string>
 
     <!-- Font Categories -->
     <string name="studio_font_category_system">Sistem</string>

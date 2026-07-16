@@ -95,14 +95,23 @@ inline fun android.graphics.Canvas.withBlendLayer(
     alpha: Float,
     block: android.graphics.Canvas.() -> Unit,
 ) {
+    val alphaInt = (alpha * 255f).toInt().coerceIn(0, 255)
     if (!EditorBlendModeMapper.needsOffscreenCompositing(blendMode)) {
-        block()
+        if (alphaInt >= 255) {
+            block()
+            return
+        }
+        // Normal blend still needs saveLayer so appearance.alpha is applied.
+        val opacityPaint = Paint().apply { this.alpha = alphaInt }
+        val save = saveLayer(null, opacityPaint)
+        try {
+            block()
+        } finally {
+            restoreToCount(save)
+        }
         return
     }
-    val layerPaint = EditorBlendModeMapper.createLayerPaint(
-        blendMode,
-        (alpha * 255f).toInt().coerceIn(0, 255),
-    )
+    val layerPaint = EditorBlendModeMapper.createLayerPaint(blendMode, alphaInt)
     val save = saveLayer(null, layerPaint)
     try {
         block()

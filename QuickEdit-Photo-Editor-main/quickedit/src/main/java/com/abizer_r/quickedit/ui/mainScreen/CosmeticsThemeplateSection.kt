@@ -74,7 +74,7 @@ fun CosmeticsThemeplateSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.cosmetics_section_title),
+                text = stringResource(com.thgiang.image.studio.R.string.themeplate_section_cosmetics),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,

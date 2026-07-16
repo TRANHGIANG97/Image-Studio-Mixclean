@@ -87,14 +87,16 @@ fun DrawScope.drawRotatedOverlay(
     isGestureActive: Boolean,
     isLocked: Boolean = false,
     lockAspectRatio: Boolean = true,
-    isInlineEditing: Boolean = false
+    isInlineEditing: Boolean = false,
+    minimalTextHandles: Boolean = false
 ) {
     if (isInlineEditing) {
         withTransform({
             rotate(degrees = rotation, pivot = Offset(cx, cy))
         }) {
-            val movePos = Offset(cx, cy + hh + 20.dp.toPx())
-            val moveRadius = 14.dp.toPx()
+            val moveGapPx = EditorDims.TextInlineMoveHandleGapDp.toPx()
+            val movePos = Offset(cx, cy - hh - moveGapPx)
+            val moveRadius = EditorDims.TextInlineMoveHandleRadiusDp.toPx()
             drawMoveHandle(
                 center = movePos,
                 radius = moveRadius,
@@ -123,17 +125,24 @@ fun DrawScope.drawRotatedOverlay(
         )
 
         if (!isLocked) {
-            // Corner handles
-            val corners = listOf(
-                Offset(cx - hw, cy - hh) to HandleZone.Corner.TL,
-                Offset(cx + hw, cy - hh) to HandleZone.Corner.TR,
-                Offset(cx - hw, cy + hh) to HandleZone.Corner.BL,
-                Offset(cx + hw, cy + hh) to HandleZone.Corner.BR
-            )
+            val corners = if (minimalTextHandles) {
+                listOf(Offset(cx - hw, cy - hh) to HandleZone.Corner.TL)
+            } else {
+                listOf(
+                    Offset(cx - hw, cy - hh) to HandleZone.Corner.TL,
+                    Offset(cx + hw, cy - hh) to HandleZone.Corner.TR,
+                    Offset(cx - hw, cy + hh) to HandleZone.Corner.BL,
+                    Offset(cx + hw, cy + hh) to HandleZone.Corner.BR
+                )
+            }
 
             corners.forEach { (pos, zone) ->
                 val isActive = gestureMode == GestureMode.SCALE_CORNER && activeHandle == zone
-                val radius = if (isActive) dimensions.handleRadiusPx * EditorDims.CornerActiveScale else dimensions.handleRadiusPx
+                val radius = if (isActive) {
+                    dimensions.handleVisualRadiusPx * EditorDims.CornerActiveScale
+                } else {
+                    dimensions.handleVisualRadiusPx
+                }
                 val color = if (isActive) EditorColors.HandleActive else EditorColors.HandleInactive
 
                 // Ambient shadow behind the handle
@@ -174,13 +183,17 @@ fun DrawScope.drawRotatedOverlay(
             }
 
             // Edge handles (Canva-style pill handles)
-            if (!lockAspectRatio) {
-                val edgeHandles = listOf(
-                    Offset(cx - hw, cy) to HandleZone.Edge.Left,
-                    Offset(cx + hw, cy) to HandleZone.Edge.Right,
-                    Offset(cx, cy - hh) to HandleZone.Edge.Top,
-                    Offset(cx, cy + hh) to HandleZone.Edge.Bottom
-                )
+            if (!lockAspectRatio || minimalTextHandles) {
+                val edgeHandles = if (minimalTextHandles) {
+                    listOf(Offset(cx + hw, cy) to HandleZone.Edge.Right)
+                } else {
+                    listOf(
+                        Offset(cx - hw, cy) to HandleZone.Edge.Left,
+                        Offset(cx + hw, cy) to HandleZone.Edge.Right,
+                        Offset(cx, cy - hh) to HandleZone.Edge.Top,
+                        Offset(cx, cy + hh) to HandleZone.Edge.Bottom
+                    )
+                }
 
                 edgeHandles.forEach { (pos, zone) ->
                     val isActive = gestureMode == GestureMode.SCALE_EDGE && activeHandle == zone
