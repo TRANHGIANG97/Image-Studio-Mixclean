@@ -7,6 +7,7 @@ import com.thgiang.image.studio.ui.editor.mapper.EditorElevationMapper.drawShape
 import com.thgiang.image.studio.ui.editor.mapper.hasShape3DDepth
 import com.thgiang.image.studio.ui.editor.mapper.supportsTextElevation
 import com.thgiang.image.studio.ui.editor.mapper.EditorShadowMapper.drawShapeDropShadow
+import com.thgiang.image.studio.ui.editor.mapper.ProductExportLayout
 
 import com.thgiang.image.studio.ui.editor.model.*
 
@@ -72,7 +73,17 @@ class EditorRenderer(
             
             // Fill white để vùng transparent của template PNG không ra đen
             canvas.drawColor(request.backgroundColorArgb)
-            canvas.drawBitmap(template, 0f, 0f, paint)
+            // Downsampling may yield a smaller bitmap — scale into the export canvas.
+            if (template.width == request.templateSize.width && template.height == request.templateSize.height) {
+                canvas.drawBitmap(template, 0f, 0f, paint)
+            } else {
+                canvas.drawBitmap(
+                    template,
+                    null,
+                    Rect(0, 0, request.templateSize.width, request.templateSize.height),
+                    paint,
+                )
+            }
             
             for (layer in request.layers) {
                 if (!layer.isVisible) continue
@@ -90,14 +101,18 @@ class EditorRenderer(
                             ?: continue
 
                         val state = layer.viewport
-                        val baseW = layer.shapeWidthPx
-                        val baseH = layer.shapeHeightPx
-                        val drawW = baseW * state.scale
-                        val drawH = baseH * state.scale
-                        val centerX = (request.templateSize.width - drawW) / 2f
-                        val centerY = (request.templateSize.height - drawH) / 2f
-                        val drawX = centerX + state.offset.x
-                        val drawY = centerY + state.offset.y
+                        val layout = ProductExportLayout.compute(
+                            templateWidth = request.templateSize.width,
+                            templateHeight = request.templateSize.height,
+                            shapeWidthPx = layer.shapeWidthPx,
+                            shapeHeightPx = layer.shapeHeightPx,
+                            viewportScale = state.scale,
+                            offsetX = state.offset.x,
+                            offsetY = state.offset.y,
+                            cropRatio = layer.cropRatio,
+                            imageWidth = foreground.width,
+                            imageHeight = foreground.height,
+                        )
 
                         // Drop shadow must use normal compositing (not the layer blend mode),
                         // otherwise fringe colors / lighten-screen modes turn it neon.
@@ -106,40 +121,24 @@ class EditorRenderer(
                                 canvas = canvas,
                                 foreground = foreground,
                                 state = state,
-                                cropRatio = layer.cropRatio,
-                                baseW = baseW,
-                                baseH = baseH,
-                                drawX = drawX,
-                                drawY = drawY,
+                                layout = layout,
                                 appearance = layer.appearance,
                                 sourceUri = fgUri,
+                                cropOffsetX = layer.cropOffsetX,
+                                cropOffsetY = layer.cropOffsetY,
                             )
                         }
 
                         canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
                             paint.alpha = 255
-
-                            val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
-                            val scaleY = (baseH / foreground.height) * state.scale * (if (state.flippedV) -1f else 1f)
-
-                            withSave {
-                                translate(drawX, drawY)
-                                scale(scaleX, scaleY)
-                                rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
-
-                                val croppedSize = layer.cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
-                                val left = (foreground.width - croppedSize.width) / 2f
-                                val top = (foreground.height - croppedSize.height) / 2f
-                                clipRect(left, top, left + croppedSize.width, top + croppedSize.height)
-
-                                val ox = layer.cropOffsetX * (foreground.width / layer.shapeWidthPx.coerceAtLeast(1f))
-                                val oy = layer.cropOffsetY * (foreground.height / layer.shapeHeightPx.coerceAtLeast(1f))
-                                translate(ox, oy)
-
-                                val fgX = if (state.flippedH) -foreground.width.toFloat() else 0f
-                                val fgY = if (state.flippedV) -foreground.height.toFloat() else 0f
-                                drawBitmap(foreground, fgX, fgY, paint)
-                            }
+                            drawProductBitmap(
+                                foreground = foreground,
+                                state = state,
+                                layout = layout,
+                                cropOffsetX = layer.cropOffsetX,
+                                cropOffsetY = layer.cropOffsetY,
+                                paint = paint,
+                            )
                         }
 
                         foreground.recycle()
@@ -152,17 +151,57 @@ class EditorRenderer(
         }
     }
     
+    /**
+     * Draws a product bitmap with ContentScale.Fit parity to ProductLayerV2.
+     * Clip uses the crop window in canvas space; bitmap is uniformly scaled and centered.
+     */
+    private fun Canvas.drawProductBitmap(
+        foreground: Bitmap,
+        state: EditorViewport,
+        layout: ProductExportLayout,
+        cropOffsetX: Float,
+        cropOffsetY: Float,
+        paint: Paint,
+    ) {
+        val fitScale = layout.fitScale.coerceAtLeast(1e-6f)
+        val scaleX = fitScale * (if (state.flippedH) -1f else 1f)
+        val scaleY = fitScale * (if (state.flippedV) -1f else 1f)
+        val fgW = foreground.width.toFloat()
+        val fgH = foreground.height.toFloat()
+
+        withSave {
+            // Match ProductLayer crop clip (layer box), not a subset of bitmap pixels.
+            clipRect(
+                layout.drawX,
+                layout.drawY,
+                layout.drawX + layout.drawW,
+                layout.drawY + layout.drawH,
+            )
+
+            translate(layout.fittedX, layout.fittedY)
+            scale(scaleX, scaleY)
+            rotate(state.rotation, fgW / 2f, fgH / 2f)
+
+            // cropOffset is in template pixels (same as ProductLayer translation).
+            val ox = cropOffsetX * state.scale / fitScale
+            val oy = cropOffsetY * state.scale / fitScale
+            translate(ox, oy)
+
+            val fgX = if (state.flippedH) -fgW else 0f
+            val fgY = if (state.flippedV) -fgH else 0f
+            drawBitmap(foreground, fgX, fgY, paint)
+        }
+    }
+
     private suspend fun renderShadowCached(
         canvas: Canvas,
         foreground: Bitmap,
         state: EditorViewport,
-        cropRatio: CropRatio,
-        baseW: Float,
-        baseH: Float,
-        drawX: Float,
-        drawY: Float,
+        layout: ProductExportLayout,
         appearance: EditorAppearance,
-        sourceUri: Uri
+        sourceUri: Uri,
+        cropOffsetX: Float,
+        cropOffsetY: Float,
     ) {
         val blurRadius = appearance.resolvedShadowBlurRadius()
         val opaqueShadowColor = appearance.opaqueShadowColorArgb()
@@ -213,8 +252,9 @@ class EditorRenderer(
                 .toInt().coerceIn(0, 255)
         }
 
-        val scaleX = (baseW / foreground.width) * state.scale * (if (state.flippedH) -1f else 1f)
-        val scaleY = (baseH / foreground.height) * state.scale * (if (state.flippedV) -1f else 1f)
+        val fitScale = layout.fitScale.coerceAtLeast(1e-6f)
+        val scaleX = fitScale * (if (state.flippedH) -1f else 1f)
+        val scaleY = fitScale * (if (state.flippedV) -1f else 1f)
 
         // Calculate dynamic shadow offsets using trigonometry
         val (dx, dy) = shadowOffset(appearance.shadowAngle, appearance.shadowDistance)
@@ -223,20 +263,20 @@ class EditorRenderer(
         val blurPad = (blurRadius * 3f).coerceAtLeast(0f)
 
         canvas.withSave {
-            translate(drawX + dx, drawY + dy)
+            clipRect(
+                layout.drawX - blurPad + dx,
+                layout.drawY - blurPad + dy,
+                layout.drawX + layout.drawW + blurPad + dx,
+                layout.drawY + layout.drawH + blurPad + dy,
+            )
+
+            translate(layout.fittedX + dx, layout.fittedY + dy)
             scale(scaleX, scaleY)
             rotate(state.rotation, foreground.width / 2f, foreground.height / 2f)
 
-            // Crop clipping (local coordinates)
-            val croppedSize = cropRatio.calculateSize(foreground.width.toFloat(), foreground.height.toFloat())
-            val left = (foreground.width - croppedSize.width) / 2f - blurPad
-            val top = (foreground.height - croppedSize.height) / 2f - blurPad
-            clipRect(
-                left,
-                top,
-                left + croppedSize.width + blurPad * 2f,
-                top + croppedSize.height + blurPad * 2f,
-            )
+            val ox = cropOffsetX * state.scale / fitScale
+            val oy = cropOffsetY * state.scale / fitScale
+            translate(ox, oy)
 
             val sdX = if (state.flippedH) -foreground.width.toFloat() else 0f
             val sdY = if (state.flippedV) -foreground.height.toFloat() else 0f
