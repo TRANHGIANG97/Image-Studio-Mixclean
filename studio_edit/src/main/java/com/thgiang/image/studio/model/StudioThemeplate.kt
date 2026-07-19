@@ -27,6 +27,10 @@ data class StudioThemeplateSection(
 
 /** Legacy registry — bundled templates removed; gallery loads from cloud API. */
 object StudioThemeplates {
+    /** Nav argument for free-form design (no cloud template). */
+    const val BLANK_THEMEPLATE_ID = "blank"
+    const val BLANK_CANVAS_SIZE = 1080
+
     val all: List<StudioThemeplate> = emptyList()
     val cosmetics: List<StudioThemeplate> = emptyList()
     val professional: List<StudioThemeplate> = emptyList()

@@ -18,8 +18,14 @@ data class EditorState(
     val draftSavedAt: Long? = null,
     val errorMessage: String? = null,
     val showOverlay: Boolean = false,
-    val showBoundingBox: Boolean = false
+    val showBoundingBox: Boolean = false,
+    /** Container groups — members stay on canvas. */
+    val userGroups: Map<String, EditorUserGroup> = emptyMap(),
+    /** Legacy rasterized groups — draft migration only. */
+    val userGroupBundles: Map<String, UserGroupBundle> = emptyMap(),
 ) : java.io.Serializable {
+    val userGroupMaps: UserGroupMaps
+        get() = UserGroupMaps(groups = userGroups, bundles = userGroupBundles)
     val canExport: Boolean
         get() = layers.any { it.type == LayerType.IMAGE && it.product.foregroundUriString != null } && !isExporting && template.loaded
 

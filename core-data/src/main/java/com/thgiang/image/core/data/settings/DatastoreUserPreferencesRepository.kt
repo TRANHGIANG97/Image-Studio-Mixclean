@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.thgiang.image.core.domain.settings.UserPreferences
 import com.thgiang.image.core.domain.settings.ReviewPromptDecision
+import com.thgiang.image.core.domain.settings.REVIEW_PROMPT_SAVE_INTERVAL
+import com.thgiang.image.core.domain.settings.shouldShowReviewPromptAfterSave
 import com.thgiang.image.core.domain.settings.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -25,9 +27,6 @@ private val REVIEW_PROMPT_DISABLED_KEY = booleanPreferencesKey("review_prompt_di
 private val REVIEW_MARKED_AS_REVIEWED_KEY = booleanPreferencesKey("review_marked_as_reviewed")
 private val LAST_PREMIUM_EDIT_DATE_KEY = stringPreferencesKey("last_premium_edit_date")
 private val EDITED_PREMIUM_TEMPLATES_TODAY_KEY = stringPreferencesKey("edited_premium_templates_today")
-
-private const val REVIEW_PROMPT_THRESHOLD = 3
-private const val REVIEW_PROMPT_INTERVAL_MILLIS = 24L * 60L * 60L * 1000L
 
 private val Context.dataStore by preferencesDataStore(
     name = DATASTORE_NAME
@@ -88,8 +87,20 @@ class DatastoreUserPreferencesRepository(
                 return@edit
             }
 
-            // Always show the prompt on successful save per user request
-            decision = ReviewPromptDecision.ShowPrompt
+            val newCount = (prefs[REVIEW_SUCCESSFUL_SAVE_COUNT_KEY] ?: 0) + 1
+            prefs[REVIEW_SUCCESSFUL_SAVE_COUNT_KEY] = newCount
+
+            if (shouldShowReviewPromptAfterSave(
+                    successfulSaveCount = newCount,
+                    promptDisabled = false,
+                    markedAsReviewed = false,
+                    interval = REVIEW_PROMPT_SAVE_INTERVAL,
+                )
+            ) {
+                decision = ReviewPromptDecision.ShowPrompt
+                prefs[REVIEW_PROMPT_SHOWN_COUNT_KEY] = (prefs[REVIEW_PROMPT_SHOWN_COUNT_KEY] ?: 0) + 1
+                prefs[REVIEW_PROMPT_LAST_SHOWN_AT_MILLIS_KEY] = nowMillis
+            }
         }
 
         return decision

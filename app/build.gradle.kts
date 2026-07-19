@@ -52,8 +52,8 @@ android {
         applicationId = "com.thgiang.image"
         minSdk = 24
         targetSdk = 35
-        versionCode = 215
-        versionName = "2.0.15"
+        versionCode = 216
+        versionName = "2.0.16"
         buildConfigField("String", "ADMIN_WEB_BASE_URL", "\"${localProperty("ADMIN_WEB_BASE_URL") ?: "http://10.0.2.2:3000"}\"")
         buildConfigField("String", "CDN_BASE_URL", "\"${localProperty("CDN_BASE_URL") ?: ""}\"")
 
@@ -248,4 +248,12 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+// App uses KSP for Hilt; regular javac has no AP processors — disable proc there only.
+// hiltJavaCompile* must keep annotation processing (generates Hilt_ImageApp, etc.).
+tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+    if (!name.startsWith("hiltJavaCompile") && !options.compilerArgs.contains("-proc:none")) {
+        options.compilerArgs.add("-proc:none")
+    }
 }

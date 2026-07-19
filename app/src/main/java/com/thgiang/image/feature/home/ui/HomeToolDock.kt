@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.AutoAwesomeMotion
 import androidx.compose.material.icons.outlined.AutoFixHigh
+import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Palette
@@ -75,6 +76,7 @@ private data class QuickTool(
 fun AiToolDock(
     isPremium: Boolean,
     onBatchRemove: () -> Unit,
+    onOpenBlankDesign: () -> Unit = {},
     onOpenEffects: () -> Unit = {},
     onOpenStudioTool: () -> Unit = {},
     onOpenMagicTool: () -> Unit = {},
@@ -89,6 +91,7 @@ fun AiToolDock(
     val tools = listOf(
         QuickTool(stringResource(R.string.home_dock_pick_image), iconVector = Icons.Outlined.Image, locked = false, onClick = onOpenRemoveBgEditor),
         QuickTool(stringResource(R.string.home_dock_batch), iconVector = Icons.Outlined.AutoAwesomeMotion, locked = false, onClick = onBatchRemove),
+        QuickTool(stringResource(R.string.home_dock_design), iconVector = Icons.Outlined.Brush, locked = false, onClick = onOpenBlankDesign),
         QuickTool(
             title = stringResource(R.string.home_draft),
             iconVector = Icons.Outlined.Folder,

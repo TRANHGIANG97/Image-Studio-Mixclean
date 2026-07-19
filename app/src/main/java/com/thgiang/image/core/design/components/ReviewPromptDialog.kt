@@ -188,7 +188,12 @@ fun ReviewPromptDialog(
                         }
                         VerticalDivider(color = Color(0xFFE5E7EB))
                         TextButton(
-                            onClick = onRateNow,
+                            onClick = {
+                                if (dontShowAgain) {
+                                    onNeverShowAgain()
+                                }
+                                onRateNow()
+                            },
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(

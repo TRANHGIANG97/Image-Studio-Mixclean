@@ -1,39 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseAdmin } from '@/lib/supabase';
+import { listAssets } from '@/domains/assets/asset.service';
+import {
+  DEFAULT_STICKER_PREVIEW_FOLDER,
+  DEFAULT_STICKER_PREVIEW_LIMIT,
+  isMaterialsTabFolder,
+  normalizeMaterialsFolder,
+} from '@/domains/assets/materials-folders';
 
 export const dynamic = 'force-dynamic';
 
+/** Same query path as Media Library GET /api/assets — keeps preview in sync with admin UI. */
+async function loadFolderPreview(folder: string, limit: number) {
+  const { assets } = await listAssets({ folder, page: 1, limit });
+  return (assets ?? [])
+    .filter((asset) => asset.file_url)
+    .map((asset) => ({ id: asset.id, url: asset.file_url as string }));
+}
+
+/**
+ * Quick sticker strip — defaults to 20 icons from `materials_icon`.
+ * Query: ?folder=materials_icon&limit=20
+ */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '10', 10), 50);
+    const folder = normalizeMaterialsFolder(
+      searchParams.get('folder') || DEFAULT_STICKER_PREVIEW_FOLDER,
+    );
+    const limit = Math.min(
+      parseInt(searchParams.get('limit') || String(DEFAULT_STICKER_PREVIEW_LIMIT), 10),
+      50,
+    );
 
-    const supabase = createSupabaseAdmin();
+    if (!isMaterialsTabFolder(folder)) {
+      return NextResponse.json(
+        { error: 'folder must be a materials_* slug' },
+        { status: 400 },
+      );
+    }
 
-    // Query both meme and decor folder stickers (case-insensitive fallback via .in)
-    const [memeRes, decorRes] = await Promise.all([
-      supabase
-        .from('assets')
-        .select('id, file_url')
-        .in('folder', ['sticker_meme', 'Sticker_meme'])
-        .order('created_at', { ascending: false })
-        .limit(limit),
-      supabase
-        .from('assets')
-        .select('id, file_url')
-        .in('folder', ['sticker_decor', 'Sticker_decor'])
-        .order('created_at', { ascending: false })
-        .limit(limit),
-    ]);
-
-    if (memeRes.error) throw memeRes.error;
-    if (decorRes.error) throw decorRes.error;
+    const stickers = await loadFolderPreview(folder, limit);
 
     return NextResponse.json(
       {
         success: true,
-        meme: (memeRes.data || []).map((a) => ({ id: a.id, url: a.file_url })),
-        decor: (decorRes.data || []).map((a) => ({ id: a.id, url: a.file_url })),
+        folder,
+        stickers,
+        // Legacy keys for older app builds
+        meme: stickers,
+        decor: [],
       },
       {
         headers: {

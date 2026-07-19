@@ -71,11 +71,12 @@ object SelectionState {
         anchorId: String?,
         layerId: String,
     ): Pair<String?, Set<String>> {
-        val expanded = setOf(layerId)
+        val expanded = UserGroupOps.selectionMembers(layers, layerId)
         val base = if (currentIds.isNotEmpty()) currentIds
         else anchorId?.let { setOf(it) } ?: emptySet()
 
-        val newIds = if (layerId in base) base - expanded else base + expanded
+        val removing = expanded.any { it in base }
+        val newIds = if (removing) base - expanded else base + expanded
         if (newIds.isEmpty()) return null to emptySet()
         val anchor = if (anchorId != null && anchorId in newIds) anchorId else newIds.first()
         return anchor to newIds

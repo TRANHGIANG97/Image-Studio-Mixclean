@@ -13,6 +13,14 @@ data class EditorLayer(
     /** Pan offset inside crop window (template pixels). */
     val cropOffsetX: Float = 0f,
     val cropOffsetY: Float = 0f,
+    /**
+     * Tight axis-aligned bounds of non-transparent pixels in the foreground bitmap.
+     * When width/height are 0, the full [product] bitmap is used for selection chrome.
+     */
+    val opaqueContentLeftPx: Int = 0,
+    val opaqueContentTopPx: Int = 0,
+    val opaqueContentWidthPx: Int = 0,
+    val opaqueContentHeightPx: Int = 0,
 
     // ── SHAPE_TEXT layer properties ─────────────────────────
     /** Displayed text content */
@@ -65,6 +73,10 @@ data class EditorLayer(
     val groupId: String? = null,
     /** Role inside a [groupId] composite. */
     val groupRole: LayerGroupRole? = null,
+    /** User-created group id — layers sharing this move/transform together. */
+    val userGroupId: String? = null,
+    /** When [COMPOSITE], this IMAGE layer represents a collapsed user group. */
+    val userGroupRole: UserGroupRole? = null,
 
     // ── Common transform & appearance ───────────────────────
     val viewport: EditorViewport = EditorViewport(),

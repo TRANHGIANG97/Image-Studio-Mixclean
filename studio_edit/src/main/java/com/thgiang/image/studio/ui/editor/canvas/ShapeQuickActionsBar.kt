@@ -33,6 +33,8 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FlipToBack
 import androidx.compose.material.icons.filled.FlipToFront
+import androidx.compose.material.icons.filled.GroupOff
+import androidx.compose.material.icons.filled.GroupWork
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Lock
@@ -85,6 +87,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun ShapeQuickActionsBar(
     layer: EditorLayer?,
+    selectionCount: Int = 1,
+    canGroup: Boolean = false,
+    canUngroup: Boolean = false,
     visible: Boolean,
     onEvent: (EditorEvent) -> Unit,
     quickActionsOffset: Offset,
@@ -249,6 +254,26 @@ fun ShapeQuickActionsBar(
                                     tint = Color(0xFF424242),
                                     onClick = { onEvent(EditorEvent.DuplicateLayer) },
                                 )
+
+                                if (canGroup) {
+                                    QuickActionDivider()
+                                    QuickActionButton(
+                                        icon = Icons.Default.GroupWork,
+                                        label = stringResource(R.string.studio_action_group),
+                                        tint = Color(0xFF1565C0),
+                                        onClick = { onEvent(EditorEvent.GroupLayers) },
+                                    )
+                                }
+
+                                if (canUngroup) {
+                                    QuickActionDivider()
+                                    QuickActionButton(
+                                        icon = Icons.Default.GroupOff,
+                                        label = stringResource(R.string.studio_action_ungroup),
+                                        tint = Color(0xFF1565C0),
+                                        onClick = { onEvent(EditorEvent.UngroupLayers) },
+                                    )
+                                }
 
                                 QuickActionDivider()
 

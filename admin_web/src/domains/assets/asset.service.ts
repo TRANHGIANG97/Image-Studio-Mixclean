@@ -4,6 +4,7 @@ import { r2Client, r2BucketName, r2PublicUrl } from '@/lib/r2';
 import { PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { toSlug } from '@/lib/utils';
 import { isBackgroundFolder } from '@/domains/assets/background-folders';
+import { isMaterialsFolder } from '@/domains/assets/materials-folders';
 
 const DB = () => createSupabaseAdmin();
 
@@ -42,6 +43,9 @@ export async function listAssets(filters: ListAssetsFilters = {}) {
       query = query.in('folder', ['stickers', 'sticker']);
     } else if (isBackgroundFolder(folder)) {
       // Case-insensitive match for backgrounds_ecommerce vs Backgrounds_ecommerce
+      query = query.ilike('folder', folder);
+    } else if (isMaterialsFolder(folder)) {
+      // Case-insensitive match for materials_icon vs Materials_icon
       query = query.ilike('folder', folder);
     } else {
       query = query.eq('folder', folder);
@@ -370,10 +374,11 @@ export async function deleteAssetsBulk(ids: string[]) {
 /**
  * Update asset attributes (e.g., category_id, folder).
  */
-export async function updateAsset(id: string, updates: { categoryId?: string | null; folder?: string }) {
+export async function updateAsset(id: string, updates: { categoryId?: string | null; folder?: string; name?: string }) {
   const updatePayload: any = {};
   if (updates.categoryId !== undefined) updatePayload.category_id = updates.categoryId;
   if (updates.folder !== undefined) updatePayload.folder = updates.folder;
+  if (updates.name !== undefined) updatePayload.name = updates.name.trim();
 
   const { data, error } = await DB()
     .from('assets')

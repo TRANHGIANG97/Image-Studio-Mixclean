@@ -14,6 +14,8 @@ sealed class EditorEvent {
     data class LoadTemplate(val assetPath: String, val objectSourceAssetPath: String? = null) : EditorEvent()
     data class LoadCloudTemplate(val cloudTemplate: CloudTemplate) : EditorEvent()
     data class LoadCloudTemplateById(val templateId: String) : EditorEvent()
+    /** Open a blank white canvas for free-form design (no template). */
+    data object LoadBlankCanvas : EditorEvent()
     data class PrepareTemplatePreview(val themeplate: com.thgiang.image.studio.model.StudioThemeplate) : EditorEvent()
     data class SetProductImage(val uri: Uri, val replaceLayerId: String? = null) : EditorEvent()
     data class AddSticker(val assetPath: String) : EditorEvent()
@@ -110,6 +112,10 @@ sealed class EditorEvent {
     data class SelectLayer(val layerId: String?) : EditorEvent()
     /** Long-press: add/remove layer from multi-selection (Phase 5). */
     data class ToggleLayerSelection(val layerId: String) : EditorEvent()
+    /** Merge the current selection into one user group (requires 2+ layers). */
+    data object GroupLayers : EditorEvent()
+    /** Split user groups for the current selection. */
+    data object UngroupLayers : EditorEvent()
     data object DuplicateLayer : EditorEvent()
     data object DeleteLayer : EditorEvent()
     data object CommitTransform : EditorEvent()

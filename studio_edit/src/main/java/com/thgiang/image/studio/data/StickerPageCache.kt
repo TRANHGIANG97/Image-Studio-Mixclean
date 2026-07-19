@@ -10,7 +10,7 @@ import javax.inject.Singleton
  * In-memory cache cho sticker data với TTL 10 phút.
  *
  * Cache 2 loại:
- *  1. [previewCache] — 20 sticker preview (10 meme + 10 decor), dùng cho hàng ngang quick strip.
+ *  1. [previewCache] — 20 icons from materials_icon for the quick sticker strip.
  *  2. [pageCache]    — Các trang đã tải trong Gallery Sheet, key = "folder:page:limit".
  *
  * Gọi [invalidate] để xóa toàn bộ cache khi cần tải lại.
@@ -23,8 +23,8 @@ class StickerPageCache @Inject constructor() {
         val timestamp: Long = System.currentTimeMillis(),
     )
 
-    /** Preview cache: Pair(memeList, decorList) */
-    private val previewCache = AtomicReference<CacheEntry<Pair<List<RemoteSticker>, List<RemoteSticker>>>?>()
+    /** Preview cache: 20 icons from materials_icon for the quick strip */
+    private val previewCache = AtomicReference<CacheEntry<List<RemoteSticker>>?>()
 
     /** Tab list cache from /api/v1/stickers/folders */
     private val tabsCache = AtomicReference<CacheEntry<List<StickerTabInfo>>?>()
@@ -53,21 +53,29 @@ class StickerPageCache @Inject constructor() {
 
     // ─── Preview ──────────────────────────────────────────────────
 
-    fun getPreview(): Pair<List<RemoteSticker>, List<RemoteSticker>>? {
+    fun getPreview(): List<RemoteSticker>? {
         val entry = previewCache.get() ?: return null
-        return if (isValid(entry)) {
-            Log.d(TAG, "Cache HIT: sticker preview")
-            entry.data
-        } else {
+        if (!isValid(entry)) {
             Log.d(TAG, "Cache MISS (expired): sticker preview")
             previewCache.set(null)
-            null
+            return null
         }
+        if (entry.data.isEmpty()) {
+            Log.d(TAG, "Cache MISS (empty): sticker preview")
+            previewCache.set(null)
+            return null
+        }
+        Log.d(TAG, "Cache HIT: sticker preview")
+        return entry.data
     }
 
-    fun putPreview(meme: List<RemoteSticker>, decor: List<RemoteSticker>) {
-        previewCache.set(CacheEntry(Pair(meme, decor)))
-        Log.d(TAG, "Cache PUT: sticker preview meme=${meme.size} decor=${decor.size}")
+    fun putPreview(stickers: List<RemoteSticker>) {
+        if (stickers.isEmpty()) {
+            Log.d(TAG, "Cache SKIP: sticker preview empty")
+            return
+        }
+        previewCache.set(CacheEntry(stickers))
+        Log.d(TAG, "Cache PUT: sticker preview size=${stickers.size}")
     }
 
     // ─── Page ─────────────────────────────────────────────────────
@@ -86,6 +94,10 @@ class StickerPageCache @Inject constructor() {
     }
 
     fun putPage(folder: String, page: Int, limit: Int, data: List<RemoteSticker>) {
+        if (data.isEmpty()) {
+            Log.d(TAG, "Cache SKIP: ${cacheKey(folder, page, limit)} empty")
+            return
+        }
         val key = cacheKey(folder, page, limit)
         pageCache[key] = CacheEntry(data)
         Log.d(TAG, "Cache PUT: $key size=${data.size}")

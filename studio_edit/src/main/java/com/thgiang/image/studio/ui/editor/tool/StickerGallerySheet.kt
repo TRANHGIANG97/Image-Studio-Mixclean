@@ -59,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.thgiang.image.studio.data.RemoteSticker
+import com.thgiang.image.studio.ui.editor.canvas.assetPreviewCheckerboardBackground
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 import androidx.compose.ui.res.stringResource
@@ -432,22 +433,28 @@ private fun GalleryThumb(
         modifier = Modifier
             .size(80.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFF5F5F5))
             .border(1.dp, tokens.borderSubtle, RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(6.dp),
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(sticker.url)
-                .crossfade(true)
-                .memoryCacheKey(sticker.id)
-                .diskCacheKey(sticker.id)
-                .build(),
-            contentDescription = sticker.id,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize(),
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .assetPreviewCheckerboardBackground()
+                .padding(6.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(sticker.url)
+                    .crossfade(true)
+                    .memoryCacheKey(sticker.id)
+                    .diskCacheKey(sticker.id)
+                    .build(),
+                contentDescription = sticker.id,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }

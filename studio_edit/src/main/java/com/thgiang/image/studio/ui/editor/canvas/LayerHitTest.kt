@@ -4,6 +4,7 @@ import com.thgiang.image.studio.ui.editor.canvas.*
 import com.thgiang.image.studio.ui.editor.model.*
 
 import androidx.compose.ui.unit.IntSize
+import kotlin.math.roundToInt
 
 /**
  * Hit-test context for canvas tap coordinates (screen space).
@@ -41,15 +42,27 @@ object LayerHitTest {
     private fun isLayerHit(layer: EditorLayer, context: LayerHitTestContext): Boolean {
         val (objectWidthPx, objectHeightPx) = layerObjectSizePx(layer, context) ?: return false
 
-        val objectCenterX =
-            context.templateLeftPx + context.displayWidthPx / 2f +
-                (layer.viewport.offset.x * context.calculatedScale)
-        val objectCenterY =
-            context.templateTopPx + context.displayHeightPx / 2f +
-                (layer.viewport.offset.y * context.calculatedScale)
+        val (centerX, centerY) = if (layer.type == LayerType.IMAGE) {
+            val (cx, cy) = layer.imageSelectionCenterOffset()
+            val objectCenterX =
+                context.templateLeftPx + context.displayWidthPx / 2f +
+                    (cx * context.calculatedScale)
+            val objectCenterY =
+                context.templateTopPx + context.displayHeightPx / 2f +
+                    (cy * context.calculatedScale)
+            objectCenterX to objectCenterY
+        } else {
+            val objectCenterX =
+                context.templateLeftPx + context.displayWidthPx / 2f +
+                    (layer.viewport.offset.x * context.calculatedScale)
+            val objectCenterY =
+                context.templateTopPx + context.displayHeightPx / 2f +
+                    (layer.viewport.offset.y * context.calculatedScale)
+            objectCenterX to objectCenterY
+        }
 
-        val dx = context.tapX - objectCenterX
-        val dy = context.tapY - objectCenterY
+        val dx = context.tapX - centerX
+        val dy = context.tapY - centerY
         val angleRad = Math.toRadians(-layer.viewport.rotation.toDouble())
         val rotatedDx = dx * kotlin.math.cos(angleRad) - dy * kotlin.math.sin(angleRad)
         val rotatedDy = dx * kotlin.math.sin(angleRad) + dy * kotlin.math.cos(angleRad)
@@ -83,10 +96,18 @@ object LayerHitTest {
                 if (layer.product.foregroundUriString.isNullOrBlank()) {
                     return null
                 }
-                val croppedSize = layer.cropRatio.calculateSize(
-                    layer.shapeWidthPx,
-                    layer.shapeHeightPx,
-                )
+                val tight = layer.imageLayerTightMetrics()
+                val croppedSize = if (tight != null) {
+                    IntSize(
+                        tight.contentWidth.roundToInt().coerceAtLeast(1),
+                        tight.contentHeight.roundToInt().coerceAtLeast(1),
+                    )
+                } else {
+                    layer.cropRatio.calculateSize(
+                        layer.shapeWidthPx,
+                        layer.shapeHeightPx,
+                    )
+                }
                 val w =
                     croppedSize.width * layer.viewport.scale * context.calculatedScale +
                         (EditorConfig.BB_PADDING_PX * 2f) + padding

@@ -222,6 +222,9 @@
     <string name="studio_label_font_family">Font chữ</string>
     <string name="studio_label_text_size">Cỡ chữ</string>
     <string name="studio_layer_image_label">Ảnh %1$d</string>
+    <string name="studio_layer_group_label">Nhóm (%1$d)</string>
+    <string name="studio_layer_group_member_preview">Thành viên</string>
+    <string name="studio_error_group_rasterize">Không thể rasterize nhóm. Vui lòng thử lại.</string>
     <string name="studio_label_size">Kích thước</string>
     <string name="studio_label_rotate">Xoay</string>
     <string name="studio_label_arrange">Sắp xếp</string>
@@ -262,6 +265,10 @@
     <string name="studio_action_lock">Khóa</string>
     <string name="studio_action_unlock">Mở khóa</string>
     <string name="studio_action_delete">Xóa</string>
+    <string name="studio_action_group">Gom nhóm</string>
+    <string name="studio_action_ungroup">Tách nhóm</string>
+    <string name="studio_error_group_requires_two">Chọn ít nhất 2 đối tượng để gom nhóm</string>
+    <string name="studio_error_not_grouped">Đối tượng chưa thuộc nhóm nào</string>
     <string name="studio_action_view_more">Xem thêm</string>
 
     <!-- Label Toolbar Tabs -->
@@ -311,7 +318,7 @@
     <!-- Sticker Picker -->
     <string name="studio_sticker_library_title">Thư viện nhãn dán</string>
     <string name="studio_sticker_tab_decor">Biểu tượng</string>
-    <string name="studio_sticker_tab_meme">Minh họa phẳng</string>
+    <string name="studio_sticker_preview_empty">Chưa có nhãn dán trong materials_icon</string>
 
     <!-- Background Picker -->
     <string name="studio_background_library_title">Thư viện nền</string>

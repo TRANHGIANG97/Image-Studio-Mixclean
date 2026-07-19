@@ -167,6 +167,7 @@
     <string name="upgrade_sheet_later">Later</string>
     <string name="home_quick_tools">Quick Tools</string>
     <string name="home_dock_batch">Batch</string>
+    <string name="home_dock_design">Design</string>
     <string name="home_dock_blur">Blur</string>
     <string name="home_dock_effects">Effects</string>
     <string name="home_dock_studio">Studio</string>

@@ -71,6 +71,7 @@ fun ProductLayerV2(
     onGestureEnd: () -> Unit,
     showOverlay: Boolean = false,
     showBoundingBox: Boolean = false,
+    renderSelectionChrome: Boolean = true,
     onBoundingBoxVisible: (Boolean) -> Unit = {},
     onPickImage: (layerId: String) -> Unit = {},
     allLayers: List<EditorLayer> = emptyList(),
@@ -95,6 +96,21 @@ fun ProductLayerV2(
             )
         }
     }
+
+    val tightMetrics by remember(
+        layer.opaqueContentLeftPx,
+        layer.opaqueContentTopPx,
+        layer.opaqueContentWidthPx,
+        layer.opaqueContentHeightPx,
+        layer.shapeWidthPx,
+        layer.shapeHeightPx,
+        cropRatio,
+    ) {
+        derivedStateOf { layer.imageLayerTightMetrics() }
+    }
+
+    val selectionContentWidth = tightMetrics?.contentWidth ?: actualSize.width.toFloat()
+    val selectionContentHeight = tightMetrics?.contentHeight ?: actualSize.height.toFloat()
     
     val displayOffset by remember(viewport.offset, displayScale) {
         derivedStateOf {
@@ -338,19 +354,34 @@ fun ProductLayerV2(
             }
         }
 
-        // Bounding Box Overlay
+        // Bounding box is rendered in [LayerSelectionChromeOverlay] when [renderSelectionChrome] is false.
+        if (renderSelectionChrome) {
         val bbOverlayPad = EditorDims.overlayPaddingDp()
+        val selectionWidth = with(density) {
+            (selectionContentWidth * viewport.scale * displayScale).toInt().toDp()
+        }
+        val selectionHeight = with(density) {
+            (selectionContentHeight * viewport.scale * displayScale).toInt().toDp()
+        }
+        val selectionViewport = remember(viewport, tightMetrics) {
+            val offsetShiftX = (tightMetrics?.centerOffsetX ?: 0f) * viewport.scale
+            val offsetShiftY = (tightMetrics?.centerOffsetY ?: 0f) * viewport.scale
+            viewport.copy(
+                offsetX = viewport.offset.x + offsetShiftX,
+                offsetY = viewport.offset.y + offsetShiftY,
+            )
+        }
         BoundingBoxOverlayV6(
             modifier = Modifier
                 .align(Alignment.Center)
                 .requiredSize(
-                    width = originalWidth + bbOverlayPad,
-                    height = originalHeight + bbOverlayPad,
+                    width = selectionWidth + bbOverlayPad,
+                    height = selectionHeight + bbOverlayPad,
                 )
                 .zIndex(if (showBoundingBox) 25f else 0f),
-            contentWidth = actualSize.width.toFloat(),
-            contentHeight = actualSize.height.toFloat(),
-            viewport = viewport,
+            contentWidth = selectionContentWidth,
+            contentHeight = selectionContentHeight,
+            viewport = selectionViewport,
             displayScale = displayScale,
             templateSize = templateSize,
             lockAspectRatio = false,
@@ -362,6 +393,7 @@ fun ProductLayerV2(
             otherLayers = allLayers.filter { it.id != layer.id },
             onGestureActiveChanged = onGestureActiveChanged,
         )
+        }
 
     }
 }

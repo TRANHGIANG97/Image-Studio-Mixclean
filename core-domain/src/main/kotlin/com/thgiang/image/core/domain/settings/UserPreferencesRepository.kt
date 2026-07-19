@@ -6,6 +6,19 @@ sealed interface ReviewPromptDecision {
     data object ShowPrompt : ReviewPromptDecision
 }
 
+/** Show the in-app review dialog every N successful image exports. */
+const val REVIEW_PROMPT_SAVE_INTERVAL = 5
+
+fun shouldShowReviewPromptAfterSave(
+    successfulSaveCount: Int,
+    promptDisabled: Boolean,
+    markedAsReviewed: Boolean,
+    interval: Int = REVIEW_PROMPT_SAVE_INTERVAL,
+): Boolean {
+    if (promptDisabled || markedAsReviewed) return false
+    return successfulSaveCount > 0 && successfulSaveCount % interval == 0
+}
+
 sealed interface PremiumLimitResult {
     data object Allowed : PremiumLimitResult
     data class Blocked(val usedCount: Int) : PremiumLimitResult

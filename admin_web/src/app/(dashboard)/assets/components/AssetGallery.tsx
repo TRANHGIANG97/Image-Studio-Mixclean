@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Asset, useDeleteAsset, useDeleteAssetsBulk } from '@/hooks/useAssets';
-import { Trash2, Image as ImageIcon, FileType, Copy, Check, Loader2, FolderInput } from 'lucide-react';
+import { Trash2, Image as ImageIcon, FileType, Copy, Check, Loader2, FolderInput, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { MoveAssetModal } from './MoveAssetModal';
+import { RenameAssetModal } from './RenameAssetModal';
 
 interface AssetGalleryProps {
   assets: Asset[];
@@ -42,6 +43,7 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [targetIdsForMove, setTargetIdsForMove] = useState<string[]>([]);
+  const [renameAsset, setRenameAsset] = useState<Asset | null>(null);
 
   // Drag selection states
   const [isDragSelecting, setIsDragSelecting] = useState(false);
@@ -309,6 +311,17 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
                   variant="secondary"
                   size="icon"
                   className="rounded-xl w-10 h-10 shadow-xl bg-white/90 border border-slate-300/80 text-slate-600 hover:text-slate-800 hover:bg-slate-100 hover:border-slate-500 transition-all duration-200"
+                  onClick={() => setRenameAsset(asset)}
+                  title="Đổi tên"
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  className="rounded-xl w-10 h-10 shadow-xl bg-white/90 border border-slate-300/80 text-slate-600 hover:text-slate-800 hover:bg-slate-100 hover:border-slate-500 transition-all duration-200"
                   onClick={() => handleCopyLink(asset.id, asset.file_url)}
                   title="Sao chép liên kết CDN"
                 >
@@ -457,6 +470,12 @@ export function AssetGallery({ assets, isLoading }: AssetGalleryProps) {
         onSuccess={() => {
           setSelectedIds([]);
         }}
+      />
+
+      <RenameAssetModal
+        isOpen={renameAsset !== null}
+        onClose={() => setRenameAsset(null)}
+        asset={renameAsset}
       />
     </div>
   );

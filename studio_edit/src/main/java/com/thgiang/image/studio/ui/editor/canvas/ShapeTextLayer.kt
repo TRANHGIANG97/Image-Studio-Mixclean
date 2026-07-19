@@ -62,6 +62,7 @@ fun ShapeTextLayer(
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     showBoundingBox: Boolean,
+    renderSelectionChrome: Boolean = true,
     isLocked: Boolean,
     isInlineEditing: Boolean = false,
     onRequestInlineEdit: () -> Unit = {},
@@ -375,7 +376,7 @@ fun ShapeTextLayer(
             }
         }
 
-        if (showBoundingBox || isInlineEditing) {
+        if (isInlineEditing || (showBoundingBox && renderSelectionChrome)) {
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -405,7 +406,7 @@ fun ShapeTextLayer(
                     onBodyClick = {
                         if (!isLocked && layer.shouldRenderLabelContent) onRequestInlineEdit()
                     },
-                    onBodyDoubleTap = {
+                    onBodyDoubleTap = { _ ->
                         if (!isLocked && layer.shouldRenderLabelContent) onRequestInlineEdit()
                     },
                     showBoundingBox = true,

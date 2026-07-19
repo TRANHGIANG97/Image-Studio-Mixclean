@@ -17,6 +17,7 @@ export const updateAssetSchema = z.object({
   ids: z.array(z.string()).optional(),
   folder: z.string().optional(),
   categoryId: z.string().optional().nullable(),
+  name: z.string().min(1, 'Tên tài nguyên không được để trống').max(255).optional(),
 });
 
 export const deleteAssetSchema = z.object({

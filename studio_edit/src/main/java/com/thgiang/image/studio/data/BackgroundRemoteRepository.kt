@@ -34,17 +34,16 @@ class BackgroundRemoteRepository @Inject constructor(
 
     companion object {
         private const val TAG = "BackgroundRemoteRepo"
-        const val FOLDER_DEFAULT = "backgrounds"
         const val PREVIEW_LIMIT = 20
         const val PAGE_LIMIT = 30
-
-        val DEFAULT_TABS: List<BackgroundTabInfo> = listOf(
-            BackgroundTabInfo(folder = FOLDER_DEFAULT, label = "Tất cả"),
-        )
     }
 
     fun fetchBackgroundTabs(): List<BackgroundTabInfo> {
-        cache.getTabs()?.let { return it }
+        cache.getTabs()?.let { cached ->
+            return cached
+                .filter { AssetFolderLabels.isBackgroundTabFolder(it.folder) }
+                .map { it.copy(label = AssetFolderLabels.backgroundTabLabel(it.folder)) }
+        }
 
         return try {
             val root = client.getJson(path = "/api/v1/backgrounds/folders")
@@ -53,18 +52,23 @@ class BackgroundRemoteRepository @Inject constructor(
                 for (i in 0 until array.length()) {
                     val item = array.optJSONObject(i) ?: continue
                     val folder = item.optString("id").ifBlank { continue }
-                    val label = item.optString("label").ifBlank { folder }
+                    if (!AssetFolderLabels.isBackgroundTabFolder(folder)) continue
                     val count = item.optInt("count", 0)
-                    add(BackgroundTabInfo(folder = folder, label = label, count = count))
+                    add(
+                        BackgroundTabInfo(
+                            folder = folder,
+                            label = AssetFolderLabels.backgroundTabLabel(folder),
+                            count = count,
+                        ),
+                    )
                 }
             }
-            val resolved = tabs.ifEmpty { DEFAULT_TABS }
-            cache.putTabs(resolved)
-            Log.d(TAG, "fetchBackgroundTabs: ${resolved.size} tabs")
-            resolved
+            cache.putTabs(tabs)
+            Log.d(TAG, "fetchBackgroundTabs: ${tabs.size} tabs")
+            tabs
         } catch (e: Exception) {
-            Log.e(TAG, "fetchBackgroundTabs failed, using defaults", e)
-            DEFAULT_TABS
+            Log.e(TAG, "fetchBackgroundTabs failed", e)
+            emptyList()
         }
     }
 
@@ -81,14 +85,17 @@ class BackgroundRemoteRepository @Inject constructor(
             Log.d(TAG, "fetchPreview: size=${backgrounds.size}")
             backgrounds
         } catch (e: Exception) {
-            Log.e(TAG, "fetchPreview failed, falling back to paginated fetch", e)
-            val page = fetchPage(FOLDER_DEFAULT, 1, limit)
-            cache.putPreview(page.backgrounds)
-            page.backgrounds
+            Log.e(TAG, "fetchPreview failed", e)
+            emptyList()
         }
     }
 
     fun fetchPage(folder: String, page: Int, limit: Int = PAGE_LIMIT): BackgroundPage {
+        if (!AssetFolderLabels.isBackgroundTabFolder(folder)) {
+            Log.w(TAG, "fetchPage skipped non-background tab folder: $folder")
+            return BackgroundPage(backgrounds = emptyList(), hasMore = false, page = page)
+        }
+
         cache.getPage(folder, page, limit)?.let {
             return BackgroundPage(backgrounds = it, hasMore = it.size >= limit, page = page)
         }

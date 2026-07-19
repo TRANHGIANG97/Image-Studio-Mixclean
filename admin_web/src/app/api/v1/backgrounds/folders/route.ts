@@ -3,8 +3,8 @@ import { createSupabaseAdmin } from '@/lib/supabase';
 import {
   backgroundFolderLabel,
   backgroundFolderSortKey,
-  isBackgroundFolder,
   isBackgroundImageMime,
+  isBackgroundTabFolder,
   normalizeBackgroundFolder,
 } from '@/domains/assets/background-folders';
 
@@ -34,7 +34,7 @@ async function loadBackgroundFolderCounts() {
 
     for (const row of data) {
       const folder = (row.folder ?? '').trim();
-      if (!folder || !isBackgroundFolder(folder)) continue;
+      if (!folder || !isBackgroundTabFolder(folder)) continue;
       if (!isBackgroundImageMime(row.mime_type)) continue;
 
       const canonical = normalizeBackgroundFolder(folder);
@@ -50,7 +50,7 @@ async function loadBackgroundFolderCounts() {
 
 /**
  * Returns background tab metadata for the mobile editor.
- * Folders: backgrounds, backgrounds_*, bg_*
+ * Folders: backgrounds_* only (e.g. backgrounds_ecommerce, backgrounds_christmas)
  */
 export async function GET() {
   try {

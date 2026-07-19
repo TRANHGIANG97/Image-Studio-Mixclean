@@ -31,8 +31,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.thgiang.image.studio.R
@@ -48,6 +50,7 @@ import com.thgiang.image.studio.ui.editor.label.panel.LabelSelectionToolbar
 import com.thgiang.image.studio.ui.editor.label.panel.LabelShapePanel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -93,19 +96,16 @@ fun ThemeplateEditorScreen(
     val exportSuccessMessage = stringResource(R.string.studio_export_success)
     LaunchedEffect(state.exportResult) {
         val uri = state.exportResult ?: return@LaunchedEffect
-        // One green snackbar only (no top banner duplicate). Hold ~4s for readability.
-        // Do not ClearExportResult before dismiss — that would cancel this effect early.
         val snackbarJob = launch {
             snackbarHostState.showSnackbar(
                 message = exportSuccessMessage,
-                duration = SnackbarDuration.Indefinite,
+                duration = SnackbarDuration.Long,
             )
         }
-        delay(4_000)
+        delay(1_500)
         snackbarHostState.currentSnackbarData?.dismiss()
-        snackbarJob.join()
+        withTimeoutOrNull(300L) { snackbarJob.join() }
         viewModel.onEvent(EditorEvent.ClearExportResult)
-        // Review prompt / analytics after feedback so they do not hide it.
         onExportSuccess()
         onDone(uri)
     }
@@ -128,18 +128,24 @@ fun ThemeplateEditorScreen(
     }
 
     LaunchedEffect(themeplate.id) {
-        if (themeplate.id != "draft") {
-            viewModel.onEvent(EditorEvent.PrepareTemplatePreview(themeplate))
-            val assetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
-            when {
-                assetPath.startsWith("http://") || assetPath.startsWith("https://") -> {
-                    viewModel.onEvent(EditorEvent.LoadCloudTemplateById(themeplate.id))
-                }
-                assetPath.isNotBlank() -> {
-                    viewModel.onEvent(EditorEvent.LoadTemplate(assetPath, themeplate.objectSourceAssetPath))
-                }
-                else -> {
-                    viewModel.onEvent(EditorEvent.LoadCloudTemplateById(themeplate.id))
+        when (themeplate.id) {
+            "draft" -> Unit
+            com.thgiang.image.studio.model.StudioThemeplates.BLANK_THEMEPLATE_ID -> {
+                viewModel.onEvent(EditorEvent.LoadBlankCanvas)
+            }
+            else -> {
+                viewModel.onEvent(EditorEvent.PrepareTemplatePreview(themeplate))
+                val assetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
+                when {
+                    assetPath.startsWith("http://") || assetPath.startsWith("https://") -> {
+                        viewModel.onEvent(EditorEvent.LoadCloudTemplateById(themeplate.id))
+                    }
+                    assetPath.isNotBlank() -> {
+                        viewModel.onEvent(EditorEvent.LoadTemplate(assetPath, themeplate.objectSourceAssetPath))
+                    }
+                    else -> {
+                        viewModel.onEvent(EditorEvent.LoadCloudTemplateById(themeplate.id))
+                    }
                 }
             }
         }
@@ -288,6 +294,7 @@ fun ThemeplateEditorScreen(
                     templateBackgroundColor = Color(state.template.backgroundColorArgb),
                     templateSize = state.template.originalSize,
                     layers = gesturePreview?.layers ?: state.layers,
+                    userGroupMaps = state.userGroupMaps,
                     selectedLayerId = state.selectedLayerId,
                     selectedLayerIds = state.selectedLayerIds,
                     isCropToolActive = selectedToolForUi is EditorTool.Crop,
@@ -364,7 +371,10 @@ fun ThemeplateEditorScreen(
                     layers = state.layers,
                     selectedLayerId = state.selectedLayerId,
                     selectedLayerIds = state.selectedLayerIds,
-                    onSelectLayer = { id -> viewModel.onEvent(EditorEvent.SelectLayer(id)) },
+                    userGroupMaps = state.userGroupMaps,
+                    onToggleLayerSelection = { id ->
+                        viewModel.onEvent(EditorEvent.ToggleLayerSelection(id))
+                    },
                     layersOffset = layersOffset,
                     onLayersOffsetChange = { layersOffset = it },
                     modifier = Modifier
@@ -711,8 +721,18 @@ fun ThemeplateEditorScreen(
                     .padding(bottom = 72.dp)
                     .zIndex(110f)
             ) { data ->
+                var dragDown by remember { mutableFloatStateOf(0f) }
                 Snackbar(
                     snackbarData = data,
+                    modifier = Modifier.pointerInput(data) {
+                        detectVerticalDragGestures(
+                            onDragEnd = {
+                                if (dragDown > 48f) data.dismiss()
+                                dragDown = 0f
+                            },
+                            onVerticalDrag = { _, amount -> dragDown += amount },
+                        )
+                    },
                     containerColor = Color(0xFF15803D),
                     contentColor = Color.White,
                     shape = RoundedCornerShape(12.dp),

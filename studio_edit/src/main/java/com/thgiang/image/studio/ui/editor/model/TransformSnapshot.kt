@@ -1,8 +1,12 @@
 package com.thgiang.image.studio.ui.editor.model
 
 data class TransformSnapshot(
-    val layers: List<EditorLayer>
+    val layers: List<EditorLayer>,
+    val userGroups: Map<String, EditorUserGroup> = emptyMap(),
+    val userGroupBundles: Map<String, UserGroupBundle> = emptyMap(),
 ) : java.io.Serializable {
+    val userGroupMaps: UserGroupMaps
+        get() = UserGroupMaps(groups = userGroups, bundles = userGroupBundles)
     /**
      * Check if this snapshot is visually equivalent to another
      * (allows small floating point differences)

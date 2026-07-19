@@ -25,6 +25,7 @@ import com.thgiang.image.studio.data.RemoteSticker
 import com.thgiang.image.studio.data.RemoteBackground
 import com.thgiang.image.studio.data.BackgroundRemoteRepository
 import com.thgiang.image.studio.data.StickerRemoteRepository
+import com.thgiang.image.studio.model.StudioThemeplates
 import com.thgiang.image.studio.ui.editor.export.EditorExportCoordinator
 import com.thgiang.image.studio.ui.editor.export.ExportOutcome
 import com.thgiang.image.studio.ui.editor.export.SaveDraftOutcome
@@ -49,8 +50,7 @@ import kotlin.math.abs
  * UI state cho khu vực Sticker picker.
  */
 data class StickerUiState(
-    val previewMeme: List<RemoteSticker> = emptyList(),
-    val previewDecor: List<RemoteSticker> = emptyList(),
+    val preview: List<RemoteSticker> = emptyList(),
     val isLoadingPreview: Boolean = false,
     val previewError: Boolean = false,
 )
@@ -272,7 +272,9 @@ class ThemeplateEditorViewModel @Inject constructor(
                 }
             } else {
                 val cloudId = meta?.cloudTemplateId?.takeIf { it.isNotBlank() }
-                    ?: themeplateId?.takeIf { it.isNotBlank() && it != "draft" }
+                    ?: themeplateId?.takeIf {
+                        it.isNotBlank() && it != "draft" && it != StudioThemeplates.BLANK_THEMEPLATE_ID
+                    }
                 if (cloudId != null) {
                     loadCloudTemplateById(cloudId)
                 } else {
@@ -352,14 +354,18 @@ class ThemeplateEditorViewModel @Inject constructor(
                 val hasDimensions = initialState.template.originalWidth > 0 &&
                     initialState.template.originalHeight > 0
                 val canLoadFromCloud = draftRestoreBundle?.meta?.cloudTemplateId?.isNotBlank() == true ||
-                    (!themeplateId.isNullOrBlank() && themeplateId != "draft")
+                    (!themeplateId.isNullOrBlank() &&
+                        themeplateId != "draft" &&
+                        themeplateId != StudioThemeplates.BLANK_THEMEPLATE_ID)
                 return !hasDimensions && canLoadFromCloud
             }
             return true
         }
 
         val tId = themeplateId
-        return !tId.isNullOrEmpty() && tId != "draft"
+        return !tId.isNullOrEmpty() &&
+            tId != "draft" &&
+            tId != StudioThemeplates.BLANK_THEMEPLATE_ID
     }
 
     private fun beginTemplateLoading() {
@@ -456,6 +462,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath, event.objectSourceAssetPath)
             is EditorEvent.LoadCloudTemplate -> loadCloudTemplate(event.cloudTemplate)
             is EditorEvent.LoadCloudTemplateById -> loadCloudTemplateById(event.templateId)
+            EditorEvent.LoadBlankCanvas -> loadBlankCanvas()
             is EditorEvent.PrepareTemplatePreview -> prepareTemplatePreview(event.themeplate)
             is EditorEvent.SetProductImage -> setProductImage(event.uri, event.replaceLayerId)
             is EditorEvent.RemoveBackground -> removeBackground(event.layerId)
@@ -989,10 +996,15 @@ class ThemeplateEditorViewModel @Inject constructor(
                     else -> normalizedSel
                 }
                 val targetLayer = layers.find { it.id == sel }
-                val (_, ids) = SelectionState.singleSelect(layers, sel)
+                val memberIds = if (sel != null) UserGroupOps.selectionMembers(layers, sel) else emptySet()
+                val (anchor, ids) = if (memberIds.size > 1) {
+                    sel to memberIds
+                } else {
+                    SelectionState.singleSelect(layers, sel)
+                }
                 _state.update {
                     it.copy(
-                        selectedLayerId = sel,
+                        selectedLayerId = anchor,
                         selectedLayerIds = ids,
                         editingLayerId = edit,
                         selectedTool = targetLayer?.preferredEditorTool()
@@ -1023,6 +1035,41 @@ class ThemeplateEditorViewModel @Inject constructor(
                     )
                 }
             }
+            EditorEvent.GroupLayers -> {
+                groupSelectedLayers()
+            }
+            EditorEvent.UngroupLayers -> {
+                clearGesturePreview()
+                val current = _state.value
+                val ids = SelectionState.effectiveIds(current)
+                if (!UserGroupOps.canUngroup(current.layers, ids, current.userGroupMaps)) {
+                    _state.update {
+                        it.copy(errorMessage = context.getString(R.string.studio_error_not_grouped))
+                    }
+                    return
+                }
+                val groupId = ids.mapNotNull { id ->
+                    current.layers.find { it.id == id }?.userGroupId
+                }.firstOrNull()
+                val (updatedLayers, maps) = UserGroupOps.ungroup(
+                    current.layers,
+                    current.userGroupMaps,
+                    ids,
+                )
+                val anchor = groupId?.let {
+                    UserGroupOps.firstMemberId(updatedLayers, it, maps)
+                }
+                _state.update {
+                    it.copy(
+                        layers = updatedLayers,
+                        userGroups = maps.groups,
+                        userGroupBundles = maps.bundles,
+                        selectedLayerId = anchor,
+                        selectedLayerIds = anchor?.let { id -> setOf(id) } ?: emptySet(),
+                    )
+                }
+                pushHistory()
+            }
             EditorEvent.DuplicateLayer -> {
                 val current = _state.value
                 val ids = SelectionState.effectiveIds(current)
@@ -1032,16 +1079,45 @@ class ThemeplateEditorViewModel @Inject constructor(
                 }
                 val roots = SelectionState.selectionRoots(current.layers, ids)
                 var newLayers = current.layers
+                var newMaps = current.userGroupMaps
                 var primaryId: String? = null
+                val processedUserGroups = mutableSetOf<String>()
                 for (rootId in roots) {
-                    val (duplicated, pid) = LayerGroupOps.duplicate(newLayers, rootId)
-                    newLayers = duplicated
-                    if (primaryId == null) primaryId = pid
+                    val layer = newLayers.find { it.id == rootId }
+                    val ugid = layer?.userGroupId
+                    if (ugid != null && ugid in processedUserGroups) continue
+
+                    if (ugid != null) {
+                        processedUserGroups += ugid
+                        val (dupLayers, dupMaps, pid) = UserGroupOps.duplicateUserGroup(
+                            newLayers,
+                            newMaps,
+                            ugid,
+                        )
+                        newLayers = dupLayers
+                        newMaps = dupMaps
+                        if (primaryId == null) primaryId = pid
+                    } else {
+                        val (dupLayers, pid) = LayerGroupOps.duplicate(newLayers, rootId)
+                        newLayers = dupLayers
+                        if (primaryId == null) primaryId = pid
+                    }
                 }
                 if (primaryId != null) {
-                    val (_, newIds) = SelectionState.singleSelect(newLayers, primaryId)
+                    val memberIds = UserGroupOps.selectionMembers(newLayers, primaryId)
+                    val (anchor, newIds) = if (memberIds.size > 1) {
+                        primaryId to memberIds
+                    } else {
+                        SelectionState.singleSelect(newLayers, primaryId)
+                    }
                     _state.update {
-                        it.copy(layers = newLayers, selectedLayerId = primaryId, selectedLayerIds = newIds)
+                        it.copy(
+                            layers = newLayers,
+                            userGroups = newMaps.groups,
+                            userGroupBundles = newMaps.bundles,
+                            selectedLayerId = anchor,
+                            selectedLayerIds = newIds,
+                        )
                     }
                     pushHistory()
                 }
@@ -1150,6 +1226,35 @@ class ThemeplateEditorViewModel @Inject constructor(
             val (sel, edit) = LabelInteractionState.normalize(rawSel, rawEdit, state.layers)
             state.copy(selectedLayerId = sel, selectedLayerIds = emptySet(), editingLayerId = edit)
         }
+    }
+
+    private fun groupSelectedLayers() {
+        clearGesturePreview()
+        val current = _state.value
+        val ids = SelectionState.effectiveIds(current)
+        if (!UserGroupOps.canGroup(current.layers, ids)) {
+            _state.update {
+                it.copy(errorMessage = context.getString(R.string.studio_error_group_requires_two))
+            }
+            return
+        }
+
+        val prep = UserGroupOps.prepareGroup(current.layers, ids) ?: return
+        val (updatedLayers, maps) = UserGroupOps.applyContainerGroup(
+            layers = current.layers,
+            maps = current.userGroupMaps,
+            prep = prep,
+        )
+        _state.update {
+            it.copy(
+                layers = updatedLayers,
+                userGroups = maps.groups,
+                userGroupBundles = maps.bundles,
+                selectedLayerId = prep.orderedMemberIds.firstOrNull(),
+                selectedLayerIds = prep.memberIds,
+            )
+        }
+        pushHistory()
     }
 
     private fun moveLayer(up: Boolean) {
@@ -1344,6 +1449,37 @@ class ThemeplateEditorViewModel @Inject constructor(
         return true
     }
 
+    private fun loadBlankCanvas() {
+        val current = _state.value.template
+        if (current.loaded && current.assetPath.isBlank() && current.originalSize.width > 0) {
+            dismissTemplateLoadingIfIdle()
+            return
+        }
+
+        clearGesturePreview()
+        historyManager.clear()
+        savedStateHandle["template_path"] = ""
+
+        _state.update {
+            it.copy(
+                template = EditorTemplate(
+                    assetPath = "",
+                    originalWidth = StudioThemeplates.BLANK_CANVAS_SIZE,
+                    originalHeight = StudioThemeplates.BLANK_CANVAS_SIZE,
+                    backgroundColorArgb = android.graphics.Color.TRANSPARENT,
+                    loaded = true,
+                ),
+                layers = emptyList(),
+                selectedLayerId = null,
+                selectedLayerIds = emptySet(),
+                editingLayerId = null,
+                selectedTool = null,
+                errorMessage = null,
+            )
+        }
+        dismissTemplateLoadingIfIdle()
+    }
+
     private fun loadTemplate(assetPath: String, objectSourceAssetPath: String? = null) {
         if (assetPath.isBlank()) {
             dismissTemplateLoadingIfIdle()
@@ -1444,7 +1580,10 @@ class ThemeplateEditorViewModel @Inject constructor(
                     _state.update { state ->
                         val updatedLayers = state.layers.map {
                             if (it.id == processingId) {
-                                it.copy(product = result.product, viewport = EditorViewport(scale = 1f))
+                                it.copy(
+                                    product = result.product,
+                                    viewport = EditorViewport(scale = 1f),
+                                ).withOpaqueContentBounds(result.opaqueBounds)
                             } else {
                                 it
                             }
@@ -1471,15 +1610,10 @@ class ThemeplateEditorViewModel @Inject constructor(
     // ============ Sticker ============
 
     /**
-     * Tải 20 sticker preview (10 meme + 10 decor) từ admin_web trong background.
-     * Gọi lần đầu khi người dùng bật tool Sticker; các lần sau dùng cache.
-     * Chạy trên Dispatchers.IO để không block UI thread.
+     * Tải 20 icon mặc định từ folder materials_icon (quick sticker strip).
      */
     fun loadStickerPreview() {
-        // Đã có dữ liệu → không cần gọi lại
-        if (_stickerState.value.previewMeme.isNotEmpty() ||
-            _stickerState.value.previewDecor.isNotEmpty()
-        ) return
+        if (_stickerState.value.preview.isNotEmpty()) return
 
         // Đang load → tránh gọi trùng
         if (stickerPreviewJob?.isActive == true) return
@@ -1487,11 +1621,10 @@ class ThemeplateEditorViewModel @Inject constructor(
         stickerPreviewJob = viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             _stickerState.update { it.copy(isLoadingPreview = true, previewError = false) }
             try {
-                val (meme, decor) = stickerRepository.fetchPreview()
+                val preview = stickerRepository.fetchPreview()
                 _stickerState.update {
                     it.copy(
-                        previewMeme = meme,
-                        previewDecor = decor,
+                        preview = preview,
                         isLoadingPreview = false,
                     )
                 }
@@ -1617,7 +1750,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                                             product = result.product.copy(isSample = it.product.isSample),
                                             shapeWidthPx = newW,
                                             shapeHeightPx = newH,
-                                        )
+                                        ).withOpaqueContentBounds(result.opaqueBounds)
                                     } else {
                                         // Fit longest side to ~50% of template so "Thêm ảnh" is usable
                                         // on large PSD canvases. Allow upscale when source pixels are small.
@@ -1637,7 +1770,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                                             shapeWidthPx = newW * scaleFactor,
                                             shapeHeightPx = newH * scaleFactor,
                                             viewport = it.viewport.withScale(1f),
-                                        )
+                                        ).withOpaqueContentBounds(result.opaqueBounds)
                                     }
                                 } else {
                                     it
@@ -1697,7 +1830,7 @@ class ThemeplateEditorViewModel @Inject constructor(
                                             isSample = it.product.isSample,
                                             originalUriString = uriStr
                                         )
-                                    )
+                                    ).withOpaqueContentBounds(result.opaqueBounds)
                                 } else {
                                     it
                                 }
@@ -1928,7 +2061,9 @@ class ThemeplateEditorViewModel @Inject constructor(
         val current = _state.value
         historyManager.push(
             TransformSnapshot(
-                layers = current.layers
+                layers = current.layers,
+                userGroups = current.userGroups,
+                userGroupBundles = current.userGroupBundles,
             )
         )
     }
@@ -1936,7 +2071,11 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun undo() {
         historyManager.undo()?.let { snapshot ->
             _state.update {
-                it.copy(layers = snapshot.layers)
+                it.copy(
+                    layers = snapshot.layers,
+                    userGroups = snapshot.userGroups,
+                    userGroupBundles = snapshot.userGroupBundles,
+                )
             }
         }
     }
@@ -1944,7 +2083,11 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun redo() {
         historyManager.redo()?.let { snapshot ->
             _state.update {
-                it.copy(layers = snapshot.layers)
+                it.copy(
+                    layers = snapshot.layers,
+                    userGroups = snapshot.userGroups,
+                    userGroupBundles = snapshot.userGroupBundles,
+                )
             }
         }
     }
@@ -2007,7 +2150,11 @@ class ThemeplateEditorViewModel @Inject constructor(
                         draftId = draftId,
                         templateAssetPath = templateAssetPath,
                         templateThumbnailUrl = currentState.template.thumbnailUrl,
-                        cloudTemplateId = themeplateId?.takeIf { it.isNotBlank() && it != "draft" },
+                        cloudTemplateId = themeplateId?.takeIf {
+                            it.isNotBlank() &&
+                                it != "draft" &&
+                                it != StudioThemeplates.BLANK_THEMEPLATE_ID
+                        },
                     )
                 ) {
                     is SaveDraftOutcome.Success -> {

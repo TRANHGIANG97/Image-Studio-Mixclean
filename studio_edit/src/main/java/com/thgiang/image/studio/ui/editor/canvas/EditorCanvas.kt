@@ -36,6 +36,7 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
@@ -75,6 +76,7 @@ fun EditorCanvasV2(
     templateBackgroundColor: Color = Color.White,
     templateSize: IntSize = IntSize(1000, 1000),
     layers: List<EditorLayer>,
+    userGroupMaps: UserGroupMaps = UserGroupMaps(),
     selectedLayerId: String?,
     selectedLayerIds: Set<String> = emptySet(),
     isCropToolActive: Boolean = false,
@@ -115,7 +117,8 @@ fun EditorCanvasV2(
     var hasBackup by remember { mutableStateOf(false) }
 
     var layerPickerHits by remember { mutableStateOf<List<EditorLayer>?>(null) }
-    var quickActionsOffset by remember(selectedLayerId) { mutableStateOf(Offset.Zero) }
+    val quickActionsSelectionKey = selectedLayerId ?: selectedLayerIds.singleOrNull()
+    var quickActionsOffset by remember(quickActionsSelectionKey) { mutableStateOf(Offset.Zero) }
     var isLayerGestureActive by remember { mutableStateOf(false) }
     val reportGestureActive: (Boolean) -> Unit = { active ->
         isLayerGestureActive = active
@@ -162,6 +165,55 @@ fun EditorCanvasV2(
 
         val displayWidth  = templateWidth  * calculatedScale
         val displayHeight = templateHeight * calculatedScale
+        val workspaceCenterX = with(density) { maxWidth.toPx() / 2f }
+        val workspaceCenterY = with(density) { maxHeight.toPx() / 2f }
+        val canvasDoubleTapSpring = androidx.compose.animation.core.spring<Float>(
+            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+            stiffness = androidx.compose.animation.core.Spring.StiffnessMedium,
+        )
+        val canvasDoubleTapOffsetSpring =
+            androidx.compose.animation.core.spring(
+                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                stiffness = androidx.compose.animation.core.Spring.StiffnessMedium,
+                visibilityThreshold = Offset(0.5f, 0.5f),
+            )
+
+        fun applyCanvasDoubleTapAtWorkspace(tap: Offset, centerX: Float, centerY: Float) {
+            if (editingLayerId != null || isLayerGestureActive) return
+            val target = resolveCanvasDoubleTapTarget(
+                currentScale = canvasScaleAnim.value,
+                currentOffset = canvasOffsetAnim.value,
+                tapX = tap.x,
+                tapY = tap.y,
+                viewportCenterX = centerX,
+                viewportCenterY = centerY,
+            )
+            coroutineScope.launch {
+                launch { canvasScaleAnim.animateTo(target.scale, canvasDoubleTapSpring) }
+                launch { canvasOffsetAnim.animateTo(target.offset, canvasDoubleTapOffsetSpring) }
+            }
+        }
+
+        val onCanvasDoubleTapFromOverlay: (
+            Offset,
+            Float,
+            Float,
+            Offset,
+        ) -> Unit = { localTap, overlayWidthPx, overlayHeightPx, artboardCenterOffsetPx ->
+            if (editingLayerId == null && !isLayerGestureActive) {
+                val workspaceTap = overlayLocalTapToWorkspaceTap(
+                    localTap = localTap,
+                    overlayWidthPx = overlayWidthPx,
+                    overlayHeightPx = overlayHeightPx,
+                    artboardCenterOffsetPx = artboardCenterOffsetPx,
+                    canvasScale = canvasScaleAnim.value,
+                    canvasOffset = canvasOffsetAnim.value,
+                    workspaceCenterX = workspaceCenterX,
+                    workspaceCenterY = workspaceCenterY,
+                )
+                applyCanvasDoubleTapAtWorkspace(workspaceTap, workspaceCenterX, workspaceCenterY)
+            }
+        }
 
     val currentLayers by rememberUpdatedState(layers)
     val currentSelectedLayerId by rememberUpdatedState(selectedLayerId)
@@ -249,8 +301,7 @@ fun EditorCanvasV2(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                // Two-finger pinch always zooms/pans the whole canvas (even with a selection).
-                // Single-finger is left to the bounding-box overlay when a layer is selected.
+                // Two-finger pinch/pan only — single-finger belongs to layers / BB handles.
                 .pointerInput(Unit) {
                     val velocityTracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
 
@@ -288,19 +339,14 @@ fun EditorCanvasV2(
                                 break
                             }
 
-                            // With a selection, ignore 1-finger so corner/body drags stay on the object.
-                            // Keep waiting so a second finger can start canvas zoom.
+                            // Never pan/zoom the template with one finger — avoids accidental canvas drags.
                             if (activePointers < 2) {
-                                if (currentSelectedLayerId != null || currentIsLayerGestureActive) {
-                                    continue
-                                }
-                                if (event.changes.any { it.isConsumed }) break
+                                continue
                             }
 
-                            if (activePointers == 1) {
-                                val change = pressed.first()
-                                velocityTracker.addPosition(change.uptimeMillis, change.position)
-                            }
+                            val centroid = event.calculateCentroid()
+                            val centroidTime = pressed.maxOfOrNull { it.uptimeMillis } ?: down.uptimeMillis
+                            velocityTracker.addPosition(centroidTime, centroid)
 
                             val panChange = event.calculatePan()
                             val zoomChange = event.calculateZoom()
@@ -433,54 +479,7 @@ fun EditorCanvasV2(
                             if (doubleHits.size == 1 && doubleHits.first().isLabelLayer) {
                                 onStartTextEdit(doubleHits.first().id)
                             } else {
-                                // Double tap on canvas background to zoom or reset
-                                coroutineScope.launch {
-                                    if (isZoomedOrPanned) {
-                                        // Reset zoom/pan smoothly using spring animation
-                                        launch {
-                                            canvasScaleAnim.animateTo(
-                                                targetValue = 1f,
-                                                animationSpec = androidx.compose.animation.core.spring(
-                                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                                                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
-                                                )
-                                            )
-                                        }
-                                        launch {
-                                            canvasOffsetAnim.animateTo(
-                                                targetValue = Offset.Zero,
-                                                animationSpec = androidx.compose.animation.core.spring(
-                                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                                                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
-                                                )
-                                            )
-                                        }
-                                    } else {
-                                        // Zoom in to 2.0x centered at the tapped position
-                                        val targetScale = 2f
-                                        val targetOffsetX = -(tap.x - cx) * targetScale
-                                        val targetOffsetY = -(tap.y - cy) * targetScale
-                                        
-                                        launch {
-                                            canvasScaleAnim.animateTo(
-                                                targetValue = targetScale,
-                                                animationSpec = androidx.compose.animation.core.spring(
-                                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                                                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
-                                                )
-                                            )
-                                        }
-                                        launch {
-                                            canvasOffsetAnim.animateTo(
-                                                targetValue = Offset(targetOffsetX, targetOffsetY),
-                                                animationSpec = androidx.compose.animation.core.spring(
-                                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                                                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
+                                applyCanvasDoubleTapAtWorkspace(tap, cx, cy)
                             }
                         },
                         onLongPress = { tap ->
@@ -523,6 +522,25 @@ fun EditorCanvasV2(
         ) {
 
             // ── Artboard card — template on white card with soft shadow ──
+            val isBlankBackground = templateAssetPath.isBlank()
+            val isTransparentCanvas = isBlankBackground && templateBackgroundColor.alpha == 0f
+            val checkerboard = rememberCheckerboardBrush()
+            val selectedIds = layers.filter { isLayerSelected(it.id) }.map { it.id }.toSet()
+            val isMultiSelect = selectedIds.size > 1
+            val selectedChromeLayer = if (!isMultiSelect) {
+                layers.find { isLayerSelected(it.id) }
+            } else {
+                null
+            }
+            val isShapeInlineEditing = editingLayerId != null &&
+                layers.find { it.id == editingLayerId }?.shouldRenderLabelContent == true
+            val showGlobalSelectionChrome = selectedChromeLayer != null &&
+                !isShapeInlineEditing &&
+                !(isCropToolActive && selectedChromeLayer.id == selectedLayerId)
+            val showMultiSelectionChrome = isMultiSelect &&
+                !isShapeInlineEditing &&
+                !isCropToolActive
+
             Box(
                 modifier = Modifier
                     .size(displayWidth, displayHeight)
@@ -534,17 +552,33 @@ fun EditorCanvasV2(
                         translationX = canvasOffset.x,
                         translationY = canvasOffset.y
                     )
-                    .shadow(
-                        elevation = 16.dp,
-                        shape = RoundedCornerShape(16.dp),
-                        ambientColor = Color.Black.copy(alpha = 0.10f),
-                        spotColor   = Color.Black.copy(alpha = 0.08f)
-                    )
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(tokens.artboard),
+                    .then(
+                        if (isTransparentCanvas) {
+                            Modifier
+                        } else {
+                            Modifier.shadow(
+                                elevation = 16.dp,
+                                shape = RoundedCornerShape(16.dp),
+                                ambientColor = Color.Black.copy(alpha = 0.10f),
+                                spotColor = Color.Black.copy(alpha = 0.08f),
+                            )
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                val isBlankBackground = templateAssetPath.isBlank()
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(16.dp))
+                        .then(
+                            if (isTransparentCanvas) {
+                                Modifier.drawBehind { drawRect(brush = checkerboard) }
+                            } else {
+                                Modifier.background(tokens.artboard)
+                            }
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
                 val model = remember(templateAssetPath) { templateAssetPath.toAssetModel() }
 
                 when {
@@ -587,12 +621,13 @@ fun EditorCanvasV2(
                         }
                     }
                     isBlankBackground || templateAssetPath == "null" -> {
-                        // Clean solid white background for blank templates
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(templateBackgroundColor)
-                        )
+                        if (!isTransparentCanvas) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(templateBackgroundColor)
+                            )
+                        }
                     }
                 }
 
@@ -614,6 +649,7 @@ fun EditorCanvasV2(
                                         if (isSelected && !layer.isLocked) onGestureEnd()
                                     },
                                     showBoundingBox = isSelected && !isEditingThisLayer,
+                                    renderSelectionChrome = isEditingThisLayer,
                                     isLocked      = layer.isLocked,
                                     isInlineEditing = isEditingThisLayer,
                                     onRequestInlineEdit = { onStartTextEdit(layer.id) },
@@ -657,6 +693,7 @@ fun EditorCanvasV2(
                                         },
                                         showOverlay = showOverlay && isSelected,
                                         showBoundingBox = isSelected && !showCropOverlay && editingLayerId == null,
+                                        renderSelectionChrome = false,
                                         onBoundingBoxVisible = { visible ->
                                             if (visible) onSelectLayer(layer.id)
                                         },
@@ -697,6 +734,7 @@ fun EditorCanvasV2(
                                         if (isSelected && !layer.isLocked) onGestureEnd()
                                     },
                                     showBoundingBox = isSelected,
+                                    renderSelectionChrome = false,
                                     isLocked = layer.isLocked,
                                     allLayers = layers,
                                     modifier = Modifier.align(Alignment.Center)
@@ -706,44 +744,87 @@ fun EditorCanvasV2(
                         }
                     }
 
-                // ── Top-most Replace Buttons for Sample/Replaceable layers ──
-                // Hide while inline text edit is active — center replace icon steals taps from the text move handle.
+                LayerSelectionChromeOverlay(
+                    layer = selectedChromeLayer,
+                    displayScale = calculatedScale,
+                    templateSize = templateSize,
+                    allLayers = layers,
+                    visible = showGlobalSelectionChrome,
+                    onGesture = { delta ->
+                        val layer = selectedChromeLayer ?: return@LayerSelectionChromeOverlay
+                        if (isLayerSelected(layer.id) && !layer.isLocked && !isCropToolActive) {
+                            onGesture(delta)
+                        }
+                    },
+                    onGestureEnd = {
+                        val layer = selectedChromeLayer ?: return@LayerSelectionChromeOverlay
+                        if (isLayerSelected(layer.id) && !layer.isLocked && !isCropToolActive) {
+                            onGestureEnd()
+                        }
+                    },
+                    onGestureActiveChanged = reportGestureActive,
+                    onRequestInlineEdit = selectedChromeLayer?.let { layer ->
+                        if (layer.shouldRenderLabelContent) {
+                            { onStartTextEdit(layer.id) }
+                        } else {
+                            null
+                        }
+                    },
+                    onCanvasDoubleTapFromOverlay = onCanvasDoubleTapFromOverlay,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+
+                MultiSelectionChromeOverlay(
+                    layers = layers,
+                    selectedIds = selectedIds,
+                    displayScale = calculatedScale,
+                    templateSize = templateSize,
+                    visible = showMultiSelectionChrome,
+                    onGesture = { delta ->
+                        if (!isCropToolActive) onGesture(delta)
+                    },
+                    onGestureEnd = {
+                        if (!isCropToolActive) onGestureEnd()
+                    },
+                    onGestureActiveChanged = reportGestureActive,
+                    onCanvasDoubleTapFromOverlay = onCanvasDoubleTapFromOverlay,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+
+                // Above selection chrome (zIndex 50) so replace taps are not stolen by the BB overlay.
                 if (editingLayerId == null) {
-                layers.forEach { layer ->
-                    if (layer.product.isSample && !layer.product.processing && !layer.isLocked && layer.isVisible) {
-                        val actualSize = layer.cropRatio.calculateSize(layer.shapeWidthPx, layer.shapeHeightPx)
-                        val originalWidth = with(density) { (actualSize.width * layer.viewport.scale * calculatedScale).toInt().toDp() }
-                        val originalHeight = with(density) { (actualSize.height * layer.viewport.scale * calculatedScale).toInt().toDp() }
-                        val displayOffset = IntOffset(
-                            (layer.viewport.offsetX * calculatedScale).roundToInt(),
-                            (layer.viewport.offsetY * calculatedScale).roundToInt()
-                        )
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .requiredSize(originalWidth, originalHeight)
-                                .offset { displayOffset }
-                                .zIndex(8f)
-                        ) {
+                    layers.forEach { layer ->
+                        if (layer.product.isSample && !layer.product.processing && !layer.isLocked && layer.isVisible) {
+                            val (centerX, centerY) = layer.imageSelectionCenterOffset()
+                            val displayOffset = IntOffset(
+                                (centerX * calculatedScale).roundToInt(),
+                                (centerY * calculatedScale).roundToInt(),
+                            )
                             Box(
                                 modifier = Modifier
                                     .align(Alignment.Center)
-                                    .size(36.dp)
-                                    .clickable { onPickImage(layer.id) },
-                                contentAlignment = Alignment.Center
+                                    .offset { displayOffset }
+                                    .zIndex(60f),
+                                contentAlignment = Alignment.Center,
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.SwapHoriz,
-                                    contentDescription = stringResource(R.string.studio_action_replace),
-                                    tint = Color(0xFF2F6DE1),
-                                    modifier = Modifier.size(24.dp)
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clickable { onPickImage(layer.id) },
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.SwapHoriz,
+                                        contentDescription = stringResource(R.string.studio_action_replace),
+                                        tint = Color(0xFF2F6DE1),
+                                        modifier = Modifier.size(24.dp),
+                                    )
+                                }
                             }
                         }
                     }
                 }
                 }
-
             }
 
         }
@@ -784,7 +865,11 @@ fun EditorCanvasV2(
             }
         }
         // ── Floating Quick Actions (Shape) ───────────────────────
+        val effectiveIds = layers.filter { isLayerSelected(it.id) }.map { it.id }.toSet()
         val activeLayer = layers.find { it.id == selectedLayerId }
+            ?: effectiveIds.singleOrNull()?.let { id -> layers.find { it.id == id } }
+        val canGroup = UserGroupOps.canGroup(layers, effectiveIds)
+        val canUngroup = UserGroupOps.canUngroup(layers, effectiveIds, userGroupMaps)
         if (activeLayer != null) {
             var quickActionsBarSizePx by remember { mutableStateOf(IntSize.Zero) }
             val quickActionsAnchorTopPx = with(density) { 8.dp.roundToPx().toFloat() }
@@ -821,6 +906,9 @@ fun EditorCanvasV2(
 
             ShapeQuickActionsBar(
                 layer = activeLayer,
+                selectionCount = effectiveIds.size,
+                canGroup = canGroup,
+                canUngroup = canUngroup,
                 visible = true,
                 onEvent = onEvent,
                 quickActionsOffset = quickActionsOffset,
@@ -880,6 +968,7 @@ fun ShadowRegionLayer(
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     showBoundingBox: Boolean = false,
+    renderSelectionChrome: Boolean = true,
     isLocked: Boolean = false,
     allLayers: List<EditorLayer> = emptyList(),
     modifier: Modifier = Modifier
@@ -927,6 +1016,7 @@ fun ShadowRegionLayer(
         }
 
         val bbOverlayPad = EditorDims.overlayPaddingDp()
+        if (renderSelectionChrome) {
         BoundingBoxOverlayV6(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -948,5 +1038,6 @@ fun ShadowRegionLayer(
             isLocked = isLocked,
             otherLayers = allLayers.filter { it.id != layer.id }
         )
+        }
     }
 }

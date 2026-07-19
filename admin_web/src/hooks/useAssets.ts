@@ -194,6 +194,50 @@ export function useUpdateAssetsFolder() {
   });
 }
 
+export function useRenameAsset() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { id: string; name: string }) =>
+      apiClient.put<{ success: boolean; asset: Asset }>('/api/assets', payload),
+    onMutate: async ({ id, name }) => {
+      await queryClient.cancelQueries({ queryKey: ['assets'] });
+      const snapshots = queryClient.getQueriesData<any>({ queryKey: ['assets'] });
+      queryClient.setQueriesData<any>({ queryKey: ['assets'] }, (prev: any) => {
+        if (!prev) return prev;
+        if ('pages' in prev) {
+          return {
+            ...prev,
+            pages: prev.pages.map((page: any) => ({
+              ...page,
+              assets: page.assets.map((a: Asset) => (a.id === id ? { ...a, name } : a)),
+            })),
+          };
+        }
+        if (Array.isArray(prev)) {
+          return prev.map((a: Asset) => (a.id === id ? { ...a, name } : a));
+        }
+        return prev;
+      });
+      return { snapshots };
+    },
+    onError: (error: any, _payload, context) => {
+      if (context?.snapshots) {
+        context.snapshots.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+      toast.error(`Lỗi đổi tên: ${error.message}`);
+    },
+    onSuccess: () => {
+      toast.success('Đổi tên tài nguyên thành công!');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['assets'] });
+    },
+  });
+}
+
 export function useCreateFolder() {
   const queryClient = useQueryClient();
 

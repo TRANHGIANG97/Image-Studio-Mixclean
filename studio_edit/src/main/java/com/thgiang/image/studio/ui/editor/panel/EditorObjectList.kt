@@ -78,7 +78,7 @@ fun EditorObjectList(
     layers: List<EditorLayer>,
     selectedLayerId: String?,
     selectedLayerIds: Set<String> = emptySet(),
-    onSelectLayer: (String) -> Unit,
+    onSelectLayer: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val tokens = LocalEditorTokens.current
@@ -477,7 +477,8 @@ fun EditorObjectListVertical(
     layers: List<EditorLayer>,
     selectedLayerId: String?,
     selectedLayerIds: Set<String> = emptySet(),
-    onSelectLayer: (String) -> Unit,
+    userGroupMaps: UserGroupMaps = UserGroupMaps(),
+    onToggleLayerSelection: (String) -> Unit,
     layersOffset: Offset,
     onLayersOffsetChange: (Offset) -> Unit,
     modifier: Modifier = Modifier
@@ -485,11 +486,15 @@ fun EditorObjectListVertical(
     val tokens = LocalEditorTokens.current
     val density = LocalDensity.current
     var expanded by rememberSaveable { mutableStateOf(true) }
+    var expandedGroupIds by remember { mutableStateOf(setOf<String>()) }
 
     val currentLayersOffset by rememberUpdatedState(layersOffset)
     val currentOnLayersOffsetChange by rememberUpdatedState(onLayersOffsetChange)
 
     var nonSampleIndex = 0
+    val listItems = remember(layers, userGroupMaps) {
+        UserGroupOps.buildLayerListItems(layers, userGroupMaps)
+    }
 
     Column(
         modifier = modifier
@@ -514,24 +519,113 @@ fun EditorObjectListVertical(
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    layers.filter { it.shouldShowInObjectList() }.forEach { layer ->
-                        val isSample = layer.product.isSample
-                        val displayIndex = if (!isSample) {
-                            nonSampleIndex++
-                            nonSampleIndex
-                        } else {
-                            -1
-                        }
+                    listItems.forEach { item ->
+                        when (item) {
+                            is LayerListItem.Single -> {
+                                val layer = item.layer
+                                val isSample = layer.product.isSample
+                                val displayIndex = if (!isSample) {
+                                    nonSampleIndex++
+                                    nonSampleIndex
+                                } else {
+                                    -1
+                                }
 
-                        ObjectLayerCardCompact(
-                            layer = layer,
-                            isSelected = SelectionState.isSelected(layers, selectedLayerId, selectedLayerIds, layer.id),
-                            displayIndex = displayIndex,
-                            accentColor = tokens.accent,
-                            accentSoftColor = tokens.accentSoft,
-                            surfaceElevatedColor = tokens.surfaceElevated,
-                            onSelect = { onSelectLayer(layer.id) }
-                        )
+                                ObjectLayerCardCompact(
+                                    layer = layer,
+                                    isSelected = SelectionState.isSelected(
+                                        layers, selectedLayerId, selectedLayerIds, layer.id,
+                                    ),
+                                    displayIndex = displayIndex,
+                                    accentColor = tokens.accent,
+                                    accentSoftColor = tokens.accentSoft,
+                                    surfaceElevatedColor = tokens.surfaceElevated,
+                                    onToggleSelection = { onToggleLayerSelection(layer.id) },
+                                )
+                            }
+                            is LayerListItem.Group -> {
+                                val members = item.members
+                                val composite = item.composite
+                                val previewLayer = composite ?: members.firstOrNull() ?: return@forEach
+                                val selectionId = composite?.id ?: members.firstOrNull()?.id
+                                val isGroupSelected = selectionId?.let { id ->
+                                    SelectionState.isSelected(
+                                        layers, selectedLayerId, selectedLayerIds, id,
+                                    )
+                                } == true
+                                val isExpanded = item.userGroupId in expandedGroupIds
+                                val chevronRotation by animateFloatAsState(
+                                    targetValue = if (isExpanded) 180f else 0f,
+                                    animationSpec = tween(durationMillis = 200),
+                                    label = "groupChevronRotation",
+                                )
+
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    ObjectLayerGroupHeader(
+                                        memberCount = members.size,
+                                        isSelected = isGroupSelected,
+                                        isExpanded = isExpanded,
+                                        chevronRotation = chevronRotation,
+                                        accentColor = tokens.accent,
+                                        onToggleExpand = {
+                                            expandedGroupIds = if (isExpanded) {
+                                                expandedGroupIds - item.userGroupId
+                                            } else {
+                                                expandedGroupIds + item.userGroupId
+                                            }
+                                        },
+                                        onToggleSelection = {
+                                            selectionId?.let { onToggleLayerSelection(it) }
+                                        },
+                                        previewLayer = previewLayer,
+                                        accentSoftColor = tokens.accentSoft,
+                                        surfaceElevatedColor = tokens.surfaceElevated,
+                                    )
+
+                                    AnimatedVisibility(
+                                        visible = isExpanded,
+                                        enter = expandVertically(animationSpec = MotionTokens.springPanel()) +
+                                            fadeIn(MotionTokens.fadeDefault),
+                                        exit = shrinkVertically(animationSpec = MotionTokens.springPanel()) +
+                                            fadeOut(MotionTokens.fadeQuick),
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(start = 12.dp),
+                                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                        ) {
+                                            members.forEach { layer ->
+                                                ObjectLayerCardCompact(
+                                                    layer = layer,
+                                                    isSelected = SelectionState.isSelected(
+                                                        layers,
+                                                        selectedLayerId,
+                                                        selectedLayerIds,
+                                                        layer.id,
+                                                    ),
+                                                    displayIndex = -1,
+                                                    accentColor = tokens.accent,
+                                                    accentSoftColor = tokens.accentSoft,
+                                                    surfaceElevatedColor = tokens.surfaceElevated,
+                                                    onToggleSelection = {
+                                                        onToggleLayerSelection(layer.id)
+                                                    },
+                                                    enabled = true,
+                                                    labelOverride = if (composite != null) {
+                                                        stringResource(R.string.studio_layer_group_member_preview)
+                                                    } else {
+                                                        null
+                                                    },
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -590,6 +684,273 @@ fun EditorObjectListVertical(
 }
 
 @Composable
+private fun ObjectLayerGroupHeader(
+    memberCount: Int,
+    isSelected: Boolean,
+    isExpanded: Boolean,
+    chevronRotation: Float,
+    accentColor: Color,
+    accentSoftColor: Color,
+    surfaceElevatedColor: Color,
+    previewLayer: EditorLayer,
+    onToggleExpand: () -> Unit,
+    onToggleSelection: () -> Unit,
+) {
+    val scale by animateFloatAsState(
+        targetValue = if (isSelected) 1.06f else 1f,
+        animationSpec = MotionTokens.springEmphasized(),
+        label = "groupCardScale",
+    )
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .shadow(elevation = 2.dp, shape = RoundedCornerShape(4.dp))
+                .background(Color.White.copy(alpha = 0.92f), RoundedCornerShape(4.dp))
+                .border(width = 0.5.dp, color = Color(0xFFE0E0E0), shape = RoundedCornerShape(4.dp))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onToggleExpand,
+                )
+                .padding(horizontal = 6.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.studio_layer_group_label, memberCount),
+                color = if (isSelected) accentColor else Color(0xFF4B5563),
+                fontSize = 9.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = if (isSelected) accentColor else Color(0xFF6B7280),
+                modifier = Modifier
+                    .size(12.dp)
+                    .graphicsLayer { rotationZ = chevronRotation },
+            )
+        }
+
+        ObjectLayerThumbnail(
+            layer = previewLayer,
+            isSelected = isSelected,
+            accentColor = accentColor,
+            accentSoftColor = accentSoftColor,
+            surfaceElevatedColor = surfaceElevatedColor,
+            scale = scale,
+            onClick = onToggleSelection,
+        )
+    }
+}
+
+@Composable
+private fun ObjectLayerThumbnail(
+    layer: EditorLayer,
+    isSelected: Boolean,
+    accentColor: Color,
+    accentSoftColor: Color,
+    surfaceElevatedColor: Color,
+    scale: Float,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
+) {
+    val thumbnailModel = remember(layer.product) {
+        layer.product.foregroundUriString ?: layer.product.originalUriString
+    }
+
+    Box(
+        modifier = modifier
+            .size(50.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .then(
+                if (isSelected) Modifier.shadow(
+                    elevation = 6.dp,
+                    shape = RoundedCornerShape(8.dp),
+                    ambientColor = accentColor.copy(alpha = 0.4f),
+                    spotColor = accentColor.copy(alpha = 0.6f),
+                ) else Modifier,
+            )
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (isSelected) accentSoftColor else surfaceElevatedColor)
+            .then(
+                if (isSelected) {
+                    Modifier.border(
+                        width = 2.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(accentColor, accentColor.copy(alpha = 0.6f)),
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                } else {
+                    Modifier.border(
+                        width = 1.dp,
+                        color = Color(0xFFE5E7EB),
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                },
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = androidx.compose.foundation.LocalIndication.current,
+                enabled = enabled,
+                onClick = onClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        LayerThumbnailContent(layer = layer, thumbnailModel = thumbnailModel, isSelected = isSelected, accentColor = accentColor)
+
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(2.dp)
+                    .size(12.dp)
+                    .background(accentColor, shape = CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                EditorCheckIcon(
+                    modifier = Modifier.size(7.dp),
+                    tint = Color.White,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.LayerThumbnailContent(
+    layer: EditorLayer,
+    thumbnailModel: String?,
+    isSelected: Boolean,
+    accentColor: Color,
+) {
+    when {
+        layer.product.processing -> {
+            StudioLottieLoader(modifier = Modifier.size(30.dp))
+        }
+        layer.isVectorContentLayer -> {
+            val shapeColor = Color(layer.shapeColorArgb)
+            val textColor = Color(layer.textColorArgb)
+            val backgroundBrush = if (layer.fillGradient != null) {
+                EditorGradientMapper.toComposeBrush(
+                    gradient = layer.fillGradient,
+                    width = 80f,
+                    height = 50f,
+                    fallbackColor = shapeColor,
+                )
+            } else {
+                Brush.linearGradient(listOf(shapeColor.copy(alpha = 0.18f), shapeColor.copy(alpha = 0.18f)))
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backgroundBrush)
+                    .padding(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                val isShapeInvisible = layer.shapeType == ShapeType.TEXT_ONLY ||
+                    layer.shapeColorArgb == 0 ||
+                    (layer.shapeColorArgb and 0xFFFFFF) == 0xFFFFFF
+                if (!isShapeInvisible) {
+                    ShapePreviewIcon(
+                        shape = layer.shapeType,
+                        color = shapeColor,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+                val isTextInvisible = layer.textColorArgb == 0 ||
+                    (layer.textColorArgb and 0xFFFFFF) == 0xFFFFFF
+                Text(
+                    text = EditorTextStyleMapper
+                        .applyTextTransform(layer.text, layer.textTransform)
+                        .ifBlank { "…" }
+                        .take(10),
+                    color = if (isTextInvisible) Color(0xFF374151) else textColor,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+        thumbnailModel != null -> {
+            val checker = rememberCheckerboardBrush()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(checker),
+            ) {
+                AsyncImage(
+                    model = thumbnailModel,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit,
+                )
+            }
+        }
+        else -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(Color(0xFFE8ECF0), Color(0xFFD1D5DB)),
+                        ),
+                    ),
+            )
+        }
+    }
+
+    if (layer.isVectorContentLayer || layer.type == LayerType.SHADOW_REGION) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(2.dp)
+                .size(12.dp)
+                .background(
+                    color = if (isSelected) accentColor else Color(0xCC000000),
+                    shape = CircleShape,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = if (layer.type == LayerType.SHADOW_REGION) "S" else "T",
+                color = Color.White,
+                fontSize = 7.sp,
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+
+    if (layer.isLocked) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(2.dp)
+                .size(10.dp)
+                .background(Color(0xCC666666), shape = CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("🔒", fontSize = 6.sp)
+        }
+    }
+}
+
+@Composable
 private fun ObjectLayerCardCompact(
     layer: EditorLayer,
     isSelected: Boolean,
@@ -597,7 +958,9 @@ private fun ObjectLayerCardCompact(
     accentColor: Color,
     accentSoftColor: Color,
     surfaceElevatedColor: Color,
-    onSelect: () -> Unit
+    onToggleSelection: () -> Unit,
+    enabled: Boolean = true,
+    labelOverride: String? = null,
 ) {
     val scale by animateFloatAsState(
         targetValue = if (isSelected) 1.06f else 1f,
@@ -605,11 +968,7 @@ private fun ObjectLayerCardCompact(
         label = "cardScale"
     )
 
-    val thumbnailModel = remember(layer.product) {
-        layer.product.foregroundUriString ?: layer.product.originalUriString
-    }
-
-    val labelText = when {
+    val labelText = labelOverride ?: when {
         layer.isVectorContentLayer -> {
             val preview = EditorTextStyleMapper.applyTextTransform(
                 layer.text.trim(),
@@ -624,15 +983,20 @@ private fun ObjectLayerCardCompact(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        // Label Text on the left
         Box(
             modifier = Modifier
                 .shadow(elevation = 2.dp, shape = RoundedCornerShape(4.dp))
                 .background(Color.White.copy(alpha = 0.92f), RoundedCornerShape(4.dp))
                 .border(width = 0.5.dp, color = Color(0xFFE0E0E0), shape = RoundedCornerShape(4.dp))
-                .padding(horizontal = 6.dp, vertical = 4.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    enabled = enabled,
+                    onClick = onToggleSelection,
+                )
+                .padding(horizontal = 6.dp, vertical = 4.dp),
         ) {
             Text(
                 text = labelText,
@@ -640,184 +1004,19 @@ private fun ObjectLayerCardCompact(
                 fontSize = 9.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .then(
-                if (isSelected) Modifier.shadow(
-                    elevation = 6.dp,
-                    shape = RoundedCornerShape(8.dp),
-                    ambientColor = accentColor.copy(alpha = 0.4f),
-                    spotColor = accentColor.copy(alpha = 0.6f)
-                ) else Modifier
-            )
-            .clip(RoundedCornerShape(8.dp))
-            .background(
-                if (isSelected) accentSoftColor else surfaceElevatedColor
-            )
-            .then(
-                if (isSelected) Modifier.border(
-                    width = 2.dp,
-                    brush = Brush.linearGradient(
-                        colors = listOf(accentColor, accentColor.copy(alpha = 0.6f))
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) else Modifier.border(
-                    width = 1.dp,
-                    color = Color(0xFFE5E7EB),
-                    shape = RoundedCornerShape(8.dp)
-                )
-            )
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = androidx.compose.foundation.LocalIndication.current,
-                onClick = onSelect
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        when {
-            layer.product.processing -> {
-                StudioLottieLoader(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .align(Alignment.Center)
-                )
-            }
-            layer.isVectorContentLayer -> {
-                val shapeColor = Color(layer.shapeColorArgb)
-                val textColor = Color(layer.textColorArgb)
-                val backgroundBrush = if (layer.fillGradient != null) {
-                    EditorGradientMapper.toComposeBrush(
-                        gradient = layer.fillGradient,
-                        width = 80f,
-                        height = 50f,
-                        fallbackColor = shapeColor,
-                    )
-                } else {
-                    Brush.linearGradient(listOf(shapeColor.copy(alpha = 0.18f), shapeColor.copy(alpha = 0.18f)))
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(backgroundBrush)
-                        .padding(4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    val isShapeInvisible = layer.shapeType == ShapeType.TEXT_ONLY ||
-                        layer.shapeColorArgb == 0 ||
-                        (layer.shapeColorArgb and 0xFFFFFF) == 0xFFFFFF
-                    if (!isShapeInvisible) {
-                        ShapePreviewIcon(
-                            shape = layer.shapeType,
-                            color = shapeColor,
-                            modifier = Modifier.size(18.dp),
-                        )
-                    }
-                    val isTextInvisible = layer.textColorArgb == 0 || (layer.textColorArgb and 0xFFFFFF) == 0xFFFFFF
-                    Text(
-                        text = EditorTextStyleMapper
-                            .applyTextTransform(layer.text, layer.textTransform)
-                            .ifBlank { "…" }
-                            .take(10),
-                        color = if (isTextInvisible) Color(0xFF374151) else textColor,
-                        fontSize = 8.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-            }
-            thumbnailModel != null -> {
-                val checker = rememberCheckerboardBrush()
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(checker)
-                ) {
-                    AsyncImage(
-                        model = thumbnailModel,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
-                }
-            }
-            else -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(Color(0xFFE8ECF0), Color(0xFFD1D5DB))
-                            )
-                        )
-                )
-            }
-        }
-
-        // Badge góc trên bên trái
-        if (layer.isVectorContentLayer || layer.type == LayerType.SHADOW_REGION) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(2.dp)
-                    .size(12.dp)
-                    .background(
-                        color = if (isSelected) accentColor else Color(0xCC000000),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = if (layer.type == LayerType.SHADOW_REGION) "S" else "T",
-                    color = Color.White,
-                    fontSize = 7.sp,
-                    fontWeight = FontWeight.Black,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-
-        // Checkmark indicator góc dưới phải
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(2.dp)
-                    .size(12.dp)
-                    .background(accentColor, shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                EditorCheckIcon(
-                    modifier = Modifier.size(7.dp),
-                    tint = Color.White
-                )
-            }
-        }
-
-        // Locked badge
-        if (layer.isLocked) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(2.dp)
-                    .size(10.dp)
-                    .background(Color(0xCC666666), shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("🔒", fontSize = 6.sp)
-            }
-        }
+        ObjectLayerThumbnail(
+            layer = layer,
+            isSelected = isSelected,
+            accentColor = accentColor,
+            accentSoftColor = accentSoftColor,
+            surfaceElevatedColor = surfaceElevatedColor,
+            scale = scale,
+            onClick = onToggleSelection,
+            enabled = enabled,
+        )
     }
-}
 }

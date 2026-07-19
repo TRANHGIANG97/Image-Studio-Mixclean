@@ -1,50 +1,39 @@
-export const BACKGROUND_FOLDER_ORDER = [
-  'backgrounds',
-  'backgrounds_minimal',
-  'backgrounds_gradient',
-  'backgrounds_ecommerce',
-  'backgrounds_shopee',
-];
-
-export const BACKGROUND_FOLDER_LABELS: Record<string, string> = {
-  backgrounds: 'Tất cả',
-  backgrounds_minimal: 'Tối giản',
-  backgrounds_gradient: 'Gradient',
-  backgrounds_ecommerce: 'Bán hàng',
-  backgrounds_shopee: 'Thương mại',
-};
-
 export function normalizeBackgroundFolder(folder: string): string {
   return folder.trim().toLowerCase();
 }
 
 export function isBackgroundFolder(folder: string): boolean {
   const normalized = normalizeBackgroundFolder(folder);
-  return normalized === 'backgrounds' || normalized.startsWith('backgrounds_') || normalized.startsWith('bg_');
+  return normalized === 'backgrounds' || normalized.startsWith('backgrounds_');
 }
 
+/** Background tabs on mobile — only `backgrounds_*` (excludes root `backgrounds`). */
+export function isBackgroundTabFolder(folder: string): boolean {
+  const normalized = normalizeBackgroundFolder(folder);
+  return normalized.startsWith('backgrounds_');
+}
+
+/** Display label derived from folder slug (no hardcoded map). */
 export function backgroundFolderLabel(slug: string): string {
-  const normalized = normalizeBackgroundFolder(slug);
-  return (
-    BACKGROUND_FOLDER_LABELS[normalized] ??
-    humanizeBackgroundFolder(normalized)
-  );
+  return humanizeBackgroundFolder(normalizeBackgroundFolder(slug));
 }
 
 export function backgroundFolderSortKey(slug: string): [number, string] {
-  const normalized = normalizeBackgroundFolder(slug);
-  const priority = BACKGROUND_FOLDER_ORDER.indexOf(normalized);
-  return [priority === -1 ? BACKGROUND_FOLDER_ORDER.length : priority, normalized];
+  return [0, normalizeBackgroundFolder(slug)];
 }
 
 function humanizeBackgroundFolder(slug: string): string {
-  return slug
-    .replace(/^backgrounds?_/, '')
-    .replace(/^bg_/, '')
+  if (!slug.startsWith('backgrounds_')) {
+    return slug === 'backgrounds' ? 'backgrounds' : slug;
+  }
+  const suffix = slug.slice('backgrounds_'.length);
+  if (!suffix) return 'backgrounds';
+  const titleSuffix = suffix
     .split(/[_-]+/)
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ') || 'Nền';
+    .join(' ');
+  return `backgrounds ${titleSuffix}`;
 }
 
 export function isBackgroundImageMime(mime: string | null | undefined): boolean {

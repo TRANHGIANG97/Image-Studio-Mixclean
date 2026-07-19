@@ -3,6 +3,7 @@ import com.thgiang.image.studio.ui.editor.label.factory.*
 import com.thgiang.image.studio.ui.editor.label.model.*
 import com.thgiang.image.studio.ui.editor.canvas.*
 
+import com.thgiang.image.core.util.processors.OpaqueContentBounds
 import com.thgiang.image.studio.ui.editor.model.*
 
 import javax.inject.Inject
@@ -111,6 +112,7 @@ class EditorLayerFactory @Inject constructor() {
         stickerWidth: Int,
         stickerHeight: Int,
         initialScale: Float,
+        opaqueBounds: OpaqueContentBounds? = null,
     ): EditorLayer = EditorLayer(
         product = EditorProduct(
             originalUriString = stickerPath,
@@ -132,5 +134,5 @@ class EditorLayerFactory @Inject constructor() {
             shadowColorArgb = 0xFF000000.toInt(),
         ),
         cropRatio = CropRatio.ORIGINAL,
-    )
+    ).withOpaqueContentBounds(opaqueBounds)
 }

@@ -217,12 +217,14 @@ fun BoundingBoxOverlayV6(
     onGesture: (GestureDelta) -> Unit,
     onGestureEnd: () -> Unit,
     onBodyClick: () -> Unit = {},
-    onBodyDoubleTap: () -> Unit = {},
+    onBodyDoubleTap: (Offset) -> Unit = {},
     showBoundingBox: Boolean = true,
     onBoundingBoxVisible: (Boolean) -> Unit = {},
     isLocked: Boolean = false,
     otherLayers: List<EditorLayer> = emptyList(),
     isInlineEditing: Boolean = false,
+    /** When true, center hit zone is left for the sample replace icon (not BB drag). */
+    reserveCenterReplaceHit: Boolean = false,
     /** Text label: only TL scale + right-edge width handles (Canva-style). */
     minimalTextHandles: Boolean = false,
     /** Extra top space (px) reserved for the inline text move handle hit target. */
@@ -249,6 +251,7 @@ fun BoundingBoxOverlayV6(
     val currentTemplateSize by rememberUpdatedState(templateSize)
     val currentOtherLayers by rememberUpdatedState(otherLayers)
     val currentIsInlineEditing by rememberUpdatedState(isInlineEditing)
+    val currentReserveCenterReplaceHit by rememberUpdatedState(reserveCenterReplaceHit)
     val currentMinimalTextHandles by rememberUpdatedState(minimalTextHandles)
     val currentOnInlineTextPointer by rememberUpdatedState(onInlineTextPointer)
     val currentOnGestureActiveChanged by rememberUpdatedState(onGestureActiveChanged)
@@ -334,6 +337,7 @@ fun BoundingBoxOverlayV6(
                         handleTouchPaddingPx = dimensions.handleTouchPaddingPx,
                         isInlineEditing = currentIsInlineEditing,
                         minimalTextHandles = currentMinimalTextHandles,
+                        reserveCenterReplaceHit = currentReserveCenterReplaceHit,
                     )
 
                     gestureMode = when (activeHandle) {
@@ -611,7 +615,7 @@ fun BoundingBoxOverlayV6(
                         if (gestureMode == GestureMode.DRAG) {
                             val tapTime = System.currentTimeMillis()
                             if (tapTime - lastTapTime < 300L) {
-                                currentOnBodyDoubleTap()
+                                currentOnBodyDoubleTap(down.position)
                             } else {
                                 if (System.currentTimeMillis() - compositionTime > 300L) {
                                     currentOnBodyClick()

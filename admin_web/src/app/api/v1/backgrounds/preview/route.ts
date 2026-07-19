@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
-import { isBackgroundFolder, normalizeBackgroundFolder } from '@/domains/assets/background-folders';
+import { isBackgroundTabFolder, normalizeBackgroundFolder } from '@/domains/assets/background-folders';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +28,7 @@ async function loadBackgroundFolderSlugs(): Promise<string[]> {
 
     for (const row of data) {
       const folder = (row.folder ?? '').trim();
-      if (folder && isBackgroundFolder(folder)) {
+      if (folder && isBackgroundTabFolder(folder)) {
         folders.add(normalizeBackgroundFolder(folder));
       }
     }

@@ -12,6 +12,19 @@ import com.thgiang.image.core.util.MemoryUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+data class OpaqueContentBounds(
+    val left: Int,
+    val top: Int,
+    val width: Int,
+    val height: Int,
+) {
+    fun isFull(bitmapWidth: Int, bitmapHeight: Int): Boolean =
+        left <= 0 &&
+            top <= 0 &&
+            width >= bitmapWidth &&
+            height >= bitmapHeight
+}
+
 object ProcessorUtils {
     private const val TAG = "ProcessorUtils"
 
@@ -113,10 +126,10 @@ object ProcessorUtils {
         return Bitmap.createScaledBitmap(source, newW, newH, true)
     }
 
-    fun trimTransparentBounds(
+    fun findOpaqueContentBounds(
         source: Bitmap,
-        alphaThreshold: Int = 96
-    ): Bitmap {
+        alphaThreshold: Int = 96,
+    ): OpaqueContentBounds? {
         val bitmap = if (source.config == Bitmap.Config.ARGB_8888) {
             source
         } else {
@@ -125,7 +138,7 @@ object ProcessorUtils {
 
         val width = bitmap.width
         val height = bitmap.height
-        if (width == 0 || height == 0) return bitmap
+        if (width == 0 || height == 0) return null
 
         val pixels = IntArray(width * height)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
@@ -171,15 +184,47 @@ object ProcessorUtils {
             }
         }
 
-        if (right < left || bottom < top) {
+        if (right < left || bottom < top) return null
+
+        val bounds = OpaqueContentBounds(
+            left = left,
+            top = top,
+            width = right - left + 1,
+            height = bottom - top + 1,
+        )
+        return bounds.takeUnless { it.isFull(width, height) }
+    }
+
+    fun trimTransparentBounds(
+        source: Bitmap,
+        alphaThreshold: Int = 96
+    ): Bitmap {
+        val bitmap = if (source.config == Bitmap.Config.ARGB_8888) {
+            source
+        } else {
+            source.copy(Bitmap.Config.ARGB_8888, true)
+        }
+
+        val width = bitmap.width
+        val height = bitmap.height
+        if (width == 0 || height == 0) return bitmap
+
+        val bounds = findOpaqueContentBounds(bitmap, alphaThreshold)
+            ?: return bitmap
+
+        if (bounds.left == 0 && bounds.top == 0 &&
+            bounds.width == width && bounds.height == height
+        ) {
             return bitmap
         }
 
-        if (left == 0 && top == 0 && right == width - 1 && bottom == height - 1) {
-            return bitmap
-        }
-
-        return Bitmap.createBitmap(bitmap, left, top, right - left + 1, bottom - top + 1)
+        return Bitmap.createBitmap(
+            bitmap,
+            bounds.left,
+            bounds.top,
+            bounds.width,
+            bounds.height,
+        )
     }
 
     fun hasMeaningfulTransparency(

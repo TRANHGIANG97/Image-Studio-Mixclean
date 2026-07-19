@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Offset
 import com.thgiang.image.studio.ui.editor.model.*
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import kotlin.math.*
 
 fun detectHandleRotated(
@@ -23,6 +24,7 @@ fun detectHandleRotated(
     handleTouchPaddingPx: Float = 0f,
     isInlineEditing: Boolean = false,
     minimalTextHandles: Boolean = false,
+    reserveCenterReplaceHit: Boolean = false,
 ): HandleZone {
     val local = inverseRotatePoint(touch, center, rotation)
 
@@ -108,6 +110,14 @@ fun detectHandleRotated(
 
     if (bestZone != HandleZone.None) {
         return bestZone
+    }
+
+    if (reserveCenterReplaceHit) {
+        val density = handleRadius / EditorDims.HandleRadiusDp.value
+        val replaceHitRadius = 24.dp.value * density
+        if (distance(local, center) <= replaceHitRadius) {
+            return HandleZone.None
+        }
     }
 
     // 3. Check body — inset so edge/corner hit zones are not stolen by body.

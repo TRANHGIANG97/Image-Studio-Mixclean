@@ -284,6 +284,9 @@
     <string name="studio_layer_text_label">Text</string>
     <string name="studio_layer_text_with_content">Text: %1$s</string>
     <string name="studio_layer_image_label">Image %1$d</string>
+    <string name="studio_layer_group_label">Group (%1$d)</string>
+    <string name="studio_layer_group_member_preview">Member</string>
+    <string name="studio_error_group_rasterize">Could not rasterize group. Try again.</string>
     <string name="studio_layer_shadow_label">Shadow</string>
     <string name="studio_layer_picker_title">Select layer</string>
     <string name="studio_layer_picker_subtitle">%1$d layers at this point</string>
@@ -310,6 +313,10 @@
     <string name="studio_action_lock">Lock</string>
     <string name="studio_action_unlock">Unlock</string>
     <string name="studio_action_delete">Delete</string>
+    <string name="studio_action_group">Group</string>
+    <string name="studio_action_ungroup">Ungroup</string>
+    <string name="studio_error_group_requires_two">Select at least 2 objects to group</string>
+    <string name="studio_error_not_grouped">Selection is not part of a group</string>
     <string name="studio_action_view_more">View more</string>
 
     <!-- Label Toolbar Tabs -->
@@ -361,7 +368,7 @@
     <!-- Sticker Picker -->
     <string name="studio_sticker_library_title">Sticker Library</string>
     <string name="studio_sticker_tab_decor">Icons</string>
-    <string name="studio_sticker_tab_meme">Illustrations</string>
+    <string name="studio_sticker_preview_empty">No stickers in materials_icon yet</string>
 
     <!-- Background Picker -->
     <string name="studio_background_library_title">Background Library</string>

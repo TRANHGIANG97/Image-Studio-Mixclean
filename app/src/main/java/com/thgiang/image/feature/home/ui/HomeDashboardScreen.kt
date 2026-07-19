@@ -113,6 +113,7 @@ fun HomeDashboardScreen(
     onNavigateToBorderPresetPicker: (BorderGradientPreset) -> Unit = {},
     onSimplePick: () -> Unit = {},
     onOpenEffectsTool: () -> Unit = {},
+    onOpenBlankDesign: () -> Unit = {},
     onOpenStudioTool: () -> Unit = {},
     onOpenMagicTool: () -> Unit = {},
     onThemeplateSelected: (StudioThemeplate) -> Unit = {},
@@ -278,6 +279,7 @@ fun HomeDashboardScreen(
                     AiToolDock(
                         isPremium = isPremium,
                         onOpenEffects = onOpenEffectsTool,
+                        onOpenBlankDesign = onOpenBlankDesign,
                         onOpenStudioTool = onOpenStudioTool,
                         onOpenMagicTool = onOpenMagicTool,
                         onOpenRemoveBgEditor = {

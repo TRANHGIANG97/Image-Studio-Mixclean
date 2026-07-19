@@ -53,11 +53,11 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
-// PUT: Update asset attributes (like category_id, folder)
+// PUT: Update asset attributes (like category_id, folder, name)
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id, ids, folder, categoryId } = body;
+    const { id, ids, folder, categoryId, name } = body;
 
     if (ids && Array.isArray(ids) && ids.length > 0) {
       const assets = await updateAssetsBulk(ids, { folder, categoryId });
@@ -68,7 +68,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Asset ID or IDs is required' }, { status: 400 });
     }
 
-    const asset = await updateAsset(id, { folder, categoryId });
+    const asset = await updateAsset(id, { folder, categoryId, name });
     return NextResponse.json({ success: true, asset });
   } catch (error: any) {
     console.error('Error updating asset:', error);

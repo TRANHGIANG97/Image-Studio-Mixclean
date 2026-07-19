@@ -55,6 +55,7 @@ import coil.request.ImageRequest
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.data.RemoteSticker
 import com.thgiang.image.studio.ui.editor.ThemeplateEditorViewModel
+import com.thgiang.image.studio.ui.editor.canvas.assetPreviewCheckerboardBackground
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 import com.thgiang.image.studio.ui.editor.theme.MotionTokens
@@ -62,7 +63,7 @@ import com.thgiang.image.studio.ui.editor.theme.MotionTokens
 /**
  * Thanh nhãn dán ngang nhanh (Quick Sticker Strip).
  *
- * Hiển thị 20 nhãn dán (10 meme + 10 decor) theo hàng ngang cuộn được.
+ * Hiển thị 20 icon mặc định từ folder materials_icon theo hàng ngang cuộn được.
  * Kèm nút "Xem thêm" để mở màn hình thư viện đầy đủ [StickerGallerySheet].
  *
  * Dữ liệu được tải từ [ThemeplateEditorViewModel.loadStickerPreview] và
@@ -82,10 +83,7 @@ internal fun StickerPicker(
         viewModel.loadStickerPreview()
     }
 
-    // Trộn: meme trước, decor sau → 20 sticker theo hàng ngang
-    val previewList = remember(stickerState.previewMeme, stickerState.previewDecor) {
-        stickerState.previewMeme + stickerState.previewDecor
-    }
+    val previewList = stickerState.preview
 
     val expanded = true
 
@@ -209,7 +207,7 @@ internal fun StickerPicker(
                 // Không có dữ liệu
                 previewList.isEmpty() -> {
                     Text(
-                        text = stringResource(R.string.studio_gallery_no_templates),
+                        text = stringResource(R.string.studio_sticker_preview_empty),
                         color = tokens.textSecondary,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -251,22 +249,28 @@ private fun RemoteStickerThumb(
         modifier = Modifier
             .size(54.dp)
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFFF8F8F8))
             .border(1.dp, tokens.borderSubtle, RoundedCornerShape(10.dp))
-            .clickable(onClick = onClick)
-            .padding(4.dp),
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(sticker.url)
-                .crossfade(true)
-                .memoryCacheKey(sticker.id)
-                .diskCacheKey(sticker.id)
-                .build(),
-            contentDescription = sticker.id,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize(),
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .assetPreviewCheckerboardBackground()
+                .padding(4.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(sticker.url)
+                    .crossfade(true)
+                    .memoryCacheKey(sticker.id)
+                    .diskCacheKey(sticker.id)
+                    .build(),
+                contentDescription = sticker.id,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }

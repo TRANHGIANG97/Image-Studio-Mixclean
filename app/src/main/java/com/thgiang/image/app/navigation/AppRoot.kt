@@ -458,6 +458,13 @@ fun AppRoot(
                             appViewModel.setBatchUris(emptyList())
                             navController.navigate(Screen.BatchPicker.route)
                         },
+                        onOpenBlankDesign = {
+                            if (!appViewModel.isAdDismissedRecently()) {
+                                navController.navigate(
+                                    Screen.StudioEditor.createRoute(StudioThemeplates.BLANK_THEMEPLATE_ID),
+                                )
+                            }
+                        },
                         onNavigateToPicker = {
                             if (!appViewModel.isAdDismissedRecently()) {
                                 isAutoRemoveForPicker = false
@@ -715,7 +722,10 @@ fun AppRoot(
                         ?: StudioThemeplates.findById(themeplateId)
                         ?: StudioThemeplate(
                             id = themeplateId.ifBlank { "draft" },
-                            titleResId = com.thgiang.image.R.string.home_draft,
+                            titleResId = when (themeplateId) {
+                                StudioThemeplates.BLANK_THEMEPLATE_ID -> R.string.home_dock_design
+                                else -> R.string.home_draft
+                            },
                             assetPath = "",
                             accentColor = androidx.compose.ui.graphics.Color.Transparent
                         )

@@ -58,6 +58,97 @@ class EditorRenderer(
     private val maxShadowCacheAgeMs = 5000L
     private val renderMutex = Mutex()
 
+    suspend fun renderLayerSubset(
+        layers: List<EditorLayer>,
+        canvasSize: androidx.compose.ui.unit.IntSize,
+        backgroundColorArgb: Int = android.graphics.Color.TRANSPARENT,
+    ): Result<Bitmap> = renderMutex.withLock {
+        withContext(Dispatchers.Default) {
+            runCatching {
+                if (canvasSize.width <= 0 || canvasSize.height <= 0) {
+                    error("Invalid canvas size")
+                }
+                if (!MemoryUtil.canAllocateExportBitmap(canvasSize.width, canvasSize.height, context)) {
+                    error("Not enough memory to rasterize group")
+                }
+                var resultToRecycle: Bitmap? = null
+                try {
+                    val result = bitmapPool.obtain(canvasSize.width, canvasSize.height)
+                    resultToRecycle = result
+                    val canvas = Canvas(result)
+                    val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+                    // Bitmaps from the pool retain their previous pixels. Group composites
+                    // render onto a transparent canvas, so it must be cleared explicitly;
+                    // otherwise unrelated UI/image fragments get baked into the composite.
+                    canvas.drawColor(backgroundColorArgb, PorterDuff.Mode.CLEAR)
+                    if (android.graphics.Color.alpha(backgroundColorArgb) > 0) {
+                        canvas.drawColor(backgroundColorArgb)
+                    }
+                    for (layer in layers) {
+                        if (!layer.isVisible) continue
+                        when (layer.type) {
+                            LayerType.SHAPE, LayerType.TEXT, LayerType.SHAPE_TEXT -> {
+                                renderShapeTextLayer(canvas, layer, canvasSize.width, canvasSize.height)
+                            }
+                            LayerType.SHADOW_REGION -> {
+                                renderShadowRegionLayer(canvas, layer, canvasSize.width, canvasSize.height)
+                            }
+                            LayerType.IMAGE -> {
+                                val fgUriString = layer.product.foregroundUriString ?: continue
+                                val fgUri = Uri.parse(fgUriString)
+                                val foreground = ProcessorUtils.decodeBitmapFromUri(context, fgUri) ?: continue
+                                try {
+                                    val state = layer.viewport
+                                    val layout = ProductExportLayout.compute(
+                                        templateWidth = canvasSize.width,
+                                        templateHeight = canvasSize.height,
+                                        shapeWidthPx = layer.shapeWidthPx,
+                                        shapeHeightPx = layer.shapeHeightPx,
+                                        viewportScale = state.scale,
+                                        offsetX = state.offset.x,
+                                        offsetY = state.offset.y,
+                                        cropRatio = layer.cropRatio,
+                                        imageWidth = foreground.width,
+                                        imageHeight = foreground.height,
+                                    )
+                                    if (layer.appearance.shadowIntensity > 0.05f) {
+                                        renderShadowCached(
+                                            canvas = canvas,
+                                            foreground = foreground,
+                                            state = state,
+                                            layout = layout,
+                                            appearance = layer.appearance,
+                                            sourceUri = fgUri,
+                                            cropOffsetX = layer.cropOffsetX,
+                                            cropOffsetY = layer.cropOffsetY,
+                                        )
+                                    }
+                                    canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
+                                        paint.alpha = 255
+                                        drawProductBitmap(
+                                            foreground = foreground,
+                                            state = state,
+                                            layout = layout,
+                                            cropOffsetX = layer.cropOffsetX,
+                                            cropOffsetY = layer.cropOffsetY,
+                                            paint = paint,
+                                        )
+                                    }
+                                } finally {
+                                    if (!foreground.isRecycled) foreground.recycle()
+                                }
+                            }
+                        }
+                    }
+                    resultToRecycle = null
+                    result
+                } finally {
+                    resultToRecycle?.let { if (!it.isRecycled) bitmapPool.recycle(it) }
+                }
+            }
+        }
+    }
+
     suspend fun renderLayers(request: MultiLayerRenderRequest): Result<Bitmap> = renderMutex.withLock {
         withContext(Dispatchers.Default) {
             runCatching {
@@ -84,8 +175,10 @@ class EditorRenderer(
                 val canvas = Canvas(result)
                 val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
             
-            // Fill white để vùng transparent của template PNG không ra đen
-            canvas.drawColor(request.backgroundColorArgb)
+            // Skip solid fill for transparent blank-canvas exports.
+            if (android.graphics.Color.alpha(request.backgroundColorArgb) > 0) {
+                canvas.drawColor(request.backgroundColorArgb)
+            }
             // Downsampling may yield a smaller bitmap — scale into the export canvas.
             if (template.width == exportSize.width && template.height == exportSize.height) {
                 canvas.drawBitmap(template, 0f, 0f, paint)
