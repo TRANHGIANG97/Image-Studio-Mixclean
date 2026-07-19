@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktstudio</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Återställ</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etikett</string>
-    <string name="studio_tool_shape">Ram</string>
     <string name="studio_label_add_label">Lägg till etikett</string>
     <string name="studio_label_add_text">Lägg till text</string>
     <string name="studio_label_add_shape">Lägg till form</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Belysningsvinkel</string>
     <string name="studio_elevation_custom">Anpassa</string>
     <string name="studio_elevation_shadow_blur">Skuggskärpa (oskärpa)</string>
-    <string name="studio_label_shape_frame_tab">Ram</string>
     <string name="studio_text_form_tab">Förvridning</string>
     <string name="studio_text_form_follow_path">Följ bana</string>
     <string name="studio_text_form_warp">Förvrid</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Bakgrund</string>
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Konstnärlig</string>
-    <string name="studio_label_tab_shape">Ram</string>
     <string name="studio_label_tab_text_template">Mallar</string>
     <string name="studio_label_tab_more">Mer</string>
     <string name="studio_text_template_classic">Klassisk</string>

@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.thgiang.image.studio.R
@@ -41,8 +40,8 @@ import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.ui.editor.theme.EditorTheme
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 import com.thgiang.image.studio.ui.editor.theme.MotionTokens
-import com.thgiang.image.studio.ui.components.ShimmerBox
-import androidx.compose.foundation.layout.aspectRatio
+import com.thgiang.image.studio.ui.components.StudioLottieLoader
+import com.thgiang.image.studio.ui.components.StudioLoadingOverlay
 import com.thgiang.image.studio.ui.editor.label.panel.LabelEditTab
 import com.thgiang.image.studio.ui.editor.label.panel.LabelEditingKeyboardToolbar
 import com.thgiang.image.studio.ui.editor.label.panel.LabelSelectionToolbar
@@ -65,16 +64,17 @@ fun ThemeplateEditorScreen(
     viewModel: ThemeplateEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val isTemplateLoading by viewModel.isTemplateLoading.collectAsState()
+    val isSavingDraft by viewModel.isSavingDraft.collectAsState()
     val gesturePreview by viewModel.gesturePreview.collectAsState()
     val templateAssetPath = state.template.assetPath
     val canUndo by viewModel.canUndo.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showCustomPicker by remember { mutableStateOf(false) }
+    var layersOffset by remember { mutableStateOf(Offset.Zero) }
 
     var targetReplaceLayerId by remember { mutableStateOf<String?>(null) }
-    var quickActionsOffset by remember { mutableStateOf(Offset.Zero) }
-    var layersOffset by remember { mutableStateOf(Offset.Zero) }
     
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -119,21 +119,28 @@ fun ThemeplateEditorScreen(
     
     val draftSavedMessage = stringResource(R.string.studio_draft_saved)
     LaunchedEffect(state.draftSavedAt) {
-        if (state.draftSavedAt != null) {
-            snackbarHostState.showSnackbar(
-                message = draftSavedMessage,
-                duration = SnackbarDuration.Long,
-            )
-        }
+        val savedAt = state.draftSavedAt ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(
+            message = draftSavedMessage,
+            duration = SnackbarDuration.Long,
+        )
+        viewModel.onEvent(EditorEvent.ClearDraftSaved)
     }
 
     LaunchedEffect(themeplate.id) {
         if (themeplate.id != "draft") {
+            viewModel.onEvent(EditorEvent.PrepareTemplatePreview(themeplate))
             val assetPath = themeplate.backgroundAssetPath ?: themeplate.assetPath
-            if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
-                viewModel.onEvent(EditorEvent.LoadCloudTemplateById(themeplate.id))
-            } else {
-                viewModel.onEvent(EditorEvent.LoadTemplate(assetPath, themeplate.objectSourceAssetPath))
+            when {
+                assetPath.startsWith("http://") || assetPath.startsWith("https://") -> {
+                    viewModel.onEvent(EditorEvent.LoadCloudTemplateById(themeplate.id))
+                }
+                assetPath.isNotBlank() -> {
+                    viewModel.onEvent(EditorEvent.LoadTemplate(assetPath, themeplate.objectSourceAssetPath))
+                }
+                else -> {
+                    viewModel.onEvent(EditorEvent.LoadCloudTemplateById(themeplate.id))
+                }
             }
         }
     }
@@ -146,7 +153,7 @@ fun ThemeplateEditorScreen(
         val activeLayer = state.layers.find { it.id == state.selectedLayerId }
         val editingToolsUnlocked = activeLayer != null && !activeLayer.product.processing
         val selectedToolForUi = state.selectedTool.takeIf { tool ->
-            editingToolsUnlocked || tool is EditorTool.Label || tool is EditorTool.Sticker || tool is EditorTool.Shape
+            editingToolsUnlocked || tool is EditorTool.Label || tool is EditorTool.Sticker || tool is EditorTool.Background || tool is EditorTool.Shape
         }
         var shouldAutoEditNextLabel by remember { mutableStateOf(false) }
         var activeLabelTab by rememberSaveable {
@@ -197,9 +204,11 @@ fun ThemeplateEditorScreen(
             (activeLayer != null ||
                 selectedToolForUi is EditorTool.Label ||
                 selectedToolForUi is EditorTool.Sticker ||
+                selectedToolForUi is EditorTool.Background ||
                 selectedToolForUi is EditorTool.Shape)
 
-        val bottomToolbarVisible = !isImeVisible && !isLabelEditing && !isLabelSelected
+        val bottomToolbarVisible = !isImeVisible && !isLabelEditing && !isLabelSelected && !isTemplateLoading
+        val canShowEditorCanvas = state.template.originalSize.width > 0
 
         fun exitLabelEditing(dismissKeyboard: Boolean = true) {
             if (state.editingLayerId == null || isExitingLabelEdit) return
@@ -258,7 +267,8 @@ fun ThemeplateEditorScreen(
                 .background(tokens.moduleBackground)
                 .clickable(
                     interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                    indication = null
+                    indication = null,
+                    enabled = !isTemplateLoading,
                 ) {
                     if (state.editingLayerId != null) {
                         exitLabelEditing()
@@ -271,8 +281,9 @@ fun ThemeplateEditorScreen(
         ) {
 
             // ── Layer 1: Canvas ───────────────────────────────────────
-            if (state.template.loaded && state.template.originalSize.width > 0) {
-                EditorCanvasV2(
+            if (canShowEditorCanvas) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    EditorCanvasV2(
                     templateAssetPath = state.template.assetPath,
                     templateBackgroundColor = Color(state.template.backgroundColorArgb),
                     templateSize = state.template.originalSize,
@@ -336,31 +347,19 @@ fun ThemeplateEditorScreen(
                     onEvent = { viewModel.onEvent(it) },
                     modifier = Modifier.fillMaxSize()
                 )
-            } else {
-                val aspect = state.template.originalSize.let { size ->
-                    if (size.width > 0 && size.height > 0) size.width.toFloat() / size.height else 9f / 16f
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(
-                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp,
-                            bottom = 72.dp,
-                            start = 24.dp,
-                            end = 24.dp,
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    ShimmerBox(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(aspect)
-                            .clip(RoundedCornerShape(12.dp)),
-                    )
+                    if (isTemplateLoading) {
+                        StudioLoadingOverlay(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .zIndex(6f),
+                            size = 72.dp,
+                            blockTouches = true,
+                        )
+                    }
                 }
             }
 
-            if (showLayersPanel && state.template.loaded && state.layers.isNotEmpty()) {
+            if (showLayersPanel && canShowEditorCanvas && state.layers.isNotEmpty() && !isTemplateLoading) {
                 EditorObjectListVertical(
                     layers = state.layers,
                     selectedLayerId = state.selectedLayerId,
@@ -380,6 +379,7 @@ fun ThemeplateEditorScreen(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
+                    .zIndex(100f)
                     .statusBarsPadding()
                     .height(64.dp)
                     .background(Color.White)
@@ -419,29 +419,30 @@ fun ThemeplateEditorScreen(
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             IconButton(
                                 onClick = { viewModel.onEvent(EditorEvent.Undo) },
-                                enabled = canUndo,
+                                enabled = !isTemplateLoading && canUndo,
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 EditorUndoIcon(
                                     modifier = Modifier.size(20.dp),
-                                    tint = if (canUndo) tokens.textPrimary.copy(alpha = 0.65f)
+                                    tint = if (!isTemplateLoading && canUndo) tokens.textPrimary.copy(alpha = 0.65f)
                                            else tokens.textDisabled.copy(alpha = 0.32f)
                                 )
                             }
                             IconButton(
                                 onClick = { viewModel.onEvent(EditorEvent.Redo) },
-                                enabled = canRedo,
+                                enabled = !isTemplateLoading && canRedo,
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 EditorRedoIcon(
                                     modifier = Modifier.size(20.dp),
-                                    tint = if (canRedo) tokens.textPrimary.copy(alpha = 0.65f)
+                                    tint = if (!isTemplateLoading && canRedo) tokens.textPrimary.copy(alpha = 0.65f)
                                            else tokens.textDisabled.copy(alpha = 0.32f)
                                 )
                             }
                             if (state.template.loaded && state.layers.isNotEmpty()) {
                                 IconButton(
                                     onClick = { showLayersPanel = !showLayersPanel },
+                                    enabled = !isTemplateLoading,
                                     modifier = Modifier
                                         .size(32.dp)
                                         .clip(androidx.compose.foundation.shape.CircleShape)
@@ -474,6 +475,15 @@ fun ThemeplateEditorScreen(
                             ) {
                                 StudioLottieLoader(modifier = Modifier.size(36.dp))
                             }
+                        } else if (isSavingDraft) {
+                            Box(
+                                modifier = Modifier
+                                    .height(36.dp)
+                                    .padding(end = 4.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                StudioLottieLoader(modifier = Modifier.size(24.dp))
+                            }
                         } else {
                             Text(
                                 text = stringResource(R.string.studio_save_draft),
@@ -487,7 +497,9 @@ fun ThemeplateEditorScreen(
                                     .weight(1f, fill = false)
                                     .widthIn(min = 48.dp)
                                     .clip(RoundedCornerShape(999.dp))
-                                    .clickable { viewModel.onEvent(EditorEvent.SaveDraft) }
+                                    .clickable(enabled = !isTemplateLoading) {
+                                        viewModel.onEvent(EditorEvent.SaveDraft)
+                                    }
                                     .padding(horizontal = 6.dp, vertical = 8.dp)
                             )
 
@@ -500,7 +512,7 @@ fun ThemeplateEditorScreen(
                                         if (state.canExport) tokens.accent
                                         else tokens.textDisabled.copy(alpha = 0.20f)
                                     )
-                                    .clickable(enabled = state.canExport) {
+                                    .clickable(enabled = state.canExport && !isTemplateLoading) {
                                         val exportAction = {
                                             viewModel.onEvent(EditorEvent.Export(templateAssetPath))
                                         }
@@ -526,8 +538,6 @@ fun ThemeplateEditorScreen(
             }
 
             // ── Layer 3: Bottom controls + toolbar ────────────────────
-
-            // Shared toolbar click handler
             val onToolClicked: (EditorTool?) -> Unit = { tool ->
                 if (tool is EditorTool.Duplicate) {
                     viewModel.onEvent(EditorEvent.DuplicateLayer)
@@ -588,7 +598,7 @@ fun ThemeplateEditorScreen(
                 }
 
                 AnimatedVisibility(
-                    visible = isLabelSelected && activeLayer != null,
+                    visible = isLabelSelected && activeLayer != null && !isTemplateLoading,
                     modifier = Modifier.fillMaxWidth(),
                     enter = slideInVertically(MotionTokens.springPanel()) { it } + fadeIn(MotionTokens.fadeDefault),
                     exit = slideOutVertically(MotionTokens.springPanel()) { it } + fadeOut(MotionTokens.fadeQuick),
@@ -648,7 +658,7 @@ fun ThemeplateEditorScreen(
                 }
 
                 AnimatedVisibility(
-                    visible = !isImeVisible && !isLabelEditing && !isLabelSelected,
+                    visible = bottomToolbarVisible,
                     modifier = Modifier.fillMaxWidth(),
                     enter = slideInVertically(MotionTokens.springPanel()) { it } + fadeIn(MotionTokens.fadeDefault),
                     exit = slideOutVertically(MotionTokens.springPanel()) { it } + fadeOut(MotionTokens.fadeQuick),
@@ -682,7 +692,7 @@ fun ThemeplateEditorScreen(
                         canRemoveBg = activeLayer?.type == LayerType.IMAGE &&
                             !activeLayer.product.isSample &&
                             !activeLayer.isLocked,
-                        toolsLocked = !editingToolsUnlocked,
+                        toolsLocked = !editingToolsUnlocked || isTemplateLoading,
                         labelLayerActive = selectedToolForUi is EditorTool.Label ||
                             activeLayer?.isLabelLayer == true,
                         shapeShadowInPanel = selectedToolForUi is EditorTool.Shape ||
@@ -699,7 +709,7 @@ fun ThemeplateEditorScreen(
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
                     .padding(bottom = 72.dp)
-                    .zIndex(50f)
+                    .zIndex(110f)
             ) { data ->
                 Snackbar(
                     snackbarData = data,

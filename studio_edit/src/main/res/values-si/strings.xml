@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI නිෂ්පාදන ස්ටුඩියෝව</string>
     <string name="studio_category_electronics">විද්‍යුත් උපකරණ</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">යථා තත්ත්වයට පත් කරන්න</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">ලේබලය</string>
-    <string name="studio_tool_shape">රාමුව</string>
     <string name="studio_label_add_label">ලේබලයක් එක් කරන්න</string>
     <string name="studio_label_add_text">පෙළක් එක් කරන්න</string>
     <string name="studio_label_add_shape">හැඩයක් එක් කරන්න</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">ආලෝකකරණ කෝණය</string>
     <string name="studio_elevation_custom">රිසිකරණය කරන්න</string>
     <string name="studio_elevation_shadow_blur">සෙවනැලි නොපැහැදිලි බව</string>
-    <string name="studio_label_shape_frame_tab">දාරය</string>
     <string name="studio_text_form_tab">විකෘති කිරීම</string>
     <string name="studio_text_form_follow_path">පථය අනුගමනය කරන්න</string>
     <string name="studio_text_form_warp">වක්‍ර කරන්න (Warp)</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">පසුබිම</string>
     <string name="studio_label_tab_elevation">බලපෑම</string>
     <string name="studio_label_tab_text_form">කලාත්මක</string>
-    <string name="studio_label_tab_shape">රාමුව</string>
     <string name="studio_label_tab_text_template">සැකිලි</string>
     <string name="studio_label_tab_more">තවත්</string>
     <string name="studio_text_template_classic">සම්ප්‍රදායික</string>

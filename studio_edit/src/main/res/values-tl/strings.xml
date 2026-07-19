@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Mga Elektronika</string>
@@ -181,7 +181,6 @@
     <string name="studio_reset_zoom">I-reset</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Label</string>
-    <string name="studio_tool_shape">Frame</string>
     <string name="studio_label_add_label">Magdagdag ng label</string>
     <string name="studio_label_add_text">Magdagdag ng teksto</string>
     <string name="studio_label_add_shape">Magdagdag ng hugis</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">Anggulo ng liwanag</string>
     <string name="studio_elevation_custom">I-customize</string>
     <string name="studio_elevation_shadow_blur">Blur ng anino</string>
-    <string name="studio_label_shape_frame_tab">Border</string>
     <string name="studio_text_form_tab">I-transform</string>
     <string name="studio_text_form_follow_path">Sundin ang Path</string>
     <string name="studio_text_form_warp">I-warp</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">Background</string>
     <string name="studio_label_tab_elevation">Epekto</string>
     <string name="studio_label_tab_text_form">Masining</string>
-    <string name="studio_label_tab_shape">Frame</string>
     <string name="studio_label_tab_text_template">Mga template</string>
     <string name="studio_label_tab_more">Higit pa</string>
     <string name="studio_text_template_classic">Klasiko</string>

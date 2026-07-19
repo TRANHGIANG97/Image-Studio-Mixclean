@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Elektronica</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Hestellen</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Label</string>
-    <string name="studio_tool_shape">Kader</string>
     <string name="studio_label_add_label">Label toevoegen</string>
     <string name="studio_label_add_text">Tekst toevoegen</string>
     <string name="studio_label_add_shape">Vorm toevoegen</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Belichtingshoek</string>
     <string name="studio_elevation_custom">Aanpassen</string>
     <string name="studio_elevation_shadow_blur">Schaduwvervaging</string>
-    <string name="studio_label_shape_frame_tab">Rand</string>
     <string name="studio_text_form_tab">Vervormen</string>
     <string name="studio_text_form_follow_path">Pad volgen</string>
     <string name="studio_text_form_warp">Vervormen</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Achtergrond</string>
     <string name="studio_label_tab_elevation">Effect</string>
     <string name="studio_label_tab_text_form">Artistiek</string>
-    <string name="studio_label_tab_shape">Kader</string>
     <string name="studio_label_tab_text_template">Sjablonen</string>
     <string name="studio_label_tab_more">Meer</string>
     <string name="studio_text_template_classic">Klassiek</string>

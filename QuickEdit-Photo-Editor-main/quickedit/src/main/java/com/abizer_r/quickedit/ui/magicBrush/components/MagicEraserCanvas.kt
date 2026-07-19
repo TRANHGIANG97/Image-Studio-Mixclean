@@ -43,6 +43,7 @@ import kotlin.math.sqrt
 
 private const val TAG = "MagicEraserCanvas"
 private const val ERROR_DISPLAY_MS = 3_000L
+private data class ScaledDisplayBitmap(val bitmap: Bitmap, val image: ImageBitmap)
 private const val CHECKERBOARD_TILE_DP = 8
 private const val BRUSH_FILL_ALPHA = 0.2f
 private const val BRUSH_STROKE_ALPHA = 0.9f
@@ -139,7 +140,7 @@ fun MagicEraserCanvas(
         else System.identityHashCode(currentBitmap)
     }
 
-    val displayImage by produceState<ImageBitmap?>(
+    val scaledDisplay by produceState<ScaledDisplayBitmap?>(
         initialValue = null,
         key1 = currentBitmap,
         key2 = canvasSize,
@@ -155,8 +156,7 @@ fun MagicEraserCanvas(
             scaled = withContext(Dispatchers.Default) {
                 Bitmap.createScaledBitmap(currentBitmap, canvasSize.width, canvasSize.height, true)
             }
-            value = scaled.asImageBitmap() // Gán ảnh mới
-            // ImageBitmap không có hàm close() trên Android, GC sẽ tự thu hồi khi gán value mới
+            value = ScaledDisplayBitmap(scaled, scaled.asImageBitmap())
         } catch (e: kotlinx.coroutines.CancellationException) {
             scaled?.recycle() // Chỉ recycle ảnh mới nếu coroutine bị hủy giữa chừng
             throw e
@@ -167,6 +167,7 @@ fun MagicEraserCanvas(
         }
         // TUYỆT ĐỐI KHÔNG dùng khối finally để recycle 'scaled' ở đây
     }
+    val displayImage = scaledDisplay?.image
 
     // Xóa pending paths khi ảnh mới đã thực sự được scale và hiển thị xong
     LaunchedEffect(displayImage) {
@@ -176,9 +177,9 @@ fun MagicEraserCanvas(
     }
 
     // THÊM DisposableEffect để dọn dẹp khi composable bị khỏi cây UI
-    DisposableEffect(displayImage) {
+    DisposableEffect(scaledDisplay) {
         onDispose {
-            // displayImage?.close() // Bỏ qua vì ImageBitmap không có close()
+            scaledDisplay?.bitmap?.let { if (!it.isRecycled) it.recycle() }
         }
     }
 

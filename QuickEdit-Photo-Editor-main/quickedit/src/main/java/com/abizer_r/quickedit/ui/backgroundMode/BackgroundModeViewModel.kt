@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import com.abizer_r.quickedit.utils.background.GradientBackgroundRenderer
 import javax.inject.Inject
 
@@ -198,10 +197,8 @@ class BackgroundModeViewModel @Inject constructor(
             )
             viewModelScope.launch(Dispatchers.Default) {
                 var result = runCatching {
-                    withTimeout(45000L) {
-                        android.util.Log.d("BackgroundModeVM", "Using ML Kit Subject Segmentation")
-                        backgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
-                    }
+                    android.util.Log.d("BackgroundModeVM", "Using ML Kit Subject Segmentation")
+                    backgroundRemoverRepository.getForegroundBitmap(bitmap).getOrThrow()
                 }
 
                 result.onSuccess { fgRaw ->

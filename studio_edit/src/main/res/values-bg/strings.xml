@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Студио за продукти</string>
     <string name="studio_category_electronics">Електроника</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Черновата е запазена</string>
     <string name="studio_reset_zoom">Нулиране</string>
     <string name="studio_tool_label">Етикет</string>
-    <string name="studio_tool_shape">Рамка</string>
     <string name="studio_label_add_label">Добавете етикет</string>
     <string name="studio_label_add_text">Добавете текст</string>
     <string name="studio_label_add_shape">Добавяне на етикет</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">Ъгъл на осветяване</string>
     <string name="studio_elevation_custom">Персонализиране</string>
     <string name="studio_elevation_shadow_blur">Размазване на сенки</string>
-    <string name="studio_label_shape_frame_tab">Рамка</string>
     <string name="studio_text_form_tab">Трансформирайте</string>
     <string name="studio_text_form_follow_path">Следвайте пътя</string>
     <string name="studio_text_form_warp">Деформация</string>
@@ -302,7 +300,6 @@
     <string name="studio_label_tab_bg_color">Фон</string>
     <string name="studio_label_tab_elevation">Ефект</string>
     <string name="studio_label_tab_text_form">Артистичен</string>
-    <string name="studio_label_tab_shape">Рамка</string>
     <string name="studio_label_tab_text_template">Шаблони</string>
     <string name="studio_label_tab_more">Още</string>
     <string name="studio_text_template_classic">Класика</string>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Estúdio de Produtos IA</string>
     <string name="studio_category_electronics">Eletrônicos</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Redefinir</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Rótulo</string>
-    <string name="studio_tool_shape">Moldura</string>
     <string name="studio_label_add_label">Adicionar rótulo</string>
     <string name="studio_label_add_text">Adicionar texto</string>
     <string name="studio_label_add_shape">Adicionar Forma</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Ângulo da iluminação</string>
     <string name="studio_elevation_custom">Personalizar</string>
     <string name="studio_elevation_shadow_blur">Desfoque da sombra</string>
-    <string name="studio_label_shape_frame_tab">Borda</string>
     <string name="studio_text_form_tab">Distorção</string>
     <string name="studio_text_form_follow_path">Seguir Caminho</string>
     <string name="studio_text_form_warp">Distorcer</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Fundo</string>
     <string name="studio_label_tab_elevation">Efeito</string>
     <string name="studio_label_tab_text_form">Artístico</string>
-    <string name="studio_label_tab_shape">Moldura</string>
     <string name="studio_label_tab_text_template">Modelos</string>
     <string name="studio_label_tab_more">Mais</string>
     <string name="studio_text_template_classic">Clássico</string>

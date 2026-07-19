@@ -20,7 +20,10 @@ import com.thgiang.image.core.domain.logging.AppLogger
 import com.thgiang.image.core.domain.model.template.CloudTemplate
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.data.TemplateDraftRepository
+import com.thgiang.image.studio.data.DraftRestoreBundle
 import com.thgiang.image.studio.data.RemoteSticker
+import com.thgiang.image.studio.data.RemoteBackground
+import com.thgiang.image.studio.data.BackgroundRemoteRepository
 import com.thgiang.image.studio.data.StickerRemoteRepository
 import com.thgiang.image.studio.ui.editor.export.EditorExportCoordinator
 import com.thgiang.image.studio.ui.editor.export.ExportOutcome
@@ -38,6 +41,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import kotlin.math.abs
 
@@ -47,6 +51,12 @@ import kotlin.math.abs
 data class StickerUiState(
     val previewMeme: List<RemoteSticker> = emptyList(),
     val previewDecor: List<RemoteSticker> = emptyList(),
+    val isLoadingPreview: Boolean = false,
+    val previewError: Boolean = false,
+)
+
+data class BackgroundUiState(
+    val preview: List<RemoteBackground> = emptyList(),
     val isLoadingPreview: Boolean = false,
     val previewError: Boolean = false,
 )
@@ -61,6 +71,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private val productWorkflow: EditorProductWorkflow,
     private val layerFactory: EditorLayerFactory,
     private val stickerRepository: StickerRemoteRepository,
+    private val backgroundRepository: BackgroundRemoteRepository,
     private val appLogger: AppLogger,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -79,27 +90,20 @@ class ThemeplateEditorViewModel @Inject constructor(
     private var styleClipboard: LabelStyleClipboard? = null
 
     val draftId: String? = savedStateHandle.get<String>("draftId")
-    
-    private val _state = MutableStateFlow(
-        (templateDraftRepository.loadDraft(draftId ?: "") ?: EditorState()).let { restored ->
-            val layers = EditorLayerNormalizer.normalize(restored.layers ?: emptyList())
-            val (sel, edit) = LabelInteractionState.normalize(
-                restored.selectedLayerId,
-                restored.editingLayerId,
-                layers,
-            )
-            val (_, ids) = SelectionState.singleSelect(layers, sel)
-            restored.copy(
-                template = restored.template ?: EditorTemplate(),
-                selectedTool = restored.selectedTool,
-                layers = layers,
-                selectedLayerId = sel,
-                selectedLayerIds = ids,
-                editingLayerId = edit,
-            )
-        }
-    )
+
+    private val draftRestoreBundle: DraftRestoreBundle? = draftId
+        ?.takeIf { it.isNotBlank() }
+        ?.let { templateDraftRepository.resolveDraftRestore(it) }
+
+    private val _state = MutableStateFlow(buildInitialEditorState())
     val state: StateFlow<EditorState> = _state.asStateFlow()
+
+    private val _isTemplateLoading = MutableStateFlow(shouldShowTemplateLoadingInitially())
+    val isTemplateLoading: StateFlow<Boolean> = _isTemplateLoading.asStateFlow()
+    private var templateLoadingDepth = 0
+
+    private val _isSavingDraft = MutableStateFlow(false)
+    val isSavingDraft: StateFlow<Boolean> = _isSavingDraft.asStateFlow()
 
     private val _gesturePreview = MutableStateFlow<GesturePreview?>(null)
     val gesturePreview: StateFlow<GesturePreview?> = _gesturePreview.asStateFlow()
@@ -111,7 +115,11 @@ class ThemeplateEditorViewModel @Inject constructor(
     private val _stickerState = MutableStateFlow(StickerUiState())
     val stickerState: StateFlow<StickerUiState> = _stickerState.asStateFlow()
 
+    private val _backgroundState = MutableStateFlow(BackgroundUiState())
+    val backgroundState: StateFlow<BackgroundUiState> = _backgroundState.asStateFlow()
+
     private var stickerPreviewJob: Job? = null
+    private var backgroundPreviewJob: Job? = null
 
     // Debounced history push for gesture operations
     private val historyPushFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -121,6 +129,7 @@ class ThemeplateEditorViewModel @Inject constructor(
     private var exportJob: Job? = null
     private var historyPushJob: Job? = null
     private var saveDraftJob: Job? = null
+    private val saveDraftGeneration = AtomicLong(0)
     private var overlayJob: Job? = null
 
     val themeplateId: String? = savedStateHandle.get<String>("themeplateId")
@@ -168,14 +177,199 @@ class ThemeplateEditorViewModel @Inject constructor(
             if (!_state.value.template.loaded) {
                 loadTemplate(savedPath)
             }
-        } else {
-            val tId = themeplateId
-            if (!tId.isNullOrEmpty() && tId != "draft") {
-                if (!_state.value.template.loaded) {
-                    loadCloudTemplateById(tId)
-                }
+        } else if (!draftId.isNullOrBlank()) {
+            restoreDraftTemplateIfNeeded()
+            finalizeDraftEditorState()
+        }
+    }
+
+    private fun buildInitialEditorState(): EditorState {
+        val bundle = draftRestoreBundle
+        when {
+            bundle?.hasLegacyProjectState == true -> {
+                return EditorState(
+                    errorMessage = context.getString(R.string.studio_draft_legacy_unsupported),
+                )
+            }
+            bundle?.editorStateCorrupt == true -> {
+                return EditorState(
+                    errorMessage = context.getString(R.string.studio_draft_load_failed),
+                )
+            }
+            draftId != null && bundle?.state == null && bundle?.meta == null -> {
+                return EditorState(
+                    errorMessage = context.getString(R.string.studio_draft_load_failed),
+                )
             }
         }
+
+        val meta = bundle?.meta
+        val restored = bundle?.state ?: EditorState()
+        val assetPath = meta?.templateAssetPath?.takeIf { it.isNotBlank() }
+            ?: restored.template.assetPath
+        val objectAssetPath = meta?.templateObjectAssetPath?.takeIf { it.isNotBlank() }
+            ?: restored.template.objectAssetPath
+        val thumbnailUrl = meta?.templateThumbnailUrl?.takeIf { it.isNotBlank() }
+            ?: restored.template.thumbnailUrl
+        val withMetaTemplate = restored.copy(
+            template = restored.template.copy(
+                assetPath = assetPath,
+                objectAssetPath = objectAssetPath,
+                thumbnailUrl = thumbnailUrl,
+            ),
+        )
+
+        return try {
+            val layers = EditorLayerNormalizer.normalize(withMetaTemplate.layers)
+            val (sel, edit) = LabelInteractionState.normalize(
+                withMetaTemplate.selectedLayerId,
+                withMetaTemplate.editingLayerId,
+                layers,
+            )
+            val (_, ids) = SelectionState.singleSelect(layers, sel)
+            withMetaTemplate.copy(
+                layers = layers,
+                selectedLayerId = sel,
+                selectedLayerIds = ids,
+                editingLayerId = edit,
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("ThemeplateEditorVM", "Failed to restore draft layers", e)
+            withMetaTemplate.copy(
+                errorMessage = context.getString(R.string.studio_draft_load_failed),
+            )
+        }
+    }
+
+    private fun restoreDraftTemplateIfNeeded() {
+        if (_state.value.errorMessage != null) return
+
+        val meta = draftRestoreBundle?.meta
+        val template = _state.value.template
+        val assetPath = meta?.templateAssetPath?.takeIf { it.isNotBlank() }
+            ?: template.assetPath.takeIf { it.isNotBlank() }
+
+        if (template.loaded && template.originalSize.width > 0) return
+
+        if (assetPath.isNullOrBlank()) {
+            _state.update {
+                it.copy(errorMessage = context.getString(R.string.studio_draft_load_failed))
+            }
+            return
+        }
+
+        if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
+            if (template.originalWidth > 0 && template.originalHeight > 0) {
+                _state.update {
+                    it.copy(
+                        template = it.template.copy(
+                            assetPath = assetPath,
+                            loaded = true,
+                            thumbnailUrl = meta?.templateThumbnailUrl?.takeIf { url -> url.isNotBlank() }
+                                ?: it.template.thumbnailUrl,
+                        ),
+                    )
+                }
+            } else {
+                val cloudId = meta?.cloudTemplateId?.takeIf { it.isNotBlank() }
+                    ?: themeplateId?.takeIf { it.isNotBlank() && it != "draft" }
+                if (cloudId != null) {
+                    loadCloudTemplateById(cloudId)
+                } else {
+                    _state.update {
+                        it.copy(errorMessage = context.getString(R.string.studio_draft_load_failed))
+                    }
+                }
+            }
+            return
+        }
+
+        loadTemplate(assetPath, meta?.templateObjectAssetPath ?: template.objectAssetPath)
+    }
+
+    /**
+     * Draft JSON can carry stale inline-edit, crop-tool, or overlay flags from the last save.
+     * Normalize interaction state so the canvas is zoom/pan-ready immediately after open.
+     */
+    private fun finalizeDraftEditorState() {
+        if (draftId.isNullOrBlank()) return
+
+        val state = _state.value
+        if (state.errorMessage != null) {
+            dismissTemplateLoadingIfIdle()
+            return
+        }
+
+        if (state.template.loaded && state.template.originalSize.width > 0) {
+            dismissTemplateLoadingIfIdle()
+        }
+
+        val needsInteractionReset = state.editingLayerId != null ||
+            state.selectedTool is EditorTool.Crop ||
+            state.showOverlay
+
+        if (needsInteractionReset) {
+            val layers = state.layers
+            val (sel, _) = LabelInteractionState.normalize(
+                state.selectedLayerId,
+                editingLayerId = null,
+                layers,
+            )
+            val (_, ids) = SelectionState.singleSelect(layers, sel)
+            _state.update {
+                it.copy(
+                    selectedLayerId = sel,
+                    selectedLayerIds = ids,
+                    editingLayerId = null,
+                    selectedTool = if (it.selectedTool is EditorTool.Crop) null else it.selectedTool,
+                    showOverlay = false,
+                )
+            }
+        }
+
+        syncDocumentSelection(_state.value.selectedLayerId)
+    }
+
+    private fun dismissTemplateLoadingIfIdle() {
+        if (templateLoadingDepth == 0) {
+            _isTemplateLoading.value = false
+        }
+    }
+
+    private fun shouldShowTemplateLoadingInitially(): Boolean {
+        val initialState = _state.value
+        if (initialState.errorMessage != null) return false
+        if (initialState.template.loaded && initialState.template.originalSize.width > 0) return false
+
+        val savedPath = savedStateHandle.get<String>("template_path")
+        if (!savedPath.isNullOrBlank() && !initialState.template.loaded) return true
+
+        if (!draftId.isNullOrBlank()) {
+            val assetPath = draftRestoreBundle?.meta?.templateAssetPath?.takeIf { it.isNotBlank() }
+                ?: initialState.template.assetPath.takeIf { it.isNotBlank() }
+            if (assetPath.isNullOrBlank()) return false
+            if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
+                val hasDimensions = initialState.template.originalWidth > 0 &&
+                    initialState.template.originalHeight > 0
+                val canLoadFromCloud = draftRestoreBundle?.meta?.cloudTemplateId?.isNotBlank() == true ||
+                    (!themeplateId.isNullOrBlank() && themeplateId != "draft")
+                return !hasDimensions && canLoadFromCloud
+            }
+            return true
+        }
+
+        val tId = themeplateId
+        return !tId.isNullOrEmpty() && tId != "draft"
+    }
+
+    private fun beginTemplateLoading() {
+        templateLoadingDepth++
+        _isTemplateLoading.value = true
+    }
+
+    private fun endTemplateLoading() {
+        templateLoadingDepth = (templateLoadingDepth - 1).coerceAtLeast(0)
+        _isTemplateLoading.value = templateLoadingDepth > 0
     }
 
     private fun updateActiveLayer(block: (EditorLayer) -> EditorLayer) {
@@ -262,9 +456,11 @@ class ThemeplateEditorViewModel @Inject constructor(
             is EditorEvent.LoadTemplate -> loadTemplate(event.assetPath, event.objectSourceAssetPath)
             is EditorEvent.LoadCloudTemplate -> loadCloudTemplate(event.cloudTemplate)
             is EditorEvent.LoadCloudTemplateById -> loadCloudTemplateById(event.templateId)
+            is EditorEvent.PrepareTemplatePreview -> prepareTemplatePreview(event.themeplate)
             is EditorEvent.SetProductImage -> setProductImage(event.uri, event.replaceLayerId)
             is EditorEvent.RemoveBackground -> removeBackground(event.layerId)
             is EditorEvent.AddSticker -> addSticker(event.assetPath)
+            is EditorEvent.ApplyBackground -> applyBackground(event.url)
             // ── Label events (delegated) ──────────────────
             EditorEvent.AddTextLayer ->
                 labelDelegate.addTextLayer(_state.value.template.originalSize.width.toFloat())
@@ -909,6 +1105,7 @@ class ThemeplateEditorViewModel @Inject constructor(
             EditorEvent.FinishTextEdit -> finishTextEdit()
             EditorEvent.ClearError -> _state.update { it.copy(errorMessage = null) }
             EditorEvent.ClearExportResult -> _state.update { it.copy(exportResult = null) }
+            EditorEvent.ClearDraftSaved -> _state.update { it.copy(draftSavedAt = null) }
             is EditorEvent.Export -> export(event.templateAssetPath)
         }
     }
@@ -1045,10 +1242,56 @@ class ThemeplateEditorViewModel @Inject constructor(
         pushHistory()
     }
 
+    private fun publishCloudTemplateShell(cloudTemplate: CloudTemplate) {
+        val shell = templateLoader.cloudTemplateShell(cloudTemplate)
+        _state.update { state ->
+            state.copy(
+                template = shell.copy(
+                    objectAssetPath = state.template.objectAssetPath,
+                ),
+                errorMessage = null,
+            )
+        }
+    }
+
+    private fun prepareTemplatePreview(themeplate: com.thgiang.image.studio.model.StudioThemeplate) {
+        if (themeplate.id == "draft") return
+
+        val previewUrl = themeplate.backgroundAssetPath?.takeIf { it.isNotBlank() }
+            ?: themeplate.assetPath.takeIf { it.isNotBlank() }
+            ?: return
+
+        val fallbackSize = 1080
+        val width = themeplate.canvasWidth.takeIf { it > 0 } ?: fallbackSize
+        val height = themeplate.canvasHeight.takeIf { it > 0 } ?: fallbackSize
+
+        _state.update { state ->
+            if (state.template.loaded && state.template.originalSize.width > 0) {
+                return@update state
+            }
+            state.copy(
+                template = state.template.copy(
+                    assetPath = previewUrl,
+                    thumbnailUrl = previewUrl,
+                    originalWidth = width,
+                    originalHeight = height,
+                    loaded = false,
+                    objectAssetPath = themeplate.objectSourceAssetPath ?: state.template.objectAssetPath,
+                ),
+                errorMessage = null,
+            )
+        }
+    }
+
     private fun applyLoadedTemplate(loaded: com.thgiang.image.studio.ui.editor.load.LoadedEditorTemplate) {
         clearGesturePreview()
         _state.update {
-            val layers = EditorLayerNormalizer.normalize(loaded.layers.ifEmpty { it.layers })
+            val layers = try {
+                EditorLayerNormalizer.normalize(loaded.layers.ifEmpty { it.layers })
+            } catch (e: Exception) {
+                android.util.Log.e("ThemeplateEditorVM", "Failed to normalize loaded layers", e)
+                loaded.layers.filterIsInstance<EditorLayer>().ifEmpty { it.layers }
+            }
             val sel = loaded.selectedLayerId ?: it.selectedLayerId
             val (_, ids) = SelectionState.singleSelect(layers, sel)
             it.copy(
@@ -1070,65 +1313,105 @@ class ThemeplateEditorViewModel @Inject constructor(
 
         savedStateHandle["template_path"] = assetPath
         templateLoadJob?.cancel()
-        templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            runCatching {
-                templateLoader.buildFromCloud(cloudTemplate)
-            }.onSuccess { loaded ->
+        templateLoadJob = viewModelScope.launch {
+            beginTemplateLoading()
+            try {
+                publishCloudTemplateShell(cloudTemplate)
+                val loaded = withContext(Dispatchers.IO) {
+                    templateLoader.buildFromCloud(cloudTemplate)
+                }
                 applyLoadedTemplate(loaded)
                 android.util.Log.d(
                     BG_DEBUG_TAG,
                     "state applied templateId=${cloudTemplate.templateId} editorLayers=${loaded.layers.size}"
                 )
-            }.onFailure { e ->
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
                 android.util.Log.e(TAG, "loadCloudTemplate failed: $assetPath", e)
                 _state.update {
                     it.copy(errorMessage = context.getString(R.string.studio_error_load_cloud_template, e.message ?: ""))
                 }
+            } finally {
+                endTemplateLoading()
             }
         }
     }
 
-    private fun loadTemplate(assetPath: String, objectSourceAssetPath: String? = null) {
-        if (assetPath.isBlank()) return
+    private fun shouldLoadSampleObjectOnTemplateInit(): Boolean {
+        // Restoring a draft already has persisted layers — injecting sample object duplicates them.
+        if (!draftId.isNullOrBlank() && _state.value.layers.isNotEmpty()) return false
+        return true
+    }
 
-        if (assetPath == _state.value.template.assetPath && _state.value.template.loaded) {
-            if (objectSourceAssetPath != null) {
-                loadSampleObject(objectSourceAssetPath)
+    private fun loadTemplate(assetPath: String, objectSourceAssetPath: String? = null) {
+        if (assetPath.isBlank()) {
+            dismissTemplateLoadingIfIdle()
+            return
+        }
+
+        val currentTemplate = _state.value.template
+        if (
+            assetPath == currentTemplate.assetPath &&
+            currentTemplate.loaded &&
+            currentTemplate.originalSize.width > 0
+        ) {
+            dismissTemplateLoadingIfIdle()
+            if (objectSourceAssetPath != null && shouldLoadSampleObjectOnTemplateInit()) {
+                loadSampleObject(objectSourceAssetPath, partOfTemplateInit = true)
             }
             return
         }
 
         savedStateHandle["template_path"] = assetPath
         templateLoadJob?.cancel()
-        templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            runCatching {
-                templateLoader.probeLocalAsset(assetPath)
-            }.onSuccess { loaded ->
+        templateLoadJob = viewModelScope.launch {
+            beginTemplateLoading()
+            try {
+                val loaded = withContext(Dispatchers.IO) {
+                    templateLoader.probeLocalAsset(assetPath)
+                }
                 _state.update {
                     it.copy(
                         template = loaded.template.copy(
-                            // Lưu objectAssetPath để draft có thể khôi phục ảnh mẫu khi load lại
                             objectAssetPath = objectSourceAssetPath ?: it.template.objectAssetPath,
                         ),
                         errorMessage = null,
                     )
                 }
                 android.util.Log.d(TAG, "Successfully loaded template state")
-                if (objectSourceAssetPath != null) {
-                    loadSampleObject(objectSourceAssetPath)
+                if (objectSourceAssetPath != null && shouldLoadSampleObjectOnTemplateInit()) {
+                    loadSampleObjectForTemplateInit(objectSourceAssetPath)
                 }
-            }.onFailure { e ->
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
                 android.util.Log.e(TAG, "loadTemplate failed to load template: $assetPath", e)
                 _state.update {
                     it.copy(errorMessage = context.getString(R.string.studio_error_load_template, e.message ?: ""))
                 }
+            } finally {
+                endTemplateLoading()
             }
         }
     }
 
     private var sampleObjectLoadJob: Job? = null
 
-    private fun loadSampleObject(assetPath: String) {
+    private suspend fun loadSampleObjectForTemplateInit(assetPath: String) {
+        val processingId = productWorkflow.newProcessingId()
+        _state.update {
+            val (_, ids) = SelectionState.singleSelect(it.layers, processingId)
+            it.copy(
+                layers = it.layers + productWorkflow.buildSampleProcessingLayer(processingId),
+                selectedLayerId = processingId,
+                selectedLayerIds = ids,
+            )
+        }
+        runSampleObjectLoad(assetPath, processingId, recordHistory = true)
+    }
+
+    private fun loadSampleObject(assetPath: String, partOfTemplateInit: Boolean = false) {
         sampleObjectLoadJob?.cancel()
         val processingId = productWorkflow.newProcessingId()
         _state.update {
@@ -1140,35 +1423,48 @@ class ThemeplateEditorViewModel @Inject constructor(
             )
         }
         sampleObjectLoadJob = viewModelScope.launch {
+            if (partOfTemplateInit) beginTemplateLoading()
             try {
-                android.util.Log.d(TAG, "loadSampleObject: extracting $assetPath")
-                when (val result = productWorkflow.loadSampleObject(assetPath)) {
-                    is SampleObjectResult.Ready -> {
-                        _state.update { state ->
-                            val updatedLayers = state.layers.map {
-                                if (it.id == processingId) {
-                                    it.copy(product = result.product, viewport = EditorViewport(scale = 1f))
-                                } else {
-                                    it
-                                }
-                            }
-                            state.copy(layers = updatedLayers, showBoundingBox = true)
-                        }
-                        triggerOverlay()
-                        pushHistory()
-                    }
-                    SampleObjectResult.NotFound -> removeProcessingLayer(processingId)
-                    is SampleObjectResult.Failed -> removeProcessingLayer(processingId, result.message)
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                android.util.Log.e(TAG, "Failed to load sample object: $assetPath", e)
-                removeProcessingLayer(
-                    processingId,
-                    context.getString(R.string.studio_error_load_sample_product),
-                )
+                runSampleObjectLoad(assetPath, processingId, recordHistory = partOfTemplateInit)
+            } finally {
+                if (partOfTemplateInit) endTemplateLoading()
             }
+        }
+    }
+
+    private suspend fun runSampleObjectLoad(
+        assetPath: String,
+        processingId: String,
+        recordHistory: Boolean,
+    ) {
+        try {
+            android.util.Log.d(TAG, "loadSampleObject: extracting $assetPath")
+            when (val result = productWorkflow.loadSampleObject(assetPath)) {
+                is SampleObjectResult.Ready -> {
+                    _state.update { state ->
+                        val updatedLayers = state.layers.map {
+                            if (it.id == processingId) {
+                                it.copy(product = result.product, viewport = EditorViewport(scale = 1f))
+                            } else {
+                                it
+                            }
+                        }
+                        state.copy(layers = updatedLayers, showBoundingBox = true)
+                    }
+                    triggerOverlay()
+                    if (recordHistory) pushHistory()
+                }
+                SampleObjectResult.NotFound -> removeProcessingLayer(processingId)
+                is SampleObjectResult.Failed -> removeProcessingLayer(processingId, result.message)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "Failed to load sample object: $assetPath", e)
+            removeProcessingLayer(
+                processingId,
+                context.getString(R.string.studio_error_load_sample_product),
+            )
         }
     }
 
@@ -1211,6 +1507,43 @@ class ThemeplateEditorViewModel @Inject constructor(
         stickerRepository.invalidateCache()
         _stickerState.update { StickerUiState() }
         loadStickerPreview()
+    }
+
+    fun loadBackgroundPreview() {
+        if (_backgroundState.value.preview.isNotEmpty()) return
+        if (backgroundPreviewJob?.isActive == true) return
+
+        backgroundPreviewJob = viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            _backgroundState.update { it.copy(isLoadingPreview = true, previewError = false) }
+            try {
+                val preview = backgroundRepository.fetchPreview()
+                _backgroundState.update {
+                    it.copy(
+                        preview = preview,
+                        isLoadingPreview = false,
+                    )
+                }
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "loadBackgroundPreview failed", e)
+                _backgroundState.update { it.copy(isLoadingPreview = false, previewError = true) }
+            }
+        }
+    }
+
+    fun invalidateBackgroundCache() {
+        backgroundRepository.invalidateCache()
+        _backgroundState.update { BackgroundUiState() }
+        loadBackgroundPreview()
+    }
+
+    private fun applyBackground(url: String) {
+        if (url.isBlank()) return
+        _state.update { state ->
+            state.copy(
+                template = state.template.copy(assetPath = url),
+            )
+        }
+        pushHistory()
     }
 
     private fun addSticker(assetPath: String) {
@@ -1656,25 +1989,48 @@ class ThemeplateEditorViewModel @Inject constructor(
     private fun saveDraft() {
         val currentState = _state.value
         val templateAssetPath = currentState.template.assetPath
-        if (currentState.template.originalSize.width == 0 || currentState.template.originalSize.height == 0) return
+        if (currentState.template.originalSize.width == 0 || currentState.template.originalSize.height == 0) {
+            _state.update {
+                it.copy(errorMessage = context.getString(R.string.studio_draft_save_failed))
+            }
+            return
+        }
 
         saveDraftJob?.cancel()
+        val generation = saveDraftGeneration.incrementAndGet()
         saveDraftJob = viewModelScope.launch {
-            when (val outcome = exportCoordinator.saveDraft(currentState, draftId, templateAssetPath)) {
-                is SaveDraftOutcome.Success -> {
-                    if (draftId == null) {
-                        savedStateHandle["draftId"] = outcome.draftId
-                    }
-                    _state.update { it.copy(draftSavedAt = outcome.savedAt) }
-                }
-                is SaveDraftOutcome.Failure -> {
-                    appLogger.logNonFatal(
-                        outcome.error,
-                        mapOf("templateId" to (themeplateId ?: draftId ?: "unknown")),
+            _isSavingDraft.value = true
+            try {
+                when (
+                    val outcome = exportCoordinator.saveDraft(
+                        state = currentState,
+                        draftId = draftId,
+                        templateAssetPath = templateAssetPath,
+                        templateThumbnailUrl = currentState.template.thumbnailUrl,
+                        cloudTemplateId = themeplateId?.takeIf { it.isNotBlank() && it != "draft" },
                     )
-                    _state.update {
-                        it.copy(errorMessage = context.getString(R.string.studio_draft_save_failed))
+                ) {
+                    is SaveDraftOutcome.Success -> {
+                        if (generation != saveDraftGeneration.get()) return@launch
+                        if (draftId == null) {
+                            savedStateHandle["draftId"] = outcome.draftId
+                        }
+                        _state.update { it.copy(draftSavedAt = outcome.savedAt) }
                     }
+                    is SaveDraftOutcome.Failure -> {
+                        if (generation != saveDraftGeneration.get()) return@launch
+                        appLogger.logNonFatal(
+                            outcome.error,
+                            mapOf("templateId" to (themeplateId ?: draftId ?: "unknown")),
+                        )
+                        _state.update {
+                            it.copy(errorMessage = context.getString(R.string.studio_draft_save_failed))
+                        }
+                    }
+                }
+            } finally {
+                if (generation == saveDraftGeneration.get()) {
+                    _isSavingDraft.value = false
                 }
             }
         }
@@ -1713,20 +2069,28 @@ class ThemeplateEditorViewModel @Inject constructor(
     }
 
     private fun loadCloudTemplateById(templateId: String) {
-        if (_state.value.template.loaded) return
+        if (_state.value.template.loaded && _state.value.template.originalSize.width > 0) return
         templateLoadJob?.cancel()
-        templateLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(errorMessage = null) }
-            runCatching {
-                templateLoader.fetchAndBuild(templateId)
-            }.onSuccess { loaded ->
+        templateLoadJob = viewModelScope.launch {
+            beginTemplateLoading()
+            try {
+                _state.update { it.copy(errorMessage = null) }
+                val cloudTemplate = withContext(Dispatchers.IO) {
+                    templateLoader.fetchCloudTemplate(templateId)
+                }
+                publishCloudTemplateShell(cloudTemplate)
+                val loaded = withContext(Dispatchers.IO) {
+                    templateLoader.buildFromCloud(cloudTemplate)
+                }
                 savedStateHandle["template_path"] = loaded.template.assetPath
                 applyLoadedTemplate(loaded)
                 android.util.Log.d(
                     BG_DEBUG_TAG,
                     "loaded templateId=$templateId layers=${loaded.layers.size}"
                 )
-            }.onFailure { e ->
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
                 android.util.Log.e(TAG, "Failed to load remote template $templateId", e)
                 _state.update {
                     it.copy(
@@ -1736,6 +2100,8 @@ class ThemeplateEditorViewModel @Inject constructor(
                         )
                     )
                 }
+            } finally {
+                endTemplateLoading()
             }
         }
     }

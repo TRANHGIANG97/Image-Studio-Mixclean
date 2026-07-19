@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.abizer_r.quickedit.R
+import com.thgiang.image.core.premium.PremiumFeatureFlags
 import com.thgiang.image.studio.model.StudioThemeplate
 import com.thgiang.image.studio.ui.editor.theme.EditorColorPalette
 
@@ -165,7 +166,7 @@ private fun CosmeticsThemeplateCard(
                 }
             )
 
-            if (themeplate.isPremium) {
+            if (PremiumFeatureFlags.enabled && themeplate.isPremium) {
                 Box(
                     modifier = Modifier
                         .padding(top = 4.dp, end = 4.dp)

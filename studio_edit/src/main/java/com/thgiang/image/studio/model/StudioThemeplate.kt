@@ -14,6 +14,8 @@ data class StudioThemeplate(
     val category: String = "cosmetics",
     val titleString: String? = null,
     val isPremium: Boolean = false,
+    val canvasWidth: Int = 0,
+    val canvasHeight: Int = 0,
 )
 
 data class StudioThemeplateSection(

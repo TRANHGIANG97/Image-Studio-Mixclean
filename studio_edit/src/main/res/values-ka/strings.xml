@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI პროდუქტის სტუდია</string>
     <string name="studio_category_electronics">ელექტრონიკა</string>
@@ -181,7 +181,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">იარლიყი</string>
-    <string name="studio_tool_shape">ჩარჩო</string>
     <string name="studio_label_add_label">იარლიყის დამატება</string>
     <string name="studio_label_add_text">ტექსტის დამატება</string>
     <string name="studio_label_add_shape">იარლიყის დამატება</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">განათების კუთხე</string>
     <string name="studio_elevation_custom">მორგება</string>
     <string name="studio_elevation_shadow_blur">ჩრდილის ბუნდოვანება</string>
-    <string name="studio_label_shape_frame_tab">ჩარჩო</string>
     <string name="studio_text_form_tab">ტრანსფორმირება</string>
     <string name="studio_text_form_follow_path">მიჰყევით კონტურს</string>
     <string name="studio_text_form_warp">დეფორმაცია</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">ფონი</string>
     <string name="studio_label_tab_elevation">ეფექტი</string>
     <string name="studio_label_tab_text_form">მხატვრული</string>
-    <string name="studio_label_tab_shape">ჩარჩო</string>
     <string name="studio_label_tab_text_template">შაბლონები</string>
     <string name="studio_label_tab_more">მეტი</string>
     <string name="studio_text_template_classic">კლასიკური</string>

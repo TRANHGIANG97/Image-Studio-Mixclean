@@ -18,10 +18,13 @@ import android.net.Uri
 import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.core.graphics.withSave
+import com.thgiang.image.core.util.MemoryUtil
 import com.thgiang.image.core.util.processors.ProcessorUtils
 import com.thgiang.image.studio.util.openAssetSourceInputStream
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -53,34 +56,44 @@ class EditorRenderer(
     private var shadowCache: ShadowCache? = null
     private val shadowCacheLock = Any()
     private val maxShadowCacheAgeMs = 5000L
+    private val renderMutex = Mutex()
 
-    suspend fun renderLayers(request: MultiLayerRenderRequest): Result<Bitmap> = withContext(Dispatchers.Default) {
-        runCatching {
-            val template = loadTemplateBitmap(
-                request.templateAssetPath,
+    suspend fun renderLayers(request: MultiLayerRenderRequest): Result<Bitmap> = renderMutex.withLock {
+        withContext(Dispatchers.Default) {
+            runCatching {
+            val exportSize = MemoryUtil.clampExportSize(
                 request.templateSize.width,
                 request.templateSize.height,
+                context,
+            )
+            if (!MemoryUtil.canAllocateExportBitmap(exportSize.width, exportSize.height, context)) {
+                error("Not enough memory to export ${exportSize.width}x${exportSize.height}")
+            }
+
+            val template = loadTemplateBitmap(
+                request.templateAssetPath,
+                exportSize.width,
+                exportSize.height,
                 request.backgroundColorArgb
             )
-            
-            val result = bitmapPool.obtain(
-                request.templateSize.width, 
-                request.templateSize.height
-            )
-            
-            val canvas = Canvas(result)
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+            var resultToRecycle: Bitmap? = null
+            try {
+                val result = bitmapPool.obtain(exportSize.width, exportSize.height)
+                resultToRecycle = result
+
+                val canvas = Canvas(result)
+                val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
             
             // Fill white để vùng transparent của template PNG không ra đen
             canvas.drawColor(request.backgroundColorArgb)
             // Downsampling may yield a smaller bitmap — scale into the export canvas.
-            if (template.width == request.templateSize.width && template.height == request.templateSize.height) {
+            if (template.width == exportSize.width && template.height == exportSize.height) {
                 canvas.drawBitmap(template, 0f, 0f, paint)
             } else {
                 canvas.drawBitmap(
                     template,
                     null,
-                    Rect(0, 0, request.templateSize.width, request.templateSize.height),
+                    Rect(0, 0, exportSize.width, exportSize.height),
                     paint,
                 )
             }
@@ -100,54 +113,61 @@ class EditorRenderer(
                         val foreground = ProcessorUtils.decodeBitmapFromUri(context, fgUri)
                             ?: continue
 
-                        val state = layer.viewport
-                        val layout = ProductExportLayout.compute(
-                            templateWidth = request.templateSize.width,
-                            templateHeight = request.templateSize.height,
-                            shapeWidthPx = layer.shapeWidthPx,
-                            shapeHeightPx = layer.shapeHeightPx,
-                            viewportScale = state.scale,
-                            offsetX = state.offset.x,
-                            offsetY = state.offset.y,
-                            cropRatio = layer.cropRatio,
-                            imageWidth = foreground.width,
-                            imageHeight = foreground.height,
-                        )
-
-                        // Drop shadow must use normal compositing (not the layer blend mode),
-                        // otherwise fringe colors / lighten-screen modes turn it neon.
-                        if (layer.appearance.shadowIntensity > 0.05f) {
-                            renderShadowCached(
-                                canvas = canvas,
-                                foreground = foreground,
-                                state = state,
-                                layout = layout,
-                                appearance = layer.appearance,
-                                sourceUri = fgUri,
-                                cropOffsetX = layer.cropOffsetX,
-                                cropOffsetY = layer.cropOffsetY,
+                        try {
+                            val state = layer.viewport
+                            val layout = ProductExportLayout.compute(
+                                templateWidth = request.templateSize.width,
+                                templateHeight = request.templateSize.height,
+                                shapeWidthPx = layer.shapeWidthPx,
+                                shapeHeightPx = layer.shapeHeightPx,
+                                viewportScale = state.scale,
+                                offsetX = state.offset.x,
+                                offsetY = state.offset.y,
+                                cropRatio = layer.cropRatio,
+                                imageWidth = foreground.width,
+                                imageHeight = foreground.height,
                             )
-                        }
 
-                        canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
-                            paint.alpha = 255
-                            drawProductBitmap(
-                                foreground = foreground,
-                                state = state,
-                                layout = layout,
-                                cropOffsetX = layer.cropOffsetX,
-                                cropOffsetY = layer.cropOffsetY,
-                                paint = paint,
-                            )
-                        }
+                            // Drop shadow must use normal compositing (not the layer blend mode).
+                            if (layer.appearance.shadowIntensity > 0.05f) {
+                                renderShadowCached(
+                                    canvas = canvas,
+                                    foreground = foreground,
+                                    state = state,
+                                    layout = layout,
+                                    appearance = layer.appearance,
+                                    sourceUri = fgUri,
+                                    cropOffsetX = layer.cropOffsetX,
+                                    cropOffsetY = layer.cropOffsetY,
+                                )
+                            }
 
-                        foreground.recycle()
+                            canvas.withBlendLayer(layer.blendMode, layer.appearance.alpha) {
+                                paint.alpha = 255
+                                drawProductBitmap(
+                                    foreground = foreground,
+                                    state = state,
+                                    layout = layout,
+                                    cropOffsetX = layer.cropOffsetX,
+                                    cropOffsetY = layer.cropOffsetY,
+                                    paint = paint,
+                                )
+                            }
+                        } finally {
+                            if (!foreground.isRecycled) foreground.recycle()
+                        }
                     }
                 }
             }
             
-            bitmapPool.recycle(template)
-            result
+                // Ownership transfers to the caller on success.
+                resultToRecycle = null
+                result
+            } finally {
+                resultToRecycle?.let { if (!it.isRecycled) bitmapPool.recycle(it) }
+                if (!template.isRecycled) bitmapPool.recycle(template)
+            }
+            }
         }
     }
     
@@ -351,23 +371,27 @@ class EditorRenderer(
                 val decodeHeight = opts.outHeight / sampleSize
                 
                 getInputStreamForPath(assetPath)?.use { stream2 ->
+                    val reuseBitmap = if (decodeWidth > 0 && decodeHeight > 0) {
+                        bitmapPool.obtain(decodeWidth, decodeHeight)
+                    } else {
+                        null
+                    }
                     val decodeOpts = BitmapFactory.Options().apply {
                         inSampleSize = sampleSize
                         inPreferredConfig = Bitmap.Config.ARGB_8888
                         inMutable = true
-                        
-                        // Try to obtain an exact matching size bitmap from pool to prevent gc/allocations
-                        val reuseBitmap = if (decodeWidth > 0 && decodeHeight > 0) {
-                            bitmapPool.obtain(decodeWidth, decodeHeight)
-                        } else {
-                            null
-                        }
                         inBitmap = reuseBitmap
                     }
                     try {
                         decoded = BitmapFactory.decodeStream(stream2, null, decodeOpts)
+                        if (reuseBitmap != null && decoded !== reuseBitmap) {
+                            bitmapPool.recycle(reuseBitmap)
+                        }
                     } catch (e: IllegalArgumentException) {
                         // Catch inBitmap dimension/format mismatches safely and fall back to fresh decode
+                        if (reuseBitmap != null && !reuseBitmap.isRecycled) {
+                            bitmapPool.recycle(reuseBitmap)
+                        }
                         val fallbackOpts = BitmapFactory.Options().apply {
                             inSampleSize = sampleSize
                             inPreferredConfig = Bitmap.Config.ARGB_8888

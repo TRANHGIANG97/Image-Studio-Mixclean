@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Tiklash</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Yorliq</string>
-    <string name="studio_tool_shape">Ramka</string>
     <string name="studio_label_add_label">Yorliq qoʻshish</string>
     <string name="studio_label_add_text">Matn qoʻshish</string>
     <string name="studio_label_add_shape">Shakl qoʻshish</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Yorugʻlik burchagi</string>
     <string name="studio_elevation_custom">Moslashtirish</string>
     <string name="studio_elevation_shadow_blur">Soya xiraligi</string>
-    <string name="studio_label_shape_frame_tab">Hoshiya</string>
     <string name="studio_text_form_tab">Matnni oʻzgartirish</string>
     <string name="studio_text_form_follow_path">Yoʻnalish boʻylab</string>
     <string name="studio_text_form_warp">Eshish (qiyshaytirish)</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Fon</string>
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Badiiy</string>
-    <string name="studio_label_tab_shape">Ramka</string>
     <string name="studio_label_tab_text_template">Andozalar</string>
     <string name="studio_label_tab_more">Yana</string>
     <string name="studio_text_template_classic">Klassik</string>

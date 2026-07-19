@@ -89,7 +89,7 @@ fun EditorControlsV2(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                if (tool != null && tool !is EditorTool.Sticker) {
+                if (tool != null && tool !is EditorTool.Sticker && tool !is EditorTool.Background) {
                     Text(
                         text = toolPanelTitle(tool),
                         color = tokens.textPrimary,
@@ -142,6 +142,27 @@ fun EditorControlsV2(
                                     StickerGallerySheet(
                                         onStickerSelected = { url ->
                                             onLayoutEvent(EditorEvent.AddSticker(url))
+                                            showGallery = false
+                                        },
+                                        onDismiss = { showGallery = false },
+                                    )
+                                }
+                            }
+
+                            is EditorTool.Background -> {
+                                var showGallery by rememberSaveable { mutableStateOf(false) }
+
+                                BackgroundPicker(
+                                    onBackgroundSelected = { url ->
+                                        onLayoutEvent(EditorEvent.ApplyBackground(url))
+                                    },
+                                    onShowGallery = { showGallery = true },
+                                )
+
+                                if (showGallery) {
+                                    BackgroundGallerySheet(
+                                        onBackgroundSelected = { url ->
+                                            onLayoutEvent(EditorEvent.ApplyBackground(url))
                                             showGallery = false
                                         },
                                         onDismiss = { showGallery = false },
@@ -296,6 +317,7 @@ fun EditorControlsV2(
 private fun toolPanelTitle(tool: EditorTool): String = when (tool) {
     is EditorTool.Replace -> stringResource(R.string.studio_tool_replace)
     is EditorTool.Sticker -> stringResource(R.string.studio_tool_sticker)
+    is EditorTool.Background -> stringResource(R.string.studio_tool_background)
     is EditorTool.Label -> stringResource(R.string.studio_tool_label)
     is EditorTool.Shape -> stringResource(R.string.studio_tool_shape)
     is EditorTool.Layout -> stringResource(R.string.studio_tool_layout)

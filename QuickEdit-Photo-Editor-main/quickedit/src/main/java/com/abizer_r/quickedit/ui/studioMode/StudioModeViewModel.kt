@@ -144,8 +144,15 @@ class StudioModeViewModel @Inject constructor(
                 val original = originalBitmap ?: return@launch
                 val fg = foregroundBitmap
                 val currentMap = _state.value.intensities
-                val result = withContext(Dispatchers.Default) {
-                    computeCumulativeEffect(previewBitmap ?: original, previewForeground ?: fg, currentMap)
+                val result = try {
+                    withContext(Dispatchers.Default) {
+                        computeCumulativeEffect(previewBitmap ?: original, previewForeground ?: fg, currentMap)
+                    }
+                } catch (error: kotlinx.coroutines.CancellationException) {
+                    throw error
+                } catch (error: Throwable) {
+                    Log.e("StudioModeViewModel", "Failed to update cumulative effect", error)
+                    null
                 }
                 if (myGen != currentRenderGen) {
                     result?.let { if (it !== previewBitmap && it !== original && !it.isRecycled) it.recycle() }
@@ -188,8 +195,19 @@ class StudioModeViewModel @Inject constructor(
         val myGen = currentRenderGen
         processingJob = viewModelScope.launch {
             val fg = foregroundBitmap
-            val result = withContext(Dispatchers.Default) {
-                computeCumulativeEffect(previewBitmap ?: original, previewForeground ?: fg, _state.value.intensities)
+            val result = try {
+                withContext(Dispatchers.Default) {
+                    computeCumulativeEffect(
+                        previewBitmap ?: original,
+                        previewForeground ?: fg,
+                        _state.value.intensities,
+                    )
+                }
+            } catch (error: kotlinx.coroutines.CancellationException) {
+                throw error
+            } catch (error: Throwable) {
+                Log.e("StudioModeViewModel", "Failed to apply cumulative effect", error)
+                null
             }
             if (myGen != currentRenderGen) {
                 result?.let { if (it !== previewBitmap && it !== original && !it.isRecycled) it.recycle() }

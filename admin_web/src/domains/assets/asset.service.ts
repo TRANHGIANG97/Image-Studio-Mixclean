@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { r2Client, r2BucketName, r2PublicUrl } from '@/lib/r2';
 import { PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { toSlug } from '@/lib/utils';
+import { isBackgroundFolder } from '@/domains/assets/background-folders';
 
 const DB = () => createSupabaseAdmin();
 
@@ -39,6 +40,9 @@ export async function listAssets(filters: ListAssetsFilters = {}) {
   if (folder) {
     if (folder === 'stickers') {
       query = query.in('folder', ['stickers', 'sticker']);
+    } else if (isBackgroundFolder(folder)) {
+      // Case-insensitive match for backgrounds_ecommerce vs Backgrounds_ecommerce
+      query = query.ilike('folder', folder);
     } else {
       query = query.eq('folder', folder);
     }

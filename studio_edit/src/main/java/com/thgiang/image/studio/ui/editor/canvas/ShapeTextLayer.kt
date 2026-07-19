@@ -249,7 +249,6 @@ fun ShapeTextLayer(
         with(density) { bleedPx.toDp() }.coerceAtLeast(16.dp)
     }
 
-    val overlayMargin = paddingExtra * 2 + 16.dp
     val moveHandleExtraTop = if (isInlineEditing) {
         EditorDims.TextInlineMoveHandleGapDp +
             EditorDims.TextInlineMoveHandleHitRadiusDp + 8.dp
@@ -257,10 +256,15 @@ fun ShapeTextLayer(
         0.dp
     }
 
+    val overlayHorizontalMargin = paddingExtra * 2 + 16.dp
+    val overlayVerticalMargin = maxOf(overlayHorizontalMargin, EditorDims.MinOverlayVerticalMarginDp)
+    val parentPadH = maxOf(paddingExtra * 2, overlayHorizontalMargin)
+    val parentPadV = maxOf(paddingExtra * 2, overlayVerticalMargin + moveHandleExtraTop)
+
     val applyInlineTextPointer: (Offset, Offset?, Boolean) -> Unit = fn@ { tapStart, tapEnd, isDragSelect ->
         val layout = textLayoutResult ?: return@fn
-        val overlayW = with(density) { (displayW + overlayMargin).toPx() }
-        val overlayH = with(density) { (displayH + overlayMargin + moveHandleExtraTop).toPx() }
+        val overlayW = with(density) { (displayW + overlayHorizontalMargin).toPx() }
+        val overlayH = with(density) { (displayH + overlayVerticalMargin + moveHandleExtraTop).toPx() }
         // Overlay box is Alignment.Center with the text layer — use geometric center.
         val contentCenter = Offset(overlayW / 2f, overlayH / 2f)
         val screenW = with(density) { displayW.toPx() }
@@ -312,7 +316,7 @@ fun ShapeTextLayer(
                     offsetYPx.roundToInt()
                 )
             }
-            .requiredSize(displayW + paddingExtra * 2, displayH + paddingExtra * 2),
+            .requiredSize(displayW + parentPadH, displayH + parentPadV),
     ) {
         Box(
             modifier = Modifier
@@ -376,10 +380,16 @@ fun ShapeTextLayer(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .requiredSize(
-                        width = displayW + overlayMargin,
-                        height = displayH + overlayMargin + moveHandleExtraTop,
+                        width = displayW + overlayHorizontalMargin,
+                        height = displayH + overlayVerticalMargin + moveHandleExtraTop,
                     )
-                    .zIndex(if (isInlineEditing) 4f else 0f),
+                    .zIndex(
+                        when {
+                            isInlineEditing -> 4f
+                            showBoundingBox -> 25f
+                            else -> 0f
+                        },
+                    ),
             ) {
                 val moveHandleExtraTopPx = with(density) { moveHandleExtraTop.toPx() }
                 BoundingBoxOverlayV6(
@@ -419,7 +429,7 @@ fun ShapeTextLayer(
                 displayScale = displayScale,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .requiredSize(displayW + overlayMargin, displayH + overlayMargin)
+                    .requiredSize(displayW + overlayHorizontalMargin, displayH + overlayVerticalMargin)
                     .zIndex(2f),
             )
         }

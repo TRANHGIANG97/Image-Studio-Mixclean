@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktstudie</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Kladde er gemt</string>
     <string name="studio_reset_zoom">Nulstil</string>
     <string name="studio_tool_label">Mærke</string>
-    <string name="studio_tool_shape">Ramme</string>
     <string name="studio_label_add_label">Tilføj etiket</string>
     <string name="studio_label_add_text">Tilføj tekst</string>
     <string name="studio_label_add_shape">Tilføj etiket</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">Belysningsvinkel</string>
     <string name="studio_elevation_custom">Tilpas</string>
     <string name="studio_elevation_shadow_blur">Skyggesløring</string>
-    <string name="studio_label_shape_frame_tab">Ramme</string>
     <string name="studio_text_form_tab">Transform</string>
     <string name="studio_text_form_follow_path">Følg Sti</string>
     <string name="studio_text_form_warp">Warp</string>
@@ -303,7 +301,6 @@
     <string name="studio_label_tab_bg_color">Baggrund</string>
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Kunstnerisk</string>
-    <string name="studio_label_tab_shape">Ramme</string>
     <string name="studio_label_tab_text_template">Skabeloner</string>
     <string name="studio_label_tab_more">Mere</string>
     <string name="studio_text_template_classic">Klassisk</string>

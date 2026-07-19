@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Elektronikk</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Nullstill</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etikett</string>
-    <string name="studio_tool_shape">Ramme</string>
     <string name="studio_label_add_label">Legg til etikett</string>
     <string name="studio_label_add_text">Legg til tekst</string>
     <string name="studio_label_add_shape">Legg til form</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Lysvinkel</string>
     <string name="studio_elevation_custom">Tilpass</string>
     <string name="studio_elevation_shadow_blur">Skyggeuskarphet</string>
-    <string name="studio_label_shape_frame_tab">Ramme</string>
     <string name="studio_text_form_tab">Transformer</string>
     <string name="studio_text_form_follow_path">Følg bane</string>
     <string name="studio_text_form_warp">Forvreng</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Bakgrunn</string>
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Kunstnerisk</string>
-    <string name="studio_label_tab_shape">Ramme</string>
     <string name="studio_label_tab_text_template">Maler</string>
     <string name="studio_label_tab_more">Mer</string>
     <string name="studio_text_template_classic">Klassisk</string>

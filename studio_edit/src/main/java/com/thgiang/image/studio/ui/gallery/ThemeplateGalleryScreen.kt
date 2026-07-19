@@ -24,9 +24,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.thgiang.image.core.premium.PremiumFeatureFlags
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.data.RemoteTemplateRow
-import com.thgiang.image.studio.ui.components.ShimmerBox
+import com.thgiang.image.studio.model.StudioThemeplate
+import com.thgiang.image.studio.model.toStudioThemeplate
+import com.thgiang.image.studio.ui.components.StudioLottieLoader
+import com.thgiang.image.studio.ui.components.StudioLoadingOverlay
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.thgiang.image.studio.util.TemplateCategoryTitleResolver
 
@@ -35,7 +39,7 @@ import com.thgiang.image.studio.util.TemplateCategoryTitleResolver
 fun ThemeplateGalleryScreen(
     initialCategoryId: String,
     onBack: () -> Unit,
-    onThemeplateSelected: (String, Boolean) -> Unit,
+    onThemeplateSelected: (StudioThemeplate) -> Unit,
     viewModel: ThemeplateGalleryViewModel = hiltViewModel()
 ) {
     val categories by viewModel.categories.collectAsState()
@@ -163,17 +167,15 @@ private fun RemoteThemeplateGrid(
     isLoading: Boolean,
     loadFailed: Boolean,
     onRetry: () -> Unit,
-    onTemplateSelected: (String, Boolean) -> Unit
+    onTemplateSelected: (StudioThemeplate) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             if (isLoading && templates.isEmpty()) {
-                Box(
+                StudioLoadingOverlay(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Color(0xFFFF2D55))
-                }
+                    blockTouches = false,
+                )
             } else if (loadFailed && templates.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -225,7 +227,7 @@ private fun RemoteThemeplateGrid(
                     ) { template ->
                         RemoteThemeplateCard(
                             template = template,
-                            onClick = { onTemplateSelected(template.id, template.isPremium) }
+                            onClick = { onTemplateSelected(template.toStudioThemeplate()) }
                         )
                     }
                 }
@@ -277,7 +279,9 @@ private fun RemoteThemeplateCard(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 loading = {
-                    ShimmerBox(Modifier.matchParentSize())
+                    Box(Modifier.matchParentSize(), contentAlignment = Alignment.Center) {
+                        StudioLottieLoader(modifier = Modifier.size(48.dp))
+                    }
                 },
                 error = {
                     Box(
@@ -311,7 +315,7 @@ private fun RemoteThemeplateCard(
                 }
             }
 
-            if (template.isPremium) {
+            if (PremiumFeatureFlags.enabled && template.isPremium) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)

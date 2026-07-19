@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Atiestatīt</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etiķete</string>
-    <string name="studio_tool_shape">Rāmis</string>
     <string name="studio_label_add_label">Pievienot etiķeti</string>
     <string name="studio_label_add_text">Pievienot tekstu</string>
     <string name="studio_label_add_shape">Pievienot formu</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Apgaismojuma leņķis</string>
     <string name="studio_elevation_custom">Pielāgot</string>
     <string name="studio_elevation_shadow_blur">Ēnas izplūšana</string>
-    <string name="studio_label_shape_frame_tab">Apmale</string>
     <string name="studio_text_form_tab">Pārveidot</string>
     <string name="studio_text_form_follow_path">Sekot ceļam</string>
     <string name="studio_text_form_warp">Vērpt</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Fons</string>
     <string name="studio_label_tab_elevation">Efekts</string>
     <string name="studio_label_tab_text_form">Māksliniecisks</string>
-    <string name="studio_label_tab_shape">Rāmis</string>
     <string name="studio_label_tab_text_template">Veidnes</string>
     <string name="studio_label_tab_more">Vairāk</string>
     <string name="studio_text_template_classic">Klasisks</string>

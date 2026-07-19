@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,15 +24,14 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -61,7 +59,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.thgiang.image.studio.data.RemoteSticker
-import com.thgiang.image.studio.data.StickerRemoteRepository
 import com.thgiang.image.studio.ui.editor.theme.EditorTokens
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
 import androidx.compose.ui.res.stringResource
@@ -69,12 +66,10 @@ import com.thgiang.image.studio.R
 import kotlinx.coroutines.launch
 
 /**
- * Bottom Sheet hiển thị toàn bộ thư viện nhãn dán với 2 Tab.
+ * Bottom Sheet hiển thị thư viện nhãn dán với tab động.
  *
- * Tab 1 — "Nhãn dán trang trí" (Sticker_decor)
- * Tab 2 — "Nhãn dán meme" (Sticker_meme)
- *
- * Mỗi Tab dùng [LazyVerticalGrid] 4 cột + Infinite Scroll.
+ * Mỗi tab tương ứng 1 folder nhãn dán trong Media Library (admin_web).
+ * Khi tạo folder mới và upload nhãn dán, tab mới tự xuất hiện sau khi API sync.
  *
  * @param onStickerSelected Callback khi user chọn 1 nhãn dán; truyền URL.
  * @param onDismiss         Callback để đóng bottom sheet.
@@ -90,16 +85,15 @@ internal fun StickerGallerySheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
-    val memeState by viewModel.memeState.collectAsState()
-    val decorState by viewModel.decorState.collectAsState()
-
-    // Tab index: 0 = Decor, 1 = Meme
+    val galleryState by viewModel.uiState.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
 
-    val tabs = listOf(
-        stringResource(R.string.studio_sticker_tab_decor) to StickerRemoteRepository.Svg_materials_icon,
-        stringResource(R.string.studio_sticker_tab_meme) to StickerRemoteRepository.FOLDER_svg_undraw,
-    )
+    val tabs = galleryState.tabs
+    val selectedFolder = tabs.getOrNull(selectedTab)?.folder
+
+    LaunchedEffect(selectedFolder) {
+        selectedFolder?.let { viewModel.onTabSelected(it) }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -142,54 +136,113 @@ internal fun StickerGallerySheet(
                 )
             }
 
-            // ── Tabs ────────────────────────────────────────────────
-            TabRow(
-                selectedTabIndex = selectedTab,
-                containerColor = tokens.surfaceBase,
-                contentColor = tokens.textPrimary,
-                indicator = { tabPositions ->
-                    TabRowDefaults.PrimaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                        color = tokens.textPrimary,
-                        width = tabPositions[selectedTab].contentWidth,
-                    )
-                },
-                divider = {},
-            ) {
-                tabs.forEachIndexed { index, (label, _) ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = {
+            when {
+                galleryState.isLoadingTabs -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(36.dp),
+                            strokeWidth = 2.dp,
+                            color = tokens.textSecondary,
+                        )
+                    }
+                }
+
+                galleryState.tabsError != null && tabs.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
                             Text(
-                                text = label,
-                                fontSize = 13.sp,
-                                fontWeight = if (selectedTab == index) FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (selectedTab == index) tokens.textPrimary else tokens.textSecondary,
+                                text = galleryState.tabsError ?: "",
+                                color = tokens.textSecondary,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = "Thử lại",
+                                tint = tokens.textPrimary,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                    ) { viewModel.loadTabs() },
+                            )
+                        }
+                    }
+                }
+
+                tabs.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "Chưa có nhãn dán nào",
+                            color = tokens.textSecondary,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+
+                else -> {
+                    // ── Tabs (cuộn ngang khi có nhiều folder) ─────────
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedTab.coerceIn(0, tabs.lastIndex),
+                        containerColor = tokens.surfaceBase,
+                        contentColor = tokens.textPrimary,
+                        edgePadding = 16.dp,
+                        indicator = { tabPositions ->
+                            val index = selectedTab.coerceIn(0, tabPositions.lastIndex)
+                            TabRowDefaults.PrimaryIndicator(
+                                modifier = Modifier.tabIndicatorOffset(tabPositions[index]),
+                                color = tokens.textPrimary,
+                                width = tabPositions[index].contentWidth,
                             )
                         },
+                        divider = {},
+                    ) {
+                        tabs.forEachIndexed { index, tab ->
+                            Tab(
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index },
+                                text = {
+                                    Text(
+                                        text = tab.label,
+                                        fontSize = 13.sp,
+                                        fontWeight = if (selectedTab == index) FontWeight.SemiBold else FontWeight.Normal,
+                                        color = if (selectedTab == index) tokens.textPrimary else tokens.textSecondary,
+                                    )
+                                },
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    val currentState = selectedFolder?.let { galleryState.tabStates[it] }
+                        ?: StickerTabState()
+
+                    StickerGrid(
+                        state = currentState,
+                        onStickerSelected = {
+                            onStickerSelected(it)
+                            scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
+                        },
+                        onLoadMore = { selectedFolder?.let { viewModel.loadMore(it) } },
+                        onRefresh = { selectedFolder?.let { viewModel.refresh(it) } },
+                        tokens = tokens,
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // ── Grid content ────────────────────────────────────────
-            val (currentState, currentFolder) = when (selectedTab) {
-                0 -> Pair(decorState, StickerRemoteRepository.Svg_materials_icon)
-                else -> Pair(memeState, StickerRemoteRepository.FOLDER_svg_undraw)
-            }
-
-            StickerGrid(
-                state = currentState,
-                onStickerSelected = {
-                    onStickerSelected(it)
-                    scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
-                },
-                onLoadMore = { viewModel.loadMore(currentFolder) },
-                onRefresh = { viewModel.refresh(currentFolder) },
-                tokens = tokens,
-            )
         }
     }
 }

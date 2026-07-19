@@ -13,6 +13,8 @@ import com.abizer_r.quickedit.ui.SharedEditorViewModel
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapStatus
 import com.abizer_r.quickedit.utils.other.bitmap.BitmapUtils
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
+import com.thgiang.image.core.data.backgroundremove.MlKitDeviceSupport
+import com.thgiang.image.core.data.backgroundremove.MlKitDebugDiagnostics
 import com.thgiang.image.core.diagnostics.ImageProcessingCrashReporter
 import com.thgiang.image.core.util.MemoryUtil
 import com.thgiang.image.core.domain.settings.ReviewPromptDecision
@@ -35,14 +37,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import javax.inject.Inject
 
 private const val TAG = "QuickEditVM"
-private const val QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS = 45_000L
 
 sealed interface QuickEditUiEvent {
     data class ShowToast(val message: String) : QuickEditUiEvent
@@ -168,6 +168,7 @@ class QuickEditViewModel @Inject constructor(
         viewModelScope.launch {
             val subjectRemover = backgroundRemoverRepository
             _uiState.update { it.copy(isRemovingBg = true, autoRemoveStatusMessage = "") }
+            MemoryUtil.prepareForHeavyImageWork()
             try {
                 AppAnalytics.onRemoveBgStart(context)
             } catch (e: Exception) {
@@ -186,16 +187,41 @@ class QuickEditViewModel @Inject constructor(
                     remover = "adaptive_hybrid"
                 )
                 Log.d(TAG, "removeBackground flow start bitmap=${bitmap.width}x${bitmap.height} hasAlpha=${bitmap.hasAlpha()}")
+                MlKitDebugDiagnostics.logRemovalStart(
+                    context,
+                    source = if (isAutoRemove) "quick_edit_autoRemove" else "quick_edit_manual",
+                    inputWidth = bitmap.width,
+                    inputHeight = bitmap.height,
+                    maxDecodeSize = MemoryUtil.maxMlKitProcessSide(context),
+                )
+                val removeBgTimeoutMs = MlKitDeviceSupport.interactiveRemoveBgTimeoutMs(context)
+                MlKitDebugDiagnostics.logStage(
+                    context,
+                    stage = "quick_edit_ui",
+                    detail = "vmTimeout=${removeBgTimeoutMs}ms " +
+                        "editorMaxSide=${MemoryUtil.maxEditorBitmapSide(context)}",
+                )
 
                 val removeStartMs = SystemClock.elapsedRealtime()
                 val result = runCatching {
-                    withTimeout(QUICK_TOOLS_REMOVE_BG_TIMEOUT_MS) {
-                        withContext(Dispatchers.Default) {
-                            ImageProcessingCrashReporter.setStage("quick_tools_call_adaptive_hybrid")
-                            val fg = subjectRemover.getForegroundBitmap(bitmap).getOrThrow()
-                            ProcessorUtils.trimTransparentBounds(
-                                fg.copy(Bitmap.Config.ARGB_8888, true)
-                            ).also { it.setHasAlpha(true) }
+                    withContext(Dispatchers.Default) {
+                        ImageProcessingCrashReporter.setStage("quick_tools_call_adaptive_hybrid")
+                        val fg = subjectRemover.getForegroundBitmap(bitmap).getOrThrow()
+                        val foregroundCopy = try {
+                            fg.copy(Bitmap.Config.ARGB_8888, true)
+                        } finally {
+                            if (!fg.isRecycled) fg.recycle()
+                        }
+                        try {
+                            ProcessorUtils.trimTransparentBounds(foregroundCopy).also { trimmed ->
+                                trimmed.setHasAlpha(true)
+                                if (trimmed !== foregroundCopy && !foregroundCopy.isRecycled) {
+                                    foregroundCopy.recycle()
+                                }
+                            }
+                        } catch (error: Throwable) {
+                            if (!foregroundCopy.isRecycled) foregroundCopy.recycle()
+                            throw error
                         }
                     }
                 }.also {
@@ -219,6 +245,7 @@ class QuickEditViewModel @Inject constructor(
                             addSafelyWithoutMultipleTriggers = false
                         )
                         if (!added) {
+                            if (!resultBitmap.isRecycled) resultBitmap.recycle()
                             _uiEvent.send(QuickEditUiEvent.ShowToast(context.getString(com.thgiang.image.R.string.bg_removal_failed)))
                             return@fold
                         }
@@ -236,18 +263,43 @@ class QuickEditViewModel @Inject constructor(
                     },
                     onFailure = {
                         Log.e(TAG, "autoRemoveBackground: remover failed", it)
+                        MlKitDebugDiagnostics.logRemovalFailure(
+                            context,
+                            stage = if (isAutoRemove) "quick_edit_autoRemove" else "quick_edit_manual",
+                            error = it,
+                            elapsedMs = SystemClock.elapsedRealtime() - removeStartMs,
+                        )
                         ImageProcessingCrashReporter.recordNonFatal(it, "quick_tools_remove_bg")
-                        if (subjectRemover.consumePlayServicesUpdateRecommended()) {
+                        if (MlKitDeviceSupport.isUnsupportedOrTimeout(it)) {
+                            _uiEvent.send(
+                                QuickEditUiEvent.ShowToast(
+                                    context.getString(com.thgiang.image.R.string.bg_removal_device_unsupported),
+                                ),
+                            )
+                        } else if (subjectRemover.consumePlayServicesUpdateRecommended()) {
                             _uiEvent.send(QuickEditUiEvent.ShowPlayServicesUpdatePrompt)
                         } else {
-                            val failedMsg = context.getString(com.thgiang.image.R.string.bg_removal_failed)
+                            val failedMsg = if (MemoryUtil.isOutOfMemoryError(it) ||
+                                it.message?.contains("INSUFFICIENT_HEAP", ignoreCase = true) == true
+                            ) {
+                                context.getString(com.thgiang.image.R.string.bg_removal_low_memory)
+                            } else {
+                                context.getString(com.thgiang.image.R.string.bg_removal_failed)
+                            }
                             _uiEvent.send(QuickEditUiEvent.ShowToast(failedMsg))
                         }
                     }
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "performBackgroundRemoval: failed", e)
-                val failedMsg = context.getString(com.thgiang.image.R.string.bg_removal_failed)
+                val failedMsg = when {
+                    MlKitDeviceSupport.isUnsupportedOrTimeout(e) ->
+                        context.getString(com.thgiang.image.R.string.bg_removal_device_unsupported)
+                    MemoryUtil.isOutOfMemoryError(e) ||
+                        e.message?.contains("INSUFFICIENT_HEAP", ignoreCase = true) == true ->
+                        context.getString(com.thgiang.image.R.string.bg_removal_low_memory)
+                    else -> context.getString(com.thgiang.image.R.string.bg_removal_failed)
+                }
                 _uiEvent.send(QuickEditUiEvent.ShowToast(failedMsg))
             } finally {
                 _uiState.update { it.copy(isRemovingBg = false, autoRemoveStatusMessage = null) }

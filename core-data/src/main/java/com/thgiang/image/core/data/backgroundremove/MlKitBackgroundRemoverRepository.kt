@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.SystemClock
 import android.util.Log
 import com.google.android.gms.common.moduleinstall.InstallStatusListener
 import com.google.android.gms.common.moduleinstall.ModuleInstall
@@ -22,16 +23,19 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.ByteBuffer
 import kotlin.coroutines.resume
+import kotlin.math.max
 import kotlin.math.sqrt
 
 /**
  * Background remover backed by ML Kit Subject Segmentation.
  *
- * Subject Segmentation is attempted on every ABI, including x86 emulators.
- * Selfie Segmentation (bundled) is used as fallback when Play-services Subject Segmentation fails.
+ * Subject Segmentation when the device and heap allow it.
+ * Selfie Segmentation (bundled, lighter) is used proactively on weak devices or when Subject is unsafe.
  */
 class MlKitBackgroundRemoverRepository(
     private val context: Context,
@@ -46,11 +50,14 @@ class MlKitBackgroundRemoverRepository(
         private const val MIN_PRE_UPSCALE_PIXELS_LOW_RAM = 262_144 // 512×512
         private const val SUBJECT_MODULE_INSTALL_TIMEOUT_MS = 15_000L
         private const val TAG = "MlKitRemover"
-        private val SUBJECT_RETRY_SCALES = floatArrayOf(1f, 0.75f, 0.5f)
     }
 
     private val minPreUpscalePixels: Int
-        get() = if (maxDecodeSize <= 1536) MIN_PRE_UPSCALE_PIXELS_LOW_RAM else MIN_PRE_UPSCALE_PIXELS_DEFAULT
+        get() = when {
+            MlKitDeviceSupport.shouldForceSelfiePrimary(context) -> 0
+            maxDecodeSize <= 1536 -> MIN_PRE_UPSCALE_PIXELS_LOW_RAM
+            else -> MIN_PRE_UPSCALE_PIXELS_DEFAULT
+        }
 
     @Volatile
     private var selfieFallbackUsedInLastOperation: Boolean = false
@@ -63,6 +70,28 @@ class MlKitBackgroundRemoverRepository(
 
     private val segmenterMutex = Mutex()
 
+    private fun blockedPlanError(): Nothing {
+        if (!SelfieFallbackSegmenter.isNativeLibraryAvailable(context)) {
+            error(MlKitDeviceSupport.ERROR_DEVICE_UNSUPPORTED)
+        }
+        if (MlKitDeviceSupport.isSegmentationUnsupportedOnRelease(context)) {
+            error(MlKitDeviceSupport.ERROR_DEVICE_UNSUPPORTED)
+        }
+        error(MlKitMemoryBudget.ERROR_INSUFFICIENT_HEAP)
+    }
+
+    private suspend fun <T> runSegmentationWithTimeout(block: suspend () -> T): T {
+        val timeoutMs = MlKitDeviceSupport.segmentationTimeoutMs(context)
+        if (timeoutMs == Long.MAX_VALUE) {
+            return block()
+        }
+        return try {
+            withTimeout(timeoutMs) { block() }
+        } catch (_: TimeoutCancellationException) {
+            error(MlKitDeviceSupport.ERROR_SEGMENTATION_TIMEOUT)
+        }
+    }
+
     private val segmenter: SubjectSegmenter by lazy {
         // Only enable confidence mask — foreground bitmap doubles GMS native memory use.
         val options = SubjectSegmenterOptions.Builder()
@@ -71,34 +100,20 @@ class MlKitBackgroundRemoverRepository(
         SubjectSegmentation.getClient(options)
     }
 
-    private fun isX86Emulator(): Boolean {
-        val isEmulator = (android.os.Build.BRAND.startsWith("generic") && android.os.Build.DEVICE.startsWith("generic"))
-                || android.os.Build.FINGERPRINT.startsWith("generic")
-                || android.os.Build.FINGERPRINT.startsWith("unknown")
-                || android.os.Build.HARDWARE.contains("goldfish")
-                || android.os.Build.HARDWARE.contains("ranchu")
-                || android.os.Build.MODEL.contains("google_sdk")
-                || android.os.Build.MODEL.contains("Emulator")
-                || android.os.Build.MODEL.contains("Android SDK built for x86")
-                || android.os.Build.MANUFACTURER.contains("Genymotion")
-                || android.os.Build.PRODUCT.contains("sdk_google")
-                || android.os.Build.PRODUCT.contains("google_sdk")
-                || android.os.Build.PRODUCT.contains("sdk")
-                || android.os.Build.PRODUCT.contains("sdk_x86")
-                || android.os.Build.PRODUCT.contains("vbox86p")
-                || android.os.Build.PRODUCT.contains("emulator")
-                || android.os.Build.PRODUCT.contains("simulator")
-
-        val isX86 = android.os.Build.SUPPORTED_ABIS.any { it.contains("x86") }
-        return isEmulator && isX86
-    }
-
     override suspend fun removeBackground(imageUri: Uri): Result<BackgroundRemovalOutput> = runCatching {
         resetOperationFlags()
         Log.d(TAG, "removeBackground: start uri=$imageUri")
-        val original = BitmapDecodeUtils.loadBitmapFromUri(context, imageUri, maxDecodeSize)
+        val decodeCap = MlKitMemoryBudget.resolveMaxProcessSide(
+            policyCap = maxDecodeSize,
+            sourceWidth = Int.MAX_VALUE,
+            sourceHeight = Int.MAX_VALUE,
+        )
+        val original = BitmapDecodeUtils.loadBitmapFromUri(context, imageUri, decodeCap)
             ?: error("Cannot decode selected image (OOM or invalid image)")
-        Log.d(TAG, "removeBackground: decoded original=${original.width}x${original.height}")
+        Log.d(
+            TAG,
+            "removeBackground: decoded original=${original.width}x${original.height} decodeCap=$decodeCap",
+        )
 
         val foreground = runCatching {
             getForegroundBitmapInternal(original)
@@ -109,7 +124,7 @@ class MlKitBackgroundRemoverRepository(
         Log.d(TAG, "removeBackground: foreground ready=${foreground.width}x${foreground.height}")
         original.recycle()
 
-        val display = if (createDisplayCopy) {
+        val display = if (createDisplayCopy && MlKitMemoryBudget.canAllocateDisplayCopy(foreground)) {
             foreground.copy(Bitmap.Config.ARGB_8888, true)
         } else {
             foreground
@@ -124,8 +139,27 @@ class MlKitBackgroundRemoverRepository(
     override suspend fun getForegroundBitmap(bitmap: Bitmap): Result<Bitmap> = runCatching {
         resetOperationFlags()
         validateBitmap(bitmap)
+        val opStart = System.currentTimeMillis()
+        MlKitDebugDiagnostics.logStage(
+            context, "getForegroundBitmap_enter",
+            "thread=${Thread.currentThread().name} ${bitmap.width}x${bitmap.height}",
+        )
+        MlKitDebugDiagnostics.logRemovalStart(
+            context, "getForegroundBitmap", bitmap.width, bitmap.height, maxDecodeSize,
+        )
         Log.d(TAG, "getForegroundBitmap: input=${bitmap.width}x${bitmap.height} hasAlpha=${bitmap.hasAlpha()}")
-        getForegroundBitmapInternal(bitmap)
+        try {
+            withTimeout(MlKitDeviceSupport.interactiveRemoveBgTimeoutMs(context)) {
+                getForegroundBitmapInternal(bitmap)
+            }
+        } catch (e: TimeoutCancellationException) {
+            throw IllegalStateException(MlKitDeviceSupport.ERROR_SEGMENTATION_TIMEOUT, e)
+        } catch (e: Throwable) {
+            MlKitDebugDiagnostics.logRemovalFailure(
+                context, "getForegroundBitmap", e, System.currentTimeMillis() - opStart,
+            )
+            throw e
+        }
     }
 
     override suspend fun getPortraitConfidenceMask(bitmap: Bitmap): Result<PortraitConfidenceMask> =
@@ -133,7 +167,20 @@ class MlKitBackgroundRemoverRepository(
             resetOperationFlags()
             validateBitmap(bitmap)
             val mask = withContext(Dispatchers.Default) {
-                runSegmentationMask(bitmap)
+                val policyCap = MlKitMemoryBudget.resolveMaxProcessSide(
+                    policyCap = maxDecodeSize,
+                    sourceWidth = bitmap.width,
+                    sourceHeight = bitmap.height,
+                )
+                val plan = MlKitSegmentationRouter.choosePlan(
+                    context,
+                    bitmap.width,
+                    bitmap.height,
+                    policyCap,
+                )
+                runSegmentationWithTimeout {
+                    runSegmentationMask(bitmap, plan)
+                }
             }
             PortraitConfidenceMask(mask.width, mask.height, mask.data.copyOf())
         }
@@ -167,43 +214,124 @@ class MlKitBackgroundRemoverRepository(
     }
 
     private suspend fun getForegroundBitmapInternal(bitmap: Bitmap): Bitmap = withContext(Dispatchers.Default) {
-        val pixels = bitmap.width * bitmap.height
+        val totalStart = System.currentTimeMillis()
+        MlKitDebugDiagnostics.logStage(context, "internal_start", "thread=${Thread.currentThread().name}")
+        MlKitMemoryBudget.prepareForMlKit()
+
+        val outputWidth = bitmap.width
+        val outputHeight = bitmap.height
+        val policyMaxSide = MlKitMemoryBudget.resolveMaxProcessSide(
+            policyCap = maxDecodeSize,
+            sourceWidth = outputWidth,
+            sourceHeight = outputHeight,
+        )
+        val plan = MlKitSegmentationRouter.choosePlan(context, outputWidth, outputHeight, policyMaxSide)
+        if (plan == MlKitSegmentationRouter.Plan.BLOCKED) {
+            blockedPlanError()
+        }
+        val maxSide = MlKitSegmentationRouter.maxWorkSideForPlan(plan, policyMaxSide)
+            ?: error(MlKitMemoryBudget.ERROR_INSUFFICIENT_HEAP)
+        MlKitDebugDiagnostics.logRouting(context, outputWidth, outputHeight, policyMaxSide, plan.name, maxSide)
+        Log.d(
+            TAG,
+            "getForegroundBitmapInternal: input=${outputWidth}x$outputHeight plan=$plan maxSide=$maxSide " +
+                "freeHeap=${MlKitMemoryBudget.freeHeapBytes() / (1024 * 1024)}MB",
+        )
+
+        val capped = MlKitMemoryBudget.downscaleToMaxSide(bitmap, maxSide)
+        var processedBitmap = capped.bitmap
+        var ownsProcessedBitmap = capped.ownsBitmap
+        MlKitDebugDiagnostics.logBitmap(context, "after_downscale", processedBitmap)
+
+        val pixels = processedBitmap.width * processedBitmap.height
         val needsUpscale = pixels < minPreUpscalePixels
-        Log.d(TAG, "getForegroundBitmapInternal: pixels=$pixels needsUpscale=$needsUpscale (threshold=$minPreUpscalePixels)")
-        val processedBitmap = if (needsUpscale) {
-            val scale = sqrt(minPreUpscalePixels.toFloat() / pixels)
-            Bitmap.createScaledBitmap(
-                bitmap,
-                (bitmap.width * scale).toInt().coerceAtLeast(bitmap.width + 1),
-                (bitmap.height * scale).toInt().coerceAtLeast(bitmap.height + 1),
-                true
+        if (needsUpscale) {
+            MlKitDebugDiagnostics.logStage(
+                context, "pre_upscale",
+                "pixels=$pixels < min=$minPreUpscalePixels — upscaling for ML quality",
             )
-        } else {
-            bitmap
+            val scale = sqrt(minPreUpscalePixels.toFloat() / pixels)
+            var newWidth = (processedBitmap.width * scale).toInt().coerceAtLeast(processedBitmap.width + 1)
+            var newHeight = (processedBitmap.height * scale).toInt().coerceAtLeast(processedBitmap.height + 1)
+            val upscaleMax = maxOf(newWidth, newHeight)
+            if (upscaleMax > maxSide) {
+                val shrink = maxSide.toFloat() / upscaleMax
+                newWidth = (newWidth * shrink).toInt().coerceAtLeast(1)
+                newHeight = (newHeight * shrink).toInt().coerceAtLeast(1)
+            }
+            val upscaled = Bitmap.createScaledBitmap(processedBitmap, newWidth, newHeight, true)
+            if (ownsProcessedBitmap && processedBitmap !== bitmap && !processedBitmap.isRecycled) {
+                processedBitmap.recycle()
+            }
+            processedBitmap = upscaled
+            ownsProcessedBitmap = true
+            MlKitDebugDiagnostics.logBitmap(context, "after_upscale", processedBitmap)
         }
 
-        val startTime = System.currentTimeMillis()
-
-        val mask = runSegmentationMask(processedBitmap)
-
+        val segmentationStart = System.currentTimeMillis()
         try {
+            val mask = runSegmentationWithTimeout {
+                runSegmentationMask(processedBitmap, plan)
+            }
+            val segmentationMs = System.currentTimeMillis() - segmentationStart
+            MlKitDebugDiagnostics.logStage(
+                context, "segmentation_done", "plan=$plan mask=${mask.width}x${mask.height}", segmentationMs,
+            )
             val maskStart = System.currentTimeMillis()
             val foreground = applyMaskToImage(processedBitmap, mask)
-            Log.d(TAG, "getForegroundBitmapInternal: applyMaskToImage (including Fast Guided Filter) took ${System.currentTimeMillis() - maskStart}ms")
-            Log.d(TAG, "getForegroundBitmapInternal: Total background removal took ${System.currentTimeMillis() - startTime}ms")
+            Log.d(
+                TAG,
+                "getForegroundBitmapInternal: applyMaskToImage took ${System.currentTimeMillis() - maskStart}ms",
+            )
+            Log.d(
+                TAG,
+                "getForegroundBitmapInternal: total ${System.currentTimeMillis() - segmentationStart}ms " +
+                    "work=${processedBitmap.width}x${processedBitmap.height}",
+            )
 
-            if (needsUpscale) {
-                if (processedBitmap !== bitmap && !processedBitmap.isRecycled) processedBitmap.recycle()
-                val scaledDown = Bitmap.createScaledBitmap(foreground, bitmap.width, bitmap.height, true)
-                if (scaledDown !== foreground && !foreground.isRecycled) foreground.recycle()
-                Log.d(TAG, "getForegroundBitmapInternal: returning scaledDown=${scaledDown.width}x${scaledDown.height}")
-                scaledDown
-            } else {
-                Log.d(TAG, "getForegroundBitmapInternal: returning foreground=${foreground.width}x${foreground.height}")
+            val result = if (foreground.width == outputWidth && foreground.height == outputHeight) {
                 foreground
+            } else {
+                MlKitDebugDiagnostics.logStage(
+                    context, "restore_size",
+                    "${foreground.width}x${foreground.height} → ${outputWidth}x$outputHeight",
+                )
+                runCatching {
+                    Bitmap.createScaledBitmap(foreground, outputWidth, outputHeight, true).also { restored ->
+                        if (restored !== foreground && !foreground.isRecycled) {
+                            foreground.recycle()
+                        }
+                    }
+                }.getOrElse { error ->
+                    Log.w(
+                        TAG,
+                        "OOM restoring ${outputWidth}x$outputHeight; returning work size " +
+                            "${foreground.width}x${foreground.height}",
+                        error,
+                    )
+                    foreground
+                }
             }
-        } catch (e: Exception) {
-            throw e
+            MlKitDebugDiagnostics.logRemovalSuccess(
+                context = context,
+                planName = plan.name,
+                inputWidth = outputWidth,
+                inputHeight = outputHeight,
+                workWidth = processedBitmap.width,
+                workHeight = processedBitmap.height,
+                outputWidth = result.width,
+                outputHeight = result.height,
+                segmentationMs = segmentationMs,
+                totalMs = System.currentTimeMillis() - totalStart,
+                selfiePrimary = plan == MlKitSegmentationRouter.Plan.SELFIE_PRIMARY,
+                selfieFallback = selfieFallbackUsedInLastOperation &&
+                    plan != MlKitSegmentationRouter.Plan.SELFIE_PRIMARY,
+            )
+            result
+        } finally {
+            if (ownsProcessedBitmap && processedBitmap !== bitmap && !processedBitmap.isRecycled) {
+                processedBitmap.recycle()
+            }
         }
     }
 
@@ -221,9 +349,79 @@ class MlKitBackgroundRemoverRepository(
         }
     }
 
-    private suspend fun runSegmentationMask(bitmap: Bitmap): Mask {
+    private fun canFallbackToSelfie(bitmap: Bitmap): Boolean {
+        if (MlKitDeviceSupport.shouldAvoidSelfieForQuality(context)) return false
+        return MlKitMemoryBudget.canRunSelfieSegmentation(bitmap.width, bitmap.height)
+    }
+
+    private suspend fun runSegmentationMask(
+        bitmap: Bitmap,
+        plan: MlKitSegmentationRouter.Plan,
+    ): Mask {
+        val waitStart = SystemClock.elapsedRealtime()
+        return segmenterMutex.withLock {
+            val waitMs = SystemClock.elapsedRealtime() - waitStart
+            if (waitMs >= 250L) {
+                MlKitDebugDiagnostics.logStage(
+                    context,
+                    stage = "mutex_wait",
+                    detail = "waited=${waitMs}ms plan=$plan",
+                )
+            }
+            runSegmentationMaskUnlocked(bitmap, plan)
+        }
+    }
+
+    /**
+     * Runs under [segmenterMutex]. Subject, Selfie, fallback, and module installation
+     * must be single-flight because they share native ML resources and memory.
+     */
+    private suspend fun runSegmentationMaskUnlocked(
+        bitmap: Bitmap,
+        plan: MlKitSegmentationRouter.Plan,
+    ): Mask {
+        MlKitDebugDiagnostics.logStage(
+            context, "runSegmentationMask",
+            "plan=$plan bitmap=${bitmap.width}x${bitmap.height}",
+        )
+        when (plan) {
+            MlKitSegmentationRouter.Plan.BLOCKED -> blockedPlanError()
+            MlKitSegmentationRouter.Plan.SELFIE_PRIMARY -> {
+                markSelfieSegmentationUsed(primary = true)
+                return runSelfieMask(bitmap, priorError = null)
+            }
+            MlKitSegmentationRouter.Plan.SUBJECT -> {
+                val subjectResult = runCatching { runSubjectSegmentationMask(bitmap) }
+                if (subjectResult.isSuccess) {
+                    return subjectResult.getOrThrow()
+                }
+                val error = subjectResult.exceptionOrNull()
+                Log.w(TAG, "Subject plan failed; trying Selfie if safe", error)
+                if (canFallbackToSelfie(bitmap)) {
+                    markSelfieSegmentationUsed(primary = false)
+                    return runSelfieMask(bitmap, error)
+                }
+                if (!MlKitDeviceSupport.isDebugBuild(context)) {
+                    error(MlKitDeviceSupport.ERROR_DEVICE_UNSUPPORTED)
+                }
+                throw error ?: IllegalStateException(MlKitMemoryBudget.ERROR_INSUFFICIENT_HEAP)
+            }
+        }
+    }
+
+    private fun markSelfieSegmentationUsed(primary: Boolean) {
+        selfieFallbackUsedInLastOperation = true
+        if (primary) {
+            Log.i(TAG, "Using Selfie segmenter (primary — device/heap tier)")
+        }
+    }
+
+    private suspend fun runSubjectSegmentationMask(bitmap: Bitmap): Mask {
+        MlKitDebugDiagnostics.logStage(context, "subject_start", "bitmap=${bitmap.width}x${bitmap.height}")
         var lastError: Throwable? = null
-        for (scale in SUBJECT_RETRY_SCALES) {
+        val scales = MlKitMemoryBudget.segmentationRetryScales(bitmap.width, bitmap.height)
+        MlKitDebugDiagnostics.logStage(context, "subject_scales", scales.joinToString())
+        for (scale in scales) {
             val workBitmap = if (scale >= 0.99f) {
                 bitmap
             } else {
@@ -235,8 +433,18 @@ class MlKitBackgroundRemoverRepository(
                 )
             }
             val ownsWorkBitmap = workBitmap !== bitmap
+            val refusal = MlKitMemoryBudget.subjectRefusalReason(workBitmap.width, workBitmap.height)
+            if (refusal != null) {
+                Log.w(TAG, "Skip ML Kit scale=$scale: $refusal")
+                if (ownsWorkBitmap && !workBitmap.isRecycled) workBitmap.recycle()
+                continue
+            }
             try {
                 val mlStart = System.currentTimeMillis()
+                MlKitDebugDiagnostics.logStage(
+                    context, "subject_process",
+                    "scale=$scale size=${workBitmap.width}x${workBitmap.height} — awaiting GMS…",
+                )
                 val input = InputImage.fromBitmap(workBitmap, 0)
                 val result = processSafely(input)
                 val buffer = result.foregroundConfidenceMask
@@ -259,40 +467,104 @@ class MlKitBackgroundRemoverRepository(
                     "SubjectSegmenter failed scale=$scale size=${workBitmap.width}x${workBitmap.height}",
                     e,
                 )
+                if (MlKitMemoryBudget.isOutOfMemory(e)) {
+                    // Skip larger scales — heap is exhausted.
+                    break
+                }
             } finally {
                 if (ownsWorkBitmap && !workBitmap.isRecycled) workBitmap.recycle()
             }
         }
 
-        return runSelfieFallbackMask(bitmap, lastError)
+        if (!canFallbackToSelfie(bitmap)) {
+            if (MlKitDeviceSupport.shouldAvoidSelfieForQuality(context)) {
+                throw lastError ?: IllegalStateException(MlKitDeviceSupport.ERROR_DEVICE_UNSUPPORTED)
+            }
+            if (!MlKitDeviceSupport.isDebugBuild(context)) {
+                throw lastError ?: IllegalStateException(MlKitDeviceSupport.ERROR_DEVICE_UNSUPPORTED)
+            }
+            throw lastError ?: IllegalStateException(MlKitMemoryBudget.ERROR_INSUFFICIENT_HEAP)
+        }
+        markSelfieSegmentationUsed(primary = false)
+        return runSelfieMask(bitmap, lastError)
     }
 
-    private suspend fun runSelfieFallbackMask(bitmap: Bitmap, priorError: Throwable?): Mask {
-        if (!SelfieFallbackSegmenter.isSupported) {
+    private suspend fun runSelfieMask(bitmap: Bitmap, priorError: Throwable?): Mask {
+        MlKitDebugDiagnostics.logStage(
+            context, "selfie_start",
+            "bitmap=${bitmap.width}x${bitmap.height} priorError=${priorError?.message}",
+        )
+        if (!SelfieFallbackSegmenter.isSupported(context)) {
+            MlKitDebugDiagnostics.logStage(
+                context, "selfie_unavailable",
+                "libxeno_native.so missing in ${context.applicationInfo.nativeLibraryDir}",
+            )
             if (subjectModuleUnavailableInLastOperation ||
                 GooglePlayServicesHelper.isUpdateRecommended(context) ||
                 GooglePlayServicesHelper.isPlayServicesRelatedFailure(priorError)
             ) {
                 markPlayServicesUpdateRecommended(priorError)
             }
-            throw priorError ?: error("Subject segmentation failed")
+            throw priorError ?: error(MlKitDeviceSupport.ERROR_DEVICE_UNSUPPORTED)
         }
-        Log.w(TAG, "Falling back to SelfieSegmenter", priorError)
-        selfieFallbackUsedInLastOperation = true
+        if (priorError != null) {
+            Log.w(TAG, "Falling back to SelfieSegmenter after Subject failure", priorError)
+        }
         if (subjectModuleUnavailableInLastOperation ||
             GooglePlayServicesHelper.isUpdateRecommended(context)
         ) {
             markPlayServicesUpdateRecommended(priorError)
         }
-        val mlStart = System.currentTimeMillis()
-        val input = InputImage.fromBitmap(bitmap, 0)
-        val resultBuffer = SelfieFallbackSegmenter.process(input)
-        Log.d(TAG, "SelfieSegmenter took ${System.currentTimeMillis() - mlStart}ms")
-        return readMask(resultBuffer.asFloatBuffer(), bitmap.width, bitmap.height)
+
+        val selfieCapMax = if (MlKitDeviceSupport.shouldForceSelfiePrimary(context)) {
+            MlKitDeviceSupport.X86_EMULATOR_ML_CAP
+        } else {
+            1280
+        }
+        val selfieCap = MlKitMemoryBudget.largestRunnableSelfieSide(
+            MlKitMemoryBudget.resolveMaxProcessSide(
+                policyCap = maxDecodeSize,
+                sourceWidth = bitmap.width,
+                sourceHeight = bitmap.height,
+            ).coerceAtMost(selfieCapMax),
+        )
+        if (selfieCap == null) {
+            throw priorError ?: IllegalStateException(MlKitMemoryBudget.ERROR_INSUFFICIENT_HEAP)
+        }
+        val fallbackBitmap = MlKitMemoryBudget.downscaleToMaxSide(bitmap, selfieCap)
+        MlKitDebugDiagnostics.logBitmap(context, "selfie_work", fallbackBitmap.bitmap)
+        try {
+            val mlStart = System.currentTimeMillis()
+            MlKitDebugDiagnostics.logStage(
+                context, "selfie_process",
+                "size=${fallbackBitmap.bitmap.width}x${fallbackBitmap.bitmap.height} — running bundled model…",
+            )
+            val input = InputImage.fromBitmap(fallbackBitmap.bitmap, 0)
+            val resultBuffer = SelfieFallbackSegmenter.process(context, input)
+            Log.d(
+                TAG,
+                "SelfieSegmenter took ${System.currentTimeMillis() - mlStart}ms " +
+                    "size=${fallbackBitmap.bitmap.width}x${fallbackBitmap.bitmap.height}",
+            )
+            val mask = readMask(resultBuffer.asFloatBuffer(), fallbackBitmap.bitmap.width, fallbackBitmap.bitmap.height)
+            return if (fallbackBitmap.bitmap.width != bitmap.width || fallbackBitmap.bitmap.height != bitmap.height) {
+                mask.resizeBilinear(bitmap.width, bitmap.height)
+            } else {
+                mask
+            }
+        } finally {
+            if (fallbackBitmap.ownsBitmap && !fallbackBitmap.bitmap.isRecycled) {
+                fallbackBitmap.bitmap.recycle()
+            }
+        }
     }
 
-    private suspend fun processSafely(input: InputImage) = segmenterMutex.withLock {
+    private suspend fun processSafely(input: InputImage) = run {
+        MlKitDebugDiagnostics.logStage(context, "subject_module_check", "checking Play services module…")
         val moduleReady = ensureSubjectSegmenterModuleAvailable()
+        MlKitDebugDiagnostics.logStage(
+            context, "subject_module_result", "ready=$moduleReady unavailable=$subjectModuleUnavailableInLastOperation",
+        )
         if (!moduleReady) {
             subjectModuleUnavailableInLastOperation = true
             markPlayServicesUpdateRecommended()
@@ -300,6 +572,9 @@ class MlKitBackgroundRemoverRepository(
         }
         runCatching { segmenter.process(input).await() }
             .getOrElse { error ->
+                MlKitDebugDiagnostics.logStage(
+                    context, "subject_process_fail", error.message ?: error::class.java.simpleName,
+                )
                 if (GooglePlayServicesHelper.isPlayServicesRelatedFailure(error)) {
                     markPlayServicesUpdateRecommended(error)
                 }
@@ -317,6 +592,10 @@ class MlKitBackgroundRemoverRepository(
             }
 
             Log.d(TAG, "SubjectSegmenter module missing; requesting install")
+            MlKitDebugDiagnostics.logStage(
+                context, "subject_module_install",
+                "timeout=${SUBJECT_MODULE_INSTALL_TIMEOUT_MS}ms",
+            )
             val installed = requestSubjectSegmenterModuleInstall(moduleInstallClient)
             Log.d(TAG, "SubjectSegmenter module install completed=$installed")
             if (!installed) {

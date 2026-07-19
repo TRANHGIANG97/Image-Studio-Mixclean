@@ -25,6 +25,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlin.math.*
@@ -114,6 +115,20 @@ object EditorDims {
     val RotateRadiusDp = 12.dp
     val RotateRadiusActiveDp = 14.dp
     val CrosshairSizeDp = 5.dp
+
+    /** Space from bbox bottom edge to the outer edge of the rotate handle hit target. */
+    val RotateHandleBelowBBoxDp: Dp
+        get() = RotateLineDp + RotateHandleOffsetDp + RotateRadiusDp + HandleTouchPaddingDp
+
+    /** Min symmetric vertical overlay padding so the rotate handle stays touchable. */
+    val MinOverlayVerticalMarginDp: Dp
+        get() = RotateHandleBelowBBoxDp * 2
+
+    /** Default symmetric overlay padding for image/shadow layers. */
+    val DefaultOverlayPaddingDp = 80.dp
+
+    fun overlayPaddingDp(current: Dp = DefaultOverlayPaddingDp): Dp =
+        maxOf(current, MinOverlayVerticalMarginDp)
 
     /** Inline text edit: move handle sits above the bbox top edge (clears sample replace button). */
     val TextInlineMoveHandleGapDp = 52.dp

@@ -2,6 +2,7 @@ package com.thgiang.image.studio.ui.editor.panel
 import com.thgiang.image.studio.ui.editor.panel.*
 import com.thgiang.image.studio.ui.editor.label.panel.*
 import com.thgiang.image.studio.ui.editor.canvas.*
+import com.thgiang.image.studio.ui.components.StudioLottieLoader
 import com.thgiang.image.studio.ui.editor.mapper.*
 
 import androidx.compose.ui.input.pointer.pointerInput

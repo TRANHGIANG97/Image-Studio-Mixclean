@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Electrónica</string>
@@ -183,7 +183,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etiqueta</string>
-    <string name="studio_tool_shape">Marco</string>
     <string name="studio_label_add_label">Engadir etiqueta</string>
     <string name="studio_label_add_text">Engadir texto</string>
     <string name="studio_label_add_shape">Engadir forma</string>
@@ -262,7 +261,6 @@
     <string name="studio_elevation_lighting_angle">Ángulo de iluminación</string>
     <string name="studio_elevation_custom">Personalizar</string>
     <string name="studio_elevation_shadow_blur">Desenfoque de sombra</string>
-    <string name="studio_label_shape_frame_tab">Bordo</string>
     <string name="studio_text_form_tab">Transformar</string>
     <string name="studio_text_form_follow_path">Seguir o traxecto</string>
     <string name="studio_text_form_warp">Deformar</string>
@@ -325,7 +323,6 @@
     <string name="studio_label_tab_bg_color">Fondo</string>
     <string name="studio_label_tab_elevation">Efecto</string>
     <string name="studio_label_tab_text_form">Artístico</string>
-    <string name="studio_label_tab_shape">Marco</string>
     <string name="studio_label_tab_text_template">Modelos</string>
     <string name="studio_label_tab_more">Máis</string>
     <string name="studio_text_template_classic">Clásico</string>

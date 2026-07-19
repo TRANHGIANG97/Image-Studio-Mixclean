@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -183,7 +183,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Oznaka</string>
-    <string name="studio_tool_shape">Okvir</string>
     <string name="studio_label_add_label">Dodaj oznaku</string>
     <string name="studio_label_add_text">Dodaj tekst</string>
     <string name="studio_label_add_shape">Dodaj oblik</string>
@@ -262,7 +261,6 @@
     <string name="studio_elevation_lighting_angle">Kut osvjetljenja</string>
     <string name="studio_elevation_custom">Prilagodi</string>
     <string name="studio_elevation_shadow_blur">Zamućenje sjene</string>
-    <string name="studio_label_shape_frame_tab">Rub</string>
     <string name="studio_text_form_tab">Transformiraj</string>
     <string name="studio_text_form_follow_path">Prati putanju</string>
     <string name="studio_text_form_warp">Izobliči</string>
@@ -325,7 +323,6 @@
     <string name="studio_label_tab_bg_color">Pozadina</string>
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Umjetnički</string>
-    <string name="studio_label_tab_shape">Okvir</string>
     <string name="studio_label_tab_text_template">Predlošci</string>
     <string name="studio_label_tab_more">Više</string>
     <string name="studio_text_template_classic">Klasično</string>

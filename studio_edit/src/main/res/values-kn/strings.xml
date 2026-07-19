@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI ಪ್ರಾಡಕ್ಟ್ ಸ್ಟುಡಿಯೋ</string>
     <string name="studio_category_electronics">ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್</string>
@@ -183,7 +183,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">ಲೇಬಲ್</string>
-    <string name="studio_tool_shape">ಫ್ರೇಮ್</string>
     <string name="studio_label_add_label">ಲೇಬಲ್ ಸೇರಿಸಿ</string>
     <string name="studio_label_add_text">ಪಠ್ಯವನ್ನು ಸೇರಿಸಿ</string>
     <string name="studio_label_add_shape">ಆಕಾರವನ್ನು ಸೇರಿಸಿ</string>
@@ -262,7 +261,6 @@
     <string name="studio_elevation_lighting_angle">ಬೆಳಕಿನ ಕೋನ</string>
     <string name="studio_elevation_custom">ಕಸ್ಟಮೈಸ್ ಮಾಡಿ</string>
     <string name="studio_elevation_shadow_blur">ಶ್ಯಾಡೋ ಬ್ಲರ್</string>
-    <string name="studio_label_shape_frame_tab">ಬಾರ್ಡರ್</string>
     <string name="studio_text_form_tab">ಟ್ರಾನ್ಸ್‌ಫಾರ್ಮ್</string>
     <string name="studio_text_form_follow_path">ಪಾತ್ ಅನುಸರಿಸಿ</string>
     <string name="studio_text_form_warp">ವಾರ್ಪ್ (ತಿರುಚು)</string>
@@ -326,7 +324,6 @@
     <string name="studio_label_tab_bg_color">ಬ್ಯಾಕ್‌ಗ್ರೌಂಡ್</string>
     <string name="studio_label_tab_elevation">ಎಫೆಕ್ಟ್</string>
     <string name="studio_label_tab_text_form">ಕಲಾತ್ಮಕ</string>
-    <string name="studio_label_tab_shape">ಫ್ರೇಮ್</string>
     <string name="studio_label_tab_text_template">ಟೆಂಪ್ಲೇಟ್‌ಗಳು</string>
     <string name="studio_label_tab_more">ಇನ್ನಷ್ಟು</string>
     <string name="studio_text_template_classic">ಕ್ಲಾಸಿಕ್</string>

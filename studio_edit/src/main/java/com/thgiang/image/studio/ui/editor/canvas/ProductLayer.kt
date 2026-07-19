@@ -339,13 +339,15 @@ fun ProductLayerV2(
         }
 
         // Bounding Box Overlay
+        val bbOverlayPad = EditorDims.overlayPaddingDp()
         BoundingBoxOverlayV6(
             modifier = Modifier
                 .align(Alignment.Center)
                 .requiredSize(
-                    width = originalWidth + 80.dp,
-                    height = originalHeight + 80.dp
-                ),
+                    width = originalWidth + bbOverlayPad,
+                    height = originalHeight + bbOverlayPad,
+                )
+                .zIndex(if (showBoundingBox) 25f else 0f),
             contentWidth = actualSize.width.toFloat(),
             contentHeight = actualSize.height.toFloat(),
             viewport = viewport,

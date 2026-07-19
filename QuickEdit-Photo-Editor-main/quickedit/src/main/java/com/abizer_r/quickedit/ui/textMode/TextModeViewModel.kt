@@ -139,12 +139,12 @@ class TextModeViewModel @Inject constructor(
                 val newList = if (existingItem != null) {
                     state.value.transformableViewStateList.map {
                         if (it.id == id) {
-                            (it as TransformableTextBoxState).copy(
+                            (it as? TransformableTextBoxState)?.copy(
                                 text = event.textBoxState.text,
                                 textAlign = event.textBoxState.textAlign,
                                 textColor = event.textBoxState.textColor,
                                 textFont = event.textBoxState.textFont
-                            )
+                            ) ?: it
                         } else it
                     }
                 } else {

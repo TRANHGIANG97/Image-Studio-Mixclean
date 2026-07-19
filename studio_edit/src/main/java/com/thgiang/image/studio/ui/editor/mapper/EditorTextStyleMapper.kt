@@ -21,6 +21,10 @@ object EditorTextStyleMapper {
         else -> text
     }
 
+    /** PSD/cloud templates may use `\r` or `\r\n`; Compose expects `\n`. */
+    fun normalizeLineBreaks(text: String): String =
+        text.replace("\r\n", "\n").replace('\r', '\n')
+
     fun resolveComposeFontWeight(fontWeight: String?): FontWeight {
         val normalized = fontWeight?.lowercase()?.trim().orEmpty()
         return when {

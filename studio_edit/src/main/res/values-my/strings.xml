@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">အီလက်ထရွန်နစ်ပစ္စည်းများ</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">မူလအတိုင်းပြန်ထားရန်</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">တံဆိပ်</string>
-    <string name="studio_tool_shape">ဘောင်</string>
     <string name="studio_label_add_label">တံဆိပ်ထည့်ရန်</string>
     <string name="studio_label_add_text">စာသားထည့်ရန်</string>
     <string name="studio_label_add_shape">ပုံသဏ္ဌာန်ထည့်ရန်</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">အလင်းထောင့်</string>
     <string name="studio_elevation_custom">စိတ်ကြိုက်ပြင်ရန်</string>
     <string name="studio_elevation_shadow_blur">အရိပ်ဝါးမှု</string>
-    <string name="studio_label_shape_frame_tab">ဘောင်</string>
     <string name="studio_text_form_tab">စာလုံးပုံစံပြောင်းရန်</string>
     <string name="studio_text_form_follow_path">လမ်းကြောင်းအတိုင်းသွားရန်</string>
     <string name="studio_text_form_warp">ကွေးညွတ်ရန်</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">နောက်ခံ</string>
     <string name="studio_label_tab_elevation">အထူးပြုလုပ်ချက်</string>
     <string name="studio_label_tab_text_form">အနုပညာဆန်သော</string>
-    <string name="studio_label_tab_shape">ဘောင်</string>
     <string name="studio_label_tab_text_template">တမ်းပလိတ်များ</string>
     <string name="studio_label_tab_more">ပို၍</string>
     <string name="studio_text_template_classic">ဂန္ထဝင်</string>

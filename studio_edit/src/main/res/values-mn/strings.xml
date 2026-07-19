@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Бүтээгдэхүүний Студи</string>
     <string name="studio_category_electronics">Цахилгаан бараа</string>
@@ -181,7 +181,6 @@
     <string name="studio_reset_zoom">Эхний хэмжээ</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Шошго</string>
-    <string name="studio_tool_shape">Хүрээ</string>
     <string name="studio_label_add_label">Шошго нэмэх</string>
     <string name="studio_label_add_text">Текст нэмэх</string>
     <string name="studio_label_add_shape">Дүрс нэмэх</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">Гэрэлтүүлгийн өнцөг</string>
     <string name="studio_elevation_custom">Өөрчилж тохируулах</string>
     <string name="studio_elevation_shadow_blur">Сүүдрийн бүрэлзэлт</string>
-    <string name="studio_label_shape_frame_tab">Хүрээ</string>
     <string name="studio_text_form_tab">Хэлбэржүүлэх</string>
     <string name="studio_text_form_follow_path">Зам дагах</string>
     <string name="studio_text_form_warp">Муруйлгах</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">Дэвсгэр</string>
     <string name="studio_label_tab_elevation">Эффект</string>
     <string name="studio_label_tab_text_form">Урлагжуулах</string>
-    <string name="studio_label_tab_shape">Хүрээ</string>
     <string name="studio_label_tab_text_template">Загварууд</string>
     <string name="studio_label_tab_more">Илүү</string>
     <string name="studio_text_template_classic">Сонгодог</string>

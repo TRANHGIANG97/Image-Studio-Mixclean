@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Termékstúdió</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -181,7 +181,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Címke</string>
-    <string name="studio_tool_shape">Keret</string>
     <string name="studio_label_add_label">Címke hozzáadása</string>
     <string name="studio_label_add_text">Szöveg hozzáadása</string>
     <string name="studio_label_add_shape">Címke hozzáadása</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">Megvilágítás szöge</string>
     <string name="studio_elevation_custom">Testreszabás</string>
     <string name="studio_elevation_shadow_blur">Árnyék elmosása</string>
-    <string name="studio_label_shape_frame_tab">Keret</string>
     <string name="studio_text_form_tab">Torzítás</string>
     <string name="studio_text_form_follow_path">Vonal követése</string>
     <string name="studio_text_form_warp">Görbítés</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">Háttér</string>
     <string name="studio_label_tab_elevation">Hatás</string>
     <string name="studio_label_tab_text_form">Művészi</string>
-    <string name="studio_label_tab_shape">Keret</string>
     <string name="studio_label_tab_text_template">Sablonok</string>
     <string name="studio_label_tab_more">Több</string>
     <string name="studio_text_template_classic">Klasszikus</string>

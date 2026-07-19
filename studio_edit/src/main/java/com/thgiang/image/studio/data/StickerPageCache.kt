@@ -26,8 +26,30 @@ class StickerPageCache @Inject constructor() {
     /** Preview cache: Pair(memeList, decorList) */
     private val previewCache = AtomicReference<CacheEntry<Pair<List<RemoteSticker>, List<RemoteSticker>>>?>()
 
+    /** Tab list cache from /api/v1/stickers/folders */
+    private val tabsCache = AtomicReference<CacheEntry<List<StickerTabInfo>>?>()
+
     /** Page cache: key = "Sticker_meme:1:30" */
     private val pageCache = ConcurrentHashMap<String, CacheEntry<List<RemoteSticker>>>()
+
+    // ─── Tabs ─────────────────────────────────────────────────────
+
+    fun getTabs(): List<StickerTabInfo>? {
+        val entry = tabsCache.get() ?: return null
+        return if (isValid(entry)) {
+            Log.d(TAG, "Cache HIT: sticker tabs")
+            entry.data
+        } else {
+            Log.d(TAG, "Cache MISS (expired): sticker tabs")
+            tabsCache.set(null)
+            null
+        }
+    }
+
+    fun putTabs(tabs: List<StickerTabInfo>) {
+        tabsCache.set(CacheEntry(tabs))
+        Log.d(TAG, "Cache PUT: sticker tabs size=${tabs.size}")
+    }
 
     // ─── Preview ──────────────────────────────────────────────────
 
@@ -73,6 +95,7 @@ class StickerPageCache @Inject constructor() {
 
     fun invalidate() {
         previewCache.set(null)
+        tabsCache.set(null)
         pageCache.clear()
         Log.d(TAG, "Cache INVALIDATED")
     }

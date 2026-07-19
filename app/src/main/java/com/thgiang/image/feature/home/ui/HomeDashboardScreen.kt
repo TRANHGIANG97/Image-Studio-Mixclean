@@ -83,6 +83,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.thgiang.image.core.ad.BannerAdView
+import com.thgiang.image.feature.premium.PremiumFeatureFlags
 import java.io.File
 import kotlinx.coroutines.delay
 import androidx.compose.animation.AnimatedContent
@@ -197,11 +198,13 @@ fun HomeDashboardScreen(
         homeViewModel.consumePendingEditorUri()
     }
 
-    LaunchedEffect(isPremium, preferredRemovalQuality) {
-        homeViewModel.setUseProQuality(isPremium && preferredRemovalQuality == "pro")
+    // When Premium monetization is off, Pro quality is free to select (no global isPremium fake).
+    val canUseProQuality = isPremium || !PremiumFeatureFlags.enabled
+    LaunchedEffect(canUseProQuality, preferredRemovalQuality) {
+        homeViewModel.setUseProQuality(canUseProQuality && preferredRemovalQuality == "pro")
     }
 
-    if (showUpgradeSheet) {
+    if (PremiumFeatureFlags.enabled && showUpgradeSheet) {
         UpgradeBottomSheet(
             onDismiss = { showUpgradeSheet = false },
             onGoPro = {
@@ -284,7 +287,9 @@ fun HomeDashboardScreen(
                             }
                         },
                         onBatchRemove = onBatchRemove,
-                        onLockedClick = { showUpgradeSheet = true },
+                        onLockedClick = {
+                            if (PremiumFeatureFlags.enabled) showUpgradeSheet = true
+                        },
                         hasDraft = hasDrafts,
                         draftCount = draftCount,
                         onRestoreDraft = onOpenDrafts,

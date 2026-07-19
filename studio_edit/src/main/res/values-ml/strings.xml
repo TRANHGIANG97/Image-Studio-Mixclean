@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">ഇലക്ട്രോണിക്സ്</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">റീസെറ്റ്</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">ലേബൽ</string>
-    <string name="studio_tool_shape">ഫ്രെയിം</string>
     <string name="studio_label_add_label">ലേബൽ ചേർക്കുക</string>
     <string name="studio_label_add_text">ടെക്സ്റ്റ് ചേർക്കുക</string>
     <string name="studio_label_add_shape">ആകൃതി ചേർക്കുക</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">ലൈറ്റിംഗ് ആംഗിൾ</string>
     <string name="studio_elevation_custom">കസ്റ്റമൈസ്</string>
     <string name="studio_elevation_shadow_blur">ഷാഡോ ബ്ലർ</string>
-    <string name="studio_label_shape_frame_tab">ബോർഡർ</string>
     <string name="studio_text_form_tab">ട്രാൻസ്ഫോം</string>
     <string name="studio_text_form_follow_path">പാത്ത് പിന്തുടരുക</string>
     <string name="studio_text_form_warp">വാർപ്പ്</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">ബാക്ക്ഗ്രൗണ്ട്</string>
     <string name="studio_label_tab_elevation">ഇഫക്റ്റ്</string>
     <string name="studio_label_tab_text_form">ആർട്ടിസ്റ്റിക്</string>
-    <string name="studio_label_tab_shape">ഫ്രെയിം</string>
     <string name="studio_label_tab_text_template">ടെംപ്ലേറ്റുകൾ</string>
     <string name="studio_label_tab_more">കൂടുതൽ</string>
     <string name="studio_text_template_classic">ക്ലാസിക്</string>

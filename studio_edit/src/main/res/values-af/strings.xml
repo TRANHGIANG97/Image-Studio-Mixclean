@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI-produkstudio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Konsep is gestoor</string>
     <string name="studio_reset_zoom">Stel terug</string>
     <string name="studio_tool_label">Etiket</string>
-    <string name="studio_tool_shape">Raam</string>
     <string name="studio_label_add_label">Voeg etiket by</string>
     <string name="studio_label_add_text">Voeg teks by</string>
     <string name="studio_label_add_shape">Voeg etiket by</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">Beligtingshoek</string>
     <string name="studio_elevation_custom">Pasmaak</string>
     <string name="studio_elevation_shadow_blur">Skadu vervaag</string>
-    <string name="studio_label_shape_frame_tab">Raam</string>
     <string name="studio_text_form_tab">Transformeer</string>
     <string name="studio_text_form_follow_path">Volg Pad</string>
     <string name="studio_text_form_warp">Skerring</string>
@@ -303,7 +301,6 @@
     <string name="studio_label_tab_bg_color">Agtergrond</string>
     <string name="studio_label_tab_elevation">Effek</string>
     <string name="studio_label_tab_text_form">Kunstig</string>
-    <string name="studio_label_tab_shape">Raam</string>
     <string name="studio_label_tab_text_template">Sjablone</string>
     <string name="studio_label_tab_more">Meer</string>
     <string name="studio_text_template_classic">Klassiek</string>

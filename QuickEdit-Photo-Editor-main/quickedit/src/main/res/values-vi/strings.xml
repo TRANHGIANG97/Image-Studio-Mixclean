@@ -99,6 +99,7 @@
     <string name="crop_custom">Tuỳ chỉnh</string>
     <string name="crop_square">Hình vuông</string>
     <string name="error_apply_effect">Lỗi áp dụng hiệu ứng</string>
+    <string name="bg_removal_device_unsupported">Thiết bị của bạn không được hỗ trợ cho tính năng này.</string>
     <string name="play_services_update_message">Hãy cập nhật Google Play services để xóa nền ổn định và chính xác hơn.</string>
     <string name="play_services_update_action">Cập nhật</string>
     <string name="remove_bg_selfie_fallback_warning">Đã dùng chế độ chân dung. Viền vật thể có thể kém chính xác hơn.</string>

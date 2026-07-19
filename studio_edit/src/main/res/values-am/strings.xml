@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">የAI ምርት ስቱዲዮ</string>
     <string name="studio_category_electronics">ኤሌክትሮኒክስ</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">ረቂቅ ተቀምጧል</string>
     <string name="studio_reset_zoom">ዳግም አስጀምር</string>
     <string name="studio_tool_label">መለያ</string>
-    <string name="studio_tool_shape">ፍሬም</string>
     <string name="studio_label_add_label">መለያ ያክሉ</string>
     <string name="studio_label_add_text">ጽሑፍ ጨምር</string>
     <string name="studio_label_add_shape">መለያ ያክሉ</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">የመብራት አንግል</string>
     <string name="studio_elevation_custom">አብጅ</string>
     <string name="studio_elevation_shadow_blur">የጥላ ማደብዘዝ</string>
-    <string name="studio_label_shape_frame_tab">ፍሬም</string>
     <string name="studio_text_form_tab">ቀይር</string>
     <string name="studio_text_form_follow_path">መንገድን ተከተል</string>
     <string name="studio_text_form_warp">ዋርፕ</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">ዳራ</string>
     <string name="studio_label_tab_elevation">ውጤት</string>
     <string name="studio_label_tab_text_form">አርቲስቲክ</string>
-    <string name="studio_label_tab_shape">ፍሬም</string>
     <string name="studio_label_tab_text_template">አብነቶች</string>
     <string name="studio_label_tab_more">ተጨማሪ</string>
     <string name="studio_text_template_classic">ክላሲክ</string>

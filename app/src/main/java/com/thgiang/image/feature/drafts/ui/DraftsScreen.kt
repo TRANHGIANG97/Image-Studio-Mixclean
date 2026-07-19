@@ -526,6 +526,9 @@ private fun resolveDraftThumbnailModel(context: android.content.Context, draft: 
         ?.let { return it }
 
     if (draft.isTemplate) {
+        draft.templateThumbnailUrl
+            ?.takeIf { it.isNotBlank() && it != "null" }
+            ?.let { return it.toAssetModel() }
         draft.templateAssetPath
             ?.takeIf { it.isNotBlank() && it != "null" }
             ?.let { return it.toAssetModel() }

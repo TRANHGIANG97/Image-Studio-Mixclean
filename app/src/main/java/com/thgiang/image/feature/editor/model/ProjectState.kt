@@ -14,7 +14,8 @@ data class DraftMetadata(
     val thumbnailPath: String? = null,
     val isTemplate: Boolean = false,
     val templateAssetPath: String? = null,
-    val templateObjectAssetPath: String? = null
+    val templateObjectAssetPath: String? = null,
+    val templateThumbnailUrl: String? = null,
 )
 
 /**

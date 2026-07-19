@@ -274,6 +274,8 @@
     <string name="draft_saved_successfully">Draft saved successfully</string>
     <string name="bg_remover_not_available">Background remover is not available</string>
     <string name="bg_removal_failed">Background removal failed</string>
+    <string name="bg_removal_low_memory">Not enough memory. Close other apps and try again.</string>
+    <string name="bg_removal_device_unsupported">Your device is not supported for this feature.</string>
     <string name="go_back">Go Back</string>
     <string name="draft_name_prefix">Draft</string>
     <string name="draft_copy_suffix">Copy</string>
@@ -326,5 +328,6 @@
     <string name="save_success_tap_to_preview">Tap to preview</string>
     <string name="save_success_preview_close">Close preview</string>
     <string name="batch_remove_error_load_image">Cannot load this image.</string>
+    <string name="error_device_too_low_memory_batch">This device has too little memory for batch processing. Try one image at a time.</string>
     <string name="drafts_error_load">Error loading drafts: %1$s</string>
 </resources>

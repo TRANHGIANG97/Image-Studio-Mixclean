@@ -39,15 +39,38 @@ class EditorTemplateLoader @Inject constructor(
     }
 
     suspend fun buildFromCloud(cloudTemplate: CloudTemplate): LoadedEditorTemplate {
+        val editorLayers = mapCloudLayers(cloudTemplate)
+        return LoadedEditorTemplate(
+            template = cloudTemplateShell(cloudTemplate).copy(loaded = true),
+            layers = editorLayers,
+            selectedLayerId = editorLayers.firstOrNull { layer -> layer.product.isSample }?.id,
+        )
+    }
+
+    /** Canvas metadata only — lets the editor paint background while layers/fonts load. */
+    fun cloudTemplateShell(cloudTemplate: CloudTemplate): EditorTemplate {
         val backgroundUrl = cloudTemplate.canvas.backgroundUrl.orEmpty()
+        val thumbnailUrl = cloudTemplate.metadata.thumbnailUrl
+            .takeIf { it.isNotBlank() }
+            ?: backgroundUrl.takeIf { it.isNotBlank() }
+
+        return EditorTemplate(
+            assetPath = backgroundUrl,
+            originalWidth = cloudTemplate.canvas.baseWidth,
+            originalHeight = cloudTemplate.canvas.baseHeight,
+            backgroundColorArgb = cloudTemplate.canvas.backgroundColorArgb ?: 0xFFFFFFFF.toInt(),
+            loaded = false,
+            thumbnailUrl = thumbnailUrl,
+        )
+    }
+
+    suspend fun mapCloudLayers(cloudTemplate: CloudTemplate): List<EditorLayer> {
         val density = context.resources.displayMetrics.scaledDensity.coerceAtLeast(1f)
         val editorLayers = EditorLayerNormalizer.normalize(
             CloudLayerToEditorMapper.mapLayers(cloudTemplate, density, logger),
         )
 
         if (editorLayers.isEmpty()) {
-            // Cloud template hợp lệ nhưng render ra editor trống — cần theo dõi
-            // vì user sẽ thấy màn hình trắng thay vì template.
             logger.logEvent(
                 "template_render_empty",
                 mapOf("templateId" to cloudTemplate.templateId),
@@ -61,17 +84,7 @@ class EditorTemplateLoader @Inject constructor(
                 .map { it.fontFamily },
         )
 
-        return LoadedEditorTemplate(
-            template = EditorTemplate(
-                assetPath = backgroundUrl,
-                originalWidth = cloudTemplate.canvas.baseWidth,
-                originalHeight = cloudTemplate.canvas.baseHeight,
-                backgroundColorArgb = cloudTemplate.canvas.backgroundColorArgb ?: 0xFFFFFFFF.toInt(),
-                loaded = true,
-            ),
-            layers = editorLayers,
-            selectedLayerId = editorLayers.firstOrNull { layer -> layer.product.isSample }?.id,
-        )
+        return editorLayers
     }
 
     suspend fun probeLocalAsset(assetPath: String): LoadedEditorTemplate = withContext(Dispatchers.IO) {

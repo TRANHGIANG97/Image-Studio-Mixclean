@@ -30,7 +30,7 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.exponentialDecay
@@ -40,6 +40,7 @@ import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,11 +56,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import kotlin.math.roundToInt
 import android.graphics.BitmapFactory
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
+import com.thgiang.image.studio.ui.components.StudioLottieLoader
 import com.thgiang.image.studio.R
 import com.thgiang.image.studio.ui.editor.*
 import com.thgiang.image.studio.ui.editor.theme.LocalEditorTokens
@@ -118,7 +115,7 @@ fun EditorCanvasV2(
     var hasBackup by remember { mutableStateOf(false) }
 
     var layerPickerHits by remember { mutableStateOf<List<EditorLayer>?>(null) }
-    var quickActionsOffset by remember { mutableStateOf(Offset.Zero) }
+    var quickActionsOffset by remember(selectedLayerId) { mutableStateOf(Offset.Zero) }
     var isLayerGestureActive by remember { mutableStateOf(false) }
     val reportGestureActive: (Boolean) -> Unit = { active ->
         isLayerGestureActive = active
@@ -154,8 +151,8 @@ fun EditorCanvasV2(
             .padding(viewportPadding),
         contentAlignment = Alignment.Center
     ) {
-        val templateWidth  = with(density) { templateSize.width.toDp() }
-        val templateHeight = with(density) { templateSize.height.toDp() }
+        val templateWidth = with(density) { templateSize.width.coerceAtLeast(1).toDp() }
+        val templateHeight = with(density) { templateSize.height.coerceAtLeast(1).toDp() }
         val calculatedScale = with(density) {
             kotlin.math.min(
                 maxWidth  / templateWidth,
@@ -564,11 +561,10 @@ fun EditorCanvasV2(
                                 contentScale = ContentScale.Crop,
                                 loading = {
                                     Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        StudioLottieLoader(modifier = Modifier.size(96.dp))
-                                    }
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(templateBackgroundColor),
+                                    )
                                 },
                                 error = { state ->
                                      android.util.Log.e(
@@ -600,13 +596,7 @@ fun EditorCanvasV2(
                     }
                 }
 
-                if (layers.isEmpty()) {
-                    PickImagePlaceholder(
-                        onClick = { onPickImage(null) },
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else {
-                    layers.forEach { layer ->
+                layers.forEach { layer ->
                         if (!layer.isVisible) return@forEach
                         key(layer.id) {
                         when {
@@ -715,7 +705,6 @@ fun EditorCanvasV2(
                         }
                         }
                     }
-                }
 
                 // ── Top-most Replace Buttons for Sample/Replaceable layers ──
                 // Hide while inline text edit is active — center replace icon steals taps from the text move handle.
@@ -734,6 +723,7 @@ fun EditorCanvasV2(
                                 .align(Alignment.Center)
                                 .requiredSize(originalWidth, originalHeight)
                                 .offset { displayOffset }
+                                .zIndex(8f)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -796,38 +786,61 @@ fun EditorCanvasV2(
         // ── Floating Quick Actions (Shape) ───────────────────────
         val activeLayer = layers.find { it.id == selectedLayerId }
         if (activeLayer != null) {
-            val canvasTop = ((maxHeight - displayHeight) / 2f).coerceAtLeast(0.dp)
+            var quickActionsBarSizePx by remember { mutableStateOf(IntSize.Zero) }
+            val quickActionsAnchorTopPx = with(density) { 8.dp.roundToPx().toFloat() }
+            val quickActionsMarginPx = with(density) { 8.dp.roundToPx().toFloat() }
+            val containerSizePx = IntSize(
+                width = with(density) { maxWidth.roundToPx() },
+                height = with(density) { maxHeight.roundToPx() },
+            )
+
+            val effectiveBarSize = if (quickActionsBarSizePx.width > 0) {
+                quickActionsBarSizePx
+            } else {
+                IntSize(
+                    width = with(density) { 280.dp.roundToPx() },
+                    height = with(density) { 52.dp.roundToPx() },
+                )
+            }
+
+            fun clampQuickActions(raw: Offset): Offset = clampQuickActionsOffset(
+                offset = raw,
+                containerSize = containerSizePx,
+                barSize = effectiveBarSize,
+                anchorTopPx = quickActionsAnchorTopPx,
+                marginPx = quickActionsMarginPx,
+            )
+
+            LaunchedEffect(
+                quickActionsBarSizePx,
+                containerSizePx,
+                quickActionsAnchorTopPx,
+            ) {
+                quickActionsOffset = clampQuickActions(quickActionsOffset)
+            }
+
             ShapeQuickActionsBar(
                 layer = activeLayer,
                 visible = true,
                 onEvent = onEvent,
                 quickActionsOffset = quickActionsOffset,
-                onQuickActionsOffsetChange = { quickActionsOffset = it },
+                onQuickActionsOffsetChange = { raw ->
+                    quickActionsOffset = clampQuickActions(raw)
+                },
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = canvasTop)
-                    .offset { IntOffset(quickActionsOffset.x.roundToInt(), quickActionsOffset.y.roundToInt()) }
-                    .zIndex(10f)
+                    .padding(top = 8.dp)
+                    .onSizeChanged { quickActionsBarSizePx = it }
+                    .offset {
+                        IntOffset(
+                            quickActionsOffset.x.roundToInt(),
+                            quickActionsOffset.y.roundToInt(),
+                        )
+                    }
+                    .zIndex(10f),
             )
         }
     }
-}
-
-@Composable
-fun StudioLottieLoader(modifier: Modifier = Modifier) {
-    val composition by rememberLottieComposition(
-        LottieCompositionSpec.Asset("animation/animation.lottie")
-    )
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever,
-        isPlaying = true
-    )
-    LottieAnimation(
-        composition = composition,
-        progress = { progress },
-        modifier = modifier
-    )
 }
 
 /**
@@ -913,13 +926,15 @@ fun ShadowRegionLayer(
             )
         }
 
+        val bbOverlayPad = EditorDims.overlayPaddingDp()
         BoundingBoxOverlayV6(
             modifier = Modifier
                 .align(Alignment.Center)
                 .requiredSize(
-                    width = widthDp + 80.dp,
-                    height = heightDp + 80.dp
-                ),
+                    width = widthDp + bbOverlayPad,
+                    height = heightDp + bbOverlayPad,
+                )
+                .zIndex(if (showBoundingBox) 25f else 0f),
             contentWidth = baseW,
             contentHeight = baseH,
             viewport = layer.viewport,

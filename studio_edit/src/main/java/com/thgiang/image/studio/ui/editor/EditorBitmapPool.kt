@@ -8,6 +8,8 @@ import android.util.Log
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import java.util.Collections
+import java.util.IdentityHashMap
 
 /**
  * Bitmap Pool v2 - Lru-style eviction, memory pressure aware, atomic operations
@@ -36,6 +38,7 @@ class EditorBitmapPool {
     private val pools = mutableMapOf<PoolKey, ConcurrentLinkedQueue<PooledBitmap>>()
     private val poolSizes = mutableMapOf<PoolKey, AtomicInteger>()
     private val totalPixels = AtomicLong(0)
+    private val pooledBitmaps = Collections.newSetFromMap(IdentityHashMap<Bitmap, Boolean>())
     
     private val maxTotalPixels: Long
     private val maxBucketSize: Int
@@ -52,6 +55,7 @@ class EditorBitmapPool {
         Log.d(TAG, "Pool initialized: maxPixels=$maxTotalPixels, maxBucket=$maxBucketSize")
     }
     
+    @Synchronized
     fun obtain(width: Int, height: Int, config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
         val key = PoolKey(width, height, config)
         val queue = pools.getOrPut(key) { ConcurrentLinkedQueue() }
@@ -60,6 +64,7 @@ class EditorBitmapPool {
         // Try to find reusable bitmap (FIFO with validation)
         while (true) {
             val pooled = queue.poll() ?: break
+            pooledBitmaps.remove(pooled.bitmap)
             sizeCounter.decrementAndGet()
             
             if (!pooled.bitmap.isRecycled && 
@@ -81,11 +86,19 @@ class EditorBitmapPool {
         }
         
         // Create new bitmap
-        return Bitmap.createBitmap(width, height, config)
+        return try {
+            Bitmap.createBitmap(width, height, config)
+        } catch (e: OutOfMemoryError) {
+            clear()
+            throw e
+        }
     }
     
+    @Synchronized
     fun recycle(bitmap: Bitmap) {
         if (bitmap.isRecycled) return
+        // Never let one Bitmap reference enter the pool twice.
+        if (!pooledBitmaps.add(bitmap)) return
         
         val width = bitmap.width
         val height = bitmap.height
@@ -93,6 +106,7 @@ class EditorBitmapPool {
         
         // Memory pressure check: if over budget, recycle immediately
         if (totalPixels.get() + pixelCount > maxTotalPixels) {
+            pooledBitmaps.remove(bitmap)
             bitmap.recycle()
             return
         }
@@ -106,6 +120,7 @@ class EditorBitmapPool {
             // Evict oldest (FIFO)
             val evicted = queue.poll()
             if (evicted != null) {
+                pooledBitmaps.remove(evicted.bitmap)
                 sizeCounter.decrementAndGet()
                 totalPixels.addAndGet(-pixelCount)
                 if (!evicted.bitmap.isRecycled) evicted.bitmap.recycle()
@@ -120,6 +135,7 @@ class EditorBitmapPool {
     /**
      * Emergency cleanup khi system báo low memory
      */
+    @Synchronized
     fun trimMemory(level: Int) {
         when (level) {
             android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL,
@@ -134,6 +150,7 @@ class EditorBitmapPool {
         }
     }
     
+    @Synchronized
     private fun evictPercent(percent: Float) {
         val allEntries = pools.flatMap { (key, queue) ->
             queue.toList().map { key to it }
@@ -143,12 +160,14 @@ class EditorBitmapPool {
         
         allEntries.take(evictCount).forEach { (key, pooled) ->
             pools[key]?.remove(pooled)
+            pooledBitmaps.remove(pooled.bitmap)
             poolSizes[key]?.decrementAndGet()
             totalPixels.addAndGet(-(pooled.bitmap.width * pooled.bitmap.height.toLong()))
             if (!pooled.bitmap.isRecycled) pooled.bitmap.recycle()
         }
     }
     
+    @Synchronized
     fun clear() {
         pools.forEach { (key, queue) ->
             queue.forEach { 
@@ -157,9 +176,11 @@ class EditorBitmapPool {
             queue.clear()
             poolSizes[key]?.set(0)
         }
+        pooledBitmaps.clear()
         totalPixels.set(0)
     }
     
+    @Synchronized
     fun getStats(): PoolStats {
         var totalBitmaps = 0
         var totalMemory = 0L

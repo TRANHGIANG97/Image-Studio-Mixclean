@@ -74,8 +74,27 @@ fun EditorLayer.splitToGroup(): List<EditorLayer> {
 }
 
 object EditorLayerNormalizer {
-    fun normalize(layers: List<EditorLayer>): List<EditorLayer> =
-        layers.flatMap { it.normalizeLayer() }
+    /**
+     * Defensive against Gson/R8 draft restores where [layers] may contain
+     * LinkedTreeMap (or other) elements instead of [EditorLayer].
+     */
+    fun normalize(layers: List<EditorLayer>): List<EditorLayer> {
+        val raw: List<*> = try {
+            layers
+        } catch (e: ClassCastException) {
+            emptyList<Any>()
+        }
+        val result = ArrayList<EditorLayer>(raw.size)
+        for (item in raw) {
+            val layer = item as? EditorLayer ?: continue
+            try {
+                result.addAll(layer.normalizeLayer())
+            } catch (e: Exception) {
+                // Skip corrupt layer rather than crashing editor open.
+            }
+        }
+        return result
+    }
 }
 
 private fun EditorLayer.normalizeLayer(): List<EditorLayer> {

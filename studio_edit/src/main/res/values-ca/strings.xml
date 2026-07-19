@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Estudi de productes IA</string>
     <string name="studio_category_electronics">Electrònica</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Esborrany desat</string>
     <string name="studio_reset_zoom">Restableix</string>
     <string name="studio_tool_label">Etiqueta</string>
-    <string name="studio_tool_shape">Marc</string>
     <string name="studio_label_add_label">Afegeix una etiqueta</string>
     <string name="studio_label_add_text">Afegeix text</string>
     <string name="studio_label_add_shape">Afegeix una etiqueta</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">Angle d\'il·luminació</string>
     <string name="studio_elevation_custom">Personalitza</string>
     <string name="studio_elevation_shadow_blur">Desenfocament d\'ombra</string>
-    <string name="studio_label_shape_frame_tab">Marc</string>
     <string name="studio_text_form_tab">Transformar</string>
     <string name="studio_text_form_follow_path">Seguiu el camí</string>
     <string name="studio_text_form_warp">Deformació</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">Fons</string>
     <string name="studio_label_tab_elevation">Efecte</string>
     <string name="studio_label_tab_text_form">Artístic</string>
-    <string name="studio_label_tab_shape">Marc</string>
     <string name="studio_label_tab_text_template">Plantilles</string>
     <string name="studio_label_tab_more">Més</string>
     <string name="studio_text_template_classic">Clàssic</string>

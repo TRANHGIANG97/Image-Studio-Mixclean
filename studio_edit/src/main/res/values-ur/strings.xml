@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI پروڈکٹ اسٹوڈیو</string>
     <string name="studio_category_electronics">الیکٹرانکس</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">ری سیٹ</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">لیبل</string>
-    <string name="studio_tool_shape">فریم</string>
     <string name="studio_label_add_label">لیبل شامل کریں</string>
     <string name="studio_label_add_text">ٹیکسٹ شامل کریں</string>
     <string name="studio_label_add_shape">شکل شامل کریں</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">روشنی کا زاویہ</string>
     <string name="studio_elevation_custom">کسٹمائز کریں</string>
     <string name="studio_elevation_shadow_blur">سائے کا دھندلا پن</string>
-    <string name="studio_label_shape_frame_tab">بارڈر</string>
     <string name="studio_text_form_tab">شکل بگاڑیں (ڈسٹارٹ)</string>
     <string name="studio_text_form_follow_path">راستے پر چلیں</string>
     <string name="studio_text_form_warp">وارپ کریں</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">بیک گراؤन्ड</string>
     <string name="studio_label_tab_elevation">اثر (ایفیکٹ)</string>
     <string name="studio_label_tab_text_form">آرٹسٹک</string>
-    <string name="studio_label_tab_shape">فریم</string>
     <string name="studio_label_tab_text_template">ٹیمپلیٹس</string>
     <string name="studio_label_tab_more">مزید</string>
     <string name="studio_text_template_classic">کلاسک</string>

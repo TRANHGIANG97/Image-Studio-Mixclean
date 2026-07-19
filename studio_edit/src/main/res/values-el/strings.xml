@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Στούντιο προϊόντων</string>
     <string name="studio_category_electronics">Ηλεκτρονικά</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Το πρόχειρο αποθηκεύτηκε</string>
     <string name="studio_reset_zoom">Επαναφορά</string>
     <string name="studio_tool_label">Επιγραφή</string>
-    <string name="studio_tool_shape">Πλαίσιο</string>
     <string name="studio_label_add_label">Προσθήκη ετικέτας</string>
     <string name="studio_label_add_text">Προσθήκη κειμένου</string>
     <string name="studio_label_add_shape">Προσθήκη ετικέτας</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">Γωνία φωτισμού</string>
     <string name="studio_elevation_custom">Προσαρμογή</string>
     <string name="studio_elevation_shadow_blur">Θάμπωμα σκιάς</string>
-    <string name="studio_label_shape_frame_tab">Πλαίσιο</string>
     <string name="studio_text_form_tab">Μετασχηματίζω</string>
     <string name="studio_text_form_follow_path">Ακολουθήστε το μονοπάτι</string>
     <string name="studio_text_form_warp">Στημόνι</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">Φόντο</string>
     <string name="studio_label_tab_elevation">Αποτέλεσμα</string>
     <string name="studio_label_tab_text_form">Καλλιτεχνικός</string>
-    <string name="studio_label_tab_shape">Πλαίσιο</string>
     <string name="studio_label_tab_text_template">Πρότυπα</string>
     <string name="studio_label_tab_more">Περισσότερα</string>
     <string name="studio_text_template_classic">Κλασικό</string>

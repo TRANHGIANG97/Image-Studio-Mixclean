@@ -79,6 +79,7 @@ fun EditorBottomToolbar(
                 val isSelected = when (tool) {
                     is EditorTool.Replace -> selectedTool is EditorTool.Replace
                     is EditorTool.Sticker -> selectedTool is EditorTool.Sticker
+                    is EditorTool.Background -> selectedTool is EditorTool.Background
                     is EditorTool.Label -> selectedTool is EditorTool.Label
                     is EditorTool.Shape -> selectedTool is EditorTool.Shape
                     is EditorTool.Rotate -> selectedTool is EditorTool.Rotate
@@ -93,6 +94,7 @@ fun EditorBottomToolbar(
                     tool is EditorTool.AddImage -> true
                     tool is EditorTool.RemoveBg -> canRemoveBg
                     tool is EditorTool.Sticker ||
+                        tool is EditorTool.Background ||
                         tool is EditorTool.Label ||
                         tool is EditorTool.Shape -> true
                     tool is EditorTool.Crop -> !toolsLocked && !labelLayerActive
@@ -136,6 +138,7 @@ private fun ToolButton(
     val labelRes = when (tool) {
         is EditorTool.Replace      -> R.string.studio_tool_replace
         is EditorTool.Sticker      -> R.string.studio_tool_sticker
+        is EditorTool.Background   -> R.string.studio_tool_background
         is EditorTool.Label        -> R.string.studio_tool_label
         is EditorTool.Shape        -> R.string.studio_tool_shape
         is EditorTool.Layout       -> R.string.studio_tool_layout
@@ -154,6 +157,7 @@ private fun ToolButton(
     val iconRes = when (tool) {
         is EditorTool.Replace      -> R.drawable.ic_tool_replace_image
         is EditorTool.Sticker      -> R.drawable.ic_tool_sticker
+        is EditorTool.Background   -> R.drawable.ic_tool_background
         is EditorTool.Label        -> R.drawable.ic_tool_label
         is EditorTool.Shape        -> R.drawable.ic_tool_sticker
         is EditorTool.Layout       -> R.drawable.ic_tool_layout

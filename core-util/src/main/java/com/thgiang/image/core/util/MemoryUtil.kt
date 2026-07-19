@@ -14,6 +14,19 @@ object MemoryUtil {
 
     private const val MB = 1024L * 1024L
 
+    /** Heap ≤48MB or Android low-RAM flag — batch/studio export disabled. */
+    private const val EXTREMELY_LOW_HEAP_MB = 48
+
+    enum class DeviceMemoryTier {
+        /** Batch remove + large export blocked; single-image AI at minimum quality. */
+        EXTREMELY_LOW,
+        LOW,
+        NORMAL,
+        HIGH,
+    }
+
+    data class ExportSize(val width: Int, val height: Int)
+
     /** Heap class (MB) từ ActivityManager. */
     fun getMemoryClass(context: Context): Int {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
@@ -24,6 +37,104 @@ object MemoryUtil {
     fun getLargeMemoryClass(context: Context): Int {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
         return am?.largeMemoryClass ?: 128
+    }
+
+    fun getDeviceMemoryTier(context: Context): DeviceMemoryTier {
+        val memClass = getMemoryClass(context)
+        return when {
+            isExtremelyLowEndDevice(context) -> DeviceMemoryTier.EXTREMELY_LOW
+            memClass <= 64 -> DeviceMemoryTier.LOW
+            memClass <= 128 -> DeviceMemoryTier.NORMAL
+            else -> DeviceMemoryTier.HIGH
+        }
+    }
+
+    fun isExtremelyLowEndDevice(context: Context): Boolean {
+        if (getMemoryClass(context) <= EXTREMELY_LOW_HEAP_MB) return true
+        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+        return am?.isLowRamDevice == true
+    }
+
+    fun supportsBatchBackgroundRemove(context: Context): Boolean =
+        !isExtremelyLowEndDevice(context)
+
+    fun freeHeapBytes(): Long {
+        val runtime = Runtime.getRuntime()
+        val used = runtime.totalMemory() - runtime.freeMemory()
+        return (runtime.maxMemory() - used).coerceAtLeast(0L)
+    }
+
+    fun maxExportSide(context: Context): Int {
+        val memClass = getMemoryClass(context)
+        val policyCap = when {
+            isExtremelyLowEndDevice(context) -> 960
+            memClass <= 64 -> 1280
+            memClass <= 96 -> 1536
+            memClass <= 128 -> 2048
+            memClass <= 192 -> 2560
+            else -> 3072
+        }
+        val heapSide = maxSideForByteBudget(
+            bytes = freeHeapBytes(),
+            bytesPerPixel = 8L,
+            budgetFraction = 0.22f,
+            minSide = 512,
+            maxSide = policyCap,
+        )
+        return minOf(policyCap, heapSide)
+    }
+
+    fun clampExportSize(width: Int, height: Int, context: Context): ExportSize {
+        if (width <= 0 || height <= 0) return ExportSize(width, height)
+        val maxSide = maxExportSide(context)
+        val largest = maxOf(width, height)
+        if (largest <= maxSide) return ExportSize(width, height)
+        val scale = maxSide.toFloat() / largest
+        return ExportSize(
+            width = (width * scale).toInt().coerceAtLeast(1),
+            height = (height * scale).toInt().coerceAtLeast(1),
+        )
+    }
+
+    fun canAllocateExportBitmap(width: Int, height: Int, context: Context): Boolean {
+        if (width <= 0 || height <= 0) return false
+        val bytes = width.toLong() * height * 4L
+        if (bytes > maxCompositeBytes(context)) return false
+        val peakEstimate = bytes * 3
+        return peakEstimate <= freeHeapBytes() * 0.35
+    }
+
+    fun maxSideForByteBudget(
+        bytes: Long,
+        bytesPerPixel: Long,
+        budgetFraction: Float,
+        minSide: Int,
+        maxSide: Int,
+    ): Int {
+        val budget = (bytes * budgetFraction).toLong().coerceAtLeast(4L * MB)
+        val side = kotlin.math.sqrt(budget.toDouble() / bytesPerPixel).toInt()
+        return side.coerceIn(minSide, maxSide)
+    }
+
+    fun isOutOfMemoryError(error: Throwable?): Boolean {
+        var current = error
+        while (current != null) {
+            if (current is OutOfMemoryError) return true
+            val message = current.message.orEmpty()
+            if (message.contains("INSUFFICIENT_HEAP", ignoreCase = true) ||
+                message.contains("OutOfMemory", ignoreCase = true)
+            ) {
+                return true
+            }
+            current = current.cause
+        }
+        return false
+    }
+
+    /** Best-effort reclaim before export / ML Kit (call from UI layer optional). */
+    fun prepareForHeavyImageWork() {
+        System.gc()
+        System.runFinalization()
     }
 
     /**
@@ -87,13 +198,14 @@ object MemoryUtil {
      * Thấp hơn [maxEditorBitmapSide] để tránh OOM trên máy yếu.
      */
     fun maxMlKitProcessSide(context: Context): Int {
+        if (isExtremelyLowEndDevice(context)) return 640
         val memClass = getMemoryClass(context)
         return when {
-            memClass <= 48 -> 960
-            memClass <= 64 -> 1280
-            memClass <= 96 -> 1536
-            memClass <= 128 -> 2048
-            else -> 2048
+            memClass <= 48 -> 768
+            memClass <= 64 -> 1024
+            memClass <= 96 -> 1280
+            memClass <= 128 -> 1536
+            else -> 1792
         }
     }
 
@@ -104,10 +216,11 @@ object MemoryUtil {
     /** Số frame undo tối đa trên stack editor. */
     fun maxEditorStackSize(context: Context): Int =
         when {
+            isExtremelyLowEndDevice(context) -> 2
             getMemoryClass(context) <= 48 -> 3
-            getMemoryClass(context) <= 64 -> 5
-            getMemoryClass(context) <= 96 -> 7
-            else -> 10
+            getMemoryClass(context) <= 64 -> 4
+            getMemoryClass(context) <= 96 -> 6
+            else -> 8
         }
 
     /**

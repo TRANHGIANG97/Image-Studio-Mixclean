@@ -168,6 +168,9 @@ fun MagicBrushScreen(
 
                     MagicBrushTool.BLUR -> {
                         currentBitmap?.let { bmp ->
+                            if (containerSize.width <= 0 || containerSize.height <= 0 ||
+                                bmp.width <= 0 || bmp.height <= 0
+                            ) return@let
                             val containerAspect = containerSize.width.toFloat() / containerSize.height.toFloat()
                             val bitmapAspect = bmp.width.toFloat() / bmp.height.toFloat()
                             val (drawW, drawH) = if (containerAspect > bitmapAspect) {
@@ -203,6 +206,9 @@ fun MagicBrushScreen(
                     }
                     MagicBrushTool.BRUSH_ERASE -> {
                         currentBitmap?.let { bmp ->
+                            if (containerSize.width <= 0 || containerSize.height <= 0 ||
+                                bmp.width <= 0 || bmp.height <= 0
+                            ) return@let
                             val containerAspect = containerSize.width.toFloat() / containerSize.height.toFloat()
                             val bitmapAspect = bmp.width.toFloat() / bmp.height.toFloat()
                             val (drawW, drawH) = if (containerAspect > bitmapAspect) {
@@ -241,6 +247,9 @@ fun MagicBrushScreen(
                                 .pointerInteropFilter { event ->
                                     if (selectedTool == MagicBrushTool.SMART_ERASE && event.action == MotionEvent.ACTION_DOWN) {
                                         val bitmap = currentBitmap ?: return@pointerInteropFilter false
+                                        if (containerSize.width <= 0 || containerSize.height <= 0 ||
+                                            bitmap.width <= 0 || bitmap.height <= 0
+                                        ) return@pointerInteropFilter false
                                         val containerAspect = containerSize.width.toFloat() / containerSize.height.toFloat()
                                         val bitmapAspect = bitmap.width.toFloat() / bitmap.height.toFloat()
                                         val (drawW, drawH) = if (containerAspect > bitmapAspect) {

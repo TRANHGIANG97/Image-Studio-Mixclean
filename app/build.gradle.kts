@@ -64,7 +64,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags += ""
-                abiFilters("arm64-v8a", "armeabi-v7a","x86_64")
+                abiFilters("arm64-v8a", "armeabi-v7a")
                 arguments("-DANDROID_STL=c++_shared", "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384")
             }
         }
@@ -80,6 +80,9 @@ android {
     }
     buildTypes {
         debug {
+            ndk {
+                abiFilters.addAll(setOf("x86", "x86_64"))
+            }
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
                 mappingFileUploadEnabled = false
             }
@@ -118,13 +121,9 @@ android {
 
     packaging {
         jniLibs {
-            // Enable legacy packaging to force extraction of native libraries upon installation,
-            // resolving the UnsatisfiedLinkError crash on split APK installations for older Android versions (e.g. Android 11).
+            // Force extraction on install — avoids UnsatisfiedLinkError on older Android split installs.
             useLegacyPackaging = true
-            // Exclude the non-16KB-aligned libraries only for x86 architectures to prevent Play Store rejection
-            // while preserving them for ARM architectures to prevent runtime crashes.
-            excludes.add("lib/x86_64/libxeno_native.so")
-            excludes.add("lib/x86/libxeno_native.so")
+            // x86 libxeno_native exclusions are applied only on release — see androidComponents below.
             excludes.add("lib/*/libyuv-decoder.so")
         }
     }
@@ -144,6 +143,15 @@ android {
     lint {
         checkReleaseBuilds = false
         abortOnError = false
+    }
+}
+
+// Release-only: strip non-16KB-aligned x86 MediaPipe libs for Play policy.
+// Debug keeps them so x86 emulators can run Selfie segmentation.
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.packaging.jniLibs.excludes.add("lib/x86_64/libxeno_native.so")
+        variant.packaging.jniLibs.excludes.add("lib/x86/libxeno_native.so")
     }
 }
 

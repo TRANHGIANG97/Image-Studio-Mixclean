@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI 商品攝影棚</string>
     <string name="studio_category_electronics">3C 電子</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">重設縮放</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">標籤文案</string>
-    <string name="studio_tool_shape">外框形狀</string>
     <string name="studio_label_add_label">添加標籤</string>
     <string name="studio_label_add_text">添加文字</string>
     <string name="studio_label_add_shape">添加形狀</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">虛擬光源角度</string>
     <string name="studio_elevation_custom">進階自訂</string>
     <string name="studio_elevation_shadow_blur">陰影模糊程度</string>
-    <string name="studio_label_shape_frame_tab">線條邊框</string>
     <string name="studio_text_form_tab">文字變形</string>
     <string name="studio_text_form_follow_path">沿著路徑曲線</string>
     <string name="studio_text_form_warp">藝術文字變形</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">背景填充</string>
     <string name="studio_label_tab_elevation">特效樣式</string>
     <string name="studio_label_tab_text_form">藝術外型變形</string>
-    <string name="studio_label_tab_shape">外框形狀</string>
     <string name="studio_label_tab_text_template">文字範本</string>
     <string name="studio_label_tab_more">更多</string>
     <string name="studio_text_template_classic">經典</string>

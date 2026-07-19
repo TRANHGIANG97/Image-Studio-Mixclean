@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI-Produktstudio</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Entwurf gespeichert</string>
     <string name="studio_reset_zoom">Zurücksetzen</string>
     <string name="studio_tool_label">Etikett</string>
-    <string name="studio_tool_shape">Rahmen</string>
     <string name="studio_label_add_label">Etikett hinzufügen</string>
     <string name="studio_label_add_text">Text hinzufügen</string>
     <string name="studio_label_add_shape">Etikett hinzufügen</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">Beleuchtungswinkel</string>
     <string name="studio_elevation_custom">Anpassen</string>
     <string name="studio_elevation_shadow_blur">Schattenunschärfe</string>
-    <string name="studio_label_shape_frame_tab">Rahmen</string>
     <string name="studio_text_form_tab">Verwandeln</string>
     <string name="studio_text_form_follow_path">Folgen Sie dem Pfad</string>
     <string name="studio_text_form_warp">Kette</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">Hintergrund</string>
     <string name="studio_label_tab_elevation">Wirkung</string>
     <string name="studio_label_tab_text_form">Künstlerisch</string>
-    <string name="studio_label_tab_shape">Rahmen</string>
     <string name="studio_label_tab_text_template">Vorlagen</string>
     <string name="studio_label_tab_more">Mehr</string>
     <string name="studio_text_template_classic">Klassisch</string>

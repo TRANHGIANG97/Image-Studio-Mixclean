@@ -7,6 +7,7 @@ import com.thgiang.image.core.ad.InterstitialAdManager
 import com.thgiang.image.core.ad.RewardedAdManager
 import com.thgiang.image.core.domain.settings.ReviewPromptDecision
 import com.thgiang.image.core.domain.settings.UserPreferencesRepository
+import com.thgiang.image.feature.premium.PremiumFeatureFlags
 import com.thgiang.image.feature.premium.domain.PremiumRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -198,8 +199,28 @@ class AppViewModel @Inject constructor(
         return appOpenAdManager.wasAdDismissedRecently()
     }
 
+    private var pendingEditorThemeplate: com.thgiang.image.studio.model.StudioThemeplate? = null
+
+    fun setPendingEditorThemeplate(themeplate: com.thgiang.image.studio.model.StudioThemeplate) {
+        pendingEditorThemeplate = themeplate
+    }
+
+    fun consumePendingEditorThemeplate(id: String): com.thgiang.image.studio.model.StudioThemeplate? {
+        val pending = pendingEditorThemeplate
+        return if (pending != null && pending.id == id) {
+            pendingEditorThemeplate = null
+            pending
+        } else {
+            null
+        }
+    }
+
     fun selectTemplate(themeplate: com.thgiang.image.studio.model.StudioThemeplate, onAllowed: () -> Unit) {
-        if (_uiState.value.isPremium || !themeplate.isPremium) {
+        // Premium monetization off → no daily limit / paywall.
+        if (!PremiumFeatureFlags.enabled ||
+            _uiState.value.isPremium ||
+            !themeplate.isPremium
+        ) {
             onAllowed()
             return
         }

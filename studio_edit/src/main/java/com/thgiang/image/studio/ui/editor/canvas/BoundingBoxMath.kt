@@ -49,6 +49,16 @@ fun detectHandleRotated(
         return HandleZone.Rotate
     }
 
+    // Thin text labels: prioritize body drag over edge/corner handles that dominate the box.
+    if (minimalTextHandles && hh <= edgeHandleHeightPx + handleTouchPaddingPx) {
+        val bodyInset = cornerHitRadius * 0.25f
+        val insideBody = local.x in (center.x - hw + bodyInset)..(center.x + hw - bodyInset) &&
+            local.y in (center.y - hh + bodyInset)..(center.y + hh - bodyInset)
+        if (insideBody) {
+            return HandleZone.Body
+        }
+    }
+
     // 2. Find the closest handle among corners and edges
     var bestZone: HandleZone = HandleZone.None
     var minDistance = Float.MAX_VALUE
@@ -85,7 +95,7 @@ fun detectHandleRotated(
         }
 
         edgeHandles.forEach { (pos, zone) ->
-            if (!hitEdgeHandle(local, pos, zone, edgeHandleWidthPx, edgeHandleHeightPx, handleTouchPaddingPx)) {
+            if (!hitEdgeHandle(local, pos, zone, edgeHandleWidthPx, edgeHandleHeightPx, handleTouchPaddingPx, hw, hh)) {
                 return@forEach
             }
             val dist = distance(local, pos)
@@ -129,10 +139,14 @@ private fun hitEdgeHandle(
     edgeHandleWidthPx: Float,
     edgeHandleHeightPx: Float,
     touchPaddingPx: Float,
+    boxHalfW: Float,
+    boxHalfH: Float,
 ): Boolean {
     val isHorizontal = zone == HandleZone.Edge.Top || zone == HandleZone.Edge.Bottom
-    val halfAlongEdge = edgeHandleHeightPx / 2f + touchPaddingPx
-    val halfPerpendicular = edgeHandleWidthPx / 2f + touchPaddingPx
+    val halfAlongEdge = (edgeHandleHeightPx / 2f + touchPaddingPx)
+        .coerceAtMost(if (isHorizontal) boxHalfW else boxHalfH)
+    val halfPerpendicular = (edgeHandleWidthPx / 2f + touchPaddingPx)
+        .coerceAtMost(if (isHorizontal) boxHalfH else boxHalfW)
     val halfW = if (isHorizontal) halfAlongEdge else halfPerpendicular
     val halfH = if (isHorizontal) halfPerpendicular else halfAlongEdge
     return local.x in (pos.x - halfW)..(pos.x + halfW) &&

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Produktové studio</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Koncept byl uložen</string>
     <string name="studio_reset_zoom">Resetovat</string>
     <string name="studio_tool_label">Označení</string>
-    <string name="studio_tool_shape">Rám</string>
     <string name="studio_label_add_label">Přidat štítek</string>
     <string name="studio_label_add_text">Přidejte text</string>
     <string name="studio_label_add_shape">Přidat štítek</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">Úhel osvětlení</string>
     <string name="studio_elevation_custom">Přizpůsobit</string>
     <string name="studio_elevation_shadow_blur">Rozostření stínů</string>
-    <string name="studio_label_shape_frame_tab">Rám</string>
     <string name="studio_text_form_tab">Transformace</string>
     <string name="studio_text_form_follow_path">Sledujte cestu</string>
     <string name="studio_text_form_warp">Warp</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">Pozadí</string>
     <string name="studio_label_tab_elevation">Účinek</string>
     <string name="studio_label_tab_text_form">Umělecký</string>
-    <string name="studio_label_tab_shape">Rám</string>
     <string name="studio_label_tab_text_template">Šablony</string>
     <string name="studio_label_tab_more">Více</string>
     <string name="studio_text_template_classic">Klasický</string>

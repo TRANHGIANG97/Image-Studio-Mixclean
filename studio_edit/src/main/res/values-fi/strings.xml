@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI-tuotestudio</string>
     <string name="studio_category_electronics">Elektroniikka</string>
@@ -182,7 +182,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etiketti</string>
-    <string name="studio_tool_shape">Kehys</string>
     <string name="studio_label_add_label">Lisää etiketti</string>
     <string name="studio_label_add_text">Lisää teksti</string>
     <string name="studio_label_add_shape">Lisää etiketti</string>
@@ -261,7 +260,6 @@
     <string name="studio_elevation_lighting_angle">Valaistuskulma</string>
     <string name="studio_elevation_custom">Mukauta</string>
     <string name="studio_elevation_shadow_blur">Varjon sumennus</string>
-    <string name="studio_label_shape_frame_tab">Kehys</string>
     <string name="studio_text_form_tab">Muunna</string>
     <string name="studio_text_form_follow_path">Seuraa polkua</string>
     <string name="studio_text_form_warp">Vääristä</string>
@@ -324,7 +322,6 @@
     <string name="studio_label_tab_bg_color">Tausta</string>
     <string name="studio_label_tab_elevation">Tehoste</string>
     <string name="studio_label_tab_text_form">Taiteellinen</string>
-    <string name="studio_label_tab_shape">Kehys</string>
     <string name="studio_label_tab_text_template">Mallit</string>
     <string name="studio_label_tab_more">Lisää</string>
     <string name="studio_text_template_classic">Klassinen</string>

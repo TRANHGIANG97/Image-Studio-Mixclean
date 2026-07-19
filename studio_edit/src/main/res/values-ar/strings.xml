@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">استوديو المنتجات بالذكاء الاصطناعي</string>
     <string name="studio_category_electronics">إلكترونيات</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">تم حفظ المسودة</string>
     <string name="studio_reset_zoom">إعادة ضبط</string>
     <string name="studio_tool_label">ملصق</string>
-    <string name="studio_tool_shape">إطار</string>
     <string name="studio_label_add_label">إضافة تسمية</string>
     <string name="studio_label_add_text">أضف نصًا</string>
     <string name="studio_label_add_shape">إضافة تسمية</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">زاوية الإضاءة</string>
     <string name="studio_elevation_custom">تخصيص</string>
     <string name="studio_elevation_shadow_blur">طمس الظل</string>
-    <string name="studio_label_shape_frame_tab">إطار</string>
     <string name="studio_text_form_tab">تحويل</string>
     <string name="studio_text_form_follow_path">اتبع المسار</string>
     <string name="studio_text_form_warp">الاعوجاج</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">خلفية</string>
     <string name="studio_label_tab_elevation">تأثير</string>
     <string name="studio_label_tab_text_form">فني</string>
-    <string name="studio_label_tab_shape">إطار</string>
     <string name="studio_label_tab_text_template">قوالب</string>
     <string name="studio_label_tab_more">المزيد</string>
     <string name="studio_text_template_classic">كلاسيكي</string>

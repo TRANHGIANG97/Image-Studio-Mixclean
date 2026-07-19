@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AIプロダクトスタジオ</string>
     <string name="studio_category_electronics">家電・ガジェット</string>
@@ -181,7 +181,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">ラベル</string>
-    <string name="studio_tool_shape">フレーム</string>
     <string name="studio_label_add_label">ラベルを追加</string>
     <string name="studio_label_add_text">テキストを追加</string>
     <string name="studio_label_add_shape">ラベルを追加</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">照明の角度</string>
     <string name="studio_elevation_custom">カスタム</string>
     <string name="studio_elevation_shadow_blur">シャドウのぼかし</string>
-    <string name="studio_label_shape_frame_tab">フレーム</string>
     <string name="studio_text_form_tab">文字変形</string>
     <string name="studio_text_form_follow_path">パスに沿わせる</string>
     <string name="studio_text_form_warp">ワープ変形</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">背景</string>
     <string name="studio_label_tab_elevation">立体効果</string>
     <string name="studio_label_tab_text_form">テキストアート</string>
-    <string name="studio_label_tab_shape">フレーム</string>
     <string name="studio_label_tab_text_template">テンプレート</string>
     <string name="studio_label_tab_more">その他</string>
     <string name="studio_text_template_classic">クラシック</string>

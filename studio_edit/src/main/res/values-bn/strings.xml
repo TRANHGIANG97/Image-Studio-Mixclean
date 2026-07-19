@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">এআই প্রোডাক্ট স্টুডিও</string>
     <string name="studio_category_electronics">ইলেকট্রনিক্স</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">খসড়া সংরক্ষিত</string>
     <string name="studio_reset_zoom">রিসেট করুন</string>
     <string name="studio_tool_label">লেবেল</string>
-    <string name="studio_tool_shape">ফ্রেম</string>
     <string name="studio_label_add_label">লেবেল যোগ করুন</string>
     <string name="studio_label_add_text">পাঠ্য যোগ করুন</string>
     <string name="studio_label_add_shape">লেবেল যোগ করুন</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">আলোর কোণ</string>
     <string name="studio_elevation_custom">কাস্টমাইজ করুন</string>
     <string name="studio_elevation_shadow_blur">ছায়া ঝাপসা</string>
-    <string name="studio_label_shape_frame_tab">ফ্রেম</string>
     <string name="studio_text_form_tab">রূপান্তর</string>
     <string name="studio_text_form_follow_path">পথ অনুসরণ করুন</string>
     <string name="studio_text_form_warp">ওয়ার্প</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">পটভূমি</string>
     <string name="studio_label_tab_elevation">প্রভাব</string>
     <string name="studio_label_tab_text_form">শৈল্পিক</string>
-    <string name="studio_label_tab_shape">ফ্রেম</string>
     <string name="studio_label_tab_text_template">টেমপ্লেট</string>
     <string name="studio_label_tab_more">আরও</string>
     <string name="studio_text_template_classic">ক্লাসিক</string>

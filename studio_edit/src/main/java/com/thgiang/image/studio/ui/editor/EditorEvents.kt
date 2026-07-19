@@ -14,8 +14,11 @@ sealed class EditorEvent {
     data class LoadTemplate(val assetPath: String, val objectSourceAssetPath: String? = null) : EditorEvent()
     data class LoadCloudTemplate(val cloudTemplate: CloudTemplate) : EditorEvent()
     data class LoadCloudTemplateById(val templateId: String) : EditorEvent()
+    data class PrepareTemplatePreview(val themeplate: com.thgiang.image.studio.model.StudioThemeplate) : EditorEvent()
     data class SetProductImage(val uri: Uri, val replaceLayerId: String? = null) : EditorEvent()
     data class AddSticker(val assetPath: String) : EditorEvent()
+    /** Apply a remote background image to the template canvas. */
+    data class ApplyBackground(val url: String) : EditorEvent()
 
     // ── Label events ──────────────────────────────────────────────────────
     /** Add a new plain TEXT layer at the canvas center */
@@ -141,6 +144,7 @@ sealed class EditorEvent {
     data object ClearError : EditorEvent()
     /** Clear exportResult after the success UI has been shown. */
     data object ClearExportResult : EditorEvent()
+    data object ClearDraftSaved : EditorEvent()
     data class Export(val templateAssetPath: String) : EditorEvent()
     data class RemoveBackground(val layerId: String) : EditorEvent()
 }

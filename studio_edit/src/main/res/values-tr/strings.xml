@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Ürün Stüdyosu</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Sıfırla</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etiket</string>
-    <string name="studio_tool_shape">Çerçeve</string>
     <string name="studio_label_add_label">Etiket ekle</string>
     <string name="studio_label_add_text">Metin ekle</string>
     <string name="studio_label_add_shape">Şekil ekle</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Aydınlatma açısı</string>
     <string name="studio_elevation_custom">Özelleştir</string>
     <string name="studio_elevation_shadow_blur">Gölge bulanıklığı</string>
-    <string name="studio_label_shape_frame_tab">Kenarlık</string>
     <string name="studio_text_form_tab">Deformasyon</string>
     <string name="studio_text_form_follow_path">Yolu Takip Et</string>
     <string name="studio_text_form_warp">Çarpıt</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Arka Plan</string>
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Artistik</string>
-    <string name="studio_label_tab_shape">Çerçeve</string>
     <string name="studio_label_tab_text_template">Şablonlar</string>
     <string name="studio_label_tab_more">Daha fazla</string>
     <string name="studio_text_template_classic">Klasik</string>

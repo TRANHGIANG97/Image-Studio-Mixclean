@@ -26,4 +26,6 @@ dependencies {
     implementation(libs.play.services.base)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation("androidx.exifinterface:exifinterface:1.3.7")
+
+    testImplementation(libs.junit)
 }

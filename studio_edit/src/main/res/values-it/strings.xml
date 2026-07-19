@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Elettronica</string>
@@ -183,7 +183,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etichetta</string>
-    <string name="studio_tool_shape">Cornice</string>
     <string name="studio_label_add_label">Aggiungi etichetta</string>
     <string name="studio_label_add_text">Aggiungi testo</string>
     <string name="studio_label_add_shape">Aggiungi forma</string>
@@ -262,7 +261,6 @@
     <string name="studio_elevation_lighting_angle">Angolo illuminazione</string>
     <string name="studio_elevation_custom">Personalizza</string>
     <string name="studio_elevation_shadow_blur">Sfumatura ombra</string>
-    <string name="studio_label_shape_frame_tab">Bordo</string>
     <string name="studio_text_form_tab">Trasforma</string>
     <string name="studio_text_form_follow_path">Segui Tracciato</string>
     <string name="studio_text_form_warp">Distorci</string>
@@ -325,7 +323,6 @@
     <string name="studio_label_tab_bg_color">Sfondo</string>
     <string name="studio_label_tab_elevation">Effetto</string>
     <string name="studio_label_tab_text_form">Artistico</string>
-    <string name="studio_label_tab_shape">Cornice</string>
     <string name="studio_label_tab_text_template">Modelli</string>
     <string name="studio_label_tab_more">Altro</string>
     <string name="studio_text_template_classic">Classico</string>

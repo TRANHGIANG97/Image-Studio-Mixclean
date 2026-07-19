@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Rafeindatæki</string>
@@ -183,7 +183,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Merki</string>
-    <string name="studio_tool_shape">Rammi</string>
     <string name="studio_label_add_label">Bæta við merki</string>
     <string name="studio_label_add_text">Bæta við texta</string>
     <string name="studio_label_add_shape">Bæta við formi</string>
@@ -262,7 +261,6 @@
     <string name="studio_elevation_lighting_angle">Ljóshorn</string>
     <string name="studio_elevation_custom">Sérsníða</string>
     <string name="studio_elevation_shadow_blur">Skuggaþoka</string>
-    <string name="studio_label_shape_frame_tab">Rammi</string>
     <string name="studio_text_form_tab">Umynda</string>
     <string name="studio_text_form_follow_path">Fylgja ferli</string>
     <string name="studio_text_form_warp">Skekkja</string>
@@ -325,7 +323,6 @@
     <string name="studio_label_tab_bg_color">Bakgrunnur</string>
     <string name="studio_label_tab_elevation">Áhrif</string>
     <string name="studio_label_tab_text_form">Listrænt</string>
-    <string name="studio_label_tab_shape">Rammi</string>
     <string name="studio_label_tab_text_template">Sniðmát</string>
     <string name="studio_label_tab_more">Meira</string>
     <string name="studio_text_template_classic">Klassískt</string>

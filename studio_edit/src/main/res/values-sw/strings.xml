@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Vifaa vya Umeme</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Weka upya</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Lebo</string>
-    <string name="studio_tool_shape">Fremu</string>
     <string name="studio_label_add_label">Ongeza lebo</string>
     <string name="studio_label_add_text">Ongeza maandishi</string>
     <string name="studio_label_add_shape">Ongeza umbo</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Kona ya mwanga</string>
     <string name="studio_elevation_custom">Geuza kukufaa</string>
     <string name="studio_elevation_shadow_blur">Ufifiaji wa kivuli</string>
-    <string name="studio_label_shape_frame_tab">Ukingo</string>
     <string name="studio_text_form_tab">Badilisha Umbo</string>
     <string name="studio_text_form_follow_path">Fuata Njia</string>
     <string name="studio_text_form_warp">Pinda</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Mandharinyuma</string>
     <string name="studio_label_tab_elevation">Athari</string>
     <string name="studio_label_tab_text_form">Usanii</string>
-    <string name="studio_label_tab_shape">Fremu</string>
     <string name="studio_label_tab_text_template">Violezo</string>
     <string name="studio_label_tab_more">Zaidi</string>
     <string name="studio_text_template_classic">Klasiki</string>

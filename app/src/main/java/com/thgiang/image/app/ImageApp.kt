@@ -12,6 +12,8 @@ import com.thgiang.image.core.analytics.InstallReferrerCapture
 import com.thgiang.image.core.analytics.PlayIntegrityChecker
 import com.thgiang.image.core.analytics.SessionQualityTracker
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
+import com.thgiang.image.core.data.backgroundremove.MlKitDeviceSupport
+import com.thgiang.image.core.data.backgroundremove.SelfieFallbackSegmenter
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -64,6 +66,7 @@ class ImageApp : Application() {
             })
             .build()
         Coil.setImageLoader(imageLoader)
+        installProxyBillingCrashGuard()
         if (!BuildConfig.DEBUG) {
             FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
             com.google.firebase.analytics.FirebaseAnalytics
@@ -76,10 +79,85 @@ class ImageApp : Application() {
         }
         registerActivityLifecycleCallbacks(AppEngagementLifecycleCallbacks())
         InstallReferrerCapture.captureAsync(this)
+        if (BuildConfig.DEBUG && MlKitDeviceSupport.isX86Emulator()) {
+            appScope.launch {
+                runCatching { SelfieFallbackSegmenter.warmUp(applicationContext) }
+                    .onFailure { Log.w("ImageApp", "Selfie warm-up failed", it) }
+            }
+        }
         appScope.launch {
             PlayIntegrityChecker.checkAndLog(applicationContext)
         }
         com.google.android.gms.ads.MobileAds.initialize(this)
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        when (level) {
+            TRIM_MEMORY_RUNNING_LOW,
+            TRIM_MEMORY_RUNNING_CRITICAL,
+            TRIM_MEMORY_COMPLETE,
+            -> {
+                Coil.imageLoader(this).memoryCache?.clear()
+                System.gc()
+                Log.w("ImageApp", "onTrimMemory level=$level — cleared image memory cache")
+            }
+            TRIM_MEMORY_MODERATE,
+            TRIM_MEMORY_BACKGROUND,
+            -> {
+                Coil.imageLoader(this).memoryCache?.clear()
+            }
+        }
+    }
+
+    /**
+     * Play Billing's ProxyBillingActivity NPEs when started with a null BUY_INTENT
+     * PendingIntent (bad launchBillingFlow params, Play Services glitches, or
+     * external/bot intents). Prevent process death for this known library crash.
+     */
+    private fun installProxyBillingCrashGuard() {
+        val previous = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            if (isProxyBillingNullPendingIntentCrash(throwable)) {
+                Log.w(
+                    "ImageApp",
+                    "Swallowed ProxyBillingActivity null PendingIntent crash",
+                    throwable
+                )
+                runCatching {
+                    FirebaseCrashlytics.getInstance().recordException(throwable)
+                }
+                return@setDefaultUncaughtExceptionHandler
+            }
+            previous?.uncaughtException(thread, throwable)
+        }
+    }
+
+    private fun isProxyBillingNullPendingIntentCrash(throwable: Throwable): Boolean {
+        var current: Throwable? = throwable
+        while (current != null) {
+            val message = current.message.orEmpty()
+            val fromProxyBilling = current.stackTrace.any {
+                it.className.contains("ProxyBillingActivity")
+            }
+            val nullPendingIntent =
+                current is NullPointerException &&
+                    (message.contains("getIntentSender") || message.contains("PendingIntent"))
+            val unableToStartProxy =
+                message.contains("ProxyBillingActivity") &&
+                    (message.contains("PendingIntent") || message.contains("NullPointerException"))
+            if ((fromProxyBilling && nullPendingIntent) || unableToStartProxy) {
+                return true
+            }
+            // Also match the wrapping RuntimeException: Unable to start activity ... ProxyBillingActivity
+            if (message.contains("ProxyBillingActivity") &&
+                current.cause is NullPointerException
+            ) {
+                return true
+            }
+            current = current.cause
+        }
+        return false
     }
 
     private inner class AppEngagementLifecycleCallbacks : ActivityLifecycleCallbacks {

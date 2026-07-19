@@ -13,12 +13,14 @@ import kotlinx.coroutines.withContext
 object PortraitProcessor {
     private const val TAG = "PortraitProcessor"
 
-    init {
-        try {
-            System.loadLibrary("portrait_processor")
-        } catch (e: Exception) {
-            android.util.Log.e(TAG, "Failed to load portrait_processor library", e)
-        }
+    private val nativeAvailable: Boolean = try {
+        System.loadLibrary("portrait_processor")
+        true
+    } catch (error: Throwable) {
+        // System.loadLibrary throws UnsatisfiedLinkError (an Error, not Exception).
+        // Keep portrait effects optional instead of crashing during object initialization.
+        android.util.Log.e(TAG, "Failed to load portrait_processor library", error)
+        false
     }
 
     private external fun nativeApplyPortrait(
@@ -43,20 +45,21 @@ object PortraitProcessor {
         bitmap: Bitmap,
         blurRadius: Float
     ): Bitmap? = withContext(Dispatchers.Default) {
+        if (!nativeAvailable) return@withContext null
         val job = coroutineContext[Job]
+        var source: Bitmap? = null
         runCatching {
-            val source = bitmap.toArgbBitmap() ?: return@runCatching null
+            source = bitmap.toArgbBitmap() ?: return@runCatching null
 
             if (job?.isActive != true) return@runCatching null
 
             val output = nativeApplyBlur(
-                srcBitmap = source,
+                srcBitmap = source!!,
                 blurRadius = blurRadius.coerceIn(0f, 25f)
             )
-
-            if (!source.isRecycled) source.recycle()
-
             output
+        }.also {
+            source?.let { owned -> if (!owned.isRecycled) owned.recycle() }
         }.onFailure { e -> ProcessorUtils.logOom(TAG, e) }.getOrNull()
     }
 
@@ -64,20 +67,21 @@ object PortraitProcessor {
         bitmap: Bitmap,
         blurRadius: Float
     ): Bitmap? = withContext(Dispatchers.Default) {
+        if (!nativeAvailable) return@withContext null
         val job = coroutineContext[Job]
+        var source: Bitmap? = null
         runCatching {
-            val source = bitmap.toArgbBitmap() ?: return@runCatching null
+            source = bitmap.toArgbBitmap() ?: return@runCatching null
 
             if (job?.isActive != true) return@runCatching null
 
             val output = nativeApplySubjectBlur(
-                srcBitmap = source,
+                srcBitmap = source!!,
                 blurRadius = blurRadius.coerceIn(0f, 25f)
             )
-
-            if (!source.isRecycled) source.recycle()
-
             output
+        }.also {
+            source?.let { owned -> if (!owned.isRecycled) owned.recycle() }
         }.onFailure { e -> ProcessorUtils.logOom(TAG, e) }.getOrNull()
     }
 
@@ -89,27 +93,29 @@ object PortraitProcessor {
         vignette: Boolean,
         backgroundRemoverRepository: BackgroundRemoverRepository
     ): Bitmap? = withContext(Dispatchers.Default) {
+        if (!nativeAvailable) return@withContext null
         val job = coroutineContext[Job]
+        var source: Bitmap? = null
+        var foreground: Bitmap? = null
         runCatching {
-            val source = bitmap.toArgbBitmap() ?: return@runCatching null
+            source = bitmap.toArgbBitmap() ?: return@runCatching null
             val repo = backgroundRemoverRepository
-            val foreground = repo.getForegroundBitmap(source).getOrNull()
+            foreground = repo.getForegroundBitmap(source!!).getOrNull()
 
             if (job?.isActive != true) return@runCatching null
 
             // nativeApplyPortrait handles null foreground internally (does not composite)
             val output = nativeApplyPortrait(
-                srcBitmap = source,
+                srcBitmap = source!!,
                 fgBitmap = foreground,
                 blurRadius = blurRadius.coerceIn(0f, 25f),
                 darkenAlpha = darkenAlpha.coerceIn(0f, 1f),
                 vignette = vignette
             )
-            
-            if (!source.isRecycled) source.recycle()
-            foreground?.let { if (!it.isRecycled) it.recycle() }
-            
             output
+        }.also {
+            source?.let { owned -> if (!owned.isRecycled) owned.recycle() }
+            foreground?.let { owned -> if (!owned.isRecycled) owned.recycle() }
         }.onFailure { e -> ProcessorUtils.logOom(TAG, e) }.getOrNull()
     }
 
@@ -120,29 +126,33 @@ object PortraitProcessor {
         darkenAlpha: Float,
         vignette: Boolean
     ): Bitmap? = withContext(Dispatchers.Default) {
+        if (!nativeAvailable) return@withContext null
         val job = coroutineContext[Job]
+        var source: Bitmap? = null
+        var ownedForeground: Bitmap? = null
         runCatching {
-            val source = bitmap.toArgbBitmap() ?: return@runCatching null
+            source = bitmap.toArgbBitmap() ?: return@runCatching null
 
             if (job?.isActive != true) return@runCatching null
 
             val fgReady = if (foreground.config == Bitmap.Config.ARGB_8888) {
                 foreground
             } else {
-                foreground.toArgbBitmap() ?: return@runCatching null
+                foreground.toArgbBitmap()?.also { ownedForeground = it }
+                    ?: return@runCatching null
             }
 
             val output = nativeApplyPortrait(
-                srcBitmap = source,
+                srcBitmap = source!!,
                 fgBitmap = fgReady,
                 blurRadius = blurRadius.coerceIn(0f, 25f),
                 darkenAlpha = darkenAlpha.coerceIn(0f, 1f),
                 vignette = vignette
             )
-
-            if (!source.isRecycled) source.recycle()
-            if (fgReady !== foreground && !fgReady.isRecycled) fgReady.recycle()
             output
+        }.also {
+            source?.let { owned -> if (!owned.isRecycled) owned.recycle() }
+            ownedForeground?.let { owned -> if (!owned.isRecycled) owned.recycle() }
         }.onFailure { e -> ProcessorUtils.logOom(TAG, e) }.getOrNull()
     }
 }

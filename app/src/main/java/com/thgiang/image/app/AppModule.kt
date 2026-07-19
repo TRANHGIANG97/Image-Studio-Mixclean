@@ -5,6 +5,7 @@ import android.os.Build
 import com.thgiang.image.core.background.BackgroundGenerator
 import com.thgiang.image.core.background.DefaultBackgroundGenerator
 import com.thgiang.image.core.data.backgroundremove.MlKitBackgroundRemoverRepository
+import com.thgiang.image.core.data.backgroundremove.MlKitDeviceSupport
 import com.thgiang.image.core.util.MemoryUtil
 import com.thgiang.image.core.data.backgroundremove.MaskPostProcessor
 import com.thgiang.image.core.data.gallery.GalleryRepository
@@ -32,7 +33,10 @@ object AppModule {
     ): MlKitBackgroundRemoverRepository {
         return MlKitBackgroundRemoverRepository(
             context = context,
-            maxDecodeSize = MemoryUtil.maxMlKitProcessSide(context),
+            maxDecodeSize = MlKitDeviceSupport.resolveMaxDecodeSize(
+                context,
+                MemoryUtil.maxMlKitProcessSide(context),
+            ),
         )
     }
 

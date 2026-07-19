@@ -62,9 +62,22 @@ class InterstitialAdManagerImpl @Inject constructor(
 
         val ad = interstitialAd
         if (ad != null) {
+            if (activity.isFinishing || activity.isDestroyed) {
+                adLogger.w(TAG, "Activity is no longer valid; bypassing interstitial")
+                onClosed?.invoke()
+                return
+            }
             adLogger.d(TAG, "Showing interstitial ad")
             onAdClosedCallback = onClosed
-            ad.show(activity)
+            try {
+                ad.show(activity)
+            } catch (error: RuntimeException) {
+                adLogger.w(TAG, "Interstitial show threw: ${error.message}")
+                interstitialAd = null
+                onAdClosedCallback = null
+                onClosed?.invoke()
+                loadAd()
+            }
         } else {
             adLogger.d(TAG, "No interstitial ad available, queueing pending show")
             pendingShowActivityRef = WeakReference(activity)
@@ -140,7 +153,15 @@ class InterstitialAdManagerImpl @Inject constructor(
         pendingShowCallback = null
         onAdClosedCallback = callback
         adLogger.d(TAG, "Showing pending interstitial ad")
-        ad.show(activity)
+        try {
+            ad.show(activity)
+        } catch (error: RuntimeException) {
+            adLogger.w(TAG, "Pending interstitial show threw: ${error.message}")
+            interstitialAd = null
+            onAdClosedCallback = null
+            callback?.invoke()
+            loadAd()
+        }
     }
 
     private fun showPendingFallback() {

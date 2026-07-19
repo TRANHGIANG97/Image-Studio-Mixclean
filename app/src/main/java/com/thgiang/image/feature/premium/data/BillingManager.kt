@@ -2,7 +2,10 @@ package com.thgiang.image.feature.premium.data
 
 import android.app.Activity
 import android.content.Context
+import android.os.Looper
+import android.util.Log
 import com.android.billingclient.api.*
+import com.thgiang.image.feature.premium.PremiumFeatureFlags
 import com.thgiang.image.feature.premium.domain.BillingProduct
 import com.thgiang.image.feature.premium.domain.BillingProductType
 import com.thgiang.image.feature.premium.domain.PremiumRepository
@@ -10,8 +13,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,6 +29,7 @@ class BillingManager @Inject constructor(
 ) : PremiumRepository, PurchasesUpdatedListener {
 
     companion object {
+        private const val TAG = "BillingManager"
         const val MONTHLY = "mixclean_pro_monthly"
         const val YEARLY = "mixclean_pro_yearly"
         const val LIFETIME = "mixclean_pro_lifetime"
@@ -30,12 +37,18 @@ class BillingManager @Inject constructor(
         val INAPP_IDS = listOf(LIFETIME)
     }
 
+    /** Soft purchase failures (missing product, not ready, launchBillingFlow error). */
+    private val _purchaseErrors = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    override val purchaseErrors: SharedFlow<String> = _purchaseErrors.asSharedFlow()
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private val billingClient = BillingClient.newBuilder(context)
-        .setListener(this)
-        .enablePendingPurchases()
-        .build()
+    private val billingClient by lazy {
+        BillingClient.newBuilder(context)
+            .setListener(this)
+            .enablePendingPurchases()
+            .build()
+    }
 
     private val _isPremium = MutableStateFlow(false)
     override val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
@@ -47,10 +60,13 @@ class BillingManager @Inject constructor(
     private var connectionRetries = 0
 
     init {
-        connect()
+        if (PremiumFeatureFlags.enabled) {
+            connect()
+        }
     }
 
     private fun connect() {
+        if (!PremiumFeatureFlags.enabled) return
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
@@ -75,7 +91,11 @@ class BillingManager @Inject constructor(
     }
 
     override fun connectIfNeeded() {
-        if (!isConnected) connect()
+        if (!PremiumFeatureFlags.enabled) return
+        if (!isConnected || !billingClient.isReady) {
+            isConnected = false
+            connect()
+        }
     }
 
     private fun queryAllProducts() {
@@ -154,25 +174,97 @@ class BillingManager @Inject constructor(
     }
 
     override fun purchase(activity: Activity, productId: String) {
-        val product = _products.value.find { it.id == productId } ?: return
+        // Master switch: never touch BillingClient / ProxyBillingActivity.
+        if (!PremiumFeatureFlags.enabled) return
+        if (activity.isFinishing || activity.isDestroyed) {
+            softFail("Activity finishing/destroyed; skip purchase for $productId")
+            return
+        }
+        // BillingClient requires launchBillingFlow on the main thread.
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            activity.runOnUiThread {
+                if (!activity.isFinishing && !activity.isDestroyed) {
+                    purchase(activity, productId)
+                }
+            }
+            return
+        }
+        if (!billingClient.isReady) {
+            isConnected = false
+            softFail("BillingClient not ready; reconnecting for $productId")
+            connectIfNeeded()
+            return
+        }
+
+        val product = _products.value.find { it.id == productId }
+        if (product == null) {
+            softFail("Product not available (not in Play Console or not queried): $productId")
+            return
+        }
+
+        val productDetailsParams = buildProductDetailsParams(product) ?: return
 
         val params = BillingFlowParams.newBuilder()
-            .setProductDetailsParamsList(
-                listOf(
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(product.productDetails)
-                        .apply {
-                            product.offerToken?.let { setOfferToken(it) }
-                        }
-                        .build()
-                )
-            )
+            .setProductDetailsParamsList(listOf(productDetailsParams))
             .build()
 
-        billingClient.launchBillingFlow(activity, params)
+        try {
+            val result = billingClient.launchBillingFlow(activity, params)
+            if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                softFail(
+                    "launchBillingFlow failed: ${result.responseCode} ${result.debugMessage}"
+                )
+            }
+        } catch (t: Throwable) {
+            // Never let billing launch exceptions crash the app.
+            softFail("launchBillingFlow threw: ${t.message}")
+        }
+    }
+
+    /**
+     * Builds launch params only when ProductDetails / offerToken are valid.
+     * Launching with a blank offerToken (subs) or stale/null offer can start
+     * ProxyBillingActivity with a null PendingIntent → NPE in onCreate.
+     */
+    private fun buildProductDetailsParams(
+        product: BillingProduct
+    ): BillingFlowParams.ProductDetailsParams? {
+        val details = product.productDetails
+        return when (product.type) {
+            BillingProductType.SUBSCRIPTION -> {
+                val offerToken = product.offerToken?.takeIf { it.isNotBlank() }
+                    ?: details.subscriptionOfferDetails
+                        ?.firstOrNull()
+                        ?.offerToken
+                        ?.takeIf { it.isNotBlank() }
+                if (offerToken == null) {
+                    softFail("Missing offerToken for subscription ${product.id}")
+                    return null
+                }
+                BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(details)
+                    .setOfferToken(offerToken)
+                    .build()
+            }
+            BillingProductType.LIFETIME -> {
+                if (details.oneTimePurchaseOfferDetails == null) {
+                    softFail("Missing oneTimePurchaseOfferDetails for ${product.id}")
+                    return null
+                }
+                BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(details)
+                    .build()
+            }
+        }
+    }
+
+    private fun softFail(reason: String) {
+        Log.w(TAG, reason)
+        _purchaseErrors.tryEmit(reason)
     }
 
     override fun restorePurchases() {
+        if (!PremiumFeatureFlags.enabled) return
         if (!isConnected) {
             connect()
             return
@@ -181,6 +273,7 @@ class BillingManager @Inject constructor(
     }
 
     private fun queryExistingPurchases() {
+        if (!PremiumFeatureFlags.enabled) return
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.SUBS)
@@ -220,6 +313,10 @@ class BillingManager @Inject constructor(
     }
 
     fun onDestroy() {
-        billingClient.endConnection()
+        if (!PremiumFeatureFlags.enabled) return
+        if (isConnected) {
+            billingClient.endConnection()
+            isConnected = false
+        }
     }
 }

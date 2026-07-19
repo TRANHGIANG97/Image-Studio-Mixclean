@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Студыя тавараў</string>
     <string name="studio_category_electronics">Электроніка</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Чарнавік захаваны</string>
     <string name="studio_reset_zoom">Скінуць</string>
     <string name="studio_tool_label">Этыкетка</string>
-    <string name="studio_tool_shape">Каркас</string>
     <string name="studio_label_add_label">Дадаць метку</string>
     <string name="studio_label_add_text">Дадаць тэкст</string>
     <string name="studio_label_add_shape">Дадаць ярлык</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">Ракурс асвятлення</string>
     <string name="studio_elevation_custom">Наладзіць</string>
     <string name="studio_elevation_shadow_blur">Размытасць ценяў</string>
-    <string name="studio_label_shape_frame_tab">Каркас</string>
     <string name="studio_text_form_tab">Трансфармаваць</string>
     <string name="studio_text_form_follow_path">Выконвайце шлях</string>
     <string name="studio_text_form_warp">Дэфармацыя</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">Фон</string>
     <string name="studio_label_tab_elevation">Эфект</string>
     <string name="studio_label_tab_text_form">Мастацкі</string>
-    <string name="studio_label_tab_shape">Каркас</string>
     <string name="studio_label_tab_text_template">Шаблоны</string>
     <string name="studio_label_tab_more">Яшчэ</string>
     <string name="studio_text_template_classic">Класіка</string>

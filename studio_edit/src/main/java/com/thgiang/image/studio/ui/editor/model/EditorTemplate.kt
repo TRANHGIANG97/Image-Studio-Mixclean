@@ -10,6 +10,8 @@ data class EditorTemplate(
     val loaded: Boolean = false,
     /** Đường dẫn ảnh mẫu sản phẩm (sample object) — dùng để khôi phục khi load lại draft. */
     val objectAssetPath: String? = null,
+    /** Thumbnail cloud từ admin_web — dùng cho preview draft khi render preview thất bại. */
+    val thumbnailUrl: String? = null,
 ) : java.io.Serializable {
     val originalSize: IntSize get() = IntSize(originalWidth, originalHeight)
 }

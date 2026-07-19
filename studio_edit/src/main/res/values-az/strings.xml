@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Məhsul Studiyası</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -121,7 +121,6 @@
     <string name="studio_draft_saved">Qaralama saxlanıldı</string>
     <string name="studio_reset_zoom">Sıfırlayın</string>
     <string name="studio_tool_label">Etiket</string>
-    <string name="studio_tool_shape">Çərçivə</string>
     <string name="studio_label_add_label">Etiket əlavə edin</string>
     <string name="studio_label_add_text">Mətn əlavə edin</string>
     <string name="studio_label_add_shape">Etiket əlavə edin</string>
@@ -200,7 +199,6 @@
     <string name="studio_elevation_lighting_angle">İşıqlandırma bucağı</string>
     <string name="studio_elevation_custom">Fərdiləşdirin</string>
     <string name="studio_elevation_shadow_blur">Kölgə bulanması</string>
-    <string name="studio_label_shape_frame_tab">Çərçivə</string>
     <string name="studio_text_form_tab">çevirmək</string>
     <string name="studio_text_form_follow_path">Yolu izləyin</string>
     <string name="studio_text_form_warp">Çarpma</string>
@@ -304,7 +302,6 @@
     <string name="studio_label_tab_bg_color">Fon</string>
     <string name="studio_label_tab_elevation">Effekt</string>
     <string name="studio_label_tab_text_form">Bədii</string>
-    <string name="studio_label_tab_shape">Çərçivə</string>
     <string name="studio_label_tab_text_template">Şablonlar</string>
     <string name="studio_label_tab_more">Daha çox</string>
     <string name="studio_text_template_classic">Klassik</string>

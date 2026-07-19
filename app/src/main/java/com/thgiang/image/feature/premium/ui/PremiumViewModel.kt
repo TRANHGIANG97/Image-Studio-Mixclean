@@ -2,6 +2,7 @@ package com.thgiang.image.feature.premium.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thgiang.image.feature.premium.PremiumFeatureFlags
 import com.thgiang.image.feature.premium.domain.PremiumRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,24 +30,40 @@ class PremiumViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isPremium = isPremium)
             }
         }
-        premiumRepository.connectIfNeeded()
+        viewModelScope.launch {
+            premiumRepository.purchaseErrors.collect { message ->
+                _uiState.value = _uiState.value.copy(purchaseError = message)
+            }
+        }
+        if (PremiumFeatureFlags.enabled) {
+            premiumRepository.connectIfNeeded()
+        }
     }
 
     fun refreshProducts() {
+        if (!PremiumFeatureFlags.enabled) return
         premiumRepository.connectIfNeeded()
     }
 
     fun purchase(activity: android.app.Activity, planType: String) {
+        if (!PremiumFeatureFlags.enabled) return
+        if (activity.isFinishing || activity.isDestroyed) return
         val productId = when (planType) {
             "monthly" -> "mixclean_pro_monthly"
             "yearly" -> "mixclean_pro_yearly"
             "lifetime" -> "mixclean_pro_lifetime"
             else -> return
         }
+        _uiState.value = _uiState.value.copy(purchaseError = null)
         premiumRepository.purchase(activity, productId)
     }
 
+    fun clearPurchaseError() {
+        _uiState.value = _uiState.value.copy(purchaseError = null)
+    }
+
     fun restorePurchases() {
+        if (!PremiumFeatureFlags.enabled) return
         premiumRepository.restorePurchases()
     }
 }

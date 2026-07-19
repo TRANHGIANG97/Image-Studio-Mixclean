@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">ເຄື່ອງໃຊ້ໄຟຟ້າ</string>
@@ -179,7 +179,6 @@
     <string name="studio_reset_zoom">ຕັ້ງຄ່າໃໝ່</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">ປ້າຍຊື່</string>
-    <string name="studio_tool_shape">ກອບ</string>
     <string name="studio_label_add_label">ເພີ່ມປ້າຍຊື່</string>
     <string name="studio_label_add_text">ເພີ່ມຂໍ້ຄວາມ</string>
     <string name="studio_label_add_shape">ເພີ່ມຮູບຊົງ</string>
@@ -258,7 +257,6 @@
     <string name="studio_elevation_lighting_angle">ມຸມແສງ</string>
     <string name="studio_elevation_custom">ປັບແຕ່ງ</string>
     <string name="studio_elevation_shadow_blur">ຄວາມເບີຂອງເງົາ</string>
-    <string name="studio_label_shape_frame_tab">ເສັ້ນຂอบ</string>
     <string name="studio_text_form_tab">ແປງຮູບແບບ</string>
     <string name="studio_text_form_follow_path">ຕາມເສັ້ນທາງ</string>
     <string name="studio_text_form_warp">ບິດເບືອນ</string>
@@ -319,7 +317,6 @@
     <string name="studio_label_tab_bg_color">ພື້ນຫຼັງ</string>
     <string name="studio_label_tab_elevation">ເອັບເຟັກ</string>
     <string name="studio_label_tab_text_form">ສິລະປະ</string>
-    <string name="studio_label_tab_shape">ກອບ</string>
     <string name="studio_label_tab_text_template">ແມ່ແບບ</string>
     <string name="studio_label_tab_more">ເພີ່ມເຕີມ</string>
     <string name="studio_text_template_classic">ຄລາສສິກ</string>

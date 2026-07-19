@@ -24,3 +24,8 @@
 # Gson / R8 generics preservation
 -keepattributes Signature, *Annotation*, InnerClasses, EnclosingMethod
 -keep class com.thgiang.image.feature.editor.model.** { *; }
+# Studio editor drafts (EditorState / EditorLayer) — prevents ClassCastException
+# (LinkedTreeMap → EditorLayer) when opening ThemeplateEditorViewModel.
+-keep class com.thgiang.image.studio.ui.editor.model.** { *; }
+-keepclassmembers class com.thgiang.image.studio.ui.editor.model.** { *; }
+-keep enum com.thgiang.image.studio.ui.editor.model.** { *; }

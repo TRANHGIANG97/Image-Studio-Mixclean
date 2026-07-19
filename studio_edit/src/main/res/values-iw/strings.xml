@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">סטודיו מוצרים AI</string>
     <string name="studio_category_electronics">אלקטרוניקה</string>
@@ -181,7 +181,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">תווית</string>
-    <string name="studio_tool_shape">מסגרת</string>
     <string name="studio_label_add_label">הוספת תווית</string>
     <string name="studio_label_add_text">הוספת טקסט</string>
     <string name="studio_label_add_shape">הוספת תווית מעוצבת</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">זווית תאורה</string>
     <string name="studio_elevation_custom">התאמה אישית</string>
     <string name="studio_elevation_shadow_blur">טשטוש צל</string>
-    <string name="studio_label_shape_frame_tab">מסגרת</string>
     <string name="studio_text_form_tab">שינוי טקסט</string>
     <string name="studio_text_form_follow_path">עקוב אחר נתיב</string>
     <string name="studio_text_form_warp">עיוות גיאומטרי</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">רקע</string>
     <string name="studio_label_tab_elevation">אפקט נפח</string>
     <string name="studio_label_tab_text_form">עיצוב אמנותי</string>
-    <string name="studio_label_tab_shape">מסגרת היקפית</string>
     <string name="studio_label_tab_text_template">תבניות</string>
     <string name="studio_label_tab_more">עוד</string>
     <string name="studio_text_template_classic">קלאסי</string>

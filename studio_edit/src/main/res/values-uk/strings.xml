@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Електроніка</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Скинути</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Етикетка</string>
-    <string name="studio_tool_shape">Рамка</string>
     <string name="studio_label_add_label">Додати етикетку</string>
     <string name="studio_label_add_text">Додати текст</string>
     <string name="studio_label_add_shape">Додати фігуру</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Кут освітлення</string>
     <string name="studio_elevation_custom">Налаштувати</string>
     <string name="studio_elevation_shadow_blur">Розмиття тіні</string>
-    <string name="studio_label_shape_frame_tab">Контур</string>
     <string name="studio_text_form_tab">Перетворення</string>
     <string name="studio_text_form_follow_path">По контуру</string>
     <string name="studio_text_form_warp">Викривлення</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Фон</string>
     <string name="studio_label_tab_elevation">Ефект</string>
     <string name="studio_label_tab_text_form">Художній</string>
-    <string name="studio_label_tab_shape">Рамка</string>
     <string name="studio_label_tab_text_template">Шаблони</string>
     <string name="studio_label_tab_more">Більше</string>
     <string name="studio_text_template_classic">Класика</string>

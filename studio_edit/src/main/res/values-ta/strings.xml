@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI தயாரிப்பு ஸ்டுடியோ</string>
     <string name="studio_category_electronics">மின்னணுவியல்</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">மீட்டமை</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">லேபிள்</string>
-    <string name="studio_tool_shape">சட்டகம்</string>
     <string name="studio_label_add_label">லேபிள் சேர்</string>
     <string name="studio_label_add_text">உரை சேர்</string>
     <string name="studio_label_add_shape">வடிவம் சேர்</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">ஒளி கோணம்</string>
     <string name="studio_elevation_custom">தனிப்பயனாக்கு</string>
     <string name="studio_elevation_shadow_blur">நிழல் மங்கலாக்கம்</string>
-    <string name="studio_label_shape_frame_tab">பார்டர்</string>
     <string name="studio_text_form_tab">உருமாற்றம்</string>
     <string name="studio_text_form_follow_path">பாதையைப் பின்பற்று</string>
     <string name="studio_text_form_warp">வளைத்தல் (Warp)</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">பின்னணி</string>
     <string name="studio_label_tab_elevation">விளைவு</string>
     <string name="studio_label_tab_text_form">கலைநயம்</string>
-    <string name="studio_label_tab_shape">சட்டகம்</string>
     <string name="studio_label_tab_text_template">வார்ப்புருக்கள்</string>
     <string name="studio_label_tab_more">மேலும்</string>
     <string name="studio_text_template_classic">பாரம்பரியம்</string>

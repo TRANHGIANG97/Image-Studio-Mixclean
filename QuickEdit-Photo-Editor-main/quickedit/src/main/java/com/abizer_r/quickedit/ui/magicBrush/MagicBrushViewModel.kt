@@ -279,53 +279,72 @@ class MagicBrushViewModel @Inject constructor(
     fun applyBlurResult(path: Path, mosaicBitmap: Bitmap, brushSizePx: Float, canvasWidth: Int, canvasHeight: Int) {
         val bitmap = _currentBitmap.value ?: return
         if (_isProcessing.value) return
+        if (canvasWidth <= 0 || canvasHeight <= 0 ||
+            bitmap.width <= 0 || bitmap.height <= 0 ||
+            mosaicBitmap.isRecycled || mosaicBitmap.width <= 0 || mosaicBitmap.height <= 0
+        ) {
+            Log.w("MagicBrushViewModel", "Ignoring blur stroke with invalid bitmap/canvas dimensions")
+            return
+        }
 
         _isProcessing.value = true
         viewModelScope.launch {
-            bitmapMutex.withLock {
-                if (isDisposed) return@withLock
-                val result = withContext(Dispatchers.Default) {
-                    val snapshot = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+            try {
+                bitmapMutex.withLock {
+                    if (isDisposed) return@withLock
+                    val result = withContext(Dispatchers.Default) {
+                        val snapshot = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+                        try {
+                            val canvas = Canvas(bitmap)
+                            val paint = Paint().apply {
+                                isAntiAlias = true
+                                style = Paint.Style.STROKE
+                                strokeWidth = brushSizePx * (bitmap.width.toFloat() / canvasWidth)
+                                strokeCap = Paint.Cap.ROUND
+                                strokeJoin = Paint.Join.ROUND
+                            }
 
-                    val canvas = Canvas(bitmap)
-                    val paint = Paint().apply {
-                        isAntiAlias = true
-                        style = Paint.Style.STROKE
-                        strokeWidth = brushSizePx * (bitmap.width.toFloat() / canvasWidth)
-                        strokeCap = Paint.Cap.ROUND
-                        strokeJoin = Paint.Join.ROUND
+                            val androidPath = path.asAndroidPath()
+                            val matrix = android.graphics.Matrix()
+                            val scaleX = bitmap.width.toFloat() / canvasWidth
+                            val scaleY = bitmap.height.toFloat() / canvasHeight
+                            matrix.setScale(scaleX, scaleY)
+                            androidPath.transform(matrix)
+
+                            val shader = android.graphics.BitmapShader(
+                                mosaicBitmap,
+                                android.graphics.Shader.TileMode.CLAMP,
+                                android.graphics.Shader.TileMode.CLAMP
+                            )
+                            val shaderMatrix = android.graphics.Matrix()
+                            shaderMatrix.setScale(
+                                bitmap.width.toFloat() / mosaicBitmap.width,
+                                bitmap.height.toFloat() / mosaicBitmap.height
+                            )
+                            shader.setLocalMatrix(shaderMatrix)
+
+                            paint.shader = shader
+                            canvas.drawPath(androidPath, paint)
+
+                            clearRedoStack()
+                            pushUndo(snapshot)
+                            bitmap.copy(Bitmap.Config.ARGB_8888, true)
+                        } finally {
+                            if (!snapshot.isRecycled) snapshot.recycle()
+                        }
                     }
-
-                    val androidPath = path.asAndroidPath()
-                    val matrix = android.graphics.Matrix()
-                    val scaleX = bitmap.width.toFloat() / canvasWidth
-                    val scaleY = bitmap.height.toFloat() / canvasHeight
-                    matrix.setScale(scaleX, scaleY)
-                    androidPath.transform(matrix)
-
-                    val shader = android.graphics.BitmapShader(
-                        mosaicBitmap,
-                        android.graphics.Shader.TileMode.CLAMP,
-                        android.graphics.Shader.TileMode.CLAMP
-                    )
-                    val shaderMatrix = android.graphics.Matrix()
-                    shaderMatrix.setScale(bitmap.width.toFloat() / mosaicBitmap.width, bitmap.height.toFloat() / mosaicBitmap.height)
-                    shader.setLocalMatrix(shaderMatrix)
-
-                    paint.shader = shader
-                    canvas.drawPath(androidPath, paint)
-
-                    clearRedoStack()
-                    pushUndo(snapshot)
-                    snapshot.recycle()
-                    
-                    bitmap.copy(Bitmap.Config.ARGB_8888, true)
+                    if (!isDisposed) {
+                        _currentBitmap.value = result
+                        updateUndoRedoStates()
+                    } else if (!result.isRecycled) {
+                        result.recycle()
+                    }
                 }
-                if (!isDisposed) {
-                    _currentBitmap.value = result
-                    updateUndoRedoStates()
-                    _isProcessing.value = false
-                }
+            } catch (error: Throwable) {
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                Log.e("MagicBrushViewModel", "Error applying blur stroke", error)
+            } finally {
+                _isProcessing.value = false
             }
         }
     }

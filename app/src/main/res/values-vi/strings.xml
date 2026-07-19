@@ -274,6 +274,8 @@
     <string name="draft_saved_successfully">Đã lưu bản nháp thành công</string>
     <string name="bg_remover_not_available">Tính năng tách nền hiện không khả dụng</string>
     <string name="bg_removal_failed">Xóa nền ảnh thất bại</string>
+    <string name="bg_removal_low_memory">Không đủ bộ nhớ. Hãy đóng app khác và thử lại.</string>
+    <string name="bg_removal_device_unsupported">Thiết bị của bạn không được hỗ trợ cho tính năng này.</string>
     <string name="go_back">Quay lại</string>
     <string name="draft_name_prefix">Dự án</string>
     <string name="draft_copy_suffix">Bản sao (Copy)</string>
@@ -326,5 +328,6 @@
     <string name="save_success_tap_to_preview">Chạm để xem thử</string>
     <string name="save_success_preview_close">Đóng xem thử</string>
     <string name="batch_remove_error_load_image">Không thể tải ảnh này.</string>
+    <string name="error_device_too_low_memory_batch">Thiết bị không đủ bộ nhớ để xử lý hàng loạt. Hãy thử từng ảnh một.</string>
     <string name="drafts_error_load">Lỗi khi tải bản nháp: %1$s</string>
 </resources>

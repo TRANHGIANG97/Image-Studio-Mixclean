@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">استودیوی محصول هوش مصنوعی</string>
     <string name="studio_category_electronics">الکترونیک</string>
@@ -181,7 +181,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">برچسب</string>
-    <string name="studio_tool_shape">فریم</string>
     <string name="studio_label_add_label">افزودن برچسب</string>
     <string name="studio_label_add_text">افزودن متن</string>
     <string name="studio_label_add_shape">افزودن برچسب شکل‌دار</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">زاویه نورپردازی</string>
     <string name="studio_elevation_custom">سفارشی‌سازی</string>
     <string name="studio_elevation_shadow_blur">محوشدگی سایه</string>
-    <string name="studio_label_shape_frame_tab">فریم</string>
     <string name="studio_text_form_tab">تغییر شکل متن</string>
     <string name="studio_text_form_follow_path">پیروی از مسیر</string>
     <string name="studio_text_form_warp">خمیدگی منحنی</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">پس‌زمینه</string>
     <string name="studio_label_tab_elevation">افکت حجم</string>
     <string name="studio_label_tab_text_form">طراحی هنری</string>
-    <string name="studio_label_tab_shape">فریم دور</string>
     <string name="studio_label_tab_text_template">قالب‌ها</string>
     <string name="studio_label_tab_more">بیشتر</string>
     <string name="studio_text_template_classic">کلاسیک</string>

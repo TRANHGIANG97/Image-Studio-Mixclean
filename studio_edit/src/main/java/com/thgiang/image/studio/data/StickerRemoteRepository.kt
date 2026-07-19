@@ -16,6 +16,15 @@ data class RemoteSticker(
 )
 
 /**
+ * Metadata cho một tab nhãn dán — map 1:1 với folder trong Media Library.
+ */
+data class StickerTabInfo(
+    val folder: String,
+    val label: String,
+    val count: Int = 0,
+)
+
+/**
  * Repository lấy sticker từ admin_web API.
  *
  * Tái sử dụng [AdminWebJsonClient] để thống nhất HTTP config (timeout, base URL).
@@ -38,6 +47,43 @@ class StickerRemoteRepository @Inject constructor(
 
         const val PREVIEW_LIMIT = 10
         const val PAGE_LIMIT = 30
+
+        /** Fallback khi API folders không khả dụng (offline / lỗi mạng). */
+        val DEFAULT_TABS: List<StickerTabInfo> = listOf(
+            StickerTabInfo(folder = Svg_materials_icon, label = "Biểu tượng"),
+            StickerTabInfo(folder = FOLDER_svg_undraw, label = "Minh họa phẳng"),
+        )
+    }
+
+    // ─── Dynamic Tabs ─────────────────────────────────────────────
+
+    /**
+     * Lấy danh sách tab nhãn dán từ Media Library.
+     * Mỗi folder có ít nhất 1 ảnh/SVG (trừ backgrounds, fonts, …) → 1 tab.
+     */
+    fun fetchStickerTabs(): List<StickerTabInfo> {
+        cache.getTabs()?.let { return it }
+
+        return try {
+            val root = client.getJson(path = "/api/v1/stickers/folders")
+            val array = root.optJSONArray("folders") ?: JSONArray()
+            val tabs = buildList {
+                for (i in 0 until array.length()) {
+                    val item = array.optJSONObject(i) ?: continue
+                    val folder = item.optString("id").ifBlank { continue }
+                    val label = item.optString("label").ifBlank { folder }
+                    val count = item.optInt("count", 0)
+                    add(StickerTabInfo(folder = folder, label = label, count = count))
+                }
+            }
+            val resolved = tabs.ifEmpty { DEFAULT_TABS }
+            cache.putTabs(resolved)
+            Log.d(TAG, "fetchStickerTabs: ${resolved.size} tabs")
+            resolved
+        } catch (e: Exception) {
+            Log.e(TAG, "fetchStickerTabs failed, using defaults", e)
+            DEFAULT_TABS
+        }
     }
 
     // ─── Preview ──────────────────────────────────────────────────

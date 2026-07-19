@@ -11,6 +11,8 @@ sealed class AppError(val userMessage: String) {
     companion object {
         fun from(throwable: Throwable): AppError = when {
             throwable is OutOfMemoryError -> OutOfMemory("Not enough memory to process image")
+            throwable.message?.contains("INSUFFICIENT_HEAP", ignoreCase = true) == true ->
+                OutOfMemory("Not enough memory. Close other apps and try again.")
             throwable.message?.contains("too large", ignoreCase = true) == true -> ImageTooLarge()
             throwable is java.io.IOException -> when {
                 throwable.message?.contains("foreground", ignoreCase = true) == true -> MlKitError()

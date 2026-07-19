@@ -3,6 +3,8 @@ package com.thgiang.image.studio.ui.editor.theme
 import com.thgiang.image.studio.ui.editor.model.*
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Build
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +27,8 @@ fun EditorTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
+            val activity = view.context.findActivity() ?: return@SideEffect
+            val window = activity.window
             WindowCompat.setDecorFitsSystemWindows(window, false)
 
             // Show status bar and navigation bar (keep them visible)
@@ -63,4 +66,10 @@ fun EditorTheme(
             )
         }
     }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

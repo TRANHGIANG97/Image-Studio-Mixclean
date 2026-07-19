@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Tootestuudio</string>
     <string name="studio_category_electronics">Elektroonika</string>
@@ -181,7 +181,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Silt</string>
-    <string name="studio_tool_shape">Raam</string>
     <string name="studio_label_add_label">Lisa silt</string>
     <string name="studio_label_add_text">Lisa tekst</string>
     <string name="studio_label_add_shape">Lisa silt</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">Valgustuse nurk</string>
     <string name="studio_elevation_custom">Kohanda</string>
     <string name="studio_elevation_shadow_blur">Varju hägusus</string>
-    <string name="studio_label_shape_frame_tab">Raam</string>
     <string name="studio_text_form_tab">Moonuta</string>
     <string name="studio_text_form_follow_path">Järgi trajektoori</string>
     <string name="studio_text_form_warp">Mähi</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">Taust</string>
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Kunstiline</string>
-    <string name="studio_label_tab_shape">Raam</string>
     <string name="studio_label_tab_text_template">Mallid</string>
     <string name="studio_label_tab_more">Rohkem</string>
     <string name="studio_text_template_classic">Klassikaline</string>

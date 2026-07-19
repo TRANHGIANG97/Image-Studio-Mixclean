@@ -111,6 +111,15 @@ class RewardedAdManagerImpl @Inject constructor(
 
         val ad = rewardedAd
         if (ad != null) {
+            if (activity.isFinishing || activity.isDestroyed) {
+                adLogger.w(TAG, "Activity is no longer valid; granting rewarded fallback")
+                rewardedAd = null
+                onFailedToShow?.invoke("Activity is no longer available")
+                onRewardReceived()
+                onAdClosed()
+                loadAd()
+                return
+            }
             adLogger.d(TAG, "Showing rewarded ad")
 
             ad.fullScreenContentCallback = object : FullScreenContentCallback() {
@@ -136,11 +145,20 @@ class RewardedAdManagerImpl @Inject constructor(
                 }
             }
 
-            ad.show(activity, OnUserEarnedRewardListener {
-                adLogger.d(TAG, "User earned reward")
-                NewUserAdPolicy.recordRewardedShown(appContext)
+            try {
+                ad.show(activity, OnUserEarnedRewardListener {
+                    adLogger.d(TAG, "User earned reward")
+                    NewUserAdPolicy.recordRewardedShown(appContext)
+                    onRewardReceived()
+                })
+            } catch (error: RuntimeException) {
+                adLogger.w(TAG, "Rewarded show threw: ${error.message}")
+                rewardedAd = null
+                onFailedToShow?.invoke(error.message ?: "Unable to show rewarded ad")
                 onRewardReceived()
-            })
+                onAdClosed()
+                loadAd()
+            }
         } else {
             adLogger.w(TAG, "No rewarded ad available to show, trying to load and granting bypass fallback")
             onRewardReceived()

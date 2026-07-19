@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI 商品工作室</string>
     <string name="studio_category_electronics">数码电子</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">重置缩放</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">标签</string>
-    <string name="studio_tool_shape">形状外框</string>
     <string name="studio_label_add_label">添加标签</string>
     <string name="studio_label_add_text">添加文本</string>
     <string name="studio_label_add_shape">添加形状</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">光照角度</string>
     <string name="studio_elevation_custom">高级自定义</string>
     <string name="studio_elevation_shadow_blur">阴影模糊度</string>
-    <string name="studio_label_shape_frame_tab">边框属性</string>
     <string name="studio_text_form_tab">几何变换</string>
     <string name="studio_text_form_follow_path">文字沿路径排列</string>
     <string name="studio_text_form_warp">文字扭曲变形</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">背景样式</string>
     <string name="studio_label_tab_elevation">特效库</string>
     <string name="studio_label_tab_text_form">艺术花字</string>
-    <string name="studio_label_tab_shape">边框外形</string>
     <string name="studio_label_tab_text_template">文字模板</string>
     <string name="studio_label_tab_more">更多</string>
     <string name="studio_text_template_classic">经典</string>

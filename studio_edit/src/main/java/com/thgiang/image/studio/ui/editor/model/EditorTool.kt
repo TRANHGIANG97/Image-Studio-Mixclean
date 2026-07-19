@@ -3,6 +3,7 @@ package com.thgiang.image.studio.ui.editor.model
 sealed class EditorTool(val iconName: String) : java.io.Serializable {
     data object Replace : EditorTool("photo")
     data object Sticker : EditorTool("sticker")
+    data object Background : EditorTool("background")
     data object Label : EditorTool("label")
     data object Shape : EditorTool("shape")
     data object Layout : EditorTool("drag_indicator")
@@ -17,7 +18,7 @@ sealed class EditorTool(val iconName: String) : java.io.Serializable {
 
     companion object {
         val ALL = listOf(
-            Replace, AddImage, RemoveBg, Sticker, Label, Shape, Rotate, Shadow, Transparency, Crop, Duplicate, Delete,
+            Replace, AddImage, RemoveBg, Sticker, Background, Label, Shape, Rotate, Shadow, Transparency, Crop, Duplicate, Delete,
         )
     }
 }

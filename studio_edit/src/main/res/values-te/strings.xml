@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI ప్రొడక్ట్ స్టూడియో</string>
     <string name="studio_category_electronics">ఎలక్ట్రానిక్స్</string>
@@ -132,7 +132,6 @@
     <string name="studio_layers_toggle">పొరలు</string>
     <string name="studio_reset_zoom">రీసెట్ చేయండి</string>
     <string name="studio_tool_label">లేబుల్</string>
-    <string name="studio_tool_shape">ఫ్రేమ్</string>
     <string name="studio_label_add_label">లేబుల్ జోడించండి</string>
     <string name="studio_label_add_text">వచనాన్ని జోడించండి</string>
     <string name="studio_label_add_shape">లేబుల్ జోడించండి</string>
@@ -211,7 +210,6 @@
     <string name="studio_elevation_lighting_angle">లైటింగ్ కోణం</string>
     <string name="studio_elevation_custom">అనుకూలీకరించండి</string>
     <string name="studio_elevation_shadow_blur">షాడో బ్లర్</string>
-    <string name="studio_label_shape_frame_tab">ఫ్రేమ్</string>
     <string name="studio_text_form_tab">రూపాంతరం</string>
     <string name="studio_text_form_follow_path">మార్గాన్ని అనుసరించండి</string>
     <string name="studio_text_form_warp">వార్ప్</string>
@@ -316,7 +314,6 @@
     <string name="studio_label_tab_bg_color">నేపథ్యం</string>
     <string name="studio_label_tab_elevation">ప్రభావం</string>
     <string name="studio_label_tab_text_form">కళాత్మకమైనది</string>
-    <string name="studio_label_tab_shape">ఫ్రేమ్</string>
     <string name="studio_label_tab_text_template">టెంప్లేట్లు</string>
     <string name="studio_label_tab_more">మరిన్ని</string>
     <string name="studio_text_template_classic">క్లాసిక్</string>

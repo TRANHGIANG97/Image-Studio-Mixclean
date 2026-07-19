@@ -177,7 +177,7 @@ object CloudLayerToEditorMapper {
         val textSizePx = textSizeSp * density
         val charSpacingPx = (payload.charSpacing ?: 0f) * textSizeSp / 1000f
         val displayText = EditorTextStyleMapper.applyTextTransform(
-            payload.text.orEmpty(),
+            EditorTextStyleMapper.normalizeLineBreaks(payload.text.orEmpty()),
             payload.textTransform,
         )
 

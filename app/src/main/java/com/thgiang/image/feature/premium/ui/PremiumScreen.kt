@@ -43,11 +43,13 @@ import com.thgiang.image.core.design.components.*
 import androidx.compose.material.icons.rounded.*
 import com.thgiang.image.feature.premium.domain.BillingProduct
 import com.thgiang.image.feature.premium.domain.BillingProductType
+import com.thgiang.image.feature.premium.PremiumFeatureFlags
 
 data class PremiumUiState(
     val selectedPlan: String = "monthly",
     val products: List<BillingProduct> = emptyList(),
-    val isPremium: Boolean = false
+    val isPremium: Boolean = false,
+    val purchaseError: String? = null
 )
 
 @Composable
@@ -224,9 +226,30 @@ fun PremiumScreen(
                             else -> "START FREE TRIAL"
                         },
                         onClick = {
-                            viewModel.purchase(context as Activity, selectedPlan)
+                            if (!PremiumFeatureFlags.enabled) return@ShimmerGradientButton
+                            val activity = context as? Activity
+                            if (activity == null || activity.isFinishing || activity.isDestroyed) {
+                                return@ShimmerGradientButton
+                            }
+                            viewModel.purchase(activity, selectedPlan)
                         }
                     )
+
+                    uiState.purchaseError?.let { error ->
+                        Text(
+                            text = "Unable to start purchase. Please try again.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(top = 8.dp),
+                            textAlign = TextAlign.Center
+                        )
+                        LaunchedEffect(error) {
+                            kotlinx.coroutines.delay(4000)
+                            viewModel.clearPurchaseError()
+                        }
+                    }
 
                     Text(
                         text = when (selectedPlan) {

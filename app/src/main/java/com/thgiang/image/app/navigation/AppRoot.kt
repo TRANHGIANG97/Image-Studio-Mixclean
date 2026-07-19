@@ -86,9 +86,11 @@ import com.thgiang.image.R
 import com.thgiang.image.core.design.components.ModernRewardedAdDialog
 import com.thgiang.image.core.design.components.ReviewPromptDialog
 import com.thgiang.image.core.design.theme.ImageDesign
+import com.thgiang.image.core.util.MemoryUtil
 import com.thgiang.image.feature.editor.ui.QuickEditActivity
 import com.thgiang.image.feature.home.ui.HomeDashboardScreen
 import com.thgiang.image.feature.home.ui.RemovalQualitySelector
+import com.thgiang.image.feature.premium.PremiumFeatureFlags
 import com.thgiang.image.feature.premium.ui.PremiumScreen
 import com.thgiang.image.feature.home.ui.SingleImagePickerScreen
 import com.thgiang.image.feature.remove.ui.BatchRemoveScreen
@@ -136,6 +138,11 @@ fun AppRoot(
     var languageMenuExpanded by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
     var showPremiumScreen by remember { mutableStateOf(false) }
+    fun openPremiumScreen() {
+        if (PremiumFeatureFlags.enabled) {
+            showPremiumScreen = true
+        }
+    }
     var showQualitySheet by remember { mutableStateOf(false) }
     var showRewardedAdDialog by remember { mutableStateOf(false) }
     var showReviewPromptDialog by remember { mutableStateOf(false) }
@@ -180,7 +187,7 @@ fun AppRoot(
     }
 
     // ── Premium full-screen overlay ────────────────────────────────────
-    if (showPremiumScreen) {
+    if (PremiumFeatureFlags.enabled && showPremiumScreen) {
         PremiumScreen(
             onClose = { showPremiumScreen = false }
         )
@@ -249,6 +256,15 @@ fun AppRoot(
                     icon = { Icon(Icons.Default.Collections, contentDescription = null) },
                     selected = currentRoute == Screen.BatchPicker.route || currentRoute == Screen.BatchRemove.route,
                     onClick = {
+                        if (!MemoryUtil.supportsBatchBackgroundRemove(context)) {
+                            android.widget.Toast.makeText(
+                                context,
+                                context.getString(R.string.error_device_too_low_memory_batch),
+                                android.widget.Toast.LENGTH_LONG,
+                            ).show()
+                            scope.launch { drawerState.close() }
+                            return@NavigationDrawerItem
+                        }
                         appViewModel.setBatchUris(emptyList())
                         navController.navigate(Screen.BatchPicker.route)
                         scope.launch { drawerState.close() }
@@ -431,6 +447,14 @@ fun AppRoot(
                         },
                         onBatchRemove = {
                             if (appViewModel.isAdDismissedRecently()) return@HomeDashboardScreen
+                            if (!MemoryUtil.supportsBatchBackgroundRemove(context)) {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    context.getString(R.string.error_device_too_low_memory_batch),
+                                    android.widget.Toast.LENGTH_LONG,
+                                ).show()
+                                return@HomeDashboardScreen
+                            }
                             appViewModel.setBatchUris(emptyList())
                             navController.navigate(Screen.BatchPicker.route)
                         },
@@ -506,8 +530,9 @@ fun AppRoot(
                                 )
                             }
                         },
-                        onThemeplateSelected = { themeplate: StudioThemeplate ->
+                        onThemeplateSelected = { themeplate ->
                             appViewModel.selectTemplate(themeplate) {
+                                appViewModel.setPendingEditorThemeplate(themeplate)
                                 navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
                             }
                         },
@@ -520,7 +545,7 @@ fun AppRoot(
                         },
                         contentPadding = innerPadding,
                         isPremium = appState.isPremium,
-                        onOpenPro = { showPremiumScreen = true },
+                        onOpenPro = { openPremiumScreen() },
                         preferredRemovalQuality = appState.preferredRemovalQuality,
                         onPreferredRemovalQualityChange = appViewModel::setPreferredRemovalQuality,
                         onOpenDrafts = { navController.navigate(Screen.Drafts.route) },
@@ -646,7 +671,7 @@ fun AppRoot(
                         selectedLanguage = appState.selectedLanguage,
                         onLanguageChange = appViewModel::setLanguage,
                         isPremium = appState.isPremium,
-                        onOpenPro = { showPremiumScreen = true },
+                        onOpenPro = { openPremiumScreen() },
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
@@ -656,11 +681,14 @@ fun AppRoot(
                     com.thgiang.image.feature.drafts.ui.DraftsScreen(
                         onBack = { navController.popBackStack() },
                         onSelectDraft = { draft ->
-                            navController.popBackStack(Screen.Home.route, inclusive = false)
                             if (draft.isTemplate) {
-                                // For templates, we pass a dummy themeplateId ("draft") since the viewModel will load from draftId
-                                navController.navigate(Screen.StudioEditor.createRoute("draft", draft.id))
+                                // For templates, we pass a dummy themeplateId ("draft") since the viewModel will load from draftId.
+                                // Use a single navigate+popUpTo so Home stays under the editor (avoids blank screen on back).
+                                navController.navigate(Screen.StudioEditor.createRoute("draft", draft.id)) {
+                                    popUpTo(Screen.Home.route) { inclusive = false }
+                                }
                             } else {
+                                navController.popBackStack(Screen.Home.route, inclusive = false)
                                 activity?.startActivity(
                                     QuickEditActivity.createIntent(context, draftId = draft.id)
                                 )
@@ -683,19 +711,31 @@ fun AppRoot(
                 ) {
                     val themeplateId = it.arguments?.getString("themeplateId") ?: ""
                     val draftId = it.arguments?.getString("draftId")
-                    val themeplate = StudioThemeplates.findById(themeplateId) ?: StudioThemeplate(
-                        id = "draft", 
-                        titleResId = com.thgiang.image.R.string.home_draft, 
-                        assetPath = "",
-                        accentColor = androidx.compose.ui.graphics.Color.Transparent
-                    )
+                    val themeplate = appViewModel.consumePendingEditorThemeplate(themeplateId)
+                        ?: StudioThemeplates.findById(themeplateId)
+                        ?: StudioThemeplate(
+                            id = themeplateId.ifBlank { "draft" },
+                            titleResId = com.thgiang.image.R.string.home_draft,
+                            assetPath = "",
+                            accentColor = androidx.compose.ui.graphics.Color.Transparent
+                        )
                     if (true) {
                         LaunchedEffect(themeplateId) {
                             AppAnalytics.onStudioOpened(context, themeplateId)
                         }
                         ThemeplateEditorScreen(
                             themeplate = themeplate,
-                            onBack = { navController.popBackStack() },
+                            onBack = {
+                                val popped = navController.popBackStack()
+                                if (!popped) {
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            },
                             onDone = { _ ->
                                 // Stay on studio_edit screen
                             },
@@ -729,16 +769,10 @@ fun AppRoot(
                     ThemeplateGalleryScreen(
                         initialCategoryId = categoryId,
                         onBack = { navController.popBackStack() },
-                        onThemeplateSelected = { themeplateId, isPremium ->
-                            val dummyTemplate = StudioThemeplate(
-                                id = themeplateId,
-                                titleResId = 0,
-                                assetPath = "",
-                                accentColor = androidx.compose.ui.graphics.Color.Transparent,
-                                isPremium = isPremium
-                            )
-                            appViewModel.selectTemplate(dummyTemplate) {
-                                navController.navigate(Screen.StudioEditor.createRoute(themeplateId))
+                        onThemeplateSelected = { themeplate ->
+                            appViewModel.selectTemplate(themeplate) {
+                                appViewModel.setPendingEditorThemeplate(themeplate)
+                                navController.navigate(Screen.StudioEditor.createRoute(themeplate.id))
                             }
                         }
                     )
@@ -755,6 +789,7 @@ fun AppRoot(
         ModernRewardedAdDialog(
             count = watchCount,
             isLoading = adState is BatchAdState.Loading,
+            showUpgradeButton = PremiumFeatureFlags.enabled,
             onWatchAd = {
                 activity?.let {
                     appViewModel.watchAdForBatch(it) {
@@ -767,7 +802,7 @@ fun AppRoot(
             onUpgrade = {
                 showRewardedAdDialog = false
                 appViewModel.resetBatchAdState()
-                showPremiumScreen = true
+                openPremiumScreen()
             },
             onDismiss = {
                 showRewardedAdDialog = false
@@ -798,7 +833,7 @@ fun AppRoot(
     }
 
     val blockedTemplate by appViewModel.premiumLimitBlockedTemplate.collectAsState()
-    if (blockedTemplate != null) {
+    if (PremiumFeatureFlags.enabled && blockedTemplate != null) {
         AlertDialog(
             onDismissRequest = { appViewModel.dismissPremiumLimitDialog() },
             title = {
@@ -818,7 +853,7 @@ fun AppRoot(
                 TextButton(
                     onClick = {
                         appViewModel.dismissPremiumLimitDialog()
-                        showPremiumScreen = true
+                        openPremiumScreen()
                     }
                 ) {
                     Text(
@@ -882,13 +917,13 @@ fun AppRoot(
                 Spacer(modifier = Modifier.height(16.dp))
                 RemovalQualitySelector(
                     preferredQuality = appState.preferredRemovalQuality,
-                    isPremium = appState.isPremium,
+                    isPremium = appState.isPremium || !PremiumFeatureFlags.enabled,
                     useHomeDarkStyle = appState.isDarkMode,
                     onSelectStandard = { appViewModel.setPreferredRemovalQuality("standard") },
                     onSelectPro = { appViewModel.setPreferredRemovalQuality("pro") },
                     onProLockedClick = {
                         showQualitySheet = false
-                        showPremiumScreen = true
+                        openPremiumScreen()
                     }
                 )
             }

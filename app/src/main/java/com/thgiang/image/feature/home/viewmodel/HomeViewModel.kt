@@ -188,9 +188,12 @@ class HomeViewModel @Inject constructor(
         thicknessUpdateJob = viewModelScope.launch(Dispatchers.IO) {
             delay(250)
 
-            val bitmap = application.contentResolver.openInputStream(pureUri)?.use { inputStream ->
-                android.graphics.BitmapFactory.decodeStream(inputStream)
-            }
+            val bitmap = com.thgiang.image.core.data.backgroundremove.BitmapDecodeUtils
+                .loadBitmapFromUri(
+                    application,
+                    pureUri,
+                    com.thgiang.image.core.util.MemoryUtil.maxEditorBitmapSide(application),
+                )
 
             if (bitmap != null) {
                 val request = HomeStyleRequest.Border(
@@ -333,6 +336,8 @@ class HomeViewModel @Inject constructor(
                     category = categoryId,
                     titleString = row.title,
                     isPremium = row.isPremium,
+                    canvasWidth = row.cloudTemplate.canvas.baseWidth,
+                    canvasHeight = row.cloudTemplate.canvas.baseHeight,
                 )
             }
         }.onFailure { e ->

@@ -2,6 +2,7 @@ package com.thgiang.image.feature.premium.domain
 
 import android.app.Activity
 import com.android.billingclient.api.ProductDetails
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 data class BillingProduct(
@@ -21,6 +22,8 @@ enum class BillingProductType { SUBSCRIPTION, LIFETIME }
 interface PremiumRepository {
     val isPremium: StateFlow<Boolean>
     val products: StateFlow<List<BillingProduct>>
+    /** Soft failures from purchase attempts (never throws / never crashes). */
+    val purchaseErrors: SharedFlow<String>
 
     fun connectIfNeeded()
     fun purchase(activity: Activity, productId: String)

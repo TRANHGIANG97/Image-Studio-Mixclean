@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
+import com.thgiang.image.core.data.backgroundremove.MlKitDeviceSupport
 import com.thgiang.image.core.util.processors.ProcessorUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -104,10 +105,14 @@ class RemoveBgModeViewModel @Inject constructor(
                         )
                     }
                 },
-                onFailure = {
+                onFailure = { error ->
                     _state.value = _state.value.copy(
                         isProcessing = false,
-                        error = context.getString(R.string.error_apply_effect),
+                        error = if (MlKitDeviceSupport.isUnsupportedOrTimeout(error)) {
+                            context.getString(R.string.bg_removal_device_unsupported)
+                        } else {
+                            context.getString(R.string.error_apply_effect)
+                        },
                         playServicesUpdateRecommended = mlKitRemover.consumePlayServicesUpdateRecommended(),
                     )
                 }

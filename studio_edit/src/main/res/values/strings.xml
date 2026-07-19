@@ -59,13 +59,13 @@
     <string name="themeplate_selfie_food_08">Selfie Food 8</string>
     <string name="studio_back">Back</string>
     <string name="studio_done">Done</string>
-    <string name="studio_tap_to_pick_product">Tap to pick a product image</string>
     <string name="studio_tool_replace">Replace</string>
     <string name="studio_tool_layout">Layout</string>
     <string name="studio_tool_shadow">Shadow</string>
     <string name="studio_tool_transparency">Opacity</string>
     <string name="studio_tool_crop">Crop</string>
     <string name="studio_tool_sticker">Sticker</string>
+    <string name="studio_tool_background">Background</string>
     <string name="studio_tool_duplicate">Duplicate</string>
     <string name="studio_tool_delete">Delete</string>
     <string name="studio_tool_add_image">Add image</string>
@@ -148,8 +148,6 @@
     <string name="studio_color_gray">Gray</string>
     <string name="studio_color_black">Black</string>
     <string name="studio_zoom_label">%1$d%%</string>
-    <string name="studio_pick_product_title">Add product image</string>
-    <string name="studio_pick_product_subtitle">Background is removed automatically</string>
     <string name="studio_export">Export</string>
     <string name="studio_crop_ratio_original">Original</string>
     <string name="themeplate_gallery_title">Templates</string>
@@ -162,6 +160,7 @@
     <string name="studio_error_save_image">Failed to save image</string>
     <string name="studio_error_render_failed">Render failed: %1$s</string>
     <string name="studio_error_unknown">Unknown error</string>
+    <string name="studio_error_not_enough_memory">Not enough memory to export. Close other apps and try again.</string>
     <string name="studio_confirm_exit_title">Discard changes?</string>
     <string name="studio_confirm_exit_message">You have unsaved changes. Do you want to exit without saving?</string>
     <string name="studio_confirm_exit_action">Discard</string>
@@ -173,6 +172,8 @@
     <string name="studio_save_draft_confirm">Save draft</string>
     <string name="studio_draft_saved">Draft saved</string>
     <string name="studio_draft_save_failed">Couldn\'t save draft. Please try again.</string>
+    <string name="studio_draft_load_failed">Couldn\'t open this draft. The file may be missing or damaged.</string>
+    <string name="studio_draft_legacy_unsupported">This draft was saved in an older format and can\'t be opened here. Please create a new design.</string>
     <string name="studio_gallery_load_failed">Couldn\'t load templates. Check your connection and try again.</string>
     <string name="studio_retry">Retry</string>
     <string name="studio_hide_keyboard">Hide keyboard</string>
@@ -259,7 +260,7 @@
     <string name="studio_elevation_lighting_angle">Lighting angle</string>
     <string name="studio_elevation_custom">Customize</string>
     <string name="studio_elevation_shadow_blur">Shadow blur</string>
-    <string name="studio_label_shape_frame_tab">Border</string> <!-- Gá»¢I Ã: Äá»•i thÃ nh Border náº¿u lÃ  tab viá»n -->
+    <string name="studio_label_shape_frame_tab">Border</string>
     <string name="studio_text_form_tab">Transform</string>
     <string name="studio_text_form_follow_path">Follow Path</string>
     <string name="studio_text_form_warp">Warp</string>
@@ -361,6 +362,11 @@
     <string name="studio_sticker_library_title">Sticker Library</string>
     <string name="studio_sticker_tab_decor">Icons</string>
     <string name="studio_sticker_tab_meme">Illustrations</string>
+
+    <!-- Background Picker -->
+    <string name="studio_background_library_title">Background Library</string>
+    <string name="studio_background_empty">No backgrounds available</string>
+    <string name="studio_background_load_error">Unable to load backgrounds. Tap refresh to retry.</string>
 
     <!-- Gradient sub-section tabs -->
     <string name="studio_label_color_presets_tab">Color Presets</string>

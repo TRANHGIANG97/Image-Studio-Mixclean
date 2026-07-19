@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">ស្ទូឌីយោផលិតផល AI</string>
     <string name="studio_category_electronics">គ្រឿងអេឡិចត្រូនិច</string>
@@ -181,7 +181,6 @@
 
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">ស្លាកសញ្ញា</string>
-    <string name="studio_tool_shape">ស៊ុម</string>
     <string name="studio_label_add_label">បន្ថែមស្លាកសញ្ញា</string>
     <string name="studio_label_add_text">បន្ថែមអត្ថបទ</string>
     <string name="studio_label_add_shape">បន្ថែមស្លាកសញ្ញា</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">មុំពន្លឺជះ</string>
     <string name="studio_elevation_custom">កែតម្រូវតាមចិត្ត</string>
     <string name="studio_elevation_shadow_blur">កម្រិតព្រិលនៃស្រមោល</string>
-    <string name="studio_label_shape_frame_tab">ស៊ុម</string>
     <string name="studio_text_form_tab">បំប្លែងទម្រង់</string>
     <string name="studio_text_form_follow_path">រត់តាមខ្សែបន្ទាត់</string>
     <string name="studio_text_form_warp">ការពត់ពង្រីកអក្សរ</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">ផ្ទៃខាងក្រោយ</string>
     <string name="studio_label_tab_elevation">បែបផុសទំហំ</string>
     <string name="studio_label_tab_text_form">សិល្បៈអក្សរ</string>
-    <string name="studio_label_tab_shape">ស៊ុមជុំវិញ</string>
     <string name="studio_label_tab_text_template">គំរូ</string>
     <string name="studio_label_tab_more">ច្រើនទៀត</string>
     <string name="studio_text_template_classic">បុរាណ</string>

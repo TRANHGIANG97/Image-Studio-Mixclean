@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI 상품 스튜디오</string>
     <string name="studio_category_electronics">가전·디지털</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">초기화</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">라벨</string>
-    <string name="studio_tool_shape">프레임</string>
     <string name="studio_label_add_label">라벨 추가</string>
     <string name="studio_label_add_text">텍스트 추가</string>
     <string name="studio_label_add_shape">도형 추가</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">조명 각도</string>
     <string name="studio_elevation_custom">사용자 지정</string>
     <string name="studio_elevation_shadow_blur">그림자 흐림도</string>
-    <string name="studio_label_shape_frame_tab">테두리</string>
     <string name="studio_text_form_tab">변형</string>
     <string name="studio_text_form_follow_path">패스 따라가기</string>
     <string name="studio_text_form_warp">왜곡</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">배경</string>
     <string name="studio_label_tab_elevation">효과</string>
     <string name="studio_label_tab_text_form">아트 텍스트</string>
-    <string name="studio_label_tab_shape">프레임</string>
     <string name="studio_label_tab_text_template">템플릿</string>
     <string name="studio_label_tab_more">더보기</string>
     <string name="studio_text_template_classic">클래식</string>

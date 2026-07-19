@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI produktų studija</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Atstatyti</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etiketė</string>
-    <string name="studio_tool_shape">Rėmelis</string>
     <string name="studio_label_add_label">Pridėti etiketę</string>
     <string name="studio_label_add_text">Pridėti tekstą</string>
     <string name="studio_label_add_shape">Pridėti formą</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Apšvietimo kampas</string>
     <string name="studio_elevation_custom">Tinkinti</string>
     <string name="studio_elevation_shadow_blur">Šešėlio suliejimas</string>
-    <string name="studio_label_shape_frame_tab">Rėmelis</string>
     <string name="studio_text_form_tab">Transformuoti</string>
     <string name="studio_text_form_follow_path">Sekti kelią</string>
     <string name="studio_text_form_warp">Iškreipti</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Fonas</string>
     <string name="studio_label_tab_elevation">Efektas</string>
     <string name="studio_label_tab_text_form">Meninis</string>
-    <string name="studio_label_tab_shape">Rėmelis</string>
     <string name="studio_label_tab_text_template">Šablonai</string>
     <string name="studio_label_tab_more">Daugiau</string>
     <string name="studio_text_template_classic">Klasikinis</string>

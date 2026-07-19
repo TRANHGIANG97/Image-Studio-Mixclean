@@ -9,6 +9,8 @@ import com.thgiang.image.core.data.save.CachedImage
 import com.thgiang.image.core.data.save.ImageSaveRepository
 import com.thgiang.image.core.domain.AppError
 import com.thgiang.image.core.data.backgroundremove.BackgroundRemoverRepository
+import com.thgiang.image.core.data.backgroundremove.MlKitDeviceSupport
+import com.thgiang.image.core.util.MemoryUtil
 import com.thgiang.image.core.util.processors.ProcessorUtils
 import com.thgiang.image.core.analytics.AppAnalytics
 import com.thgiang.image.R
@@ -51,6 +53,15 @@ class BatchRemoveViewModel @Inject constructor(
 
     fun onProcessBatchImages() {
         if (_uiState.value.isProcessing) return
+        if (!MemoryUtil.supportsBatchBackgroundRemove(context)) {
+            _uiState.value = _uiState.value.copy(
+                snackbarEvent = BatchRemoveSnackbarEvent.Text(
+                    context.getString(R.string.error_device_too_low_memory_batch),
+                ),
+            )
+            return
+        }
+        MemoryUtil.prepareForHeavyImageWork()
         val pendingUris = _uiState.value.selectedUris.drop(_uiState.value.processedUriCount)
         if (pendingUris.isEmpty()) return
 
@@ -68,94 +79,104 @@ class BatchRemoveViewModel @Inject constructor(
             val total = pendingUris.size
             var processed = 0
             var processedUriCount = _uiState.value.processedUriCount
+            val decodeCap = MemoryUtil.maxMlKitProcessSide(context)
 
             for (uri in pendingUris) {
                 if (!isActive) break
 
-                val originalBitmap = com.thgiang.image.core.data.backgroundremove.BitmapDecodeUtils.loadBitmapFromUri(context, uri, 2048)
+                val processResult = runCatching {
+                    val originalBitmap = com.thgiang.image.core.data.backgroundremove.BitmapDecodeUtils
+                        .loadBitmapFromUri(context, uri, decodeCap)
+                        ?: error("decode_failed")
 
-                if (originalBitmap == null) {
-                    _uiState.value = _uiState.value.copy(
-                        isProcessing = false,
-                        snackbarEvent = BatchRemoveSnackbarEvent.Text(context.getString(R.string.batch_remove_error_load_image)),
-                        results = mutableResults.toList(),
-                        processedUriCount = processedUriCount,
-                        batchCompleted = processed
-                    )
-                    return@launch
+                    try {
+                        val foregroundBitmap = mlKitRemover.getForegroundBitmap(originalBitmap).getOrNull()
+                            ?: error("remove_bg_failed")
+                        val foregroundCopy = try {
+                            foregroundBitmap.copy(Bitmap.Config.ARGB_8888, true)
+                        } finally {
+                            if (!foregroundBitmap.isRecycled) foregroundBitmap.recycle()
+                        }
+                        try {
+                            val trimmedResult = ProcessorUtils.trimTransparentBounds(foregroundCopy)
+                            trimmedResult.setHasAlpha(true)
+                            if (trimmedResult !== foregroundCopy && !foregroundCopy.isRecycled) {
+                                foregroundCopy.recycle()
+                            }
+                            trimmedResult
+                        } catch (error: Throwable) {
+                            if (!foregroundCopy.isRecycled) foregroundCopy.recycle()
+                            throw error
+                        }
+                    } finally {
+                        if (!originalBitmap.isRecycled) originalBitmap.recycle()
+                    }
                 }
 
-                // 3. Remove background with standalone ML Kit
-                val foregroundBitmap = mlKitRemover.getForegroundBitmap(originalBitmap).getOrNull()
-
-                // Clean original bitmap as soon as possible
-                if (!originalBitmap.isRecycled) {
-                    originalBitmap.recycle()
-                }
-
-                if (foregroundBitmap == null) {
-                    _uiState.value = _uiState.value.copy(
-                        isProcessing = false,
-                        snackbarEvent = BatchRemoveSnackbarEvent.Text(context.getString(R.string.bg_removal_failed)),
-                        results = mutableResults.toList(),
-                        processedUriCount = processedUriCount,
-                        batchCompleted = processed
-                    )
-                    return@launch
-                }
-
-                // 4. Post-process (Trim transparency)
-                val foregroundCopy = foregroundBitmap.copy(Bitmap.Config.ARGB_8888, true)
-                if (foregroundBitmap !== originalBitmap && !foregroundBitmap.isRecycled) {
-                    foregroundBitmap.recycle()
-                }
-
-                val trimmedResult = ProcessorUtils.trimTransparentBounds(foregroundCopy)
-                trimmedResult.setHasAlpha(true)
-                if (trimmedResult !== foregroundCopy && !foregroundCopy.isRecycled) {
-                    foregroundCopy.recycle()
-                }
-
-                // 5. Cache result and update state
-                val cacheResult = imageSave.cacheBitmap(trimmedResult)
-                if (!trimmedResult.isRecycled) {
-                    trimmedResult.recycle()
-                }
-
-                cacheResult.fold(
-                    onSuccess = { displayUri ->
-                        mutableResults.add(
-                            ProcessedResult(
-                                displayUri = displayUri,
-                                hasAlpha = true
-                            )
-                        )
-                        processed++
-                        processedUriCount++
-                        _uiState.value = _uiState.value.copy(
-                            results = mutableResults.toList(),
-                            processedUriCount = processedUriCount,
-                            batchCompleted = processed,
-                            progressPercent = (processed * 100) / total
+                processResult.fold(
+                    onSuccess = { trimmedResult ->
+                        val cacheResult = imageSave.cacheBitmap(trimmedResult)
+                        if (!trimmedResult.isRecycled) {
+                            trimmedResult.recycle()
+                        }
+                        cacheResult.fold(
+                            onSuccess = { displayUri ->
+                                mutableResults.add(
+                                    ProcessedResult(
+                                        displayUri = displayUri,
+                                        hasAlpha = true,
+                                    ),
+                                )
+                                processed++
+                                processedUriCount++
+                                _uiState.value = _uiState.value.copy(
+                                    results = mutableResults.toList(),
+                                    processedUriCount = processedUriCount,
+                                    batchCompleted = processed,
+                                    progressPercent = (processed * 100) / total,
+                                )
+                            },
+                            onFailure = { e ->
+                                _uiState.value = _uiState.value.copy(
+                                    isProcessing = false,
+                                    snackbarEvent = BatchRemoveSnackbarEvent.Text(
+                                        AppError.from(e).userMessage,
+                                    ),
+                                    results = mutableResults.toList(),
+                                    processedUriCount = processedUriCount,
+                                    batchCompleted = processed,
+                                )
+                                return@launch
+                            },
                         )
                     },
                     onFailure = { e ->
+                        val message = when {
+                            MlKitDeviceSupport.isUnsupportedOrTimeout(e) ->
+                                context.getString(R.string.bg_removal_device_unsupported)
+                            MemoryUtil.isOutOfMemoryError(e) ||
+                                e.message?.contains("INSUFFICIENT_HEAP", ignoreCase = true) == true ->
+                                context.getString(R.string.bg_removal_low_memory)
+                            e.message == "decode_failed" ->
+                                context.getString(R.string.batch_remove_error_load_image)
+                            else -> context.getString(R.string.bg_removal_failed)
+                        }
                         _uiState.value = _uiState.value.copy(
                             isProcessing = false,
-                            snackbarEvent = BatchRemoveSnackbarEvent.Text(AppError.from(e).userMessage),
+                            snackbarEvent = BatchRemoveSnackbarEvent.Text(message),
                             results = mutableResults.toList(),
                             processedUriCount = processedUriCount,
-                            batchCompleted = processed
+                            batchCompleted = processed,
                         )
                         return@launch
-                    }
+                    },
                 )
             }
 
             _uiState.value = _uiState.value.copy(
                 isProcessing = false,
                 batchCompleted = processed,
-                progressPercent = if (total > 0) (processed * 100) / total else 0
+                progressPercent = if (total > 0) (processed * 100) / total else 0,
             )
         }
     }
@@ -176,7 +197,7 @@ class BatchRemoveViewModel @Inject constructor(
                 saveAllTotal = _uiState.value.results.size
             )
             val items = _uiState.value.results.map { CachedImage(it.displayUri, it.hasAlpha) }
-            val result = imageSave.saveAll(items, maxConcurrency = 2) { done, total ->
+            val result = imageSave.saveAll(items, maxConcurrency = if (MemoryUtil.isLowRamDevice(context)) 1 else 2) { done, total ->
                 _uiState.value = _uiState.value.copy(saveAllDone = done, saveAllTotal = total)
             }
             _uiState.value = _uiState.value.copy(isSavingAll = false)

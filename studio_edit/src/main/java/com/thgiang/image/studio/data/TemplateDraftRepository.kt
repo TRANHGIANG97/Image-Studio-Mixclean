@@ -6,14 +6,35 @@ import com.thgiang.image.studio.ui.editor.model.*
 import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import java.io.IOException
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+
+data class TemplateDraftMeta(
+    val id: String? = null,
+    val name: String? = null,
+    val templateAssetPath: String? = null,
+    val templateObjectAssetPath: String? = null,
+    val templateThumbnailUrl: String? = null,
+    /** Real cloud template id — used to reload dimensions when themeplateId is "draft". */
+    val cloudTemplateId: String? = null,
+    val isTemplate: Boolean = false,
+)
+
+data class DraftRestoreBundle(
+    val state: EditorState?,
+    val meta: TemplateDraftMeta?,
+    /** QuickEdit [project_state.json] without [editor_state.json]. */
+    val hasLegacyProjectState: Boolean,
+    val editorStateCorrupt: Boolean,
+)
 
 class UriTypeAdapter : TypeAdapter<Uri>() {
     override fun write(out: JsonWriter, value: Uri?) {
@@ -43,6 +64,7 @@ class TemplateDraftRepository @Inject constructor(
     private val draftsDir = File(context.filesDir, "drafts")
     private val gson: Gson = GsonBuilder()
         .registerTypeAdapter(Uri::class.java, UriTypeAdapter())
+        .registerTypeAdapter(EditorTool::class.java, EditorToolTypeAdapter())
         .create()
 
     fun saveDraft(
@@ -51,6 +73,8 @@ class TemplateDraftRepository @Inject constructor(
         state: EditorState,
         templateAssetPath: String,
         templateObjectAssetPath: String?,
+        templateThumbnailUrl: String? = null,
+        cloudTemplateId: String? = null,
     ): String {
         draftsDir.mkdirs()
         val id = draftId ?: UUID.randomUUID().toString()
@@ -67,22 +91,32 @@ class TemplateDraftRepository @Inject constructor(
             layer.copy(product = persistedProduct)
         }
 
-        val metaMap = mapOf(
+        val now = System.currentTimeMillis()
+        val existingMeta = loadMetadataMap(id)
+        val createdAt = (existingMeta?.get("createdAt") as? Number)?.toLong() ?: now
+        val resolvedCloudTemplateId = cloudTemplateId?.takeIf { it.isNotBlank() }
+            ?: (existingMeta?.get("cloudTemplateId") as? String)?.takeIf { it.isNotBlank() }
+        val metaMap = mutableMapOf<String, Any?>(
             "id" to id,
-            "name" to name,
-            "createdAt" to System.currentTimeMillis(),
-            "updatedAt" to System.currentTimeMillis(),
+            "name" to (existingMeta?.get("name") as? String ?: name),
+            "createdAt" to createdAt,
+            "updatedAt" to now,
             "isTemplate" to true,
             "templateAssetPath" to templateAssetPath,
-            "templateObjectAssetPath" to templateObjectAssetPath
+            "templateObjectAssetPath" to templateObjectAssetPath,
+            "templateThumbnailUrl" to templateThumbnailUrl,
         )
-        File(dir, "metadata.json").writeText(gson.toJson(metaMap))
+        resolvedCloudTemplateId?.let { metaMap["cloudTemplateId"] = it }
+        (existingMeta?.get("thumbnailPath") as? String)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { metaMap["thumbnailPath"] = it }
+        atomicWriteText(File(dir, "metadata.json"), gson.toJson(metaMap))
         val persistedState = state.copy(
             layers = persistedLayers,
             exportResult = null,
             isExporting = false,
         )
-        File(dir, "editor_state.json").writeText(gson.toJson(persistedState))
+        atomicWriteText(File(dir, "editor_state.json"), gson.toJson(persistedState))
         return id
     }
 
@@ -91,13 +125,35 @@ class TemplateDraftRepository @Inject constructor(
         val metaFile = File(dir, "metadata.json")
         if (!metaFile.exists()) return
         try {
-            @Suppress("UNCHECKED_CAST")
-            val meta = gson.fromJson(metaFile.readText(), Map::class.java) as MutableMap<String, Any?>
+            val meta = loadMetadataMap(draftId)?.toMutableMap() ?: return
             meta["thumbnailPath"] = thumbnailAbsolutePath
             meta["updatedAt"] = System.currentTimeMillis()
-            metaFile.writeText(gson.toJson(meta))
+            atomicWriteText(metaFile, gson.toJson(meta))
         } catch (e: Exception) {
             android.util.Log.w("TemplateDraftRepo", "Failed to update thumbnailPath: ${e.message}")
+        }
+    }
+
+    private fun loadMetadataMap(draftId: String): Map<String, Any?>? {
+        val metaFile = File(File(draftsDir, draftId), "metadata.json")
+        if (!metaFile.exists()) return null
+        return try {
+            @Suppress("UNCHECKED_CAST")
+            gson.fromJson(metaFile.readText(), Map::class.java) as? Map<String, Any?>
+        } catch (e: Exception) {
+            android.util.Log.w("TemplateDraftRepo", "Failed to read metadata for $draftId: ${e.message}")
+            null
+        }
+    }
+
+    /** Write via temp file + rename to avoid half-written JSON on crash/kill. */
+    private fun atomicWriteText(target: File, content: String) {
+        target.parentFile?.mkdirs()
+        val temp = File(target.parentFile, "${target.name}.tmp")
+        temp.writeText(content)
+        if (!temp.renameTo(target)) {
+            target.writeText(content)
+            temp.delete()
         }
     }
 
@@ -133,27 +189,82 @@ class TemplateDraftRepository @Inject constructor(
 
     /**
      * Sao chép dữ liệu tại [uriString] (nếu là content://) sang [targetFile].
-     * Trả về đường dẫn file:// mới nếu thành công, hoặc [uriString] gốc nếu không.
+     * Trả về đường dẫn file:// mới nếu thành công; ném [IOException] nếu copy thất bại.
      */
     private fun persistUriIfContent(uriString: String?, targetFile: File): String? {
         if (uriString == null) return null
         // Chỉ xử lý content:// — file:// và https:// giữ nguyên
         if (!uriString.startsWith("content://")) return uriString
 
-        return try {
+        try {
             val uri = Uri.parse(uriString)
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                targetFile.outputStream().use { output -> input.copyTo(output) }
+            val input = context.contentResolver.openInputStream(uri)
+                ?: throw IOException("Cannot open input stream for $uriString")
+            input.use { stream ->
+                targetFile.outputStream().use { output -> stream.copyTo(output) }
             }
-            if (targetFile.exists() && targetFile.length() > 0) {
-                "file://${targetFile.absolutePath}"
-            } else {
-                uriString // fallback: giữ nguyên nếu copy thất bại
+            if (!targetFile.exists() || targetFile.length() <= 0L) {
+                throw IOException("Copied file is empty for $uriString")
             }
+            return "file://${targetFile.absolutePath}"
+        } catch (e: IOException) {
+            throw e
         } catch (e: Exception) {
             android.util.Log.w("TemplateDraftRepo", "Failed to persist URI $uriString: ${e.message}")
-            uriString // fallback an toàn
+            throw IOException("Failed to persist image URI: $uriString", e)
         }
+    }
+
+    fun loadDraftMeta(draftId: String): TemplateDraftMeta? {
+        val dir = File(draftsDir, draftId)
+        val metaFile = File(dir, "metadata.json")
+        if (!metaFile.exists()) return null
+        return try {
+            @Suppress("UNCHECKED_CAST")
+            val map = gson.fromJson(metaFile.readText(), Map::class.java) as? Map<*, *> ?: return null
+            TemplateDraftMeta(
+                id = map["id"] as? String,
+                name = map["name"] as? String,
+                templateAssetPath = map["templateAssetPath"] as? String,
+                templateObjectAssetPath = map["templateObjectAssetPath"] as? String,
+                templateThumbnailUrl = map["templateThumbnailUrl"] as? String,
+                cloudTemplateId = map["cloudTemplateId"] as? String,
+                isTemplate = map["isTemplate"] as? Boolean ?: false,
+            )
+        } catch (e: Exception) {
+            android.util.Log.w("TemplateDraftRepo", "Failed to load metadata for $draftId", e)
+            null
+        }
+    }
+
+    fun resolveDraftRestore(draftId: String): DraftRestoreBundle {
+        val dir = File(draftsDir, draftId)
+        if (!dir.exists()) {
+            return DraftRestoreBundle(
+                state = null,
+                meta = null,
+                hasLegacyProjectState = false,
+                editorStateCorrupt = false,
+            )
+        }
+        val meta = loadDraftMeta(draftId)
+        val hasEditorState = File(dir, "editor_state.json").exists()
+        val hasLegacy = File(dir, "project_state.json").exists() && !hasEditorState
+        if (hasLegacy) {
+            return DraftRestoreBundle(
+                state = null,
+                meta = meta,
+                hasLegacyProjectState = true,
+                editorStateCorrupt = false,
+            )
+        }
+        val state = if (hasEditorState) loadDraft(draftId) else null
+        return DraftRestoreBundle(
+            state = state,
+            meta = meta,
+            hasLegacyProjectState = false,
+            editorStateCorrupt = hasEditorState && state == null,
+        )
     }
 
     fun loadDraft(draftId: String): EditorState? {
@@ -161,9 +272,26 @@ class TemplateDraftRepository @Inject constructor(
         val file = File(dir, "editor_state.json")
         if (!file.exists()) return null
         return try {
-            gson.fromJson(file.readText(), EditorState::class.java)
+            val json = file.readText()
+            val root = JsonParser.parseString(json).asJsonObject
+            val state = gson.fromJson(root, EditorState::class.java) ?: return null
+            // Re-parse each layer explicitly. With R8 + type erasure, Gson may leave
+            // List<EditorLayer> as List<LinkedTreeMap>, which then ClassCastExceptions
+            // inside EditorLayerNormalizer.normalize during ViewModel init.
+            val layerElements = root.getAsJsonArray("layers") ?: return state.copy(layers = emptyList())
+            val layers = layerElements.mapNotNull { element ->
+                runCatching { gson.fromJson(element, EditorLayer::class.java) }.getOrNull()
+            }
+            if (layerElements.size() > 0 && layers.size < layerElements.size()) {
+                android.util.Log.w(
+                    "TemplateDraftRepo",
+                    "Draft $draftId: dropped ${layerElements.size() - layers.size} corrupt layer(s)",
+                )
+                return null
+            }
+            state.copy(layers = layers)
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("TemplateDraftRepo", "Failed to load draft $draftId", e)
             null
         }
     }

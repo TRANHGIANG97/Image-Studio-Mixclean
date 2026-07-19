@@ -26,28 +26,40 @@ class ProcessImageWithStyleUseCase @Inject constructor(
             return Result.failure(it)
         }
 
-        val pureUri = cacheBitmapUseCase(output.foregroundToDisplay).getOrNull()
-        onProgress(70)
+        try {
+            val pureUri = cacheBitmapUseCase(output.foregroundToDisplay).getOrNull()
+            onProgress(70)
 
-        val composed = composeStyledBitmapUseCase(output.foregroundToDisplay, request).getOrElse {
-            return Result.failure(it)
+            val composed = composeStyledBitmapUseCase(output.foregroundToDisplay, request).getOrElse {
+                return Result.failure(it)
+            }
+            try {
+                val cachedUri = cacheBitmapUseCase(composed).getOrElse {
+                    return Result.failure(it)
+                }
+                val openEditorAfter =
+                    request is HomeStyleRequest.Background || request is HomeStyleRequest.Border
+                onProgress(100)
+
+                return Result.success(
+                    Output(
+                        foregroundUri = pureUri,
+                        processedUri = cachedUri,
+                        openEditorAfter = openEditorAfter
+                    )
+                )
+            } finally {
+                if (!composed.isRecycled) composed.recycle()
+            }
+        } finally {
+            if (!output.foregroundToDisplay.isRecycled) {
+                output.foregroundToDisplay.recycle()
+            }
+            if (output.foregroundToSave !== output.foregroundToDisplay &&
+                !output.foregroundToSave.isRecycled
+            ) {
+                output.foregroundToSave.recycle()
+            }
         }
-
-        val cachedUri = cacheBitmapUseCase(composed).getOrElse {
-            composed.recycle()
-            return Result.failure(it)
-        }
-
-        composed.recycle()
-        val openEditorAfter = request is HomeStyleRequest.Background || request is HomeStyleRequest.Border
-        onProgress(100)
-
-        return Result.success(
-            Output(
-                foregroundUri = pureUri,
-                processedUri = cachedUri,
-                openEditorAfter = openEditorAfter
-            )
-        )
     }
 }

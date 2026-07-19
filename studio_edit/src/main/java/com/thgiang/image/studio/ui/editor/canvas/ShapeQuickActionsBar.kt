@@ -55,12 +55,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thgiang.image.studio.R
@@ -431,5 +433,33 @@ private fun QuickActionDivider() {
             .width(0.5.dp)
             .height(28.dp)
             .background(Color(0xFFEEEEEE)),
+    )
+}
+
+/**
+ * Keeps the floating quick-actions bar inside [containerSize] when anchored top-center
+ * with [anchorTopPx] padding from the top edge.
+ */
+fun clampQuickActionsOffset(
+    offset: Offset,
+    containerSize: IntSize,
+    barSize: IntSize,
+    anchorTopPx: Float,
+    marginPx: Float,
+): Offset {
+    if (containerSize.width <= 0 || containerSize.height <= 0) return Offset.Zero
+
+    val barW = barSize.width.toFloat().coerceAtLeast(1f)
+    val barH = barSize.height.toFloat().coerceAtLeast(1f)
+    val centerX = containerSize.width / 2f
+
+    val minX = marginPx - centerX + barW / 2f
+    val maxX = containerSize.width - marginPx - centerX - barW / 2f
+    val minY = marginPx - anchorTopPx
+    val maxY = containerSize.height - marginPx - anchorTopPx - barH
+
+    return Offset(
+        x = if (minX <= maxX) offset.x.coerceIn(minX, maxX) else 0f,
+        y = if (minY <= maxY) offset.y.coerceIn(minY, maxY) else 0f,
     )
 }

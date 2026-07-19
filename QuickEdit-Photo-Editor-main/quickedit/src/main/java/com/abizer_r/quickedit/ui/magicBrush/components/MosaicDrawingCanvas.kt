@@ -90,6 +90,11 @@ fun MosaicDrawingCanvas(
         when (result) {
             is MosaicResult.Success -> {
                 mosaicBitmap = result.bitmap
+                if (oldBitmap != null && oldBitmap !== originalBitmap &&
+                    oldBitmap !== result.bitmap && !oldBitmap.isRecycled
+                ) {
+                    oldBitmap.recycle()
+                }
 
                 if (result.wasFallback) {
                     val msg = "RAM thấp. Đã tự động giảm độ chi tiết Mosaic xuống ${result.actualBlockSize}px."
@@ -102,9 +107,6 @@ fun MosaicDrawingCanvas(
                 Log.e(TAG, result.message)
                 errorMessage = result.message
                 onError?.invoke(result.message)
-                if (mosaicBitmap == null && !originalBitmap.isRecycled) {
-                    mosaicBitmap = originalBitmap
-                }
             }
         }
         isGenerating = false
@@ -112,6 +114,9 @@ fun MosaicDrawingCanvas(
 
     DisposableEffect(Unit) {
         onDispose {
+            mosaicBitmap?.let {
+                if (it !== originalBitmap && !it.isRecycled) it.recycle()
+            }
             mosaicBitmap = null
         }
     }
@@ -241,7 +246,13 @@ private sealed class MosaicResult {
 }
 
 private fun createMosaicBitmapWithFallback(original: Bitmap, desiredBlockSize: Int): MosaicResult {
-    if (desiredBlockSize <= 1) return MosaicResult.Success(original, false, 1)
+    if (desiredBlockSize <= 1) {
+        return try {
+            MosaicResult.Success(original.copy(Bitmap.Config.ARGB_8888, true), false, 1)
+        } catch (_: OutOfMemoryError) {
+            MosaicResult.Error("Không đủ RAM.")
+        }
+    }
     var blockSize = desiredBlockSize.coerceAtLeast(1)
     var lastError: String? = null
     while (blockSize <= MAX_BLOCK_SIZE_AUTO) {

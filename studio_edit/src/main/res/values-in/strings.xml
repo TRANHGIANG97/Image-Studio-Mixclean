@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Elektronik</string>
@@ -183,7 +183,6 @@
     
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Label</string>
-    <string name="studio_tool_shape">Bingkai</string>
     <string name="studio_label_add_label">Tambah label</string>
     <string name="studio_label_add_text">Tambah teks</string>
     <string name="studio_label_add_shape">Tambah Bentuk</string>
@@ -262,7 +261,6 @@
     <string name="studio_elevation_lighting_angle">Sudut pencahayaan</string>
     <string name="studio_elevation_custom">Kustomisasi</string>
     <string name="studio_elevation_shadow_blur">Kekaburan bayangan</string>
-    <string name="studio_label_shape_frame_tab">Bingkai</string>
     <string name="studio_text_form_tab">Ubah Bentuk</string>
     <string name="studio_text_form_follow_path">Ikuti Jalur</string>
     <string name="studio_text_form_warp">Lengkungkan</string>
@@ -325,7 +323,6 @@
     <string name="studio_label_tab_bg_color">Latar Belakang</string>
     <string name="studio_label_tab_elevation">Efek</string>
     <string name="studio_label_tab_text_form">Artistik</string>
-    <string name="studio_label_tab_shape">Bingkai</string>
     <string name="studio_label_tab_text_template">Template</string>
     <string name="studio_label_tab_more">Lainnya</string>
     <string name="studio_text_template_classic">Klasik</string>

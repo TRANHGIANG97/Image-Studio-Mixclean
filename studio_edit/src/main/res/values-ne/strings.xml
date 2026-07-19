@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI प्रोडक्ट स्टुडियो</string>
     <string name="studio_category_electronics">इलेक्ट्रोनिक्स</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">रिसेट गर्नुहोस्</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">लेबल</string>
-    <string name="studio_tool_shape">फ्रेम</string>
     <string name="studio_label_add_label">लेबल थप्नुहोस्</string>
     <string name="studio_label_add_text">टेक्स्ट थप्नुहोस्</string>
     <string name="studio_label_add_shape">आकार थप्नुहोस्</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">प्रकाशको कोण</string>
     <string name="studio_elevation_custom">अनुकूलन गर्नुहोस्</string>
     <string name="studio_elevation_shadow_blur">छाया धमिलोपन</string>
-    <string name="studio_label_shape_frame_tab">बोर्डर</string>
     <string name="studio_text_form_tab">रूपान्तरण</string>
     <string name="studio_text_form_follow_path">मार्ग पछ्याउनुहोस्</string>
     <string name="studio_text_form_warp">बङ्ग्याउनुहोस् (वार्प)</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">पृष्ठभूमि</string>
     <string name="studio_label_tab_elevation">प्रभाव</string>
     <string name="studio_label_tab_text_form">कलात्मक</string>
-    <string name="studio_label_tab_shape">फ्रेम</string>
     <string name="studio_label_tab_text_template">टेम्प्लेट</string>
     <string name="studio_label_tab_more">थप</string>
     <string name="studio_text_template_classic">क्लासिक</string>

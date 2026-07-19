@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">Studio produktów AI</string>
     <string name="studio_category_electronics">Elektronika</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Resetuj</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Etykieta</string>
-    <string name="studio_tool_shape">Ramka</string>
     <string name="studio_label_add_label">Dodaj etykietę</string>
     <string name="studio_label_add_text">Dodaj tekst</string>
     <string name="studio_label_add_shape">Dodaj kształt</string>
@@ -259,7 +258,6 @@
     <string name="studio_elevation_lighting_angle">Kąt oświetlenia</string>
     <string name="studio_elevation_custom">Dostosuj</string>
     <string name="studio_elevation_shadow_blur">Rozmycie cienia</string>
-    <string name="studio_label_shape_frame_tab">Obramowanie</string>
     <string name="studio_text_form_tab">Przekształcenie</string>
     <string name="studio_text_form_follow_path">Wzdłuż ścieżki</string>
     <string name="studio_text_form_warp">Deformacja</string>
@@ -322,7 +320,6 @@
     <string name="studio_label_tab_bg_color">Tło</string>
     <string name="studio_label_tab_elevation">Efekt</string>
     <string name="studio_label_tab_text_form">Artystyczny</string>
-    <string name="studio_label_tab_shape">Ramka</string>
     <string name="studio_label_tab_text_template">Szablony</string>
     <string name="studio_label_tab_more">Więcej</string>
     <string name="studio_text_template_classic">Klasyczny</string>

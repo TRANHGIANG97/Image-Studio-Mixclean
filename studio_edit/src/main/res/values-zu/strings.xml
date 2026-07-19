@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_studio_title">AI Product Studio</string>
     <string name="studio_category_electronics">Ezogesi</string>
@@ -180,7 +180,6 @@
     <string name="studio_reset_zoom">Setha kabusha</string>
     <!-- Shape &amp; Text Label tool -->
     <string name="studio_tool_label">Ilebula</string>
-    <string name="studio_tool_shape">Uhlaka</string>
     <string name="studio_label_add_label">Faka ilebula</string>
     <string name="studio_label_add_text">Faka umbhalo</string>
     <string name="studio_label_add_shape">Faka isimo</string>
@@ -260,7 +259,6 @@
     <string name="studio_elevation_lighting_angle">I-engeli yokukhanyisa</string>
     <string name="studio_elevation_custom">Yenza ngendlela oyifunayo</string>
     <string name="studio_elevation_shadow_blur">Ukufiphala kwesithunzi</string>
-    <string name="studio_label_shape_frame_tab">Umngcele</string>
     <string name="studio_text_form_tab">Guqula</string>
     <string name="studio_text_form_follow_path">Landela Indlela</string>
     <string name="studio_text_form_warp">Sonta (Warp)</string>
@@ -323,7 +321,6 @@
     <string name="studio_label_tab_bg_color">Ingemuva</string>
     <string name="studio_label_tab_elevation">Umphumela</string>
     <string name="studio_label_tab_text_form">Okwezobuciko</string>
-    <string name="studio_label_tab_shape">Uhlaka</string>
     <string name="studio_label_tab_text_template">Amathempulethi</string>
     <string name="studio_label_tab_more">Okuningi</string>
     <string name="studio_text_template_classic">Okudala</string>
